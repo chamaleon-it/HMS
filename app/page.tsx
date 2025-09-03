@@ -1,103 +1,194 @@
-import Image from "next/image";
+import AppShell from "@/components/layout/app-shell";
+import { StatCard } from "@/components/stat-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { MiniLine } from "@/components/charts/mini-line";
+import { MiniBar } from "@/components/charts/mini-bar";
+import {
+  BadgeIndianRupee,
+  Briefcase,
+  BriefcaseMedical,
+  ClipboardClock,
+  DollarSign,
+  FolderClosed,
+  PiggyBank,
+  ScrollText,
+  Users,
+} from "lucide-react";
+import { Donut } from "@/components/charts/donut";
+import { DualLine } from "@/components/charts/dual-line";
+import { MiniColumns } from "@/components/charts/mini-columns";
+import { RightRail } from "@/components/right-rail"; // import right rail here
+import { SchedulerWeek } from "@/components/scheduler/scheduler-week";
+import WeekScheduler from "@/components/scheduler/week-scheduler";
 
-export default function Home() {
+export default function Page() {
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <AppShell>
+      <h1 className="mb-1.5 text-2xl font-semibold">
+        Welcome back, Mr. Nadir Sha
+      </h1>
+      <p className="mb-6">Monday, September 1, 2025</p>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      {/* Top stats */}
+      <div className="grid gap-4 md:grid-cols-4">
+        <StatCard
+          title="Patients Today"
+          value="932"
+          icon={<BriefcaseMedical className="h-5 w-5" />}
+          tone="violet"
+        />
+        <StatCard
+          title="Pending Results"
+          value="932"
+          icon={<ClipboardClock className="h-5 w-5" />}
+          tone="amber"
+        />
+        <StatCard
+          title="Prescriptions"
+          value="932"
+          icon={<ScrollText className="h-5 w-5" />}
+          tone="blue"
+        />
+        <StatCard
+          title="Revenue Today"
+          value="932"
+          icon={<BadgeIndianRupee className="h-5 w-5" />}
+          tone="violet"
+        />
+      </div>
+
+      <Card className="my-6">
+        <CardHeader className="flex flex-row items-center justify-between pb-2">
+          <CardTitle className="text-sm text-muted-foreground">
+            Appointments
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <WeekScheduler />
+        </CardContent>
+      </Card>
+
+      {/* Visitors + KPI */}
+      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-2">
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle>Visitors</CardTitle>
+            <div className="text-3xl font-bold">345,678</div>
+          </CardHeader>
+          <CardContent>
+            <MiniLine />
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-sm">Overview</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-4">
+            <div>
+              <div className="text-xs text-muted-foreground">
+                Total Patients
+              </div>
+              <div className="text-xl font-semibold">345,678</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">New Patients</div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl font-semibold">49</span>
+                <Badge className="bg-emerald-500">Live</Badge>
+              </div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">
+                Revenue Growth
+              </div>
+              <div className="text-emerald-600 font-semibold">+10%</div>
+            </div>
+            <div>
+              <div className="text-xs text-muted-foreground">Period</div>
+              <div className="font-medium">Month</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Bars row */}
+      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+        <Card className="lg:col-span-3">
+          <CardContent className="pt-6">
+            <MiniBar />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Bottom: profile + stats + weekly */}
+      <div className="mt-4 grid gap-4 lg:grid-cols-3">
+        <Card>
+          <CardHeader>
+            <CardTitle>Patients Profile</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Donut />
+            <ul className="mt-4 space-y-2 text-sm">
+              <li className="flex items-center justify-between">
+                <span>Male</span>
+                <span>55%</span>
+              </li>
+              <li className="flex items-center justify-between">
+                <span>Female</span>
+                <span>45%</span>
+              </li>
+              <li className="flex items-center justify-between">
+                <span>Other</span>
+                <span>5%</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Statistic</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <DualLine />
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex items-center justify-between">
+            <CardTitle>Weekly</CardTitle>
+            <div className="text-right text-xs">
+              <div>
+                This Week{" "}
+                <span className="text-emerald-600 font-semibold">+20%</span>
+              </div>
+              <div>
+                Last Week{" "}
+                <span className="text-amber-600 font-semibold">+13%</span>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <MiniColumns />
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Reviews */}
+      <div className="mt-4 grid gap-4 md:grid-cols-3">
+        {["Belle Epoque", "Nagita Almania", "Esmeralda Striff"].map((n) => (
+          <Card key={n}>
+            <CardContent className="pt-6">
+              <div className="mb-2 text-amber-500">★★★★★</div>
+              <div className="text-sm text-muted-foreground">
+                Sed eligendi facere repellendus. Sapien ipsum incidunt minima
+                harum tenetur. At ab asperiores architecto repudiandae.
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </AppShell>
   );
 }
