@@ -1,50 +1,136 @@
-"use client"
-
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Home, Mail, KanbanSquare, ActivitySquare, Receipt, DollarSign, Bitcoin, Users } from "lucide-react"
-import { cn } from "@/lib/utils"
-
-const items = [
-  { href: "/", label: "Dashboard", icon: Home },
-  { href: "/email", label: "Email", icon: Mail },
-  { href: "/kanban", label: "Kanban", icon: KanbanSquare },
-  { href: "/ticketing", label: "Ticketing", icon: ActivitySquare },
-  { href: "/contacts", label: "Contacts", icon: Users },
-  { href: "/invoicing", label: "Invoicing", icon: Receipt },
-  { href: "/banking", label: "Banking", icon: DollarSign },
-  { href: "/crypto", label: "Crypto", icon: Bitcoin },
-]
+"use client";
+import {
+  Home,
+  Mail,
+  KanbanSquare,
+  ActivitySquare,
+  Receipt,
+  DollarSign,
+  Bitcoin,
+  Users,
+  ChevronRight,
+  ChevronLeft,
+  LayoutDashboard,
+  CalendarDays,
+  FlaskConical,
+  Settings,
+  LogOut,
+} from "lucide-react";
+import { useState } from "react";
+import { Button } from "../ui/button";
+import Link from "next/link";
 
 export function Sidebar() {
-  const pathname = usePathname()
+  const [collapsed, setCollapsed] = useState(false);
+  const [activeKey, setActiveKey] = useState<string>("dashboard");
+
+  const NavItem = ({
+    icon: Icon,
+    label,
+    keyName,
+    path,
+  }: {
+    icon: any;
+    label: string;
+    keyName: string;
+    path?: string;
+  }) => (
+    <Link
+      href={path || "/"}
+      onClick={() => setActiveKey(keyName)}
+      className={`group w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-gray-100 transition ${
+        activeKey === keyName
+          ? "bg-gray-100 text-gray-900 font-medium"
+          : "text-gray-600"
+      }`}
+    >
+      <Icon
+        className={`w-4 h-4 ${
+          activeKey === keyName
+            ? "text-indigo-600"
+            : "text-gray-400 group-hover:text-gray-600"
+        }`}
+      />
+      {!collapsed && <span className="truncate">{label}</span>}
+    </Link>
+  );
+
   return (
-    <aside className="sticky top-0 h-screen w-16 lg:w-56 shrink-0 border-r bg-background/70 backdrop-blur">
-      <div className="flex h-16 items-center justify-center">
-        <div className="h-8 w-8 rounded-md bg-violet-600" aria-label="Logo" />
+    <aside
+      className={`${
+        collapsed ? "w-[68px]" : "w-64"
+      } shrink-0 border-r bg-white flex flex-col transition-all duration-200`}
+    >
+      <div className="flex items-center justify-between px-3 py-3 border-b">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold">
+            D
+          </div>
+          {!collapsed && (
+            <div className="leading-tight">
+              <div className="font-semibold">DocHub</div>
+              <div className="text-[10px] text-gray-500">Clinic OS</div>
+            </div>
+          )}
+        </div>
+        <Button
+          size="icon"
+          variant="outline"
+          className="ml-auto"
+          onClick={() => setCollapsed(!collapsed)}
+          aria-label="Toggle sidebar"
+        >
+          {collapsed ? (
+            <ChevronRight className="w-4 h-4" />
+          ) : (
+            <ChevronLeft className="w-4 h-4" />
+          )}
+        </Button>
       </div>
-      <nav className="flex flex-col gap-2 px-2">
-        {items.map(({ href, label, icon: Icon }) => {
-          const active = pathname === href
-          return (
-            <Link key={href} href={href} className="relative" aria-current={active ? "page" : undefined}>
-              <span
-                className={cn(
-                  "group relative flex h-11 items-center rounded-lg px-2 lg:px-3 text-muted-foreground transition-colors hover:text-foreground justify-center lg:justify-start",
-                  active && "text-violet-600",
-                )}
-                title={label}
-              >
-                <Icon className="h-5 w-5" />
-                <span className="ml-3 hidden lg:inline text-sm font-medium">{label}</span>
-              </span>
-              {active && (
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-1 rounded-full bg-violet-600" />
-              )}
-            </Link>
-          )
-        })}
-      </nav>
+
+      <div className="p-3 space-y-1">
+        <NavItem icon={LayoutDashboard} label="Dashboard" keyName="dashboard" />
+        <NavItem
+          icon={CalendarDays}
+          label="Appointments"
+          keyName="appointments"
+        />
+        <NavItem icon={Users} label="Patients" keyName="patients" />
+        <NavItem
+          icon={FlaskConical}
+          label="Lab Results"
+          keyName="labs"
+          path="/lab-report"
+        />
+        <NavItem icon={Receipt} label="Billing" keyName="billing" />
+      </div>
+
+      <div className="mt-auto p-3 border-t">
+        <div
+          className={`flex items-center gap-2 px-2 py-2 rounded-lg ${
+            collapsed ? "justify-center" : ""
+          }`}
+        >
+          <img
+            src="https://i.pravatar.cc/36"
+            className="rounded-full w-9 h-9"
+          />
+          {!collapsed && (
+            <div className="truncate">
+              <div className="text-sm font-medium">Dr. Nadir Sha</div>
+              <div className="text-xs text-gray-500">General Physician</div>
+            </div>
+          )}
+        </div>
+        <div className="flex items-center gap-2 mt-2">
+          <Button variant="outline" className="w-full" size="sm">
+            <Settings className="w-4 h-4 mr-1" /> {!collapsed && "Settings"}
+          </Button>
+          <Button variant="outline" size="icon">
+            <LogOut className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
     </aside>
-  )
+  );
 }
