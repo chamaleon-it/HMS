@@ -90,7 +90,7 @@ export function Sidebar() {
           label="Appointments"
           keyName="appointments"
         />
-        <NavItem icon={Users} label="Patients" keyName="patients" />
+        <NavItem icon={Users} label="Patients" keyName="patients"  path="/patients"/>
         <NavItem
           icon={FlaskConical}
           label="Lab Results"
