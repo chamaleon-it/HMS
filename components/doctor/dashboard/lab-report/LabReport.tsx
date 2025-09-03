@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,9 +10,6 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  FlaskConical,
-  Bell,
-  Filter,
   Search,
   CheckCircle2,
   Loader2,
@@ -120,7 +116,7 @@ export default function LabResultsPage() {
     setSelected(row);
     setOpenShare(true);
   };
-  const handlePrint = (_row: LabRow | null) => {
+  const handlePrint = () => {
     if (typeof window !== "undefined" && "print" in window) window.print();
   };
 
@@ -231,7 +227,7 @@ export default function LabResultsPage() {
                   <Button size="sm" variant="outline" onClick={() => openViewDialog(r)}>
                     <ExternalLink className="w-4 h-4 mr-1" />View
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => handlePrint(r)}>
+                  <Button size="sm" variant="outline" onClick={() => handlePrint()}>
                     <Printer className="w-4 h-4 mr-1" />Print
                   </Button>
                   <Button size="sm" onClick={() => openShareDialog(r)}>
@@ -375,7 +371,7 @@ export default function LabResultsPage() {
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => handlePrint(selected)}>
+            <Button variant="outline" onClick={() => handlePrint()}>
               <Printer className="w-4 h-4 mr-1" />Print
             </Button>
             <Button onClick={() => { setOpenView(false); setOpenShare(true); }}>

@@ -1,12 +1,6 @@
 "use client";
 import {
-  Home,
-  Mail,
-  KanbanSquare,
-  ActivitySquare,
   Receipt,
-  DollarSign,
-  Bitcoin,
   Users,
   ChevronRight,
   ChevronLeft,
@@ -15,8 +9,9 @@ import {
   FlaskConical,
   Settings,
   LogOut,
+  LucideProps,
 } from "lucide-react";
-import { useState } from "react";
+import { ForwardRefExoticComponent, RefAttributes, useState } from "react";
 import { Button } from "../ui/button";
 import Link from "next/link";
 
@@ -30,7 +25,7 @@ export function Sidebar() {
     keyName,
     path,
   }: {
-    icon: any;
+    icon:ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
     label: string;
     keyName: string;
     path?: string;

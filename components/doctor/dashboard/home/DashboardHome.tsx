@@ -22,7 +22,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
-  Bell,
   UserPlus,
   PlusCircle,
   Activity,
@@ -275,7 +274,7 @@ export default function Dashboard() {
               className="bg-white rounded-xl shadow p-4 h-full overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold">Today's Schedule</h3>
+                <h3 className="font-semibold">Today&apos;s Schedule</h3>
                 {/* legend */}
                 <div className="hidden md:flex items-center gap-4 text-xs text-gray-600">
                   {Object.entries(colorMap).map(([key, v]) => (
@@ -883,7 +882,12 @@ const BookApointment = ({
           Cancel
         </Button>
         <Button onClick={() => {
-  setAppointments((prev: any) => [...prev, newAppointment]);
+  setAppointments((prev: {
+    time: string;
+        name: string;
+        type: string;
+        status: string;
+  }[]) => [...prev, newAppointment]);
   setOpenAppointment(false);
 }}>Save</Button>
       </DialogFooter>

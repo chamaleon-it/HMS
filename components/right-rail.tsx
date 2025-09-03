@@ -47,7 +47,7 @@ export function RightRail() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-3">
-            {["Tony", "Karen", "Jordan", "Jack", "Naslia", "Johnny"].map((n, i) => (
+            {["Tony", "Karen", "Jordan", "Jack", "Naslia", "Johnny"].map((n) => (
               <div key={n} className="flex flex-col items-center gap-1">
                 <div className="relative">
                   <Avatar className="h-10 w-10">
