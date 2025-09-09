@@ -52,13 +52,13 @@ const HISTORY: Consult[] = [
   },
 ];
 
-export const LABS: Lab[] = [
+ const LABS: Lab[] = [
   { id: "lab1", name: "In‑House Diagnostics", inhouse: true, slots: ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30"] },
   { id: "lab3", name: "Hospital Imaging Center", inhouse: true, slots: ["14:00", "14:30", "15:00", "15:30", "16:00"] },
   { id: "lab2", name: "Metro Diagnostics", inhouse: false, slots: ["11:00", "11:30", "12:00", "12:30", "13:00"] },
 ];
 
-export function getAvailableSlots(labId: string | null): string[] {
+function getAvailableSlots(labId: string | null): string[] {
   if (!labId) return [];
   const lab = LABS.find((l) => l.id === labId);
   return lab ? lab.slots : [];
@@ -582,7 +582,7 @@ export default function ConsultingMenu() {
 // ========================
 // Simple Smoke Tests (dev-only)
 // ========================
-export function __runSmokeTests() {
+function __runSmokeTests() {
   console.assert(Array.isArray(LABS) && LABS.length >= 1, "LABS should be seeded");
   console.assert(getAvailableSlots("lab1").length > 0, "lab1 should have slots");
   console.assert(getAvailableSlots("invalid").length === 0, "invalid lab should return empty slots");
