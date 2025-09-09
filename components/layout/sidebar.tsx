@@ -97,6 +97,7 @@ export function Sidebar() {
           keyName="labs"
           path="/lab-report"
         />
+        <NavItem icon={Users} label="Consulting" keyName="consulting"  path="/consulting"/>
         <NavItem icon={Receipt} label="Billing" keyName="billing" />
       </div>
 
