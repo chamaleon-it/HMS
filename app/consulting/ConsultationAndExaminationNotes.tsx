@@ -192,9 +192,16 @@ export default function ConsultationAndExaminationNotes() {
                           const dia = digits.slice(sys.length, Math.min(sys.length + 3, digits.length));
                           const formatted = dia ? `${sys}/${dia}` : sys;
                           setExamNotes({ ...examNotes, bp: formatted });
-                        }
+                        }else if(digits.length >= 3){
+                                const sys = digits.slice(0, Math.min(2, digits.length));
+                          const dia = digits.slice(sys.length, Math.min(sys.length + 2, digits.length));
+                          const formatted = dia ? `${sys}/${dia}` : sys;
+                          setExamNotes({ ...examNotes, bp: formatted });
+                      }else if(digits.length >= 2){
+                        setExamNotes(prev=>({...prev,bp:!!prev.bp ? prev.bp+"/": prev.bp}))
                       }
                     }
+                      }
                   }}
                 />
                 <LabeledInput label="SpO₂" unit="%" value={examNotes.spo2} onChange={(v) => setExamNotes({ ...examNotes, spo2: v })} />
