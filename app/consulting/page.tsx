@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppShell from "@/components/layout/app-shell";
+import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
 
 // ========================
 // Types
@@ -210,11 +211,11 @@ export default function ConsultingMenu() {
   } as const;
 
   // ---- State ----
-  const [notes, setNotes] = useState("Chief Complaints : \n\n\nHistory : \n\n");
-  const [examination, setExamination] = useState(
-    `HR      : \nBP      : \nSpO2 : \nTemp : \n\n\nRS    : \nCVS : \nP/A  : \nCNS :  \n`
-  );
-  const [diagnosis, setDiagnosis] = useState("");
+  // const [notes, setNotes] = useState("Chief Complaints : \n\n\nHistory : \n\n");
+  // const [examination, setExamination] = useState(
+  //   `HR      : \nBP      : \nSpO2 : \nTemp : \n\n\nRS    : \nCVS : \nP/A  : \nCNS :  \n`
+  // );
+  // const [diagnosis, setDiagnosis] = useState("");
   const [advice, setAdvice] = useState("");
   const [qHist, setQHist] = useState("");
   const [allergyAlertOpen, setAllergyAlertOpen] = useState(true);
@@ -257,7 +258,7 @@ export default function ConsultingMenu() {
     }
   }, [orderOpen, selectedLab, sortedLabs]);
 
-  const quickSymptoms = ["Fever", "Headache", "Cough"];
+  // const quickSymptoms = ["Fever", "Headache", "Cough"];
 
   const freqOptions = ["1-0-1", "0-1-0", "1-1-1"];
   const dosageOptions = ["1 tab", "2 tab", "5 ml"];
@@ -356,7 +357,7 @@ export default function ConsultingMenu() {
                 )}
 
                 <Separator className="my-4" />
-                <div className="grid grid-cols-2 gap-6">
+                {/* <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-6">
                     <div className="flex justify-between">
                       <Label>Consultation Notes</Label>
@@ -398,7 +399,9 @@ export default function ConsultingMenu() {
                       className="mt-2"
                     />
                   </div>
-                </div>
+                </div> */}
+
+                <ConsultationAndExaminationNotes />
 
                 <Separator className="my-4" />
 
