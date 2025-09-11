@@ -7,20 +7,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Calendar } from "@/components/ui/calendar";
 import {
   FileText,
-  Plus,
-  Trash2,
   Search,
   AlertTriangle,
   CalendarClock,
@@ -221,9 +213,7 @@ export default function ConsultingMenu() {
   const [advice, setAdvice] = useState("");
   const [qHist, setQHist] = useState("");
 
-  const [prescriptions, setPrescriptions] = useState<RxRow[]>([
-    { drug: "", dosage: "1 tab", freq: "1-0-1", duration: "5", notes: "" },
-  ]);
+  
 
   // ---- Booking state ----
   const [orderOpen, setOrderOpen] = useState(false);
@@ -261,8 +251,6 @@ export default function ConsultingMenu() {
 
   // const quickSymptoms = ["Fever", "Headache", "Cough"];
 
-  const freqOptions = ["1-0-1", "0-1-0", "1-1-1"];
-  const dosageOptions = ["1 tab", "2 tab", "5 ml"];
 
   // ---- History filter ----
   const filteredHistory = useMemo(() => {
@@ -284,10 +272,7 @@ export default function ConsultingMenu() {
   }, [qHist]);
 
   // ---- Allergy helpers ----
-  const drugHitsAllergy = (drug: string) =>
-    (patient.allergies || []).some((a) =>
-      drug.toLowerCase().includes(a.toLowerCase())
-    );
+
 
   // ---- Actions ----
   const handleBook = () => {

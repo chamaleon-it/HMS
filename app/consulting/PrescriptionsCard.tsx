@@ -181,7 +181,7 @@ export default function PrescriptionsCard() {
         {hasAnyAllergy && (
           <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-red-700">
             <AlertTriangle className="h-4 w-4" />
-            <span className="text-sm">One or more drugs match the patient's allergy list. Review carefully.</span>
+            <span className="text-sm">One or more drugs match the patient&apos;s allergy list. Review carefully.</span>
           </div>
         )}
 

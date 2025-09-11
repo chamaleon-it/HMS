@@ -87,27 +87,27 @@ function LabeledTextarea({ label, value, onChange, minRows = 4 }: LabeledTextare
   );
 }
 
-type TempMiniToggleProps = { unit: "C" | "F"; onChange: (unit: "C" | "F") => void };
-function TempMiniToggle({ unit, onChange }: TempMiniToggleProps) {
-  const isC = unit === 'C';
-  return (
-    <button
-      type="button"
-      onClick={() => onChange(isC ? 'F' : 'C')}
-      aria-label="Toggle temperature unit"
-      className={`relative h-8 w-24 rounded-full border transition-all shadow-sm overflow-hidden ${
-        isC ? 'border-emerald-300 bg-emerald-50' : 'border-indigo-300 bg-indigo-50'
-      }`}
-    >
-      <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold ${isC ? 'text-emerald-700' : 'text-slate-600'}`}>°C</span>
-      <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold ${!isC ? 'text-indigo-700' : 'text-slate-600'}`}>°F</span>
-      <span
-        className="absolute top-1 left-1 h-6 w-10 rounded-full bg-white shadow transition-transform"
-        style={{ transform: isC ? 'translateX(0px)' : 'translateX(56px)' }}
-      />
-    </button>
-  );
-}
+// type TempMiniToggleProps = { unit: "C" | "F"; onChange: (unit: "C" | "F") => void };
+// function TempMiniToggle({ unit, onChange }: TempMiniToggleProps) {
+//   const isC = unit === 'C';
+//   return (
+//     <button
+//       type="button"
+//       onClick={() => onChange(isC ? 'F' : 'C')}
+//       aria-label="Toggle temperature unit"
+//       className={`relative h-8 w-24 rounded-full border transition-all shadow-sm overflow-hidden ${
+//         isC ? 'border-emerald-300 bg-emerald-50' : 'border-indigo-300 bg-indigo-50'
+//       }`}
+//     >
+//       <span className={`absolute left-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold ${isC ? 'text-emerald-700' : 'text-slate-600'}`}>°C</span>
+//       <span className={`absolute right-3 top-1/2 -translate-y-1/2 text-[11px] font-semibold ${!isC ? 'text-indigo-700' : 'text-slate-600'}`}>°F</span>
+//       <span
+//         className="absolute top-1 left-1 h-6 w-10 rounded-full bg-white shadow transition-transform"
+//         style={{ transform: isC ? 'translateX(0px)' : 'translateX(56px)' }}
+//       />
+//     </button>
+//   );
+// }
 
 // --------------------------- Page ---------------------------
 const chips = ["Fever", "Headache", "Cough"];
@@ -133,16 +133,16 @@ export default function ConsultationAndExaminationNotes() {
   const [examNotes, setExamNotes] = useState<ExamNotes>({ hr: "", bp: "", spo2: "", temp: "", tempUnit: "C", rs: "", cvs: "", pja: "", cns: "", other: "" });
   const [examination, setExamination] = useState<string[]>([])
 
-  const setTempUnit = (unit: "C" | "F") => {
-    if (unit === examNotes.tempUnit) return;
-    const val = parseFloat(examNotes.temp);
-    if (!Number.isNaN(val)) {
-      const converted = unit === 'C' ? Math.round(((val - 32) * 5) / 9) : Math.round((val * 9) / 5 + 32);
-      setExamNotes({ ...examNotes, temp: String(converted), tempUnit: unit });
-    } else {
-      setExamNotes({ ...examNotes, tempUnit: unit });
-    }
-  };
+  // const setTempUnit = (unit: "C" | "F") => {
+  //   if (unit === examNotes.tempUnit) return;
+  //   const val = parseFloat(examNotes.temp);
+  //   if (!Number.isNaN(val)) {
+  //     const converted = unit === 'C' ? Math.round(((val - 32) * 5) / 9) : Math.round((val * 9) / 5 + 32);
+  //     setExamNotes({ ...examNotes, temp: String(converted), tempUnit: unit });
+  //   } else {
+  //     setExamNotes({ ...examNotes, tempUnit: unit });
+  //   }
+  // };
 
   return (
 
