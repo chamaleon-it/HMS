@@ -392,7 +392,7 @@ export default function ConsultingMenu() {
                     className="bg-white text-red-600 hover:bg-slate-50 rounded-xl"
                   >
                     {" "}
-                    Mark Reviewed{" "}
+                   Mark As Reviewed{" "}
                   </Button>
                 ) : (
                   <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
