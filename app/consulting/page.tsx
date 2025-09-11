@@ -30,6 +30,7 @@ import AppShell from "@/components/layout/app-shell";
 import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
 import { ToggleChip } from "./ToggleChip";
 import PrescriptionsCard from "./PrescriptionsCard";
+import VitalsCard from "./VitalsCard";
 
 // ========================
 // Types
@@ -309,10 +310,14 @@ export default function ConsultingMenu() {
                 {patient.name}{" "}
                 <span className="text-slate-400">(ID: {patient.id})</span>
               </h2>
+              <div className="flex items-center gap-5">
+
               <p className="text-xs text-slate-500">
                 Age {patient.age}, {patient.gender} • Allergies:{" "}
                 {patient.allergies.join(", ")}
               </p>
+              <VitalsCard />
+              </div>
             </div>
             <div className="inline-flex rounded-2xl bg-slate-100 p-1 shadow-inner">
               {" "}

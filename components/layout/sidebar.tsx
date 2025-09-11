@@ -1,132 +1,185 @@
 "use client";
 import {
-  Receipt,
-  Users,
-  ChevronRight,
-  ChevronLeft,
   LayoutDashboard,
-  CalendarDays,
   FlaskConical,
   Settings,
   LogOut,
-  LucideProps,
+  CalendarClock,
+  Users2,
+  Stethoscope,
+  CreditCard,
 } from "lucide-react";
-import { ForwardRefExoticComponent, RefAttributes, useState } from "react";
-import { Button } from "../ui/button";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useState } from "react";
 
 export function Sidebar() {
+  const items = [
+    { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, link: "/" },
+    {
+      key: "appointments",
+      label: "Appointments",
+      icon: CalendarClock,
+      badge: "12",
+      link: "/appointments",
+    },
+    { key: "patients", label: "Patients", icon: Users2, link: "/patients" },
+    {
+      key: "lab-results",
+      label: "Lab Results",
+      icon: FlaskConical,
+      link: "/lab-report",
+    },
+    {
+      key: "consulting",
+      label: "Consulting",
+      icon: Stethoscope,
+      link: "/consulting",
+    },
+    { key: "billing", label: "Billing", icon: CreditCard, link: "/billing" },
+  ];
+
   const [collapsed, setCollapsed] = useState(false);
-  const [activeKey, setActiveKey] = useState<string>("dashboard");
-
-  const NavItem = ({
-    icon: Icon,
-    label,
-    keyName,
-    path,
-  }: {
-    icon:ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
-    label: string;
-    keyName: string;
-    path?: string;
-  }) => (
-    <Link
-      href={path || "/"}
-      onClick={() => setActiveKey(keyName)}
-      className={`group w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm hover:bg-gray-100 transition ${
-        activeKey === keyName
-          ? "bg-gray-100 text-gray-900 font-medium"
-          : "text-gray-600"
-      }`}
-    >
-      <Icon
-        className={`w-4 h-4 ${
-          activeKey === keyName
-            ? "text-indigo-600"
-            : "text-gray-400 group-hover:text-gray-600"
-        }`}
-      />
-      {!collapsed && <span className="truncate">{label}</span>}
-    </Link>
-  );
-
+  const pathname = usePathname()
   return (
     <aside
-      className={`${
-        collapsed ? "w-[68px]" : "w-64"
-      } shrink-0 border-r bg-white flex flex-col transition-all duration-200`}
+      className={
+        "sticky top-0 h-screen transition-all duration-300 flex flex-col border-r border-slate-200/80 " +
+        (collapsed ? "w-20" : "w-72")
+      }
+      style={{
+        background:
+          "linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.9) 100%)",
+        backdropFilter: "blur(6px)",
+      }}
     >
-      <div className="flex items-center justify-between px-3 py-3 border-b">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white grid place-items-center font-bold">
-            D
+      {/* Brand */}
+      <div className="px-4 py-4 flex items-center gap-3">
+        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">
+          D
+        </div>
+        {!collapsed && (
+          <div>
+            <div className="text-lg font-semibold text-slate-800 leading-tight">
+              DocHub
+            </div>
+            <div className="text-xs text-slate-500">Clinic OS</div>
+          </div>
+        )}
+        <button
+          onClick={() => setCollapsed((prev) => !prev)}
+          className="ml-auto rounded-xl px-3 py-2 text-slate-500 hover:text-slate-800 hover:bg-white shadow-sm border border-slate-200"
+          title={collapsed ? "Expand" : "Collapse"}
+        >
+          {collapsed ? "»" : "«"}
+        </button>
+      </div>
+
+      {/* Nav list */}
+      <nav className="mt-4 px-3 space-y-1 overflow-y-auto">
+        {items.map((it) => (
+          <NavItem
+            key={it.key}
+            active={pathname === it.link}
+            collapsed={collapsed}
+            icon={it.icon}
+            label={it.label}
+            badge={it.badge}
+            link={it.link}
+          />
+        ))}
+
+        {/* Divider */}
+        <div className="my-3 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+
+        <NavItem
+          active={pathname === "/settings"}
+          collapsed={collapsed}
+          icon={Settings}
+          label="Settings"
+         link={"/settings"}
+        />
+      </nav>
+
+      {/* Account card */}
+      <div className="mt-auto p-4">
+        <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm flex items-center gap-3">
+          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-400 to-fuchsia-400 grid place-items-center text-white font-medium">
+            MK
           </div>
           {!collapsed && (
             <div className="leading-tight">
-              <div className="font-semibold">DocHub</div>
-              <div className="text-[10px] text-gray-500">Clinic OS</div>
+              <div className="text-sm font-medium text-slate-800">Manzoor</div>
+              <div className="text-xs text-slate-500">Admin</div>
             </div>
           )}
-        </div>
-        <Button
-          size="icon"
-          variant="outline"
-          className="ml-auto"
-          onClick={() => setCollapsed(!collapsed)}
-          aria-label="Toggle sidebar"
-        >
-          {collapsed ? (
-            <ChevronRight className="w-4 h-4" />
-          ) : (
-            <ChevronLeft className="w-4 h-4" />
-          )}
-        </Button>
-      </div>
-
-      <div className="p-3 space-y-1">
-        <NavItem icon={LayoutDashboard} label="Dashboard" keyName="dashboard" />
-        <NavItem
-          icon={CalendarDays}
-          label="Appointments"
-          keyName="appointments"
-        />
-        <NavItem icon={Users} label="Patients" keyName="patients"  path="/patients"/>
-        <NavItem
-          icon={FlaskConical}
-          label="Lab Results"
-          keyName="labs"
-          path="/lab-report"
-        />
-        <NavItem icon={Users} label="Consulting" keyName="consulting"  path="/consulting"/>
-        <NavItem icon={Receipt} label="Billing" keyName="billing" />
-      </div>
-
-      <div className="mt-auto p-3 border-t">
-        <div
-          className={`flex items-center gap-2 px-2 py-2 rounded-lg ${
-            collapsed ? "justify-center" : ""
-          }`}
-        >
-          <img
-            src="https://i.pravatar.cc/36"
-            className="rounded-full w-9 h-9"
-          />
-          {!collapsed && (
-            <div className="truncate">
-              <div className="text-sm font-medium">Dr. Nadir Sha</div>
-              <div className="text-xs text-gray-500">General Physician</div>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2 mt-2">
-          <Button variant="outline" className="w-full" size="sm">
-            <Settings className="w-4 h-4 mr-1" /> {!collapsed && "Settings"}
-          </Button>
-          <Button variant="outline" size="icon">
-            <LogOut className="w-4 h-4" />
-          </Button>
+          <button
+            className="ml-auto rounded-xl border border-slate-200 px-3 py-2 text-slate-600 hover:bg-slate-50"
+            title="Logout"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </aside>
+  );
+}
+
+function NavItem({
+  active,
+  collapsed,
+  icon: Icon,
+  label,
+
+  badge,
+  link,
+}: {
+  active?: boolean;
+  collapsed?: boolean;
+  icon: React.ElementType;
+  label: string;
+
+  badge?: string;
+  link?: string;
+}) {
+  return (
+    <Link
+      href={link || "/"}
+      className={
+        "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border " +
+        (active
+          ? "border-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
+          : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
+      }
+    >
+      <span
+        className={
+          "grid h-9 w-9 place-items-center rounded-xl transition-all " +
+          (active
+            ? "bg-white/20 text-white"
+            : "bg-slate-100 text-slate-600 group-hover:bg-slate-200")
+        }
+      >
+        <Icon className="h-5 w-5" />
+      </span>
+      {!collapsed && (
+        <>
+          <span className="text-left text-sm font-medium">{label}</span>
+          {badge && (
+            <span
+              className={
+                "ml-auto inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 " +
+                (active
+                  ? "bg-white/20 text-white"
+                  : "bg-slate-100 text-slate-700")
+              }
+            >
+              {badge}
+            </span>
+          )}
+        </>
+      )}
+    </Link>
   );
 }
