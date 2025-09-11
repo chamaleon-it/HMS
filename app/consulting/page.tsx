@@ -37,6 +37,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import AppShell from "@/components/layout/app-shell";
 import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
 import { ToggleChip } from "./ToggleChip";
+import PrescriptionsCard from "./PrescriptionsCard";
 
 // ========================
 // Types
@@ -473,150 +474,7 @@ export default function ConsultingMenu() {
                 <ConsultationAndExaminationNotes />
 
                 <Separator className="my-4" />
-                <div className="">
-                  {/* Prescriptions */}
-                  <Label>Prescriptions</Label>
-                  {prescriptions.map((p, i) => (
-                    <div key={i} className="grid grid-cols-12 gap-2 mt-2">
-                      <div className="col-span-4">
-                        <div className="relative">
-                          <Input
-                            value={p.drug}
-                            onChange={(e) =>
-                              setPrescriptions((rows) =>
-                                rows.map((r, j) =>
-                                  j === i ? { ...r, drug: e.target.value } : r
-                                )
-                              )
-                            }
-                            placeholder="Drug"
-                          />
-                          {drugHitsAllergy(p.drug) && (
-                            <Badge className="absolute -top-2 -right-2 bg-red-100 text-red-800">
-                              Allergy
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                      <div className="col-span-2">
-                        <Select
-                          value={p.dosage}
-                          onValueChange={(v) =>
-                            setPrescriptions((rows) =>
-                              rows.map((r, j) =>
-                                j === i ? { ...r, dosage: v } : r
-                              )
-                            )
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {dosageOptions.map((d) => (
-                              <SelectItem key={d} value={d}>
-                                {d}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="col-span-2">
-                        <Select
-                          value={p.freq}
-                          onValueChange={(v) =>
-                            setPrescriptions((rows) =>
-                              rows.map((r, j) =>
-                                j === i ? { ...r, freq: v } : r
-                              )
-                            )
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {freqOptions.map((f) => (
-                              <SelectItem key={f} value={f}>
-                                {f}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div className="col-span-2">
-                        <Input
-                          value={p.duration}
-                          onChange={(e) =>
-                            setPrescriptions((rows) =>
-                              rows.map((r, j) =>
-                                j === i ? { ...r, duration: e.target.value } : r
-                              )
-                            )
-                          }
-                        />
-                      </div>
-                      <div className="col-span-2 flex justify-end gap-3">
-                        <Button
-                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                          onClick={() =>
-                            setPrescriptions((p) => [
-                              ...p,
-                              {
-                                drug: "",
-                                dosage: "1 tab",
-                                freq: "1-0-1",
-                                duration: "5",
-                                notes: "",
-                              },
-                            ])
-                          }
-                          variant="outline"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          className="bg-red-600 hover:bg-red-700 text-white"
-                          onClick={() =>
-                            setPrescriptions((rows) =>
-                              rows.length === 1
-                                ? [
-                                    {
-                                      drug: "",
-                                      dosage: "1 tab",
-                                      freq: "1-0-1",
-                                      duration: "5",
-                                      notes: "",
-                                    },
-                                  ]
-                                : rows.filter((_, j) => j !== i)
-                            )
-                          }
-                          variant="outline"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
-                  <Button
-                    onClick={() =>
-                      setPrescriptions((p) => [
-                        ...p,
-                        {
-                          drug: "",
-                          dosage: "1 tab",
-                          freq: "1-0-1",
-                          duration: "5",
-                          notes: "",
-                        },
-                      ])
-                    }
-                    className="mt-2 w-fit bg-emerald-600 hover:bg-emerald-700 text-white"
-                  >
-                    <Plus className="w-4 h-4 mr-1" /> Add Medicine
-                  </Button>
-                </div>
+              <PrescriptionsCard />
                 <Separator className="my-6" />
 
                 {/* Booking */}

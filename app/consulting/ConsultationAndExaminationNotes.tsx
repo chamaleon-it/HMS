@@ -128,8 +128,10 @@ type ExamNotes = {
 export default function ConsultationAndExaminationNotes() {
   const [activeChips, setActiveChips] = useState<string[]>([]);
   const [consultationNotes, setConsultationNotes] = useState<string>("");
+  const [pastHistory, setPastHistory] = useState<string>("")
   const [diagnosis, setDiagnosis] = useState<string>("");
   const [examNotes, setExamNotes] = useState<ExamNotes>({ hr: "", bp: "", spo2: "", temp: "", tempUnit: "C", rs: "", cvs: "", pja: "", cns: "", other: "" });
+  const [examination, setExamination] = useState<string[]>([])
 
   const setTempUnit = (unit: "C" | "F") => {
     if (unit === examNotes.tempUnit) return;
@@ -164,8 +166,9 @@ export default function ConsultationAndExaminationNotes() {
                 ))}
               </div>
               <div className="grid grid-cols-1 gap-4">
-                <LabeledTextarea label="Chief Complaints" value={consultationNotes} onChange={setConsultationNotes} minRows={8} />
-                <LabeledTextarea label="Diagnosis" value={diagnosis} onChange={setDiagnosis} minRows={8} />
+                <LabeledTextarea label="Present History" value={consultationNotes} onChange={setConsultationNotes} minRows={6} />
+                <LabeledTextarea label="Past History" value={pastHistory} onChange={setPastHistory} minRows={6} />
+                <LabeledTextarea label="Diagnosis" value={diagnosis} onChange={setDiagnosis} minRows={4} />
               </div>
             </CardContent>
           </Card>
@@ -175,6 +178,19 @@ export default function ConsultationAndExaminationNotes() {
               <CardTitle>Examination Note</CardTitle>
             </CardHeader>
             <CardContent>
+
+<div className="flex flex-wrap gap-2 mb-4">
+                {["RS","CVS","P/A","CNS"].map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setExamination((prev) => (prev.includes(c) ? prev.filter((x) => x !== c) : [...prev, c]))}
+                    className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${examination.includes(c) ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-white'}`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+
               <div className="grid grid-cols-2 gap-3 mb-3 items-start">
                 <LabeledInput label="HR" unit="bpm" value={examNotes.hr} onChange={(v) => setExamNotes({ ...examNotes, hr: v })} type="number" />
                 <LabeledInput
@@ -210,12 +226,12 @@ export default function ConsultationAndExaminationNotes() {
                   value={examNotes.temp}
                   onChange={(v) => setExamNotes({ ...examNotes, temp: v })}
                   type="number"
-                  right={<TempMiniToggle unit={examNotes.tempUnit} onChange={setTempUnit} />}
+                  // right={<TempMiniToggle unit={examNotes.tempUnit} onChange={setTempUnit} />}
                 />
-                <LabeledTextarea label="RS" value={examNotes.rs} onChange={(v) => setExamNotes({ ...examNotes, rs: v })} minRows={4} />
-                <LabeledTextarea label="CVS" value={examNotes.cvs} onChange={(v) => setExamNotes({ ...examNotes, cvs: v })} minRows={4} />
-                <LabeledTextarea label="P/A" value={examNotes.pja} onChange={(v) => setExamNotes({ ...examNotes, pja: v })} minRows={4} />
-                <LabeledTextarea label="CNS" value={examNotes.cns} onChange={(v) => setExamNotes({ ...examNotes, cns: v })} minRows={4} />
+                {examination.includes("RS") && <LabeledTextarea label="RS" value={examNotes.rs} onChange={(v) => setExamNotes({ ...examNotes, rs: v })} minRows={4} />}
+                {examination.includes("CVS") && <LabeledTextarea label="CVS" value={examNotes.cvs} onChange={(v) => setExamNotes({ ...examNotes, cvs: v })} minRows={4} />}
+                {examination.includes("P/A") && <LabeledTextarea label="P/A" value={examNotes.pja} onChange={(v) => setExamNotes({ ...examNotes, pja: v })} minRows={4} />}
+                {examination.includes("CNS") && <LabeledTextarea label="CNS" value={examNotes.cns} onChange={(v) => setExamNotes({ ...examNotes, cns: v })} minRows={4} />}
               </div>
               <LabeledTextarea label="Other Notes" value={examNotes.other} onChange={(v)=>setExamNotes({...examNotes, other:v})} minRows={4} />
             </CardContent>
