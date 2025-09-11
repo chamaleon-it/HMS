@@ -416,9 +416,7 @@ export default function ConsultingMenu() {
                 )}{" "}
               </div>{" "}
             </div>{" "}
-            {!reviewed && (
-              <div className="pointer-events-none absolute inset-0 animate-pulse opacity-20 bg-[radial-gradient(closest-side,white,transparent)]"></div>
-            )}{" "}
+          
           </div>
 
           {/* =================== CONSULT TAB =================== */}
