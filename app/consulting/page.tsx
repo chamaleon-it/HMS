@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Select,
   SelectTrigger,
@@ -16,13 +16,11 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Calendar } from "@/components/ui/calendar";
 import {
   FileText,
   Plus,
   Trash2,
-  History,
   Search,
   AlertTriangle,
   CalendarClock,
@@ -32,10 +30,13 @@ import {
   TestTubeDiagonal,
   FlaskConical,
   ImageIcon,
+  Stethoscope,
+  ClipboardList,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppShell from "@/components/layout/app-shell";
 import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
+import { ToggleChip } from "./ToggleChip";
 
 // ========================
 // Types
@@ -218,7 +219,6 @@ export default function ConsultingMenu() {
   // const [diagnosis, setDiagnosis] = useState("");
   const [advice, setAdvice] = useState("");
   const [qHist, setQHist] = useState("");
-  const [allergyAlertOpen, setAllergyAlertOpen] = useState(true);
 
   const [prescriptions, setPrescriptions] = useState<RxRow[]>([
     { drug: "", dosage: "1 tab", freq: "1-0-1", duration: "5", notes: "" },
@@ -283,7 +283,6 @@ export default function ConsultingMenu() {
   }, [qHist]);
 
   // ---- Allergy helpers ----
-  const hasAllergies = patient.allergies.length > 0;
   const drugHitsAllergy = (drug: string) =>
     (patient.allergies || []).some((a) =>
       drug.toLowerCase().includes(a.toLowerCase())
@@ -308,55 +307,127 @@ export default function ConsultingMenu() {
   // ========================
   // Render
   // ========================
+
+  const [activeTab, setActiveTab] = useState<"consultation" | "history">(
+    "consultation"
+  );
+
+  const [reviewed, setReviewed] = useState(false)
   return (
     <AppShell>
       <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
         <div className="mx-auto p-5">
-          <Tabs defaultValue="consult">
-            <TabsList className="bg-white/80 backdrop-blur border">
-              <TabsTrigger value="consult">Consultation</TabsTrigger>
-              <TabsTrigger value="history">
-                <History className="w-4 h-4 mr-1" /> History
-              </TabsTrigger>
-            </TabsList>
+          <div className="flex justify-between mb-4">
+            <div>
+              <h2 className="font-semibold">
+                {patient.name}{" "}
+                <span className="text-slate-400">(ID: {patient.id})</span>
+              </h2>
+              <p className="text-xs text-slate-500">
+                Age {patient.age}, {patient.gender} • Allergies:{" "}
+                {patient.allergies.join(", ")}
+              </p>
+            </div>
+            <div className="inline-flex rounded-2xl bg-slate-100 p-1 shadow-inner">
+              {" "}
+              <ToggleChip
+                active={activeTab === "consultation"}
+                onClick={() => setActiveTab("consultation")}
+                icon={<Stethoscope className="h-4 w-4" />}
+                activeClass="bg-green-600 text-white"
+              >
+                {" "}
+                Consultation{" "}
+              </ToggleChip>{" "}
+              <ToggleChip
+                active={activeTab === "history"}
+                onClick={() => setActiveTab("history")}
+                icon={<ClipboardList className="h-4 w-4" />}
+                activeClass="bg-blue-600 text-white"
+              >
+                {" "}
+                History{" "}
+              </ToggleChip>{" "}
+            </div>
+          </div>
 
-            {/* =================== CONSULT TAB =================== */}
-            <TabsContent value="consult" className="mt-4">
+          <div
+            className={
+              "relative overflow-hidden rounded-2xl border shadow-lg" +
+              (reviewed
+                ? "border-red-200 bg-gradient-to-r from-red-50 to-white"
+                : "border-red-200 bg-gradient-to-r from-red-600 to-red-500 text-white")
+            }
+          >
+            {" "}
+            <div
+              className={
+                "flex items-center justify-between gap-3 p-4 " +
+                (reviewed ? "text-red-700" : "")
+              }
+            >
+              {" "}
+              <div className="flex items-center gap-3">
+                {" "}
+                <span
+                  className={
+                    "grid h-8 w-8 place-items-center rounded-full " +
+                    (reviewed ? "bg-red-100 text-red-600" : "bg-white/20")
+                  }
+                >
+                  {" "}
+                  <AlertTriangle className="h-5 w-5" />{" "}
+                </span>{" "}
+                <div>
+                  {" "}
+                  <p
+                    className={
+                      "font-semibold text-base " +
+                      (reviewed ? "" : "drop-shadow-[0_1px_0_rgba(0,0,0,0.25)]")
+                    }
+                  >
+                    Allergy Alert
+                  </p>{" "}
+                  <p
+                    className={
+                      "text-sm " +
+                      (reviewed ? "text-red-700/80" : "text-white/90")
+                    }
+                  >
+                    Allergies: Penicillin, Ibuprofen
+                  </p>{" "}
+                </div>{" "}
+              </div>{" "}
+              <div className="flex items-center gap-2">
+                {" "}
+                {!reviewed ? (
+                  <Button
+                    onClick={() => setReviewed(true)}
+                    className="bg-white text-red-600 hover:bg-slate-50 rounded-xl"
+                  >
+                    {" "}
+                    Mark Reviewed{" "}
+                  </Button>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
+                    {" "}
+                    <CheckCircle2 className="h-4 w-4" /> Reviewed{" "}
+                  </span>
+                )}{" "}
+              </div>{" "}
+            </div>{" "}
+            {!reviewed && (
+              <div className="pointer-events-none absolute inset-0 animate-pulse opacity-20 bg-[radial-gradient(closest-side,white,transparent)]"></div>
+            )}{" "}
+          </div>
+
+          {/* =================== CONSULT TAB =================== */}
+          {activeTab === "consultation" && (
+            <div className="mt-4">
               <Card className="p-6">
-                {/* Patient header */}
-                <div className="flex justify-between">
-                  <div>
-                    <h2 className="font-semibold">
-                      {patient.name}{" "}
-                      <span className="text-slate-400">(ID: {patient.id})</span>
-                    </h2>
-                    <p className="text-xs text-slate-500">
-                      Age {patient.age}, {patient.gender} • Allergies:{" "}
-                      {patient.allergies.join(", ")}
-                    </p>
-                  </div>
-                </div>
+               
 
-                {/* Allergy banner */}
-                {hasAllergies && allergyAlertOpen && (
-                  <Alert variant="destructive" className="mt-4">
-                    <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Allergy Alert</AlertTitle>
-                    <AlertDescription className="flex items-center">
-                      Allergies: {patient.allergies.join(", ")}
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="ml-3"
-                        onClick={() => setAllergyAlertOpen(false)}
-                      >
-                        Mark Reviewed
-                      </Button>
-                    </AlertDescription>
-                  </Alert>
-                )}
-
-                <Separator className="my-4" />
+               
                 {/* <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-6">
                     <div className="flex justify-between">
@@ -404,150 +475,150 @@ export default function ConsultingMenu() {
                 <ConsultationAndExaminationNotes />
 
                 <Separator className="my-4" />
-
-                {/* Prescriptions */}
-                <Label>Prescriptions</Label>
-                {prescriptions.map((p, i) => (
-                  <div key={i} className="grid grid-cols-12 gap-2 mt-2">
-                    <div className="col-span-4">
-                      <div className="relative">
-                        <Input
-                          value={p.drug}
-                          onChange={(e) =>
+                <div className="">
+                  {/* Prescriptions */}
+                  <Label>Prescriptions</Label>
+                  {prescriptions.map((p, i) => (
+                    <div key={i} className="grid grid-cols-12 gap-2 mt-2">
+                      <div className="col-span-4">
+                        <div className="relative">
+                          <Input
+                            value={p.drug}
+                            onChange={(e) =>
+                              setPrescriptions((rows) =>
+                                rows.map((r, j) =>
+                                  j === i ? { ...r, drug: e.target.value } : r
+                                )
+                              )
+                            }
+                            placeholder="Drug"
+                          />
+                          {drugHitsAllergy(p.drug) && (
+                            <Badge className="absolute -top-2 -right-2 bg-red-100 text-red-800">
+                              Allergy
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <div className="col-span-2">
+                        <Select
+                          value={p.dosage}
+                          onValueChange={(v) =>
                             setPrescriptions((rows) =>
                               rows.map((r, j) =>
-                                j === i ? { ...r, drug: e.target.value } : r
+                                j === i ? { ...r, dosage: v } : r
                               )
                             )
                           }
-                          placeholder="Drug"
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {dosageOptions.map((d) => (
+                              <SelectItem key={d} value={d}>
+                                {d}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="col-span-2">
+                        <Select
+                          value={p.freq}
+                          onValueChange={(v) =>
+                            setPrescriptions((rows) =>
+                              rows.map((r, j) =>
+                                j === i ? { ...r, freq: v } : r
+                              )
+                            )
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {freqOptions.map((f) => (
+                              <SelectItem key={f} value={f}>
+                                {f}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="col-span-2">
+                        <Input
+                          value={p.duration}
+                          onChange={(e) =>
+                            setPrescriptions((rows) =>
+                              rows.map((r, j) =>
+                                j === i ? { ...r, duration: e.target.value } : r
+                              )
+                            )
+                          }
                         />
-                        {drugHitsAllergy(p.drug) && (
-                          <Badge className="absolute -top-2 -right-2 bg-red-100 text-red-800">
-                            Allergy
-                          </Badge>
-                        )}
+                      </div>
+                      <div className="col-span-2 flex justify-end gap-3">
+                        <Button
+                          className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                          onClick={() =>
+                            setPrescriptions((p) => [
+                              ...p,
+                              {
+                                drug: "",
+                                dosage: "1 tab",
+                                freq: "1-0-1",
+                                duration: "5",
+                                notes: "",
+                              },
+                            ])
+                          }
+                          variant="outline"
+                        >
+                          <Plus className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          className="bg-red-600 hover:bg-red-700 text-white"
+                          onClick={() =>
+                            setPrescriptions((rows) =>
+                              rows.length === 1
+                                ? [
+                                    {
+                                      drug: "",
+                                      dosage: "1 tab",
+                                      freq: "1-0-1",
+                                      duration: "5",
+                                      notes: "",
+                                    },
+                                  ]
+                                : rows.filter((_, j) => j !== i)
+                            )
+                          }
+                          variant="outline"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="col-span-2">
-                      <Select
-                        value={p.dosage}
-                        onValueChange={(v) =>
-                          setPrescriptions((rows) =>
-                            rows.map((r, j) =>
-                              j === i ? { ...r, dosage: v } : r
-                            )
-                          )
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {dosageOptions.map((d) => (
-                            <SelectItem key={d} value={d}>
-                              {d}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="col-span-2">
-                      <Select
-                        value={p.freq}
-                        onValueChange={(v) =>
-                          setPrescriptions((rows) =>
-                            rows.map((r, j) =>
-                              j === i ? { ...r, freq: v } : r
-                            )
-                          )
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {freqOptions.map((f) => (
-                            <SelectItem key={f} value={f}>
-                              {f}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="col-span-2">
-                      <Input
-                        value={p.duration}
-                        onChange={(e) =>
-                          setPrescriptions((rows) =>
-                            rows.map((r, j) =>
-                              j === i ? { ...r, duration: e.target.value } : r
-                            )
-                          )
-                        }
-                      />
-                    </div>
-                    <div className="col-span-2 flex justify-end gap-3">
-                      <Button
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                        onClick={() =>
-                          setPrescriptions((p) => [
-                            ...p,
-                            {
-                              drug: "",
-                              dosage: "1 tab",
-                              freq: "1-0-1",
-                              duration: "5",
-                              notes: "",
-                            },
-                          ])
-                        }
-                        variant="outline"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        className="bg-red-600 hover:bg-red-700 text-white"
-                        onClick={() =>
-                          setPrescriptions((rows) =>
-                            rows.length === 1
-                              ? [
-                                  {
-                                    drug: "",
-                                    dosage: "1 tab",
-                                    freq: "1-0-1",
-                                    duration: "5",
-                                    notes: "",
-                                  },
-                                ]
-                              : rows.filter((_, j) => j !== i)
-                          )
-                        }
-                        variant="outline"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-                <Button
-                  onClick={() =>
-                    setPrescriptions((p) => [
-                      ...p,
-                      {
-                        drug: "",
-                        dosage: "1 tab",
-                        freq: "1-0-1",
-                        duration: "5",
-                        notes: "",
-                      },
-                    ])
-                  }
-                  className="mt-2 w-fit bg-emerald-600 hover:bg-emerald-700 text-white"
-                >
-                  <Plus className="w-4 h-4 mr-1" /> Add Medicine
-                </Button>
-
+                  ))}
+                  <Button
+                    onClick={() =>
+                      setPrescriptions((p) => [
+                        ...p,
+                        {
+                          drug: "",
+                          dosage: "1 tab",
+                          freq: "1-0-1",
+                          duration: "5",
+                          notes: "",
+                        },
+                      ])
+                    }
+                    className="mt-2 w-fit bg-emerald-600 hover:bg-emerald-700 text-white"
+                  >
+                    <Plus className="w-4 h-4 mr-1" /> Add Medicine
+                  </Button>
+                </div>
                 <Separator className="my-6" />
 
                 {/* Booking */}
@@ -924,10 +995,12 @@ export default function ConsultingMenu() {
                   </motion.div>
                 </div>
               </Card>
-            </TabsContent>
+            </div>
+          )}
 
-            {/* =================== HISTORY TAB =================== */}
-            <TabsContent value="history">
+          {/* =================== HISTORY TAB =================== */}
+          {activeTab === "history" && (
+            <div className="mt-4">
               <Card className="p-6">
                 <div className="flex gap-2 mb-4 items-center">
                   <Search className="w-4 h-4 text-slate-400" />
@@ -946,8 +1019,8 @@ export default function ConsultingMenu() {
                   </div>
                 ))}
               </Card>
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
         </div>
 
         {/* Celebration overlays */}

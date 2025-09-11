@@ -31,6 +31,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { motion } from "framer-motion";
+import Appointment from "./Appointment";
 
 export default function Dashboard() {
   const [openAppointment, setOpenAppointment] = useState(false);
@@ -76,12 +77,14 @@ export default function Dashboard() {
       "inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200",
   } as const;
 
-  const [appointments, setAppointments] = useState<{
-    time:string;
-    name:string;
-    type:string;
-    status:string;
-  }[]>([
+  const [appointments, setAppointments] = useState<
+    {
+      time: string;
+      name: string;
+      type: string;
+      status: string;
+    }[]
+  >([
     {
       time: "09:00 AM",
       name: "John Mathew",
@@ -258,7 +261,7 @@ export default function Dashboard() {
       {/* Content area with persistent right-hand sidebar (as before) */}
       <div className="flex flex-1 gap-6 px-6 pb-6 overflow-hidden">
         {/* Left: tabs that switch only the main canvas */}
-        <Tabs defaultValue="week" className="flex-1 overflow-hidden">
+        <Tabs defaultValue="day" className="flex-1 overflow-hidden">
           <TabsList className="mb-4">
             <TabsTrigger value="day">Day View</TabsTrigger>
             <TabsTrigger value="week">Week View</TabsTrigger>
@@ -302,45 +305,7 @@ export default function Dashboard() {
                       colorMap[apt.type as keyof typeof colorMap];
                     const isConsulted = apt.status === "consulted";
                     return (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: i * 0.08 }}
-                        className={`flex items-center justify-between border rounded-lg p-3 hover:bg-gray-50 ${
-                          typeStyle.ring
-                        } ${isConsulted ? consultedStyles.container : ""}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <span
-                            className={`w-2.5 h-2.5 rounded-full ${
-                              isConsulted ? consultedStyles.dot : typeStyle.dot
-                            }`}
-                          ></span>
-                          <div>
-                            <p className="font-medium">{apt.name}</p>
-                            <p
-                              className={`text-xs inline-flex items-center px-2 py-0.5 rounded ${
-                                isConsulted
-                                  ? consultedStyles.chip
-                                  : typeStyle.chip
-                              }`}
-                            >
-                              {apt.type}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {isConsulted && (
-                            <span className={consultedStyles.badge}>
-                              <CheckCircle2 className="w-3 h-3" /> Consulted
-                            </span>
-                          )}
-                          <span className="text-sm text-gray-600">
-                            {apt.time}
-                          </span>
-                        </div>
-                      </motion.div>
+                    <Appointment apt={apt} consultedStyles={consultedStyles} i={i} isConsulted={isConsulted} typeStyle={typeStyle} key={i} setAppointments={setAppointments}/>
                     );
                   })}
                 <Button
@@ -775,18 +740,17 @@ const BookApointment = ({
     >
   >;
 }) => {
-
-    const [newAppointment, setNewAppointment] = useState<{
-        time: string;
-        name: string;
-        type: string;
-        status: string;
-    }>({
-        name: "",
-        time:"",
-        type:quickType,
-        status:"scheduled"
-    })
+  const [newAppointment, setNewAppointment] = useState<{
+    time: string;
+    name: string;
+    type: string;
+    status: string;
+  }>({
+    name: "",
+    time: "",
+    type: quickType,
+    status: "scheduled",
+  });
 
   return (
     <DialogContent className="max-w-lg">
@@ -797,11 +761,22 @@ const BookApointment = ({
         <div className="grid grid-cols-4 items-center gap-2">
           <Label className="col-span-1">Patient</Label>
           <div className="col-span-3 grid gap-2">
-            <Input placeholder="Search or enter patient name" onChange={e=>{setNewAppointment(prev=>({...prev,name:e.target.value}))}} value={newAppointment.name}/>
+            <Input
+              placeholder="Search or enter patient name"
+              onChange={(e) => {
+                setNewAppointment((prev) => ({
+                  ...prev,
+                  name: e.target.value,
+                }));
+              }}
+              value={newAppointment.name}
+            />
             <div className="flex gap-2 overflow-x-auto">
               {["Ravi Kumar", "Sara Ali", "John Mathew"].map((n) => (
                 <Button
-                onClick={()=>setNewAppointment(prev=>({...prev,name:n}))}
+                  onClick={() =>
+                    setNewAppointment((prev) => ({ ...prev, name: n }))
+                  }
                   key={n}
                   size="sm"
                   variant="outline"
@@ -821,7 +796,9 @@ const BookApointment = ({
                 key={t}
                 size="sm"
                 variant={t === newAppointment.type ? "default" : "outline"}
-                onClick={()=>setNewAppointment(prev=>({...prev,type:t}))}
+                onClick={() =>
+                  setNewAppointment((prev) => ({ ...prev, type: t }))
+                }
               >
                 {t}
               </Button>
@@ -835,7 +812,16 @@ const BookApointment = ({
         <div className="grid grid-cols-4 items-center gap-2">
           <Label className="col-span-1">Start</Label>
           <div className="col-span-3 flex gap-2">
-            <Input type="time" className="w-40"  onChange={e=>{setNewAppointment(prev=>({...prev,time:e.target.value}))}}/>
+            <Input
+              type="time"
+              className="w-40"
+              onChange={(e) => {
+                setNewAppointment((prev) => ({
+                  ...prev,
+                  time: e.target.value,
+                }));
+              }}
+            />
             <div className="flex gap-2">
               <Button size="sm" variant="outline">
                 +15m
@@ -881,15 +867,23 @@ const BookApointment = ({
         <Button variant="outline" onClick={() => setOpenAppointment(false)}>
           Cancel
         </Button>
-        <Button onClick={() => {
-  setAppointments((prev: {
-    time: string;
-        name: string;
-        type: string;
-        status: string;
-  }[]) => [...prev, newAppointment]);
-  setOpenAppointment(false);
-}}>Save</Button>
+        <Button
+          onClick={() => {
+            setAppointments(
+              (
+                prev: {
+                  time: string;
+                  name: string;
+                  type: string;
+                  status: string;
+                }[]
+              ) => [...prev, newAppointment]
+            );
+            setOpenAppointment(false);
+          }}
+        >
+          Save
+        </Button>
       </DialogFooter>
     </DialogContent>
   );
