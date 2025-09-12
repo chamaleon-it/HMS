@@ -132,7 +132,7 @@ export default function Dashboard() {
   };
 
   return (
-    <>
+    <div className="min-h-[calc(100vh-80px)]">
       <div className="grid grid-cols-4 gap-4 p-6">
         {[
           {
@@ -522,7 +522,7 @@ export default function Dashboard() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </>
+    </div>
   );
 }
 

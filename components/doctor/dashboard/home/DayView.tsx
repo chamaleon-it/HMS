@@ -207,7 +207,7 @@ export default function DailyViewTimeline() {
 
       <div className="">
         {/* Scrollable timeline + cards */}
-        <div className="relative min-h-[50vh] max-h-[100vh] overflow-y-auto pr-2">
+        <div className="relative min-h-[60vh] max-h-[100vh] overflow-y-auto pr-2">
           {/* Slim vertical line + progress */}
           <div className="absolute left-6 md:left-8 top-0 bottom-0 w-px bg-gray-200" />
           <div

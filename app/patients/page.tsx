@@ -672,9 +672,20 @@ export default function PatientsEnhanced() {
               {shareTarget==='Doctor' && (
                 <div>
                   <div className="text-sm font-medium mb-2">Select doctor</div>
-                  <select value={shareDoctor} onChange={e=>setShareDoctor(e.target.value)} className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-full">
+                  {/* <select value={shareDoctor} onChange={e=>setShareDoctor(e.target.value)} className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-full">
                     {doctors.map(d=> (<option key={d} value={d}>{d}</option>))}
-                  </select>
+                  </select> */}
+                  <div className="w-full">
+
+                   <FilterSelect
+                   className="w-full"
+                   value={shareDoctor}
+                   onChange={(v)=>setShareDoctor(v)}
+                   placeholder="Select doctor"
+                   searchable
+                   options={[{label:'All doctors', value:'All' }, ...doctors.map(c=>({label:c, value:c }))]}
+                   />
+                   </div>
                 </div>
               )}
 
