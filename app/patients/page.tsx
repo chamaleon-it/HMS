@@ -437,7 +437,7 @@ export default function PatientsEnhanced() {
                     aria-label={`Gender: ${opt.label}`}
                     className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 ${active? activeClass : idleClass}`}
                   >
-                    <span aria-hidden>{opt.icon}</span>
+                   {opt.value !== "All" && <span aria-hidden>{opt.icon}</span>}
                     <span className="truncate">{opt.label}</span>
                   </button>
                 );
@@ -525,7 +525,7 @@ export default function PatientsEnhanced() {
 
       {/* Table */}
       <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
-        <table className="w-full table-fixed">
+        <table className="w-full">
           <thead>
             <tr className="bg-gray-50 text-xs text-gray-600">
               <th className="w-10 text-left px-4 py-3"><input type="checkbox" className="h-4 w-4" checked={allPageSelected} onChange={toggleSelectAllPage} /></th>
@@ -546,28 +546,28 @@ export default function PatientsEnhanced() {
               const serial = (page-1)*pageSize + idx + 1; // serial number after filters & sort
               return (
                 <tr key={r.id} className="border-t border-gray-100 hover:bg-gray-50/60">
-                  <td className="px-4 py-3"><input type="checkbox" className="h-4 w-4" checked={selected.has(r.id)} onChange={()=>toggleRow(r.id)} /></td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{serial}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3"><input type="checkbox" className="h-4 w-4" checked={selected.has(r.id)} onChange={()=>toggleRow(r.id)} /></td>
+                  <td className="px-2 py-3 text-sm text-gray-500">{serial}</td>
+                  <td className="px-2 py-3">
                     <div className="font-medium text-gray-900">{r.name}</div>
                     <div className="text-xs text-gray-500">{r.phone}</div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{r.id}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{r.age} <span className="text-gray-400">/</span> {r.gender}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{r.lastVisit}</td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{r.doctor}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3 text-sm text-gray-600">{r.id}</td>
+                  <td className="px-2 py-3 text-sm text-gray-700">{r.age} <span className="text-gray-400">/</span> {r.gender}</td>
+                  <td className="px-2 py-3 text-sm text-gray-700">{r.lastVisit}</td>
+                  <td className="px-2 py-3 text-sm text-gray-700">{r.doctor}</td>
+                  <td className="px-2 py-3">
                     <div className="flex flex-wrap gap-1.5">
                       {r.conditions.map((c,i)=>(
                         <Chip key={i} label={c} tone={c.toLowerCase().includes('fever')? 'amber' : c.toLowerCase().includes('diabetes')? 'amber' : 'gray'} />
                       ))}
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-700">{r.visits}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-2 py-3 text-sm text-gray-700">{r.visits}</td>
+                  <td className="px-2 py-3">
                     <Chip label={r.status} tone={statusTone(r.status)} />
                   </td>
-                  <td className="px-4 py-3 text-right">
+                  <td className="px-2 py-3 text-right">
                     <div className="inline-flex gap-1">
                       <button onClick={()=>setPreview(r)} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">View</button>
                       <button onClick={()=>setHistory(r)} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">History</button>
@@ -723,10 +723,10 @@ function headerCell(
 ){
   const isActive = key===activeKey;
   return (
-    <th className="text-left px-4 py-3 select-none">
+    <th className="text-left px-2 py-3 select-none">
       <button
         onClick={()=>setSort(key)}
-        className={`inline-flex items-center gap-1.5 text-xs font-medium ${isActive? 'text-gray-900':'text-gray-600'} hover:text-gray-900`}
+        className={`inline-flex items-center gap-1 text-xs font-medium ${isActive? 'text-gray-900':'text-gray-600'} hover:text-gray-900`}
       >
         {label}
         <span className={`text-[10px] ${isActive? 'opacity-100':'opacity-40'}`}>{isActive? (dir==='asc'? '▲':'▼') : '↕'}</span>
