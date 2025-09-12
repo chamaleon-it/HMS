@@ -471,7 +471,7 @@ export default function LabResultsPage() {
                     aria-label={`Facility: ${opt.label}`}
                     className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 ${active? opt.activeClass : opt.idleClass}`}
                   >
-                    <span aria-hidden>{opt.icon}</span>
+                    {opt.value !== "All" && <span aria-hidden>{opt.icon}</span>}
                     <span className="truncate">{opt.label}</span>
                   </button>
                 );
