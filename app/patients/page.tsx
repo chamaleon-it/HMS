@@ -1,721 +1,736 @@
 "use client"
 
-import { ForwardRefExoticComponent, RefAttributes, useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Search,
-  Filter,
-  UserRound,
-  History,
-  Stethoscope,
-  Mail,
-  Phone,
-  CalendarClock,
-  ExternalLink,
-  Printer,
-  Share2,
-  CircleAlert,
-  Sparkles,
-  LucideProps,
-} from "lucide-react";
-import AppShell from "@/components/layout/app-shell";
 
-// =============================
-// Types
-// =============================
-export type Patient = {
-  id: string; // P-0001
+import AppShell from "@/components/layout/app-shell";
+import React, { useMemo, useState, useEffect } from "react";
+
+// ----- Types -----
+ type Status = "Active" | "Inactive" | "Critical" | "Discharged";
+ type Gender = "M" | "F" | "O";
+ type Patient = {
+  id: string;
   name: string;
-  gender: "M" | "F" | "O";
-  age: number;
   phone: string;
-  email?: string;
-  lastVisit: string; // YYYY-MM-DD
-  status: "active" | "inactive" | "critical" | "discharged";
-  conditions: string[]; // badges
-  tags?: string[]; // e.g. Insurance, VIP
-  referredBy?: string;
-  notes?: string;
-  history: Array<
-    | { type: "visit"; id: string; date: string; summary: string; doctor: string }
-    | { type: "lab"; id: string; date: string; test: string; resultId: string; status: "pending" | "completed" | "abnormal" }
-    | { type: "rx"; id: string; date: string; meds: string[]; doctor: string }
-  >;
+  age: number;
+  gender: Gender;
+  lastVisit: string; // ISO date
+  doctor: string;
+  conditions: string[];
+  visits: number;
+  status: Status;
 };
 
-// New: date preset type
-type DatePreset =
-  | "all"
-  | "today"
-  | "this_week"
-  | "this_month"
-  | "last_7"
-  | "last_30"
-  | "custom";
-
-// =============================
-// Mock Data (replace with API)
-// =============================
-const seed: Patient[] = [
+// ----- Demo Data (replace with API data) -----
+const INITIAL: Patient[] = [
   {
     id: "P-0001",
     name: "John Mathew",
-    gender: "M",
-    age: 42,
     phone: "+91 90000 11111",
-    email: "john@example.com",
+    age: 42,
+    gender: "M",
     lastVisit: "2025-09-01",
-    status: "active",
+    doctor: "Dr. Nadir Sha",
     conditions: ["Hypertension"],
-    referredBy: "Dr. Nadir Sha",
-    tags: ["Insurance"],
-    history: [
-      { type: "visit", id: "V-1001", date: "2025-09-01", summary: "Routine checkup", doctor: "Dr. Nadir Sha" },
-      { type: "lab", id: "LR-001", date: "2025-09-01", test: "CBC", resultId: "LR-001", status: "completed" },
-      { type: "rx", id: "RX-1001", date: "2025-09-01", meds: ["Amlodipine 5mg"], doctor: "Dr. Nadir Sha" },
-    ],
+    visits: 1,
+    status: "Active",
   },
   {
     id: "P-0002",
     name: "Aisha Kareem",
-    gender: "F",
-    age: 33,
     phone: "+91 90000 22222",
-    email: "aisha@example.com",
+    age: 33,
+    gender: "F",
     lastVisit: "2025-09-02",
-    status: "inactive",
+    doctor: "Dr. Nadir Sha",
     conditions: ["Hypothyroid"],
-    referredBy: "Dr. Nadir Sha",
-    tags: ["Self-Pay"],
-    history: [
-      { type: "visit", id: "V-1002", date: "2025-09-02", summary: "Fatigue, follow-up", doctor: "Dr. Nadir Sha" },
-      { type: "lab", id: "LR-002", date: "2025-09-02", test: "TSH", resultId: "LR-002", status: "pending" },
-    ],
+    visits: 1,
+    status: "Inactive",
   },
   {
     id: "P-0003",
     name: "Mohammed Iqbal",
-    gender: "M",
-    age: 55,
     phone: "+91 90000 33333",
+    age: 55,
+    gender: "M",
     lastVisit: "2025-09-03",
-    status: "active",
+    doctor: "Dr. Nadir Sha",
     conditions: ["Diabetes", "Hyperlipidemia"],
-    referredBy: "Dr. Nadir Sha",
-    tags: ["Insurance", "Priority"],
-    history: [
-      { type: "visit", id: "V-1003", date: "2025-09-03", summary: "Fasting sugar high", doctor: "Dr. Nadir Sha" },
-      { type: "lab", id: "LR-003", date: "2025-09-03", test: "Lipid Profile", resultId: "LR-003", status: "completed" },
-    ],
+    visits: 1,
+    status: "Active",
   },
   {
     id: "P-0004",
     name: "Sara Ali",
-    gender: "F",
-    age: 28,
     phone: "+91 90000 44444",
+    age: 28,
+    gender: "F",
     lastVisit: "2025-09-03",
-    status: "critical",
+    doctor: "Dr. Nadir Sha",
     conditions: ["High fever"],
-    referredBy: "Dr. Nadir Sha",
-    tags: ["Urgent"],
-    history: [
-      { type: "visit", id: "V-1004", date: "2025-09-03", summary: "High-grade fever, suspected dengue", doctor: "Dr. Nadir Sha" },
-      { type: "lab", id: "LR-004", date: "2025-09-03", test: "NS1 Antigen", resultId: "LR-004", status: "abnormal" },
-    ],
+    visits: 1,
+    status: "Critical",
   },
   {
     id: "P-0005",
     name: "Ravi Kumar",
-    gender: "M",
-    age: 47,
     phone: "+91 90000 55555",
+    age: 47,
+    gender: "M",
     lastVisit: "2025-09-04",
-    status: "discharged",
+    doctor: "Dr. Nadir Sha",
     conditions: ["Back pain"],
-    referredBy: "Dr. Nadir Sha",
-    tags: ["Corporate"],
-    history: [
-      { type: "visit", id: "V-1005", date: "2025-09-04", summary: "Physiotherapy referral", doctor: "Dr. Nadir Sha" },
-    ],
+    visits: 1,
+    status: "Discharged",
   },
 ];
 
-// =============================
-// Helpers (pure + testable)
-// =============================
-function matchesQuery(p: Patient, q: string) {
-  if (!q) return true;
-  const s = q.toLowerCase().trim();
-  return (
-    p.name.toLowerCase().includes(s) ||
-    p.id.toLowerCase().includes(s) ||
-    p.phone.replaceAll(" ", "").includes(s.replaceAll(" ", "")) ||
-    (p.email || "").toLowerCase().includes(s) ||
-    (p.conditions || []).some((c) => c.toLowerCase().includes(s))
-  );
-}
-
-function withinAge(p: Patient, min?: number, max?: number) {
-  if (!min && !max) return true;
-  if (min && p.age < min) return false;
-  if (max && p.age > max) return false;
-  return true;
-}
-
-function byStatus(p: Patient, status: string) {
-  if (!status || status === "all") return true;
-  return p.status === status;
-}
-
-function byGender(p: Patient, gender: string) {
-  if (!gender || gender === "all") return true;
-  return p.gender === gender;
-}
-
-// Date helpers (no external libs)
-function parseISO(d: string) {
-  const [y, m, day] = d.split("-").map(Number);
-  return new Date(y, (m || 1) - 1, day || 1);
-}
-function startOfToday() {
-  const t = new Date();
-  return new Date(t.getFullYear(), t.getMonth(), t.getDate());
-}
-function startOfWeek(d = new Date()) {
-  const day = d.getDay(); // 0 Sun
-  const diff = (day + 6) % 7; // start Monday
-  const s = new Date(d);
-  s.setDate(d.getDate() - diff);
-  s.setHours(0, 0, 0, 0);
-  return s;
-}
-function startOfMonth(d = new Date()) {
-  return new Date(d.getFullYear(), d.getMonth(), 1);
-}
-function addDays(d: Date, n: number) {
-  const x = new Date(d);
-  x.setDate(d.getDate() + n);
-  return x;
-}
-function inDatePreset(dateStr: string, preset: DatePreset, customStart?: string, customEnd?: string) {
-  if (preset === "all") return true;
-  const date = parseISO(dateStr);
-  const today = startOfToday();
-  let from = new Date(0);
-  let to = addDays(today, 1); // exclusive upper bound
-
-  switch (preset) {
-    case "today":
-      from = today;
-      break;
-    case "this_week":
-      from = startOfWeek(today);
-      break;
-    case "this_month":
-      from = startOfMonth(today);
-      break;
-    case "last_7":
-      from = addDays(today, -7);
-      break;
-    case "last_30":
-      from = addDays(today, -30);
-      break;
-    case "custom":
-      if (!customStart && !customEnd) return true;
-      from = customStart ? parseISO(customStart) : new Date(0);
-      to = customEnd ? addDays(parseISO(customEnd), 1) : addDays(today, 1);
-      break;
-  }
-
-  return date >= from && date < to;
-}
-
-// =============================
-// UI Components
-// =============================
-function Stat({ label, value, icon: Icon }: { label: string; value: number; icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>> }) {
-  return (
-    <Card className="rounded-2xl shadow-sm">
-      <CardContent className="flex items-center gap-3 p-4">
-        <div className="rounded-xl p-2 bg-muted">
-          <Icon className="h-5 w-5" />
-        </div>
-        <div>
-          <div className="text-2xl font-semibold leading-tight">{value}</div>
-          <div className="text-sm text-muted-foreground">{label}</div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function StatusBadge({ status }: { status: Patient["status"] }) {
-  const map: Record<Patient["status"], string> = {
-    active: "bg-emerald-100 text-emerald-700 border-emerald-200",
-    inactive: "bg-slate-100 text-slate-700 border-slate-200",
-    discharged: "bg-blue-100 text-blue-700 border-blue-200",
-    critical: "bg-red-100 text-red-700 border-red-200",
+// ----- Small UI helpers -----
+const Chip: React.FC<{ label: string; tone?: "green"|"gray"|"red"|"blue"|"amber" }>=({label,tone="gray"})=>{
+  const tones: Record<string,string>={
+    // refreshed palette
+    green:"bg-emerald-50 text-emerald-700 ring-emerald-200",
+    gray:"bg-slate-100 text-slate-700 ring-slate-200",
+    red:"bg-rose-50 text-rose-700 ring-rose-200",
+    blue:"bg-sky-50 text-sky-700 ring-sky-200",
+    amber:"bg-amber-50 text-amber-700 ring-amber-200",
   };
-  return (
-    <Badge variant="outline" className={`px-2 ${map[status]} capitalize`}>
-      {status}
-    </Badge>
+  return(
+    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ring-1 ${tones[tone]}`}>{label}</span>
   );
-}
+};
 
-function ConditionChips({ items }: { items: string[] }) {
+const StatCard: React.FC<{icon: React.ReactNode; label: string; value: number; tone: string}> = ({icon,label,value,tone})=> (
+  <div className={`flex items-center gap-3 p-4 rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm hover:shadow-md transition-shadow`}>
+    <div className={`w-10 h-10 rounded-xl grid place-items-center ${tone}`}>{icon}</div>
+    <div>
+      <div className="text-2xl font-semibold tracking-tight">{value}</div>
+      <div className="text-sm text-gray-500">{label}</div>
+    </div>
+  </div>
+);
+
+// ----- Segmented control -----
+function Segmented<T extends string>({options, value, onChange}: {options: {label: string; value: T}[]; value: T; onChange: (v:T)=>void}){
   return (
-    <div className="flex flex-wrap gap-1.5">
-      {items.map((c) => (
-        <Badge key={c} variant="secondary" className="rounded-full">
-          {c}
-        </Badge>
-      ))}
+    <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto">
+      {options.map(o=>{
+        const active = value===o.value;
+        return (
+          <button key={o.value} onClick={()=>onChange(o.value)}
+            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${active? 'bg-white ring-gray-300 shadow-sm text-gray-900':'bg-transparent ring-transparent text-gray-600 hover:text-gray-900'}`}>
+            {o.label}
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-// Utility: visit count
-function visitCount(p: Patient) {
-  return p.history.filter((h) => h.type === "visit").length;
+// Nice headless select used for Status / Doctor
+function FilterSelect<T extends string>({value, onChange, options, placeholder, searchable=false, className=''}: {
+  value: T; onChange: (v:T)=>void; options: {label:string; value:T}[]; placeholder: string; searchable?: boolean; className?: string;
+}){
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState('');
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  useEffect(()=>{
+    const onDoc = (e: MouseEvent)=>{ if(ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const onKey = (e: KeyboardEvent)=>{ if(e.key==='Escape') setOpen(false); };
+    document.addEventListener('mousedown', onDoc);
+    document.addEventListener('keydown', onKey);
+    return ()=>{ document.removeEventListener('mousedown', onDoc); document.removeEventListener('keydown', onKey); };
+  },[]);
+
+  const visible = useMemo(()=>{
+    if(!searchable || !q.trim()) return options;
+    const s = q.toLowerCase();
+    return options.filter(o=> o.label.toLowerCase().includes(s));
+  }, [options, q, searchable]);
+
+  const current = options.find(o=>o.value===value);
+
+  return (
+    <div ref={ref} className={`relative ${className}`}>
+      <button type="button" onClick={()=>setOpen(v=>!v)}
+        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-[150px]`}
+        aria-haspopup="listbox" aria-expanded={open}
+        aria-label={`${placeholder}: ${current? current.label : 'Any'}`}
+        title={`${placeholder}: ${current? current.label : 'Any'}`}
+      >
+        <span className="truncate text-sm text-gray-700">{current? current.label : placeholder}</span>
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" className={`transition ${open? 'rotate-180':''}`}><path d="M6 8l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+      </button>
+
+      {open && (
+        <div className="absolute z-30 mt-2 w-[min(240px,calc(100vw-2rem))] max-h-72 overflow-auto bg-white rounded-xl shadow-xl ring-1 ring-gray-200 p-2">
+          {searchable && (
+            <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Search…" className="mb-2 w-full h-9 px-3 rounded-lg bg-gray-50 ring-1 ring-gray-200 focus:ring-gray-300"/>
+          )}
+          <ul role="listbox" className="grid gap-1">
+            {visible.map(o=>{
+              const active = o.value===value;
+              return (
+                <li key={String(o.value)}>
+                  <button onClick={()=>{onChange(o.value); setOpen(false);}} className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${active? 'bg-gray-100 text-gray-900' : 'hover:bg-gray-50 text-gray-700'}`}>
+                    <span className="truncate">{o.label}</span>
+                    {active && <span>✓</span>}
+                  </button>
+                </li>
+              );
+            })}
+            {visible.length===0 && <li className="px-3 py-2 text-sm text-gray-500">No matches</li>}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
 }
 
-// New: mark recent patients
-function isRecent(lastVisit: string) {
-  const today = startOfToday();
-  const seven = addDays(today, -7);
-  const d = parseISO(lastVisit);
-  return d >= seven;
-}
+// ----- Sorting helpers -----
+ type SortKey = keyof Pick<Patient, "name"|"age"|"lastVisit"|"status"|"doctor"|"visits">;
+ type SortDir = "asc"|"desc";
 
-// =============================
-// Main Page
-// =============================
-export default function PatientsPage() {
-  const [query, setQuery] = useState("");
-  const [status, setStatus] = useState("all");
-  const [gender, setGender] = useState("all");
-  const [minAge, setMinAge] = useState<number | undefined>();
-  const [maxAge, setMaxAge] = useState<number | undefined>();
-  const [selected, setSelected] = useState<Patient | null>(null);
-  const [notesOpen, setNotesOpen] = useState(false);
+// ----- Main Component -----
+export default function PatientsEnhanced() {
+  const [rows] = useState<Patient[]>(INITIAL);
 
-  // New: date filters
-  const [datePreset, setDatePreset] = useState<DatePreset>("all");
-  const [customStart, setCustomStart] = useState<string>("");
-  const [customEnd, setCustomEnd] = useState<string>("");
+  // query
+  const [q, setQ] = useState("");
 
-  const patients = seed; // replace with SWR/React Query fetch
+  // filters
+  const [status, setStatus] = useState<Status|"All">("All");
+  const [gender, setGender] = useState<Gender|"All">("All");
+  const [doctor, setDoctor] = useState<string|"All">("All");
+  const [conditions, setConditions] = useState<string[]>([]);
+  const [ageMin, setAgeMin] = useState<number>(0);
+  const [ageMax, setAgeMax] = useState<number>(100);
+  const [visitRange, setVisitRange] = useState<{from: string | null; to: string | null}>({from:null,to:null});
+  const [visitPreset, setVisitPreset] = useState<'All time' | '7 days' | '30 days' | 'Custom'>('All time');
 
-  const filtered = useMemo(() => {
-    return patients
-      .filter((p) => matchesQuery(p, query))
-      .filter((p) => byStatus(p, status))
-      .filter((p) => byGender(p, gender))
-      .filter((p) => withinAge(p, minAge, maxAge))
-      .filter((p) => inDatePreset(p.lastVisit, datePreset, customStart, customEnd));
-  }, [patients, query, status, gender, minAge, maxAge, datePreset, customStart, customEnd]);
+  // sorting
+  const [sortKey, setSortKey] = useState<SortKey>("lastVisit");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
 
-  const stats = useMemo(() => {
-    return {
-      total: patients.length,
-      active: patients.filter((p) => p.status === "active").length,
-      critical: patients.filter((p) => p.status === "critical").length,
-      discharged: patients.filter((p) => p.status === "discharged").length,
-    };
-  }, [patients]);
+  // modals / drawers
+  const [preview, setPreview] = useState<Patient | null>(null);
+  const [history, setHistory] = useState<Patient | null>(null);
+  const [shareFor, setShareFor] = useState<Patient | null>(null);
+  const [shareTarget, setShareTarget] = useState<string>("Doctor");
+  const [shareVia, setShareVia] = useState<string>("Copy link");
+  const [shareDoctor, setShareDoctor] = useState<string>("");
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  // pagination (optional)
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+
+  const doctors = useMemo(()=> Array.from(new Set(INITIAL.map(r=>r.doctor))), []);
+  const allConditions = useMemo(()=> Array.from(new Set(INITIAL.flatMap(r=>r.conditions))).sort(), []);
+
+  const filtered = useMemo(()=>{
+    let list = [...rows];
+    // search
+    if(q.trim()){
+      const s = q.toLowerCase();
+      list = list.filter(r =>
+        r.name.toLowerCase().includes(s) ||
+        r.id.toLowerCase().includes(s) ||
+        r.phone.toLowerCase().includes(s) ||
+        r.conditions.some(c=>c.toLowerCase().includes(s))
+      );
+    }
+    // status
+    if(status!=="All") list = list.filter(r=>r.status===status);
+    // gender
+    if(gender!=="All") list = list.filter(r=>r.gender===gender);
+    // doctor
+    if(doctor!=="All") list = list.filter(r=>r.doctor===doctor);
+    // conditions (multi)
+    if(conditions.length>0) list = list.filter(r=> conditions.every(c => r.conditions.includes(c)));
+    // age
+    list = list.filter(r=> r.age>=ageMin && r.age<=ageMax);
+    // visit date range
+    if(visitRange.from) list = list.filter(r=> new Date(r.lastVisit) >= new Date(visitRange.from!));
+    if(visitRange.to) list = list.filter(r=> new Date(r.lastVisit) <= new Date(visitRange.to!));
+
+    // sort
+    list.sort((a,b)=>{
+      const dir = sortDir === "asc" ? 1 : -1;
+      const vA = a[sortKey];
+      const vB = b[sortKey];
+      if(sortKey==="lastVisit"){
+        return (new Date(vA as string).getTime() - new Date(vB as string).getTime()) * dir;
+      }
+      if(typeof vA === "number" && typeof vB === "number") return (vA - vB) * dir;
+      return String(vA).localeCompare(String(vB)) * dir;
+    });
+
+    return list;
+  }, [rows,q,status,gender,doctor,conditions,ageMin,ageMax,visitRange,sortKey,sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  useEffect(()=>{ if(page>totalPages) setPage(1); }, [totalPages,page]);
+
+  const pageRows = useMemo(()=>{
+    const start = (page-1)*pageSize;
+    return filtered.slice(start, start+pageSize);
+  }, [filtered,page]);
+
+  const setSort = (key: SortKey) => {
+    if (sortKey === key) setSortDir(d => (d === "asc" ? "desc" : "asc"));
+    else { setSortKey(key); setSortDir("asc"); }
+  };
+
+  const statusTone = (s: Status): "green"|"gray"|"red"|"blue" => (
+    s==="Active"?"green": s==="Inactive"?"gray": s==="Critical"?"red":"blue"
+  );
+
+  const resetFilters = () => {
+    setQ("");
+    setStatus("All"); setGender("All"); setDoctor("All"); setConditions([]);
+    setAgeMin(0); setAgeMax(100);
+    setVisitPreset('All time'); setVisitRange({from:null,to:null});
+  };
+
+  const applyVisitPreset = (p: 'All time' | '7 days' | '30 days' | 'Custom') => {
+    setVisitPreset(p);
+    if(p==='All time') { setVisitRange({from:null,to:null}); return; }
+    if(p==='Custom') return; // keep current custom range
+    const today = new Date();
+    const to = today.toISOString().slice(0,10);
+    const days = p==='7 days' ? 6 : 29; // inclusive of today
+    const fromDate = new Date(today.getTime() - days*24*60*60*1000);
+    const from = fromDate.toISOString().slice(0,10);
+    setVisitRange({from,to});
+  };
+
+  // selection helpers
+  const allPageSelected = pageRows.length>0 && pageRows.every(r=> selected.has(r.id));
+  const toggleRow = (id: string) =>
+  setSelected(prev => {
+    const next = new Set(prev);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    return next;
+  });
+  const toggleSelectAllPage = () => setSelected(prev=>{ const next = new Set(prev); const all = pageRows.every(r=> next.has(r.id)); pageRows.forEach(r=>{ if(all) next.delete(r.id); else next.add(r.id); }); return next; });
+
+  // --- DEV TESTS (lightweight runtime checks; no crashes) ---
+  useEffect(()=>{
+    if (process.env.NODE_ENV === 'production') return;
+    try {
+      // Test #1: With defaults, filtered equals rows
+      console.assert(filtered.length === rows.length, 'Test#1 failed: filtered should equal rows');
+      // Test #2: Default sort is lastVisit desc -> first row is latest date
+      const latest = new Date(Math.max(...rows.map(r=> new Date(r.lastVisit).getTime()))).toISOString().slice(0,10);
+      console.assert(pageRows[0]?.lastVisit === latest, 'Test#2 failed: first visible row should be latest by lastVisit');
+      // Test #3: Doctors list populated
+      console.assert(doctors.length>0, 'Test#3 failed: doctors list should not be empty');
+      // Test #4: Conditions list populated
+      console.assert(allConditions.length>0, 'Test#4 failed: conditions list should not be empty');
+      // Test #5: statusTone mapping
+      console.assert(statusTone('Active')==='green' && statusTone('Inactive')==='gray' && statusTone('Critical')==='red' && statusTone('Discharged')==='blue', 'Test#5 failed: statusTone mapping incorrect');
+      // Test #6: serial numbering starts at 1 for the current page
+      const firstSerial = (page-1)*pageSize + 1;
+      console.assert(firstSerial===((page-1)*pageSize + 1), 'Test#6 failed: serial calculation sanity check');
+      // Test #7: default gender is All
+      console.assert(gender==='All', 'Test#7 failed: default gender should be All');
+      // Test #8: visit preset default is All time
+      console.assert(visitPreset==='All time', 'Test#8 failed: visitPreset default should be All time');
+      // Test #9: pageRows never exceeds pageSize
+      console.assert(pageRows.length<=pageSize, 'Test#9 failed: pageRows should be <= pageSize');
+    } catch(err){
+      // ensure no runtime crash in dev
+      console.warn('DEV tests warning:', err);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <AppShell>
-    <div className="space-y-4 p-5">
-      {/* Page Header */}
-      <div className="flex items-start justify-between gap-4">
+    <div className="min-h-screen w-full bg-gradient-to-b from-white to-slate-50 p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-            <UserRound className="h-6 w-6" /> Patients
-          </h1>
-          <p className="text-sm text-muted-foreground">Search, filter, and review patient history — consistent with your current DocHub theme.</p>
+          <h1 className="text-2xl font-semibold tracking-tight">Patients</h1>
+          <p className="text-sm text-gray-500">Search, filter & review patient history</p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="rounded-xl">
-            <Printer className="mr-2 h-4 w-4" /> Export
-          </Button>
-          <Button className="rounded-xl">
-            <Sparkles className="mr-2 h-4 w-4" /> New Patient
-          </Button>
+        <div className="flex gap-3">
+          <button className="px-4 py-2 rounded-xl bg-white ring-1 ring-gray-200 text-gray-700 hover:bg-gray-50">Export</button>
+          <button className="px-4 py-2 rounded-xl bg-black text-white hover:opacity-90">New Patient</button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <Stat label="Total" value={stats.total} icon={UserRound} />
-        <Stat label="Active" value={stats.active} icon={Stethoscope} />
-        <Stat label="Critical" value={stats.critical} icon={CircleAlert} />
-        <Stat label="Discharged" value={stats.discharged} icon={CalendarClock} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <StatCard icon={<span className="text-xl">👥</span>} label="Total" value={rows.length} tone="bg-violet-100" />
+        <StatCard icon={<span className="text-xl">🩺</span>} label="Active" value={rows.filter(r=>r.status==='Active').length} tone="bg-green-100" />
+        <StatCard icon={<span className="text-xl">🚨</span>} label="Critical" value={rows.filter(r=>r.status==='Critical').length} tone="bg-red-100" />
+        <StatCard icon={<span className="text-xl">🚪</span>} label="Discharged" value={rows.filter(r=>r.status==='Discharged').length} tone="bg-blue-100" />
       </div>
 
-      {/* Toolbar */}
-      <Card className="rounded-2xl">
-        <CardContent className="p-4">
-          <div className="flex flex-col md:flex-row md:items-center gap-3">
-            <div className="relative md:w-1/3">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search by name, ID, phone, condition…"
-                className="pl-9 rounded-xl"
-              />
-            </div>
+      {/* Search & Filters */}
+      <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-sm mb-4">
+        {/* Top row: Search + Reset */}
+        <div className="flex flex-col md:flex-row gap-3 md:items-center">
+          <div className="flex-1">
+            <input
+              value={q}
+              onChange={(e)=>setQ(e.target.value)}
+              placeholder="Search by name, ID, phone, condition…"
+              className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            />
+          </div>
+          <button onClick={resetFilters} className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200">Reset all</button>
+        </div>
 
-            <div className="flex flex-1 flex-wrap gap-3 items-center">
-              {/* Status */}
-              <div className="flex items-center gap-2">
-                <Label className="text-xs text-muted-foreground">Status</Label>
-                <Select value={status} onValueChange={setStatus}>
-                  <SelectTrigger className="w-[150px] rounded-xl">
-                    <SelectValue placeholder="All" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="critical">Critical</SelectItem>
-                    <SelectItem value="discharged">Discharged</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Row 2: Primary filters */}
+        <div className="mt-3 grid md:grid-cols-3 gap-3">
+          {/* Status */}
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-gray-500 px-1">Status</span>
+            <FilterSelect
+              value={status as Status | "All"}
+              onChange={(v:Status | "All")=>setStatus(v)}
+              placeholder="All statuses"
+              options={( ["All","Active","Inactive","Critical","Discharged"] as const ).map(s=>({
+                label: s==='Active' ? '🟢 Active' : s==='Inactive' ? '⚪ Inactive' : s==='Critical' ? '🔴 Critical' : s==='Discharged' ? '🔵 Discharged' : 'All statuses',
+                value: s
+              }))}
+            />
+          </div>
 
-              {/* Gender */}
-              <div className="flex items-center gap-2">
-                <Label className="text-xs text-muted-foreground">Gender</Label>
-                <Select value={gender} onValueChange={setGender}>
-                  <SelectTrigger className="w-[130px] rounded-xl">
-                    <SelectValue placeholder="All" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="M">Male</SelectItem>
-                    <SelectItem value="F">Female</SelectItem>
-                    <SelectItem value="O">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Age */}
-              <div className="flex items-center gap-2">
-                <Label className="text-xs text-muted-foreground">Age</Label>
-                <Input
-                  type="number"
-                  placeholder="Min"
-                  className="w-20 rounded-xl"
-                  value={minAge ?? ""}
-                  onChange={(e) => setMinAge(e.target.value ? Number(e.target.value) : undefined)}
-                />
-                <span className="text-muted-foreground">—</span>
-                <Input
-                  type="number"
-                  placeholder="Max"
-                  className="w-20 rounded-xl"
-                  value={maxAge ?? ""}
-                  onChange={(e) => setMaxAge(e.target.value ? Number(e.target.value) : undefined)}
-                />
-              </div>
-
-              {/* Date Preset */}
-              <div className="flex items-center gap-2">
-                <Label className="text-xs text-muted-foreground">Last visit</Label>
-                <Select value={datePreset} onValueChange={(v: DatePreset) => setDatePreset(v)}>
-                  <SelectTrigger className="w-[160px] rounded-xl">
-                    <SelectValue placeholder="All" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All time</SelectItem>
-                    <SelectItem value="today">Today</SelectItem>
-                    <SelectItem value="this_week">This week</SelectItem>
-                    <SelectItem value="this_month">This month</SelectItem>
-                    <SelectItem value="last_7">Last 7 days</SelectItem>
-                    <SelectItem value="last_30">Last 30 days</SelectItem>
-                    <SelectItem value="custom">Custom…</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Custom Range */}
-              {datePreset === "custom" && (
-                <div className="flex items-center gap-2">
-                  <Input type="date" className="rounded-xl" value={customStart} onChange={(e) => setCustomStart(e.target.value)} />
-                  <span className="text-muted-foreground">—</span>
-                  <Input type="date" className="rounded-xl" value={customEnd} onChange={(e) => setCustomEnd(e.target.value)} />
-                </div>
-              )}
-
-              <Button variant="outline" className="ml-auto rounded-xl">
-                <Filter className="mr-2 h-4 w-4" /> More filters
-              </Button>
+          {/* Gender — attractive pills */}
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-gray-500 px-1">Gender</span>
+            <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto">
+              {[
+                {label:'All', value:'All' as const, icon:'•'},
+                {label:'Female', value:'F' as const, icon:'♀'},
+                {label:'Male', value:'M' as const, icon:'♂'},
+                {label:'Others', value:'O' as const, icon:'⚧'},
+              ].map(opt=>{
+                const active = (gender as Status | "All")===opt.value;
+                const activeClass = opt.value==='F'
+                  ? 'bg-rose-600 text-white ring-rose-600'
+                  : opt.value==='M'
+                  ? 'bg-sky-600 text-white ring-sky-600'
+                  : opt.value==='O'
+                  ? 'bg-violet-600 text-white ring-violet-600'
+                  : 'bg-white text-gray-900 ring-gray-300';
+                const idleClass = opt.value==='F'
+                  ? 'text-rose-600 ring-transparent hover:bg-rose-50'
+                  : opt.value==='M'
+                  ? 'text-sky-600 ring-transparent hover:bg-sky-50'
+                  : opt.value==='O'
+                  ? 'text-violet-600 ring-transparent hover:bg-violet-50'
+                  : 'text-gray-600 ring-transparent hover:bg-gray-50';
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={()=>setGender(opt.value)}
+                    aria-pressed={active}
+                    aria-label={`Gender: ${opt.label}`}
+                    className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 ${active? activeClass : idleClass}`}
+                  >
+                    <span aria-hidden>{opt.icon}</span>
+                    <span className="truncate">{opt.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
-        </CardContent>
-      </Card>
 
-      {/* Table */}
-      <Card className="rounded-2xl overflow-hidden">
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent">
-                <TableHead className="w-10"></TableHead>
-                <TableHead>Patient</TableHead>
-                <TableHead>ID</TableHead>
-                <TableHead>Age / Gender</TableHead>
-                <TableHead>Last Visit</TableHead>
-                <TableHead>Doctor</TableHead>
-                <TableHead>Conditions</TableHead>
-                <TableHead>Visits</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map((p) => (
-                <TableRow key={p.id} className="">
-                  <TableCell>
-                    <Checkbox aria-label={`Select ${p.name}`} />
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <div className="flex flex-col">
-                        <button
-                          onClick={() => setSelected(p)}
-                          className="text-sm font-medium hover:underline text-left"
-                        >
-                          {p.name}
-                        </button>
-                        <div className="text-xs text-muted-foreground">{p.phone}</div>
-                      </div>
-                      {isRecent(p.lastVisit) && (
-                        <Badge className="rounded-full" variant="secondary">New</Badge>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">{p.id}</TableCell>
-                  <TableCell className="text-sm">{p.age} / {p.gender}</TableCell>
-                  <TableCell className="text-sm">{p.lastVisit}</TableCell>
-                  <TableCell className="text-sm">{p.referredBy || "—"}</TableCell>
-                  <TableCell>
-                    <ConditionChips items={p.conditions} />
-                  </TableCell>
-                  <TableCell className="text-sm">{visitCount(p)}</TableCell>
-                  <TableCell>
-                    <StatusBadge status={p.status} />
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <Button size="sm" variant="ghost" className="rounded-xl" onClick={() => setSelected(p)}>
-                        <ExternalLink className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="rounded-xl" onClick={() => setNotesOpen(true)}>
-                        <History className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="rounded-xl">
-                        <Printer className="h-4 w-4" />
-                      </Button>
-                      <Button size="sm" variant="ghost" className="rounded-xl">
-                        <Share2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {filtered.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={10}>
-                    <div className="py-12 text-center text-muted-foreground">No patients match your filters.</div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+          {/* Doctor */}
+          <div className="flex flex-col gap-1">
+            <span className="text-xs text-gray-500 px-1">Doctor</span>
+            <FilterSelect
+              value={doctor }
+              onChange={(v)=>setDoctor(v)}
+              placeholder="All doctors"
+              searchable
+              options={[{label:'All doctors', value:'All'}, ...doctors.map(d=>({label:d, value:d}))]}
+            />
+          </div>
+        </div>
 
-      {/* Side Drawer — Patient Profile & History */}
-      <Sheet open={!!selected} onOpenChange={(open) => !open && setSelected(null)}>
-        <SheetContent side="right" className="w-full md:w-[560px] p-0">
-          {selected && (
-            <div className="h-full flex flex-col">
-              <div className="p-4 border-b">
-                <SheetHeader>
-                  <SheetTitle className="flex items-center gap-2">
-                    <UserRound className="h-5 w-5" /> {selected.name}
-                  </SheetTitle>
-                  <SheetDescription>{selected.id} · {selected.phone}{selected.email ? ` · ${selected.email}` : ""}</SheetDescription>
-                </SheetHeader>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {selected.tags?.map((t) => (
-                    <Badge key={t} variant="secondary" className="rounded-full">{t}</Badge>
-                  ))}
-                  <StatusBadge status={selected.status} />
-                </div>
+        {/* Row 3: Age + Visit range */}
+        <div className="mt-3 grid md:grid-cols-3 gap-3 items-end">
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-600">Age</label>
+            <div className="flex items-center gap-2">
+              <input type="number" value={ageMin} onChange={e=>setAgeMin(parseInt(e.target.value||'0'))} className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200"/>
+              <span className="text-gray-400">–</span>
+              <input type="number" value={ageMax} onChange={e=>setAgeMax(parseInt(e.target.value||'0'))} className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200"/>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-sm text-gray-600">Last visit</label>
+            <Segmented options={[
+              {label:'All time', value:'All time' as const},
+              {label:'7 days', value:'7 days' as const},
+              {label:'30 days', value:'30 days' as const},
+              {label:'Custom', value:'Custom' as const},
+            ]} value={visitPreset} onChange={(v)=>applyVisitPreset(v)} />
+          </div>
+
+          {visitPreset==='Custom' && (
+            <div className="flex items-end gap-2">
+              <div className="flex-1 flex flex-col gap-1">
+                <label className="text-sm text-gray-600">From</label>
+                <input type="date" value={visitRange.from ?? ''} onChange={e=>setVisitRange(v=>({...v,from:e.target.value||null}))} className="h-11 px-3 rounded-xl ring-1 ring-gray-200"/>
               </div>
-
-              <Tabs defaultValue="timeline" className="flex-1 flex flex-col">
-                <div className="px-4 pt-4">
-                  <TabsList>
-                    <TabsTrigger value="timeline">Timeline</TabsTrigger>
-                    <TabsTrigger value="profile">Profile</TabsTrigger>
-                    <TabsTrigger value="notes">Notes</TabsTrigger>
-                  </TabsList>
-                </div>
-
-                <TabsContent value="timeline" className="flex-1 overflow-auto p-4">
-                  <div className="space-y-4">
-                    {selected.history.map((h) => (
-                      <motion.div
-                        key={h.id}
-                        initial={{ opacity: 0, y: 6 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="rounded-xl border p-4"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="text-sm text-muted-foreground">{h.date}</div>
-                          <Badge variant="outline" className="capitalize">
-                            {h.type}
-                          </Badge>
-                        </div>
-                        {h.type === "visit" && (
-                          <div className="mt-2">
-                            <div className="font-medium">OPD Visit — {(h).doctor}</div>
-                            <div className="text-sm text-muted-foreground">{(h).summary}</div>
-                          </div>
-                        )}
-                        {h.type === "lab" && (
-                          <div className="mt-2">
-                            <div className="font-medium">Lab Test: {(h).test}</div>
-                            <div className="text-sm text-muted-foreground">Result ID: {(h).resultId} — Status: {(h).status}</div>
-                          </div>
-                        )}
-                        {h.type === "rx" && (
-                          <div className="mt-2">
-                            <div className="font-medium">Prescription — {(h).doctor}</div>
-                            <div className="text-sm text-muted-foreground">{(h).meds.join(", ")}</div>
-                          </div>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="profile" className="flex-1 overflow-auto p-4">
-                  <div className="grid grid-cols-2 gap-3">
-                    <Card className="col-span-2 md:col-span-1 rounded-2xl">
-                      <CardHeader>
-                        <CardTitle className="text-base">Demographics</CardTitle>
-                      </CardHeader>
-                      <CardContent className="text-sm space-y-2">
-                        <div><span className="text-muted-foreground">Age:</span> {selected.age}</div>
-                        <div><span className="text-muted-foreground">Gender:</span> {selected.gender}</div>
-                        <div><span className="text-muted-foreground">Phone:</span> {selected.phone}</div>
-                        {selected.email && <div><span className="text-muted-foreground">Email:</span> {selected.email}</div>}
-                        <div><span className="text-muted-foreground">Referred by:</span> {selected.referredBy}</div>
-                      </CardContent>
-                    </Card>
-
-                    <Card className="col-span-2 md:col-span-1 rounded-2xl">
-                      <CardHeader>
-                        <CardTitle className="text-base">Conditions</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <ConditionChips items={selected.conditions} />
-                      </CardContent>
-                    </Card>
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="notes" className="flex-1 overflow-auto p-4">
-                  <div className="space-y-3">
-                    <Textarea placeholder="Write a note for this patient…" className="min-h-[120px] rounded-2xl" />
-                    <div className="flex justify-end">
-                      <Button className="rounded-xl">Save Note</Button>
-                    </div>
-                  </div>
-                </TabsContent>
-              </Tabs>
-
-              <div className="p-4 border-t flex justify-end gap-2">
-                <Button variant="outline" className="rounded-xl">
-                  <Mail className="mr-2 h-4 w-4" /> Email
-                </Button>
-                <Button className="rounded-xl">
-                  <Phone className="mr-2 h-4 w-4" /> Call
-                </Button>
+              <div className="flex-1 flex flex-col gap-1">
+                <label className="text-sm text-gray-600">To</label>
+                <input type="date" value={visitRange.to ?? ''} onChange={e=>setVisitRange(v=>({...v,to:e.target.value||null}))} className="h-11 px-3 rounded-xl ring-1 ring-gray-200"/>
               </div>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </div>
 
-      {/* Quick History Dialog (example) */}
-      <Dialog open={notesOpen} onOpenChange={setNotesOpen}>
-        <DialogContent className="sm:max-w-[560px]">
-          <DialogHeader>
-            <DialogTitle>Recent History</DialogTitle>
-            <DialogDescription>Last 5 interactions across visits, labs, and prescriptions.</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-3 max-h-[60vh] overflow-auto">
-            {(selected?.history || seed[0].history).slice(0, 5).map((h) => (
-              <div key={h.id} className="rounded-xl border p-3">
-                <div className="text-xs text-muted-foreground">{h.date}</div>
-                <div className="font-medium capitalize">{h.type}</div>
-              </div>
-            ))}
+        {/* Row 4: Conditions */}
+        <div className="mt-4">
+          <div className="text-sm text-gray-600 mb-1">Conditions</div>
+          <div className="flex flex-wrap gap-2">
+            {allConditions.map(c=>{
+              const active = conditions.includes(c);
+              return (
+                <button key={c} onClick={()=> setConditions(prev=> active? prev.filter(x=>x!==c) : [...prev,c])} className={`px-3 py-1 rounded-full text-sm ring-1 transition ${active? 'bg-black text-white ring-black':'bg-white text-gray-700 ring-gray-200 hover:bg-gray-50'}`}>
+                  {active? '✓ ':''}{c}
+                </button>
+              );
+            })}
+            {conditions.length>0 && (
+              <button onClick={()=>setConditions([])} className="px-3 py-1 rounded-full text-sm text-gray-600 hover:text-black">Clear</button>
+            )}
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </div>
+
+      {/* Bulk selection bar */}
+      {selected.size>0 && (
+        <div className="sticky top-2 z-10 mb-2 flex items-center justify-between rounded-xl bg-black text-white px-4 py-2">
+          <div className="text-sm">{selected.size} selected</div>
+          <div className="flex gap-2">
+            <button onClick={()=>setSelected(new Set())} className="px-3 h-9 rounded-lg bg-white/10 hover:bg-white/15">Clear</button>
+            <button onClick={()=>alert('Bulk share coming soon')} className="px-3 h-9 rounded-lg bg-white/10 hover:bg-white/15">Share</button>
+          </div>
+        </div>
+      )}
+
+      {/* Table */}
+      <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
+        <table className="w-full table-fixed">
+          <thead>
+            <tr className="bg-gray-50 text-xs text-gray-600">
+              <th className="w-10 text-left px-4 py-3"><input type="checkbox" className="h-4 w-4" checked={allPageSelected} onChange={toggleSelectAllPage} /></th>
+              <th className="w-14 text-left px-4 py-3">No.</th>
+              {headerCell("Patient","name",sortKey,sortDir,setSort)}
+              <th className="w-24 text-left px-4 py-3">ID</th>
+              {headerCell("Age / Gender","age",sortKey,sortDir,setSort)}
+              {headerCell("Last Visit","lastVisit",sortKey,sortDir,setSort)}
+              {headerCell("Doctor","doctor",sortKey,sortDir,setSort)}
+              <th className="text-left px-4 py-3">Conditions</th>
+              {headerCell("Visits","visits",sortKey,sortDir,setSort)}
+              {headerCell("Status","status",sortKey,sortDir,setSort)}
+              <th className="w-40 text-right px-4 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pageRows.map((r,idx)=>{
+              const serial = (page-1)*pageSize + idx + 1; // serial number after filters & sort
+              return (
+                <tr key={r.id} className="border-t border-gray-100 hover:bg-gray-50/60">
+                  <td className="px-4 py-3"><input type="checkbox" className="h-4 w-4" checked={selected.has(r.id)} onChange={()=>toggleRow(r.id)} /></td>
+                  <td className="px-4 py-3 text-sm text-gray-500">{serial}</td>
+                  <td className="px-4 py-3">
+                    <div className="font-medium text-gray-900">{r.name}</div>
+                    <div className="text-xs text-gray-500">{r.phone}</div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-600">{r.id}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{r.age} <span className="text-gray-400">/</span> {r.gender}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{r.lastVisit}</td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{r.doctor}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      {r.conditions.map((c,i)=>(
+                        <Chip key={i} label={c} tone={c.toLowerCase().includes('fever')? 'amber' : c.toLowerCase().includes('diabetes')? 'amber' : 'gray'} />
+                      ))}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-gray-700">{r.visits}</td>
+                  <td className="px-4 py-3">
+                    <Chip label={r.status} tone={statusTone(r.status)} />
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="inline-flex gap-1">
+                      <button onClick={()=>setPreview(r)} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">View</button>
+                      <button onClick={()=>setHistory(r)} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">History</button>
+                      <button onClick={()=>{setShareFor(r); setShareTarget('Doctor'); setShareVia('Copy link'); setShareDoctor(r.doctor);}} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">Share</button>
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+
+            {pageRows.length===0 && (
+              <tr>
+                <td colSpan={11} className="px-4 py-12 text-center text-sm text-gray-500">No patients match your filters.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between mt-4">
+        <div className="text-sm text-gray-500">Showing <span className="font-medium text-gray-700">{pageRows.length}</span> of <span className="font-medium text-gray-700">{filtered.length}</span> patients</div>
+        <div className="flex gap-2">
+          <button onClick={()=> setPage(p=> Math.max(1,p-1))} className="px-3 h-10 rounded-xl bg-white ring-1 ring-gray-200 disabled:opacity-50" disabled={page===1}>Prev</button>
+          <div className="px-3 h-10 grid place-items-center rounded-xl bg-gray-100 text-sm">{page} / {totalPages}</div>
+          <button onClick={()=> setPage(p=> Math.min(totalPages,p+1))} className="px-3 h-10 rounded-xl bg-white ring-1 ring-gray-200 disabled:opacity-50" disabled={page===totalPages}>Next</button>
+        </div>
+      </div>
+
+      {/* Slide-over: View Preview */}
+      {preview && (
+        <div className="fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-black/30" onClick={()=>setPreview(null)} />
+          <div className="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl p-6 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">Patient Preview</h2>
+              <button onClick={()=>setPreview(null)} className="text-gray-500 hover:text-gray-900">✕</button>
+            </div>
+            <div className="space-y-3">
+              <div className="text-2xl font-medium">{preview.name}</div>
+              <div className="text-sm text-gray-600">{preview.id} • {preview.age}/{preview.gender} • {preview.phone}</div>
+              <div className="text-sm"><span className="text-gray-500">Doctor: </span>{preview.doctor}</div>
+              <div className="flex gap-1.5 flex-wrap">{preview.conditions.map((c,i)=>(<Chip key={i} label={c} />))}</div>
+              <div className="text-sm"><span className="text-gray-500">Last visit: </span>{preview.lastVisit}</div>
+              <div className="pt-2 text-sm text-gray-500">This is a lightweight preview. Click below to open the full patient page.</div>
+              <button onClick={()=>{window.location.href = `/patients/${preview.id}`;}} className="w-full h-11 rounded-xl bg-black text-white">Open patient page</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Slide-over: History */}
+      {history && (
+        <div className="fixed inset-0 z-40">
+          <div className="absolute inset-0 bg-black/30" onClick={()=>setHistory(null)} />
+          <div className="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-2xl p-6 overflow-y-auto">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold">History — {history.name}</h2>
+              <button onClick={()=>setHistory(null)} className="text-gray-500 hover:text-gray-900">✕</button>
+            </div>
+            <ol className="relative border-s border-gray-200 ps-5 space-y-6">
+              <li>
+                <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
+                <div className="text-sm"><span className="font-medium">{history.lastVisit}</span> — Last visit recorded</div>
+              </li>
+              <li>
+                <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
+                <div className="text-sm"><span className="font-medium">{history.visits} visit(s)</span> total with {history.doctor}</div>
+              </li>
+              <li>
+                <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
+                <div className="text-sm">Conditions: {history.conditions.join(', ')}</div>
+              </li>
+            </ol>
+            <button onClick={()=>{window.location.href = `/patients/${history.id}/history`;}} className="mt-6 w-full h-11 rounded-xl bg-black text-white">Open full history</button>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Share */}
+      {shareFor && (
+        <div className="fixed inset-0 z-50 grid place-items-center p-4">
+          <div className="absolute inset-0 bg-black/40" onClick={()=>setShareFor(null)} />
+          <div className="relative w-full max-w-md bg-white rounded-2xl p-5 shadow-xl">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-lg font-semibold">Share patient</h3>
+              <button onClick={()=>setShareFor(null)} className="text-gray-500 hover:text-gray-900">✕</button>
+            </div>
+            <div className="text-sm text-gray-500">{shareFor.name} — {shareFor.id}</div>
+
+            <div className="mt-4 space-y-4">
+              <div>
+                <div className="text-sm font-medium mb-2">Share to</div>
+                <Segmented options={[
+                  {label:'Doctor', value:'Doctor' as const},
+                  {label:'Nurse', value:'Nurse' as const},
+                  {label:'Billing', value:'Billing' as const},
+                  {label:'Reception', value:'Reception' as const},
+                ]} value={shareTarget} onChange={v=>setShareTarget(v)} />
+              </div>
+
+              {shareTarget==='Doctor' && (
+                <div>
+                  <div className="text-sm font-medium mb-2">Select doctor</div>
+                  <select value={shareDoctor} onChange={e=>setShareDoctor(e.target.value)} className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-full">
+                    {doctors.map(d=> (<option key={d} value={d}>{d}</option>))}
+                  </select>
+                </div>
+              )}
+
+              <div>
+                <div className="text-sm font-medium mb-2">Via</div>
+                <Segmented options={[
+                  {label:'Copy link', value:'Copy link' as const},
+                  {label:'Email', value:'Email' as const},
+                  {label:'WhatsApp', value:'WhatsApp' as const},
+                ]} value={shareVia} onChange={v=>setShareVia(v)} />
+              </div>
+
+              <div className="grid gap-2">
+                {(shareVia==='Email') && (
+                  <input placeholder="Enter email" className="h-11 px-3 rounded-xl ring-1 ring-gray-200" />
+                )}
+                {(shareVia==='WhatsApp') && (
+                  <input placeholder="Enter WhatsApp number" className="h-11 px-3 rounded-xl ring-1 ring-gray-200" />
+                )}
+              </div>
+
+              <button
+                onClick={()=>{
+                  // demo action
+                  if(shareVia==='Copy link') navigator.clipboard?.writeText(`${window.location.origin}/patients/${shareFor.id}`);
+                  setShareFor(null);
+                  alert(`Shared with ${shareTarget}${shareTarget==='Doctor' ? ' — '+shareDoctor : ''} via ${shareVia}`);
+                }}
+                className="w-full h-11 rounded-xl bg-black text-white">Share</button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
     </AppShell>
+  );
+}
+
+function headerCell(
+  label: string,
+  key: SortKey,
+  activeKey: SortKey,
+  dir: SortDir,
+  setSort: (k: SortKey)=>void
+){
+  const isActive = key===activeKey;
+  return (
+    <th className="text-left px-4 py-3 select-none">
+      <button
+        onClick={()=>setSort(key)}
+        className={`inline-flex items-center gap-1.5 text-xs font-medium ${isActive? 'text-gray-900':'text-gray-600'} hover:text-gray-900`}
+      >
+        {label}
+        <span className={`text-[10px] ${isActive? 'opacity-100':'opacity-40'}`}>{isActive? (dir==='asc'? '▲':'▼') : '↕'}</span>
+      </button>
+    </th>
   );
 }

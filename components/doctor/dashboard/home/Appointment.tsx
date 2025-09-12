@@ -1,64 +1,50 @@
-import React, { Dispatch, SetStateAction, useState } from "react";
-
+import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { AppointmentType, classNames } from "./DayView";
+import {
+  CheckCircle2,
+  DoorOpen,
+  Megaphone,
+  MoreVertical,
+  Trash2,
+  User2,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, DoorOpen, Megaphone } from "lucide-react";
-import Link from "next/link";
+type ApptType = "consultation" | "lab" | "followup";
 
 export default function Appointment({
-  i,
-  typeStyle,
-  isConsulted,
-  consultedStyles,
-  apt
+  a,
+  idx,
+  setMenuOpenId,
+  menuOpenId,
+  setAppts,
+  callIn,
+  removeAppt,
+  typeMeta,
+  currentId,
+  markConsulted,
 }: {
-  i: number;
+  a: AppointmentType;
+  idx: number;
+  setMenuOpenId: (value: React.SetStateAction<string | null>) => void;
+  menuOpenId: string | null;
+  setAppts: (value: React.SetStateAction<AppointmentType[]>) => void;
+  callIn: (id: string) => void;
+  removeAppt: (id: string) => void;
+  typeMeta: Record<
+    ApptType,
+    {
+      label: string;
+      bg: string;
+      text: string;
+      icon: React.ReactNode;
+    }
+  >;
+  currentId: string | null;
+  markConsulted: (id: string) => void;
+}) {
 
-  isConsulted: boolean;
-  consultedStyles: {
-    readonly container: "opacity-60 grayscale";
-    readonly chip: "bg-gray-200 text-gray-700";
-    readonly dot: "bg-gray-400";
-    readonly badge: "inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200";
-  };
-  typeStyle:
-    | {
-        readonly chip: "bg-blue-100 text-blue-800";
-        readonly block: "bg-blue-100 text-blue-800";
-        readonly ring: "ring-blue-200";
-        readonly dot: "bg-blue-500";
-        readonly label: "Consultation";
-      }
-    | {
-        readonly chip: "bg-amber-100 text-amber-800";
-        readonly block: "bg-amber-100 text-amber-800";
-        readonly ring: "ring-amber-200";
-        readonly dot: "bg-amber-500";
-        readonly label: "Lab Test";
-      }
-    | {
-        readonly chip: "bg-emerald-100 text-emerald-800";
-        readonly block: "bg-emerald-100 text-emerald-800";
-        readonly ring: "ring-emerald-200";
-        readonly dot: "bg-emerald-500";
-        readonly label: "Follow-up";
-      };
-  apt: {
-    time: string;
-    name: string;
-    type: string;
-    status: string;
-  };
-  setAppointments: Dispatch<SetStateAction<{
-    time: string;
-    name: string;
-    type: string;
-    status: string;
-}[]>>
-}) 
-
-{
-    const [ring, setRing] = useState(false)
+  const [ring, setRing] = useState(false)
 
 
     const startBaseClasses =
@@ -69,55 +55,143 @@ export default function Appointment({
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: -10 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.3, delay: i * 0.08 }}
-      className={`flex items-center justify-between border rounded-lg p-3 hover:bg-gray-50 ${
-        typeStyle.ring
-      } ${isConsulted ? consultedStyles.container : ""}`}
+      id={`card-${a.id}`}
+      key={a.id}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: Math.min(0.4, idx * 0.02) }}
+      className={classNames(
+        "relative pointer-events-auto rounded-2xl border p-4 pr-5 shadow-sm bg-white",
+        a.status === "consulted" && "opacity-70"
+      )}
     >
       <div className="flex items-center gap-3">
-        <span
-          className={`w-2.5 h-2.5 rounded-full ${
-            isConsulted ? consultedStyles.dot : typeStyle.dot
-          }`}
-        ></span>
-        <div>
-          <p className="font-medium">{apt.name}</p>
-          <p
-            className={`text-xs inline-flex items-center px-2 py-0.5 rounded ${
-              isConsulted ? consultedStyles.chip : typeStyle.chip
-            }`}
+        {a.avatar ? (
+          <img
+            src={a.avatar}
+            alt="avatar"
+            className={classNames(
+              "h-10 w-10 rounded-full object-cover",
+              a.status === "consulted" && "grayscale"
+            )}
+          />
+        ) : (
+          <div
+            className={classNames(
+              "h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center text-gray-600",
+              a.status === "consulted" && "grayscale"
+            )}
           >
-            {apt.type}
-          </p>
-        </div>
-        {!isConsulted && <div className="flex gap-5">
-          <Button size="sm" className="rounded-2xl" onClick={()=>!isConsulted && setRing(true)}>
-            <Megaphone className="h-4 w-4 mr-2" />
-            Call In
-          </Button>
-
-          <Link href={ring ? "/consulting" : "/"}>
-            <Button
-              variant="outline"
-              size="sm"
-               className={startBaseClasses + startHighlightClasses}
-        style={ring ? { backgroundColor: "#16A34A", color: "#FFFFFF" } : undefined}
-            >
-              <DoorOpen className="h-4 w-4 mr-2" /> Start Consult
-            </Button>
-          </Link>
-        </div>}
-      </div>
-      <div className="flex items-center gap-2">
-        {isConsulted && (
-          <span className={consultedStyles.badge}>
-            <CheckCircle2 className="w-3 h-3" /> Consulted
-          </span>
+            <User2 className="h-5 w-5" />
+          </div>
         )}
-        <span className="text-sm text-gray-600">{apt.time}</span>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between gap-3">
+            <div
+              className={classNames(
+                "truncate font-medium text-gray-900",
+                a.status === "consulted" && "line-through"
+              )}
+            >
+              {a.name}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="shrink-0 text-sm text-gray-500">{a.time}</div>
+              <div className="relative shrink-0">
+                <button
+                  onClick={() =>
+                    setMenuOpenId((p) => (p === a.id ? null : a.id))
+                  }
+                  className="inline-flex items-center justify-center rounded-full hover:bg-gray-100 p-1.5"
+                  title="More"
+                >
+                  <MoreVertical className="h-4 w-4 text-gray-500" />
+                </button>
+                {menuOpenId === a.id && (
+                  <div className="absolute right-0 top-8 z-20 w-44 rounded-xl border bg-white shadow-lg p-1">
+                    <button
+                      onClick={() => {
+                        setMenuOpenId(null);
+                        setAppts((prev) =>
+                          prev.map((p) =>
+                            p.id === a.id ? { ...p, status: "pending" } : p
+                          )
+                        );
+                        callIn(a.id);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50"
+                    >
+                      Call again
+                    </button>
+                    <button
+                      onClick={() => {
+                        removeAppt(a.id);
+                      }}
+                      className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-1 flex items-center gap-2">
+            <span
+              className={classNames(
+                "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium",
+                typeMeta[a.type].bg,
+                typeMeta[a.type].text
+              )}
+            >
+              {typeMeta[a.type].icon}
+              {typeMeta[a.type].label}
+            </span>
+            {currentId === a.id && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-700">
+                Current
+              </span>
+            )}
+            {a.status === "consulted" && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
+                <CheckCircle2 className="h-4 w-4" /> Consulted
+              </span>
+            )}
+          </div>
+        </div>
       </div>
+
+      {a.status !== "consulted" && (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <Button
+
+            onClick={() =>{setRing(true); callIn(a.id)}}
+            className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm cursor-pointer
+              ${ring ? "bg-white text-black hover:bg-white hover:text-black" : "bg-[black] text-white hover:bg-[black] hover:text-white"}
+              `}
+          >
+            <Megaphone className="h-4 w-4 mr-2" /> Call In
+          </Button>
+          <button
+            onClick={() => {
+              if(ring)
+              markConsulted(a.id)
+            }}
+            className={startBaseClasses + startHighlightClasses + " inline-flex items-center gap-2 px-3 py-2 rounded-full cursor-pointer"}
+        style={ring ? { backgroundColor: "#16A34A", color: "#FFFFFF" } : undefined}
+          >
+            <DoorOpen className="h-4 w-4 mr-2" /> <p> Start Consult</p>
+          </button>
+          <button
+            onClick={() => removeAppt(a.id)}
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm hover:bg-red-50 text-red-700 border-red-200"
+          >
+            <Trash2 className="h-4 w-4" /> Remove
+          </button>
+        </div>
+      )}
     </motion.div>
   );
 }

@@ -21,12 +21,11 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
-
   PlusCircle,
-  Activity,
-  Pill,
-  FileText,
   IndianRupee,
+  ClipboardCheck,
+  ListChecks,
+  Users,
 
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -137,21 +136,21 @@ export default function Dashboard() {
       <div className="grid grid-cols-4 gap-4 p-6">
         {[
           {
-            title: "Patients Today",
+            title: "Total",
             value: "932",
-            icon: Activity,
+            icon: Users,
             color: "text-blue-500",
           },
           {
-            title: "Pending Results",
+            title: "Pending",
             value: "120",
-            icon: FileText,
+            icon: ListChecks,
             color: "text-purple-500",
           },
           {
-            title: "Prescriptions",
+            title: "Done",
             value: "75",
-            icon: Pill,
+            icon: ClipboardCheck,
             color: "text-green-500",
           },
           {
