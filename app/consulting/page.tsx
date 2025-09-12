@@ -31,6 +31,7 @@ import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
 import { ToggleChip } from "./ToggleChip";
 import PrescriptionsCard from "./PrescriptionsCard";
 import VitalsCard from "./VitalsCard";
+import { useRouter } from "next/navigation";
 
 // ========================
 // Types
@@ -196,6 +197,8 @@ function ConfettiBurst({
 // Component
 // ========================
 export default function ConsultingMenu() {
+
+   const router = useRouter();
   // ---- Mock current patient ----
   const patient = {
     id: "P-001",
@@ -286,9 +289,11 @@ export default function ConsultingMenu() {
     setTimeout(() => setShowBookCelebrate(false), 1500);
   };
 
+
   const handleComplete = () => {
     setShowConsultCelebrate(true);
     setTimeout(() => setShowConsultCelebrate(false), 1700);
+router.push("/")
   };
 
   // ========================

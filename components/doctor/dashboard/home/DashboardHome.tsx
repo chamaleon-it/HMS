@@ -2,7 +2,6 @@
 import { Dispatch, SetStateAction, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
@@ -22,28 +21,27 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
-  UserPlus,
+
   PlusCircle,
   Activity,
   Pill,
   FileText,
   IndianRupee,
-  CheckCircle2,
+
 } from "lucide-react";
 import { motion } from "framer-motion";
-import Appointment from "./Appointment";
+import DailyViewTimeline from "./DayView";
+import Summery from "./Summery";
 
 export default function Dashboard() {
   const [openAppointment, setOpenAppointment] = useState(false);
   const [openLab, setOpenLab] = useState(false);
   const [openPatient, setOpenPatient] = useState(false);
-  const [quickType, setQuickType] = useState<
+  const [quickType] = useState<
     "Consultation" | "Lab Test" | "Follow-up"
   >("Consultation");
-  const [quickWhen, setQuickWhen] = useState<"now15" | "now30" | "custom">(
-    "now15"
-  );
-  const [hideConsulted, setHideConsulted] = useState(false);
+
+  const [hideConsulted] = useState(false);
 
   const colorMap = {
     Consultation: {
@@ -77,7 +75,7 @@ export default function Dashboard() {
       "inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200",
   } as const;
 
-  const [appointments, setAppointments] = useState<
+  const [, setAppointments] = useState<
     {
       time: string;
       name: string;
@@ -180,83 +178,6 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Quick add strip */}
-      <div className="px-6 -mt-4">
-        <Card className="p-3 sm:p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-          <div className="text-sm text-gray-600">Quick add:</div>
-          <div className="flex flex-wrap lg:flex-nowrap gap-2">
-            <Button
-              size="sm"
-              variant={quickType === "Consultation" ? "default" : "outline"}
-              onClick={() => setQuickType("Consultation")}
-            >
-              Consultation
-            </Button>
-            <Button
-              size="sm"
-              variant={quickType === "Lab Test" ? "default" : "outline"}
-              onClick={() => setQuickType("Lab Test")}
-            >
-              Lab Test
-            </Button>
-            <Button
-              size="sm"
-              variant={quickType === "Follow-up" ? "default" : "outline"}
-              onClick={() => setQuickType("Follow-up")}
-            >
-              Follow-up
-            </Button>
-          </div>
-          <div className="h-5 w-px bg-gray-200 hidden sm:block" />
-          <div className="flex flex-wrap lg:flex-nowrap gap-2">
-            <Button
-              size="sm"
-              variant={quickWhen === "now15" ? "default" : "outline"}
-              onClick={() => {
-                setQuickWhen("now15");
-                setOpenAppointment(true);
-              }}
-            >
-              Now + 15m
-            </Button>
-            <Button
-              size="sm"
-              variant={quickWhen === "now30" ? "default" : "outline"}
-              onClick={() => {
-                setQuickWhen("now30");
-                setOpenAppointment(true);
-              }}
-            >
-              Now + 30m
-            </Button>
-            <Button
-              size="sm"
-              variant={quickWhen === "custom" ? "default" : "outline"}
-              onClick={() => {
-                setQuickWhen("custom");
-                setOpenAppointment(true);
-              }}
-            >
-              Pick time…
-            </Button>
-          </div>
-          <div className="ml-auto flex items-center gap-3 text-xs text-gray-500">
-            <label className="flex items-center gap-1 cursor-pointer select-none">
-              <input
-                type="checkbox"
-                className="accent-gray-600"
-                checked={hideConsulted}
-                onChange={(e) => setHideConsulted(e.target.checked)}
-              />
-              Hide consulted
-            </label>
-            <span className="hidden md:flex items-center gap-1">
-              <kbd className="px-1 py-0.5 border rounded">Ctrl</kbd>+
-              <kbd className="px-1 py-0.5 border rounded">K</kbd> to add
-            </span>
-          </div>
-        </Card>
-      </div>
 
       {/* Content area with persistent right-hand sidebar (as before) */}
       <div className="flex flex-1 gap-6 px-6 pb-6 overflow-hidden">
@@ -269,54 +190,8 @@ export default function Dashboard() {
           </TabsList>
 
           {/* Day view timeline */}
-          <TabsContent value="day" className="flex-1 overflow-hidden">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              className="bg-white rounded-xl shadow p-4 h-full overflow-y-auto"
-            >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="font-semibold">Today&apos;s Schedule</h3>
-                {/* legend */}
-                <div className="hidden md:flex items-center gap-4 text-xs text-gray-600">
-                  {Object.entries(colorMap).map(([key, v]) => (
-                    <div key={key} className="flex items-center gap-1">
-                      <span
-                        className={`w-2.5 h-2.5 rounded-full ${v.dot}`}
-                      ></span>
-                      <span>{v.label}</span>
-                    </div>
-                  ))}
-                  <div className="flex items-center gap-1">
-                    <span
-                      className={`w-2.5 h-2.5 rounded-full ${consultedStyles.dot}`}
-                    ></span>
-                    <span>Consulted</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                {appointments
-                  .filter((a) => !hideConsulted || a.status !== "consulted")
-                  .map((apt, i) => {
-                    const typeStyle =
-                      colorMap[apt.type as keyof typeof colorMap];
-                    const isConsulted = apt.status === "consulted";
-                    return (
-                    <Appointment apt={apt} consultedStyles={consultedStyles} i={i} isConsulted={isConsulted} typeStyle={typeStyle} key={i} setAppointments={setAppointments}/>
-                    );
-                  })}
-                <Button
-                  variant="outline"
-                  className="w-full mt-2"
-                  onClick={() => setOpenAppointment(true)}
-                >
-                  <PlusCircle className="w-4 h-4 mr-2" /> Add Appointment
-                </Button>
-              </div>
-            </motion.div>
+          <TabsContent value="day" className="flex-1 overflow-hidden min-h-[50vh]">
+          <DailyViewTimeline />
           </TabsContent>
 
           {/* Week view (timeline grid) */}
@@ -527,77 +402,7 @@ export default function Dashboard() {
         </Tabs>
 
         {/* Right: persistent sidebar */}
-        <div className="w-80 flex flex-col gap-4 shrink-0">
-          <Card className="p-4">
-            <h3 className="font-semibold mb-2">Quick Actions</h3>
-            <Button
-              className="w-full mb-2"
-              onClick={() => setOpenPatient(true)}
-            >
-              <UserPlus className="w-4 h-4 mr-2" /> New Patient
-            </Button>
-            <Button
-              variant="outline"
-              className="w-full"
-              onClick={() => setOpenLab(true)}
-            >
-              Book Lab Test
-            </Button>
-          </Card>
-
-          <Card className="p-4">
-            <h3 className="font-semibold mb-2">Upcoming Appointments</h3>
-            <div className="space-y-2">
-              {[
-                {
-                  name: "Ravi Kumar",
-                  time: "12:00 PM",
-                  type: "Consultation",
-                  status: "consulted",
-                },
-                {
-                  name: "Sara Ali",
-                  time: "12:30 PM",
-                  type: "Lab Test",
-                  status: "scheduled",
-                },
-              ]
-                .filter((p) => !hideConsulted || p.status !== "consulted")
-                .map((p, i) => (
-                  <div
-                    key={i}
-                    className={`flex items-center justify-between border rounded p-2 ${
-                      p.status === "consulted" ? consultedStyles.container : ""
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`w-2.5 h-2.5 rounded-full ${
-                          p.status === "consulted"
-                            ? consultedStyles.dot
-                            : colorMap[p.type as keyof typeof colorMap].dot
-                        }`}
-                      ></span>
-                      <span>{p.name}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {p.status === "consulted" && (
-                        <span className={consultedStyles.badge}>
-                          <CheckCircle2 className="w-3 h-3" /> Consulted
-                        </span>
-                      )}
-                      <span className="text-xs text-gray-500">{p.time}</span>
-                    </div>
-                  </div>
-                ))}
-            </div>
-          </Card>
-
-          <Card className="p-4">
-            <h3 className="font-semibold mb-2">Calendar</h3>
-            <Calendar mode="single" selected={new Date()} />
-          </Card>
-        </div>
+       <Summery />
       </div>
 
       {/* Dialogs */}
