@@ -193,6 +193,8 @@ export default function Dashboard() {
           <DailyViewTimeline />
           </TabsContent>
 
+          
+
           {/* Week view (timeline grid) */}
           <TabsContent
             value="week"

@@ -6,11 +6,11 @@ import {
   
   Clock,
   
-  ChevronRight,
   
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Appointment from "./Appointment";
+import ScheduleTabsPreview from "./ScheduleTabsPreview";
 
 // Types
 type ApptType = "consultation" | "lab" | "followup";
@@ -118,26 +118,6 @@ export default function DailyViewTimeline() {
     return () => clearInterval(id);
   }, []);
 
-  const stats = useMemo(() => {
-    const completed = appts.filter((a) => a.status === "consulted");
-    const pending = appts.filter((a) => a.status === "pending");
-    const sortedPending = [...pending].sort(
-      (a, b) => toMinutes(a.time) - toMinutes(b.time)
-    );
-    const current = currentId
-      ? sortedPending.find((a) => a.id === currentId)
-      : sortedPending[0];
-    const nextUp = current
-      ? sortedPending.find((a) => a.id !== current.id)
-      : sortedPending[0];
-    return {
-      total: appts.length,
-      pending: sortedPending.length,
-      completed: completed.length,
-      current,
-      nextUp,
-    };
-  }, [appts, currentId]);
 
   const HOUR_ROW_PX = 80;
   const times = useMemo(() => {
@@ -191,19 +171,7 @@ export default function DailyViewTimeline() {
         </button>
       </div>
 
-      <div className="mb-4 rounded-2xl border bg-gray-50 px-3 py-2 flex flex-wrap items-center gap-3">
-        {stats.current && (
-          <div className="inline-flex items-center gap-2 text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">
-            Current: <span className="font-medium">{stats.current.name}</span>
-          </div>
-        )}
-        {stats.nextUp && (
-          <div className="inline-flex items-center gap-2 text-indigo-700 bg-indigo-50 px-3 py-1 rounded-full">
-            Next: <span className="font-medium">{stats.nextUp.name}</span>{" "}
-            <ChevronRight className="h-4 w-4" />
-          </div>
-        )}
-      </div>
+<ScheduleTabsPreview />
 
       <div className="">
         {/* Scrollable timeline + cards */}

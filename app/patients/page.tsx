@@ -2,6 +2,7 @@
 
 
 import AppShell from "@/components/layout/app-shell";
+import Link from "next/link";
 import React, { useMemo, useState, useEffect } from "react";
 
 // ----- Types -----
@@ -549,7 +550,9 @@ export default function PatientsEnhanced() {
                   <td className="px-2 py-3"><input type="checkbox" className="h-4 w-4" checked={selected.has(r.id)} onChange={()=>toggleRow(r.id)} /></td>
                   <td className="px-2 py-3 text-sm text-gray-500">{serial}</td>
                   <td className="px-2 py-3">
+                    <Link href={`/patients/${r.name}`}>
                     <div className="font-medium text-gray-900">{r.name}</div>
+                    </Link>
                     <div className="text-xs text-gray-500">{r.phone}</div>
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-600">{r.id}</td>
@@ -569,7 +572,7 @@ export default function PatientsEnhanced() {
                   </td>
                   <td className="px-2 py-3 text-right">
                     <div className="inline-flex gap-1">
-                      <button onClick={()=>setPreview(r)} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">View</button>
+                      <Link href={`/patients/${r.name}`} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">View</Link>
                       <button onClick={()=>setHistory(r)} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">History</button>
                       <button onClick={()=>{setShareFor(r); setShareTarget('Doctor'); setShareVia('Copy link'); setShareDoctor(r.doctor);}} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">Share</button>
                     </div>
