@@ -1,17 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Ruler, Gauge, Weight } from "lucide-react";
 
-/**
- * VitalsCard – Minimal, header‑fit vitals with inline edit + scalable sizes
- *
- * Now supports sizes: "sm" | "md" | "lg" | "xl" (default: lg)
- *
- * Usage (bigger):
- *   <VitalsCard heightCm={172} weightKg={72} size="xl" />
- *
- * Editable + onChange supported:
- *   <VitalsCard editable onChange={(v) => save(v)} />
- */
+
 export default function VitalsCard({
   heightCm = 172,
   weightKg = 72,

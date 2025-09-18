@@ -69,7 +69,7 @@ export function Sidebar() {
         )}
         <button
           onClick={() => setCollapsed((prev) => !prev)}
-          className="ml-auto rounded-xl px-3 py-2 text-slate-500 hover:text-slate-800 hover:bg-white shadow-sm border border-slate-200"
+          className="ml-auto rounded-xl px-3 py-2 text-slate-500 hover:text-slate-800 hover:bg-white shadow-sm border border-slate-200 cursor-pointer"
           title={collapsed ? "Expand" : "Collapse"}
         >
           {collapsed ? "»" : "«"}
@@ -115,7 +115,7 @@ export function Sidebar() {
             </div>
           )}
           <button
-            className="ml-auto rounded-xl border border-slate-200 px-3 py-2 text-slate-600 hover:bg-slate-50"
+            className="ml-auto rounded-xl border border-slate-200 px-3 py-2 text-slate-600 hover:bg-slate-50 cursor-pointer"
             title="Logout"
           >
             <LogOut className="h-4 w-4" />

@@ -103,7 +103,7 @@ export default function Appointment({
                   onClick={() =>
                     setMenuOpenId((p) => (p === a.id ? null : a.id))
                   }
-                  className="inline-flex items-center justify-center rounded-full hover:bg-gray-100 p-1.5"
+                  className="inline-flex items-center justify-center rounded-full hover:bg-gray-100 p-1.5 cursor-pointer"
                   title="More"
                 >
                   <MoreVertical className="h-4 w-4 text-gray-500" />
@@ -120,7 +120,7 @@ export default function Appointment({
                         );
                         callIn(a.id);
                       }}
-                      className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50"
+                      className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 cursor-pointer"
                     >
                       Call again
                     </button>
@@ -128,7 +128,7 @@ export default function Appointment({
                       onClick={() => {
                         removeAppt(a.id);
                       }}
-                      className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-700"
+                      className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-700 cursor-pointer"
                     >
                       Remove
                     </button>
@@ -186,7 +186,7 @@ export default function Appointment({
           </button>
           <button
             onClick={() => removeAppt(a.id)}
-            className="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm hover:bg-red-50 text-red-700 border-red-200"
+            className="inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm hover:bg-red-50 text-red-700 border-red-200 cursor-pointer"
           >
             <Trash2 className="h-4 w-4" /> Remove
           </button>

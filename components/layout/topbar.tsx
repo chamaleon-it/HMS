@@ -48,14 +48,14 @@ export default function Header() {
 
         {/* Actions */}
         <div className="ml-4 flex items-center gap-3 sm:gap-4" data-testid="actions">
-          <button className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md">
+          <button className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer">
             <Plus className="h-4 w-4" /> New Appointment
           </button>
-          <button className="relative rounded-xl border border-slate-200 bg-white/90 p-2 shadow-sm transition hover:bg-slate-50" aria-label="Notifications">
+          <button className="relative rounded-xl border border-slate-200 bg-white/90 p-2 shadow-sm transition hover:bg-slate-50 cursor-pointer" aria-label="Notifications">
             <Bell className="h-5 w-5 text-slate-600" />
             <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500" />
           </button>
-          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-2.5 py-1.5 shadow-sm">
+          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-2.5 py-1.5 shadow-sm cursor-pointer">
             <img
               src="https://i.pravatar.cc/100?img=12"
               alt="User"
