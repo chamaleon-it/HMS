@@ -387,13 +387,13 @@ export default function PatientConsultationsPage(): JSX.Element {
          <div className="flex justify-between mb-4">
             <div>
               <h2 className="font-semibold">
-                {patient.name}{" "}
+                {patient.name}
                 <span className="text-slate-400">(ID: {patient.id})</span>
               </h2>
               <div className="flex items-center gap-5">
 
               <p className="text-xs text-slate-500">
-                Age {patient.age}, {patient.gender} • Allergies:{" "}
+                Age {patient.age}, {patient.gender} • Allergies:
                 {patient.allergies.join(", ")}
               </p>
               <VitalsCard />

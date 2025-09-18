@@ -118,7 +118,7 @@ function Segmented<T extends string>({options, value, onChange}: {options: {labe
         const active = value===o.value;
         return (
           <button key={o.value} onClick={()=>onChange(o.value)}
-            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${active? 'bg-white ring-gray-300 shadow-sm text-gray-900':'bg-transparent ring-transparent text-gray-600 hover:text-gray-900'}`}>
+            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${active? 'bg-white ring-gray-300 shadow-sm text-gray-900':'bg-transparent ring-transparent text-gray-600 hover:text-gray-900'} cursor-pointer`}>
             {o.label}
           </button>
         );
@@ -361,8 +361,8 @@ export default function PatientsEnhanced() {
           <p className="text-sm text-gray-500">Search, filter & review patient history</p>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-2 rounded-xl bg-white ring-1 ring-gray-200 text-gray-700 hover:bg-gray-50">Export</button>
-          <button className="px-4 py-2 rounded-xl bg-black text-white hover:opacity-90">New Patient</button>
+          <button className="px-4 py-2 rounded-xl bg-white ring-1 ring-gray-200 text-gray-700 hover:bg-gray-50 cursor-pointer">Export</button>
+          <button className="px-4 py-2 rounded-xl bg-black text-white hover:opacity-90 cursor-pointer">New Patient</button>
         </div>
       </div>
 
@@ -386,7 +386,7 @@ export default function PatientsEnhanced() {
               className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
-          <button onClick={resetFilters} className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200">Reset all</button>
+          <button onClick={resetFilters} className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer">Reset all</button>
         </div>
 
         {/* Row 2: Primary filters */}
@@ -436,7 +436,7 @@ export default function PatientsEnhanced() {
                     onClick={()=>setGender(opt.value)}
                     aria-pressed={active}
                     aria-label={`Gender: ${opt.label}`}
-                    className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 ${active? activeClass : idleClass}`}
+                    className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 cursor-pointer ${active? activeClass : idleClass}`}
                   >
                    {opt.value !== "All" && <span aria-hidden>{opt.icon}</span>}
                     <span className="truncate">{opt.label}</span>
@@ -501,7 +501,7 @@ export default function PatientsEnhanced() {
             {allConditions.map(c=>{
               const active = conditions.includes(c);
               return (
-                <button key={c} onClick={()=> setConditions(prev=> active? prev.filter(x=>x!==c) : [...prev,c])} className={`px-3 py-1 rounded-full text-sm ring-1 transition ${active? 'bg-black text-white ring-black':'bg-white text-gray-700 ring-gray-200 hover:bg-gray-50'}`}>
+                <button key={c} onClick={()=> setConditions(prev=> active? prev.filter(x=>x!==c) : [...prev,c])} className={`px-3 py-1 rounded-full text-sm ring-1 transition ${active? 'bg-black text-white ring-black':'bg-white text-gray-700 ring-gray-200 hover:bg-gray-50 cursor-pointer'}`}>
                   {active? '✓ ':''}{c}
                 </button>
               );
@@ -518,8 +518,8 @@ export default function PatientsEnhanced() {
         <div className="sticky top-2 z-10 mb-2 flex items-center justify-between rounded-xl bg-black text-white px-4 py-2">
           <div className="text-sm">{selected.size} selected</div>
           <div className="flex gap-2">
-            <button onClick={()=>setSelected(new Set())} className="px-3 h-9 rounded-lg bg-white/10 hover:bg-white/15">Clear</button>
-            <button onClick={()=>alert('Bulk share coming soon')} className="px-3 h-9 rounded-lg bg-white/10 hover:bg-white/15">Share</button>
+            <button onClick={()=>setSelected(new Set())} className="px-3 h-9 rounded-lg bg-white/10 hover:bg-white/15 cursor-pointer">Clear</button>
+            <button onClick={()=>alert('Bulk share coming soon')} className="px-3 h-9 rounded-lg bg-white/10 hover:bg-white/15 cursor-pointer">Share</button>
           </div>
         </div>
       )}
@@ -572,9 +572,9 @@ export default function PatientsEnhanced() {
                   </td>
                   <td className="px-2 py-3 text-right">
                     <div className="inline-flex gap-1">
-                      <Link href={`/patients/${r.name}`} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">View</Link>
-                      <button onClick={()=>setHistory(r)} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">History</button>
-                      <button onClick={()=>{setShareFor(r); setShareTarget('Doctor'); setShareVia('Copy link'); setShareDoctor(r.doctor);}} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">Share</button>
+                      <Link href={`/patients/${r.name}`} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer">View</Link>
+                      <button onClick={()=>setHistory(r)} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer">History</button>
+                      <button onClick={()=>{setShareFor(r); setShareTarget('Doctor'); setShareVia('Copy link'); setShareDoctor(r.doctor);}} className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer">Share</button>
                     </div>
                   </td>
                 </tr>

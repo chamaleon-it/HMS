@@ -37,7 +37,7 @@ export default function ScheduleTabsPreview(): JSX.Element {
             key={key}
             onClick={() => setActiveTab(key)}
             className={
-              "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform " +
+              "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
               (active ? "text-white" : "text-gray-700")
             }
             type="button"

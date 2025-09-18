@@ -29,7 +29,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import AppShell from "@/components/layout/app-shell";
 import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
 import { ToggleChip } from "./ToggleChip";
-import PrescriptionsCard from "./PrescriptionsCard";
+// import PrescriptionsCard from "./PrescriptionsCard";
 import VitalsCard from "./VitalsCard";
 import { useRouter } from "next/navigation";
 import PrescriptionCard2 from "./PrescriptionCard2";
@@ -313,38 +313,38 @@ router.push("/")
           <div className="flex justify-between mb-4">
             <div>
               <h2 className="font-semibold">
-                {patient.name}{" "}
+                {patient.name}
                 <span className="text-slate-400">(ID: {patient.id})</span>
               </h2>
               <div className="flex items-center gap-5">
 
               <p className="text-xs text-slate-500">
-                Age {patient.age}, {patient.gender} • Allergies:{" "}
+                Age {patient.age}, {patient.gender} • Allergies:
                 {patient.allergies.join(", ")}
               </p>
               <VitalsCard />
               </div>
             </div>
             <div className="inline-flex rounded-2xl bg-slate-100 p-1 shadow-inner">
-              {" "}
+              
               <ToggleChip
                 active={activeTab === "consultation"}
                 onClick={() => setActiveTab("consultation")}
                 icon={<Stethoscope className="h-4 w-4" />}
                 activeClass="bg-green-600 text-white"
               >
-                {" "}
-                Consultation{" "}
-              </ToggleChip>{" "}
+                
+                Consultation
+              </ToggleChip>
               <ToggleChip
                 active={activeTab === "history"}
                 onClick={() => setActiveTab("history")}
                 icon={<ClipboardList className="h-4 w-4" />}
                 activeClass="bg-blue-600 text-white"
               >
-                {" "}
-                History{" "}
-              </ToggleChip>{" "}
+                
+                History
+              </ToggleChip>
             </div>
           </div>
 
@@ -356,27 +356,27 @@ router.push("/")
                 : "border-red-200 bg-gradient-to-r from-red-600 to-red-500 text-white")
             }
           >
-            {" "}
+            
             <div
               className={
                 "flex items-center justify-between gap-3 p-4 " +
                 (reviewed ? "text-red-700" : "")
               }
             >
-              {" "}
+              
               <div className="flex items-center gap-3">
-                {" "}
+                
                 <span
                   className={
                     "grid h-8 w-8 place-items-center rounded-full " +
                     (reviewed ? "bg-red-100 text-red-600" : "bg-white/20")
                   }
                 >
-                  {" "}
-                  <AlertTriangle className="h-5 w-5" />{" "}
-                </span>{" "}
+                  
+                  <AlertTriangle className="h-5 w-5" />
+                </span>
                 <div>
-                  {" "}
+                  
                   <p
                     className={
                       "font-semibold text-base " +
@@ -384,7 +384,7 @@ router.push("/")
                     }
                   >
                     Allergy Alert
-                  </p>{" "}
+                  </p>
                   <p
                     className={
                       "text-sm " +
@@ -392,27 +392,27 @@ router.push("/")
                     }
                   >
                     Allergies: Penicillin, Ibuprofen
-                  </p>{" "}
-                </div>{" "}
-              </div>{" "}
+                  </p>
+                </div>
+              </div>
               <div className="flex items-center gap-2">
-                {" "}
+                
                 {!reviewed ? (
                   <Button
                     onClick={() => setReviewed(true)}
                     className="bg-white text-red-600 hover:bg-slate-50 rounded-xl"
                   >
-                    {" "}
-                   Mark As Reviewed{" "}
+                    
+                   Mark As Reviewed
                   </Button>
                 ) : (
                   <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
-                    {" "}
-                    <CheckCircle2 className="h-4 w-4" /> Reviewed{" "}
+                    
+                    <CheckCircle2 className="h-4 w-4" /> Reviewed
                   </span>
-                )}{" "}
-              </div>{" "}
-            </div>{" "}
+                )}
+              </div>
+            </div>
           
           </div>
 
@@ -469,8 +469,8 @@ router.push("/")
 
                 <ConsultationAndExaminationNotes />
 
-                <Separator className="my-4" />
-              <PrescriptionsCard />
+                {/* <Separator className="my-4" />
+              <PrescriptionsCard /> */}
               <Separator className="my-4" />
               <PrescriptionCard2 />
                 <Separator className="my-6" />
@@ -770,7 +770,7 @@ router.push("/")
                                           </span>
                                         </div>
                                         <div className="text-xs text-slate-600">
-                                          {b.date.toDateString()} •{" "}
+                                          {b.date.toDateString()} •
                                           {to12h(b.slot)} • {b.priority}
                                         </div>
                                       </Card>
@@ -824,7 +824,7 @@ router.push("/")
                     <div className="mt-2 text-xs text-slate-600">
                       {followDay && followTime ? (
                         <span>
-                          Selected: <strong>{followDay.toDateString()}</strong>{" "}
+                          Selected: <strong>{followDay.toDateString()}</strong>
                           at <strong>{to12h(followTime)}</strong>
                         </span>
                       ) : (

@@ -166,7 +166,7 @@ export default function DailyViewTimeline() {
     <div>
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-2xl font-semibold">Today&apos;s Schedule</h1>
-        <button className="inline-flex items-center gap-2 rounded-xl bg-black text-white px-4 py-2 hover:opacity-90 transition">
+        <button className="inline-flex items-center gap-2 rounded-xl bg-black text-white px-4 py-2 hover:opacity-90 transition cursor-pointer">
           <CalendarPlus className="h-4 w-4" /> Add Appointment
         </button>
       </div>

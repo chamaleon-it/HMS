@@ -183,9 +183,9 @@ export default function Dashboard() {
         {/* Left: tabs that switch only the main canvas */}
         <Tabs defaultValue="day" className="flex-1 overflow-hidden">
           <TabsList className="mb-4">
-            <TabsTrigger value="day">Day View</TabsTrigger>
-            <TabsTrigger value="week">Week View</TabsTrigger>
-            <TabsTrigger value="month">Month View</TabsTrigger>
+            <TabsTrigger value="day" className="cursor-pointer">Day View</TabsTrigger>
+            <TabsTrigger value="week" className="cursor-pointer">Week View</TabsTrigger>
+            <TabsTrigger value="month" className="cursor-pointer">Month View</TabsTrigger>
           </TabsList>
 
           {/* Day view timeline */}
@@ -390,7 +390,7 @@ export default function Dashboard() {
                             isConsulted ? consultedStyles.chip : typeStyle.chip
                           }`}
                         >
-                          {ev.patient} ({ev.type}){" "}
+                          {ev.patient} ({ev.type})
                           {isConsulted && "• consulted"}
                         </div>
                       );
