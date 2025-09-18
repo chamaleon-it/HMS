@@ -32,6 +32,7 @@ import { ToggleChip } from "./ToggleChip";
 import PrescriptionsCard from "./PrescriptionsCard";
 import VitalsCard from "./VitalsCard";
 import { useRouter } from "next/navigation";
+import PrescriptionCard2 from "./PrescriptionCard2";
 
 // ========================
 // Types
@@ -470,6 +471,8 @@ router.push("/")
 
                 <Separator className="my-4" />
               <PrescriptionsCard />
+              <Separator className="my-4" />
+              <PrescriptionCard2 />
                 <Separator className="my-6" />
 
                 {/* Booking */}
