@@ -1,0 +1,302 @@
+import React, { useState } from "react";
+import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Save, FolderOpen, Edit3, Wind, HeartPulse, Stethoscope, Brain, Gauge, Droplets, Thermometer, Activity, MoreVertical, GripVertical } from "lucide-react";
+
+// Field registry
+const FIELD_REGISTRY = {
+  hr: { id: "hr", type: "vital", label: "HR", unit: "bpm", placeholder: "Heart Rate" },
+  bp: { id: "bp", type: "vital", label: "BP", unit: "mmHg", placeholder: "Blood Pressure" },
+  spo2: { id: "spo2", type: "vital", label: "SpO₂", unit: "%", placeholder: "Oxygen Saturation" },
+  temp: { id: "temp", type: "vital", label: "Temp", unit: "°C", placeholder: "Temperature" },
+  rs: { id: "rs", type: "section", label: "RS", placeholder: "Respiratory system examination" },
+  cvs: { id: "cvs", type: "section", label: "CVS", placeholder: "Cardiovascular system examination" },
+  pa: { id: "pa", type: "section", label: "P/A", placeholder: "Per Abdomen examination" },
+  cns: { id: "cns", type: "section", label: "CNS", placeholder: "Central nervous system examination" },
+};
+
+const DEFAULT_ORDER = ["hr", "bp", "spo2", "temp"];
+
+const vitalIconFor = (id:string) => {
+  switch (id) {
+    case "hr":
+      return <Activity className="h-4 w-4" />;
+    case "bp":
+      return <Gauge className="h-4 w-4" />;
+    case "spo2":
+      return <Droplets className="h-4 w-4" />;
+    case "temp":
+      return <Thermometer className="h-4 w-4" />;
+    default:
+      return null;
+  }
+};
+
+const sectionIconFor = (label:string) => {
+  switch (label) {
+    case "RS":
+      return <Wind className="h-3.5 w-3.5" />;
+    case "CVS":
+      return <HeartPulse className="h-3.5 w-3.5" />;
+    case "P/A":
+      return <Stethoscope className="h-3.5 w-3.5" />;
+    case "CNS":
+      return <Brain className="h-3.5 w-3.5" />;
+    default:
+      return null;
+  }
+};
+
+export default function ExaminationNote() {
+  const [isCustomizing, setIsCustomizing] = useState(false);
+  const [fields, setFields] = useState(DEFAULT_ORDER.map((id) => FIELD_REGISTRY[id]));
+  const [activeSections, setActiveSections] = useState([]);
+
+  const [templates, setTemplates] = useState([{ name: "Default", order: DEFAULT_ORDER.slice() }]);
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [loadOpen, setLoadOpen] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+
+  const onDragEnd = (result:any) => {
+    if (!result.destination) return;
+    const items = Array.from(fields);
+    const [moved] = items.splice(result.source.index, 1);
+    items.splice(result.destination.index, 0, moved);
+    setFields(items);
+  };
+
+  const toggleSection = (label) => {
+    const key = label === "P/A" ? "pa" : label.toLowerCase();
+    const isOn = activeSections.includes(label);
+    if (isOn) {
+      setActiveSections((prev) => prev.filter((l) => l !== label));
+      setFields((prev) => prev.filter((f) => f.id !== key));
+    } else {
+      setActiveSections((prev) => [...prev, label]);
+      setFields((prev) => [...prev, FIELD_REGISTRY[key]]);
+    }
+  };
+
+  const saveTemplate = () => {
+    const name = templateName.trim();
+    if (!name) return;
+    const order = fields.map((f) => f.id);
+    setTemplates((prev) => {
+      const others = prev.filter((t) => t.name.toLowerCase() !== name.toLowerCase());
+      return [...others, { name, order }];
+    });
+    setSaveOpen(false);
+    setTemplateName("");
+  };
+
+  const applyTemplate = (tpl) => {
+    const next = tpl.order.map((id) => FIELD_REGISTRY[id]).filter(Boolean);
+    const missingVitals = DEFAULT_ORDER.filter((id) => !tpl.order.includes(id)).map((id) => FIELD_REGISTRY[id]);
+    const merged = [...next, ...missingVitals];
+    setFields(merged);
+    const sectionIds = merged.filter((f) => f.type === "section").map((f) => f.id);
+    const labels = sectionIds.map((id) => (id === "pa" ? "P/A" : id.toUpperCase()));
+    setActiveSections(labels);
+    setLoadOpen(false);
+  };
+
+  const SectionChip = ({ label }) => {
+    const isActive = activeSections.includes(label);
+    return (
+      <button
+        type="button"
+        onClick={() => toggleSection(label)}
+        className={`px-3.5 py-1.5 rounded-full text-sm transition-all flex items-center gap-2 font-semibold border shadow-sm focus:outline-none focus:ring-2 focus:ring-slate-300 ${
+          isActive ? "bg-slate-900 text-white border-slate-900 hover:bg-black" : "bg-white text-slate-700 border-slate-300 hover:bg-slate-50"
+        }`}
+      >
+        <span className="inline-flex items-center gap-2">
+          {sectionIconFor(label)}
+          {label}
+        </span>
+      </button>
+    );
+  };
+
+  return (
+    <Card className="rounded-3xl border border-slate-200 shadow-lg bg-white overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-white">
+        <h2 className="text-xl font-bold text-slate-800">Examination Note</h2>
+        <div className="flex items-center gap-3">
+          <div className="hidden sm:flex gap-2 mr-3">
+            {["RS", "CVS", "P/A", "CNS"].map((t) => (
+              <SectionChip key={t} label={t} />
+            ))}
+          </div>
+
+          {/* Actions menu */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                type="button"
+                className="rounded-full h-10 w-10 p-0 grid place-items-center bg-white text-slate-700 border border-slate-200 shadow-sm hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-slate-300"
+              >
+                <span className="sr-only">More</span>
+                <MoreVertical className="h-5 w-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-2xl border border-slate-200 shadow-lg p-1 min-w-[240px]">
+              <DropdownMenuItem onClick={() => setSaveOpen(true)} className="rounded-xl flex items-center gap-2">
+                <Save className="h-4 w-4 text-slate-500" /> Save current as template
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setLoadOpen(true)} className="rounded-xl flex items-center gap-2">
+                <FolderOpen className="h-4 w-4 text-slate-500" /> Load template
+              </DropdownMenuItem>
+              <div className="my-1 h-px bg-slate-100" />
+              <DropdownMenuItem onClick={() => setIsCustomizing((v) => !v)} className="rounded-xl flex items-center gap-2">
+                <Edit3 className="h-4 w-4 text-slate-500" /> {isCustomizing ? "Done customizing" : "Start customizing"}
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </div>
+
+      {/* Grid for fields (always 2 cols) */}
+      <div className="px-6 pb-6">
+        <DragDropContext onDragEnd={onDragEnd}>
+          <Droppable droppableId="all-fields" direction="vertical">
+            {(provided) => (
+              <div
+                ref={provided.innerRef}
+                {...provided.droppableProps}
+                className="grid grid-cols-1 md:grid-cols-2 gap-5"
+              >
+                {fields.map((field, index) => (
+                  <Draggable key={field.id} draggableId={field.id} index={index} isDragDisabled={!isCustomizing}>
+                    {(provided, snapshot) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        style={provided.draggableProps.style}
+                        className={`relative rounded-2xl border border-slate-200 bg-white transition-all ${
+                          snapshot.isDragging ? "ring-2 ring-amber-400 shadow-lg" : "shadow-sm hover:shadow-md"
+                        }`}
+                      >
+                        {field.type === "vital" ? (
+                          <div className="flex items-center px-4 py-3">
+                            <div className="mr-2 text-slate-500">{vitalIconFor(field.id)}</div>
+                            <input
+                              type="text"
+                              placeholder={field.placeholder}
+                              className="flex-1 bg-transparent outline-none text-slate-800 placeholder-slate-400"
+                            />
+                            <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-slate-50 text-slate-600 border border-slate-200">{field.unit}</span>
+                          </div>
+                        ) : (
+                          <div>
+                            <div className="px-4 pt-3 text-[13px] font-semibold text-slate-700 flex items-center gap-2">
+                              {sectionIconFor(field.label)}
+                              {field.label}
+                            </div>
+                            <textarea
+                              placeholder={field.placeholder}
+                              className="w-full px-4 pb-4 pt-2 bg-transparent outline-none text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-slate-200 rounded-xl"
+                              rows={3}
+                            />
+                          </div>
+                        )}
+
+                        {isCustomizing && (
+                          <div
+                            role="button"
+                            tabIndex={0}
+                            aria-label="Drag handle"
+                            {...provided.dragHandleProps}
+                            className="absolute -right-2 -top-2 h-9 w-9 rounded-full bg-amber-500 text-white shadow-lg ring-2 ring-amber-300 hover:bg-amber-600 active:scale-95 transition focus:outline-none focus:ring-4 focus:ring-amber-300 cursor-grab active:cursor-grabbing grid place-items-center"
+                          >
+                            <GripVertical className="h-4 w-4" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
+
+        {/* Other Notes */}
+        <div className="mt-5">
+          <div className="rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-all">
+            <textarea
+              placeholder="Other Notes"
+              className="w-full px-4 py-3 bg-transparent outline-none text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-slate-200 rounded-xl"
+              rows={4}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Customizing sticky bar */}
+      {isCustomizing && (
+        <div className="px-6 pb-5">
+          <div className="sticky bottom-3 mx-auto max-w-3xl rounded-full border border-slate-200 bg-white/90 backdrop-blur shadow-lg flex items-center justify-between px-3 py-2">
+            <div className="px-3 text-[13px] text-slate-600">Drag using the amber handles to reorder</div>
+            <div className="flex items-center gap-2">
+              <Button type="button" variant="outline" className="rounded-full px-4" onClick={() => setIsCustomizing(false)}>Cancel</Button>
+              <Button type="button" className="rounded-full px-4 bg-slate-900 text-white hover:bg-black" onClick={() => setSaveOpen(true)}>
+                <Save className="h-4 w-4 mr-2" /> Save layout
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Save Template Modal */}
+      <Dialog open={saveOpen} onOpenChange={setSaveOpen}>
+        <DialogContent className="sm:max-w-md rounded-3xl border border-slate-200 shadow-2xl bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 font-semibold">Save current as template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <Input
+              autoFocus
+              placeholder="Template name"
+              value={templateName}
+              onChange={(e) => setTemplateName(e.target.value)}
+              className="rounded-xl border-slate-300"
+            />
+          </div>
+          <DialogFooter className="gap-2 pt-4">
+            <Button type="button" variant="outline" className="rounded-full px-4" onClick={() => setSaveOpen(false)}>Cancel</Button>
+            <Button type="button" className="rounded-full px-4 bg-slate-900 text-white hover:bg-black" onClick={saveTemplate}>Save</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Load Template Modal */}
+      <Dialog open={loadOpen} onOpenChange={setLoadOpen}>
+        <DialogContent className="sm:max-w-md rounded-3xl border border-slate-200 shadow-2xl bg-white">
+          <DialogHeader>
+            <DialogTitle className="text-slate-800 font-semibold">Load template</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-2">
+            {templates.map((t) => (
+              <button
+                key={t.name}
+                type="button"
+                onClick={() => applyTemplate(t)}
+                className="w-full text-left px-4 py-3 rounded-xl border border-slate-200 hover:bg-slate-50 flex items-center justify-between transition-colors"
+              >
+                <span>{t.name}</span>
+                <svg className="h-4 w-4 text-slate-500" viewBox="0 0 24 24" fill="currentColor"><path d="M9 6l6 6-6 6"/></svg>
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </Card>
+  );
+}

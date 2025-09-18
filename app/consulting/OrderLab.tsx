@@ -1,0 +1,73 @@
+import { Button } from "@/components/ui/button";
+import { Pencil, Trash } from "lucide-react";
+import React, { Dispatch, SetStateAction } from "react";
+
+export default function OrderLab({
+  booked,
+//   setBooked
+}: {
+  booked: {
+    labId: string;
+    date: Date;
+    slot: string;
+    priority: string;
+    seletedTest?: string[];
+  }[];
+  setBooked: Dispatch<SetStateAction<{
+    labId: string;
+    date: Date;
+    slot: string;
+    priority: string;
+    seletedTest?: string[];
+}[]>>
+}) {
+  return (
+    <div className="border rounded-xl p-4 m-5 ">
+      {/* Dynamic rows */}
+      <div className="flex flex-col gap-3">
+        <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-black mt-2 font-medium">
+          <div className="col-span-3">Tests</div>
+          <div className="col-span-2">Lab</div>
+          <div className="col-span-2">Date</div>
+          <div className="col-span-2">Time</div>
+          <div className="col-span-1">Priority</div>
+          <div className="col-span-2 text-right">Actions</div>
+        </div>
+
+        {booked.map((e, idx) => (
+          <div
+            className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2"
+            key={idx}
+          >
+            <div className="col-span-3">
+              {e.seletedTest?.map((e) => (
+                <p key={e}>{e}</p>
+              ))}
+            </div>
+            <div className="col-span-2">{e.labId}</div>
+            <div className="col-span-2">{e.date.toDateString()}</div>
+            <div className="col-span-2">{e.slot}</div>
+            <div className="col-span-1">{e.priority}</div>
+            <div className="col-span-2 text-right flex justify-end gap-2">
+              
+               <Button
+                className="!bg-green-600 hover:!bg-green-700 text-white !border-green-600"
+                title="Edit Test"
+              >
+                <Pencil  className="w-4 h-4"/>
+              </Button>
+
+              <Button
+                className="!bg-red-600 hover:!bg-red-700 text-white !border-red-600"
+                title="Remove Test"
+              
+              >
+                <Trash className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
