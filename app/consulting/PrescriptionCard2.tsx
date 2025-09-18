@@ -85,7 +85,7 @@ export default function PrescriptionUI() {
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [saveModalOpen, setSaveModalOpen] = useState<boolean>(false);
   const [templateName, setTemplateName] = useState<string>("");
-  const [appendMode, setAppendMode] = useState<boolean>(true); // NEW: allow applying multiple diseases
+  const [appendMode] = useState<boolean>(true); // NEW: allow applying multiple diseases
 
   // --- Edit modal state ---
   const [editModalOpen, setEditModalOpen] = useState<boolean>(false);
@@ -195,7 +195,7 @@ export default function PrescriptionUI() {
           <h2 className="font-semibold text-lg">
              Prescriptions
           </h2>
-          <label className="flex items-center gap-2 text-sm text-gray-600">
+          {/* <label className="flex items-center gap-2 text-sm text-gray-600">
             
             <input
               type="checkbox"
@@ -204,7 +204,7 @@ export default function PrescriptionUI() {
               onChange={(e) => setAppendMode(e.target.checked)}
             />
             Append on Apply
-          </label>
+          </label> */}
         </div>
         <input
           value={favSearch}

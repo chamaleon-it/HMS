@@ -17,7 +17,6 @@ import {
   AlertTriangle,
   CalendarClock,
   Building2,
-  ChevronRight,
   CheckCircle2,
   TestTubeDiagonal,
   FlaskConical,
@@ -33,6 +32,8 @@ import { ToggleChip } from "./ToggleChip";
 import VitalsCard from "./VitalsCard";
 import { useRouter } from "next/navigation";
 import PrescriptionCard2 from "./PrescriptionCard2";
+import FollowUpTime from "./FollowUpTime";
+import OrderLab from "./OrderLab";
 
 // ========================
 // Types
@@ -112,11 +113,17 @@ const LABS: Lab[] = [
     inhouse: false,
     slots: ["11:00", "11:30", "12:00", "12:30", "13:00"],
   },
+  {
+    id: "lab4",
+    name: "Dr Jossy Diagnostic Center",
+    inhouse: false,
+    slots: ["11:00", "11:30", "12:00", "12:30", "13:00"],
+  },
 ];
 
 function getAvailableSlots(labId: string | null): string[] {
   if (!labId) return [];
-  const lab = LABS.find((l) => l.id === labId);
+  const lab = LABS.find((l) => l.name === labId);
   return lab ? lab.slots : [];
 }
 
@@ -198,8 +205,7 @@ function ConfettiBurst({
 // Component
 // ========================
 export default function ConsultingMenu() {
-
-   const router = useRouter();
+  const router = useRouter();
   // ---- Mock current patient ----
   const patient = {
     id: "P-001",
@@ -218,18 +224,27 @@ export default function ConsultingMenu() {
   const [advice, setAdvice] = useState("");
   const [qHist, setQHist] = useState("");
 
-  
-
   // ---- Booking state ----
   const [orderOpen, setOrderOpen] = useState(false);
   const [selectedLab, setSelectedLab] = useState<string>("");
   const [seletedTest, setSeletedTest] = useState<string[]>([]);
   const [orderDay, setOrderDay] = useState<Date | undefined>(undefined);
   const [slot, setSlot] = useState<string>("");
-  const [priority, setPriority] = useState<"STAT" | "High" | "Normal">("STAT");
+  const [priority, setPriority] = useState<"STAT" | "High" | "Normal">(
+    "Normal"
+  );
   const [booked, setBooked] = useState<
-    { labId: string; date: Date; slot: string; priority: string }[]
+    {
+      labId: string;
+      date: Date;
+      slot: string;
+      priority: string;
+      seletedTest?: string[];
+    }[]
   >([]);
+
+  console.log(booked);
+
   const [showBookCelebrate, setShowBookCelebrate] = useState(false);
 
   // ---- Follow-up state (calendar + 12h chips) ----
@@ -256,7 +271,6 @@ export default function ConsultingMenu() {
 
   // const quickSymptoms = ["Fever", "Headache", "Cough"];
 
-
   // ---- History filter ----
   const filteredHistory = useMemo(() => {
     return HISTORY.filter((h) => {
@@ -278,23 +292,27 @@ export default function ConsultingMenu() {
 
   // ---- Allergy helpers ----
 
-
   // ---- Actions ----
   const handleBook = () => {
     if (!selectedLab || !orderDay || !slot) return;
     setBooked((b) => [
       ...b,
-      { labId: selectedLab, date: orderDay, slot, priority },
+      {
+        labId: selectedLab,
+        date: orderDay,
+        slot,
+        priority,
+        seletedTest: seletedTest,
+      },
     ]);
     setShowBookCelebrate(true);
     setTimeout(() => setShowBookCelebrate(false), 1500);
   };
 
-
   const handleComplete = () => {
     setShowConsultCelebrate(true);
     setTimeout(() => setShowConsultCelebrate(false), 1700);
-router.push("/")
+    router.push("/");
   };
 
   // ========================
@@ -305,7 +323,10 @@ router.push("/")
     "consultation"
   );
 
-  const [reviewed, setReviewed] = useState(false)
+  const [reviewed, setReviewed] = useState(false);
+
+  const [labTestType, setLabTestType] = useState("all");
+  const [labTestName, setLabTestName] = useState("");
   return (
     <AppShell>
       <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
@@ -317,23 +338,20 @@ router.push("/")
                 <span className="text-slate-400">(ID: {patient.id})</span>
               </h2>
               <div className="flex items-center gap-5">
-
-              <p className="text-xs text-slate-500">
-                Age {patient.age}, {patient.gender} • Allergies:
-                {patient.allergies.join(", ")}
-              </p>
-              <VitalsCard />
+                <p className="text-xs text-slate-500">
+                  Age {patient.age}, {patient.gender} • Allergies:
+                  {patient.allergies.join(", ")}
+                </p>
+                <VitalsCard />
               </div>
             </div>
             <div className="inline-flex rounded-2xl bg-slate-100 p-1 shadow-inner">
-              
               <ToggleChip
                 active={activeTab === "consultation"}
                 onClick={() => setActiveTab("consultation")}
                 icon={<Stethoscope className="h-4 w-4" />}
                 activeClass="bg-green-600 text-white"
               >
-                
                 Consultation
               </ToggleChip>
               <ToggleChip
@@ -342,7 +360,6 @@ router.push("/")
                 icon={<ClipboardList className="h-4 w-4" />}
                 activeClass="bg-blue-600 text-white"
               >
-                
                 History
               </ToggleChip>
             </div>
@@ -356,27 +373,22 @@ router.push("/")
                 : "border-red-200 bg-gradient-to-r from-red-600 to-red-500 text-white")
             }
           >
-            
             <div
               className={
                 "flex items-center justify-between gap-3 p-4 " +
                 (reviewed ? "text-red-700" : "")
               }
             >
-              
               <div className="flex items-center gap-3">
-                
                 <span
                   className={
                     "grid h-8 w-8 place-items-center rounded-full " +
                     (reviewed ? "bg-red-100 text-red-600" : "bg-white/20")
                   }
                 >
-                  
                   <AlertTriangle className="h-5 w-5" />
                 </span>
                 <div>
-                  
                   <p
                     className={
                       "font-semibold text-base " +
@@ -396,83 +408,32 @@ router.push("/")
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                
                 {!reviewed ? (
                   <Button
                     onClick={() => setReviewed(true)}
                     className="bg-white text-red-600 hover:bg-slate-50 rounded-xl"
                   >
-                    
-                   Mark As Reviewed
+                    Mark As Reviewed
                   </Button>
                 ) : (
                   <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
-                    
                     <CheckCircle2 className="h-4 w-4" /> Reviewed
                   </span>
                 )}
               </div>
             </div>
-          
           </div>
 
           {/* =================== CONSULT TAB =================== */}
           {activeTab === "consultation" && (
             <div className="mt-4">
               <Card className="p-6">
-               
-
-               
-                {/* <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-6">
-                    <div className="flex justify-between">
-                      <Label>Consultation Notes</Label>
-
-                      <div className="flex gap-1 mt-2">
-                        {quickSymptoms.map((s) => (
-                          <Button
-                            size="sm"
-                            key={s}
-                            variant="outline"
-                            onClick={() =>
-                              setNotes((n) => (n ? n + "; " + s : s))
-                            }
-                          >
-                            {s}
-                          </Button>
-                        ))}
-                      </div>
-                    </div>
-                    <Textarea
-                      value={notes}
-                      onChange={(e) => setNotes(e.target.value)}
-                      className="mt-2"
-                    />
-
-                    <Label>Diagnosis</Label>
-                    <Input
-                      value={diagnosis}
-                      onChange={(e) => setDiagnosis(e.target.value)}
-                      className="mt-2 h-12"
-                    />
-                  </div>
-                  <div className="space-y-6">
-                    <Label>Examination Note</Label>
-
-                    <Textarea
-                      value={examination}
-                      onChange={(e) => setExamination(e.target.value)}
-                      className="mt-2"
-                    />
-                  </div>
-                </div> */}
-
                 <ConsultationAndExaminationNotes />
 
                 {/* <Separator className="my-4" />
               <PrescriptionsCard /> */}
-              <Separator className="my-4" />
-              <PrescriptionCard2 />
+                <Separator className="my-4" />
+                <PrescriptionCard2 />
                 <Separator className="my-6" />
 
                 {/* Booking */}
@@ -484,7 +445,7 @@ router.push("/")
                     size="sm"
                     variant="outline"
                     onClick={() => setOrderOpen((o) => !o)}
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
                   >
                     {orderOpen ? "Hide" : "Book"}
                   </Button>
@@ -501,124 +462,447 @@ router.push("/")
                       {/* Compact two-column layout */}
                       <div className="grid md:grid-cols-8 gap-0">
                         {/* Left: Labs list (dense) */}
-                        <div className="md:col-span-2 border-r p-3 md:max-h-[420px] md:overflow-y-auto">
+                        <div className="md:col-span-2 border-r p-3 md:max-h-[350px] md:overflow-y-auto">
                           <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-2">
                             Select Test
                           </div>
 
-                          <div className="flex gap-2.5">
+                          <div className="flex shrink-0 gap-2.5">
                             <Tabs defaultValue="lab" className="space-y-3">
-                              <TabsList className="grid grid-cols-2">
+                              <TabsList className="flex gap-1">
+                                <TabsTrigger
+                                  value="all"
+                                  className="flex items-center gap-2 cursor-pointer"
+                                  onClick={() => setLabTestType("all")}
+                                >
+                                  All
+                                </TabsTrigger>
+
                                 <TabsTrigger
                                   value="lab"
                                   className="flex items-center gap-2 cursor-pointer"
+                                  onClick={() => setLabTestType("lab")}
                                 >
-                                  <FlaskConical className="h-4 w-4" />
+                                  <FlaskConical className="h-2 w-2" />
                                   Lab
                                 </TabsTrigger>
                                 <TabsTrigger
                                   value="image"
                                   className="flex items-center gap-2 cursor-pointer"
+                                  onClick={() => setLabTestType("image")}
                                 >
-                                  <ImageIcon className="h-4 w-4" />
-                                  Image
+                                  <ImageIcon className="h-2 w-2" />
+                                  Imaging
                                 </TabsTrigger>
                               </TabsList>
                             </Tabs>
-                            <div className="relative mb-3">
+                            <div className="relative mb-3 w-[45%]">
                               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                               <Input
                                 placeholder="Search tests..."
                                 className="pl-9"
+                                onChange={(e) => setLabTestName(e.target.value)}
+                                value={labTestName}
                               />
                             </div>
                           </div>
 
                           <div className="space-y-2">
                             {[
-                              { id: "123", name: "CBC", type: "lab" },
-                              { id: "124", name: "TC", type: "lab" },
-                              { id: "125", name: "DC", type: "lab" },
-                              { id: "126", name: "TSH" },
-                              { id: "123", name: "UV", type: "Image" },
-                              { id: "124", name: "Radio", type: "Image" },
-                              { id: "125", name: "X Ray", type: "Image" },
-                            ].map((l) => (
-                              <Button
-                                key={l.id}
-                                size="sm"
-                                variant={
-                                  selectedLab === l.id ? "default" : "outline"
-                                }
-                                onClick={() => {
-                                  setSeletedTest((prev) => {
-                                    const newArray = [...prev, l.id];
-                                    return newArray;
-                                  });
-                                  setSlot("");
-                                }}
-                                className={`w-full justify-between ${
-                                  seletedTest.find((e) => e === l.id)
-                                    ? "bg-slate-900 hover:bg-slate-900 text-white"
-                                    : ""
-                                }`}
-                              >
-                                <span className="flex items-center gap-2 truncate">
-                                  <TestTubeDiagonal className="w-4 h-4" />
-                                  {l.name}
-                                </span>
-                              </Button>
-                            ))}
+                              { id: "I033", name: "ECG", type: "image" },
+
+                              // ---------------- LAB TESTS ----------------
+                              {
+                                id: "L001",
+                                name: "Complete Blood Count (CBC)",
+                                type: "lab",
+                              },
+                              { id: "L002", name: "Hemoglobin", type: "lab" },
+                              {
+                                id: "L003",
+                                name: "Blood Sugar (Fasting)",
+                                type: "lab",
+                              },
+                              {
+                                id: "L004",
+                                name: "Blood Sugar (PP)",
+                                type: "lab",
+                              },
+                              { id: "L005", name: "HbA1c", type: "lab" },
+                              {
+                                id: "L006",
+                                name: "Lipid Profile",
+                                type: "lab",
+                              },
+                              { id: "L007", name: "Cholesterol", type: "lab" },
+                              {
+                                id: "L008",
+                                name: "Triglycerides",
+                                type: "lab",
+                              },
+                              { id: "L009", name: "HDL", type: "lab" },
+                              { id: "L010", name: "LDL", type: "lab" },
+                              {
+                                id: "L011",
+                                name: "Liver Function Test",
+                                type: "lab",
+                              },
+                              {
+                                id: "L012",
+                                name: "Kidney Function Test",
+                                type: "lab",
+                              },
+                              { id: "L013", name: "Creatinine", type: "lab" },
+                              { id: "L014", name: "Uric Acid", type: "lab" },
+                              { id: "L015", name: "Electrolytes", type: "lab" },
+                              { id: "L016", name: "Calcium", type: "lab" },
+                              { id: "L017", name: "Phosphorus", type: "lab" },
+                              { id: "L018", name: "Magnesium", type: "lab" },
+                              { id: "L019", name: "Iron Studies", type: "lab" },
+                              { id: "L020", name: "Ferritin", type: "lab" },
+                              { id: "L021", name: "Vitamin D", type: "lab" },
+                              { id: "L022", name: "Vitamin B12", type: "lab" },
+                              { id: "L023", name: "Folate", type: "lab" },
+                              {
+                                id: "L024",
+                                name: "Thyroid (TSH)",
+                                type: "lab",
+                              },
+                              { id: "L025", name: "T3", type: "lab" },
+                              { id: "L026", name: "T4", type: "lab" },
+                              {
+                                id: "L027",
+                                name: "Parathyroid Hormone",
+                                type: "lab",
+                              },
+                              { id: "L028", name: "Prolactin", type: "lab" },
+                              { id: "L029", name: "Testosterone", type: "lab" },
+                              { id: "L030", name: "Progesterone", type: "lab" },
+                              { id: "L031", name: "Estrogen", type: "lab" },
+                              {
+                                id: "L032",
+                                name: "C-Reactive Protein (CRP)",
+                                type: "lab",
+                              },
+                              { id: "L033", name: "ESR", type: "lab" },
+                              { id: "L034", name: "D-Dimer", type: "lab" },
+                              {
+                                id: "L035",
+                                name: "Coagulation Profile",
+                                type: "lab",
+                              },
+                              { id: "L036", name: "Blood Group", type: "lab" },
+                              {
+                                id: "L037",
+                                name: "Urine Routine",
+                                type: "lab",
+                              },
+                              {
+                                id: "L038",
+                                name: "Stool Routine",
+                                type: "lab",
+                              },
+                              { id: "L039", name: "Malaria Test", type: "lab" },
+                              { id: "L040", name: "Dengue Test", type: "lab" },
+                              {
+                                id: "L041",
+                                name: "Typhoid (Widal)",
+                                type: "lab",
+                              },
+                              { id: "L042", name: "HIV Test", type: "lab" },
+                              {
+                                id: "L043",
+                                name: "Hepatitis B Surface Antigen",
+                                type: "lab",
+                              },
+                              {
+                                id: "L044",
+                                name: "Hepatitis C Antibody",
+                                type: "lab",
+                              },
+                              {
+                                id: "L045",
+                                name: "Syphilis Test (VDRL)",
+                                type: "lab",
+                              },
+                              {
+                                id: "L046",
+                                name: "Covid-19 RTPCR",
+                                type: "lab",
+                              },
+                              {
+                                id: "L047",
+                                name: "Covid-19 Antibody",
+                                type: "lab",
+                              },
+                              {
+                                id: "L048",
+                                name: "Blood Culture",
+                                type: "lab",
+                              },
+                              {
+                                id: "L049",
+                                name: "Urine Culture",
+                                type: "lab",
+                              },
+                              {
+                                id: "L050",
+                                name: "Sputum Culture",
+                                type: "lab",
+                              },
+
+                              // ---------------- IMAGING TESTS ----------------
+                              {
+                                id: "I001",
+                                name: "X-Ray Chest",
+                                type: "image",
+                              },
+                              {
+                                id: "I002",
+                                name: "X-Ray Abdomen",
+                                type: "image",
+                              },
+                              {
+                                id: "I003",
+                                name: "X-Ray Spine",
+                                type: "image",
+                              },
+                              {
+                                id: "I004",
+                                name: "X-Ray Skull",
+                                type: "image",
+                              },
+                              {
+                                id: "I005",
+                                name: "X-Ray Pelvis",
+                                type: "image",
+                              },
+                              { id: "I006", name: "X-Ray Hand", type: "image" },
+                              { id: "I007", name: "X-Ray Foot", type: "image" },
+                              {
+                                id: "I008",
+                                name: "X-Ray Shoulder",
+                                type: "image",
+                              },
+                              { id: "I009", name: "X-Ray Knee", type: "image" },
+                              {
+                                id: "I010",
+                                name: "Ultrasound Abdomen",
+                                type: "image",
+                              },
+                              {
+                                id: "I011",
+                                name: "Ultrasound Pelvis",
+                                type: "image",
+                              },
+                              {
+                                id: "I012",
+                                name: "Ultrasound Neck",
+                                type: "image",
+                              },
+                              {
+                                id: "I013",
+                                name: "Ultrasound Breast",
+                                type: "image",
+                              },
+                              {
+                                id: "I014",
+                                name: "Ultrasound Pregnancy",
+                                type: "image",
+                              },
+                              {
+                                id: "I015",
+                                name: "CT Scan Brain",
+                                type: "image",
+                              },
+                              {
+                                id: "I016",
+                                name: "CT Scan Chest",
+                                type: "image",
+                              },
+                              {
+                                id: "I017",
+                                name: "CT Scan Abdomen",
+                                type: "image",
+                              },
+                              {
+                                id: "I018",
+                                name: "CT Scan Pelvis",
+                                type: "image",
+                              },
+                              {
+                                id: "I019",
+                                name: "CT Angiography",
+                                type: "image",
+                              },
+                              {
+                                id: "I020",
+                                name: "CT Coronary",
+                                type: "image",
+                              },
+                              { id: "I021", name: "MRI Brain", type: "image" },
+                              { id: "I022", name: "MRI Spine", type: "image" },
+                              { id: "I023", name: "MRI Knee", type: "image" },
+                              {
+                                id: "I024",
+                                name: "MRI Shoulder",
+                                type: "image",
+                              },
+                              {
+                                id: "I025",
+                                name: "MRI Abdomen",
+                                type: "image",
+                              },
+                              { id: "I026", name: "MRI Pelvis", type: "image" },
+                              { id: "I027", name: "PET Scan", type: "image" },
+                              { id: "I028", name: "Bone Scan", type: "image" },
+                              {
+                                id: "I029",
+                                name: "Thyroid Scan",
+                                type: "image",
+                              },
+                              { id: "I030", name: "Renal Scan", type: "image" },
+                              {
+                                id: "I031",
+                                name: "Mammography",
+                                type: "image",
+                              },
+                              {
+                                id: "I032",
+                                name: "Echocardiography",
+                                type: "image",
+                              },
+
+                              { id: "I034", name: "EEG", type: "image" },
+                              { id: "I035", name: "EMG", type: "image" },
+                              {
+                                id: "I036",
+                                name: "Holter Monitoring",
+                                type: "image",
+                              },
+                              {
+                                id: "I037",
+                                name: "Stress Test (TMT)",
+                                type: "image",
+                              },
+                              {
+                                id: "I038",
+                                name: "Angiography",
+                                type: "image",
+                              },
+                              { id: "I039", name: "Venography", type: "image" },
+                              {
+                                id: "I040",
+                                name: "Myelography",
+                                type: "image",
+                              },
+                              {
+                                id: "I041",
+                                name: "Fluoroscopy",
+                                type: "image",
+                              },
+                              {
+                                id: "I042",
+                                name: "Bone Density (DEXA)",
+                                type: "image",
+                              },
+                              {
+                                id: "I043",
+                                name: "Dental X-Ray (OPG)",
+                                type: "image",
+                              },
+                              {
+                                id: "I044",
+                                name: "Sinus X-Ray",
+                                type: "image",
+                              },
+                              {
+                                id: "I045",
+                                name: "Contrast CT",
+                                type: "image",
+                              },
+                              {
+                                id: "I046",
+                                name: "Contrast MRI",
+                                type: "image",
+                              },
+                              {
+                                id: "I047",
+                                name: "3D CT Reconstruction",
+                                type: "image",
+                              },
+                              {
+                                id: "I048",
+                                name: "Cardiac MRI",
+                                type: "image",
+                              },
+                              {
+                                id: "I049",
+                                name: "Virtual Colonoscopy",
+                                type: "image",
+                              },
+                              {
+                                id: "I050",
+                                name: "Endoscopic Ultrasound (EUS)",
+                                type: "image",
+                              },
+                            ]
+
+                              .filter((e) => {
+                                const typeMatch =
+                                  labTestType === "all" ||
+                                  (labTestType === "lab" && e.type === "lab") ||
+                                  (labTestType === "image" &&
+                                    e.type === "image");
+
+                                const nameMatch =
+                                  !labTestName ||
+                                  e.name
+                                    .toLowerCase()
+                                    .includes(labTestName.toLowerCase());
+
+                                return typeMatch && nameMatch;
+                              })
+                              .map((l) => (
+                                <Button
+                                  key={l.id}
+                                  size="sm"
+                                  variant={
+                                    selectedLab === l.name
+                                      ? "default"
+                                      : "outline"
+                                  }
+                                  onClick={() => {
+                                    setSeletedTest((prev) => {
+                                      if (prev.includes(l.name)) {
+                                        return prev.filter((e) => e !== l.name);
+                                      } else {
+                                        return [...prev, l.name];
+                                      }
+                                    });
+                                    setSlot("");
+                                  }}
+                                  className={`w-full justify-between cursor-pointer ${
+                                    seletedTest.find((e) => e === l.name)
+                                      ? "bg-slate-900 hover:bg-slate-900 text-white hover:text-white"
+                                      : ""
+                                  }`}
+                                >
+                                  <span className="flex items-center gap-2 truncate">
+                                    <TestTubeDiagonal className="w-4 h-4" />
+                                    {l.name}
+                                  </span>
+                                </Button>
+                              ))}
                           </div>
                         </div>
 
-                        <div className="md:col-span-2 border-r p-3 md:max-h-[420px] md:overflow-y-auto">
-                          <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-2">
-                            Select Lab
-                          </div>
-                          <div className="space-y-2">
-                            {sortedLabs.map((l) => (
-                              <Button
-                                key={l.id}
-                                size="sm"
-                                variant={
-                                  selectedLab === l.id ? "default" : "outline"
-                                }
-                                onClick={() => {
-                                  setSelectedLab(l.id);
-                                  setSlot("");
-                                }}
-                                className={`w-full justify-between ${
-                                  selectedLab === l.id
-                                    ? "bg-slate-900 hover:bg-slate-900"
-                                    : ""
-                                }`}
-                              >
-                                <span className="flex items-center gap-2 truncate">
-                                  <Building2 className="w-4 h-4" />
-                                  {l.name}
-                                </span>
-                                {l.inhouse ? (
-                                  <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200">
-                                    In‑house
-                                  </Badge>
-                                ) : (
-                                  <Badge className="bg-amber-50 text-amber-700 border-amber-200">
-                                    External
-                                  </Badge>
-                                )}
-                              </Button>
-                            ))}
-                          </div>
-                        </div>
-
-                        {/* Right: Calendar + slots + priority */}
-                        <div className="md:col-span-4 p-3">
+                        <div className="md:col-span-6 p-3">
                           <div className="text-[11px] uppercase tracking-wide text-slate-500 mb-2 flex items-center gap-2">
                             <CalendarClock className="w-4 h-4" /> Select date &
                             time
                           </div>
-                          <div className="grid sm:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-3 gap-3 w-full">
                             <Card className="p-2">
                               <Calendar
                                 mode="single"
@@ -630,6 +914,49 @@ router.push("/")
                                 className="rounded-md"
                               />
                             </Card>
+
+                            <Card className="p-2">
+                              <div className="text-xs text-slate-500 mb-2">
+                                Select Lab
+                              </div>
+                              <div className="space-y-2">
+                                {sortedLabs.map((l) => (
+                                  <Button
+                                    key={l.id}
+                                    size="sm"
+                                    variant={
+                                      selectedLab === l.name
+                                        ? "default"
+                                        : "outline"
+                                    }
+                                    onClick={() => {
+                                      setSelectedLab(l.name);
+                                      setSlot("");
+                                    }}
+                                    className={`w-full justify-between cursor-pointer ${
+                                      selectedLab === l.name
+                                        ? "bg-slate-900 hover:bg-slate-900"
+                                        : ""
+                                    }`}
+                                  >
+                                    <span className="flex items-center gap-2 truncate">
+                                      <Building2 className="w-4 h-4" />
+                                      {l.name}
+                                    </span>
+                                    {l.inhouse ? (
+                                      <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200">
+                                        In‑house
+                                      </Badge>
+                                    ) : (
+                                      <Badge className="bg-amber-50 text-amber-700 border-amber-200">
+                                        External
+                                      </Badge>
+                                    )}
+                                  </Button>
+                                ))}
+                              </div>
+                            </Card>
+
                             <Card className="p-3 flex flex-col">
                               <div className="text-xs text-slate-500 mb-2">
                                 Available Slots
@@ -667,14 +994,33 @@ router.push("/")
                                   (p) => (
                                     <Badge
                                       key={p}
-                                      onClick={() => setPriority(p)}
-                                      className={`cursor-pointer border ${
-                                        p === priority
-                                          ? "ring-2 ring-emerald-400"
-                                          : ""
-                                      } ${
+                                      onClick={() => {
+                                        if (
+                                          sortedLabs.find(
+                                            (e) => selectedLab === e.name
+                                          )?.inhouse === false &&
+                                          p === "STAT"
+                                        ) {
+                                          return;
+                                        } else {
+                                          setPriority(p);
+                                        }
+                                      }}
+                                      className={`
+                                        ${
+                                          sortedLabs.find(
+                                            (e) => selectedLab === e.name
+                                          )?.inhouse === false && p === "STAT"
+                                            ? "border !bg-gray-400 border-gray-700 text-white"
+                                            : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                        } 
+                                        cursor-pointer border ${
+                                          p === priority
+                                            ? "ring-2 ring-emerald-400"
+                                            : ""
+                                        } ${
                                         p === "STAT"
-                                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                          ? ""
                                           : p === "High"
                                           ? "bg-amber-50 text-amber-700 border-amber-200"
                                           : "bg-slate-100 text-slate-700 border"
@@ -686,102 +1032,23 @@ router.push("/")
                                 )}
                               </div>
                               <div className="mt-auto flex justify-end gap-2 pt-3">
+                            
                                 <motion.div whileTap={{ scale: 0.97 }}>
                                   <Button
                                     size="sm"
-                                    variant="outline"
+                                    className="bg-emerald-600 hover:bg-emerald-700 cursor-pointer"
                                     disabled={!orderDay || !slot}
                                     onClick={handleBook}
                                   >
-                                    Add to Order
-                                  </Button>
-                                </motion.div>
-                                <motion.div whileTap={{ scale: 0.97 }}>
-                                  <Button
-                                    size="sm"
-                                    className="bg-emerald-600 hover:bg-emerald-700"
-                                    disabled={!orderDay || !slot}
-                                    onClick={handleBook}
-                                  >
-                                    Book Slot
+                                    Book Test
                                   </Button>
                                 </motion.div>
                               </div>
                             </Card>
                           </div>
-
-                          {/* Summary */}
-                          <div className="mt-3 flex items-center text-sm text-slate-700">
-                            <ChevronRight className="w-4 h-4 text-slate-400 mr-1" />
-                            <span className="font-medium mr-2">
-                              {sortedLabs.find((l) => l.id === selectedLab)
-                                ?.name || "No lab selected"}
-                            </span>
-                            {orderDay && (
-                              <Badge
-                                variant="secondary"
-                                className="bg-slate-100 text-slate-700 border mr-1"
-                              >
-                                {orderDay.toDateString()}
-                              </Badge>
-                            )}
-                            {slot && (
-                              <Badge
-                                variant="secondary"
-                                className="bg-slate-100 text-slate-700 border mr-1"
-                              >
-                                {to12h(slot)}
-                              </Badge>
-                            )}
-                            <Badge
-                              variant="secondary"
-                              className="bg-indigo-50 text-indigo-700 border-indigo-200"
-                            >
-                              {priority}
-                            </Badge>
-                          </div>
-
-                          {/* Booked orders list */}
-                          <AnimatePresence>
-                            {booked.length > 0 && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 8 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: 8 }}
-                                className="mt-3"
-                              >
-                                <div className="text-xs text-slate-500 mb-1">
-                                  Booked
-                                </div>
-                                <div className="space-y-2">
-                                  {booked.map((b, idx) => {
-                                    const lab = sortedLabs.find(
-                                      (l) => l.id === b.labId
-                                    );
-                                    return (
-                                      <Card
-                                        key={`${b.labId}-${idx}`}
-                                        className="p-2 flex items-center justify-between"
-                                      >
-                                        <div className="flex items-center gap-2">
-                                          <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                                          <span className="text-sm">
-                                            {lab?.name}
-                                          </span>
-                                        </div>
-                                        <div className="text-xs text-slate-600">
-                                          {b.date.toDateString()} •
-                                          {to12h(b.slot)} • {b.priority}
-                                        </div>
-                                      </Card>
-                                    );
-                                  })}
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
                         </div>
                       </div>
+                   {booked.length !== 0 &&   <OrderLab booked={booked} setBooked={setBooked} />}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -796,43 +1063,13 @@ router.push("/")
                   onChange={(e) => setAdvice(e.target.value)}
                   className="mt-2"
                 />
-                <div className="grid sm:grid-cols-4 gap-3 mt-3">
-                  <Card className="p-2 sm:col-span-2">
-                    <Calendar
-                      mode="single"
-                      selected={followDay}
-                      onSelect={setFollowDay}
-                      className="rounded-md"
-                    />
-                  </Card>
-                  <Card className="p-3 sm:col-span-2">
-                    <div className="text-xs text-slate-500 mb-2">
-                      Follow‑up Time
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 max-h-56 overflow-auto pr-1">
-                      {followTimes.map((t) => (
-                        <Button
-                          key={t}
-                          size="sm"
-                          variant={followTime === t ? "default" : "outline"}
-                          onClick={() => setFollowTime(t)}
-                        >
-                          {to12h(t)}
-                        </Button>
-                      ))}
-                    </div>
-                    <div className="mt-2 text-xs text-slate-600">
-                      {followDay && followTime ? (
-                        <span>
-                          Selected: <strong>{followDay.toDateString()}</strong>
-                          at <strong>{to12h(followTime)}</strong>
-                        </span>
-                      ) : (
-                        <span>Select a date and time</span>
-                      )}
-                    </div>
-                  </Card>
-                </div>
+                <FollowUpTime
+                  followDay={followDay}
+                  setFollowDay={setFollowDay}
+                  followTimes={followTimes}
+                  followTime={followTime}
+                  setFollowTime={setFollowTime}
+                />
 
                 <div className="flex justify-end gap-2 mt-6">
                   <Button variant="outline">Save Draft</Button>
