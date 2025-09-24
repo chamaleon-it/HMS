@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { Bell, Search, Plus } from "lucide-react";
+import DoctorProfile from "./Profile";
 
 /**
  * Modern Header (Minimal & Attractive)
@@ -55,7 +56,7 @@ export default function Header() {
             <Bell className="h-5 w-5 text-slate-600" />
             <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500" />
           </button>
-          <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-2.5 py-1.5 shadow-sm cursor-pointer">
+          {/* <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-2.5 py-1.5 shadow-sm cursor-pointer">
             <img
               src="https://i.pravatar.cc/100?img=12"
               alt="User"
@@ -65,7 +66,8 @@ export default function Header() {
               <p className="text-sm font-medium text-slate-800">Dr. Nadir Sha</p>
               <p className="text-[11px] text-slate-500">Cardiologist</p>
             </div>
-          </div>
+          </div> */}
+          <DoctorProfile />
         </div>
       </div>
 
