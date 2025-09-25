@@ -13,7 +13,8 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppShell from "@/components/layout/app-shell";
-import VitalsCard from "@/app/consulting/VitalsCard";
+import VitalsCard from "../../consulting/VitalsCard";
+
 
 // ===================== Types =====================
 type TabKey = "consultations" | "labs" | "prescriptions" | "bills" | "files" | "notes";
