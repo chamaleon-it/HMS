@@ -105,7 +105,7 @@ const SPECIALTIES: Array<{ group: string; items: string[] }> = [
 ];
 
 // --- Pure helper for password strength so we can test it ---
-export function calcPasswordStrength(pwd: string) {
+ function calcPasswordStrength(pwd: string) {
   let s = 0;
   if (pwd.length >= 8) s += 1;
   if (pwd.length >= 12) s += 1;
