@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronRight, LogOut, Settings, Building2, User } from "lucide-react";
+import Link from "next/link";
 
 /**
  * DoctorProfileDropdown — Minimal clean version
@@ -123,7 +124,9 @@ export default function DoctorProfile() {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="px-3 text-rose-600 focus:text-rose-700">
-              <LogOut className="mr-2 h-4 w-4" /> Log out
+              <Link href={"/"} className="flex gap-2 items-center">
+              <LogOut className="h-4 w-4" /> Log out
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

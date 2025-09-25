@@ -11,37 +11,53 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 
 export function Sidebar() {
+  const router = useRouter()
   const items = [
-    { key: "dashboard", label: "Dashboard", icon: LayoutDashboard, link: "/" },
+    {
+      key: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      link: "/dashboard/doctor",
+    },
     {
       key: "appointments",
       label: "Appointments",
       icon: CalendarClock,
       badge: "12",
-      link: "/appointments",
+      link: "/dashboard/doctor/appointments",
     },
-    { key: "patients", label: "Patients", icon: Users2, link: "/patients" },
+    {
+      key: "patients",
+      label: "Patients",
+      icon: Users2,
+      link: "/dashboard/doctor/patients",
+    },
     {
       key: "lab-results",
       label: "Lab Results",
       icon: FlaskConical,
-      link: "/lab-report",
+      link: "/dashboard/doctor/lab-report",
     },
     {
       key: "consulting",
       label: "Consulting",
       icon: Stethoscope,
-      link: "/consulting",
+      link: "/dashboard/doctor/consulting",
     },
-    { key: "billing", label: "Billing", icon: CreditCard, link: "/billing" },
+    {
+      key: "billing",
+      label: "Billing",
+      icon: CreditCard,
+      link: "/dashboard/doctor/billing",
+    },
   ];
 
   const [collapsed, setCollapsed] = useState(false);
-  const pathname = usePathname()
+  const pathname = usePathname();
   return (
     <aside
       className={
@@ -94,11 +110,11 @@ export function Sidebar() {
         <div className="my-3 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
         <NavItem
-          active={pathname === "/settings"}
+          active={pathname === "/dashboard/doctor/settings"}
           collapsed={collapsed}
           icon={Settings}
           label="Settings"
-         link={"/settings"}
+          link={"/dashboard/doctor/settings"}
         />
       </nav>
 
@@ -115,6 +131,9 @@ export function Sidebar() {
             </div>
           )}
           <button
+          onClick={()=>{
+            router.push("/")
+          }}
             className="ml-auto rounded-xl border border-slate-200 px-3 py-2 text-slate-600 hover:bg-slate-50 cursor-pointer"
             title="Logout"
           >
