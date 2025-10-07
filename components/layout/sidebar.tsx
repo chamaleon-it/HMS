@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "@/auth/context/auth-context";
 import {
   LayoutDashboard,
   FlaskConical,
@@ -11,12 +12,14 @@ import {
 } from "lucide-react";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 export function Sidebar() {
-  const router = useRouter()
-  const items = [
+  const {logout,user} = useAuth()
+
+
+  const items = user?.role === "Doctor" && [
     {
       key: "dashboard",
       label: "Dashboard",
@@ -54,7 +57,18 @@ export function Sidebar() {
       icon: CreditCard,
       link: "/dashboard/doctor/billing",
     },
-  ];
+  ]
+  ||
+  user?.role === "Pharmacy" && [
+       {
+      key: "dashboard",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      link: "/dashboard/pharmacy",
+    },
+  ] ||
+  []
+  ;
 
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
@@ -132,7 +146,7 @@ export function Sidebar() {
           )}
           <button
           onClick={()=>{
-            router.push("/")
+            logout()
           }}
             className="ml-auto rounded-xl border border-slate-200 px-3 py-2 text-slate-600 hover:bg-slate-50 cursor-pointer"
             title="Logout"
