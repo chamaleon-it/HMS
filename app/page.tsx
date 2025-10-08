@@ -2,6 +2,7 @@
 
 import { useAuth } from "@/auth/context/auth-context";
 import LoginForm from "@/components/LoginForm";
+import ForgotPassword from "@/components/LoginForm/ForgotPassword";
 import { useRouter } from "next/navigation";
 import React, { useState, useMemo, useEffect } from "react";
 
@@ -9,10 +10,7 @@ export default function LoginPage() {
   const {  isAuthenticated, user } = useAuth();
 
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>(
-    {}
-  );
+  
   const [view, setView] = useState<"login" | "forgot" | "sent">("login");
 
 
@@ -47,37 +45,6 @@ export default function LoginPage() {
     () => quotes[Math.floor(Math.random() * quotes.length)],
     []
   );
-
-  function submit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setErrors({});
-    setLoading(true);
-
-    const form = e.currentTarget as HTMLFormElement & {
-      email?: { value: string };
-      password?: { value: string };
-    };
-    const email = form.email?.value?.trim();
-    const password = form.password?.value?.trim();
-
-    const next: typeof errors = {};
-    if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email))
-      next.email = "Enter a valid email";
-    if (view === "login" && (!password || password.length < 6))
-      next.password = "Min 6 characters";
-
-    setTimeout(() => {
-      setErrors(next);
-      setLoading(false);
-      if (Object.keys(next).length === 0) {
-        if (view === "login") {
-          router.push("/dashboard/doctor");
-        } else if (view === "forgot") {
-          setView("sent");
-        }
-      }
-    }, 350);
-  }
 
 
 
@@ -201,92 +168,7 @@ export default function LoginPage() {
               )}
 
               {view === "forgot" && (
-                <>
-                  <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
-                    Reset your password
-                  </h2>
-                  <p className="mt-1 text-slate-500 text-sm">
-                    Enter your account email &mdash; we&apos;ll send a secure
-                    reset link.
-                  </p>
-
-                  <form onSubmit={submit} className="mt-5 space-y-4">
-                    <div>
-                      <label
-                        className="block text-slate-700 text-sm mb-1"
-                        htmlFor="email"
-                      >
-                        Email
-                      </label>
-                      <div
-                        className={`flex items-center rounded-lg bg-white border ${
-                          errors.email ? "border-red-400" : "border-slate-300"
-                        } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
-                      >
-                        <MailIcon className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
-                        <input
-                          id="email"
-                          name="email"
-                          type="email"
-                          autoComplete="email"
-                          className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 px-3.5 py-2.5 outline-none"
-                          placeholder="you@company.com"
-                        />
-                      </div>
-                      {errors.email && (
-                        <p className="mt-1 text-xs text-red-600">
-                          {errors.email}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="flex items-center justify-between text-sm">
-                      <button
-                        type="button"
-                        onClick={() => setView("login")}
-                        className="text-slate-600 hover:text-slate-900"
-                      >
-                        &larr; Back to login
-                      </button>
-                      <div className="text-xs text-slate-500">
-                        Need help? Contact support
-                      </div>
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] shadow-[0_6px_20px_-6px_rgba(37,99,235,0.6)] hover:shadow-[0_12px_30px_-10px_rgba(37,99,235,0.75)]"
-                      style={{
-                        background:
-                          "linear-gradient(90deg, var(--brand), var(--accent-end))",
-                      }}
-                    >
-                      <span className="transition-transform group-hover:translate-x-0.5">
-                        {loading ? "Sending..." : "Send reset link"}
-                      </span>
-                      <svg
-                        className={`h-4 w-4 transition-transform ${
-                          loading
-                            ? "animate-pulse"
-                            : "group-hover:translate-x-1"
-                        }`}
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M5 12h14" />
-                        <path d="m12 5 7 7-7 7" />
-                      </svg>
-                    </button>
-
-                    <p className="text-[10px] text-slate-400 text-center">
-                      For your safety we never send passwords &mdash; only a
-                      time-bound reset link.
-                    </p>
-                  </form>
-                </>
+            <ForgotPassword setView={setView}/>
               )}
 
               {view === "sent" && (

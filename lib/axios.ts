@@ -4,6 +4,7 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { parseCookies, setCookie, destroyCookie } from "nookies";
 import type { GetServerSidePropsContext } from "next";
+import configuration from "@/config/configuration";
 
 const ACCESS_COOKIE = "accessToken";
 const REFRESH_COOKIE = "refreshToken";
@@ -161,7 +162,7 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
 }
 
 const api = createApi({
-    baseURL:"http://localhost:3000"
+    baseURL:configuration().backendUrl
 })
 
 export default api
