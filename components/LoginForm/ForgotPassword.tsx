@@ -21,7 +21,7 @@ export default function ForgotPassword({
 
   const forgotPassword = handleSubmit(async (data) => {
     try {
-      const { data: loginData } = await toast.promise(
+      const { data: forgotPasswordData } = await toast.promise(
         api.post("/users/forgot_password", data),
         {
           loading:
@@ -30,6 +30,9 @@ export default function ForgotPassword({
           error: ({ response }) => response.data.message,
         }
       );
+      
+      console.log(forgotPasswordData);
+
       setView("sent");
     } catch (error) {
       console.log(error);
