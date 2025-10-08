@@ -3,6 +3,7 @@
 import { useAuth } from "@/auth/context/auth-context";
 import LoginForm from "@/components/LoginForm";
 import ForgotPassword from "@/components/LoginForm/ForgotPassword";
+import { Lock, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState, useMemo, useEffect } from "react";
 
@@ -103,11 +104,11 @@ export default function LoginPage() {
             {/* Trust chips */}
             <div className="mt-6 grid grid-cols-3 gap-5">
               {[
-                { label: "256-bit SSL", icon: LockIcon },
-                { label: "HIPAA-ready", icon: ShieldIcon },
-                { label: "HL7&reg; FHIR", icon: ShieldIcon },
-                { label: "ISO 27001", icon: ShieldIcon },
-                { label: "ABDM-ready", icon: ShieldIcon },
+                { label: "256-bit SSL", icon: Lock },
+                { label: "HIPAA-ready", icon: Shield },
+                { label: "HL7&reg; FHIR", icon: Shield },
+                { label: "ISO 27001", icon: Shield },
+                { label: "ABDM-ready", icon: Shield },
                 { label: "Proudly made in India", icon: IndiaFlagIcon },
               ].map(({ label, icon: Icon }, idx) => (
                 <div
@@ -215,48 +216,8 @@ export default function LoginPage() {
   );
 }
 
-/* Inline SVG Icons */
-function MailIcon({ className = "h-4 w-4" }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="m4 6 8 6 8-6" />
-      <rect x="4" y="6" width="16" height="12" rx="2" />
-    </svg>
-  );
-}
-function LockIcon({ className = "h-4 w-4" }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <rect x="4" y="11" width="16" height="9" rx="2" />
-      <path d="M8 11V8a4 4 0 1 1 8 0v3" />
-    </svg>
-  );
-}
-function ShieldIcon({ className = "h-4 w-4" }) {
-  return (
-    <svg
-      className={className}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-    >
-      <path d="M12 22s8-3 8-10V5l-8-3-8 3v7c0 7 8 10 8 10Z" />
-    </svg>
-  );
-}
+
+
 function IndiaFlagIcon({ className = "h-5 w-5" }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
