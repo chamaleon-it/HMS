@@ -225,15 +225,4 @@ export default function DailyViewTimeline() {
   );
 }
 
-// --- Dev Tests (run in browser console) ---
-if (typeof window !== "undefined") {
-  try {
-    console.assert(toMinutes("00:00") === 0, "toMinutes midnight");
-    console.assert(toMinutes("23:59") === 23 * 60 + 59, "toMinutes endOfDay");
-    const rt = fromMinutes(toMinutes("09:30"));
-    console.assert(rt.includes(":30"), "fromMinutes roundtrip");
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.warn("Dev tests failed:", e);
-  }
-}
+

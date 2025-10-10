@@ -17,7 +17,6 @@ const cx = (...cls: (string | false | null | undefined)[]) =>
   cls.filter(Boolean).join(" ");
 
 
-// ---------------------------------------------------
 export default function AppointmentPage() {
   const [query, setQuery] = useState("");
   const [activeStatuses, setActiveStatuses] = useState<string[]>([]);

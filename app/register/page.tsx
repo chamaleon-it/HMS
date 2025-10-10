@@ -18,7 +18,7 @@ export default function RegisterPage() {
         router.push("/dashboard/pharmacy");
       }
     }
-  }, [user?.role]);
+  }, [user?.role,router]);
 
   if (isAuthenticated) return null;
 

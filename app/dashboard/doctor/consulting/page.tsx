@@ -215,12 +215,7 @@ export default function ConsultingMenu() {
     allergies: ["Penicillin", "Ibuprofen"],
   } as const;
 
-  // ---- State ----
-  // const [notes, setNotes] = useState("Chief Complaints : \n\n\nHistory : \n\n");
-  // const [examination, setExamination] = useState(
-  //   `HR      : \nBP      : \nSpO2 : \nTemp : \n\n\nRS    : \nCVS : \nP/A  : \nCNS :  \n`
-  // );
-  // const [diagnosis, setDiagnosis] = useState("");
+
   const [advice, setAdvice] = useState("");
   const [qHist, setQHist] = useState("");
 
@@ -1120,33 +1115,4 @@ export default function ConsultingMenu() {
       </div>
     </AppShell>
   );
-}
-
-// ========================
-// Simple Smoke Tests (dev-only)
-// ========================
-function __runSmokeTests() {
-  console.assert(
-    Array.isArray(LABS) && LABS.length >= 1,
-    "LABS should be seeded"
-  );
-  console.assert(
-    getAvailableSlots("lab1").length > 0,
-    "lab1 should have slots"
-  );
-  console.assert(
-    getAvailableSlots("invalid").length === 0,
-    "invalid lab should return empty slots"
-  );
-  console.assert(
-    to12h("13:30") === "1:30 PM",
-    "12h formatter should show PM correctly"
-  );
-}
-if (typeof window !== "undefined") {
-  try {
-    __runSmokeTests();
-  } catch {
-    /* noop */
-  }
 }

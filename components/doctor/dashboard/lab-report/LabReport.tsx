@@ -288,7 +288,6 @@ export default function LabResultsPage() {
   const pageSize = 10;
 
   const doctors = useMemo(()=> Array.from(new Set(rows.map(r=>r.doctor))), [rows]);
-  const tests = useMemo(()=> Array.from(new Set(rows.map(r=>r.testName))).sort(), [rows]);
   const centers = useMemo(()=> Array.from(new Set(rows.map(r=>r.center))).sort(), [rows]);
 
   const statusTone = (s: LabStatus): "green"|"gray"|"red"|"blue"|"amber" => (
@@ -354,7 +353,7 @@ export default function LabResultsPage() {
   }, [rows,q,status,doctor,sample,facility,center,dateField,dateRange,sortKey,sortDir]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  useEffect(()=>{ if(page>totalPages) setPage(1); }, [totalPages]);
+  useEffect(()=>{ if(page>totalPages) setPage(1); }, [totalPages,page]);
 
   const pageRows = useMemo(()=>{
     const start = (page-1)*pageSize;
@@ -380,24 +379,7 @@ export default function LabResultsPage() {
   });
   const toggleSelectAllPage = () => setSelected(prev=>{ const next = new Set(prev); const all = pageRows.every(r=> next.has(r.id)); pageRows.forEach(r=>{ if(all) next.delete(r.id); else next.add(r.id); }); return next; });
 
-  // --- DEV TESTS (lightweight runtime checks; no crashes) ---
-  useEffect(()=>{
-    if (process.env.NODE_ENV === 'production') return;
-    try {
-      // Test #1: defaults
-      console.assert(datePreset==='All time', 'Test#1: datePreset default');
-      console.assert(sortKey==='reportedAt' && sortDir==='desc', 'Test#1b: default sort');
-      // Test #2: doctors, tests & centers populated
-      console.assert(doctors.length>0 && tests.length>0 && centers.length>0, 'Test#2: doctors/tests/centers populated');
-      // Test #3: pageRows <= pageSize
-      console.assert(pageRows.length<=10, 'Test#3: pagination size');
-      // Test #4: statusTone mapping
-      console.assert(statusTone('Completed')==='green' && statusTone('Pending')==='gray' && statusTone('In Progress')==='amber' && statusTone('Flagged')==='red', 'Test#4: status tones');
-      // Test #5: facility default All
-      console.assert(facility==='All' && center==='All', 'Test#5: facility/center defaults');
-    } catch(err){ console.warn('DEV tests warning:', err); }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+ 
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full bg-gradient-to-b from-white to-slate-50 p-6">

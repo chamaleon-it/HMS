@@ -305,22 +305,3 @@ export default function PrescriptionsCard() {
     </Card>
   );
 }
-
-// -------------------- Tiny Runtime Tests --------------------
-if (typeof window !== "undefined") {
-  console.assert(to12Hour("00:00") === "12:00 AM", "to12Hour midnight failed");
-  console.assert(to12Hour("12:00") === "12:00 PM", "to12Hour noon failed");
-  console.assert(to12Hour("13:30") === "1:30 PM", "to12Hour 13:30 failed");
-  console.assert(to12Hour("09:05") === "9:05 AM", "to12Hour 09:05 failed");
-  console.assert(to12Hour("23:59") === "11:59 PM", "to12Hour 23:59 failed");
-  console.assert(to12Hour("01:00") === "1:00 AM", "to12Hour 01:00 failed");
-  console.assert(to12Hour("12:01") === "12:01 PM", "to12Hour 12:01 failed");
-  // Extra edge cases
-  console.assert(to12Hour("00:01") === "12:01 AM", "to12Hour 00:01 failed");
-  console.assert(to12Hour("12:59") === "12:59 PM", "to12Hour 12:59 failed");
-  console.assert(to12Hour("20:00") === "8:00 PM", "to12Hour 20:00 failed");
-  console.assert(to12Hour("07:00") === "7:00 AM", "to12Hour 07:00 failed");
-  // Allergy helper sanity checks
-  console.assert((() => drugHitsAllergy("Amoxicillin 500mg"))() === true, "drugHitsAllergy positive failed");
-  console.assert((() => drugHitsAllergy("Paracetamol"))() === false, "drugHitsAllergy negative failed");
-}

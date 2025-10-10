@@ -41,7 +41,7 @@ export default function LoginPage() {
       text: "Better is possible. It does not take genius. It takes diligence.",
       author: "Atul Gawande",
     },
-  ];
+  ] as const;
   const selectedQuote = useMemo(
     () => quotes[Math.floor(Math.random() * quotes.length)],
     []
@@ -57,7 +57,7 @@ export default function LoginPage() {
         router.push("/dashboard/pharmacy");
       }
     }
-  }, [user?.role]);
+  }, [user?.role,router]);
 
   if (isAuthenticated) return null;
 

@@ -298,7 +298,7 @@ export function __runVitalsSelfTest() {
     const info = getBmiInfo(bmi);
     return { ...t, bmi: Number(bmi.toFixed(1)), got: info.label, pass: info.label === t.exp };
   });
-  // eslint-disable-next-line no-console
+  
   console.table(results);
   return results.every((r) => r.pass);
 }
@@ -311,7 +311,7 @@ export function __simulateEditTest() {
   const bmi1 = Number((w1 / Math.pow(h / 100, 2)).toFixed(1));
   const bmi2 = Number((w2 / Math.pow(h / 100, 2)).toFixed(1));
   const ok = bmi2 > bmi1 && getBmiInfo(bmi1).label !== getBmiInfo(bmi2).label;
-  // eslint-disable-next-line no-console
+  
   console.log({ bmi1, bmi2, ok });
   return ok;
 }
