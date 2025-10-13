@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronRight, LogOut, Settings, Building2, User } from "lucide-react";
 import Link from "next/link";
+import { useAuth } from "@/auth/context/auth-context";
 
 /**
  * DoctorProfileDropdown — Minimal clean version
@@ -31,6 +32,7 @@ type Status = typeof STATUSES[number];
 
 export default function DoctorProfile() {
   const [status, setStatus] = React.useState<Status>("Available");
+  const {user} = useAuth()
 
   const dot = (s: Status) =>
     ({
@@ -50,13 +52,13 @@ export default function DoctorProfile() {
           >
             <span className="relative inline-flex">
               <Avatar className="h-9 w-9 ring-1 ring-slate-100">
-                <AvatarImage src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=200" alt="Dr. Nadir Sha" />
-                <AvatarFallback>NS</AvatarFallback>
+                <AvatarImage src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=200" alt={user?.name} />
+                <AvatarFallback>{user?.name.slice(0,2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <span className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full ring-2 ring-white ${dot(status)}`} />
             </span>
             <span className="text-left">
-              <span className="block text-[15px] font-semibold leading-tight">Dr. Nadir Sha</span>
+              <span className="block text-[15px] font-semibold leading-tight">{user?.role === "Doctor" && "Dr."} {user?.name}</span>
               <span className="block text-xs text-slate-500 -mt-0.5">Cardiologist</span>
             </span>
           </Button>
@@ -68,10 +70,10 @@ export default function DoctorProfile() {
             <div className="flex items-center gap-3">
               <Avatar className="h-10 w-10 ring-2 ring-white">
                 <AvatarImage src="https://images.unsplash.com/photo-1607746882042-944635dfe10e?q=80&w=200" alt="Dr. Nadir Sha" />
-                <AvatarFallback>NS</AvatarFallback>
+                <AvatarFallback>{user?.name.slice(0,2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="leading-tight">
-                <div className="text-sm font-semibold">Dr. Nadir Sha</div>
+                <div className="text-sm font-semibold">{user?.role === "Doctor" && "Dr."} {user?.name}</div>
                 <div className="text-xs text-slate-500">Cardiologist</div>
               </div>
             </div>

@@ -136,12 +136,12 @@ export function Sidebar() {
       <div className="mt-auto p-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm flex items-center gap-3">
           <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-400 to-fuchsia-400 grid place-items-center text-white font-medium">
-            MK
+            {user?.name.slice(0,1).toUpperCase()}
           </div>
           {!collapsed && (
             <div className="leading-tight">
-              <div className="text-sm font-medium text-slate-800">Manzoor</div>
-              <div className="text-xs text-slate-500">Admin</div>
+              <div className="text-xs font-medium text-slate-800">{user?.role === "Doctor" && "Dr."} {user?.name}</div>
+              <div className="text-xs text-slate-500">{user?.role}</div>
             </div>
           )}
           <button

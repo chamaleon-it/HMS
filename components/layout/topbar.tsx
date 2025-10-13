@@ -1,16 +1,11 @@
 "use client"
 
-import React, { useEffect } from "react";
+import React  from "react";
 import { Bell, Search, Plus } from "lucide-react";
 import DoctorProfile from "./Profile";
 
-/**
- * Modern Header (Minimal & Attractive)
- * - Clean glass look, no subheader
- * - Fixes JSX parsing error by removing stray escapes and using valid class strings
- * - Adds lightweight self-tests to verify mount and key elements
- */
 export default function Header() {
+  
   return (
     <header className="sticky top-0 z-40 backdrop-blur-md">
       {/* Background glow (subtle) */}
@@ -56,17 +51,7 @@ export default function Header() {
             <Bell className="h-5 w-5 text-slate-600" />
             <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500" />
           </button>
-          {/* <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-2.5 py-1.5 shadow-sm cursor-pointer">
-            <img
-              src="https://i.pravatar.cc/100?img=12"
-              alt="User"
-              className="h-8 w-8 rounded-full object-cover ring-2 ring-white"
-            />
-            <div className="hidden md:block text-left leading-tight">
-              <p className="text-sm font-medium text-slate-800">Dr. Nadir Sha</p>
-              <p className="text-[11px] text-slate-500">Cardiologist</p>
-            </div>
-          </div> */}
+        
           <DoctorProfile />
         </div>
       </div>
@@ -77,49 +62,3 @@ export default function Header() {
   );
 }
 
-/**
- * Smoke Tests (manual):
- * 1) Component mounts without JSX errors (no console errors).
- * 2) <header> renders exactly once; search input present; action buttons visible.
- * 3) Responsive check: avatar label hides under md; New Appointment hides under sm.
- */
-export function HeaderSmokeTest() {
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <Header />
-      <main className="p-6 text-slate-700">If you can see this below the header, mount passed.</main>
-    </div>
-  );
-}
-
-/**
- * Self-test (runtime checks in browser console)
- * Asserts key elements exist to catch regressions quickly without a test runner.
- */
-export function HeaderSelfTest() {
-  useEffect(() => {
-    try {
-      const header = document.querySelector("header");
-      const search = document.querySelector('[data-testid="search-input"]');
-      const actions = document.querySelector('[data-testid="actions"]');
-      const divider = document.querySelector('[data-testid="header-divider"]');
-      console.assert(!!header, "Header should render");
-      console.assert(!!search, "Search input should render");
-      console.assert(!!actions, "Actions group should render");
-      console.assert(!!divider, "Bottom divider should render");
-      // Extra: ensure no unintended backslashes exist in class strings
-      const badEscapes = Array.from(document.querySelectorAll("[class]"))
-        .some(el => /\\"/.test(el.getAttribute("class") || ""));
-      console.assert(!badEscapes, "No stray escapes should appear in class attributes");
-    } catch (e) {
-      console.error("HeaderSelfTest error", e);
-    }
-  }, []);
-
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <Header />
-      <main className="p-6 text-slate-700">Open console to see self-test assertions.</main>
-    </div>
-  );
-}
