@@ -14,6 +14,8 @@ export type User = {
   name: string;
   email: string;
   role: string;
+  profilePic?: string | null;
+  specialization?: string | null;
 };
 
 type AuthState = {
@@ -39,8 +41,6 @@ export function AuthProvider({
 }) {
   const [state, setState] = useState<AuthState>({ user: initialUser });
 
-  
-
   const setUser = useCallback(
     (user: User | null) => {
       setState({ user });
@@ -50,29 +50,22 @@ export function AuthProvider({
 
   const logout = useCallback(() => {
     setState({ user: null });
-    tokenStore.clear()
+    tokenStore.clear();
   }, []);
 
-
-  const getUser = useCallback(
-    async () => {
-      try {
-        const {data} = await api.get('/users/profile')
-        const {_id,name,email,role} = data?.data
-        setUser({_id,email,name,role})
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    [],
-  )
-  
+  const getUser = useCallback(async () => {
+    try {
+      const { data } = await api.get("/users/profile");
+      const { _id, name, email, role, profilePic, specialization } = data?.data;
+      setUser({ _id, email, name, role, profilePic, specialization });
+    } catch (error) {
+      console.log(error);
+    }
+  }, []);
 
   useEffect(() => {
-    
-  getUser()
-  }, [getUser])
-  
+    getUser();
+  }, [getUser]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
