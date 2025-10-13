@@ -14,30 +14,27 @@ import { Calendar } from "@/components/ui/calendar";
 import {
   FileText,
   Search,
-  AlertTriangle,
   CalendarClock,
   Building2,
-  CheckCircle2,
   TestTubeDiagonal,
   FlaskConical,
   ImageIcon,
-  Stethoscope,
-  ClipboardList,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppShell from "@/components/layout/app-shell";
 import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
-import { ToggleChip } from "./ToggleChip";
-// import PrescriptionsCard from "./PrescriptionsCard";
-import VitalsCard from "./VitalsCard";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import PrescriptionCard2 from "./PrescriptionCard2";
 import FollowUpTime from "./FollowUpTime";
 import OrderLab from "./OrderLab";
+import History from "./History";
+import AllergyAlert from "./AllergyAlert";
+import { ConfettiBurst } from "./ConfettiBurst";
+import Header from "./Header";
+import Advice from "./Advice";
+import ActionButton from "./ActionButton";
 
-// ========================
-// Types
-// ========================
+
 export type RxRow = {
   drug: string;
   dosage: string;
@@ -63,36 +60,6 @@ export type Lab = {
   slots: string[];
 };
 
-// ========================
-// Mock Data (History + Labs)
-// ========================
-const HISTORY: Consult[] = [
-  {
-    id: "C-1008",
-    date: "2025-09-03",
-    patientId: "P-001",
-    patientName: "Ravi Kumar",
-    complaints: ["Fever", "Headache"],
-    diagnosis: "Viral fever",
-    prescriptions: [
-      {
-        drug: "Paracetamol 650mg",
-        dosage: "1 tab",
-        freq: "1-1-1",
-        duration: "5",
-        notes: "After food",
-      },
-      {
-        drug: "Pantoprazole 40mg",
-        dosage: "1 tab",
-        freq: "0-1-0",
-        duration: "5",
-        notes: "Morning",
-      },
-    ],
-    advice: "Hydration, rest",
-  },
-];
 
 const LABS: Lab[] = [
   {
@@ -147,66 +114,14 @@ function genHalfHourTimes(start = 8, end = 20): string[] {
   return out;
 }
 
-// Simple confetti burst (no external lib)
-function ConfettiBurst({
-  show,
-  onDone,
-}: {
-  show: boolean;
-  onDone?: () => void;
-}) {
-  const pieces = new Array(22).fill(0).map((_, i) => i);
-  return (
-    <AnimatePresence>
-      {show && (
-        <motion.div
-          className="fixed inset-0 pointer-events-none z-50"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onAnimationComplete={() => onDone && onDone()}
-        >
-          {pieces.map((i) => {
-            const left = Math.random() * 100; // vw
-            const delay = Math.random() * 0.15;
-            const rotate = Math.random() * 360;
-            return (
-              <motion.span
-                key={i}
-                className="absolute block w-2 h-2 rounded-[2px] bg-emerald-400"
-                style={{ left: `${left}vw`, top: `40vh` }}
-                initial={{ y: 0, scale: 0.9, rotate }}
-                animate={{
-                  y: [0, -80, 140],
-                  x: [0, 20, -10],
-                  opacity: [1, 0.9, 0],
-                  scale: [1, 0.9, 1],
-                }}
-                transition={{ duration: 1.2, delay, ease: "easeOut" }}
-              />
-            );
-          })}
-          <motion.div
-            className="absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 bg-white shadow-xl rounded-2xl px-5 py-4 flex items-center gap-2"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-          >
-            <CheckCircle2 className="w-6 h-6 text-emerald-600" />
-            <span className="text-slate-800 font-medium">Success</span>
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
-// ========================
-// Component
-// ========================
 export default function ConsultingMenu() {
+const params = useParams()
+
+const {id:appointmentId} = params
+
+
   const router = useRouter();
-  // ---- Mock current patient ----
+
   const patient = {
     id: "P-001",
     name: "Ravi Kumar",
@@ -215,11 +130,8 @@ export default function ConsultingMenu() {
     allergies: ["Penicillin", "Ibuprofen"],
   } as const;
 
-
   const [advice, setAdvice] = useState("");
-  const [qHist, setQHist] = useState("");
-
-  // ---- Booking state ----
+  
   const [orderOpen, setOrderOpen] = useState(false);
   const [selectedLab, setSelectedLab] = useState<string>("");
   const [seletedTest, setSeletedTest] = useState<string[]>([]);
@@ -238,17 +150,13 @@ export default function ConsultingMenu() {
     }[]
   >([]);
 
-  console.log(booked);
 
   const [showBookCelebrate, setShowBookCelebrate] = useState(false);
-
-  // ---- Follow-up state (calendar + 12h chips) ----
   const [followDay, setFollowDay] = useState<Date | undefined>(undefined);
   const followTimes = useMemo(() => genHalfHourTimes(8, 20), []);
   const [followTime, setFollowTime] = useState<string>("");
   const [showConsultCelebrate, setShowConsultCelebrate] = useState(false);
 
-  // Sort labs with in-house first (then A→Z)
   const sortedLabs = useMemo(() => {
     return [...LABS].sort(
       (a, b) =>
@@ -256,7 +164,6 @@ export default function ConsultingMenu() {
     );
   }, []);
 
-  // Auto-select first in-house lab when opening booking (if none selected)
   useEffect(() => {
     if (orderOpen && !selectedLab && sortedLabs.length) {
       const firstInhouse = sortedLabs.find((l) => l.inhouse) || sortedLabs[0];
@@ -264,30 +171,9 @@ export default function ConsultingMenu() {
     }
   }, [orderOpen, selectedLab, sortedLabs]);
 
-  // const quickSymptoms = ["Fever", "Headache", "Cough"];
 
-  // ---- History filter ----
-  const filteredHistory = useMemo(() => {
-    return HISTORY.filter((h) => {
-      const matchesQ = qHist
-        ? [
-            h.id,
-            h.patientName,
-            h.diagnosis || "",
-            ...h.complaints,
-            ...h.prescriptions.map((p) => p.drug),
-          ]
-            .join(" ")
-            .toLowerCase()
-            .includes(qHist.toLowerCase())
-        : true;
-      return matchesQ;
-    });
-  }, [qHist]);
 
-  // ---- Allergy helpers ----
 
-  // ---- Actions ----
   const handleBook = () => {
     if (!selectedLab || !orderDay || !slot) return;
     setBooked((b) => [
@@ -310,15 +196,10 @@ export default function ConsultingMenu() {
     router.push("/");
   };
 
-  // ========================
-  // Render
-  // ========================
 
   const [activeTab, setActiveTab] = useState<"consultation" | "history">(
     "consultation"
   );
-
-  const [reviewed, setReviewed] = useState(false);
 
   const [labTestType, setLabTestType] = useState("all");
   const [labTestName, setLabTestName] = useState("");
@@ -326,98 +207,9 @@ export default function ConsultingMenu() {
     <AppShell>
       <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
         <div className="mx-auto p-5">
-          <div className="flex justify-between mb-4">
-            <div>
-              <h2 className="font-semibold">
-                {patient.name}
-                <span className="text-slate-400">(ID: {patient.id})</span>
-              </h2>
-              <div className="flex items-center gap-5">
-                <p className="text-xs text-slate-500">
-                  Age {patient.age}, {patient.gender} • Allergies:
-                  {patient.allergies.join(", ")}
-                </p>
-                <VitalsCard />
-              </div>
-            </div>
-            <div className="inline-flex rounded-2xl bg-slate-100 p-1 shadow-inner">
-              <ToggleChip
-                active={activeTab === "consultation"}
-                onClick={() => setActiveTab("consultation")}
-                icon={<Stethoscope className="h-4 w-4" />}
-                activeClass="bg-green-600 text-white"
-              >
-                Consultation
-              </ToggleChip>
-              <ToggleChip
-                active={activeTab === "history"}
-                onClick={() => setActiveTab("history")}
-                icon={<ClipboardList className="h-4 w-4" />}
-                activeClass="bg-blue-600 text-white"
-              >
-                History
-              </ToggleChip>
-            </div>
-          </div>
+     <Header activeTab={activeTab} setActiveTab={setActiveTab}/>
 
-          <div
-            className={
-              "relative overflow-hidden rounded-2xl border shadow-lg" +
-              (reviewed
-                ? "border-red-200 bg-gradient-to-r from-red-50 to-white"
-                : "border-red-200 bg-gradient-to-r from-red-600 to-red-500 text-white")
-            }
-          >
-            <div
-              className={
-                "flex items-center justify-between gap-3 p-4 " +
-                (reviewed ? "text-red-700" : "")
-              }
-            >
-              <div className="flex items-center gap-3">
-                <span
-                  className={
-                    "grid h-8 w-8 place-items-center rounded-full " +
-                    (reviewed ? "bg-red-100 text-red-600" : "bg-white/20")
-                  }
-                >
-                  <AlertTriangle className="h-5 w-5" />
-                </span>
-                <div>
-                  <p
-                    className={
-                      "font-semibold text-base " +
-                      (reviewed ? "" : "drop-shadow-[0_1px_0_rgba(0,0,0,0.25)]")
-                    }
-                  >
-                    Allergy Alert
-                  </p>
-                  <p
-                    className={
-                      "text-sm " +
-                      (reviewed ? "text-red-700/80" : "text-white/90")
-                    }
-                  >
-                    Allergies: Penicillin, Ibuprofen
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                {!reviewed ? (
-                  <Button
-                    onClick={() => setReviewed(true)}
-                    className="bg-white text-red-600 hover:bg-slate-50 rounded-xl"
-                  >
-                    Mark As Reviewed
-                  </Button>
-                ) : (
-                  <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
-                    <CheckCircle2 className="h-4 w-4" /> Reviewed
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
+          <AllergyAlert />
 
           {/* =================== CONSULT TAB =================== */}
           {activeTab === "consultation" && (
@@ -425,13 +217,10 @@ export default function ConsultingMenu() {
               <Card className="p-6">
                 <ConsultationAndExaminationNotes />
 
-                {/* <Separator className="my-4" />
-              <PrescriptionsCard /> */}
                 <Separator className="my-4" />
                 <PrescriptionCard2 />
                 <Separator className="my-6" />
-
-                {/* Booking */}
+                
                 <div className="flex items-center justify-between">
                   <Label className="flex items-center gap-2">
                     <CalendarClock className="w-4 h-4" /> Lab / Imaging Booking
@@ -1050,14 +839,7 @@ export default function ConsultingMenu() {
 
                 {/* Follow-up with calendar + 12h chips */}
                 <Separator className="my-6" />
-                <Label className="flex items-center gap-2">
-                  <CalendarClock className="w-4 h-4" /> Advice & Follow-up
-                </Label>
-                <Textarea
-                  value={advice}
-                  onChange={(e) => setAdvice(e.target.value)}
-                  className="mt-2"
-                />
+                <Advice advice={advice} setAdvice={setAdvice} />
                 <FollowUpTime
                   followDay={followDay}
                   setFollowDay={setFollowDay}
@@ -1066,50 +848,15 @@ export default function ConsultingMenu() {
                   setFollowTime={setFollowTime}
                 />
 
-                <div className="flex justify-end gap-2 mt-6">
-                  <Button variant="outline">Save Draft</Button>
-                  <Button variant="outline">
-                    <FileText className="w-4 h-4 mr-1" /> Print
-                  </Button>
-                  <motion.div whileTap={{ scale: 0.98 }}>
-                    <Button
-                      className="bg-emerald-600 hover:bg-emerald-700"
-                      onClick={handleComplete}
-                    >
-                      Complete Consultation
-                    </Button>
-                  </motion.div>
-                </div>
+               <ActionButton />
               </Card>
             </div>
           )}
 
-          {/* =================== HISTORY TAB =================== */}
-          {activeTab === "history" && (
-            <div className="mt-4">
-              <Card className="p-6">
-                <div className="flex gap-2 mb-4 items-center">
-                  <Search className="w-4 h-4 text-slate-400" />
-                  <Input
-                    value={qHist}
-                    onChange={(e) => setQHist(e.target.value)}
-                    placeholder="Search history..."
-                  />
-                </div>
-                {filteredHistory.map((h) => (
-                  <div key={h.id} className="border rounded p-3 mb-3">
-                    <div className="font-medium">
-                      {h.date} — {h.diagnosis}
-                    </div>
-                    <div className="text-sm">{h.complaints.join(", ")}</div>
-                  </div>
-                ))}
-              </Card>
-            </div>
-          )}
+          {activeTab === "history" && <History />}
         </div>
 
-        {/* Celebration overlays */}
+
         <ConfettiBurst show={showBookCelebrate} />
         <ConfettiBurst show={showConsultCelebrate} />
       </div>

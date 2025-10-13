@@ -35,9 +35,8 @@ export default function ProfileForm() {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
-    setValue,
-    reset,
+    // formState: { errors },
+    setValue
   } = useForm<UpdateSettingsInput>({
     resolver: zodResolver(updateSettingsSchema),
     defaultValues: {

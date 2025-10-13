@@ -46,12 +46,6 @@ export function Sidebar() {
       link: "/dashboard/doctor/lab-report",
     },
     {
-      key: "consulting",
-      label: "Consulting",
-      icon: Stethoscope,
-      link: "/dashboard/doctor/consulting",
-    },
-    {
       key: "billing",
       label: "Billing",
       icon: CreditCard,
