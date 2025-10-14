@@ -7,7 +7,6 @@ import {
   LogOut,
   CalendarClock,
   Users2,
-  Stethoscope,
   CreditCard,
 } from "lucide-react";
 

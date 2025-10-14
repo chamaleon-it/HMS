@@ -1,25 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash } from "lucide-react";
-import React, { Dispatch, SetStateAction } from "react";
+import React from "react";
 
 export default function OrderLab({
   booked,
-//   setBooked
+
 }: {
   booked: {
-    labId: string;
+    name: string[];
     date: Date;
+    lab: string;
     slot: string;
     priority: string;
-    seletedTest?: string[];
-  }[];
-  setBooked: Dispatch<SetStateAction<{
-    labId: string;
-    date: Date;
-    slot: string;
-    priority: string;
-    seletedTest?: string[];
-}[]>>
+  }[]
+  
 }) {
   return (
     <div className="border rounded-xl p-4 m-5 ">
@@ -40,11 +34,11 @@ export default function OrderLab({
             key={idx}
           >
             <div className="col-span-3">
-              {e.seletedTest?.map((e) => (
+              {e.name?.map((e) => (
                 <p key={e}>{e}</p>
               ))}
             </div>
-            <div className="col-span-2">{e.labId}</div>
+            <div className="col-span-2">{e.lab}</div>
             <div className="col-span-2">{e.date.toDateString()}</div>
             <div className="col-span-2">{e.slot}</div>
             <div className="col-span-1">{e.priority}</div>

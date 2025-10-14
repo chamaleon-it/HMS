@@ -391,7 +391,6 @@ export default function LabResultsPage() {
         </div>
         <div className="flex gap-3">
           <button className="px-4 py-2 rounded-xl bg-white ring-1 ring-gray-200 text-gray-700 hover:bg-gray-50">Export</button>
-          <button className="px-4 py-2 rounded-xl bg-black text-white hover:opacity-90">New Result</button>
         </div>
       </div>
 

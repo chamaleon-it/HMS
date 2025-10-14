@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import AppShell from "@/components/layout/app-shell";
-import VitalsCard from "../../consulting/VitalsCard";
+import VitalsCard from "../../consulting/[id]/VitalsCard";
 
 
 // ===================== Types =====================

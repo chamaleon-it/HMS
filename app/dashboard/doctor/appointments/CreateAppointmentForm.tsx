@@ -1,20 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
+import { cn } from "@/lib/utils";
 import { createAppointmentSchema } from "@/schemas/createAppointmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, UserRound } from "lucide-react";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm,  UseFormSetValue } from "react-hook-form";
 import toast from "react-hot-toast";
 import useSWR from "swr";
 const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({ onClose }: { onClose: () => void }) {
   const [showAdvanced, setShowAdvanced] = useState(true);
-const {mutate} = useSWR("/appointments/list")
+  const { mutate } = useSWR("/appointments/list");
   const { data } = useSWR<{
     data: {
       _id: string;
@@ -27,20 +29,17 @@ const {mutate} = useSWR("/appointments/list")
   const {
     register,
     handleSubmit,
-    formState: { errors },
-    reset
+    // formState: { errors },
+    reset,
+    setValue
   } = useForm({
     resolver: zodResolver(createAppointmentSchema),
     defaultValues: {
-      phoneNumber: "+91",
       method: "In clinic",
       type: "New",
       isPaid: "false",
     },
   });
-
-
-  console.log(errors);
 
   const createAppointment = handleSubmit(async (data) => {
     try {
@@ -49,9 +48,9 @@ const {mutate} = useSWR("/appointments/list")
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
-      reset()
-      onClose()
-      mutate()
+      reset();
+      onClose();
+      mutate();
     } catch (error) {
       console.log(error);
     }
@@ -64,26 +63,8 @@ const {mutate} = useSWR("/appointments/list")
           <UserRound className="h-4 w-4" />
           <h3 className="font-medium">Patient</h3>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <Label>Patient Name</Label>
-            <Input
-              placeholder="Search or type new"
-              {...register("patientName")}
-            />
-          </div>
-          <div>
-            <Label>Phone</Label>
-            <Input placeholder="+91" {...register("phoneNumber")} />
-          </div>
-          <div className="sm:col-span-2">
-            <Label>Email</Label>
-            <Input
-              placeholder="name@email.com"
-              type="email"
-              {...register("email")}
-            />
-          </div>
+        <div className="">
+          <PatientSelection setValue={setValue}/>
         </div>
       </section>
 
@@ -189,3 +170,83 @@ const {mutate} = useSWR("/appointments/list")
     </form>
   );
 }
+
+type Patient = {
+  _id: string;
+  name: string;
+  phoneNumber: string;
+};
+
+const PatientSelection = ({
+  setValue
+}: {
+   setValue: UseFormSetValue<{
+    patient: string;
+    doctor: string;
+    method: string;
+    date: string;
+    isPaid: string;
+    notes?: string | undefined;
+    internalNotes?: string | undefined;
+    type?: string | undefined;
+}>
+}) => {
+  const [query, setQuery] = useState("");
+  const [selected, setSelected] = useState<Patient | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const { data: patientData, isLoading } = useSWR<{
+    data: Patient[];
+  }>(`/patients?limit=5&page=1${query ? `&query=${query}` : ""}`);
+
+  const patients = patientData?.data ?? [];
+
+  const handleSelect = (patient: Patient) => {
+    setSelected(patient);
+    setIsOpen(false);
+    setQuery(patient.name);
+    setValue("patient",patient._id)
+  };
+
+  return (
+    <div className="relative w-full">
+      <Label className="mb-1 block">Patient Name</Label>
+      <Input
+        placeholder="Search or type new"
+        value={query}
+        onChange={(e) => {
+          setQuery(e.target.value);
+          setIsOpen(true);
+        }}
+        onFocus={() => setIsOpen(true)}
+        className="w-full"
+      />
+
+      {isOpen && query && (
+        <div className="absolute z-50 mt-1 w-full rounded-md border bg-white shadow-lg">
+          <ScrollArea className="max-h-56">
+            {isLoading ? (
+              <div className="p-2 text-sm text-gray-500">Loading...</div>
+            ) : patients.length > 0 ? (
+              patients.map((p) => (
+                <div
+                  key={p._id}
+                  className={cn(
+                    "cursor-pointer px-3 py-2 text-sm hover:bg-gray-100",
+                    selected?._id === p._id && "bg-gray-100 font-medium"
+                  )}
+                  onClick={() => handleSelect(p)}
+                >
+                  <div className="font-medium">{p.name}</div>
+                  <div className="text-xs text-gray-500">{p.phoneNumber}</div>
+                </div>
+              ))
+            ) : (
+              <div className="p-2 text-sm text-gray-500">No patients found. Please register a patient first.</div>
+            )}
+          </ScrollArea>
+        </div>
+      )}
+    </div>
+  );
+};

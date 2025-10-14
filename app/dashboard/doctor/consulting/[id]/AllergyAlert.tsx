@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button'
 import { AlertTriangle, CheckCircle2 } from 'lucide-react'
 import React, { useState } from 'react'
 
-export default function AllergyAlert() {
+export default function AllergyAlert({allergies}:{allergies:string}) {
     const [reviewed, setReviewed] = useState(false)
   return (
     <div
@@ -43,7 +43,7 @@ export default function AllergyAlert() {
                       (reviewed ? "text-red-700/80" : "text-white/90")
                     }
                   >
-                    Allergies: Penicillin, Ibuprofen
+                    Allergies: {allergies}
                   </p>
                 </div>
               </div>

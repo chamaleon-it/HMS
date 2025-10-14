@@ -3,12 +3,6 @@ import React from 'react'
 import { motion } from "framer-motion";
 import useSWR from 'swr';
 
-
-
-
-
-
-
       const colorMap = {
     Consultation: {
       chip: "bg-blue-100 text-blue-800",
@@ -47,7 +41,9 @@ export default function MonthlyCalender() {
         message:string,
         data:{
             _id:string,
-            patientName:string,
+            patient:{
+              name:string
+            },
             date:string,
             type:string,
             status:string
@@ -111,7 +107,7 @@ export default function MonthlyCalender() {
                           key={j}
                           className={`mt-1 text-[11px] rounded px-1 truncate`}
                         >
-                          {ev.patientName} ({ev.type})
+                          {ev.patient.name} ({ev.type})
                           {" • "+ ev.status }
                         </div>
                       );

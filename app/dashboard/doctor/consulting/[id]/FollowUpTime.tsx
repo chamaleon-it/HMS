@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card } from "@/components/ui/card";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { DataType } from "./interface";
 
 function to12h(time24: string): string {
   // expects HH:MM
@@ -11,21 +12,38 @@ function to12h(time24: string): string {
   return `${hour}:${m.toString().padStart(2, "0")} ${suffix}`;
 }
 
+function genHalfHourTimes(start = 8, end = 20): string[] {
+  const out: string[] = [];
+  for (let hr = start; hr <= end; hr++) {
+    for (let m = 0; m < 60; m += 30) {
+      const hh = hr.toString().padStart(2, "0");
+      const mm = m.toString().padStart(2, "0");
+      out.push(`${hh}:${mm}`);
+    }
+  }
+  return out;
+}
+
 export default function FollowUpTime({
-  followDay,
-  setFollowDay,
-  followTimes,
-  followTime,
-  setFollowTime,
-}: 
-{
-    followDay:Date | undefined,
-    setFollowDay:Dispatch<SetStateAction<Date | undefined>>,
-    followTimes:string[],
-    followTime:string,
-    setFollowTime: Dispatch<SetStateAction<string>>
+  setData,
+}: {
+  data: DataType;
+  setData: React.Dispatch<React.SetStateAction<DataType>>;
 }) {
   const [showFollowUp, setShowFollowUp] = useState(false);
+  const [followDay, setFollowDay] = useState<Date | undefined>(undefined);
+  const [followTime, setFollowTime] = useState<string>("");
+  const followTimes = useMemo(() => genHalfHourTimes(8, 20), []);
+
+  useEffect(() => {
+    if (followDay && followTime) {
+      const [hours, minutes] = followTime.split(":").map(Number);
+
+      const combinedDate = new Date(followDay);
+      combinedDate.setHours(hours, minutes, 0, 0);
+      setData((prev) => ({ ...prev, followUp: combinedDate }));
+    }
+  }, [followDay, followTime,setData]);
 
   if (!showFollowUp) {
     return (

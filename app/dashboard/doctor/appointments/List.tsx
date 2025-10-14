@@ -27,9 +27,18 @@ export default function List({
     message: string;
     data: {
       _id: string;
-      patientName: string;
-      phoneNumber: string;
-      email: string;
+      patient:{
+        _id:string,
+        name:string,
+        phoneNumber:string,
+        gender:string,
+        age:number,
+        blood:string,
+        allergies:string,
+        address:string,
+        notes:string,
+        createdAt:Date
+      },
       doctor: {
         _id: string;
         name: string;
@@ -100,13 +109,13 @@ export default function List({
             </div>
 
             <div className="col-span-2 flex items-center gap-3 min-w-0">
-              <Initials text={row.patientName} />
+              <Initials text={row.patient.name} />
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium">
-                  {row.patientName}
+                  {row.patient.name}
                 </div>
                 <div className="text-xs text-zinc-500 truncate">
-                  {row.phoneNumber}
+                  {row.patient.phoneNumber}
                 </div>
               </div>
             </div>

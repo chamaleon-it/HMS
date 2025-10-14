@@ -159,7 +159,6 @@ function Segmented<T extends string>({
   );
 }
 
-// Nice headless select used for Status / Doctor
 function FilterSelect<T extends string>({
   value,
   onChange,
