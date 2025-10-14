@@ -26,7 +26,6 @@ export default function SecurityForm() {
   const {
     register,
     handleSubmit,
-    watch,
     formState: { errors },
   } = useForm<changePasswordInput>({
     resolver: zodResolver(changePasswordSchema),

@@ -82,16 +82,16 @@ export default function PatientTable() {
                 </td>
                 <td className="px-2 py-3">
                   <div className="flex flex-wrap gap-1.5">
-                    <Chip
-                      label={r.condition}
+                    {r?.condition && <Chip
+                      label={r?.condition}
                       tone={
-                        r.condition.toLowerCase().includes("fever")
+                        r?.condition?.toLowerCase().includes("fever")
                           ? "amber"
-                          : r.condition.toLowerCase().includes("diabetes")
+                          : r?.condition?.toLowerCase().includes("diabetes")
                           ? "amber"
                           : "gray"
                       }
-                    />
+                    />}
                   </div>
                 </td>
                 <td className="px-2 py-3 text-sm text-gray-700">{r.blood}</td>

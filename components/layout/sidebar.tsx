@@ -7,7 +7,6 @@ import {
   LogOut,
   CalendarClock,
   Users2,
-  Stethoscope,
   CreditCard,
 } from "lucide-react";
 
@@ -44,12 +43,6 @@ export function Sidebar() {
       label: "Lab Results",
       icon: FlaskConical,
       link: "/dashboard/doctor/lab-report",
-    },
-    {
-      key: "consulting",
-      label: "Consulting",
-      icon: Stethoscope,
-      link: "/dashboard/doctor/consulting",
     },
     {
       key: "billing",

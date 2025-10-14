@@ -2,6 +2,7 @@ import React, { ReactNode, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Star, Plus, Trash, ChevronRight, Edit, X } from "lucide-react";
+import { DataType } from "./interface";
 
 // ------------------ Types ------------------
 interface Medicine {
@@ -17,17 +18,15 @@ interface FavoriteTemplate {
   name: string;
   medicines: Medicine[];
 }
-
-// Small helper
-const emptyMed = (): Medicine => ({
-  drug: "",
-  dosage: "",
-  frequency: "",
-  food: "",
-  duration: "",
-});
-
-export default function PrescriptionUI() {
+export default function PrescriptionCard(
+  {
+    data,
+    setData,
+  }: {
+    data: DataType;
+    setData: React.Dispatch<React.SetStateAction<DataType>>;
+  }
+) {
   // --- Favorites (templates) ---
   const [favorites, setFavorites] = useState<FavoriteTemplate[]>([
     {
@@ -78,8 +77,8 @@ export default function PrescriptionUI() {
     );
   }, [favSearch, favorites]);
 
-  // --- Current prescription form (multiple medicines) ---
-  const [medicines, setMedicines] = useState<Medicine[]>([emptyMed()]);
+  
+  
 
   // --- UI state ---
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
@@ -94,34 +93,63 @@ export default function PrescriptionUI() {
   const [editMeds, setEditMeds] = useState<Medicine[]>([]);
 
   // ------------------ Handlers ------------------
-  const applyTemplate = (fav: FavoriteTemplate) => {
-    const copy = fav.medicines.map((m) => ({ ...emptyMed(), ...m }));
-    setMedicines((prev) => {
-      if (appendMode) {
-        // append and collapse any initial empty row
-        const base =
-          prev.length === 1 && Object.values(prev[0]).every((v) => !v)
-            ? []
-            : prev;
-        return [...base, ...copy];
-      }
-      return copy.length ? copy : [emptyMed()];
-    });
-  };
+const applyTemplate = (fav: FavoriteTemplate) => {
+  const copy = fav.medicines.map((m) => ({  ...m }));
 
-  const addMedicineRow = () => setMedicines((prev) => [...prev, emptyMed()]);
-  const removeMedicineRow = (idx: number) =>
-    setMedicines((prev) =>
-      prev.length === 1 ? [emptyMed()] : prev.filter((_, i) => i !== idx)
-    );
-  const updateField = (idx: number, key: keyof Medicine, val: string) =>
-    setMedicines((prev) =>
-      prev.map((m, i) => (i === idx ? { ...m, [key]: val } : m))
-    );
+  setData((prev) => {
+    if (appendMode) {
+      const base =
+        prev.medicines.length === 1 &&
+        Object.values(prev.medicines[0]).every((v) => !v)
+          ? []
+          : prev.medicines;
+
+      return {
+        ...prev,
+        medicines: [...base, ...copy],
+      };
+    }
+
+    return {
+      ...prev,
+      medicines: copy.length ? copy : [],
+    };
+  });
+};
+
+  const addMedicineRow = () => {
+  setData((prev) => ({
+    ...prev,
+    medicines: [...prev.medicines, ],
+  }));
+};
+
+
+  const removeMedicineRow = (idx: number) => {
+  setData((prev) => ({
+    ...prev,
+    medicines:
+      prev.medicines.length === 1
+        ? []
+        : prev.medicines.filter((_, i) => i !== idx),
+  }));
+};
+
+
+  const updateField = (idx: number, key: keyof Medicine, val: string) => {
+  setData((prev) => ({
+    ...prev,
+    medicines: prev.medicines.map((m, i) =>
+      i === idx ? { ...m, [key]: val } : m
+    ),
+  }));
+};
+
+    
 
   const openSaveModal = () => {
-    const title = medicines[0]?.drug
-      ? `${medicines[0].drug} – Template`
+    const title = data.medicines[0]?.drug
+      ? `${data.medicines[0].drug} – Template`
       : "New Template";
     setTemplateName(title);
     setSaveModalOpen(true);
@@ -130,7 +158,7 @@ export default function PrescriptionUI() {
   const saveCurrentAsFavorite = () => {
     const trimmed = templateName.trim();
     if (!trimmed) return;
-    const cleaned = medicines.filter((m) =>
+    const cleaned = data.medicines.filter((m) =>
       Object.values(m).some((v) => (v || "").trim() !== "")
     );
     if (!cleaned.length) return;
@@ -161,7 +189,7 @@ export default function PrescriptionUI() {
     setEditMeds((prev) =>
       prev.map((m, i) => (i === idx ? { ...m, [key]: val } : m))
     );
-  const addEditRow = () => setEditMeds((prev) => [...prev, emptyMed()]);
+  const addEditRow = () => setEditMeds((prev) => [...prev]);
   const removeEditRow = (idx: number) =>
     setEditMeds((prev) => prev.filter((_, i) => i !== idx));
 
@@ -195,16 +223,7 @@ export default function PrescriptionUI() {
           <h2 className="font-semibold text-lg">
              Prescriptions
           </h2>
-          {/* <label className="flex items-center gap-2 text-sm text-gray-600">
-            
-            <input
-              type="checkbox"
-              className="accent-emerald-600"
-              checked={appendMode}
-              onChange={(e) => setAppendMode(e.target.checked)}
-            />
-            Append on Apply
-          </label> */}
+         
         </div>
         <input
           value={favSearch}
@@ -294,7 +313,7 @@ export default function PrescriptionUI() {
 </div>
 
 {/* Rows */}
-{medicines.map((m, i) => (
+{data.medicines.map((m, i) => (
   <div key={i} className="grid grid-cols-12 gap-2 mt-2 items-start">
     <div className="col-span-3">
       <LabeledInput
