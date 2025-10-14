@@ -53,7 +53,7 @@ export default function List({
       notes: string | null;
       internalNotes: string | null;
       type: "New" | "Follow up";
-      status: "Upcoming" | "Consulted" | "Observation" | "Completed";
+      status: "Upcoming" | "Consulted" | "Observation" | "Completed" | "Not show";
       isPaid: boolean;
       createdAt: Date;
     }[];
@@ -137,7 +137,14 @@ export default function List({
             </div>
             <div className="col-span-1 flex items-center justify-end gap-2">
               <span className="inline-flex items-center gap-2 text-sm">
-                {row.status}
+                <Chip label={row.status} tone={
+                  row.status === "Not show" && "red" || 
+                  row.status === "Upcoming" && "gray" ||
+                  row.status === "Consulted" && "blue" ||
+                  row.status === "Observation" && "amber" ||
+                  row.status === "Completed" && "green" ||
+                  "gray"
+                }/>
               </span>
             </div>
 
@@ -145,7 +152,7 @@ export default function List({
               <Button
                 size="icon"
                 variant="default"
-                className="w-fit px-2 bg-[#00a63e] hover:bg-[#00a63e]/70"
+                className="w-fit px-2 bg-sky-100 hover:bg-sky-100/70 text-sky-800"
                 onClick={() => {
                   updateStatus(row._id, "Consulted");
                   router.push(`/dashboard/doctor/consulting/${row._id}`);
@@ -156,7 +163,7 @@ export default function List({
               <Button
                 size="icon"
                 variant="default"
-                className="w-fit px-2 bg-[#00a63e] hover:bg-[#00a63e]/70"
+                className="w-fit px-2 bg-green-100 hover:bg-green-100/70 text-green-800"
                 onClick={() => {
                   updateStatus(row._id, "Completed");
                 }}
@@ -166,7 +173,7 @@ export default function List({
               <Button
                 size="icon"
                 variant="default"
-                className="w-fit px-2 bg-[#f77627] hover:bg-[#f77627]/70"
+                className="w-fit px-2 bg-amber-100 hover:bg-amber-100/70 text-amber-800"
                 onClick={() => {
                   updateStatus(row._id, "Observation");
                 }}
@@ -177,7 +184,7 @@ export default function List({
               <Button
                 size="icon"
                 variant="default"
-                className="w-fit px-2 bg-[#c70707] hover:bg-[#c70707]/70"
+                className="w-fit px-2 bg-red-100 hover:bg-red-100/70 text-red-800"
                 onClick={() => {
                   updateStatus(row._id, "Not show");
                 }}
@@ -185,9 +192,6 @@ export default function List({
                 Not Show
               </Button>
 
-              <Button size="icon" variant="ghost">
-                <MoreVertical className="h-4 w-4" />
-              </Button>
             </div>
           </li>
         ))}
@@ -195,6 +199,19 @@ export default function List({
     </div>
   );
 }
+
+const Chip: React.FC<{ label: string; tone?: "green"|"gray"|"red"|"blue"|"amber" }>=({label,tone="gray"})=>{
+  const tones: Record<string,string>={
+    green:"bg-emerald-50 text-emerald-700 ring-emerald-200",
+    gray:"bg-slate-100 text-slate-700 ring-slate-200",
+    red:"bg-rose-50 text-rose-700 ring-rose-200",
+    blue:"bg-sky-50 text-sky-700 ring-sky-200",
+    amber:"bg-amber-50 text-amber-700 ring-amber-200",
+  };
+  return(
+    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ring-1 whitespace-nowrap ${tones[tone]}`}>{label}</span>
+  );
+};
 
 function Initials({ text }: { text: string }) {
   const initials = text
