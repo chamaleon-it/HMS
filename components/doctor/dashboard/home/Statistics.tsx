@@ -1,17 +1,14 @@
-import {
-  ClipboardCheck,
-  IndianRupee,
-  ListChecks,
-  UserRoundPlus,
-  Users,
-} from "lucide-react";
+import { ClipboardCheck, ListChecks, UserRoundPlus, Users } from "lucide-react";
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import useSWR from "swr";
 
 export default function Statistics() {
-  const { data: appointmentStatisticsData,mutate:appointmentStatisticsMutate } = useSWR<{
+  const {
+    data: appointmentStatisticsData,
+    mutate: appointmentStatisticsMutate,
+  } = useSWR<{
     message: string;
     data: {
       completed: number;
@@ -23,7 +20,7 @@ export default function Statistics() {
     };
   }>("/appointments/statistics");
 
-   const appointmentStatistics = appointmentStatisticsData?.data ?? {
+  const appointmentStatistics = appointmentStatisticsData?.data ?? {
     completed: 0,
     consulted: 0,
     notShow: 0,
@@ -32,17 +29,18 @@ export default function Statistics() {
     upcoming: 0,
   };
 
-  const { data: patientsStatisticsData,mutate:patientsStatisticsMutate } = useSWR<{
-    message: string;
-    data: {
-      total: number;
-      today: number;
-      thisWeek: number;
-      thisMonth: number;
-      male: number;
-      female: number;
-    };
-  }>("/patients/statistics");
+  const { data: patientsStatisticsData, mutate: patientsStatisticsMutate } =
+    useSWR<{
+      message: string;
+      data: {
+        total: number;
+        today: number;
+        thisWeek: number;
+        thisMonth: number;
+        male: number;
+        female: number;
+      };
+    }>("/patients/statistics");
 
   const patientsStatistics = patientsStatisticsData?.data ?? {
     total: 0,
@@ -53,14 +51,10 @@ export default function Statistics() {
     female: 0,
   };
 
- 
-
   useEffect(() => {
-    
-  appointmentStatisticsMutate()
-  patientsStatisticsMutate()
-  }, [])
-  
+    appointmentStatisticsMutate();
+    patientsStatisticsMutate();
+  }, []);
 
   return (
     <div className="grid grid-cols-4 gap-4 p-6">

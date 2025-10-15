@@ -94,7 +94,7 @@ export default function WeeklyCalender({
   );
   const weekItems = weeklyData?.data ?? [];
 
-  const { weekStart, eventsInWeek } = useMemo(() => {
+  const { eventsInWeek } = useMemo(() => {
     const ws = startOfWeekSunday();
     const we = endOfWeekSunday();
     const normalized = weekItems
@@ -120,7 +120,10 @@ export default function WeeklyCalender({
     const gridMax = (END_HOUR - START_HOUR) * 60;
     const clampedStart = Math.max(0, Math.min(startMin, gridMax));
     const clampedEnd = Math.max(0, Math.min(endMin, gridMax));
-    const heightMin = Math.max(15, clampedEnd - clampedStart || DEFAULT_DURATION_MIN);
+    const heightMin = Math.max(
+      15,
+      clampedEnd - clampedStart || DEFAULT_DURATION_MIN
+    );
     return { clampedStart, heightMin };
   };
 
@@ -131,7 +134,6 @@ export default function WeeklyCalender({
     >
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold">This Week</h3>
-       
       </div>
 
       <div className="min-w-[960px]">
@@ -174,7 +176,11 @@ export default function WeeklyCalender({
               {[...Array(ROWS)].map((_, i) => (
                 <div
                   key={i}
-                  className={i % 4 === 0 ? "border-t border-gray-300" : "border-t border-gray-100"}
+                  className={
+                    i % 4 === 0
+                      ? "border-t border-gray-300"
+                      : "border-t border-gray-100"
+                  }
                   style={{ height: `${ROW_HEIGHT_REM}rem` }}
                 />
               ))}
@@ -201,13 +207,18 @@ export default function WeeklyCalender({
                     e.start,
                     e.end
                   );
-                  const topRem = (clampedStart / BLOCK_MINUTES) * ROW_HEIGHT_REM;
-                  const heightRem = (heightMin / BLOCK_MINUTES) * ROW_HEIGHT_REM;
-                  const typeStyles = colorMap[e.type] ?? colorMap["Consultation"];
-                  const isConsulted = e.status === "Consulted" || e.status === "Completed";
-                  const isNotShow = e.status === "Not show"
-                  const isUpcoming = e.status === "Upcoming" || e.status === "Observation"
-                  
+                  const topRem =
+                    (clampedStart / BLOCK_MINUTES) * ROW_HEIGHT_REM;
+                  const heightRem =
+                    (heightMin / BLOCK_MINUTES) * ROW_HEIGHT_REM;
+                  const typeStyles =
+                    colorMap[e.type] ?? colorMap["Consultation"];
+                  const isConsulted =
+                    e.status === "Consulted" || e.status === "Completed";
+                  const isNotShow = e.status === "Not show";
+                  const isUpcoming =
+                    e.status === "Upcoming" || e.status === "Observation";
+
                   return (
                     <motion.div
                       key={e._id + i}
@@ -231,9 +242,9 @@ export default function WeeklyCalender({
                       <div className="flex items-center gap-2 mb-0.5">
                         <span
                           className={`w-1.5 h-1.5 rounded-full ${
-                            isConsulted && consultedStyles.dot ||
-                            isNotShow && "bg-red-500" ||
-                             typeStyles.dot
+                            (isConsulted && consultedStyles.dot) ||
+                            (isNotShow && "bg-red-500") ||
+                            typeStyles.dot
                           }`}
                         />
                         <span className="font-medium truncate">
@@ -241,11 +252,14 @@ export default function WeeklyCalender({
                         </span>
                       </div>
                       <div className="opacity-70">
-                        {fmtTime(e.start)} – {fmtTime(new Date(e.start.getTime() + 15 * 60 * 1000))}
+                        {fmtTime(e.start)} –{" "}
+                        {fmtTime(new Date(e.start.getTime() + 15 * 60 * 1000))}
                       </div>
                       {e.status && (
                         <div className="mt-1">
-                          <span className={consultedStyles.badge}>{e.status}</span>
+                          <span className={consultedStyles.badge}>
+                            {e.status}
+                          </span>
                         </div>
                       )}
                     </motion.div>

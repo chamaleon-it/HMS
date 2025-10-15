@@ -1,9 +1,5 @@
-import { Button } from "@/components/ui/button";
-import api from "@/lib/axios";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import { useRouter } from "next/navigation";
 import React from "react";
-import toast from "react-hot-toast";
 import useSWR from "swr";
 
 const cx = (...cls: (string | false | null | undefined)[]) =>
@@ -16,28 +12,27 @@ export default function List({
   query: string;
   activeStatuses: string[];
 }) {
-  const router = useRouter();
   const params = new URLSearchParams();
 
   if (query) params.append("query", query);
   if (activeStatuses) params.append("status", JSON.stringify(activeStatuses));
 
-  const { data, mutate } = useSWR<{
+  const { data } = useSWR<{
     message: string;
     data: {
       _id: string;
-      patient:{
-        _id:string,
-        name:string,
-        phoneNumber:string,
-        gender:string,
-        age:number,
-        blood:string,
-        allergies:string,
-        address:string,
-        notes:string,
-        createdAt:Date
-      },
+      patient: {
+        _id: string;
+        name: string;
+        phoneNumber: string;
+        gender: string;
+        age: number;
+        blood: string;
+        allergies: string;
+        address: string;
+        notes: string;
+        createdAt: Date;
+      };
       doctor: {
         _id: string;
         name: string;
@@ -52,40 +47,16 @@ export default function List({
       notes: string | null;
       internalNotes: string | null;
       type: "New" | "Follow up";
-      status: "Upcoming" | "Consulted" | "Observation" | "Completed" | "Not show";
+      status:
+        | "Upcoming"
+        | "Consulted"
+        | "Observation"
+        | "Completed"
+        | "Not show";
       isPaid: boolean;
       createdAt: Date;
     }[];
   }>(`/appointments/list?${params.toString()}`);
-
-  const {mutate:statisticsMutate} = useSWR<{
-    message: string;
-    data: {
-      today: number;
-      upcoming: number;
-      consulted: number;
-      observation: number;
-      completed: number;
-      notShow: number;
-    };
-  }>("/appointments/statistics");
-
-  const updateStatus = async (id: string, status: string) => {
-    try {
-      await toast.promise(
-        api.patch(`/appointments/update_status/${id}`, { status }),
-        {
-          loading: "Please wait we are updating status",
-          error: ({ response }) => response.data.message,
-          success: ({ data }) => data.message,
-        }
-      );
-      mutate();
-      statisticsMutate()
-    } catch (error) {
-      console.log(error);
-    }
-  };
 
   return (
     <div className="rounded-2xl border border-zinc-200 overflow-hidden mt-4">
@@ -135,18 +106,19 @@ export default function List({
             </div>
             <div className="col-span-1 flex items-center justify-end gap-2">
               <span className="inline-flex items-center gap-2 text-sm">
-                <Chip label={row.status} tone={
-                  row.status === "Not show" && "red" || 
-                  row.status === "Upcoming" && "gray" ||
-                  row.status === "Consulted" && "blue" ||
-                  row.status === "Observation" && "amber" ||
-                  row.status === "Completed" && "green" ||
-                  "gray"
-                }/>
+                <Chip
+                  label={row.status}
+                  tone={
+                    (row.status === "Not show" && "red") ||
+                    (row.status === "Upcoming" && "gray") ||
+                    (row.status === "Consulted" && "blue") ||
+                    (row.status === "Observation" && "amber") ||
+                    (row.status === "Completed" && "green") ||
+                    "gray"
+                  }
+                />
               </span>
             </div>
-
-            
           </li>
         ))}
       </ul>
@@ -154,16 +126,23 @@ export default function List({
   );
 }
 
-const Chip: React.FC<{ label: string; tone?: "green"|"gray"|"red"|"blue"|"amber" }>=({label,tone="gray"})=>{
-  const tones: Record<string,string>={
-    green:"bg-emerald-50 text-emerald-700 ring-emerald-200",
-    gray:"bg-slate-100 text-slate-700 ring-slate-200",
-    red:"bg-rose-50 text-rose-700 ring-rose-200",
-    blue:"bg-sky-50 text-sky-700 ring-sky-200",
-    amber:"bg-amber-50 text-amber-700 ring-amber-200",
+const Chip: React.FC<{
+  label: string;
+  tone?: "green" | "gray" | "red" | "blue" | "amber";
+}> = ({ label, tone = "gray" }) => {
+  const tones: Record<string, string> = {
+    green: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    gray: "bg-slate-100 text-slate-700 ring-slate-200",
+    red: "bg-rose-50 text-rose-700 ring-rose-200",
+    blue: "bg-sky-50 text-sky-700 ring-sky-200",
+    amber: "bg-amber-50 text-amber-700 ring-amber-200",
   };
-  return(
-    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ring-1 whitespace-nowrap ${tones[tone]}`}>{label}</span>
+  return (
+    <span
+      className={`px-2.5 py-1 rounded-full text-xs font-medium ring-1 whitespace-nowrap ${tones[tone]}`}
+    >
+      {label}
+    </span>
   );
 };
 
