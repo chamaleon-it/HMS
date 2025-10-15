@@ -28,11 +28,13 @@ function getNowMinutes() {
 
 export default function DailyViewTimeline({
   setOpenAppointment,
+  selectedDate
 }: {
   setOpenAppointment: Dispatch<SetStateAction<boolean>>;
+  selectedDate:Date|undefined
 }) {
   const { data: appointmentData, mutate } =
-    useSWR<AppointmentData>("/appointments/list");
+    useSWR<AppointmentData>(`/appointments/list?date=${selectedDate}`);
 
   const appointment = appointmentData?.data ?? [];
 

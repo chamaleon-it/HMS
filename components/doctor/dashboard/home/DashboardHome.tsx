@@ -13,6 +13,8 @@ import Drawer from "@/components/ui/drawer";
 export default function Dashboard() {
   const [openAppointment, setOpenAppointment] = useState(false);
 
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(()=>new Date())
+
   return (
     <div className="min-h-[calc(100vh-80px)]">
       <Statistics />
@@ -35,15 +37,15 @@ export default function Dashboard() {
             value="day"
             className="flex-1 overflow-hidden min-h-[50vh]"
           >
-            <DailyViewTimeline setOpenAppointment={setOpenAppointment} />
+            <DailyViewTimeline setOpenAppointment={setOpenAppointment} selectedDate={selectedDate}/>
           </TabsContent>
 
-          <WeeklyCalender setOpenAppointment={setOpenAppointment} />
+          <WeeklyCalender setOpenAppointment={setOpenAppointment} selectedDate={selectedDate}/>
 
-          <MonthlyCalender />
+          <MonthlyCalender selectedDate={selectedDate}/>
         </Tabs>
 
-        <Summery />
+        <Summery selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
       </div>
 
       <Drawer

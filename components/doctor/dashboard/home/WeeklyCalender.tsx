@@ -86,17 +86,19 @@ type WeekItem = {
 
 export default function WeeklyCalender({
   setOpenAppointment,
+  selectedDate
 }: {
   setOpenAppointment: Dispatch<SetStateAction<boolean>>;
+  selectedDate:Date | undefined
 }) {
   const { data: weeklyData } = useSWR<{ message: string; data: WeekItem[] }>(
-    "/appointments/calender/weekly"
+    `/appointments/calender/weekly?date=${selectedDate}`
   );
   const weekItems = weeklyData?.data ?? [];
 
   const { eventsInWeek } = useMemo(() => {
-    const ws = startOfWeekSunday();
-    const we = endOfWeekSunday();
+    const ws = startOfWeekSunday(selectedDate);
+    const we = endOfWeekSunday(selectedDate);
     const normalized = weekItems
       .map((it) => {
         const start = new Date(it.date);
