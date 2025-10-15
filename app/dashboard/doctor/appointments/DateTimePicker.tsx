@@ -105,6 +105,7 @@ export default function DateTimePicker({
               onClick={() => handleTimeClick(time)}
             >
               <Button
+                type="button"
                 className="w-full"
                 size="sm"
                 variant={selectedTime === time ? "default" : "outline"}

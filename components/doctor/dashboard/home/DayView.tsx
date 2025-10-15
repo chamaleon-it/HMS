@@ -6,10 +6,10 @@ import React, {
   Dispatch,
 } from "react";
 import { CalendarPlus } from "lucide-react";
-import Appointment from "./Appointment";
 import ScheduleTabsPreview from "./ScheduleTabsPreview";
 import useSWR from "swr";
 import { AppointmentData } from "./interface";
+import { PatientCard } from "./PatientCard";
 // import { cn } from "@/lib/utils";
 
 export function toMinutes(t: string) {
@@ -37,7 +37,6 @@ export default function DailyViewTimeline({
   const appointment = appointmentData?.data ?? [];
 
   const [nowMin, setNowMin] = useState<number>(getNowMinutes());
-  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
   useEffect(() => {
     const id = setInterval(() => setNowMin(getNowMinutes()), 30000);
@@ -94,46 +93,14 @@ export default function DailyViewTimeline({
 
       <div className="">
         <div className="relative min-h-[60vh] max-h-[100vh] overflow-y-auto pr-2">
-          <div className="absolute left-6 md:left-8 top-0 bottom-0 w-px bg-gray-200" />
-          <div className="absolute left-6 md:left-8 top-0 w-px bg-indigo-500" />
-
-          <div className="absolute left-3 md:left-5">
-            <div className="inline-flex items-center gap-1 rounded-full bg-white border px-2 py-0.5 text-xs text-indigo-700 shadow">
-              Now {fromMinutes(nowMin)}
-            </div>
+          <div className="inline-flex items-center gap-1 rounded-full bg-white border px-2 py-0.5 text-xs text-indigo-700 shadow">
+            Now {fromMinutes(nowMin)}
           </div>
 
-          {/* <ul className="space-y-8">
-            {times.map((t, idx) => (
-              <li key={t} className="relative flex gap-6 md:gap-8">
-                <div
-                  className={cn(
-                    "w-16 text-sm pt-1 text-right pr-2 select-none",
-                    idx === Math.floor(nowOffsetPx / HOUR_ROW_PX)
-                      ? "text-indigo-700 font-semibold"
-                      : "text-gray-500"
-                  )}
-                >
-                  {t}
-                </div>
-                <div className="pt-1" />
-              </li>
+          <div className="flex flex-col gap-4 ml-24 mr-2">
+            {selectedAppointments.map((a, idx) => (
+              <PatientCard key={idx} a={a} mutate={mutate} />
             ))}
-          </ul> */}
-
-          <div className="absolute inset-0 pointer-events-none">
-            <div className="flex flex-col gap-4 ml-24 mr-2">
-              {selectedAppointments.map((a, idx) => (
-                <Appointment
-                  key={idx}
-                  a={a}
-                  idx={idx}
-                  menuOpenId={menuOpenId}
-                  setMenuOpenId={setMenuOpenId}
-                  mutate={mutate}
-                />
-              ))}
-            </div>
           </div>
         </div>
       </div>

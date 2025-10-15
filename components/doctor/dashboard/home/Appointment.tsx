@@ -105,13 +105,20 @@ export default function Appointment({
                   <div className="absolute right-0 top-8 z-20 w-44 rounded-xl border bg-white shadow-lg p-1">
                     <button
                       onClick={() => {
+                        setRing(true);
                         setMenuOpenId(null);
                       }}
                       className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-gray-50 cursor-pointer"
                     >
                       Call again
                     </button>
-                    <button className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-700 cursor-pointer">
+                    <button
+                      className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-red-50 text-red-700 cursor-pointer"
+                      onClick={async () => {
+                        await updateStatus(a._id, "Not show");
+                        setMenuOpenId(null);
+                      }}
+                    >
                       Remove
                     </button>
                   </div>
