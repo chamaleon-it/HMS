@@ -89,25 +89,24 @@ export default function List({
 
   return (
     <div className="rounded-2xl border border-zinc-200 overflow-hidden mt-4">
-      <div className="grid grid-cols-12 bg-zinc-50 text-xs font-medium text-zinc-600 px-4 py-2">
+      <div className="grid grid-cols-11 bg-zinc-50 text-xs font-medium text-zinc-600 px-4 py-2">
         <div className="col-span-2">Time</div>
-        <div className="col-span-2">Patient</div>
-        <div className="col-span-2">Doctor</div>
+        <div className="col-span-3">Patient</div>
+        <div className="col-span-3">Doctor</div>
         <div className="col-span-1">Method</div>
         <div className="col-span-1 text-right">Status</div>
-        <div className="col-span-4 text-right">Action</div>
       </div>
       <ul className="divide-y">
         {data?.data.map((row) => (
           <li
             key={row._id}
-            className={cx("px-4 py-3 grid grid-cols-12 items-center")}
+            className={cx("px-4 py-3 grid grid-cols-11 items-center")}
           >
             <div className="col-span-2 font-medium">
               {fDateandTime(row.date)}
             </div>
 
-            <div className="col-span-2 flex items-center gap-3 min-w-0">
+            <div className="col-span-3 flex items-center gap-3 min-w-0">
               <Initials text={row.patient.name} />
               <div className="min-w-0">
                 <div className="truncate text-sm font-medium">
@@ -118,7 +117,7 @@ export default function List({
                 </div>
               </div>
             </div>
-            <div className="col-span-2 flex items-center gap-3 min-w-0">
+            <div className="col-span-3 flex items-center gap-3 min-w-0">
               <Initials text={row.doctor.name} />
               <div className="">
                 <div className="truncate text-sm font-medium">
@@ -147,51 +146,7 @@ export default function List({
               </span>
             </div>
 
-            <div className="col-span-4 flex items-center justify-end gap-2">
-              <Button
-                size="icon"
-                variant="default"
-                className="w-fit px-2 bg-sky-100 hover:bg-sky-100/70 text-sky-800"
-                onClick={() => {
-                  updateStatus(row._id, "Consulted");
-                  router.push(`/dashboard/doctor/consulting/${row._id}`);
-                }}
-              >
-                Consulted
-              </Button>
-              <Button
-                size="icon"
-                variant="default"
-                className="w-fit px-2 bg-green-100 hover:bg-green-100/70 text-green-800"
-                onClick={() => {
-                  updateStatus(row._id, "Completed");
-                }}
-              >
-                Completed
-              </Button>
-              <Button
-                size="icon"
-                variant="default"
-                className="w-fit px-2 bg-amber-100 hover:bg-amber-100/70 text-amber-800"
-                onClick={() => {
-                  updateStatus(row._id, "Observation");
-                }}
-              >
-                Observation
-              </Button>
-
-              <Button
-                size="icon"
-                variant="default"
-                className="w-fit px-2 bg-red-100 hover:bg-red-100/70 text-red-800"
-                onClick={() => {
-                  updateStatus(row._id, "Not show");
-                }}
-              >
-                Not Show
-              </Button>
-
-            </div>
+            
           </li>
         ))}
       </ul>

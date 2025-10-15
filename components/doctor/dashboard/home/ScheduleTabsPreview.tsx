@@ -1,29 +1,24 @@
 "use client";
 
-import React, { JSX, useMemo, useState } from "react";
-import { CheckCircle, Eye, Clock } from "lucide-react";
+import React, { JSX, useMemo } from "react";
+import { CheckCircle, Eye, Clock, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 
-// -------------------- Types --------------------
-type TabKey = "upcoming" | "consulted" | "observation";
-
-type TabMeta = {
-  key: TabKey;
-  label: string;
-  icon: React.ComponentType<{ size?: number }>;
-};
-
-// -------------------- Seed --------------------
-
-// -------------------- Component --------------------
-export default function ScheduleTabsPreview(): JSX.Element {
-  const [activeTab, setActiveTab] = useState<TabKey>("upcoming");
-
-  const tabs = useMemo<TabMeta[]>(
+export default function ScheduleTabsPreview({
+  currenctStatus,
+  setCurrenctStatus,
+}: {
+  currenctStatus: "Upcoming" | "Consulted" | "Observation" | "Not show";
+  setCurrenctStatus: React.Dispatch<
+    React.SetStateAction<"Upcoming" | "Consulted" | "Observation" | "Not show">
+  >;
+}): JSX.Element {
+  const tabs = useMemo(
     () => [
-      { key: "upcoming", label: "Upcoming", icon: Clock },
-      { key: "consulted", label: "Consulted", icon: CheckCircle },
-      { key: "observation", label: "Observation", icon: Eye },
+      { key: "Upcoming", label: "Upcoming", icon: Clock },
+      { key: "Consulted", label: "Consulted", icon: CheckCircle },
+      { key: "Observation", label: "Observation", icon: Eye },
+      { key: "Not show", label: "Not show", icon: AlertTriangle },
     ],
     []
   );
@@ -31,11 +26,15 @@ export default function ScheduleTabsPreview(): JSX.Element {
   return (
     <div className="mb-4 relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
       {tabs.map(({ key, label, icon: Icon }) => {
-        const active = activeTab === key;
+        const active = currenctStatus === key;
         return (
           <button
             key={key}
-            onClick={() => setActiveTab(key)}
+            onClick={() =>
+              setCurrenctStatus(
+                key as "Upcoming" | "Consulted" | "Observation" | "Not show"
+              )
+            }
             className={
               "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
               (active ? "text-white" : "text-gray-700")

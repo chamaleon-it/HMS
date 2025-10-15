@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ChevronRight, LogOut, Settings, Building2, User } from "lucide-react";
+import { LogOut, Settings, Building2, User } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/auth/context/auth-context";
 import configuration from "@/config/configuration";
@@ -24,7 +24,7 @@ type Status = (typeof STATUSES)[number];
 
 export default function DoctorProfile() {
   const [status, setStatus] = React.useState<Status>("Available");
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const dot = (s: Status) =>
     ({
@@ -153,17 +153,28 @@ export default function DoctorProfile() {
           {/* Settings & logout */}
           <DropdownMenuGroup>
             <DropdownMenuItem className="px-3">
-              <Settings className="mr-2 h-4 w-4" /> Settings
-              <ChevronRight className="ml-auto h-4 w-4 text-slate-400" />
+              <Link
+                href={"/dashboard/doctor/settings"}
+                className="flex items-center gap-1"
+              >
+                <Settings className="mr-2 h-4 w-4" /> Settings
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem className="px-3">
               <User className="mr-2 h-4 w-4" /> View profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="px-3 text-rose-600 focus:text-rose-700">
-              <Link href={"/"} className="flex gap-2 items-center">
-                <LogOut className="h-4 w-4" /> Log out
-              </Link>
+            <DropdownMenuItem className="px-3">
+              <Button
+                onClick={() => {
+                  logout();
+                }}
+                variant={"ghost"}
+                className="flex gap-2 items-center text-rose-600 hover:text-rose-700"
+              >
+                <LogOut className="h-4 w-4 text-rose-600 hover:text-rose-700" />{" "}
+                Log out
+              </Button>
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>

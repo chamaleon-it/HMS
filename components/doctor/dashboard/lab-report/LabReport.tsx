@@ -386,7 +386,7 @@ export default function LabResultsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Lab Results</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Investigations</h1>
           <p className="text-sm text-gray-500">Track, filter & review lab and imaging results</p>
         </div>
         <div className="flex gap-3">

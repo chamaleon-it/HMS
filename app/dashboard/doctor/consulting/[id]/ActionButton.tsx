@@ -15,6 +15,18 @@ export default function ActionButton({ data }: { data: DataType }) {
         toast.error("This consultation has already been recorded.");
         return;
       }
+
+      await toast.promise(
+        api.patch(`/appointments/update_status/${data.appointment}`, {
+          status: "Consulted",
+        }),
+        {
+          loading: "Please wait we are updating status",
+          error: ({ response }) => response.data.message,
+          success: ({ data }) => data.message,
+        }
+      );
+
       await toast.promise(api.post("/consultings", data), {
         loading: "We are recording this consultation.",
         error: ({ response }) => response.data.message,

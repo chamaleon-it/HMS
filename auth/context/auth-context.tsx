@@ -1,5 +1,6 @@
 "use client";
 import api, { tokenStore } from "@/lib/axios";
+import { useRouter } from "next/navigation";
 import React, {
   createContext,
   useCallback,
@@ -27,6 +28,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   setUser: (user: User | null, token?: string | null) => void;
   logout: () => void;
+  loading: boolean;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -40,6 +42,8 @@ export function AuthProvider({
   initialToken?: string | null;
 }) {
   const [state, setState] = useState<AuthState>({ user: initialUser });
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   const setUser = useCallback(
     (user: User | null) => {
@@ -60,6 +64,10 @@ export function AuthProvider({
       setUser({ _id, email, name, role, profilePic, specialization });
     } catch (error) {
       console.log(error);
+      setLoading(false);
+      router.replace("/");
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -73,8 +81,9 @@ export function AuthProvider({
       isAuthenticated: !!state.user,
       setUser,
       logout,
+      loading,
     }),
-    [state.user, setUser, logout]
+    [state.user, setUser, logout, loading]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

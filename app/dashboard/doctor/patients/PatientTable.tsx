@@ -82,16 +82,18 @@ export default function PatientTable() {
                 </td>
                 <td className="px-2 py-3">
                   <div className="flex flex-wrap gap-1.5">
-                    {r?.condition && <Chip
-                      label={r?.condition}
-                      tone={
-                        r?.condition?.toLowerCase().includes("fever")
-                          ? "amber"
-                          : r?.condition?.toLowerCase().includes("diabetes")
-                          ? "amber"
-                          : "gray"
-                      }
-                    />}
+                    {r?.condition && (
+                      <Chip
+                        label={r?.condition}
+                        tone={
+                          r?.condition?.toLowerCase().includes("fever")
+                            ? "amber"
+                            : r?.condition?.toLowerCase().includes("diabetes")
+                            ? "amber"
+                            : "gray"
+                        }
+                      />
+                    )}
                   </div>
                 </td>
                 <td className="px-2 py-3 text-sm text-gray-700">{r.blood}</td>
@@ -101,7 +103,7 @@ export default function PatientTable() {
                 <td className="px-2 py-3 text-right">
                   <div className="inline-flex gap-1">
                     <Link
-                      href={`/dashboard/doctor/patients/${r.name}`}
+                      href={`/dashboard/doctor/patients/${r._id}`}
                       className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
                     >
                       View

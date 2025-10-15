@@ -12,10 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
 import Statistics from "./Statistics";
 import Filter from "./Filter";
-
-const cx = (...cls: (string | false | null | undefined)[]) =>
-  cls.filter(Boolean).join(" ");
-
+import Drawer from "@/components/ui/drawer";
 
 export default function AppointmentPage() {
   const [query, setQuery] = useState("");
@@ -39,7 +36,12 @@ export default function AppointmentPage() {
         </header>
 
         {/* Filters Row */}
-        <Filter activeStatuses={activeStatuses} query={query} setActiveStatuses={setActiveStatuses} setQuery={setQuery}/>
+        <Filter
+          activeStatuses={activeStatuses}
+          query={query}
+          setActiveStatuses={setActiveStatuses}
+          setQuery={setQuery}
+        />
 
         {/* Stats Row */}
         <Statistics />
@@ -57,7 +59,7 @@ export default function AppointmentPage() {
             </TabsList>
 
             <TabsContent value="list">
-              <List query={query} activeStatuses={activeStatuses}/>
+              <List query={query} activeStatuses={activeStatuses} />
             </TabsContent>
             <TabsContent value="calendar">
               <Calendar />
@@ -74,35 +76,5 @@ export default function AppointmentPage() {
         </Drawer>
       </div>
     </AppShell>
-  );
-}
-
-
-function Drawer({
-  open,
-  onClose,
-  children,
-  title,
-}: {
-  open: boolean;
-  onClose: () => void;
-  title?: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div
-      className={cx(
-        "fixed inset-y-0 right-0 z-50 w-full max-w-xl bg-white shadow-xl transform transition-transform",
-        open ? "translate-x-0" : "translate-x-full"
-      )}
-    >
-      <div className="p-4 border-b border-zinc-200 flex items-center justify-between">
-        <div className="text-base font-semibold">{title}</div>
-        <Button variant="ghost" onClick={onClose}>
-          Close
-        </Button>
-      </div>
-      <div className="p-4 overflow-y-auto h-[calc(100vh-64px)]">{children}</div>
-    </div>
   );
 }

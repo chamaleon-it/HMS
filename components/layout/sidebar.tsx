@@ -13,9 +13,31 @@ import {
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import useSWR from "swr";
 
 export function Sidebar() {
   const {logout,user} = useAuth()
+
+   const { data: appointmentStatisticsData,mutate:appointmentStatisticsMutate } = useSWR<{
+    message: string;
+    data: {
+      completed: number;
+      consulted: number;
+      notShow: number;
+      observation: number;
+      today: number;
+      upcoming: number;
+    };
+  }>("/appointments/statistics");
+
+   const appointmentStatistics = appointmentStatisticsData?.data ?? {
+    completed: 0,
+    consulted: 0,
+    notShow: 0,
+    observation: 0,
+    today: 0,
+    upcoming: 0,
+  };
 
 
   const items = user?.role === "Doctor" && [
@@ -29,7 +51,7 @@ export function Sidebar() {
       key: "appointments",
       label: "Appointments",
       icon: CalendarClock,
-      badge: "12",
+      badge: appointmentStatistics.today.toFixed(0),
       link: "/dashboard/doctor/appointments",
     },
     {
@@ -40,7 +62,7 @@ export function Sidebar() {
     },
     {
       key: "lab-results",
-      label: "Lab Results",
+      label: "Investigations",
       icon: FlaskConical,
       link: "/dashboard/doctor/lab-report",
     },

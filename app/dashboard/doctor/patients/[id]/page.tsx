@@ -1,29 +1,22 @@
 "use client";
 
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import {
   Calendar,
   FileText,
   FlaskRound as Flask,
-  Heart,
   Image as ImageIcon,
-  Info,
   NotebookPen,
-  Phone,
   Pill,
   Plus,
   Printer,
-  Share2,
   Stethoscope,
   Upload,
-  User2,
   Wallet,
-  AlertTriangle,
   Download,
   Search,
   Edit3,
   Eye,
-  ShieldAlert,
   FileArchive,
 } from "lucide-react";
 
@@ -35,18 +28,12 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -57,6 +44,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import AppShell from "@/components/layout/app-shell";
+import Header from "./Header";
+import PatientSnapshot from "./PatientSnapshot";
 
 // --- Helper small components ---
 function Stat({
@@ -78,29 +67,6 @@ function Stat({
     </div>
   );
 }
-
-function LabeledRow({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="grid grid-cols-12 items-start gap-3 py-2">
-      <div className="col-span-4 md:col-span-3 text-[13px] text-muted-foreground">
-        {label}
-      </div>
-      <div className="col-span-8 md:col-span-9 text-sm">{children}</div>
-    </div>
-  );
-}
-
-const initialAllergies = [
-  { name: "Penicillin", severity: "High" },
-  { name: "Seafood", severity: "Medium" },
-  { name: "Dust", severity: "Low" },
-];
 
 const initialMeds = [
   {
@@ -130,14 +96,6 @@ const initialMeds = [
     start: "2025-06-02",
     active: false,
   },
-];
-
-const initialVitals = [
-  { k: "BP", v: "128/84", sub: "mmHg" },
-  { k: "Pulse", v: "76", sub: "bpm" },
-  { k: "Temp", v: "98.4", sub: "°F" },
-  { k: "SpO₂", v: "97%", sub: "RA" },
-  { k: "BMI", v: "26.6", sub: "kg/m²" },
 ];
 
 const initialLabs = [
@@ -253,7 +211,7 @@ export default function PatientFullDetailPage() {
       if (!res.ok) throw new Error("Failed to save");
       const saved = await res.json();
       setMeds((prev) => [saved, ...prev]);
-    } catch  {
+    } catch {
       setMeds((prev) => [payload, ...prev]);
     }
     setFormMed({
@@ -341,85 +299,12 @@ export default function PatientFullDetailPage() {
       <div className="min-h-screen w-full bg-gradient-to-b from-background to-muted/30">
         {/* Sticky Header */}
         <div className="border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-          <div className="p-5 flex items-center gap-3 md:gap-4">
-            <User2 className="h-9 w-9 md:h-10 md:w-10" />
-            <div className="flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-base md:text-xl font-semibold">
-                  {mask("Aarav K.")}{" "}
-                  <span className={blurIDsClass}>(MRN: 0045238)</span>
-                </h1>
-                <Badge variant="secondary" className="rounded-full">
-                  Age 34
-                </Badge>
-                <Badge variant="secondary" className="rounded-full">
-                  M
-                </Badge>
-                <Badge variant="outline" className="rounded-full">
-                  B+ve
-                </Badge>
-                <Badge className="rounded-full bg-amber-500 text-black">
-                  Allergy
-                </Badge>
-                <Badge className="rounded-full bg-blue-500">
-                  Insurance: Star Health
-                </Badge>
-              </div>
-              <p className="text-xs md:text-sm text-muted-foreground">
-                <span className={blurIDsClass}>
-                  {showPHI ? "+91 98XXXXXX12" : "+91 ******"}
-                </span>{" "}
-                · Nilambur ·{" "}
-                <span className={blurIDsClass}>UHID: HMS-2025-1129</span>
-              </p>
-            </div>
-            <div className="hidden md:flex items-center gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => alert("Print triggered (hook to /print)")}
-                  >
-                    <Printer className="h-4 w-4 mr-2" />
-                    Print
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>Print summary / prescription</TooltipContent>
-              </Tooltip>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button size="sm" variant="outline">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Share</DropdownMenuLabel>
-                  <DropdownMenuItem onClick={() => alert("Downloading PDF...")}>
-                    {" "}
-                    <Download className="h-4 w-4 mr-2" />
-                    Download PDF
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={() => alert("Email modal -> send summary")}
-                  >
-                    {" "}
-                    <FileText className="h-4 w-4 mr-2" />
-                    Email summary
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button
-                size="sm"
-                className={ACCENT_CLASS}
-                onClick={() => setOpenAddNote(true)}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                New Note
-              </Button>
-            </div>
-          </div>
+          <Header
+            mask={mask}
+            blurIDsClass={blurIDsClass}
+            setOpenAddNote={setOpenAddImage}
+            showPHI={showPHI}
+          />
 
           {/* Tabs */}
           <div className="mx-auto max-w-[1400px] px-4">
@@ -442,161 +327,14 @@ export default function PatientFullDetailPage() {
         {/* Content */}
         <div className="p-5 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
           {/* Left Column: Patient Snapshot */}
-          <div className="lg:col-span-4 space-y-4">
-            <Card className="overflow-hidden">
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2">
-                  <Info className="h-5 w-5" /> Patient Snapshot
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <div className="grid grid-cols-2 gap-4">
-                  {initialVitals.map((v) => (
-                    <div key={v.k} className="rounded-xl border p-3">
-                      <Stat label={v.k} value={v.v} sub={v.sub} />
-                    </div>
-                  ))}
-                </div>
-                <Separator className="my-4" />
-                <LabeledRow label="Primary Doctor">Dr. Nadisha</LabeledRow>
-                <LabeledRow label="Conditions">
-                  <div className="flex flex-wrap gap-2">
-                    <Badge variant="outline">Hypertension</Badge>
-                    <Badge variant="outline">Mixed Dyslipidemia</Badge>
-                  </div>
-                </LabeledRow>
-                <LabeledRow label="Allergies">
-                  <div className="flex flex-wrap gap-2">
-                    {initialAllergies.map((a) => (
-                      <Badge
-                        key={a.name}
-                        className={
-                          "rounded-full " +
-                          (a.severity === "High"
-                            ? "bg-red-500 text-white"
-                            : a.severity === "Medium"
-                            ? "bg-amber-500 text-black"
-                            : "bg-slate-200")
-                        }
-                      >
-                        {a.name}
-                      </Badge>
-                    ))}
-                  </div>
-                </LabeledRow>
-                <LabeledRow label="Insurance">
-                  Star Health (Valid till 31 Dec 2025)
-                </LabeledRow>
-                <LabeledRow label="Emergency Contact">
-                  <div className="flex items-center gap-2">
-                    <Phone className="h-4 w-4" />{" "}
-                    <span className={blurIDsClass}>
-                      {showPHI ? "Afsal · 98XXXXXX90" : "A. · ******"}
-                    </span>
-                  </div>
-                </LabeledRow>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {[
-                    {
-                      label: "Allergy",
-                      icon: <AlertTriangle className="h-3.5 w-3.5" />,
-                      color: "bg-red-500/10 text-red-600",
-                    },
-                    {
-                      label: "Chronic",
-                      icon: <Heart className="h-3.5 w-3.5" />,
-                      color: "bg-rose-500/10 text-rose-600",
-                    },
-                    {
-                      label: "Insurance",
-                      icon: <Wallet className="h-3.5 w-3.5" />,
-                      color: "bg-emerald-500/10 text-emerald-600",
-                    },
-                  ].map((f) => (
-                    <span
-                      key={f.label}
-                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ${f.color}`}
-                    >
-                      {f.icon}
-                      {f.label}
-                    </span>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2">
-                  <Pill className="h-5 w-5" /> Active Medications
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-2">
-                {meds.map((m, i) => (
-                  <div
-                    key={i}
-                    className="flex items-start justify-between rounded-lg border p-3"
-                  >
-                    <div>
-                      <div className="font-medium">
-                        {m.brand}{" "}
-                        <span className="text-muted-foreground text-xs">
-                          (Gen: {m.generic})
-                        </span>
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        HSN: {m.hsn} · SIG: {m.sig} · Since {m.start}
-                      </div>
-                      <div className="mt-1 text-[11px] tracking-wider">
-                        Barcode: {m.barcode || "—"}
-                      </div>
-                    </div>
-                    <Badge variant={m.active ? "default" : "secondary"}>
-                      {m.active ? "Active" : "Stopped"}
-                    </Badge>
-                  </div>
-                ))}
-                <div className="flex justify-end">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => setOpenAddMed(true)}
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="flex items-center gap-2">
-                  <ShieldAlert className="h-5 w-5" /> Privacy
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm font-medium">Show PHI</div>
-                    <div className="text-xs text-muted-foreground">
-                      Toggle to quickly mask sensitive info on screen share
-                    </div>
-                  </div>
-                  <Switch checked={showPHI} onCheckedChange={setShowPHI} />
-                </div>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm font-medium">Mask IDs</div>
-                    <div className="text-xs text-muted-foreground">
-                      Blur MRN, UHID on export & UI
-                    </div>
-                  </div>
-                  <Switch checked={maskIDs} onCheckedChange={setMaskIDs} />
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <PatientSnapshot
+            blurIDsClass={blurIDsClass}
+            maskIDs={maskIDs}
+            setMaskIDs={setMaskIDs}
+            setOpenAddMed={setOpenAddMed}
+            setShowPHI={setShowPHI}
+            showPHI={showPHI}
+          />
 
           {/* Right Column: Main Tabs */}
           <div className="lg:col-span-8 space-y-4">

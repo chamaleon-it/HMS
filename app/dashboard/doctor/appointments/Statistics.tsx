@@ -4,7 +4,7 @@ import React from "react";
 import useSWR from "swr";
 
 export default function Statistics() {
-  const {data} = useSWR<{
+  const { data } = useSWR<{
     message: string;
     data: {
       today: number;
@@ -32,7 +32,7 @@ export default function Statistics() {
         value={data?.data.consulted}
         icon={<Clock className="h-4 w-4" />}
       />
-           <StatTile
+      <StatTile
         title="observation"
         value={data?.data.observation}
         icon={<Clock className="h-4 w-4" />}
@@ -43,7 +43,7 @@ export default function Statistics() {
         icon={<CheckCircle2 className="h-4 w-4" />}
       />
       <StatTile
-        title="No-show"
+        title="No Show"
         value={data?.data.notShow}
         icon={<AlertTriangle className="h-4 w-4" />}
       />

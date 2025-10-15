@@ -1,37 +1,33 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { Sidebar } from "./sidebar"
-import Header from "./topbar"
-import Footer from "./Footer"
-import { useAuth } from "@/auth/context/auth-context"
-import { useRouter } from "next/navigation"
-import { useEffect } from "react"
+import type React from "react";
+import { Sidebar } from "./sidebar";
+import Header from "./topbar";
+import Footer from "./Footer";
+import { useAuth } from "@/auth/context/auth-context";
+import { redirect } from "next/navigation";
 
 type AppShellProps = {
-  children: React.ReactNode
-}
+  children: React.ReactNode;
+};
 
-export default function AppShell({ children,  }: AppShellProps) {
-  const {  isAuthenticated } = useAuth();
-    const router = useRouter();
+export default function AppShell({ children }: AppShellProps) {
+  const { isAuthenticated, loading } = useAuth();
 
-    useEffect(() => {
-      if(!isAuthenticated){
-        router.push("/")
-      }
-    
-    }, [isAuthenticated,router])
-    
+  if (loading) return null;
+
+  if (!isAuthenticated) {
+    redirect("/");
+  }
 
   return (
     <div className="flex">
       <Sidebar />
       <div className="min-h-screen flex-1">
-      <Header />
+        <Header />
         {children}
         <Footer />
       </div>
     </div>
-  )
+  );
 }

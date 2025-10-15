@@ -4,17 +4,13 @@ import { useAuth } from "@/auth/context/auth-context";
 import LoginForm from "@/components/LoginForm";
 import ForgotPassword from "@/components/LoginForm/ForgotPassword";
 import { Lock, Shield } from "lucide-react";
-import { useRouter } from "next/navigation";
-import React, { useState, useMemo, useEffect } from "react";
+import { redirect } from "next/navigation";
+import React, { useState, useMemo } from "react";
 
 export default function LoginPage() {
-  const {  isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
 
-  const router = useRouter();
-  
   const [view, setView] = useState<"login" | "forgot" | "sent">("login");
-
-
 
   const quotes = [
     {
@@ -47,19 +43,17 @@ export default function LoginPage() {
     []
   );
 
+  if (loading) return null;
 
-
- useEffect(() => {
+  if (isAuthenticated) {
     if (user?.role) {
       if (user.role === "Doctor") {
-        router.push("/dashboard/doctor");
+        redirect("/dashboard/doctor");
       } else if (user.role === "Pharmacy") {
-        router.push("/dashboard/pharmacy");
+        redirect("/dashboard/pharmacy");
       }
     }
-  }, [user?.role,router]);
-
-  if (isAuthenticated) return null;
+  }
 
   return (
     <div>
@@ -164,13 +158,11 @@ export default function LoginPage() {
                     Use your email and password
                   </p>
 
-                 <LoginForm setView={setView}/>
+                  <LoginForm setView={setView} />
                 </>
               )}
 
-              {view === "forgot" && (
-            <ForgotPassword setView={setView}/>
-              )}
+              {view === "forgot" && <ForgotPassword setView={setView} />}
 
               {view === "sent" && (
                 <div className="text-center py-10 animate-fade-up">
@@ -215,8 +207,6 @@ export default function LoginPage() {
     </div>
   );
 }
-
-
 
 function IndiaFlagIcon({ className = "h-5 w-5" }) {
   return (
