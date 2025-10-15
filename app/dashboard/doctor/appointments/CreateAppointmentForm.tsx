@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,9 +10,10 @@ import { createAppointmentSchema } from "@/schemas/createAppointmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, UserRound } from "lucide-react";
 import { useState } from "react";
-import { useForm,  UseFormSetValue } from "react-hook-form";
+import { useForm, UseFormSetValue } from "react-hook-form";
 import toast from "react-hot-toast";
 import useSWR from "swr";
+import DateTimePicker from "./DateTimePicker";
 const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({ onClose }: { onClose: () => void }) {
@@ -31,7 +33,7 @@ export function CreateAppointmentForm({ onClose }: { onClose: () => void }) {
     handleSubmit,
     // formState: { errors },
     reset,
-    setValue
+    setValue,
   } = useForm({
     resolver: zodResolver(createAppointmentSchema),
     defaultValues: {
@@ -64,7 +66,7 @@ export function CreateAppointmentForm({ onClose }: { onClose: () => void }) {
           <h3 className="font-medium">Patient</h3>
         </div>
         <div className="">
-          <PatientSelection setValue={setValue}/>
+          <PatientSelection setValue={setValue} />
         </div>
       </section>
 
@@ -102,10 +104,8 @@ export function CreateAppointmentForm({ onClose }: { onClose: () => void }) {
               ))}
             </select>
           </div>
-          <div>
-            <Label>Date and time</Label>
-            <Input type="datetime-local" {...register("date")} />
-          </div>
+          {/* <Input type="datetime-local" {...register("date")} /> */}
+          <DateTimePicker setValue={setValue} />
 
           <div className="sm:col-span-2">
             <Label>Reason / Notes</Label>
@@ -178,9 +178,9 @@ type Patient = {
 };
 
 const PatientSelection = ({
-  setValue
+  setValue,
 }: {
-   setValue: UseFormSetValue<{
+  setValue: UseFormSetValue<{
     patient: string;
     doctor: string;
     method: string;
@@ -189,7 +189,7 @@ const PatientSelection = ({
     notes?: string | undefined;
     internalNotes?: string | undefined;
     type?: string | undefined;
-}>
+  }>;
 }) => {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Patient | null>(null);
@@ -205,7 +205,7 @@ const PatientSelection = ({
     setSelected(patient);
     setIsOpen(false);
     setQuery(patient.name);
-    setValue("patient",patient._id)
+    setValue("patient", patient._id);
   };
 
   return (
@@ -242,7 +242,9 @@ const PatientSelection = ({
                 </div>
               ))
             ) : (
-              <div className="p-2 text-sm text-gray-500">No patients found. Please register a patient first.</div>
+              <div className="p-2 text-sm text-gray-500">
+                No patients found. Please register a patient first.
+              </div>
             )}
           </ScrollArea>
         </div>
