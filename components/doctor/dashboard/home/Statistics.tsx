@@ -54,7 +54,7 @@ export default function Statistics() {
   useEffect(() => {
     appointmentStatisticsMutate();
     patientsStatisticsMutate();
-  }, []);
+  }, [appointmentStatisticsMutate, patientsStatisticsMutate]);
 
   return (
     <div className="grid grid-cols-4 gap-4 p-6">

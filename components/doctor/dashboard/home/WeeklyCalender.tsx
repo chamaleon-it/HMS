@@ -86,10 +86,10 @@ type WeekItem = {
 
 export default function WeeklyCalender({
   setOpenAppointment,
-  selectedDate
+  selectedDate,
 }: {
   setOpenAppointment: Dispatch<SetStateAction<boolean>>;
-  selectedDate:Date | undefined
+  selectedDate: Date | undefined;
 }) {
   const { data: weeklyData } = useSWR<{ message: string; data: WeekItem[] }>(
     `/appointments/calender/weekly?date=${selectedDate}`
@@ -110,7 +110,7 @@ export default function WeeklyCalender({
       .filter((it) => it.start >= ws && it.start < we)
       .sort((a, b) => a.start.getTime() - b.start.getTime());
     return { weekStart: ws, eventsInWeek: normalized };
-  }, [weekItems]);
+  }, [weekItems, selectedDate]);
 
   const dayToCol = (date: Date) => date.getDay();
   const minutesSinceStart = (date: Date) =>
