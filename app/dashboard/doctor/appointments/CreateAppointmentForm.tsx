@@ -100,7 +100,7 @@ export function CreateAppointmentForm({ onClose }: { onClose: () => void }) {
             />
           </div>
           {/* <Input type="datetime-local" {...register("date")} /> */}
-          <DateTimePicker setValue={setValue} />
+          <DateTimePicker setValue={setValue} doctor={values.doctor} />
 
           <div className="sm:col-span-2">
             <Label>Reason / Notes</Label>
