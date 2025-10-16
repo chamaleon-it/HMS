@@ -28,8 +28,8 @@ export default function Appointments({
 }: {
   setValue: UseFormSetValue<UpdateSettingsInput>;
   availability?: {
-    startDate?: Date;
-    endDate?: Date;
+    startDate?: string;
+    endDate?: string;
     startTime?: string;
     endTime?: string;
     days?: string[];
@@ -42,8 +42,8 @@ export default function Appointments({
 }) {
   const defaultValue = useMemo(
     () => ({
-      startDate: availability?.startDate ?? (undefined as undefined | Date),
-      endDate: availability?.endDate ?? (undefined as undefined | Date),
+      startDate: availability?.startDate ?? (undefined as undefined | string),
+      endDate: availability?.endDate ?? (undefined as undefined | string),
       startTime: availability?.startTime ?? "09:00",
       endTime: availability?.endTime ?? "17:00",
       days:
@@ -121,14 +121,14 @@ export default function Appointments({
             mode="range"
             numberOfMonths={2}
             disabled={{ before: new Date() }}
-            selected={{ from: avail.startDate, to: avail.endDate }}
+            selected={{ from: avail.startDate ?  new Date(avail.startDate) : new Date(), to: avail.endDate ? new Date(avail.endDate) : new Date() }}
             onSelect={(range) => {
               if (!range?.from) return;
               if (range.from && range.to) {
                 setAvail((prev) => ({
                   ...prev,
-                  startDate: range.from,
-                  endDate: range.to,
+                  startDate: range.from?.toISOString(),
+                  endDate: range.to?.toISOString() ,
                 }));
               }
             }}

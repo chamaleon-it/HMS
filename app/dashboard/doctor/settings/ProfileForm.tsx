@@ -48,8 +48,8 @@ export default function ProfileForm() {
       specialization: string | null;
       signature: string | null;
       availability?: {
-        startDate?: Date;
-        endDate?: Date;
+        startDate?: string;
+        endDate?: string;
         startTime?: string;
         endTime?: string;
         days?: string[];
@@ -62,7 +62,7 @@ export default function ProfileForm() {
     };
   }>("/users/profile");
 
-  const { register, handleSubmit, watch, setValue, reset } =
+  const { register, handleSubmit, watch, setValue, reset,formState:{errors} } =
     useForm<UpdateSettingsInput>({
       resolver: zodResolver(updateSettingsSchema),
       defaultValues: {
@@ -76,6 +76,8 @@ export default function ProfileForm() {
         availability: userData?.data.availability,
       },
     });
+
+    console.log(errors);
 
   const values = watch();
 
