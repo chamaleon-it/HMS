@@ -2,28 +2,22 @@
 
 import * as React from "react";
 import { motion } from "framer-motion";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import { Badge } from "@/components/ui/badge";
-
 import { Shield, Lock, User } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
-import ProfileForm from "./ProfileForm";
 import SecurityForm from "./SecurityForm";
+import ProfileForm from "./ProfileForm";
 
 export default function SettingsPage() {
+  const [tab, setTab] = React.useState("profile");
+
   return (
     <AppShell>
-      <div className="p-5 min-h-[calc(100vh-80px)]">
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-white/70 backdrop-blur border-b pb-5 px-3">
-          <div className="flex items-center justify-between">
+      <div className="min-h-screen bg-white">
+        <div className="sticky top-0 z-10 bg-white/70 backdrop-blur border-b">
+          <div className="px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <Shield className="h-5 w-5" />
               <div>
@@ -45,9 +39,9 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="pt-10"
+          className="px-4 py-6"
         >
-          <Tabs defaultValue="profile">
+          <Tabs value={tab} onValueChange={setTab}>
             <TabsList className="grid grid-cols-2 w-full bg-white rounded-xl p-1 shadow-sm border h-12 items-stretch">
               <TabsTrigger
                 value="profile"
@@ -63,21 +57,8 @@ export default function SettingsPage() {
               </TabsTrigger>
             </TabsList>
 
-            {/* PROFILE TAB */}
-            <TabsContent value="profile" className="mt-6">
-              <Card className="border-0 shadow-lg ring-1 ring-black/5 bg-white/80 backdrop-blur">
-                <CardHeader className="pb-2">
-                  <CardTitle>Profile</CardTitle>
-                  <CardDescription>
-                    Update your display info shown to patients and staff.
-                  </CardDescription>
-                </CardHeader>
-                <ProfileForm />
-              </Card>
-            </TabsContent>
-
-            {/* SECURITY TAB */}
             <SecurityForm />
+            <ProfileForm />
           </Tabs>
         </motion.div>
       </div>

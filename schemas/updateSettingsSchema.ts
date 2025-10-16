@@ -12,7 +12,20 @@ export const updateSettingsSchema = z.object({
   specialization: z.string().trim().nullable(),
   profilePic: z.string().trim().nullable(),
   signature: z.string().trim().nullable(),
+  availability: z
+    .object({
+      startDate: z.date().optional(),
+      endDate: z.date().optional(),
+      startTime: z.string().optional(),
+      endTime: z.string().optional(),
+      days: z.array(z.string()).optional(),
+      rounds: z
+        .array(
+          z.object({ label: z.string(), start: z.string(), end: z.string() })
+        )
+        .optional(),
+    })
+    .optional(),
 });
 
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;
-
