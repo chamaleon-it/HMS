@@ -93,6 +93,7 @@ export default function DateTimePicker({
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
+            disabled={{ before: new Date() }}
             className="w-full"
           />
         </Card>
