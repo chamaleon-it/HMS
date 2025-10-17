@@ -74,7 +74,7 @@ export default function MonthlyCalender({selectedDate}:{selectedDate:Date | unde
       </div>
       <div className="grid grid-cols-7 gap-2">
         {[...Array(30)].map((_, i) => {
-          const date = `2025-${(selectedDate?.getMonth() ?? 0) + 1}-${String(i + 1).padStart(2, "0")}`;
+          const date = `${selectedDate?.getFullYear() || new Date().getFullYear()}-${(selectedDate?.getMonth() ?? 0) + 1}-${String(i + 1).padStart(2, "0")}`;
           const events = data?.data.filter((b) => b.date === date) || [];
 
           return (

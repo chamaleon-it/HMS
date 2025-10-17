@@ -140,9 +140,9 @@ export default function DailyViewTimeline({
               <div
                 key={m}
                 className="grid items-start relative"
-                style={{ gridTemplateColumns: `${GUTTER_W}px minmax(0,1fr)` }}
+                style={{ gridTemplateColumns: `${currenctStatus !== "Upcoming" ? 0 : GUTTER_W}px minmax(0,1fr)` }}
               >
-                <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
+               {currenctStatus === "Upcoming" && <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
                   <span
                     className={`text-[11px] select-none ${
                       labelBold
@@ -159,10 +159,11 @@ export default function DailyViewTimeline({
                       Now {fromMinutes(nowMin)}
                     </span>
                   )}
-                </div>
+                </div>}
+                {currenctStatus !== "Upcoming" && <div className=""></div>}
 
-                <div className="relative flex flex-col gap-2 px-2 py-2">
-                  <div className="absolute z-10 -left-[112px] top-0 bottom-0 w-px bg-gray-300" />
+                <div className="relative flex flex-col gap-2 px-2 py-2 ">
+                  {currenctStatus === "Upcoming" && <div className="absolute z-10 -left-[112px] top-0 bottom-0 w-px bg-gray-300" />}
                   {items.length > 0 ? (
                     items.map((a) => (
                       <div key={a._id} className="pl-4">
