@@ -3,6 +3,7 @@ import React from 'react'
 import { createPortal } from 'react-dom';
 
 import { motion, AnimatePresence } from "framer-motion";
+import Link from 'next/link';
 
 interface BillRow {
   id: string;
@@ -155,16 +156,6 @@ export default function AllBill() {
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full table-fixed text-sm">
-                    <colgroup>
-                      <col className="w-[12%]" />
-                      <col className="w-[12%]" />
-                      <col className="w-[22%]" />
-                      <col className="w-[10%]" />
-                      <col className="w-[12%]" />
-                      <col className="w-[12%]" />
-                      <col className="w-[12%]" />
-                      <col className="w-[8%]" />
-                    </colgroup>
                     <thead className="sticky top-0 z-10 bg-white/80 backdrop-blur">
                       <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
                         <th className="py-2 text-left">Invoice</th>
@@ -219,9 +210,9 @@ export default function AllBill() {
                           <td className="py-2 px-2 text-center">
                             <div className="flex justify-between items-center gap-5">
                               <StatusPill s={b.status} />
-                              <button className="ml-2 inline-flex items-center rounded-md border border-slate-200 bg-white px-2 py-1 text-xs hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
+                              <Link href={`/dashboard/doctor/billing/${b.id}`} className="ml-2 inline-flex items-center rounded-md border border-slate-200 bg-white px-2 py-1 text-xs hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800">
                                 <Eye className="mr-1 h-3.5 w-3.5" /> View
-                              </button>
+                              </Link>
                             </div>
                           </td>
                         </tr>
