@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { UseFormSetValue } from "react-hook-form";
 import useSWR from "swr";
 import { Matcher } from "react-day-picker";
+import { to12h } from "@/lib/fDateAndTime";
 
 function generateTimeSlots(
   start: string,
@@ -40,12 +41,7 @@ function combineToIST(date: Date, time: string) {
   return istDate;
 }
 
-function to12h(time24: string) {
-  const [h, m] = time24.split(":").map(Number);
-  const suffix = h >= 12 ? "PM" : "AM";
-  const hour12 = h % 12 === 0 ? 12 : h % 12;
-  return `${hour12}:${m.toString().padStart(2, "0")} ${suffix}`;
-}
+
 
 const startOfDay = (d: Date) => {
   const x = new Date(d);

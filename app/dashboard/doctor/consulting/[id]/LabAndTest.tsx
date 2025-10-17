@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import OrderLab from "./OrderLab";
 import { DataType } from "./interface";
 import { LABS, TESTS } from "./data";
+import { to12h } from "@/lib/fDateAndTime";
 
 export default function LabAndTest({
   data,
@@ -326,10 +327,3 @@ function getAvailableSlots(labId: string | null): string[] {
   return lab ? lab.slots : [];
 }
 
-function to12h(time24: string): string {
-  // expects HH:MM
-  const [h, m] = time24.split(":").map(Number);
-  const suffix = h >= 12 ? "PM" : "AM";
-  const hour = ((h + 11) % 12) + 1; // 0->12, 13->1 etc
-  return `${hour}:${m.toString().padStart(2, "0")} ${suffix}`;
-}

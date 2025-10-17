@@ -18,7 +18,7 @@ import {
   CommandItem,
 } from "@/components/ui/command";
 import { Calendar } from "@/components/ui/calendar";
-import { fDate } from "@/lib/fDateAndTime";
+import { fDate, to12h } from "@/lib/fDateAndTime";
 import { UpdateSettingsInput } from "@/schemas/updateSettingsSchema";
 import { UseFormSetValue } from "react-hook-form";
 
@@ -102,42 +102,45 @@ export default function Appointments({
 
   return (
     <>
-    <div className="">
-      <Label className="mb-2 text-[12px] text-slate-600">Date range</Label>
-      <Popover>
-        <PopoverTrigger asChild>
-          <Button variant="outline" className="h-9 w-full justify-between">
-            <span className="truncate">
-              {avail.startDate && avail.endDate
-                ? `${fDate(avail.startDate)} → ${fDate(avail.endDate)}`
-                : avail.startDate
-                ? `${fDate(avail.startDate)}`
-                : "Select dates"}
-            </span>
-            <CalendarIcon className="h-4 w-4 opacity-60" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="p-2 w-auto" align="start">
-          <Calendar
-            mode="range"
-            numberOfMonths={2}
-            disabled={{ before: new Date() }}
-            selected={{ from: avail.startDate ?  new Date(avail.startDate) : new Date(), to: avail.endDate ? new Date(avail.endDate) : new Date() }}
-            onSelect={(range) => {
-              if (!range?.from) return;
-              if (range.from && range.to) {
-                setAvail((prev) => ({
-                  ...prev,
-                  startDate: range.from?.toISOString(),
-                  endDate: range.to?.toISOString() ,
-                }));
-              }
-            }}
-          />
-        </PopoverContent>
-      </Popover>
-</div>
-      <div className="grid gap-2">
+      <div className="w-1/2">
+        <Label className="text-[12px] text-slate-600">Date range</Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="h-9 w-full justify-between">
+              <span className="truncate">
+                {avail.startDate && avail.endDate
+                  ? `${fDate(avail.startDate)} → ${fDate(avail.endDate)}`
+                  : avail.startDate
+                  ? `${fDate(avail.startDate)}`
+                  : "Select dates"}
+              </span>
+              <CalendarIcon className="h-4 w-4 opacity-60" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="p-2 w-auto" align="start">
+            <Calendar
+              mode="range"
+              numberOfMonths={2}
+              disabled={{ before: new Date() }}
+              selected={{
+                from: avail.startDate ? new Date(avail.startDate) : new Date(),
+                to: avail.endDate ? new Date(avail.endDate) : new Date(),
+              }}
+              onSelect={(range) => {
+                if (!range?.from) return;
+                if (range.from && range.to) {
+                  setAvail((prev) => ({
+                    ...prev,
+                    startDate: range.from?.toISOString(),
+                    endDate: range.to?.toISOString(),
+                  }));
+                }
+              }}
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+      <div className="grid gap-2 ">
         <span className="text-[12px] text-slate-600">Days</span>
         <div className="flex flex-wrap gap-3">
           {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
@@ -286,17 +289,7 @@ function ComboTime({
   );
 }
 
-function to12h(hhmm: string) {
-  if (!hhmm) return "";
-  const [h, m] = hhmm.split(":").map(Number);
-  if (Number.isNaN(h) || Number.isNaN(m)) return "";
-  const suffix = h >= 12 ? "PM" : "AM";
-  const hr12 = ((h + 11) % 12) + 1;
-  return `${String(hr12).padStart(2, "0")}:${String(m).padStart(
-    2,
-    "0"
-  )} ${suffix}`;
-}
+
 
 const TIME_OPTIONS = Array.from({ length: 24 * 4 }, (_, i) => {
   const h = String(Math.floor(i / 4)).padStart(2, "0");
