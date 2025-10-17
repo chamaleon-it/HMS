@@ -4,7 +4,7 @@ import React from "react";
 import WeeklyCalender from "./WeeklyCalender";
 import MonthlyCalender from "./MonthlyCalender";
 
-export default function Calendar() {
+export default function Calendar({date}:{date:Date}) {
   return (
     <div className="flex   overflow-hidden">
       <Tabs defaultValue="week" className="flex-1 overflow-hidden">
@@ -19,8 +19,8 @@ export default function Calendar() {
           </TabsList>
         </div>
 
-        <WeeklyCalender />
-        <MonthlyCalender />
+        <WeeklyCalender selectedDate={date}/>
+        <MonthlyCalender selectedDate={date}/>
       </Tabs>
     </div>
   );

@@ -35,7 +35,11 @@ const consultedStyles = {
     "inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200",
 } as const;
 
-export default function MonthlyCalender() {
+export default function MonthlyCalender({selectedDate}:{selectedDate:Date}) {
+
+  const param = new URLSearchParams()
+  param.append("date",selectedDate.toString())
+
   const { data } = useSWR<{
     message: string;
     data: {
@@ -47,7 +51,7 @@ export default function MonthlyCalender() {
       type: string;
       status: string;
     }[];
-  }>("/appointments/calender-monthly");
+  }>(`/appointments/calender-monthly?date=${selectedDate.toString()}`);
   return (
     <TabsContent
       value="month"
@@ -74,7 +78,7 @@ export default function MonthlyCalender() {
       </div>
       <div className="grid grid-cols-7 gap-2">
         {[...Array(30)].map((_, i) => {
-          const date = `2025-10-${String(i + 1).padStart(2, "0")}`;
+          const date = `${selectedDate.getFullYear()}-${selectedDate.getMonth()+1}-${String(i + 1).padStart(2, "0")}`;
           const events = data?.data.filter((b) => b.date === date) || [];
 
           return (
