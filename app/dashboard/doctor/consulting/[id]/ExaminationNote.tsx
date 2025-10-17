@@ -259,10 +259,10 @@ export default function ExaminationNote({
     setOrder(BASE_KEYS);
     safeWrite<FieldKey[]>(LS_KEYS.enabled, []);
     safeWrite<FieldKey[]>(LS_KEYS.order, BASE_KEYS);
-      setData((prev) => ({
-              ...prev,
-              examinationNote: { ...prev.examinationNote, otherNotes: null },
-            }))
+    setData((prev) => ({
+      ...prev,
+      examinationNote: { ...prev.examinationNote, otherNotes: null },
+    }));
   };
 
   // ALWAYS save text content with the template
@@ -449,7 +449,11 @@ export default function ExaminationNote({
                                     key={fid}
                                     className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border"
                                   >
-                                    {fid === "PA" ? "P/A" : fid === "LE" ? "L/E" : fid}
+                                    {fid === "PA"
+                                      ? "P/A"
+                                      : fid === "LE"
+                                      ? "L/E"
+                                      : fid}
                                   </span>
                                 ))}
                                 {t.order.length > 5 && (
@@ -625,7 +629,8 @@ export default function ExaminationNote({
                 className="w-full border rounded-xl px-3 py-2 mb-4 focus:ring-2 focus:ring-emerald-400"
               />
               <div className="text-xs text-slate-600 mb-3">
-                This will also save current notes (RS, CVS, P/A, CNS, L/E, Other Notes).
+                This will also save current notes (RS, CVS, P/A, CNS, L/E, Other
+                Notes).
               </div>
               <div className="flex justify-end gap-2">
                 <button
