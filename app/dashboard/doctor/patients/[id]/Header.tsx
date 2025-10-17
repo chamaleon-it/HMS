@@ -46,6 +46,7 @@ export default function Header({
       notes: string;
       phoneNumber: string;
       _id: string;
+      mrn: string;
     };
   }>(`/patients/single/${patientId}`);
 
@@ -58,9 +59,7 @@ export default function Header({
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-base md:text-xl font-semibold">
             {mask(patient?.name ?? "")}{" "}
-            <span className={blurIDsClass}>
-              (MRN: {patient?._id.toUpperCase()})
-            </span>
+            <span className={blurIDsClass}>(MRN: {patient?.mrn})</span>
           </h1>
           <Badge variant="secondary" className="rounded-full">
             Age {patient?.age}

@@ -29,8 +29,6 @@ export default function PatientTable({ filter }: { filter: FilterType }) {
     params.append("conditions", JSON.stringify(filter.condition));
   }
 
-
-
   const { data } = useSWR<{
     message: string;
     data: {
@@ -45,6 +43,7 @@ export default function PatientTable({ filter }: { filter: FilterType }) {
       allergies: string;
       address: string;
       notes: string;
+      mrn: string;
       createdBy: {
         _id: string;
         name: string;
@@ -64,7 +63,7 @@ export default function PatientTable({ filter }: { filter: FilterType }) {
             <th className="w-14 text-left px-4 py-3">No.</th>
             {headerCell("Patient")}
             {headerCell("Phone Number")}
-            <th className="w-24 text-left px-4 py-3">ID</th>
+            <th className="w-24 text-left px-4 py-3">Patient ID</th>
             {headerCell("Age / Gender")}
             {headerCell("Created At")}
             {headerCell("Created By")}
@@ -95,9 +94,7 @@ export default function PatientTable({ filter }: { filter: FilterType }) {
                 <td className="px-2 py-3 text-sm text-gray-700">
                   {r.phoneNumber}
                 </td>
-                <td className="px-2 py-3 text-sm text-gray-600">
-                  {r._id.slice(-5)}
-                </td>
+                <td className="px-2 py-3 text-sm text-gray-600">{r?.mrn}</td>
                 <td className="px-2 py-3 text-sm text-gray-700">
                   {r.age} <span className="text-gray-400">/</span> {r.gender}
                 </td>

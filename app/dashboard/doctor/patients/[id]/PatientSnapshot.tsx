@@ -52,6 +52,7 @@ export default function PatientSnapshot({
       notes: string;
       phoneNumber: string;
       _id: string;
+      mrn: string;
     };
   }>(`/patients/single/${patientId}`);
 
