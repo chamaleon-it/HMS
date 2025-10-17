@@ -18,6 +18,7 @@ export default function AppointmentPage() {
   const [query, setQuery] = useState("");
   const [activeStatuses, setActiveStatuses] = useState<string[]>([]);
   const [openCreate, setOpenCreate] = useState(false);
+  const [date, setDate] = useState(new Date())
 
   return (
     <AppShell>
@@ -41,6 +42,8 @@ export default function AppointmentPage() {
           query={query}
           setActiveStatuses={setActiveStatuses}
           setQuery={setQuery}
+          date={date}
+          setDate={setDate}
         />
 
         {/* Stats Row */}
@@ -59,10 +62,10 @@ export default function AppointmentPage() {
             </TabsList>
 
             <TabsContent value="list">
-              <List query={query} activeStatuses={activeStatuses} />
+              <List query={query} activeStatuses={activeStatuses} date={date}/>
             </TabsContent>
             <TabsContent value="calendar">
-              <Calendar />
+              <Calendar date={date}/>
             </TabsContent>
           </Tabs>
         </div>

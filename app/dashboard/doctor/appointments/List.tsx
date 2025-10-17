@@ -1,4 +1,5 @@
-import { fDateandTime } from "@/lib/fDateAndTime";
+import {  fTime } from "@/lib/fDateAndTime";
+import { MapPin, Phone, Video } from "lucide-react";
 import React from "react";
 import useSWR from "swr";
 
@@ -8,14 +9,18 @@ const cx = (...cls: (string | false | null | undefined)[]) =>
 export default function List({
   query,
   activeStatuses,
+  date
 }: {
   query: string;
   activeStatuses: string[];
+  date:Date
 }) {
   const params = new URLSearchParams();
 
   if (query) params.append("query", query);
   if (activeStatuses) params.append("status", JSON.stringify(activeStatuses));
+  if(date) params.append("date",date.toISOString())
+
 
   const { data } = useSWR<{
     message: string;
@@ -74,7 +79,7 @@ export default function List({
             className={cx("px-4 py-3 grid grid-cols-11 items-center")}
           >
             <div className="col-span-2 font-medium">
-              {fDateandTime(row.date)}
+              {fTime(row.date)}
             </div>
 
             <div className="col-span-3 flex items-center gap-3 min-w-0">
@@ -101,6 +106,9 @@ export default function List({
             </div>
             <div className="col-span-1 flex items-center gap-2">
               <span className="inline-flex items-center gap-2 text-sm">
+                {row.method === "In clinic" && <MapPin className="h-4 w-4"/>}
+                {row.method === "Video" && <Video className="h-4 w-4"/>}
+                {row.method === "Phone" && <Phone className="h-4 w-4"/>}
                 {row.method}
               </span>
             </div>
