@@ -29,6 +29,7 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+// ---------- Types ----------
 type FieldKey =
   | "HR"
   | "BP"
@@ -47,12 +48,16 @@ type FieldMeta = {
   unit?: string;
 };
 
+type TemplateValues = Partial<Record<FieldKey | "otherNotes", string>>;
+
 type Template = {
   id: string;
   name: string;
   description?: string;
   order: FieldKey[];
   enabled: FieldKey[];
+  /** Saved text values for sections (includes otherNotes) */
+  values?: TemplateValues;
 };
 
 const LS_KEYS = {
@@ -70,16 +75,16 @@ const ALL_FIELDS: Record<FieldKey, FieldMeta> = {
   CVS: { id: "CVS", label: "CVS", type: "textarea" },
   PA: { id: "PA", label: "P/A", type: "textarea" },
   CNS: { id: "CNS", label: "CNS", type: "textarea" },
-  LE: { id: "LE", label: "LE", type: "textarea" },
+  LE: { id: "LE", label: "L/E", type: "textarea" },
 };
 
 const BASE_KEYS: FieldKey[] = ["HR", "BP", "SpO2", "Temp"];
 const EXTRA_KEYS: FieldKey[] = ["RS", "CVS", "PA", "CNS", "LE"];
-
 const ALL_KEYS = Object.keys(ALL_FIELDS) as FieldKey[];
 const isFieldKey = (x: unknown): x is FieldKey =>
   typeof x === "string" && (ALL_KEYS as string[]).includes(x as string);
 
+// ---------- LocalStorage helpers ----------
 function safeRead<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
   try {
@@ -100,6 +105,50 @@ function safeWrite<T>(key: string, val: T) {
 
 const uid = () => Math.random().toString(36).slice(2, 9);
 
+// ---------- Helpers to sync values ----------
+function readCurrentValuesFromData(data: DataType): TemplateValues {
+  const ex = data.examinationNote || ({} as DataType["examinationNote"]);
+  return {
+    HR: ex.hr || "",
+    BP: ex.bp || "",
+    SpO2: ex.spo2 || "",
+    Temp: ex.temp || "",
+    RS: ex.rs || "",
+    CVS: ex.cvs || "",
+    PA: ex.pa || "",
+    CNS: ex.cns || "",
+    LE: ex.le || "",
+    otherNotes: ex.otherNotes || "",
+  };
+}
+
+function applyTemplateValues(
+  values: TemplateValues | undefined,
+  setData: React.Dispatch<React.SetStateAction<DataType>>
+) {
+  if (!values) return;
+  setData((prev) => {
+    const ex = prev.examinationNote || ({} as DataType["examinationNote"]);
+    return {
+      ...prev,
+      examinationNote: {
+        ...ex,
+        hr: values.HR ?? ex.hr ?? "",
+        bp: values.BP ?? ex.bp ?? "",
+        spo2: values.SpO2 ?? ex.spo2 ?? "",
+        temp: values.Temp ?? ex.temp ?? "",
+        rs: values.RS ?? ex.rs ?? "",
+        cvs: values.CVS ?? ex.cvs ?? "",
+        pa: values.PA ?? ex.pa ?? "",
+        cns: values.CNS ?? ex.cns ?? "",
+        le: values.LE ?? ex.le ?? "",
+        otherNotes: values.otherNotes ?? ex.otherNotes ?? "",
+      },
+    };
+  });
+}
+
+// ---------- Main Component ----------
 export default function ExaminationNote({
   data,
   setData,
@@ -142,6 +191,7 @@ export default function ExaminationNote({
           enabled: Array.isArray(t.enabled)
             ? t.enabled.filter(isFieldKey).filter((k) => EXTRA_KEYS.includes(k))
             : [],
+          values: t.values, // keep if present
         }))
       : [];
     setTemplates(cleanedTemplates);
@@ -187,6 +237,7 @@ export default function ExaminationNote({
     }
   };
 
+  // persist LS
   useEffect(() => {
     if (!hydrated) return;
     safeWrite<FieldKey[]>(LS_KEYS.enabled, enabledSections);
@@ -208,8 +259,13 @@ export default function ExaminationNote({
     setOrder(BASE_KEYS);
     safeWrite<FieldKey[]>(LS_KEYS.enabled, []);
     safeWrite<FieldKey[]>(LS_KEYS.order, BASE_KEYS);
+      setData((prev) => ({
+              ...prev,
+              examinationNote: { ...prev.examinationNote, otherNotes: null },
+            }))
   };
 
+  // ALWAYS save text content with the template
   const saveCurrentAsTemplate = () => {
     const name = tplName.trim();
     if (!name) return;
@@ -219,6 +275,7 @@ export default function ExaminationNote({
       description: tplDesc.trim() || undefined,
       order: [...visibleItems],
       enabled: [...enabledSections],
+      values: readCurrentValuesFromData(data),
     };
     setTemplates((prev) => [t, ...prev]);
     setSelectedTemplateId(t.id);
@@ -241,6 +298,9 @@ export default function ExaminationNote({
     setSelectedTemplateId(id);
     setMenuOpen(false);
     setManageOpen(false);
+
+    // restore values (including otherNotes)
+    applyTemplateValues(t.values, setData);
   };
 
   const deleteTemplate = (id: string) => {
@@ -263,9 +323,11 @@ export default function ExaminationNote({
 
         <div className="flex items-center gap-2 relative w-full justify-between">
           <div className="hidden md:flex flex-wrap gap-2">
-            {["RS", "CVS", "P/A", "CNS", "LE"].map((raw) => {
+            {["RS", "CVS", "P/A", "CNS", "L/E"].map((raw) => {
               const key =
-                raw === "P/A" ? ("PA" as FieldKey) : (raw as FieldKey);
+                (raw === "P/A" && ("PA" as FieldKey)) ||
+                (raw === "L/E" && ("LE" as FieldKey)) ||
+                (raw as FieldKey);
               const active = enabledSections.includes(key);
               return (
                 <button
@@ -387,7 +449,7 @@ export default function ExaminationNote({
                                     key={fid}
                                     className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border"
                                   >
-                                    {fid === "PA" ? "P/A" : fid}
+                                    {fid === "PA" ? "P/A" : fid === "LE" ? "L/E" : fid}
                                   </span>
                                 ))}
                                 {t.order.length > 5 && (
@@ -425,8 +487,11 @@ export default function ExaminationNote({
 
       <CardContent>
         <div className="md:hidden mb-3 flex flex-wrap gap-2">
-          {["RS", "CVS", "P/A", "CNS", "LE"].map((raw) => {
-            const key = raw === "P/A" ? ("PA" as FieldKey) : (raw as FieldKey);
+          {["RS", "CVS", "P/A", "CNS", "L/E"].map((raw) => {
+            const key =
+              (raw === "P/A" && ("PA" as FieldKey)) ||
+              (raw === "L/E" && ("LE" as FieldKey)) ||
+              (raw as FieldKey);
             const active = enabledSections.includes(key);
             return (
               <button
@@ -461,6 +526,18 @@ export default function ExaminationNote({
                             ? "number"
                             : "text"
                         }
+                        onChange={(v) => {
+                          setData((prev) => ({
+                            ...prev,
+                            examinationNote: {
+                              ...prev.examinationNote,
+                              ...(key === "HR" && { hr: v }),
+                              ...(key === "BP" && { bp: v }),
+                              ...(key === "SpO2" && { spo2: v }),
+                              ...(key === "Temp" && { temp: v }),
+                            },
+                          }));
+                        }}
                       />
                     </DraggableField>
                   );
@@ -469,9 +546,26 @@ export default function ExaminationNote({
                 return (
                   <DraggableField key={key} id={key}>
                     <LabeledTextarea
-                      label={meta.label === "PA" ? "P/A" : meta.label}
+                      label={
+                        (meta.label === "PA" && "P/A") ||
+                        (meta.label === "LE" && "L/E") ||
+                        meta.label
+                      }
                       defaultValue={getTextareaValue(key, data)}
                       minRows={4}
+                      onChange={(v) => {
+                        setData((prev) => ({
+                          ...prev,
+                          examinationNote: {
+                            ...prev.examinationNote,
+                            ...(key === "RS" && { rs: v }),
+                            ...(key === "CVS" && { cvs: v }),
+                            ...(key === "PA" && { pa: v }),
+                            ...(key === "CNS" && { cns: v }),
+                            ...(key === "LE" && { le: v }),
+                          },
+                        }));
+                      }}
                     />
                   </DraggableField>
                 );
@@ -479,13 +573,21 @@ export default function ExaminationNote({
             </div>
           </SortableContext>
         </DndContext>
+
         <LabeledTextarea
           label="Other Notes"
           defaultValue={data.examinationNote.otherNotes || ""}
           minRows={4}
+          onChange={(v) =>
+            setData((prev) => ({
+              ...prev,
+              examinationNote: { ...prev.examinationNote, otherNotes: v },
+            }))
+          }
         />
       </CardContent>
 
+      {/* Save Template Modal */}
       <AnimatePresence>
         {saveOpen && (
           <motion.div
@@ -522,6 +624,9 @@ export default function ExaminationNote({
                 placeholder="Description (optional)"
                 className="w-full border rounded-xl px-3 py-2 mb-4 focus:ring-2 focus:ring-emerald-400"
               />
+              <div className="text-xs text-slate-600 mb-3">
+                This will also save current notes (RS, CVS, P/A, CNS, L/E, Other Notes).
+              </div>
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setSaveOpen(false)}
@@ -541,6 +646,7 @@ export default function ExaminationNote({
         )}
       </AnimatePresence>
 
+      {/* Manage Templates Modal */}
       <AnimatePresence>
         {manageOpen && (
           <motion.div
@@ -612,7 +718,7 @@ export default function ExaminationNote({
                             key={fid}
                             className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border"
                           >
-                            {fid === "PA" ? "P/A" : fid}
+                            {fid === "PA" ? "P/A" : fid === "LE" ? "L/E" : fid}
                           </span>
                         ))}
                       </div>
@@ -628,6 +734,7 @@ export default function ExaminationNote({
   );
 }
 
+// ---------- value readers ----------
 function getInputValue(key: FieldKey, data: DataType): string {
   const ex = data.examinationNote;
   switch (key) {
@@ -662,6 +769,7 @@ function getTextareaValue(key: FieldKey, data: DataType): string {
   }
 }
 
+// ---------- DnD wrapper ----------
 function DraggableField({
   id,
   children,
@@ -689,10 +797,8 @@ function DraggableField({
       ref={setNodeRef}
       style={style}
       className="relative overflow-visible"
-      // remove listeners/attributes from the whole wrapper:
       aria-roledescription="draggable"
     >
-      {/* drag handle — only this receives the drag listeners */}
       <div
         className="absolute z-20 -right-2 -top-2 p-0.5 grid place-items-center rounded-md border bg-white/80 cursor-grab"
         {...attributes}
@@ -707,6 +813,7 @@ function DraggableField({
   );
 }
 
+// ---------- Inputs ----------
 type LabeledInputProps = {
   label: string;
   defaultValue?: string;
@@ -714,6 +821,7 @@ type LabeledInputProps = {
   unit?: string;
   right?: ReactNode;
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void;
+  onChange?: (value: string) => void;
 };
 
 function LabeledInput({
@@ -723,6 +831,7 @@ function LabeledInput({
   unit,
   right,
   onKeyDown,
+  onChange,
 }: LabeledInputProps) {
   const hasRight = Boolean(right);
   return (
@@ -730,6 +839,7 @@ function LabeledInput({
       <input
         defaultValue={defaultValue}
         onKeyDown={onKeyDown}
+        onChange={(e) => onChange?.(e.target.value)}
         placeholder=" "
         type={type}
         inputMode={type === "number" ? "numeric" : undefined}
@@ -757,12 +867,14 @@ type LabeledTextareaProps = {
   label: string;
   defaultValue?: string;
   minRows?: number;
+  onChange?: (value: string) => void;
 };
 
 function LabeledTextarea({
   label,
   defaultValue,
   minRows = 4,
+  onChange,
 }: LabeledTextareaProps) {
   const minHeight = Math.max(56, minRows * 24);
   return (
@@ -771,6 +883,7 @@ function LabeledTextarea({
         defaultValue={defaultValue}
         placeholder=" "
         style={{ minHeight }}
+        onChange={(e) => onChange?.(e.target.value)}
         className="peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
       />
       <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
