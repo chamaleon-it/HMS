@@ -41,6 +41,7 @@ export interface DataType {
     cvs: null | string;
     pa: null | string;
     cns: null | string;
+    le: null | string;
     otherNotes: null | string;
   };
   medicines: {

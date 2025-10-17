@@ -46,6 +46,7 @@ export default function ConsultingMenu() {
       cvs: null,
       pa: null,
       cns: null,
+      le:null,
       otherNotes: null,
     },
     medicines: [],

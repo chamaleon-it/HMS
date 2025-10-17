@@ -12,7 +12,6 @@ import { DataType } from "./interface";
 import { EllipsisVertical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// dnd-kit
 import {
   DndContext,
   DragEndEvent,
@@ -30,8 +29,16 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
-// ---------- Types ----------
-type FieldKey = "HR" | "BP" | "SpO2" | "Temp" | "RS" | "CVS" | "PA" | "CNS";
+type FieldKey =
+  | "HR"
+  | "BP"
+  | "SpO2"
+  | "Temp"
+  | "RS"
+  | "CVS"
+  | "PA"
+  | "CNS"
+  | "LE";
 
 type FieldMeta = {
   id: FieldKey;
@@ -40,23 +47,20 @@ type FieldMeta = {
   unit?: string;
 };
 
-// Template type for saving multiple layouts
 type Template = {
   id: string;
   name: string;
   description?: string;
-  order: FieldKey[]; // full order to render
-  enabled: FieldKey[]; // which extras are ON (RS/CVS/PA/CNS)
+  order: FieldKey[];
+  enabled: FieldKey[];
 };
 
-// ---------- LocalStorage keys (bump :v2 if you change shape) ----------
 const LS_KEYS = {
   order: "examNote:order:v1",
   enabled: "examNote:enabled:v1",
   templates: "examNote:templates:v1",
 };
 
-// ---------- Small utils ----------
 const ALL_FIELDS: Record<FieldKey, FieldMeta> = {
   HR: { id: "HR", label: "HR", type: "input", unit: "bpm" },
   BP: { id: "BP", label: "BP", type: "input", unit: "mmHg" },
@@ -66,10 +70,11 @@ const ALL_FIELDS: Record<FieldKey, FieldMeta> = {
   CVS: { id: "CVS", label: "CVS", type: "textarea" },
   PA: { id: "PA", label: "P/A", type: "textarea" },
   CNS: { id: "CNS", label: "CNS", type: "textarea" },
+  LE: { id: "LE", label: "LE", type: "textarea" },
 };
 
 const BASE_KEYS: FieldKey[] = ["HR", "BP", "SpO2", "Temp"];
-const EXTRA_KEYS: FieldKey[] = ["RS", "CVS", "PA", "CNS"];
+const EXTRA_KEYS: FieldKey[] = ["RS", "CVS", "PA", "CNS", "LE"];
 
 const ALL_KEYS = Object.keys(ALL_FIELDS) as FieldKey[];
 const isFieldKey = (x: unknown): x is FieldKey =>
@@ -102,19 +107,11 @@ export default function ExaminationNote({
   data: DataType;
   setData: React.Dispatch<React.SetStateAction<DataType>>;
 }) {
-  // Hydration guard so we don't write before we read
   const [hydrated, setHydrated] = useState(false);
-
-  // Which optional sections are ON
   const [enabledSections, setEnabledSections] = useState<FieldKey[]>([]);
-
-  // The current order of all fields (both vitals + optional when enabled)
   const [order, setOrder] = useState<FieldKey[]>(["HR", "BP", "SpO2", "Temp"]);
-
-  // ---------- Templates state ----------
   const [templates, setTemplates] = useState<Template[]>([]);
-  // menu states
-  const [menuOpen, setMenuOpen] = useState(false); // animated menu
+  const [menuOpen, setMenuOpen] = useState(false);
   const [menuQuery, setMenuQuery] = useState("");
   const [saveOpen, setSaveOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
@@ -122,25 +119,21 @@ export default function ExaminationNote({
   const [tplDesc, setTplDesc] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
 
-  // ---------- Hydrate from localStorage on mount ----------
   useEffect(() => {
-    // enabled sections
     const storedEnabled = safeRead<FieldKey[]>(LS_KEYS.enabled, []);
     const validEnabled = Array.isArray(storedEnabled)
       ? storedEnabled.filter(isFieldKey).filter((k) => EXTRA_KEYS.includes(k))
       : [];
     setEnabledSections(validEnabled);
 
-    // order
     const storedOrder = safeRead<FieldKey[]>(LS_KEYS.order, BASE_KEYS);
     const validOrder = Array.isArray(storedOrder)
       ? storedOrder.filter(isFieldKey)
       : BASE_KEYS;
-    // Ensure base vitals exist at least once
+
     const merged = Array.from(new Set([...validOrder, ...BASE_KEYS]));
     setOrder(merged);
 
-    // templates
     const storedTemplates = safeRead<Template[]>(LS_KEYS.templates, []);
     const cleanedTemplates = Array.isArray(storedTemplates)
       ? storedTemplates.map((t) => ({
@@ -156,7 +149,6 @@ export default function ExaminationNote({
     setHydrated(true);
   }, [setData]);
 
-  // Build the list of visible items based on current toggles + order
   const visibleItems = useMemo(() => {
     const extras: FieldKey[] = enabledSections;
 
@@ -164,19 +156,16 @@ export default function ExaminationNote({
     extras.forEach((k) => {
       if (!nextOrder.includes(k)) nextOrder.push(k);
     });
-    // Remove any disabled extras from order
+
     const cleaned = nextOrder.filter(
       (k) => BASE_KEYS.includes(k) || extras.includes(k)
     );
 
-    // Keep state in sync if we changed it
     if (cleaned.join(",") !== order.join(",")) setOrder(cleaned);
 
     return cleaned;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabledSections, order]);
 
-  // dnd sensors
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -198,7 +187,6 @@ export default function ExaminationNote({
     }
   };
 
-  // ---------- Persist to localStorage when things change (layout only) ----------
   useEffect(() => {
     if (!hydrated) return;
     safeWrite<FieldKey[]>(LS_KEYS.enabled, enabledSections);
@@ -214,15 +202,14 @@ export default function ExaminationNote({
     safeWrite<Template[]>(LS_KEYS.templates, templates);
   }, [templates, hydrated]);
 
-  // Optional helper: reset layout (keeps values in the UI — not persisted)
   const resetLayout = () => {
+    setSelectedTemplateId("");
     setEnabledSections([]);
     setOrder(BASE_KEYS);
     safeWrite<FieldKey[]>(LS_KEYS.enabled, []);
     safeWrite<FieldKey[]>(LS_KEYS.order, BASE_KEYS);
   };
 
-  // ---------- Templates: save/apply/delete ----------
   const saveCurrentAsTemplate = () => {
     const name = tplName.trim();
     if (!name) return;
@@ -230,7 +217,7 @@ export default function ExaminationNote({
       id: uid(),
       name,
       description: tplDesc.trim() || undefined,
-      order: [...visibleItems], // save current visible order
+      order: [...visibleItems],
       enabled: [...enabledSections],
     };
     setTemplates((prev) => [t, ...prev]);
@@ -244,7 +231,7 @@ export default function ExaminationNote({
   const applyTemplate = (id: string) => {
     const t = templates.find((x) => x.id === id);
     if (!t) return;
-    // ensure base keys are present, and extras match saved enabled:
+
     const mergedOrder = Array.from(new Set([...t.order, ...BASE_KEYS]));
     const cleanedOrder = mergedOrder.filter(
       (k) => BASE_KEYS.includes(k) || t.enabled.includes(k)
@@ -275,9 +262,8 @@ export default function ExaminationNote({
         </div>
 
         <div className="flex items-center gap-2 relative w-full justify-between">
-          {/* Toggle chips */}
           <div className="hidden md:flex flex-wrap gap-2">
-            {["RS", "CVS", "P/A", "CNS"].map((raw) => {
+            {["RS", "CVS", "P/A", "CNS", "LE"].map((raw) => {
               const key =
                 raw === "P/A" ? ("PA" as FieldKey) : (raw as FieldKey);
               const active = enabledSections.includes(key);
@@ -438,9 +424,8 @@ export default function ExaminationNote({
       </CardHeader>
 
       <CardContent>
-        {/* Small-screen quick toggles */}
         <div className="md:hidden mb-3 flex flex-wrap gap-2">
-          {["RS", "CVS", "P/A", "CNS"].map((raw) => {
+          {["RS", "CVS", "P/A", "CNS", "LE"].map((raw) => {
             const key = raw === "P/A" ? ("PA" as FieldKey) : (raw as FieldKey);
             const active = enabledSections.includes(key);
             return (
@@ -470,7 +455,6 @@ export default function ExaminationNote({
                       <LabeledInput
                         label={meta.label}
                         unit={meta.unit}
-                        // defaultValue seeded from data; uncontrolled (not persisted)
                         defaultValue={getInputValue(key, data)}
                         type={
                           meta.label === "Temp" || meta.label === "HR"
@@ -481,14 +465,13 @@ export default function ExaminationNote({
                     </DraggableField>
                   );
                 }
-                // textarea
+
                 return (
                   <DraggableField key={key} id={key}>
                     <LabeledTextarea
                       label={meta.label === "PA" ? "P/A" : meta.label}
-                      // uncontrolled initial value only
                       defaultValue={getTextareaValue(key, data)}
-                      minRows={3}
+                      minRows={4}
                     />
                   </DraggableField>
                 );
@@ -496,8 +479,6 @@ export default function ExaminationNote({
             </div>
           </SortableContext>
         </DndContext>
-
-        {/* Other Notes (not sortable, fixed at bottom) */}
         <LabeledTextarea
           label="Other Notes"
           defaultValue={data.examinationNote.otherNotes || ""}
@@ -505,7 +486,6 @@ export default function ExaminationNote({
         />
       </CardContent>
 
-      {/* Save modal */}
       <AnimatePresence>
         {saveOpen && (
           <motion.div
@@ -561,7 +541,6 @@ export default function ExaminationNote({
         )}
       </AnimatePresence>
 
-      {/* Manage templates modal */}
       <AnimatePresence>
         {manageOpen && (
           <motion.div
@@ -649,7 +628,6 @@ export default function ExaminationNote({
   );
 }
 
-// ---------- Helpers to map keys <-> data.examinationNote (read-only helpers) ----------
 function getInputValue(key: FieldKey, data: DataType): string {
   const ex = data.examinationNote;
   switch (key) {
@@ -677,12 +655,13 @@ function getTextareaValue(key: FieldKey, data: DataType): string {
       return ex.pa || "";
     case "CNS":
       return ex.cns || "";
+    case "LE":
+      return ex.le || "";
     default:
       return "";
   }
 }
 
-// ---------- Sortable wrapper with 3-dot grab handle ----------
 function DraggableField({
   id,
   children,
@@ -710,26 +689,24 @@ function DraggableField({
       ref={setNodeRef}
       style={style}
       className="relative overflow-visible"
-      {...attributes}
-      {...listeners} // drag from anywhere
+      // remove listeners/attributes from the whole wrapper:
       aria-roledescription="draggable"
     >
+      {/* drag handle — only this receives the drag listeners */}
       <div
-        className={`rounded-xl bg-white transition ${
-          isDragging ? "ring-2 ring-emerald-300 shadow-md" : "border-slate-200"
-        }`}
+        className="absolute z-20 -right-2 -top-2 p-0.5 grid place-items-center rounded-md border bg-white/80 cursor-grab"
+        {...attributes}
+        {...listeners}
+        aria-label="drag handle"
       >
-        <div className="absolute z-20 -right-2 -top-2 p-0.5 grid place-items-center rounded-md border bg-white/80">
-          <EllipsisVertical className="h-3 w-3 text-slate-500" />
-        </div>
-
-        {children}
+        <EllipsisVertical className="h-3 w-3 text-slate-500" />
       </div>
+
+      {children}
     </div>
   );
 }
 
-// ---------- Inputs (uncontrolled) ----------
 type LabeledInputProps = {
   label: string;
   defaultValue?: string;
