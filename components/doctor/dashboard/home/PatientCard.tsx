@@ -153,7 +153,7 @@ export function PatientCard({
                   if (ring) {
                     router.push(`/dashboard/doctor/consulting/${a._id}`);
                   } else {
-                    toast.error("Please ring first.");
+                    toast.error("Please call first before starting the consultation.");
                   }
                 }}
               >
