@@ -1,7 +1,16 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import React, { KeyboardEvent, ReactNode, useEffect, useMemo, useState } from "react";
+import React, {
+  KeyboardEvent,
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { DataType } from "./interface";
 import { EllipsisVertical } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 // dnd-kit
 import {
@@ -31,7 +40,23 @@ type FieldMeta = {
   unit?: string;
 };
 
-// Base meta for all possible fields
+// Template type for saving multiple layouts
+type Template = {
+  id: string;
+  name: string;
+  description?: string;
+  order: FieldKey[]; // full order to render
+  enabled: FieldKey[]; // which extras are ON (RS/CVS/PA/CNS)
+};
+
+// ---------- LocalStorage keys (bump :v2 if you change shape) ----------
+const LS_KEYS = {
+  order: "examNote:order:v1",
+  enabled: "examNote:enabled:v1",
+  templates: "examNote:templates:v1",
+};
+
+// ---------- Small utils ----------
 const ALL_FIELDS: Record<FieldKey, FieldMeta> = {
   HR: { id: "HR", label: "HR", type: "input", unit: "bpm" },
   BP: { id: "BP", label: "BP", type: "input", unit: "mmHg" },
@@ -43,16 +68,12 @@ const ALL_FIELDS: Record<FieldKey, FieldMeta> = {
   CNS: { id: "CNS", label: "CNS", type: "textarea" },
 };
 
-// ---------- LocalStorage keys (bump :v2 if you change shape) ----------
-const LS_KEYS = {
-  order: "examNote:order:v1",
-  enabled: "examNote:enabled:v1",
-  values: "examNote:values:v1",
-};
+const BASE_KEYS: FieldKey[] = ["HR", "BP", "SpO2", "Temp"];
+const EXTRA_KEYS: FieldKey[] = ["RS", "CVS", "PA", "CNS"];
 
-// ---------- Small utils ----------
 const ALL_KEYS = Object.keys(ALL_FIELDS) as FieldKey[];
-const isFieldKey = (x: unknown): x is FieldKey => typeof x === "string" && (ALL_KEYS as string[]).includes(x as string);
+const isFieldKey = (x: unknown): x is FieldKey =>
+  typeof x === "string" && (ALL_KEYS as string[]).includes(x as string);
 
 function safeRead<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -72,6 +93,8 @@ function safeWrite<T>(key: string, val: T) {
   } catch {}
 }
 
+const uid = () => Math.random().toString(36).slice(2, 9);
+
 export default function ExaminationNote({
   data,
   setData,
@@ -88,39 +111,53 @@ export default function ExaminationNote({
   // The current order of all fields (both vitals + optional when enabled)
   const [order, setOrder] = useState<FieldKey[]>(["HR", "BP", "SpO2", "Temp"]);
 
+  // ---------- Templates state ----------
+  const [templates, setTemplates] = useState<Template[]>([]);
+  // menu states
+  const [menuOpen, setMenuOpen] = useState(false); // animated menu
+  const [menuQuery, setMenuQuery] = useState("");
+  const [saveOpen, setSaveOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
+  const [tplName, setTplName] = useState("");
+  const [tplDesc, setTplDesc] = useState("");
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+
   // ---------- Hydrate from localStorage on mount ----------
   useEffect(() => {
     // enabled sections
     const storedEnabled = safeRead<FieldKey[]>(LS_KEYS.enabled, []);
-    const validEnabled = storedEnabled.filter(isFieldKey).filter((k) => !["HR", "BP", "SpO2", "Temp"].includes(k)); // extras only
+    const validEnabled = Array.isArray(storedEnabled)
+      ? storedEnabled.filter(isFieldKey).filter((k) => EXTRA_KEYS.includes(k))
+      : [];
     setEnabledSections(validEnabled);
 
     // order
-    const storedOrder = safeRead<FieldKey[]>(LS_KEYS.order, ["HR", "BP", "SpO2", "Temp"]);
-    const validOrder = storedOrder.filter(isFieldKey);
+    const storedOrder = safeRead<FieldKey[]>(LS_KEYS.order, BASE_KEYS);
+    const validOrder = Array.isArray(storedOrder)
+      ? storedOrder.filter(isFieldKey)
+      : BASE_KEYS;
     // Ensure base vitals exist at least once
-    const base: FieldKey[] = ["HR", "BP", "SpO2", "Temp"];
-    const merged = Array.from(new Set([...validOrder, ...base]));
+    const merged = Array.from(new Set([...validOrder, ...BASE_KEYS]));
     setOrder(merged);
 
-    // values
-    const storedValues = safeRead<Partial<DataType["examinationNote"]>>(LS_KEYS.values, {});
-    if (storedValues && Object.keys(storedValues).length > 0) {
-      setData((prev) => ({
-        ...prev,
-        examinationNote: {
-          ...prev.examinationNote,
-          ...storedValues,
-        },
-      }));
-    }
+    // templates
+    const storedTemplates = safeRead<Template[]>(LS_KEYS.templates, []);
+    const cleanedTemplates = Array.isArray(storedTemplates)
+      ? storedTemplates.map((t) => ({
+          ...t,
+          order: Array.isArray(t.order) ? t.order.filter(isFieldKey) : [],
+          enabled: Array.isArray(t.enabled)
+            ? t.enabled.filter(isFieldKey).filter((k) => EXTRA_KEYS.includes(k))
+            : [],
+        }))
+      : [];
+    setTemplates(cleanedTemplates);
 
     setHydrated(true);
   }, [setData]);
 
   // Build the list of visible items based on current toggles + order
   const visibleItems = useMemo(() => {
-    const base: FieldKey[] = ["HR", "BP", "SpO2", "Temp"];
     const extras: FieldKey[] = enabledSections;
 
     const nextOrder = [...order];
@@ -128,7 +165,9 @@ export default function ExaminationNote({
       if (!nextOrder.includes(k)) nextOrder.push(k);
     });
     // Remove any disabled extras from order
-    const cleaned = nextOrder.filter((k) => base.includes(k) || extras.includes(k));
+    const cleaned = nextOrder.filter(
+      (k) => BASE_KEYS.includes(k) || extras.includes(k)
+    );
 
     // Keep state in sync if we changed it
     if (cleaned.join(",") !== order.join(",")) setOrder(cleaned);
@@ -144,9 +183,9 @@ export default function ExaminationNote({
   );
 
   const toggleSection = (key: FieldKey) => {
-    if (!["RS", "CVS", "PA", "CNS"].includes(key)) return;
+    if (!EXTRA_KEYS.includes(key)) return;
     setEnabledSections((prev) =>
-      prev.includes(key as FieldKey) ? prev.filter((x) => x !== key) : [...prev, key]
+      prev.includes(key) ? prev.filter((x) => x !== key) : [...prev, key]
     );
   };
 
@@ -159,7 +198,7 @@ export default function ExaminationNote({
     }
   };
 
-  // ---------- Persist to localStorage when things change ----------
+  // ---------- Persist to localStorage when things change (layout only) ----------
   useEffect(() => {
     if (!hydrated) return;
     safeWrite<FieldKey[]>(LS_KEYS.enabled, enabledSections);
@@ -172,34 +211,84 @@ export default function ExaminationNote({
 
   useEffect(() => {
     if (!hydrated) return;
-    safeWrite(LS_KEYS.values, data.examinationNote || {});
-  }, [data.examinationNote, hydrated]);
+    safeWrite<Template[]>(LS_KEYS.templates, templates);
+  }, [templates, hydrated]);
 
-  // Optional helper: reset layout (keeps values)
+  // Optional helper: reset layout (keeps values in the UI — not persisted)
   const resetLayout = () => {
     setEnabledSections([]);
-    setOrder(["HR", "BP", "SpO2", "Temp"]);
+    setOrder(BASE_KEYS);
     safeWrite<FieldKey[]>(LS_KEYS.enabled, []);
-    safeWrite<FieldKey[]>(LS_KEYS.order, ["HR", "BP", "SpO2", "Temp"]);
+    safeWrite<FieldKey[]>(LS_KEYS.order, BASE_KEYS);
+  };
+
+  // ---------- Templates: save/apply/delete ----------
+  const saveCurrentAsTemplate = () => {
+    const name = tplName.trim();
+    if (!name) return;
+    const t: Template = {
+      id: uid(),
+      name,
+      description: tplDesc.trim() || undefined,
+      order: [...visibleItems], // save current visible order
+      enabled: [...enabledSections],
+    };
+    setTemplates((prev) => [t, ...prev]);
+    setSelectedTemplateId(t.id);
+    setTplName("");
+    setTplDesc("");
+    setSaveOpen(false);
+    setMenuOpen(false);
+  };
+
+  const applyTemplate = (id: string) => {
+    const t = templates.find((x) => x.id === id);
+    if (!t) return;
+    // ensure base keys are present, and extras match saved enabled:
+    const mergedOrder = Array.from(new Set([...t.order, ...BASE_KEYS]));
+    const cleanedOrder = mergedOrder.filter(
+      (k) => BASE_KEYS.includes(k) || t.enabled.includes(k)
+    );
+    setOrder(cleanedOrder);
+    setEnabledSections(t.enabled.filter((k) => EXTRA_KEYS.includes(k)));
+    setSelectedTemplateId(id);
+    setMenuOpen(false);
+    setManageOpen(false);
+  };
+
+  const deleteTemplate = (id: string) => {
+    setTemplates((prev) => prev.filter((x) => x.id !== id));
+    if (selectedTemplateId === id) setSelectedTemplateId("");
   };
 
   return (
     <Card>
-      <CardHeader className="flex-row items-center justify-between">
-        <CardTitle>Examination Note</CardTitle>
+      <CardHeader className=" w-full col-span-full">
+        <div className="flex items-center gap-2 w-full">
+          <CardTitle>Examination Note</CardTitle>
+          {selectedTemplateId ? (
+            <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Template:{" "}
+              <b>{templates.find((t) => t.id === selectedTemplateId)?.name}</b>
+            </span>
+          ) : null}
+        </div>
 
-        {/* Toggle chips */}
-        <div className="flex items-center gap-2">
-          <div className="flex flex-wrap gap-2">
+        <div className="flex items-center gap-2 relative w-full justify-between">
+          {/* Toggle chips */}
+          <div className="hidden md:flex flex-wrap gap-2">
             {["RS", "CVS", "P/A", "CNS"].map((raw) => {
-              const key = raw === "P/A" ? ("PA" as FieldKey) : (raw as FieldKey);
+              const key =
+                raw === "P/A" ? ("PA" as FieldKey) : (raw as FieldKey);
               const active = enabledSections.includes(key);
               return (
                 <button
                   key={raw}
                   onClick={() => toggleSection(key)}
                   className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${
-                    active ? "bg-emerald-50 border-emerald-300 text-emerald-700" : "bg-white"
+                    active
+                      ? "bg-emerald-50 border-emerald-300 text-emerald-700"
+                      : "bg-white"
                   }`}
                 >
                   {raw}
@@ -208,18 +297,168 @@ export default function ExaminationNote({
             })}
           </div>
 
-          {/* Reset layout button (optional) */}
-          <button
-            onClick={resetLayout}
-            className="ml-2 px-2 py-1 text-xs rounded border hover:bg-slate-50"
-            title="Reset layout (keeps values)"
-          >
-            Reset layout
-          </button>
+          <div className="flex gap-2 items-center">
+            <button
+              onClick={resetLayout}
+              className="px-2 py-1 text-xs rounded border hover:bg-slate-50"
+              title="Reset layout (keeps values in UI)"
+            >
+              Reset layout
+            </button>
+
+            <div className="relative">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setMenuOpen((s) => !s)}
+                className="p-2 rounded-md bg-white border border-slate-200 shadow hover:shadow-md transition"
+                title="Templates"
+              >
+                <EllipsisVertical className="h-4 w-4" />
+              </motion.button>
+
+              <AnimatePresence>
+                {menuOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute right-0 mt-3 w-[340px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-30 overflow-hidden backdrop-blur"
+                  >
+                    <div className="p-3 border-b bg-gradient-to-r from-violet-50 to-slate-50">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-slate-700">
+                          Templates
+                        </span>
+                        <button
+                          onClick={() => setSaveOpen(true)}
+                          className="text-violet-700 hover:text-violet-900 text-xs font-semibold"
+                        >
+                          + Save Current
+                        </button>
+                      </div>
+                      <div className="relative">
+                        <input
+                          value={menuQuery}
+                          onChange={(e) => setMenuQuery(e.target.value)}
+                          placeholder="Search templates…"
+                          className="w-full rounded-xl border border-slate-200 px-3 py-2 pr-8 text-sm focus:ring-2 focus:ring-emerald-300"
+                        />
+                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400">
+                          ⌘K
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="max-h-80 overflow-auto divide-y divide-slate-100">
+                      {templates.length === 0 ? (
+                        <div className="p-5 text-sm text-slate-600 text-center">
+                          No templates yet. <br />
+                          Click <b>Save Current</b> to create one.
+                        </div>
+                      ) : (
+                        templates
+                          .filter(
+                            (t) =>
+                              !menuQuery.trim() ||
+                              t.name
+                                .toLowerCase()
+                                .includes(menuQuery.toLowerCase())
+                          )
+                          .map((t) => (
+                            <button
+                              key={t.id}
+                              onClick={() => applyTemplate(t.id)}
+                              className={`group w-full text-left px-4 py-3 hover:bg-emerald-50 transition ${
+                                selectedTemplateId === t.id
+                                  ? "bg-emerald-50/60"
+                                  : "bg-white"
+                              }`}
+                            >
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-emerald-100 text-emerald-700 text-sm">
+                                    🧩
+                                  </span>
+                                  <div>
+                                    <div className="text-sm font-medium text-slate-800">
+                                      {t.name}
+                                    </div>
+                                    {t.description && (
+                                      <div className="text-xs text-slate-500 line-clamp-1">
+                                        {t.description}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                                <span className="text-xs text-emerald-700 opacity-0 group-hover:opacity-100">
+                                  Apply
+                                </span>
+                              </div>
+                              <div className="mt-2 flex flex-wrap gap-1">
+                                {t.order.slice(0, 5).map((fid) => (
+                                  <span
+                                    key={fid}
+                                    className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border"
+                                  >
+                                    {fid === "PA" ? "P/A" : fid}
+                                  </span>
+                                ))}
+                                {t.order.length > 5 && (
+                                  <span className="text-[10px] text-slate-500">
+                                    +{t.order.length - 5} more
+                                  </span>
+                                )}
+                              </div>
+                            </button>
+                          ))
+                      )}
+                    </div>
+
+                    <div className="p-3 bg-gradient-to-r from-slate-50 to-violet-50 flex items-center justify-end gap-2">
+                      <button
+                        onClick={() => setManageOpen(true)}
+                        className="text-xs px-3 py-1.5 rounded-lg border hover:bg-slate-100"
+                      >
+                        Manage
+                      </button>
+                      <button
+                        onClick={() => setMenuOpen(false)}
+                        className="text-xs px-3 py-1.5 rounded-lg border hover:bg-slate-100"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
         </div>
       </CardHeader>
 
       <CardContent>
+        {/* Small-screen quick toggles */}
+        <div className="md:hidden mb-3 flex flex-wrap gap-2">
+          {["RS", "CVS", "P/A", "CNS"].map((raw) => {
+            const key = raw === "P/A" ? ("PA" as FieldKey) : (raw as FieldKey);
+            const active = enabledSections.includes(key);
+            return (
+              <button
+                key={raw}
+                onClick={() => toggleSection(key)}
+                className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${
+                  active
+                    ? "bg-emerald-50 border-emerald-300 text-emerald-700"
+                    : "bg-white"
+                }`}
+              >
+                {raw}
+              </button>
+            );
+          })}
+        </div>
+
         <DndContext sensors={sensors} onDragEnd={onDragEnd}>
           <SortableContext items={visibleItems} strategy={rectSortingStrategy}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 items-start">
@@ -227,21 +466,17 @@ export default function ExaminationNote({
                 const meta = ALL_FIELDS[key];
                 if (meta.type === "input") {
                   return (
-                    <DraggableField key={key} id={key} >
+                    <DraggableField key={key} id={key}>
                       <LabeledInput
                         label={meta.label}
                         unit={meta.unit}
-                        value={getInputValue(key, data)}
-                        onChange={(val) =>
-                          setData((prev) => ({
-                            ...prev,
-                            examinationNote: {
-                              ...prev.examinationNote,
-                              ...setInputValue(key, val),
-                            },
-                          }))
+                        // defaultValue seeded from data; uncontrolled (not persisted)
+                        defaultValue={getInputValue(key, data)}
+                        type={
+                          meta.label === "Temp" || meta.label === "HR"
+                            ? "number"
+                            : "text"
                         }
-                        type={meta.label === "Temp" || meta.label === "HR" ? "number" : "text"}
                       />
                     </DraggableField>
                   );
@@ -249,18 +484,11 @@ export default function ExaminationNote({
                 // textarea
                 return (
                   <DraggableField key={key} id={key}>
-                    <LabeledInput
+                    <LabeledTextarea
                       label={meta.label === "PA" ? "P/A" : meta.label}
-                      value={getTextareaValue(key, data)}
-                      onChange={(val) =>
-                        setData((prev) => ({
-                          ...prev,
-                          examinationNote: {
-                            ...prev.examinationNote,
-                            ...setTextareaValue(key, val,),
-                          },
-                        }))
-                      }
+                      // uncontrolled initial value only
+                      defaultValue={getTextareaValue(key, data)}
+                      minRows={3}
                     />
                   </DraggableField>
                 );
@@ -272,21 +500,156 @@ export default function ExaminationNote({
         {/* Other Notes (not sortable, fixed at bottom) */}
         <LabeledTextarea
           label="Other Notes"
-          value={data.examinationNote.otherNotes || ""}
-          onChange={(val) => {
-            setData((prev) => ({
-              ...prev,
-              examinationNote: { ...prev.examinationNote, otherNotes: val },
-            }));
-          }}
+          defaultValue={data.examinationNote.otherNotes || ""}
           minRows={4}
         />
       </CardContent>
+
+      {/* Save modal */}
+      <AnimatePresence>
+        {saveOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center"
+          >
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setSaveOpen(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="relative bg-white rounded-2xl shadow-2xl p-6 w-[90%] md:w-[520px]"
+            >
+              <h3 className="text-lg font-semibold mb-4 text-slate-800">
+                Save Layout as Template
+              </h3>
+              <input
+                type="text"
+                value={tplName}
+                onChange={(e) => setTplName(e.target.value)}
+                placeholder="Template Name"
+                className="w-full border rounded-xl px-3 py-2 mb-3 focus:ring-2 focus:ring-emerald-400"
+              />
+              <input
+                type="text"
+                value={tplDesc}
+                onChange={(e) => setTplDesc(e.target.value)}
+                placeholder="Description (optional)"
+                className="w-full border rounded-xl px-3 py-2 mb-4 focus:ring-2 focus:ring-emerald-400"
+              />
+              <div className="flex justify-end gap-2">
+                <button
+                  onClick={() => setSaveOpen(false)}
+                  className="px-4 py-2 border rounded-xl hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={saveCurrentAsTemplate}
+                  className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700"
+                >
+                  Save
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Manage templates modal */}
+      <AnimatePresence>
+        {manageOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center"
+          >
+            <div
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => setManageOpen(false)}
+            />
+            <motion.div
+              initial={{ scale: 0.95 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.95 }}
+              transition={{ duration: 0.2 }}
+              className="relative bg-white rounded-2xl shadow-2xl p-6 w-[95%] md:w-[720px]"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-slate-800">
+                  Manage Templates
+                </h3>
+                <button
+                  onClick={() => setManageOpen(false)}
+                  className="text-slate-600 hover:text-slate-800"
+                >
+                  ✕
+                </button>
+              </div>
+              {templates.length === 0 ? (
+                <p className="text-slate-600">No templates yet.</p>
+              ) : (
+                <ul className="space-y-3">
+                  {templates.map((t) => (
+                    <li
+                      key={t.id}
+                      className="rounded-2xl border p-3 hover:shadow-md transition"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-slate-800">
+                            {t.name}
+                          </div>
+                          {t.description && (
+                            <div className="text-sm text-slate-600">
+                              {t.description}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => applyTemplate(t.id)}
+                            className="px-3 py-1.5 rounded-lg border hover:bg-emerald-50"
+                          >
+                            Apply
+                          </button>
+                          <button
+                            onClick={() => deleteTemplate(t.id)}
+                            className="px-3 py-1.5 rounded-lg border text-red-600 hover:bg-red-50"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {t.order.map((fid) => (
+                          <span
+                            key={fid}
+                            className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border"
+                          >
+                            {fid === "PA" ? "P/A" : fid}
+                          </span>
+                        ))}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </Card>
   );
 }
 
-// ---------- Helpers to map keys <-> data.examinationNote ----------
+// ---------- Helpers to map keys <-> data.examinationNote (read-only helpers) ----------
 function getInputValue(key: FieldKey, data: DataType): string {
   const ex = data.examinationNote;
   switch (key) {
@@ -300,24 +663,6 @@ function getInputValue(key: FieldKey, data: DataType): string {
       return ex.temp || "";
     default:
       return "";
-  }
-}
-
-function setInputValue(
-  key: FieldKey,
-  val: string,
-): Partial<DataType["examinationNote"]> {
-  switch (key) {
-    case "HR":
-      return { hr: val };
-    case "BP":
-      return { bp: val };
-    case "SpO2":
-      return { spo2: val };
-    case "Temp":
-      return { temp: val };
-    default:
-      return {};
   }
 }
 
@@ -337,35 +682,22 @@ function getTextareaValue(key: FieldKey, data: DataType): string {
   }
 }
 
-function setTextareaValue(
-  key: FieldKey,
-  val: string,
-): Partial<DataType["examinationNote"]> {
-  switch (key) {
-    case "RS":
-      return { rs: val };
-    case "CVS":
-      return { cvs: val };
-    case "PA":
-      return { pa: val };
-    case "CNS":
-      return { cns: val };
-    default:
-      return {};
-  }
-}
-
 // ---------- Sortable wrapper with 3-dot grab handle ----------
 function DraggableField({
   id,
-  
   children,
 }: {
   id: FieldKey;
   children: React.ReactNode;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id });
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id });
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -397,11 +729,10 @@ function DraggableField({
   );
 }
 
-// ---------- Inputs ----------
+// ---------- Inputs (uncontrolled) ----------
 type LabeledInputProps = {
   label: string;
-  value: string;
-  onChange: (val: string) => void;
+  defaultValue?: string;
   type?: string;
   unit?: string;
   right?: ReactNode;
@@ -410,8 +741,7 @@ type LabeledInputProps = {
 
 function LabeledInput({
   label,
-  value,
-  onChange,
+  defaultValue,
   type = "text",
   unit,
   right,
@@ -421,8 +751,7 @@ function LabeledInput({
   return (
     <div className="relative w-full">
       <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        defaultValue={defaultValue}
         onKeyDown={onKeyDown}
         placeholder=" "
         type={type}
@@ -435,7 +764,9 @@ function LabeledInput({
         {label}
       </label>
       {hasRight ? (
-        <span className="absolute right-2 top-1/2 -translate-y-1/2">{right}</span>
+        <span className="absolute right-2 top-1/2 -translate-y-1/2">
+          {right}
+        </span>
       ) : unit ? (
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">
           {unit}
@@ -447,23 +778,20 @@ function LabeledInput({
 
 type LabeledTextareaProps = {
   label: string;
-  value: string;
-  onChange: (val: string) => void;
+  defaultValue?: string;
   minRows?: number;
 };
 
 function LabeledTextarea({
   label,
-  value,
-  onChange,
+  defaultValue,
   minRows = 4,
 }: LabeledTextareaProps) {
   const minHeight = Math.max(56, minRows * 24);
   return (
     <div className="relative w-full">
       <textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        defaultValue={defaultValue}
         placeholder=" "
         style={{ minHeight }}
         className="peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100"
