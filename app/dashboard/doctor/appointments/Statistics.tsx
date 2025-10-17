@@ -33,7 +33,7 @@ export default function Statistics() {
         icon={<Clock className="h-4 w-4" />}
       />
       <StatTile
-        title="observation"
+        title="Observation"
         value={data?.data.observation}
         icon={<Clock className="h-4 w-4" />}
       />
