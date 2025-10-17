@@ -102,7 +102,8 @@ export default function Appointments({
 
   return (
     <>
-      <Label className="mb-0.5 text-[12px] text-slate-600">Date range</Label>
+    <div className="">
+      <Label className="mb-2 text-[12px] text-slate-600">Date range</Label>
       <Popover>
         <PopoverTrigger asChild>
           <Button variant="outline" className="h-9 w-full justify-between">
@@ -135,8 +136,8 @@ export default function Appointments({
           />
         </PopoverContent>
       </Popover>
-
-      <div className="grid gap-1">
+</div>
+      <div className="grid gap-2">
         <span className="text-[12px] text-slate-600">Days</span>
         <div className="flex flex-wrap gap-3">
           {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
@@ -156,8 +157,8 @@ export default function Appointments({
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-3">
-        <div className="grid gap-0">
+      <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid gap-2">
           <Label className="mb-0.5 text-[12px] text-slate-600">
             Appointments from
           </Label>
@@ -166,7 +167,7 @@ export default function Appointments({
             onChange={(v) => setAvail({ ...avail, startTime: v })}
           />
         </div>
-        <div className="grid gap-0">
+        <div className="grid gap-2">
           <Label className="mb-0.5 text-[12px] text-slate-600">
             Appointments to
           </Label>
@@ -177,7 +178,7 @@ export default function Appointments({
         </div>
       </div>
 
-      <div className="grid gap-2">
+      <div className="grid gap-4">
         <div className="flex items-center justify-between">
           <span className="text-[12px] text-slate-600">
             Rounds (excluded from appointments)

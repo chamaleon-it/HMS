@@ -119,8 +119,8 @@ export default function ProfileForm() {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid md:grid-cols-2 gap-x-6 gap-y-3 pt-2">
-            <div className="grid gap-2">
-              <div className="grid gap-0">
+            <div className="grid gap-4">
+              <div className="grid gap-2">
                 <Label
                   htmlFor="name"
                   className="mb-0.5 text-[13px] leading-tight text-slate-700"
@@ -136,7 +136,7 @@ export default function ProfileForm() {
               </div>
 
               <div className="grid md:grid-cols-2 gap-3">
-                <div className="grid gap-0">
+                <div className="grid gap-2">
                   <Label
                     htmlFor="phone"
                     className="mb-0.5 text-[13px] leading-tight text-slate-700"
@@ -150,7 +150,7 @@ export default function ProfileForm() {
                     {...register("phoneNumber")}
                   />
                 </div>
-                <div className="grid gap-0">
+                <div className="grid gap-2">
                   <Label
                     htmlFor="email"
                     className="mb-0.5 text-[13px] leading-tight text-slate-700"
@@ -168,7 +168,7 @@ export default function ProfileForm() {
               </div>
 
               <div className="grid md:grid-cols-2 gap-3">
-                <div className="grid gap-0">
+                <div className="grid gap-2">
                   <Label
                     htmlFor="clinic"
                     className="mb-0.5 text-[13px] leading-tight text-slate-700"
@@ -182,7 +182,7 @@ export default function ProfileForm() {
                     {...register("hospital")}
                   />
                 </div>
-                <div className="grid gap-0">
+                <div className="grid gap-2">
                   <Label className="mb-0.5 text-[13px] leading-tight text-slate-700">
                     Primary specialization
                   </Label>
@@ -238,7 +238,7 @@ export default function ProfileForm() {
                 </div>
               </div>
 
-              <div className="grid gap-2">
+              <div className="grid gap-4">
                 <Appointments
                   setValue={setValue}
                   availability={userData?.data.availability}
