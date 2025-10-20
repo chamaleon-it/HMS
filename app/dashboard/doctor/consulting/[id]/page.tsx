@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import AppShell from "@/components/layout/app-shell";
 import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
 import { redirect, useParams } from "next/navigation";
@@ -13,10 +12,10 @@ import AllergyAlert from "./AllergyAlert";
 import Header from "./Header";
 import Advice from "./Advice";
 import ActionButton from "./ActionButton";
-import LabAndTest from "./LabAndTest";
 import useSWR from "swr";
 import PrescriptionCard from "./PrescriptionCard";
 import { AppointmentType, DataType } from "./interface";
+import Test from "./Test";
 
 export default function ConsultingMenu() {
   const params = useParams();
@@ -46,7 +45,7 @@ export default function ConsultingMenu() {
       cvs: null,
       pa: null,
       cns: null,
-      le:null,
+      le: null,
       otherNotes: null,
     },
     medicines: [],
@@ -100,11 +99,16 @@ export default function ConsultingMenu() {
                   data={data}
                   setData={setData}
                 />
-                <Separator className="my-4" />
-                <PrescriptionCard data={data} setData={setData} />
-                <Separator className="my-6" />
-                <LabAndTest data={data} setData={setData} />
-                <Separator className="my-6" />
+
+                <PrescriptionCard
+                  data={data}
+                  setData={setData}
+                  appointmentData={appointmentData}
+                />
+
+                {/* <LabAndTest data={data} setData={setData} /> */}
+                <Test data={data} setData={setData} />
+
                 <Advice data={data} setData={setData} />
                 <FollowUpTime setData={setData} data={data} />
                 <ActionButton data={data} />
@@ -112,7 +116,9 @@ export default function ConsultingMenu() {
             </div>
           )}
 
-          {activeTab === "history" && <History patientId={appointment.patient._id} />}
+          {activeTab === "history" && (
+            <History patientId={appointment.patient._id} />
+          )}
         </div>
       </div>
     </AppShell>

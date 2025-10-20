@@ -17,6 +17,8 @@ export default function Statistics() {
       observation: number;
       today: number;
       upcoming: number;
+      test: number;
+      admit: number;
     };
   }>("/appointments/statistics");
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { CalendarDays, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,19 @@ import { CreateAppointmentForm } from "./CreateAppointmentForm";
 import Statistics from "./Statistics";
 import Filter from "./Filter";
 import Drawer from "@/components/ui/drawer";
+import useAppointmentList from "./data/useAppointmentList";
 
 export default function AppointmentPage() {
   const [query, setQuery] = useState("");
   const [activeStatuses, setActiveStatuses] = useState<string[]>([]);
   const [openCreate, setOpenCreate] = useState(false);
-  const [date, setDate] = useState(new Date())
+  const [date, setDate] = useState(new Date());
+
+  const { mutate } = useAppointmentList({ query, activeStatuses, date });
+
+  useEffect(() => {
+    mutate();
+  }, [mutate]);
 
   return (
     <AppShell>
@@ -62,10 +69,10 @@ export default function AppointmentPage() {
             </TabsList>
 
             <TabsContent value="list">
-              <List query={query} activeStatuses={activeStatuses} date={date}/>
+              <List query={query} activeStatuses={activeStatuses} date={date} />
             </TabsContent>
             <TabsContent value="calendar">
-              <Calendar date={date}/>
+              <Calendar date={date} />
             </TabsContent>
           </Tabs>
         </div>
@@ -75,7 +82,10 @@ export default function AppointmentPage() {
           onClose={() => setOpenCreate(false)}
           title="Create Appointment"
         >
-          <CreateAppointmentForm onClose={() => setOpenCreate(false)} />
+          <CreateAppointmentForm
+            onClose={() => setOpenCreate(false)}
+            mutate={mutate}
+          />
         </Drawer>
       </div>
     </AppShell>

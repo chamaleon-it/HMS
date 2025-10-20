@@ -1,7 +1,7 @@
-import {  fTime } from "@/lib/fDateAndTime";
+import { fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video } from "lucide-react";
 import React from "react";
-import useSWR from "swr";
+import useAppointmentList from "./data/useAppointmentList";
 
 const cx = (...cls: (string | false | null | undefined)[]) =>
   cls.filter(Boolean).join(" ");
@@ -9,59 +9,19 @@ const cx = (...cls: (string | false | null | undefined)[]) =>
 export default function List({
   query,
   activeStatuses,
-  date
+  date,
 }: {
   query: string;
   activeStatuses: string[];
-  date:Date
+  date: Date;
 }) {
   const params = new URLSearchParams();
 
   if (query) params.append("query", query);
   if (activeStatuses) params.append("status", JSON.stringify(activeStatuses));
-  if(date) params.append("date",date.toISOString())
+  if (date) params.append("date", date.toISOString());
 
-
-  const { data } = useSWR<{
-    message: string;
-    data: {
-      _id: string;
-      patient: {
-        _id: string;
-        name: string;
-        phoneNumber: string;
-        gender: string;
-        age: number;
-        blood: string;
-        allergies: string;
-        address: string;
-        notes: string;
-        createdAt: Date;
-      };
-      doctor: {
-        _id: string;
-        name: string;
-        email: string;
-        phoneNumber: string | null;
-        address: string | null;
-        profilePic: string | null;
-      };
-      createdBy: string;
-      method: "In clinic" | "Video" | "Phone";
-      date: Date;
-      notes: string | null;
-      internalNotes: string | null;
-      type: "New" | "Follow up";
-      status:
-        | "Upcoming"
-        | "Consulted"
-        | "Observation"
-        | "Completed"
-        | "Not show";
-      isPaid: boolean;
-      createdAt: Date;
-    }[];
-  }>(`/appointments/list?${params.toString()}`);
+  const { data } = useAppointmentList({ query, activeStatuses, date });
 
   return (
     <div className="rounded-2xl border border-zinc-200 overflow-hidden mt-4">
@@ -78,9 +38,7 @@ export default function List({
             key={row._id}
             className={cx("px-4 py-3 grid grid-cols-11 items-center")}
           >
-            <div className="col-span-2 font-medium">
-              {fTime(row.date)}
-            </div>
+            <div className="col-span-2 font-medium">{fTime(row.date)}</div>
 
             <div className="col-span-3 flex items-center gap-3 min-w-0">
               <Initials text={row.patient.name} />
@@ -106,9 +64,9 @@ export default function List({
             </div>
             <div className="col-span-1 flex items-center gap-2">
               <span className="inline-flex items-center gap-2 text-sm">
-                {row.method === "In clinic" && <MapPin className="h-4 w-4"/>}
-                {row.method === "Video" && <Video className="h-4 w-4"/>}
-                {row.method === "Phone" && <Phone className="h-4 w-4"/>}
+                {row.method === "In clinic" && <MapPin className="h-4 w-4" />}
+                {row.method === "Video" && <Video className="h-4 w-4" />}
+                {row.method === "Phone" && <Phone className="h-4 w-4" />}
                 {row.method}
               </span>
             </div>

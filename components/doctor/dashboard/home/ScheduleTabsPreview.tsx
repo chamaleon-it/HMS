@@ -1,8 +1,16 @@
 "use client";
 
-import React, { JSX, useMemo } from "react";
-import { CheckCircle, Eye, Clock, AlertTriangle } from "lucide-react";
+import React, { JSX, useEffect, useMemo } from "react";
+import {
+  CheckCircle,
+  Eye,
+  Clock,
+  AlertTriangle,
+  FlaskConical,
+  Bed,
+} from "lucide-react";
 import { motion } from "framer-motion";
+import useSWR from "swr";
 
 export default function ScheduleTabsPreview({
   currenctStatus,
@@ -13,14 +21,49 @@ export default function ScheduleTabsPreview({
     React.SetStateAction<"Upcoming" | "Consulted" | "Observation" | "Not show">
   >;
 }): JSX.Element {
+  const { data: appointmentStatisticsData, mutate } = useSWR<{
+    message: string;
+    data: {
+      completed: number;
+      consulted: number;
+      notShow: number;
+      observation: number;
+      today: number;
+      upcoming: number;
+      test: number;
+      admit: number;
+    };
+  }>("/appointments/statistics");
+
+  const appointmentStatistics = appointmentStatisticsData?.data ?? {
+    completed: 0,
+    consulted: 0,
+    notShow: 0,
+    observation: 0,
+    today: 0,
+    upcoming: 0,
+    test: 0,
+    admit: 0,
+  };
+
+  useEffect(() => {
+    mutate();
+  }, [mutate]);
+
   const tabs = useMemo(
     () => [
       { key: "Upcoming", label: "Upcoming", icon: Clock },
+      {
+        key: "Test",
+        label: `Test Report (${appointmentStatistics.test})`,
+        icon: FlaskConical,
+      },
       { key: "Consulted", label: "Consulted", icon: CheckCircle },
       { key: "Observation", label: "Observation", icon: Eye },
+      { key: "Admit", label: "Admit", icon: Bed },
       { key: "Not show", label: "Not show", icon: AlertTriangle },
     ],
-    []
+    [appointmentStatistics.test]
   );
 
   return (

@@ -109,10 +109,10 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 function readCurrentValuesFromData(data: DataType): TemplateValues {
   const ex = data.examinationNote || ({} as DataType["examinationNote"]);
   return {
-    HR: ex.hr || "",
-    BP: ex.bp || "",
-    SpO2: ex.spo2 || "",
-    Temp: ex.temp || "",
+    // HR: ex.hr || "",
+    // BP: ex.bp || "",
+    // SpO2: ex.spo2 || "",
+    // Temp: ex.temp || "",
     RS: ex.rs || "",
     CVS: ex.cvs || "",
     PA: ex.pa || "",

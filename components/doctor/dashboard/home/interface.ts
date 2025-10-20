@@ -17,6 +17,7 @@ export interface AppointmentType {
   isPaid: boolean;
   createdAt: Date;
   updatedAt: Date;
+  visitCount: number;
 }
 
 interface Doctor {

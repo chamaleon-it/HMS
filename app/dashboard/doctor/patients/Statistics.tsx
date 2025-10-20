@@ -1,36 +1,52 @@
-import React from 'react'
+import React from "react";
 
-export default function Statistics() {
+export default function Statistics({
+  statistics,
+}: {
+  statistics:
+    | {
+        total: number;
+        active: number;
+        inactive: number;
+        critical: number;
+        discharged: number;
+        today: number;
+        thisWeek: number;
+        thisMonth: number;
+        male: number;
+        female: number;
+      }
+    | undefined;
+}) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <StatCard
-                icon={<span className="text-xl">👥</span>}
-                label="Total"
-                value={0}
-                tone="bg-violet-100"
-              />
-              <StatCard
-                icon={<span className="text-xl">🩺</span>}
-                label="Active"
-                value={0}
-                tone="bg-green-100"
-              />
-              <StatCard
-                icon={<span className="text-xl">🚨</span>}
-                label="Critical"
-                value={0}
-                tone="bg-red-100"
-              />
-              <StatCard
-                icon={<span className="text-xl">🚪</span>}
-                label="Discharged"
-                value={0}
-                tone="bg-blue-100"
-              />
-            </div>
-  )
+      <StatCard
+        icon={<span className="text-xl">👥</span>}
+        label="Total"
+        value={statistics?.total ?? 0}
+        tone="bg-violet-100"
+      />
+      <StatCard
+        icon={<span className="text-xl">🩺</span>}
+        label="Active"
+        value={statistics?.active ?? 0}
+        tone="bg-green-100"
+      />
+      <StatCard
+        icon={<span className="text-xl">🚨</span>}
+        label="Critical"
+        value={statistics?.critical ?? 0}
+        tone="bg-red-100"
+      />
+      <StatCard
+        icon={<span className="text-xl">🚪</span>}
+        label="Discharged"
+        value={statistics?.discharged ?? 0}
+        tone="bg-blue-100"
+      />
+    </div>
+  );
 }
-
 
 const StatCard: React.FC<{
   icon: React.ReactNode;

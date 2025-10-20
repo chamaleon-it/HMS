@@ -1,13 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Bell, Search, Plus } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { CreateAppointmentForm } from "@/app/dashboard/doctor/appointments/CreateAppointmentForm";
 import Drawer from "../ui/drawer";
+import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 
 export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
+
+  const today = useMemo(() => new Date(), []);
+  const { mutate } = useAppointmentList({ date: today });
 
   return (
     <>
@@ -85,7 +89,10 @@ export default function Header() {
           onClose={() => setOpenCreate(false)}
           title="Create Appointment"
         >
-          <CreateAppointmentForm onClose={() => setOpenCreate(false)} />
+          <CreateAppointmentForm
+            onClose={() => setOpenCreate(false)}
+            mutate={mutate}
+          />
         </Drawer>
       </div>
     </>

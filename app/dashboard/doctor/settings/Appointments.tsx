@@ -119,9 +119,12 @@ export default function Appointments({
           </PopoverTrigger>
           <PopoverContent className="p-2 w-auto" align="start">
             <Calendar
+              fromMonth={new Date(new Date().getFullYear(), 0)}
+              toMonth={new Date(new Date().getFullYear() + 10, 11)}
               mode="range"
               numberOfMonths={2}
               disabled={{ before: new Date() }}
+              captionLayout="dropdown"
               selected={{
                 from: avail.startDate ? new Date(avail.startDate) : new Date(),
                 to: avail.endDate ? new Date(avail.endDate) : new Date(),
@@ -288,8 +291,6 @@ function ComboTime({
     </Popover>
   );
 }
-
-
 
 const TIME_OPTIONS = Array.from({ length: 24 * 4 }, (_, i) => {
   const h = String(Math.floor(i / 4)).padStart(2, "0");

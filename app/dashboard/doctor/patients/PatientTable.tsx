@@ -1,60 +1,38 @@
 import { fDateandTime } from "@/lib/fDateAndTime";
 import Link from "next/link";
 import React from "react";
-import useSWR from "swr";
-import { FilterType } from "./page";
 
-export default function PatientTable({ filter }: { filter: FilterType }) {
-  const params = new URLSearchParams();
-
-  if (filter.query) {
-    params.append("query", filter.query);
-  }
-  if (filter.gender) {
-    params.append("gender", filter.gender);
-  }
-
-  if (filter.doctor) {
-    params.append("doctor", filter.doctor);
-  }
-
-  if (filter.age) {
-    params.append("minAge", filter.age[0].toString());
-    params.append("maxAge", filter.age[1].toString());
-  }
-  if (filter.lastVisit) {
-    params.append("lastVisit", filter.lastVisit.toString());
-  }
-  if (filter.condition) {
-    params.append("conditions", JSON.stringify(filter.condition));
-  }
-
-  const { data } = useSWR<{
-    message: string;
-    data: {
-      _id: string;
-      name: string;
-      phoneNumber: string;
-      email: string;
-      gender: "Male" | "Female" | "Other";
-      age: number;
-      condition: string;
-      blood: string;
-      allergies: string;
-      address: string;
-      notes: string;
-      mrn: string;
-      createdBy: {
-        _id: string;
-        name: string;
-        email: string;
-        role: string;
-        phoneNumber: string;
-      };
-      createdAt: Date;
-    }[];
-  }>(`/patients?${params}`);
-
+export default function PatientTable({
+  data,
+}: {
+  data:
+    | {
+        message: string;
+        data: {
+          _id: string;
+          name: string;
+          phoneNumber: string;
+          email: string;
+          gender: "Male" | "Female" | "Other";
+          age: number;
+          condition: string;
+          blood: string;
+          allergies: string;
+          address: string;
+          notes: string;
+          mrn: string;
+          createdBy: {
+            _id: string;
+            name: string;
+            email: string;
+            role: string;
+            phoneNumber: string;
+          };
+          createdAt: Date;
+        }[];
+      }
+    | undefined;
+}) {
   return (
     <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
       <table className="w-full">

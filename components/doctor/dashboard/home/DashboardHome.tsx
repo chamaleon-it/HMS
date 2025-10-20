@@ -9,11 +9,16 @@ import { CreateAppointmentForm } from "@/app/dashboard/doctor/appointments/Creat
 import Statistics from "./Statistics";
 import WeeklyCalender from "./WeeklyCalender";
 import Drawer from "@/components/ui/drawer";
+import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 
 export default function Dashboard() {
   const [openAppointment, setOpenAppointment] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(()=>new Date())
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    () => new Date()
+  );
+
+  const { mutate } = useAppointmentList({ date: selectedDate });
 
   return (
     <div className="min-h-[calc(100vh-80px)]">
@@ -37,15 +42,24 @@ export default function Dashboard() {
             value="day"
             className="flex-1 overflow-hidden min-h-[50vh]"
           >
-            <DailyViewTimeline setOpenAppointment={setOpenAppointment} selectedDate={selectedDate}/>
+            <DailyViewTimeline
+              setOpenAppointment={setOpenAppointment}
+              selectedDate={selectedDate}
+            />
           </TabsContent>
 
-          <WeeklyCalender setOpenAppointment={setOpenAppointment} selectedDate={selectedDate}/>
+          <WeeklyCalender
+            setOpenAppointment={setOpenAppointment}
+            selectedDate={selectedDate}
+          />
 
-          <MonthlyCalender selectedDate={selectedDate}/>
+          <MonthlyCalender selectedDate={selectedDate} />
         </Tabs>
 
-        <Summery selectedDate={selectedDate} setSelectedDate={setSelectedDate}/>
+        <Summery
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+        />
       </div>
 
       <Drawer
@@ -56,6 +70,7 @@ export default function Dashboard() {
         title="Create Appointment"
       >
         <CreateAppointmentForm
+          mutate={mutate}
           onClose={() => {
             setOpenAppointment(false);
           }}

@@ -1,8 +1,8 @@
 import React, { ReactNode, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Plus, Trash, ChevronRight, Edit, X } from "lucide-react";
-import { DataType } from "./interface";
+import { Star, Plus, Trash, ChevronRight, Edit, X, AlertTriangle } from "lucide-react";
+import { AppointmentType, DataType } from "./interface";
 
 // ------------------ Types ------------------
 interface Medicine {
@@ -21,9 +21,14 @@ interface FavoriteTemplate {
 export default function PrescriptionCard({
   data,
   setData,
+  appointmentData,
 }: {
   data: DataType;
   setData: React.Dispatch<React.SetStateAction<DataType>>;
+  appointmentData: {
+    message: string;
+    data: AppointmentType;
+  };
 }) {
   // --- Favorites (templates) ---
   const [favorites, setFavorites] = useState<FavoriteTemplate[]>([
@@ -210,8 +215,13 @@ export default function PrescriptionCard({
           {/* Favorites Section */}
 
           <div className="mb-4">
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2.5 mb-2">
               <h2 className="font-semibold text-lg">Prescriptions</h2>
+              {appointmentData.data.patient.allergies && (
+                <div className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs bg-red-500/10 text-red-600">
+               <AlertTriangle className="w-3.5 h-3.5"/>   Allergies: {appointmentData.data.patient.allergies}
+                </div>
+              )}
             </div>
             <input
               value={favSearch}

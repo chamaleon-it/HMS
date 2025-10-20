@@ -7,6 +7,7 @@ import PatientTable from "./PatientTable";
 import Filter from "./Filter";
 import Statistics from "./Statistics";
 import Drawer from "@/components/ui/drawer";
+import useSWR from "swr";
 
 export interface FilterType {
   query: undefined | string;
@@ -29,6 +30,74 @@ export default function PatientsEnhanced() {
     condition: [],
   });
 
+  const params = new URLSearchParams();
+
+  if (filter.query) {
+    params.append("query", filter.query);
+  }
+  if (filter.gender) {
+    params.append("gender", filter.gender);
+  }
+
+  if (filter.doctor) {
+    params.append("doctor", filter.doctor);
+  }
+
+  if (filter.age) {
+    params.append("minAge", filter.age[0].toString());
+    params.append("maxAge", filter.age[1].toString());
+  }
+  if (filter.lastVisit) {
+    params.append("lastVisit", filter.lastVisit.toString());
+  }
+  if (filter.condition) {
+    params.append("conditions", JSON.stringify(filter.condition));
+  }
+
+  const { data: tableData, mutate: tableMutate } = useSWR<{
+    message: string;
+    data: {
+      _id: string;
+      name: string;
+      phoneNumber: string;
+      email: string;
+      gender: "Male" | "Female" | "Other";
+      age: number;
+      condition: string;
+      blood: string;
+      allergies: string;
+      address: string;
+      notes: string;
+      mrn: string;
+      createdBy: {
+        _id: string;
+        name: string;
+        email: string;
+        role: string;
+        phoneNumber: string;
+      };
+      createdAt: Date;
+    }[];
+  }>(`/patients?${params}`);
+
+  const { data: statisticsData, mutate: statisticsMutate } = useSWR<{
+    data: {
+      total: number;
+      active: number;
+      inactive: number;
+      critical: number;
+      discharged: number;
+      today: number;
+      thisWeek: number;
+      thisMonth: number;
+      male: number;
+      female: number;
+    };
+    message: string;
+  }>("/patients/statistics");
+
+  const statistics = statisticsData?.data;
+
   return (
     <AppShell>
       <div className="min-h-screen w-full bg-gradient-to-b from-white to-slate-50 p-6">
@@ -50,10 +119,10 @@ export default function PatientsEnhanced() {
           </div>
         </div>
 
-        <Statistics />
+        <Statistics statistics={statistics} />
         <Filter filter={filter} setFilter={setFilter} />
 
-        <PatientTable filter={filter}/>
+        <PatientTable data={tableData} />
 
         <div className="flex items-center justify-between mt-4">
           <div className="text-sm text-gray-500">
@@ -85,7 +154,13 @@ export default function PatientsEnhanced() {
         onClose={() => setOpenCreate(false)}
         title="Patient Register"
       >
-        <RegisterPatient onClose={() => setOpenCreate(false)} />
+        <RegisterPatient
+          onClose={() => setOpenCreate(false)}
+          mutate={() => {
+            tableMutate();
+            statisticsMutate();
+          }}
+        />
       </Drawer>
     </AppShell>
   );

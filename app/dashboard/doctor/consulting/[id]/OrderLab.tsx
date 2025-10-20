@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Pencil, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 import React from "react";
+import { DataType } from "./interface";
 
 export default function OrderLab({
   booked,
-
+  setData,
 }: {
   booked: {
     name: string[];
@@ -12,11 +13,11 @@ export default function OrderLab({
     lab: string;
     slot: string;
     priority: string;
-  }[]
-  
+  }[];
+  setData: (value: React.SetStateAction<DataType>) => void;
 }) {
   return (
-    <div className="border rounded-xl p-4 m-5 ">
+    <div className="border rounded-xl p-4">
       {/* Dynamic rows */}
       <div className="flex flex-col gap-3">
         <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-black mt-2 font-medium">
@@ -40,21 +41,25 @@ export default function OrderLab({
             </div>
             <div className="col-span-2">{e.lab}</div>
             <div className="col-span-2">{e.date.toDateString()}</div>
-            <div className="col-span-2">{e.slot}</div>
+            <div className="col-span-2">
+              {e.lab === "In house" ? "-" : e.slot}
+            </div>
             <div className="col-span-1">{e.priority}</div>
             <div className="col-span-2 text-right flex justify-end gap-2">
-              
-               <Button
+              {/* <Button
                 className="!bg-green-600 hover:!bg-green-700 text-white !border-green-600"
                 title="Edit Test"
               >
                 <Pencil  className="w-4 h-4"/>
-              </Button>
+              </Button> */}
 
               <Button
-                className="!bg-red-600 hover:!bg-red-700 text-white !border-red-600"
+                onClick={() => {
+                  const newBooked = booked.filter((_, i) => i !== idx);
+                  setData((prev) => ({ ...prev, test: newBooked }));
+                }}
+                className="!bg-red-600 hover:!bg-red-700 text-white !border-red-600 cursor-pointer"
                 title="Remove Test"
-              
               >
                 <Trash className="w-4 h-4" />
               </Button>

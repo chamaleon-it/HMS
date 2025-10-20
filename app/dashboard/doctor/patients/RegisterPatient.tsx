@@ -16,11 +16,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { UserRound } from "lucide-react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import useSWR from "swr";
-
-export function RegisterPatient({ onClose }: { onClose: () => void }) {
-  const { mutate } = useSWR("/patients");
-
+export function RegisterPatient({
+  onClose,
+  mutate,
+}: {
+  onClose: () => void;
+  mutate?: () => void;
+}) {
   const {
     register,
     handleSubmit,
@@ -43,7 +45,9 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
       });
       reset();
       onClose();
-      mutate();
+      if (mutate) {
+        mutate();
+      }
     } catch (error) {
       console.log(error);
     }
@@ -56,15 +60,15 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
           <UserRound className="h-4 w-4" />
           <h3 className="font-medium">Patient</h3>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid gap-2">
             <Label>Name</Label>
             <Input placeholder="Enter patient name" {...register("name")} />
             {errors.name && (
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
             )}
           </div>
-          <div>
+          <div className="grid gap-2">
             <Label>Phone</Label>
             <Input placeholder="+91" {...register("phoneNumber")} />
             {errors.phoneNumber && (
@@ -73,7 +77,7 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
               </p>
             )}
           </div>
-          <div>
+          <div className="grid gap-2">
             <Label>Email</Label>
             <Input
               placeholder="name@email.com"
@@ -87,7 +91,7 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
             )}
           </div>
 
-          <div>
+          <div className="grid gap-2">
             <Label>Gender</Label>
             <select
               className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
@@ -104,7 +108,7 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
               </p>
             )}
           </div>
-          <div>
+          <div className="grid gap-2">
             <Label>Age</Label>
             <select
               className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
@@ -147,7 +151,7 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
             )}
           </div>
 
-          <div className="">
+          <div className="grid gap-2">
             <Label>Condition</Label>
             <Select onValueChange={(value) => setValue("condition", value)}>
               <SelectTrigger className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
@@ -168,7 +172,7 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
             )}
           </div>
 
-          <div>
+          <div className="grid gap-2">
             <Label>Blood Group</Label>
             <select
               className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
@@ -188,7 +192,7 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
             )}
           </div>
 
-          <div>
+          <div className="grid gap-2">
             <Label>Allergies</Label>
             <Input placeholder="Allergies" {...register("allergies")} />
             {errors.allergies && (
@@ -198,7 +202,7 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
             )}
           </div>
 
-          <div>
+          <div className="grid gap-2">
             <Label>Address</Label>
             <Input placeholder="Address" {...register("address")} />
             {errors.address && (
@@ -208,7 +212,7 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
             )}
           </div>
 
-          <div className="sm:col-span-2">
+          <div className="sm:col-span-2 grid gap-2">
             <Label>Reason / Notes</Label>
             <Textarea rows={3} placeholder="Optional" {...register("notes")} />
             {errors.notes && (

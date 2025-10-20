@@ -41,8 +41,6 @@ function combineToIST(date: Date, time: string) {
   return istDate;
 }
 
-
-
 const startOfDay = (d: Date) => {
   const x = new Date(d);
   x.setHours(0, 0, 0, 0);
@@ -72,6 +70,11 @@ const getRoundForTime = (
     null
   );
 };
+
+const isSameDay = (a: Date, b: Date) =>
+  startOfDay(a).getTime() === startOfDay(b).getTime();
+const isBeforeDay = (a: Date, b: Date) =>
+  startOfDay(a).getTime() < startOfDay(b).getTime();
 
 const dayNameToIndex: Record<string, number> = {
   Sun: 0,
@@ -181,26 +184,48 @@ export default function DateTimePicker({
             const round = getRoundForTime(time, availability?.rounds);
             const isDisabledByRound = !!round;
 
+            const now = new Date();
+            const today = startOfDay(now);
+
+            const sel = selectedDate ?? today;
+
+            const isPastDay = isBeforeDay(sel, today);
+            const isToday = isSameDay(sel, today);
+
+            const tm = toMinutes(time);
+            const nowMins = now.getHours() * 60 + now.getMinutes();
+
+            const isPastTime = isPastDay || (isToday && tm < nowMins);
+
+            const isDisabled = isDisabledByRound || isPastTime;
+            const reason = isDisabledByRound
+              ? round?.label ?? "Unavailable"
+              : isPastTime
+              ? "Past time"
+              : undefined;
+
+            const disabledClasses = isDisabledByRound
+              ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300 cursor-not-allowed"
+              : isPastTime
+              ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
+              : "";
+
             return (
               <motion.div
                 key={time}
                 whileTap={{ scale: isDisabledByRound ? 1 : 0.95 }}
                 className="w-full"
                 onClick={() => {
-                  if (!isDisabledByRound) handleTimeClick(time);
+                  if (!isDisabled) handleTimeClick(time);
                 }}
               >
                 <Button
                   type="button"
                   size="sm"
                   variant={selectedTime === time ? "default" : "outline"}
-                  disabled={isDisabledByRound}
-                  title={round?.label}
-                  className={[
-                    "w-full",
-                    isDisabledByRound &&
-                      "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300 cursor-not-allowed",
-                  ]
+                  disabled={isDisabled}
+                  title={reason}
+                  className={["w-full", disabledClasses]
                     .filter(Boolean)
                     .join(" ")}
                 >

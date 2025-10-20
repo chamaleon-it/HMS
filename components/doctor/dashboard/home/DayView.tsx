@@ -7,9 +7,9 @@ import React, {
 } from "react";
 import { CalendarPlus } from "lucide-react";
 import ScheduleTabsPreview from "./ScheduleTabsPreview";
-import useSWR from "swr";
-import { AppointmentData, AppointmentType } from "./interface";
+import { AppointmentType } from "./interface";
 import { PatientCard } from "./PatientCard";
+import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 
 // ---- time helpers ----
 export function fromMinutes(min: number) {
@@ -50,9 +50,7 @@ export default function DailyViewTimeline({
     day.getDate()
   ).toISOString();
 
-  const { data: appointmentData, mutate } = useSWR<AppointmentData>(
-    `/appointments/list?date=${encodeURIComponent(keyDate)}`
-  );
+  const { data: appointmentData, mutate } = useAppointmentList({ date: day });
   const appointment = appointmentData?.data ?? [];
 
   const [nowMin, setNowMin] = useState(getNowMinutes());
@@ -140,30 +138,38 @@ export default function DailyViewTimeline({
               <div
                 key={m}
                 className="grid items-start relative"
-                style={{ gridTemplateColumns: `${currenctStatus !== "Upcoming" ? 0 : GUTTER_W}px minmax(0,1fr)` }}
+                style={{
+                  gridTemplateColumns: `${
+                    currenctStatus !== "Upcoming" ? 0 : GUTTER_W
+                  }px minmax(0,1fr)`,
+                }}
               >
-               {currenctStatus === "Upcoming" && <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
-                  <span
-                    className={`text-[11px] select-none ${
-                      labelBold
-                        ? "font-semibold text-gray-900"
-                        : "text-gray-500"
-                    }`}
-                  >
-                    {fromMinutes(m)}
-                  </span>
-
-                  {isNowHere && (
-                    <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-medium text-indigo-700 shadow-sm">
-                      <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-600" />
-                      Now {fromMinutes(nowMin)}
+                {currenctStatus === "Upcoming" && (
+                  <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
+                    <span
+                      className={`text-[11px] select-none ${
+                        labelBold
+                          ? "font-semibold text-gray-900"
+                          : "text-gray-500"
+                      }`}
+                    >
+                      {fromMinutes(m)}
                     </span>
-                  )}
-                </div>}
+
+                    {isNowHere && (
+                      <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-medium text-indigo-700 shadow-sm">
+                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-600" />
+                        Now {fromMinutes(nowMin)}
+                      </span>
+                    )}
+                  </div>
+                )}
                 {currenctStatus !== "Upcoming" && <div className=""></div>}
 
                 <div className="relative flex flex-col gap-2 px-2 py-2 ">
-                  {currenctStatus === "Upcoming" && <div className="absolute z-10 -left-[112px] top-0 bottom-0 w-px bg-gray-300" />}
+                  {currenctStatus === "Upcoming" && (
+                    <div className="absolute z-10 -left-[112px] top-0 bottom-0 w-px bg-gray-300" />
+                  )}
                   {items.length > 0 ? (
                     items.map((a) => (
                       <div key={a._id} className="pl-4">

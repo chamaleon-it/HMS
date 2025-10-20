@@ -16,9 +16,14 @@ import useSWR from "swr";
 import DateTimePicker from "./DateTimePicker";
 const METHODS = ["In clinic", "Video", "Phone"] as const;
 
-export function CreateAppointmentForm({ onClose }: { onClose: () => void }) {
+export function CreateAppointmentForm({
+  onClose,
+  mutate,
+}: {
+  onClose: () => void;
+  mutate?: () => void;
+}) {
   const [showAdvanced, setShowAdvanced] = useState(true);
-  const { mutate } = useSWR("/appointments/list");
   const { data } = useSWR<{
     data: {
       _id: string;
@@ -55,7 +60,9 @@ export function CreateAppointmentForm({ onClose }: { onClose: () => void }) {
       });
       reset();
       onClose();
-      mutate();
+      if (mutate) {
+        mutate();
+      }
     } catch (error) {
       console.log(error);
     }

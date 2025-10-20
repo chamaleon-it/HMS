@@ -1,11 +1,16 @@
 import React, { useState } from "react";
-import { AppointmentData, AppointmentType } from "./interface";
-import { KeyedMutator } from "swr";
+import { AppointmentType } from "./interface";
 import { fTime } from "@/lib/fDateAndTime";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
-import { DoorOpen, Megaphone, Trash2 } from "lucide-react";
+import { DoorOpen, EllipsisVertical, Megaphone, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Utility to format visit number into readable label
 function ordinal(n: number) {
@@ -24,15 +29,15 @@ function VisitBadge({ count }: { count: number }) {
     colorClass = "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200";
     dotColor = "bg-emerald-500";
   } else if (count === 2) {
-    label = "Follow-Up";
+    label = "Second Visit";
     colorClass = "bg-sky-50 text-sky-700 ring-1 ring-sky-200";
     dotColor = "bg-sky-500";
   } else if (count === 3) {
-    label = "Review";
+    label = "Third Visit";
     colorClass = "bg-amber-50 text-amber-700 ring-1 ring-amber-200";
     dotColor = "bg-amber-500";
   } else if (count >= 4) {
-    label = "Ongoing Care";
+    label = "Fourth Visit";
     colorClass = "bg-purple-50 text-purple-700 ring-1 ring-purple-200";
     dotColor = "bg-purple-500";
   } else {
@@ -91,7 +96,7 @@ export function PatientCard({
   mutate,
 }: {
   a: AppointmentType;
-  mutate: KeyedMutator<AppointmentData>;
+  mutate: () => void;
 }) {
   const updateStatus = async (id: string, status: string) => {
     try {
@@ -131,14 +136,14 @@ export function PatientCard({
               <h4 className="text-gray-900 font-semibold leading-tight">
                 {a.patient.name}
               </h4>
-              <VisitBadge count={a.type === "New" ? 1 : 2} />
+              <VisitBadge count={a.visitCount} />
             </div>
             <div className="text-sm text-gray-500">{a.status}</div>
           </div>
         </div>
 
         <div className="flex items-center gap-3 flex-wrap justify-end">
-          {a.status === "Upcoming" && (
+          {(ring || a.status === "Upcoming") && (
             <>
               <ActionButton onClick={() => setRing(true)}>
                 <>
@@ -153,7 +158,9 @@ export function PatientCard({
                   if (ring) {
                     router.push(`/dashboard/doctor/consulting/${a._id}`);
                   } else {
-                    toast.error("Please call first before starting the consultation.");
+                    toast.error(
+                      "Please call first before starting the consultation."
+                    );
                   }
                 }}
               >
@@ -178,6 +185,30 @@ export function PatientCard({
           <div className="text-sm text-gray-500 ml-2 w-20 text-right">
             {fTime(a.date)}
           </div>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <EllipsisVertical className="h-4 cursor-pointer" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent>
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => {
+                  setRing(true);
+                }}
+              >
+                Call again
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="text-destructive cursor-pointer"
+                onClick={() => {
+                  updateStatus(a._id, "Not show");
+                }}
+              >
+                Remove
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
