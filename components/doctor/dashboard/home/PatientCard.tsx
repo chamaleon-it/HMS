@@ -36,7 +36,7 @@ function VisitBadge({ count }: { count: number }) {
     label = "Third Visit";
     colorClass = "bg-amber-50 text-amber-700 ring-1 ring-amber-200";
     dotColor = "bg-amber-500";
-  } else if (count >= 4) {
+  } else if (count === 4) {
     label = "Fourth Visit";
     colorClass = "bg-purple-50 text-purple-700 ring-1 ring-purple-200";
     dotColor = "bg-purple-500";
