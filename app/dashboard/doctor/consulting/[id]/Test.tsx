@@ -15,6 +15,7 @@ type TestItemType = {
   name: string;
   category: "Lab" | "Imaging";
   inHouse: boolean;
+  tags?: string[];
 };
 
 type ExternalLab = {
@@ -33,6 +34,84 @@ const TESTS: TestItemType[] = [
     name: "Complete Blood Count (CBC)",
     category: "Lab",
     inHouse: true,
+    tags: ["CBC"],
+  },
+  {
+    id: "esr",
+    name: "Erythrocyte Sedimentation Rate",
+    category: "Lab",
+    inHouse: true,
+    tags: ["ESR"],
+  },
+  {
+    id: "crp",
+    name: "C Reactive Protein",
+    category: "Lab",
+    inHouse: true,
+    tags: ["CRP"],
+  },
+  {
+    id: "lft",
+    name: "Liver Function Tests",
+    category: "Lab",
+    inHouse: true,
+    tags: ["LFT"],
+  },
+  {
+    id: "SGOT",
+    name: "Serum Bilirubin",
+    category: "Lab",
+    inHouse: true,
+    tags: ["SGOT","SGPT","S Bilirubin"],
+  },
+  {
+    id: "RFT",
+    name: "Renal Function Tests",
+    category: "Lab",
+    inHouse: true,
+    tags: ["RFT"],
+  },
+  {
+    id: "S. Creat",
+    name: "Serum Creatinine",
+    category: "Lab",
+    inHouse: true,
+    tags: ["S Creat"],
+  },
+  {
+    id: "ure",
+    name: "Urine Routine Examination",
+    category: "Lab",
+    inHouse: true,
+    tags: ["URE"],
+  },
+  {
+    id: "u c&s",
+    name: "Urine Culture & sensitivity",
+    category: "Lab",
+    inHouse: true,
+    tags: ["Urine C&S"],
+  },
+  {
+    id: "s c&s",
+    name: "Stool Culture & sensitivity",
+    category: "Lab",
+    inHouse: true,
+    tags: ["Stool C&S"],
+  },
+  {
+    id: "tft",
+    name: "Thyroid Function Tests",
+    category: "Lab",
+    inHouse: true,
+    tags: ["TFT"],
+  },
+  {
+    id: "cxr",
+    name: "Chest xray",
+    category: "Imaging",
+    inHouse: true,
+    tags: ["CXR"],
   },
   { id: "hgb", name: "Hemoglobin", category: "Lab", inHouse: true },
   { id: "fbs", name: "Blood Sugar (Fasting)", category: "Lab", inHouse: true },
@@ -296,16 +375,25 @@ export default function Test({
   const [priority, setPriority] = useState<PriorityId>("normal");
 
   const filtered = useMemo<TestItemType[]>(() => {
-    const q = query.toLowerCase();
-    const isAll = tab === "All";
-    const inhouseMode = mode === "inhouse";
+  const q = query.trim().toLowerCase();
+  const isAll = tab === "All";
+  const inhouseMode = mode === "inhouse";
 
-    return TESTS.filter((t) => {
-      if (!isAll && t.category !== tab) return false;
-      if (!t.name.toLowerCase().includes(q)) return false;
-      return inhouseMode ? true : !t.inHouse;
-    });
-  }, [query, tab, mode]);
+  return TESTS.filter((t) => {
+    
+    if (!isAll && t.category !== tab) return false;
+
+    
+    const nameMatch = t.name.toLowerCase().includes(q);
+    const tagMatch = t.tags?.some((tag) =>
+      tag.toLowerCase().includes(q)
+    );
+
+    if (q && !nameMatch && !tagMatch) return false;
+
+    return inhouseMode ? t.inHouse : !t.inHouse;
+  });
+}, [query, tab, mode]);
   const isDisabled = (t: TestItemType) => mode === "inhouse" && !t.inHouse;
   const isSelected = (t: TestItemType) =>
     selectedTests.some((x) => x.id === t.id);
@@ -366,7 +454,7 @@ export default function Test({
     }
   };
 
-  const [show, setShow] = useState(false)
+  const [show, setShow] = useState(false);
 
   return (
     <>
@@ -384,291 +472,306 @@ export default function Test({
             <h1 className="text-xl font-semibold text-zinc-900">
               Lab / Imaging Booking
             </h1>
+            {show && <ModeToggle mode={mode} onChange={onModeChange} />}
           </div>
-          {show && <ModeToggle mode={mode} onChange={onModeChange} />}
-          {!show && <Button
-                onClick={()=>setShow(true)}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
-              >Show</Button>}
+
+          {!show && (
+            <Button
+              onClick={() => setShow(true)}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
+            >
+              Show
+            </Button>
+          )}
         </div>
 
-        {show && <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-          <section className="lg:col-span-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex gap-2">
-                {(
-                  [
-                    { key: "All", label: "All" },
-                    { key: "Lab", label: "Lab" },
-                    { key: "Imaging", label: "Imaging" },
-                  ] as const
-                ).map((t) => (
-                  <button
-                    key={t.key}
-                    onClick={() => setTab(t.key)}
-                    className={[
-                      "px-3 py-1.5 rounded-full text-sm border",
-                      tab === t.key
-                        ? "border-zinc-900 text-zinc-900"
-                        : "border-zinc-200 text-zinc-600 hover:border-zinc-400",
-                    ].join(" ")}
+        {show && (
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+            <section className="lg:col-span-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex gap-2">
+                  {(
+                    [
+                      { key: "All", label: "All" },
+                      { key: "Lab", label: "Lab" },
+                      { key: "Imaging", label: "Imaging" },
+                    ] as const
+                  ).map((t) => (
+                    <button
+                      key={t.key}
+                      onClick={() => setTab(t.key)}
+                      className={[
+                        "px-3 py-1.5 rounded-full text-sm border",
+                        tab === t.key
+                          ? "border-zinc-900 text-zinc-900"
+                          : "border-zinc-200 text-zinc-600 hover:border-zinc-400",
+                      ].join(" ")}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+                <div className="relative w-48">
+                  <input
+                    value={query}
+                    onChange={(e) => setQuery(e.target.value)}
+                    placeholder="Search tests…"
+                    className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 pl-9 text-sm outline-none focus:ring-2 focus:ring-zinc-200"
+                  />
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400"
                   >
-                    {t.label}
-                  </button>
+                    <path
+                      fill="currentColor"
+                      d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6Z"
+                    />
+                  </svg>
+                </div>
+              </div>
+
+              <div className="mt-4 flex flex-col gap-2 max-h-[60vh] overflow-auto pr-1">
+                {filtered.map((t) => (
+                  <div key={t.id} className="relative">
+                    {isDisabled(t) && (
+                      <div
+                        className="absolute inset-0 z-10 rounded-2xl"
+                        title="Available only via External Labs"
+                      />
+                    )}
+                    <TestItem
+                      test={t}
+                      disabled={isDisabled(t)}
+                      selected={isSelected(t)}
+                      onToggle={toggleTest}
+                    />
+                    {isDisabled(t) && (
+                      <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-white/70 to-white/10" />
+                    )}
+                  </div>
                 ))}
               </div>
-              <div className="relative w-48">
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search tests…"
-                  className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 pl-9 text-sm outline-none focus:ring-2 focus:ring-zinc-200"
-                />
-                <svg
-                  viewBox="0 0 24 24"
-                  className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400"
-                >
-                  <path
-                    fill="currentColor"
-                    d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6Z"
-                  />
-                </svg>
-              </div>
-            </div>
 
-            <div className="mt-4 flex flex-col gap-2 max-h-[60vh] overflow-auto pr-1">
-              {filtered.map((t) => (
-                <div key={t.id} className="relative">
-                  {isDisabled(t) && (
-                    <div
-                      className="absolute inset-0 z-10 rounded-2xl"
-                      title="Available only via External Labs"
-                    />
-                  )}
-                  <TestItem
-                    test={t}
-                    disabled={isDisabled(t)}
-                    selected={isSelected(t)}
-                    onToggle={toggleTest}
-                  />
-                  {isDisabled(t) && (
-                    <div className="pointer-events-none absolute inset-0 rounded-2xl bg-gradient-to-r from-white/70 to-white/10" />
-                  )}
-                </div>
-              ))}
-            </div>
+              {mode === "inhouse" && (
+                <p className="mt-3 text-[11px] text-zinc-500">
+                  Grey items are not available in‑house. Switch to
+                  <span className="font-medium text-zinc-700">
+                    {" "}
+                    External
+                  </span>{" "}
+                  to book them.
+                </p>
+              )}
+            </section>
 
-            {mode === "inhouse" && (
-              <p className="mt-3 text-[11px] text-zinc-500">
-                Grey items are not available in‑house. Switch to
-                <span className="font-medium text-zinc-700"> External</span> to
-                book them.
-              </p>
-            )}
-          </section>
-
-          {/* Right panel changes by mode */}
-          {mode === "inhouse" ? (
-            <section className="lg:col-span-8 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-              <h2 className="text-lg font-semibold text-zinc-900">
-                In‑House Booking
-              </h2>
-              <p className="text-sm text-zinc-600">
-                Select one or more in‑house tests and book directly. No
-                date/lab/time needed.
-              </p>
-              <div className="mt-4 rounded-xl border border-zinc-100 bg-zinc-50/60 p-4">
-                {selectedTests.length > 0 ? (
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="text-sm text-zinc-500">
-                        Selected ({selectedTests.length})
-                      </div>
-                      <div className="mt-1 flex flex-wrap gap-2">
-                        {selectedTests.map((t) => (
-                          <span
-                            key={t.id}
-                            className="truncate max-w-[16rem] inline-flex items-center gap-2 rounded-full bg-white border border-emerald-200 px-3 py-1 text-xs text-zinc-800"
-                          >
-                            {t.name}
-                            <button
-                              className="text-zinc-400 hover:text-zinc-700"
-                              onClick={() => toggleTest(t)}
-                              title="Remove"
+            {/* Right panel changes by mode */}
+            {mode === "inhouse" ? (
+              <section className="lg:col-span-8 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                <h2 className="text-lg font-semibold text-zinc-900">
+                  In‑House Booking
+                </h2>
+                <p className="text-sm text-zinc-600">
+                  Select one or more in‑house tests and book directly. No
+                  date/lab/time needed.
+                </p>
+                <div className="mt-4 rounded-xl border border-zinc-100 bg-zinc-50/60 p-4">
+                  {selectedTests.length > 0 ? (
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="text-sm text-zinc-500">
+                          Selected ({selectedTests.length})
+                        </div>
+                        <div className="mt-1 flex flex-wrap gap-2">
+                          {selectedTests.map((t) => (
+                            <span
+                              key={t.id}
+                              className="truncate max-w-[16rem] inline-flex items-center gap-2 rounded-full bg-white border border-emerald-200 px-3 py-1 text-xs text-zinc-800"
                             >
-                              ×
-                            </button>
+                              {t.name}
+                              <button
+                                className="text-zinc-400 hover:text-zinc-700"
+                                onClick={() => toggleTest(t)}
+                                title="Remove"
+                              >
+                                ×
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        {/* In‑House STAT toggle only */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-zinc-600">
+                            Priority:
                           </span>
-                        ))}
+                          <button
+                            onClick={() =>
+                              setPriority((p) =>
+                                p === "stat" ? "normal" : "stat"
+                              )
+                            }
+                            className={[
+                              "rounded-full border px-3 py-1 text-xs font-medium",
+                              priority === "stat"
+                                ? "border-rose-500 bg-rose-50 text-rose-700"
+                                : "border-zinc-200 text-zinc-700 hover:border-zinc-400",
+                            ].join(" ")}
+                          >
+                            STAT
+                          </button>
+                        </div>
+                        <button
+                          onClick={bookTest}
+                          disabled={selectedTests.length === 0}
+                          className={[
+                            "rounded-xl px-5 py-2 text-sm font-medium transition",
+                            selectedTests.length > 0
+                              ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                              : "bg-zinc-200 text-zinc-600 cursor-not-allowed",
+                          ].join(" ")}
+                        >
+                          Book {selectedTests.length > 1 ? "Tests" : "Test"}
+                        </button>
                       </div>
                     </div>
+                  ) : (
+                    <div className="text-sm text-zinc-600">
+                      No test selected. Choose tests from the left.
+                    </div>
+                  )}
+                </div>
+              </section>
+            ) : (
+              <section className="lg:col-span-8 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+                <h2 className="text-lg font-semibold text-zinc-900">
+                  External Booking
+                </h2>
+                <p className="text-sm text-zinc-600">
+                  Calendar → Lab → Time (in separate columns). Priority
+                  optional.
+                </p>
+                {/* 3 columns */}
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Calendar */}
+                  <div className="rounded-xl border border-zinc-200 p-4">
+                    <div className="font-medium text-zinc-800 mb-2">
+                      Select Date
+                    </div>
+                    <Calendar value={date} onChange={setDate} />
+                  </div>
 
-                    <div className="flex flex-col items-end gap-2 shrink-0">
-                      {/* In‑House STAT toggle only */}
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs text-zinc-600">Priority:</span>
+                  {/* Lab list */}
+                  <div className="rounded-xl border border-zinc-200 p-4">
+                    <div className="font-medium text-zinc-800 mb-2">
+                      Select Lab
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {EXTERNAL_LABS.map((l) => (
                         <button
-                          onClick={() =>
-                            setPriority((p) =>
-                              p === "stat" ? "normal" : "stat"
-                            )
-                          }
+                          key={l.id}
+                          onClick={() => setLabId(l.id)}
+                          className={[
+                            "text-left rounded-xl border px-3 py-2",
+                            labId === l.id
+                              ? "border-amber-500 bg-amber-50"
+                              : "border-zinc-200 hover:border-zinc-400",
+                          ].join(" ")}
+                        >
+                          {l.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Slots & Priority */}
+                  <div className="rounded-xl border border-zinc-200 p-4">
+                    <div className="font-medium text-zinc-800 mb-2">
+                      Available Time
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      {SLOTS.map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => setSlot(s)}
+                          className={[
+                            "rounded-lg border px-3 py-2 text-sm",
+                            slot === s
+                              ? "bg-zinc-900 text-white border-zinc-900"
+                              : "border-zinc-200 hover:border-zinc-400",
+                          ].join(" ")}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="font-medium text-zinc-800 mb-1">
+                      Priority
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {PRIORITIES.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => setPriority(p.id)}
                           className={[
                             "rounded-full border px-3 py-1 text-xs font-medium",
-                            priority === "stat"
-                              ? "border-rose-500 bg-rose-50 text-rose-700"
+                            priority === p.id
+                              ? p.id === "high"
+                                ? "border-amber-500 bg-amber-50 text-amber-700"
+                                : "border-zinc-900 bg-zinc-900 text-white"
                               : "border-zinc-200 text-zinc-700 hover:border-zinc-400",
                           ].join(" ")}
                         >
-                          STAT
+                          {p.label}
                         </button>
-                      </div>
-                      <button
-                        onClick={bookTest}
-                        disabled={selectedTests.length === 0}
-                        className={[
-                          "rounded-xl px-5 py-2 text-sm font-medium transition",
-                          selectedTests.length > 0
-                            ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                            : "bg-zinc-200 text-zinc-600 cursor-not-allowed",
-                        ].join(" ")}
-                      >
-                        Book {selectedTests.length > 1 ? "Tests" : "Test"}
-                      </button>
+                      ))}
                     </div>
                   </div>
-                ) : (
-                  <div className="text-sm text-zinc-600">
-                    No test selected. Choose tests from the left.
-                  </div>
-                )}
-              </div>
-            </section>
-          ) : (
-            <section className="lg:col-span-8 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-              <h2 className="text-lg font-semibold text-zinc-900">
-                External Booking
-              </h2>
-              <p className="text-sm text-zinc-600">
-                Calendar → Lab → Time (in separate columns). Priority optional.
-              </p>
-              {/* 3 columns */}
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Calendar */}
-                <div className="rounded-xl border border-zinc-200 p-4">
-                  <div className="font-medium text-zinc-800 mb-2">
-                    Select Date
-                  </div>
-                  <Calendar value={date} onChange={setDate} />
                 </div>
 
-                {/* Lab list */}
-                <div className="rounded-xl border border-zinc-200 p-4">
-                  <div className="font-medium text-zinc-800 mb-2">
-                    Select Lab
+                {/* Footer */}
+                <div className="mt-4 flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50/60 p-4 text-sm text-zinc-700">
+                  <div className="truncate">
+                    {selectedTests.length > 0 ? (
+                      <>
+                        <span className="font-medium">
+                          {selectedTests.length} test(s)
+                        </span>
+                        {date && <> • {parseYMD(date).toLocaleDateString()}</>}
+                        {labId && (
+                          <>
+                            {" "}
+                            • {EXTERNAL_LABS.find((l) => l.id === labId)?.name}
+                          </>
+                        )}
+                        {slot && <> • {slot}</>}
+                        {mode === "external" && priority === "high" && (
+                          <> • HIGH</>
+                        )}
+                        {/* {mode === 'inhouse' && priority === 'stat' && <> • STAT</>} */}
+                      </>
+                    ) : (
+                      <>Select tests to start booking.</>
+                    )}
                   </div>
-                  <div className="flex flex-col gap-2">
-                    {EXTERNAL_LABS.map((l) => (
-                      <button
-                        key={l.id}
-                        onClick={() => setLabId(l.id)}
-                        className={[
-                          "text-left rounded-xl border px-3 py-2",
-                          labId === l.id
-                            ? "border-amber-500 bg-amber-50"
-                            : "border-zinc-200 hover:border-zinc-400",
-                        ].join(" ")}
-                      >
-                        {l.name}
-                      </button>
-                    ))}
-                  </div>
+                  <button
+                    onClick={bookTest}
+                    disabled={!canBook}
+                    className={[
+                      "rounded-xl px-5 py-2 text-sm font-medium transition",
+                      canBook
+                        ? "bg-amber-600 text-white hover:bg-amber-700"
+                        : "bg-zinc-200 text-zinc-600 cursor-not-allowed",
+                    ].join(" ")}
+                  >
+                    Book {selectedTests.length > 1 ? "Tests" : "Test"}
+                  </button>
                 </div>
-
-                {/* Slots & Priority */}
-                <div className="rounded-xl border border-zinc-200 p-4">
-                  <div className="font-medium text-zinc-800 mb-2">
-                    Available Time
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    {SLOTS.map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => setSlot(s)}
-                        className={[
-                          "rounded-lg border px-3 py-2 text-sm",
-                          slot === s
-                            ? "bg-zinc-900 text-white border-zinc-900"
-                            : "border-zinc-200 hover:border-zinc-400",
-                        ].join(" ")}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="font-medium text-zinc-800 mb-1">Priority</div>
-                  <div className="flex flex-wrap gap-2">
-                    {PRIORITIES.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => setPriority(p.id)}
-                        className={[
-                          "rounded-full border px-3 py-1 text-xs font-medium",
-                          priority === p.id
-                            ? p.id === "high"
-                              ? "border-amber-500 bg-amber-50 text-amber-700"
-                              : "border-zinc-900 bg-zinc-900 text-white"
-                            : "border-zinc-200 text-zinc-700 hover:border-zinc-400",
-                        ].join(" ")}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Footer */}
-              <div className="mt-4 flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50/60 p-4 text-sm text-zinc-700">
-                <div className="truncate">
-                  {selectedTests.length > 0 ? (
-                    <>
-                      <span className="font-medium">
-                        {selectedTests.length} test(s)
-                      </span>
-                      {date && <> • {parseYMD(date).toLocaleDateString()}</>}
-                      {labId && (
-                        <>
-                          {" "}
-                          • {EXTERNAL_LABS.find((l) => l.id === labId)?.name}
-                        </>
-                      )}
-                      {slot && <> • {slot}</>}
-                      {mode === "external" && priority === "high" && (
-                        <> • HIGH</>
-                      )}
-                      {/* {mode === 'inhouse' && priority === 'stat' && <> • STAT</>} */}
-                    </>
-                  ) : (
-                    <>Select tests to start booking.</>
-                  )}
-                </div>
-                <button
-                  onClick={bookTest}
-                  disabled={!canBook}
-                  className={[
-                    "rounded-xl px-5 py-2 text-sm font-medium transition",
-                    canBook
-                      ? "bg-amber-600 text-white hover:bg-amber-700"
-                      : "bg-zinc-200 text-zinc-600 cursor-not-allowed",
-                  ].join(" ")}
-                >
-                  Book {selectedTests.length > 1 ? "Tests" : "Test"}
-                </button>
-              </div>
-            </section>
-          )}
-        </div>}
+              </section>
+            )}
+          </div>
+        )}
       </div>
       {show && <OrderLab booked={data.test} setData={setData} />}
     </>

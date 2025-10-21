@@ -19,13 +19,12 @@ export default function Header({
         <h2 className="font-semibold">
           {appointment.patient.name} &nbsp;
           <span className="text-slate-400">
-            (ID: {appointment._id.toUpperCase()})
+            (ID: {appointment.patient.mrn})
           </span>
         </h2>
         <div className="flex items-center gap-5">
           <p className="text-xs text-slate-500">
-            Age {appointment.patient.age}, {appointment.patient.gender} • Allergies:
-            {appointment.patient.allergies}
+            Age {appointment.patient.age}, {appointment.patient.gender} {!!appointment.patient.allergies && <>Allergies: {appointment.patient.allergies}</>}
           </p>
           <VitalsCard />
         </div>

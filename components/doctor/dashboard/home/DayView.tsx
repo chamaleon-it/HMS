@@ -17,10 +17,7 @@ export function fromMinutes(min: number) {
   const m = (min % 60).toString().padStart(2, "0");
   return `${h}:${m}`;
 }
-function getNowMinutes() {
-  const d = new Date();
-  return d.getHours() * 60 + d.getMinutes();
-}
+
 function getMinutesOfDay(d: Date | string) {
   const dt = new Date(d);
   return dt.getHours() * 60 + dt.getMinutes();
@@ -35,6 +32,10 @@ function isSameYMD(a: Date, b: Date) {
 function floorToStep(mins: number, step = 15) {
   return Math.floor(mins / step) * step;
 }
+
+const START_MIN = 9 * 60;
+const END_MIN = 18 * 60;
+const STEP = 15;
 
 export default function DailyViewTimeline({
   setOpenAppointment,
@@ -51,13 +52,16 @@ export default function DailyViewTimeline({
   ).toISOString();
 
   const { data: appointmentData, mutate } = useAppointmentList({ date: day });
-  const appointment = appointmentData?.data ?? [];
+  const appointment = useMemo(
+    () => appointmentData?.data ?? [],
+    [appointmentData]
+  );
 
-  const [nowMin, setNowMin] = useState(getNowMinutes());
+  const [nowMin, setNowMin] = useState(getMinutesOfDay(new Date()));
   const isToday = isSameYMD(day, new Date());
 
   useEffect(() => {
-    const id = setInterval(() => setNowMin(getNowMinutes()), 30000);
+    const id = setInterval(() => setNowMin(getMinutesOfDay(new Date())), 30000);
     return () => clearInterval(id);
   }, []);
 
@@ -68,11 +72,6 @@ export default function DailyViewTimeline({
   const [currenctStatus, setCurrenctStatus] = useState<
     "Upcoming" | "Consulted" | "Observation" | "Not show"
   >("Upcoming");
-
-  // ---- working hours ----
-  const START_MIN = 9 * 60; // 09:00
-  const END_MIN = 18 * 60; // 18:00
-  const STEP = 15;
 
   const selectedAppointments = useMemo(
     () => appointment.filter((e) => e.status === currenctStatus),
@@ -89,7 +88,7 @@ export default function DailyViewTimeline({
       map.get(slot)!.push(a);
     }
     return map;
-  }, [selectedAppointments, END_MIN, START_MIN]);
+  }, [selectedAppointments]);
 
   const visibleSlots = useMemo(() => {
     if (apptsBySlot.size === 0) {
@@ -98,14 +97,46 @@ export default function DailyViewTimeline({
       return out;
     }
     return Array.from(apptsBySlot.keys()).sort((a, b) => a - b);
-  }, [apptsBySlot, END_MIN, START_MIN]);
-
-  const nowSlot = isToday ? floorToStep(nowMin, STEP) : null;
-  const showNowPill =
-    isToday && nowSlot !== null && visibleSlots.includes(nowSlot);
+  }, [apptsBySlot]);
 
   const GUTTER_W = 120;
   const MIN_H = "60vh";
+
+  // --- NOW pill row (for when appointments exist) ---
+  const NowRow = () => (
+    <div
+      className="grid items-center relative"
+      style={{
+        gridTemplateColumns: `${GUTTER_W}px minmax(0,1fr)`,
+      }}
+    >
+      <div className="sticky left-0 z-20 bg-white flex items-center justify-between px-3 py-2">
+        <span className="text-[11px] invisible">.</span>
+        <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-white border border-gray-300 px-2 py-0.5 text-[11px] font-medium text-indigo-600 shadow-sm">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-600" />
+          Now {fromMinutes(nowMin)}
+        </span>
+      </div>
+      <div className="relative px-2 py-2">
+        <div className="absolute -left-[112px] right-0 top-1/2 -translate-y-1/2 h-px bg-gray-300/70" />
+      </div>
+    </div>
+  );
+
+  // logic only when appointments exist
+  const hasAppointments = apptsBySlot.size > 0;
+
+  const shouldInsertNowBefore = (prev: number | null, current: number) => {
+    if (!isToday || !hasAppointments) return false;
+    if (prev === null && nowMin < current) return true;
+    if (prev !== null && nowMin > prev && nowMin <= current) return true;
+    return false;
+  };
+
+  const shouldInsertNowAfterLast =
+    isToday &&
+    hasAppointments &&
+    nowMin > visibleSlots[visibleSlots.length - 1];
 
   return (
     <div>
@@ -129,22 +160,21 @@ export default function DailyViewTimeline({
           className="overflow-y-auto relative"
           style={{ minHeight: MIN_H, maxHeight: "75vh" }}
         >
-          {visibleSlots.map((m) => {
-            const items = apptsBySlot.get(m) ?? [];
-            const labelBold = m % 60 === 0;
-            const isNowHere = showNowPill && m === nowSlot;
+          {/* if no appointments → show default timeline like before */}
+          {!hasAppointments &&
+            visibleSlots.map((m) => {
+              const labelBold = m % 60 === 0;
+              const isNowHere =
+                isToday && floorToStep(nowMin, STEP) === floorToStep(m, STEP);
 
-            return (
-              <div
-                key={m}
-                className="grid items-start relative"
-                style={{
-                  gridTemplateColumns: `${
-                    currenctStatus !== "Upcoming" ? 0 : GUTTER_W
-                  }px minmax(0,1fr)`,
-                }}
-              >
-                {currenctStatus === "Upcoming" && (
+              return (
+                <div
+                  key={m}
+                  className="grid items-start relative"
+                  style={{
+                    gridTemplateColumns: `${GUTTER_W}px minmax(0,1fr)`,
+                  }}
+                >
                   <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
                     <span
                       className={`text-[11px] select-none ${
@@ -155,7 +185,6 @@ export default function DailyViewTimeline({
                     >
                       {fromMinutes(m)}
                     </span>
-
                     {isNowHere && (
                       <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-medium text-indigo-700 shadow-sm">
                         <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-600" />
@@ -163,26 +192,58 @@ export default function DailyViewTimeline({
                       </span>
                     )}
                   </div>
-                )}
-                {currenctStatus !== "Upcoming" && <div className=""></div>}
-
-                <div className="relative flex flex-col gap-2 px-2 py-2 ">
-                  {currenctStatus === "Upcoming" && (
+                  <div className="relative px-2 py-2">
                     <div className="absolute z-10 -left-[112px] top-0 bottom-0 w-px bg-gray-300" />
-                  )}
-                  {items.length > 0 ? (
-                    items.map((a) => (
-                      <div key={a._id} className="pl-4">
-                        <PatientCard a={a as AppointmentType} mutate={mutate} />
-                      </div>
-                    ))
-                  ) : (
                     <div className="h-10" />
-                  )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+
+          {hasAppointments &&
+            visibleSlots.map((m, idx) => {
+              const items = apptsBySlot.get(m) ?? [];
+              const prev = idx === 0 ? null : visibleSlots[idx - 1];
+              const labelBold = m % 60 === 0;
+
+              return (
+                <React.Fragment key={m}>
+                  {shouldInsertNowBefore(prev, m) && <NowRow />}
+
+                  <div
+                    className="grid items-start relative"
+                    style={{
+                      gridTemplateColumns: `${GUTTER_W}px minmax(0,1fr)`,
+                    }}
+                  >
+                    <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
+                      <span
+                        className={`text-[11px] select-none rounded-full border px-2 py-0.5 ${
+                          labelBold
+                            ? "font-semibold border-gray-300 text-gray-800 bg-white"
+                            : "font-medium border-gray-200 text-gray-500 bg-white"
+                        }`}
+                      >
+                        {fromMinutes(m)}
+                      </span>
+                    </div>
+
+                    <div className="relative flex flex-col gap-2 px-2 py-2">
+                      {items.map((a) => (
+                        <div key={a._id} className="pl-4">
+                          <PatientCard
+                            a={a as AppointmentType}
+                            mutate={mutate}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </React.Fragment>
+              );
+            })}
+
+          {shouldInsertNowAfterLast && <NowRow />}
         </div>
       </div>
     </div>

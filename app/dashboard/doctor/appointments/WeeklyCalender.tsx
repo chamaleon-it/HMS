@@ -1,5 +1,5 @@
 import { TabsContent } from "@/components/ui/tabs";
-import React, {  useMemo } from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
 
@@ -85,13 +85,12 @@ type WeekItem = {
 export default function WeeklyCalender({
   selectedDate,
 }: {
-  
   selectedDate: Date | undefined;
 }) {
   const { data: weeklyData } = useSWR<{ message: string; data: WeekItem[] }>(
     `/appointments/calender/weekly?date=${selectedDate}`
   );
-  const weekItems = weeklyData?.data ?? [];
+  const weekItems = useMemo(() => weeklyData?.data ?? [], [weeklyData]);
 
   const { eventsInWeek } = useMemo(() => {
     const ws = startOfWeekSunday(selectedDate);
@@ -269,8 +268,6 @@ export default function WeeklyCalender({
           })}
         </div>
       </div>
-
- 
     </TabsContent>
   );
 }

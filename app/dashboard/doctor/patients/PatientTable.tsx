@@ -1,6 +1,31 @@
 import { fDateandTime } from "@/lib/fDateAndTime";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useMemo, useState } from "react";
+import useSWR from "swr";
+
+interface Data {
+  _id: string;
+  name: string;
+  phoneNumber: string;
+  email: string;
+  gender: "Male" | "Female" | "Other";
+  age: number;
+  condition: string;
+  blood: string;
+  allergies: string;
+  address: string;
+  notes: string;
+  mrn: string;
+  createdBy: {
+    _id: string;
+    name: string;
+    email: string;
+    role: string;
+    phoneNumber: string;
+  };
+  createdAt: Date;
+}
 
 export default function PatientTable({
   data,
@@ -8,31 +33,13 @@ export default function PatientTable({
   data:
     | {
         message: string;
-        data: {
-          _id: string;
-          name: string;
-          phoneNumber: string;
-          email: string;
-          gender: "Male" | "Female" | "Other";
-          age: number;
-          condition: string;
-          blood: string;
-          allergies: string;
-          address: string;
-          notes: string;
-          mrn: string;
-          createdBy: {
-            _id: string;
-            name: string;
-            email: string;
-            role: string;
-            phoneNumber: string;
-          };
-          createdAt: Date;
-        }[];
+        data: Data[];
       }
     | undefined;
 }) {
+  const [history, setHistory] = useState<Data | null>(null);
+  const [share, setShare] = useState<Data | null>(null);
+
   return (
     <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
       <table className="w-full">
@@ -110,10 +117,16 @@ export default function PatientTable({
                     >
                       View
                     </Link>
-                    <button className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer">
+                    <button
+                      className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => setHistory(r)}
+                    >
                       History
                     </button>
-                    <button className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer">
+                    <button
+                      className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
+                      onClick={() => setShare(r)}
+                    >
                       Share
                     </button>
                   </div>
@@ -134,9 +147,211 @@ export default function PatientTable({
           )}
         </tbody>
       </table>
+      {history && <History setHistory={setHistory} history={history} />}
+      {share && <Share setShare={setShare} share={share} />}
     </div>
   );
 }
+
+
+const History = ({
+  setHistory,
+  history,
+}: {
+  setHistory: (v: null | Data) => void;
+  history?: Data;
+}) => {
+  const router = useRouter();
+  const { data } = useSWR<{
+    message: string;
+    data: {
+      _id: string;
+      patient: Data;
+      doctor: {
+        _id: string;
+        name: string;
+        specialization: string;
+      };
+      method: string;
+      date: Date;
+    }[];
+  }>(history?._id ? `/appointments/patient/${history._id}` : null);
+  return (
+    <div className="fixed inset-0 z-40">
+      <div
+        className="absolute inset-0 bg-black/30"
+        onClick={() => setHistory(null)}
+      />
+      <div className="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-2xl p-6 overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">History — {history?.name}</h2>
+          <button
+            onClick={() => setHistory(null)}
+            className="text-gray-500 hover:text-gray-900"
+          >
+            ✕
+          </button>
+        </div>
+        <ol className="relative border-s border-gray-200 ps-5 space-y-6">
+          {/* <li>
+                  <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
+                  <div className="text-sm">
+                    <span className="font-medium">{fDate(data?.data[0].date)}</span> —
+                    Last visit recorded
+                  </div>
+                </li> */}
+
+          <li>
+            <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
+            <div className="text-sm">
+              <span className="font-medium">{data?.data.length} visit(s)</span>
+            </div>
+          </li>
+
+          {data?.data.map((e) => {
+            return (
+              <li key={e._id} className="">
+                <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
+
+                <div className=" grid gap-1">
+                  <div className="flex items-start gap-2 text-sm">
+                    <div className="min-w-0">
+                      <div className="font-medium text-gray-900">
+                        {fDateandTime(e.date)}
+                      </div>
+                      <div className="text-gray-600">
+                        <span className="truncate">
+                          {e.doctor.name}
+                          {e.doctor.specialization
+                            ? ` — ${e.doctor.specialization}`
+                            : ""}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  {e.method ? (
+                    <div className="">
+                      <span className="rounded-full border px-2 py-0.5 text-xs text-gray-700">
+                        {e.method}
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+        <button
+          onClick={() => {
+            router.push(`/dashboard/doctor/patients/${history?._id}`);
+          }}
+          className="mt-6 w-full h-11 rounded-xl bg-black text-white"
+        >
+          Open full history
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const Share = ({
+  setShare,
+  share,
+}: {
+  setShare: (v: null | Data) => void;
+  share: Data | null;
+}) => {
+  const [shareTarget, setShareTarget] = useState("");
+  const [shareVia, setShareVia] = useState("");
+  const [shareDoctor, setShareDoctor] = useState<string>("");
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center p-4">
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={() => setShare(null)}
+      />
+      <div className="relative w-full max-w-md bg-white rounded-2xl p-5 shadow-xl">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-lg font-semibold">Share patient</h3>
+          <button
+            onClick={() => setShare(null)}
+            className="text-gray-500 hover:text-gray-900"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="text-sm text-gray-500">{share?.name}</div>
+
+        <div className="mt-4 space-y-4">
+          <div>
+            <div className="text-sm font-medium mb-2">Share to</div>
+            <Segmented
+              options={[
+                { label: "Doctor", value: "Doctor" as const },
+                { label: "Pharmacy", value: "Pharmacy" as const },
+                { label: "Lab", value: "Lab" as const },
+              ]}
+              value={shareTarget}
+              onChange={(v) => setShareTarget(v)}
+            />
+          </div>
+
+          {shareTarget === "Doctor" && (
+            <div>
+              <div className="text-sm font-medium mb-2">Select doctor</div>
+
+              <div className="w-full">
+                <FilterSelect
+                  className="w-full"
+                  value={shareDoctor}
+                  onChange={(v) => setShareDoctor(v)}
+                  placeholder="Select doctor"
+                  searchable
+                  options={[{ label: "All doctors", value: "All" }]}
+                />
+              </div>
+            </div>
+          )}
+
+          <div>
+            <div className="text-sm font-medium mb-2">Via</div>
+            <Segmented
+              options={[
+                { label: "Copy link", value: "Copy link" as const },
+                { label: "Email", value: "Email" as const },
+                { label: "WhatsApp", value: "WhatsApp" as const },
+              ]}
+              value={shareVia}
+              onChange={(v) => setShareVia(v)}
+            />
+          </div>
+
+          <div className="grid gap-2">
+            {shareVia === "Email" && (
+              <input
+                placeholder="Enter email"
+                className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
+              />
+            )}
+            {shareVia === "WhatsApp" && (
+              <input
+                placeholder="Enter WhatsApp number"
+                className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
+              />
+            )}
+          </div>
+
+          <button
+            onClick={() => {}}
+            className="w-full h-11 rounded-xl bg-black text-white"
+          >
+            Share
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 function headerCell(label: string) {
   return (
@@ -170,3 +385,152 @@ const Chip: React.FC<{
     </span>
   );
 };
+
+function Segmented<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { label: string; value: T }[];
+  value: T;
+  onChange: (v: T) => void;
+}) {
+  return (
+    <div
+      className={`grid grid-cols-${options.length} gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto`}
+    >
+      {options.map((o) => {
+        const active = value === o.value;
+        return (
+          <button
+            key={o.value}
+            onClick={() => onChange(o.value)}
+            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${
+              active
+                ? "bg-white ring-gray-300 shadow-sm text-gray-900"
+                : "bg-transparent ring-transparent text-gray-600 hover:text-gray-900"
+            } cursor-pointer`}
+          >
+            {o.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function FilterSelect<T extends string>({
+  value,
+  onChange,
+  options,
+  placeholder,
+  searchable = false,
+  className = "",
+}: {
+  value: T;
+  onChange: (v: T) => void;
+  options: { label: string; value: T }[];
+  placeholder: string;
+  searchable?: boolean;
+  className?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const [q, setQ] = useState("");
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onDoc);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, []);
+
+  const visible = useMemo(() => {
+    if (!searchable || !q.trim()) return options;
+    const s = q.toLowerCase();
+    return options.filter((o) => o.label.toLowerCase().includes(s));
+  }, [options, q, searchable]);
+
+  const current = options.find((o) => o.value === value);
+
+  return (
+    <div ref={ref} className={`relative ${className}`}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-[150px]`}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={`${placeholder}: ${current ? current.label : "Any"}`}
+        title={`${placeholder}: ${current ? current.label : "Any"}`}
+      >
+        <span className="truncate text-sm text-gray-700">
+          {current ? current.label : placeholder}
+        </span>
+        <svg
+          width="14"
+          height="14"
+          viewBox="0 0 20 20"
+          fill="none"
+          className={`transition ${open ? "rotate-180" : ""}`}
+        >
+          <path
+            d="M6 8l4 4 4-4"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </button>
+
+      {open && (
+        <div className="absolute z-30 mt-2 w-[min(240px,calc(100vw-2rem))] max-h-72 overflow-auto bg-white rounded-xl shadow-xl ring-1 ring-gray-200 p-2">
+          {searchable && (
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search…"
+              className="mb-2 w-full h-9 px-3 rounded-lg bg-gray-50 ring-1 ring-gray-200 focus:ring-gray-300"
+            />
+          )}
+          <ul role="listbox" className="grid gap-1">
+            {visible.map((o) => {
+              const active = o.value === value;
+              return (
+                <li key={String(o.value)}>
+                  <button
+                    onClick={() => {
+                      onChange(o.value);
+                      setOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
+                      active
+                        ? "bg-gray-100 text-gray-900"
+                        : "hover:bg-gray-50 text-gray-700"
+                    }`}
+                  >
+                    <span className="truncate">{o.label}</span>
+                    {active && <span>✓</span>}
+                  </button>
+                </li>
+              );
+            })}
+            {visible.length === 0 && (
+              <li className="px-3 py-2 text-sm text-gray-500">No matches</li>
+            )}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}

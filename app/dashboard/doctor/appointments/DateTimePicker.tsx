@@ -8,6 +8,7 @@ import { UseFormSetValue } from "react-hook-form";
 import useSWR from "swr";
 import { Matcher } from "react-day-picker";
 import { to12h } from "@/lib/fDateAndTime";
+import { cn } from "@/lib/utils";
 
 function generateTimeSlots(
   start: string,
@@ -17,20 +18,16 @@ function generateTimeSlots(
   const times: string[] = [];
   const [startH, startM] = start.split(":").map(Number);
   const [endH, endM] = end.split(":").map(Number);
-
   const current = new Date();
   current.setHours(startH, startM, 0, 0);
-
   const endDate = new Date();
   endDate.setHours(endH, endM, 0, 0);
-
   while (current <= endDate) {
     const hh = current.getHours().toString().padStart(2, "0");
     const mm = current.getMinutes().toString().padStart(2, "0");
     times.push(`${hh}:${mm}`);
     current.setMinutes(current.getMinutes() + intervalMinutes);
   }
-
   return times;
 }
 
@@ -52,6 +49,7 @@ const endOfDay = (d: Date) => {
   x.setHours(23, 59, 59, 999);
   return x;
 };
+
 const startOfToday = () => startOfDay(new Date());
 
 const toMinutes = (t: string) => {
@@ -73,6 +71,7 @@ const getRoundForTime = (
 
 const isSameDay = (a: Date, b: Date) =>
   startOfDay(a).getTime() === startOfDay(b).getTime();
+
 const isBeforeDay = (a: Date, b: Date) =>
   startOfDay(a).getTime() < startOfDay(b).getTime();
 
@@ -96,9 +95,9 @@ export default function DateTimePicker({
     method: string;
     date: string;
     isPaid: string;
-    notes?: string | undefined;
-    internalNotes?: string | undefined;
-    type?: string | undefined;
+    notes?: string;
+    internalNotes?: string;
+    type?: string;
   }>;
   doctor: string;
 }) {
@@ -107,14 +106,11 @@ export default function DateTimePicker({
   );
   const [selectedTime, setSelectedTime] = useState<string>("");
 
-  const handleTimeClick = (time: string) => {
-    setSelectedTime(time);
-  };
+  const handleTimeClick = (time: string) => setSelectedTime(time);
 
   useEffect(() => {
     if (selectedDate && selectedTime) {
       const istDate = combineToIST(selectedDate, selectedTime);
-
       setValue("date", istDate.toISOString());
     }
   }, [selectedDate, selectedTime, setValue]);
@@ -127,43 +123,45 @@ export default function DateTimePicker({
       startTime: string;
       endTime: string;
       days: string[];
-      rounds: {
-        label: string;
-        start: string;
-        end: string;
-      }[];
+      rounds: { label: string; start: string; end: string }[];
     };
   }>(doctor ? `/users/doctor_availability/${doctor}` : null);
 
   const availability = availabilityData?.data;
 
+  const bookedSlotParam = new URLSearchParams();
+  bookedSlotParam.append("doctor", doctor);
+  bookedSlotParam.append(
+    "date",
+    selectedDate ? selectedDate.toISOString() : new Date().toISOString()
+  );
+
+  const { data: bookedSlotData } = useSWR<{ message: string; data: Date[] }>(
+    doctor ? `/appointments/booked_slot?${bookedSlotParam}` : null
+  );
+
+  const bookedSlot: Date[] = bookedSlotData?.data ?? [];
+
   const disabledMatchers = useMemo<Matcher[]>(() => {
     const today = startOfToday();
-
     const availStart = availability?.startDate
       ? startOfDay(new Date(availability.startDate))
       : today;
-
     const min = availStart < today ? today : availStart;
-
     const matchers: Matcher[] = [{ before: min }];
-
-    if (availability?.endDate) {
+    if (availability?.endDate)
       matchers.push({ after: endOfDay(new Date(availability.endDate)) });
-    }
-
     if (availability?.days?.length) {
       const allowedIndices = availability.days
         .map((d) => dayNameToIndex[d])
         .filter((i) => i !== undefined);
       matchers.push((date: Date) => !allowedIndices.includes(date.getDay()));
     }
-
     return matchers;
   }, [availability?.startDate, availability?.endDate, availability?.days]);
 
   return (
-    <div className="col-span-full ">
+    <div className="col-span-full">
       <Label>Date and time</Label>
       <div className="flex gap-2.5 mt-2.5">
         <Card className="w-[45%]">
@@ -175,6 +173,7 @@ export default function DateTimePicker({
             className="w-full"
           />
         </Card>
+
         <div className="grid grid-cols-3 h-80 overflow-y-scroll overflow-hidden gap-1.5 w-[55%]">
           {generateTimeSlots(
             availability?.startTime ?? "09:00",
@@ -186,7 +185,6 @@ export default function DateTimePicker({
 
             const now = new Date();
             const today = startOfDay(now);
-
             const sel = selectedDate ?? today;
 
             const isPastDay = isBeforeDay(sel, today);
@@ -194,18 +192,27 @@ export default function DateTimePicker({
 
             const tm = toMinutes(time);
             const nowMins = now.getHours() * 60 + now.getMinutes();
-
             const isPastTime = isPastDay || (isToday && tm < nowMins);
 
-            const isDisabled = isDisabledByRound || isPastTime;
+            const slotDate = combineToIST(sel, time);
+            const isBooked = bookedSlot.some(
+              (d) => new Date(d).getTime() === slotDate.getTime()
+            );
+
+            const isDisabled = isDisabledByRound || isPastTime || isBooked;
+
             const reason = isDisabledByRound
               ? round?.label ?? "Unavailable"
+              : isBooked
+              ? "Already booked"
               : isPastTime
               ? "Past time"
               : undefined;
 
             const disabledClasses = isDisabledByRound
               ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300 cursor-not-allowed"
+              : isBooked
+              ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
               : isPastTime
               ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
               : "";
@@ -213,21 +220,19 @@ export default function DateTimePicker({
             return (
               <motion.div
                 key={time}
-                whileTap={{ scale: isDisabledByRound ? 1 : 0.95 }}
+                whileTap={{ scale: isDisabled ? 1 : 0.95 }}
                 className="w-full"
-                onClick={() => {
-                  if (!isDisabled) handleTimeClick(time);
-                }}
               >
                 <Button
+                  onClick={() => {
+                    if (!isDisabled) handleTimeClick(time);
+                  }}
                   type="button"
                   size="sm"
                   variant={selectedTime === time ? "default" : "outline"}
-                  disabled={isDisabled}
+                  // disabled={isDisabled}
                   title={reason}
-                  className={["w-full", disabledClasses]
-                    .filter(Boolean)
-                    .join(" ")}
+                  className={cn("w-full cursor-pointer", disabledClasses)}
                 >
                   {to12h(time)}
                 </Button>

@@ -94,7 +94,7 @@ export default function WeeklyCalender({
   const { data: weeklyData } = useSWR<{ message: string; data: WeekItem[] }>(
     `/appointments/calender/weekly?date=${selectedDate}`
   );
-  const weekItems = weeklyData?.data ?? [];
+  const weekItems = useMemo(() => weeklyData?.data ?? [], [weeklyData]);
 
   const { eventsInWeek } = useMemo(() => {
     const ws = startOfWeekSunday(selectedDate);

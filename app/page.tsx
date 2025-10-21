@@ -7,37 +7,38 @@ import { Lock, Shield } from "lucide-react";
 import { redirect } from "next/navigation";
 import React, { useState, useMemo } from "react";
 
+const quotes = [
+  {
+    text: "Listen to your patient; he is telling you the diagnosis.",
+    author: "William Osler",
+  },
+  {
+    text: "The idea that some lives matter less is the root of all that is wrong with the world.",
+    author: "Paul Farmer",
+  },
+  {
+    text: "I attribute my success to this: I never gave or took any excuse.",
+    author: "Florence Nightingale",
+  },
+  {
+    text: "If a solution is not affordable, it is not a solution.",
+    author: "Dr. Devi Shetty",
+  },
+  {
+    text: "It is not easy to be a pioneer, but oh, it is fascinating!",
+    author: "Elizabeth Blackwell",
+  },
+  {
+    text: "Better is possible. It does not take genius. It takes diligence.",
+    author: "Atul Gawande",
+  },
+] as const;
+
 export default function LoginPage() {
   const { isAuthenticated, user, loading } = useAuth();
 
   const [view, setView] = useState<"login" | "forgot" | "sent">("login");
 
-  const quotes = [
-    {
-      text: "Listen to your patient; he is telling you the diagnosis.",
-      author: "William Osler",
-    },
-    {
-      text: "The idea that some lives matter less is the root of all that is wrong with the world.",
-      author: "Paul Farmer",
-    },
-    {
-      text: "I attribute my success to this: I never gave or took any excuse.",
-      author: "Florence Nightingale",
-    },
-    {
-      text: "If a solution is not affordable, it is not a solution.",
-      author: "Dr. Devi Shetty",
-    },
-    {
-      text: "It is not easy to be a pioneer, but oh, it is fascinating!",
-      author: "Elizabeth Blackwell",
-    },
-    {
-      text: "Better is possible. It does not take genius. It takes diligence.",
-      author: "Atul Gawande",
-    },
-  ] as const;
   const selectedQuote = useMemo(
     () => quotes[Math.floor(Math.random() * quotes.length)],
     []

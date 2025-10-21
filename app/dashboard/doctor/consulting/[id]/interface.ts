@@ -10,6 +10,7 @@ export interface AppointmentType {
     blood: string;
     allergies: string;
     createdAt: Date;
+    mrn:string;
   };
 
   doctor: string;
