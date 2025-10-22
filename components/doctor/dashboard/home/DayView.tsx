@@ -186,10 +186,12 @@ export default function DailyViewTimeline({
                       {fromMinutes(m)}
                     </span>
                     {isNowHere && (
-                      <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-medium text-indigo-700 shadow-sm">
-                        <span className="inline-block h-1.5 w-1.5 rounded-full bg-indigo-600" />
+                      <div className=" flex  items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-medium text-indigo-700 shadow-sm">
+                        <p className="block h-1.5 w-1.5 rounded-full bg-indigo-600" />
+                        <p className=" whitespace-nowrap flex items-center">
                         Now {fromMinutes(nowMin)}
-                      </span>
+                        </p>
+                      </div>
                     )}
                   </div>
                   <div className="relative px-2 py-2">

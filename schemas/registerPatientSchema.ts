@@ -19,9 +19,9 @@ export const registerPatientSchema = z.object({
 
   gender: z.enum(["Male", "Female", "Other"]),
 
-  age: z.coerce.number().int().min(0).max(120),
+  dateOfBirth: z.string(),
 
-  condition: z.string().max(100).optional(),
+  conditions: z.array(z.string().max(100)).optional(),
 
   blood: z.enum([...BLOOD_GROUPS]).optional(),
 

@@ -1,6 +1,13 @@
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -10,12 +17,15 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
+import { fAge } from "@/lib/fDateAndTime";
 import registerPatientSchema from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { UserRound } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { ChevronDownIcon, UserRound, X } from "lucide-react";
+import { useState } from "react";
+import { FieldErrors, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import Address from "./Address";
 export function RegisterPatient({
   onClose,
   mutate,
@@ -29,12 +39,16 @@ export function RegisterPatient({
     formState: { errors },
     setValue,
     reset,
+    watch,
   } = useForm({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
       phoneNumber: "+91",
     },
   });
+
+  const conditions = watch("conditions");
+  const dateOfBirth = watch("dateOfBirth");
 
   const createPatient = handleSubmit(async (data) => {
     try {
@@ -52,6 +66,8 @@ export function RegisterPatient({
       console.log(error);
     }
   });
+
+  const [openCalander, setOpenCalander] = useState(false);
 
   return (
     <form className="space-y-5" onSubmit={createPatient}>
@@ -93,98 +109,90 @@ export function RegisterPatient({
 
           <div className="grid gap-2">
             <Label>Gender</Label>
-            <select
-              className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-              {...register("gender")}
+            <Select
+              onValueChange={(value: "Male" | "Female" | "Other") =>
+                setValue("gender", value)
+              }
             >
-              <option value="">Choose gender</option>
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-            {errors.gender && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.gender.message}
-              </p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label>Age</Label>
-            <select
-              className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-              {...register("age")}
-            >
-              <option value="">Select Age</option>
-
-              {/* 0 to 3 years — include months */}
-              {Array.from({ length: 4 }).map((_, year) =>
-                Array.from({ length: 12 }).map((_, month) => {
-                  const label =
-                    month === 0
-                      ? `${year} year${year !== 1 ? "s" : ""}`
-                      : `${year} year${year !== 1 ? "s" : ""} ${month} month${
-                          month !== 1 ? "s" : ""
-                        }`;
-                  const value = (year * 12 + month) / 12;
-                  return (
-                    <option key={value} value={value}>
-                      {label}
-                    </option>
-                  );
-                })
-              )}
-
-              {/* 4 to 100 years — only full years */}
-              {Array.from({ length: 97 }).map((_, i) => {
-                const year = i + 4;
-                const label = `${year} years`;
-                const value = (year * 12) / 12;
-                return (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
-                );
-              })}
-            </select>
-            {errors.age && (
-              <p className="text-red-500 text-xs my-1">{errors.age.message}</p>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label>Condition</Label>
-            <Select onValueChange={(value) => setValue("condition", value)}>
               <SelectTrigger className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
-                <SelectValue placeholder="Select patient condition" />
+                <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {CONDITIONS.map((v) => (
+                {["Male", "Female", "Other"].map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {errors.condition && (
+            {errors.gender && (
               <p className="text-red-500 text-xs my-1">
-                {errors.condition.message}
+                {errors.gender.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Date of Birth</Label>
+
+            <Popover open={openCalander} onOpenChange={setOpenCalander}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  id="date"
+                  className="w-full justify-between font-normal"
+                >
+                  {dateOfBirth
+                    ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })} - Age : ${fAge(new Date(dateOfBirth))}`
+                    : "Select date of birth"}
+                  <ChevronDownIcon />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="start"
+              >
+                <Calendar
+                  disabled={{ after: new Date() }}
+                  mode="single"
+                  selected={new Date(dateOfBirth)}
+                  captionLayout="dropdown"
+                  onSelect={(date) => {
+                    setValue(
+                      "dateOfBirth",
+                      date?.toISOString() ?? new Date().toISOString()
+                    );
+                    setOpenCalander(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {errors.dateOfBirth && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.dateOfBirth.message}
               </p>
             )}
           </div>
 
           <div className="grid gap-2">
             <Label>Blood Group</Label>
-            <select
-              className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
-              {...register("blood")}
-            >
-              <option value="">Choose Blood Group</option>
-              {BLOOD_GROUPS.map((v) => (
-                <option value={v} key={v}>
-                  {v}
-                </option>
-              ))}
-            </select>
+            <Select onValueChange={(value) => setValue("blood", value)}>
+              <SelectTrigger className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                <SelectValue placeholder="Choose Blood Group" />
+              </SelectTrigger>
+              <SelectContent>
+                {BLOOD_GROUPS.map((v) => (
+                  <SelectItem value={v} key={v}>
+                    {v}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             {errors.blood && (
               <p className="text-red-500 text-xs my-1">
                 {errors.blood.message}
@@ -202,15 +210,16 @@ export function RegisterPatient({
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label>Address</Label>
-            <Input placeholder="Address" {...register("address")} />
-            {errors.address && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.address.message}
-              </p>
-            )}
+          <div className="col-span-full">
+            <MultiConditionSelect
+              selected={conditions ?? []}
+              setValue={(v: string[]) => setValue("conditions", v)}
+              values={CONDITIONS}
+              errors={errors}
+            />
           </div>
+
+          <Address setValue={setValue} />
 
           <div className="sm:col-span-2 grid gap-2">
             <Label>Reason / Notes</Label>
@@ -231,6 +240,124 @@ export function RegisterPatient({
         <Button type="submit">Register Patient</Button>
       </div>
     </form>
+  );
+}
+
+type Props = {
+  values: string[]; // CONDITIONS array
+  selected: string[]; // current selected array from react-hook-form watch
+  setValue: (v: string[]) => void;
+  errors: FieldErrors<{
+    name: string;
+    phoneNumber: string;
+    email: string;
+    gender: "Male" | "Female" | "Other";
+    age: unknown;
+    conditions?: string[] | undefined;
+    blood?: string | undefined;
+    allergies?: string | undefined;
+    address?: string | undefined;
+    notes?: string | undefined;
+  }>;
+};
+
+export default function MultiConditionSelect({
+  values,
+  selected,
+  setValue,
+  errors,
+}: Props) {
+  const toggle = (val: string) => {
+    const exists = selected.includes(val);
+    const next = exists
+      ? selected.filter((s) => s !== val)
+      : [...selected, val];
+    setValue(next);
+  };
+
+  const clearAll = () => setValue([]);
+
+  return (
+    <div className="grid gap-2">
+      <Label>Conditions</Label>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            aria-haspopup="listbox"
+            className="w-full h-10 px-3 rounded-xl border border-zinc-300 text-left flex items-center justify-between"
+            variant="outline"
+          >
+            <div className="truncate">
+              {selected.length === 0 ? (
+                <span className="text-slate-400">
+                  Select patient conditions
+                </span>
+              ) : (
+                <div className="flex gap-2 flex-wrap items-center">
+                  {selected.map((s) => (
+                    <span
+                      key={s}
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border bg-white"
+                    >
+                      {s}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggle(s);
+                        }}
+                        className="ml-1"
+                        aria-label={`remove ${s}`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="text-sm text-slate-500">
+              {selected.length > 0 ? `${selected.length}` : ""}
+            </div>
+          </Button>
+        </PopoverTrigger>
+
+        <PopoverContent className="w-full max-w-md">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-sm font-medium">Choose conditions</div>
+            <button
+              type="button"
+              onClick={clearAll}
+              className="text-xs text-slate-500 hover:underline"
+            >
+              Clear
+            </button>
+          </div>
+
+          <div className="grid gap-2 max-h-56 overflow-auto">
+            {values.map((v) => (
+              <label
+                key={v}
+                className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-50 cursor-pointer"
+              >
+                <Checkbox
+                  checked={selected.includes(v)}
+                  onCheckedChange={() => toggle(v)}
+                />
+                <span className="text-sm">{v}</span>
+              </label>
+            ))}
+          </div>
+        </PopoverContent>
+      </Popover>
+
+      {errors?.conditions && (
+        <p className="text-red-500 text-xs my-1">
+          {errors?.conditions.message}
+        </p>
+      )}
+    </div>
   );
 }
 

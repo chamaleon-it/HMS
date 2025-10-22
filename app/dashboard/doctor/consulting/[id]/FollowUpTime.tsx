@@ -5,7 +5,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { DataType } from "./interface";
 import { to12h } from "@/lib/fDateAndTime";
 
-
 function genHalfHourTimes(start = 8, end = 20): string[] {
   const out: string[] = [];
   for (let hr = start; hr <= end; hr++) {
@@ -37,7 +36,7 @@ export default function FollowUpTime({
       combinedDate.setHours(hours, minutes, 0, 0);
       setData((prev) => ({ ...prev, followUp: combinedDate }));
     }
-  }, [followDay, followTime,setData]);
+  }, [followDay, followTime, setData]);
 
   if (!showFollowUp) {
     return (

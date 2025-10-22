@@ -62,7 +62,7 @@ const TESTS: TestItemType[] = [
     name: "Serum Bilirubin",
     category: "Lab",
     inHouse: true,
-    tags: ["SGOT","SGPT","S Bilirubin"],
+    tags: ["SGOT", "SGPT", "S Bilirubin"],
   },
   {
     id: "RFT",
@@ -375,25 +375,21 @@ export default function Test({
   const [priority, setPriority] = useState<PriorityId>("normal");
 
   const filtered = useMemo<TestItemType[]>(() => {
-  const q = query.trim().toLowerCase();
-  const isAll = tab === "All";
-  const inhouseMode = mode === "inhouse";
+    const q = query.trim().toLowerCase();
+    const isAll = tab === "All";
+    const inhouseMode = mode === "inhouse";
 
-  return TESTS.filter((t) => {
-    
-    if (!isAll && t.category !== tab) return false;
+    return TESTS.filter((t) => {
+      if (!isAll && t.category !== tab) return false;
 
-    
-    const nameMatch = t.name.toLowerCase().includes(q);
-    const tagMatch = t.tags?.some((tag) =>
-      tag.toLowerCase().includes(q)
-    );
+      const nameMatch = t.name.toLowerCase().includes(q);
+      const tagMatch = t.tags?.some((tag) => tag.toLowerCase().includes(q));
 
-    if (q && !nameMatch && !tagMatch) return false;
+      if (q && !nameMatch && !tagMatch) return false;
 
-    return inhouseMode ? t.inHouse : !t.inHouse;
-  });
-}, [query, tab, mode]);
+      return inhouseMode ? t.inHouse : !t.inHouse;
+    });
+  }, [query, tab, mode]);
   const isDisabled = (t: TestItemType) => mode === "inhouse" && !t.inHouse;
   const isSelected = (t: TestItemType) =>
     selectedTests.some((x) => x.id === t.id);

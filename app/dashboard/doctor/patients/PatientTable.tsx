@@ -1,4 +1,4 @@
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
@@ -10,8 +10,8 @@ interface Data {
   phoneNumber: string;
   email: string;
   gender: "Male" | "Female" | "Other";
-  age: number;
-  condition: string;
+  dateOfBirth: Date;
+  conditions: string[];
   blood: string;
   allergies: string;
   address: string;
@@ -71,7 +71,7 @@ export default function PatientTable({
                   {serial}
                 </td>
                 <td className="px-2 py-3">
-                  <Link href={`/patients/${r.name}`}>
+                  <Link href={`/dashboard/doctor/patients/${r._id}`}>
                     <div className="font-medium text-gray-900">{r.name}</div>
                   </Link>
                   <div className="text-xs text-gray-500">{r.email}</div>
@@ -81,7 +81,8 @@ export default function PatientTable({
                 </td>
                 <td className="px-2 py-3 text-sm text-gray-600">{r?.mrn}</td>
                 <td className="px-2 py-3 text-sm text-gray-700">
-                  {r.age} <span className="text-gray-400">/</span> {r.gender}
+                  {fAge(r.dateOfBirth)} <span className="text-gray-400">/</span>{" "}
+                  {r.gender}
                 </td>
                 <td className="px-2 py-3 text-sm text-gray-700">
                   {fDateandTime(r.createdAt)}
@@ -91,18 +92,22 @@ export default function PatientTable({
                 </td>
                 <td className="px-2 py-3">
                   <div className="flex flex-wrap gap-1.5">
-                    {r?.condition && (
-                      <Chip
-                        label={r?.condition}
-                        tone={
-                          r?.condition?.toLowerCase().includes("fever")
-                            ? "amber"
-                            : r?.condition?.toLowerCase().includes("diabetes")
-                            ? "amber"
-                            : "gray"
-                        }
-                      />
-                    )}
+                    {r?.conditions &&
+                      r.conditions
+                        .slice(0, 3)
+                        .map((condition) => (
+                          <Chip
+                            key={condition}
+                            label={condition}
+                            tone={
+                              condition?.toLowerCase().includes("fever")
+                                ? "amber"
+                                : condition?.toLowerCase().includes("diabetes")
+                                ? "amber"
+                                : "gray"
+                            }
+                          />
+                        ))}
                   </div>
                 </td>
                 <td className="px-2 py-3 text-sm text-gray-700">{r.blood}</td>
@@ -152,7 +157,6 @@ export default function PatientTable({
     </div>
   );
 }
-
 
 const History = ({
   setHistory,

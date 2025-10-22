@@ -3,6 +3,7 @@ import VitalsCard from "./VitalsCard";
 import { ToggleChip } from "./ToggleChip";
 import { ClipboardList, Stethoscope } from "lucide-react";
 import { AppointmentType } from "./interface";
+import { fAge } from "@/lib/fDateAndTime";
 
 export default function Header({
   activeTab,
@@ -24,7 +25,11 @@ export default function Header({
         </h2>
         <div className="flex items-center gap-5">
           <p className="text-xs text-slate-500">
-            Age {appointment.patient.age}, {appointment.patient.gender} {!!appointment.patient.allergies && <>Allergies: {appointment.patient.allergies}</>}
+            Age {fAge(appointment?.patient?.dateOfBirth)},{" "}
+            {appointment.patient.gender}{" "}
+            {!!appointment.patient.allergies && (
+              <>Allergies: {appointment.patient.allergies}</>
+            )}
           </p>
           <VitalsCard />
         </div>

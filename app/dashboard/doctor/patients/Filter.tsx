@@ -31,7 +31,7 @@ export default function Filter({
               doctor: undefined,
               age: [0, 100],
               lastVisit: undefined,
-              condition: [],
+              conditions: [],
             })
           }
           className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
@@ -47,7 +47,9 @@ export default function Filter({
           <span className="text-xs text-gray-500 px-1">Status</span>
           <FilterSelect
             value={"All"}
-            onChange={(v: string) => {console.log(v);}}
+            onChange={(v: string) => {
+              console.log(v);
+            }}
             placeholder="All statuses"
             options={[
               "All",
@@ -100,7 +102,7 @@ export default function Filter({
                   : "text-gray-600 ring-transparent hover:bg-gray-50";
               return (
                 <button
-                  key={opt.value}
+                  key={opt.label}
                   onClick={() =>
                     setFilter((prev) => ({ ...prev, gender: opt.value }))
                   }
@@ -216,17 +218,17 @@ export default function Filter({
       <div className="mt-4">
         <div className="text-sm text-gray-600 mb-1">Conditions</div>
         <div className="flex flex-wrap gap-2">
-          {CONDITIONS.slice(0,10).map((c) => {
-            const active = filter.condition.includes(c);
+          {CONDITIONS.slice(0, 10).map((c) => {
+            const active = filter.conditions.includes(c);
             return (
               <button
                 key={c}
                 onClick={() => {
                   setFilter((prev) => ({
                     ...prev,
-                    condition: active
-                      ? prev.condition.filter((x) => x !== c)
-                      : [...prev.condition, c],
+                    conditions: active
+                      ? prev.conditions.filter((x) => x !== c)
+                      : [...prev.conditions, c],
                   }));
                 }}
                 className={`px-3 py-1 rounded-full text-sm ring-1 transition ${
@@ -240,9 +242,9 @@ export default function Filter({
               </button>
             );
           })}
-          {filter.condition.length > 0 && (
+          {filter.conditions.length > 0 && (
             <button
-              onClick={() => setFilter((prev) => ({ ...prev, condition: [] }))}
+              onClick={() => setFilter((prev) => ({ ...prev, conditions: [] }))}
               className="px-3 py-1 rounded-full text-sm text-gray-600 hover:text-black"
             >
               Clear
@@ -269,7 +271,7 @@ function Segmented({
         const active = value === o.value;
         return (
           <button
-            key={o.value}
+            key={o.label}
             onClick={() => onChange(o.value)}
             className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${
               active

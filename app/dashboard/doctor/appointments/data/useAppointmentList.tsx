@@ -24,7 +24,7 @@ export default function useAppointmentList({
         name: string;
         phoneNumber: string;
         gender: string;
-        age: number;
+        dateOfBirth: Date;
         blood: string;
         allergies: string;
         address: string;

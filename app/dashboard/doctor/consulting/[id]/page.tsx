@@ -96,6 +96,7 @@ export default function ConsultingMenu() {
             <div className="mt-4">
               <Card className="p-6">
                 <ConsultationAndExaminationNotes
+                  patientId={appointment.patient._id}
                   data={data}
                   setData={setData}
                 />

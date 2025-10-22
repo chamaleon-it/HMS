@@ -41,10 +41,10 @@ export default function PatientSnapshot({
     message: string;
     data: {
       address: string;
-      age: number;
+      dateOfBirth: Date;
       allergies: string;
       blood: string;
-      condition: string;
+      conditions: string[];
       createdAt: Date;
       email: string;
       gender: string;
@@ -156,15 +156,30 @@ export default function PatientSnapshot({
           </div>
           <Separator className="my-4" />
           <LabeledRow label="Primary Doctor">
-            {consultingData?.data[0]?.doctor.name}
+            {counsult[0]?.doctor.name}
           </LabeledRow>
-          <LabeledRow label="Conditions">
-            <div className="flex flex-wrap gap-2">
-              {patient?.condition && (
-                <Badge variant="outline">{patient?.condition}</Badge>
-              )}
-            </div>
-          </LabeledRow>
+
+          {!!counsult[0]?.consultationNotes?.diagnosis && (
+            <LabeledRow label="Conditions">
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="outline">
+                  {counsult[0]?.consultationNotes?.diagnosis}
+                </Badge>
+              </div>
+            </LabeledRow>
+          )}
+
+          {/* {!!patient?.conditions.length && (
+            <LabeledRow label="Conditions">
+              <div className="flex flex-wrap gap-2">
+                {patient?.conditions.map((condition) => (
+                  <Badge key={condition} variant="outline">
+                    {condition}
+                  </Badge>
+                ))}
+              </div>
+            </LabeledRow>
+          )} */}
           {patient?.allergies && (
             <LabeledRow label="Allergies">
               <div className="flex flex-wrap gap-2">

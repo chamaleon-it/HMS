@@ -12,6 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { fAge } from "@/lib/fDateAndTime";
 import { Download, FileText, Plus, Printer, Share2, User2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import React from "react";
@@ -35,10 +36,10 @@ export default function Header({
     message: string;
     data: {
       address: string;
-      age: number;
+      dateOfBirth: Date;
       allergies: string;
       blood: string;
-      condition: string;
+      conditions: string[];
       createdAt: Date;
       email: string;
       gender: string;
@@ -61,9 +62,11 @@ export default function Header({
             {mask(patient?.name ?? "")}{" "}
             <span className={blurIDsClass}>(MRN: {patient?.mrn})</span>
           </h1>
-          <Badge variant="secondary" className="rounded-full">
-            Age {patient?.age}
-          </Badge>
+          {patient?.dateOfBirth && (
+            <Badge variant="secondary" className="rounded-full">
+              Age {fAge(patient?.dateOfBirth)}
+            </Badge>
+          )}
           <Badge variant="secondary" className="rounded-full">
             {patient?.gender}
           </Badge>
@@ -83,7 +86,7 @@ export default function Header({
           <span className={blurIDsClass}>
             {showPHI ? patient?.phoneNumber : "+91 ******"}
           </span>{" "}
-          · {patient?.address} ·{" "}
+          ·{/* {patient?.address} ·{" "} */}
           <span className={blurIDsClass}>UHID: HMS-2025-1129</span>
         </p>
       </div>

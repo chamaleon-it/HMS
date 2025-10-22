@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Ruler, Gauge, Weight } from "lucide-react";
 
-
 export default function VitalsCard({
   heightCm = 172,
   weightKg = 72,
@@ -11,7 +10,6 @@ export default function VitalsCard({
   editable = true,
   size = "sm",
   onChange,
-  
 }: {
   heightCm?: number;
   weightKg?: number;

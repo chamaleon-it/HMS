@@ -6,11 +6,11 @@ export interface AppointmentType {
     phoneNumber: string;
     email: string;
     gender: string;
-    age: number;
+    dateOfBirth: Date;
     blood: string;
     allergies: string;
     createdAt: Date;
-    mrn:string;
+    mrn: string;
   };
 
   doctor: string;

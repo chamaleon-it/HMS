@@ -35,8 +35,8 @@ interface Patient {
   phoneNumber: string;
   email: string;
   gender: string;
-  age: number;
-  condition: string;
+  dateOfBirth: Date;
+  conditions: string[];
   blood: string;
   allergies: string;
   address: string;

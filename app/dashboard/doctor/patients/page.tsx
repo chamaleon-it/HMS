@@ -15,7 +15,7 @@ export interface FilterType {
   doctor: undefined | string;
   age: [number, number];
   lastVisit: undefined | number;
-  condition: string[];
+  conditions: string[];
 }
 
 export default function PatientsEnhanced() {
@@ -27,7 +27,7 @@ export default function PatientsEnhanced() {
     doctor: undefined,
     age: [0, 100],
     lastVisit: undefined,
-    condition: [],
+    conditions: [],
   });
 
   const params = new URLSearchParams();
@@ -50,8 +50,8 @@ export default function PatientsEnhanced() {
   if (filter.lastVisit) {
     params.append("lastVisit", filter.lastVisit.toString());
   }
-  if (filter.condition) {
-    params.append("conditions", JSON.stringify(filter.condition));
+  if (filter.conditions) {
+    params.append("conditions", JSON.stringify(filter.conditions));
   }
 
   const { data: tableData, mutate: tableMutate } = useSWR<{
@@ -62,8 +62,8 @@ export default function PatientsEnhanced() {
       phoneNumber: string;
       email: string;
       gender: "Male" | "Female" | "Other";
-      age: number;
-      condition: string;
+      dateOfBirth: Date;
+      conditions: string[];
       blood: string;
       allergies: string;
       address: string;

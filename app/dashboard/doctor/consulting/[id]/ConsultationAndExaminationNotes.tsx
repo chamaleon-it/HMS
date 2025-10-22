@@ -1,21 +1,64 @@
-import React, { useState, } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { DataType } from "./interface";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ExaminationNote from "./ExaminationNote";
+import useSWR from "swr";
+import { Consultations } from "./History";
 
-
-const chips = ["Fever", "Headache", "Cough"];
+const chips = [
+  "Fever",
+  "Headache",
+  "Cough",
+  "Cold",
+  "Body Pain",
+  "Nausea",
+  "Dizziness",
+];
 
 export default function ConsultationAndExaminationNotes({
   data,
   setData,
+  patientId,
 }: {
   data: DataType;
   setData: React.Dispatch<React.SetStateAction<DataType>>;
+  patientId: string;
 }) {
   const [activeChips, setActiveChips] = useState<string[]>([]);
 
-  
+  useEffect(() => {
+    setData((prev) => ({
+      ...prev,
+      consultationNotes: {
+        ...prev.consultationNotes,
+        presentHistory: activeChips.join(", "),
+      },
+    }));
+  }, [activeChips, setData]);
+
+  const { data: consultingData, mutate } = useSWR<{
+    message: string;
+    data: Consultations[];
+  }>(`/consultings/patient/${patientId}`);
+
+  const consulting = useMemo(
+    () => consultingData?.data ?? [],
+    [consultingData]
+  );
+
+  useEffect(() => {
+    mutate();
+  }, [mutate]);
+
+  useEffect(() => {
+    setData((prev) => ({
+      ...prev,
+      consultationNotes: {
+        ...prev.consultationNotes,
+        pastHistory: consulting[0]?.consultationNotes.pastHistory,
+      },
+    }));
+  }, [consulting, setData]);
 
   return (
     <div className=" space-y-6">
@@ -93,13 +136,11 @@ export default function ConsultationAndExaminationNotes({
           </CardContent>
         </Card>
 
-    <ExaminationNote data={data} setData={setData}/> 
+        <ExaminationNote data={data} setData={setData} />
       </div>
     </div>
   );
 }
-
-
 
 type LabeledTextareaProps = {
   label: string;

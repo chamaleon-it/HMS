@@ -1,7 +1,15 @@
 import React, { ReactNode, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Star, Plus, Trash, ChevronRight, Edit, X, AlertTriangle } from "lucide-react";
+import {
+  Star,
+  Plus,
+  Trash,
+  ChevronRight,
+  Edit,
+  X,
+  AlertTriangle,
+} from "lucide-react";
 import { AppointmentType, DataType } from "./interface";
 
 // ------------------ Types ------------------
@@ -219,7 +227,8 @@ export default function PrescriptionCard({
               <h2 className="font-semibold text-lg">Prescriptions</h2>
               {appointmentData.data.patient.allergies && (
                 <div className="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs bg-red-500/10 text-red-600">
-               <AlertTriangle className="w-3.5 h-3.5"/>   Allergies: {appointmentData.data.patient.allergies}
+                  <AlertTriangle className="w-3.5 h-3.5" /> Allergies:{" "}
+                  {appointmentData.data.patient.allergies}
                 </div>
               )}
             </div>
