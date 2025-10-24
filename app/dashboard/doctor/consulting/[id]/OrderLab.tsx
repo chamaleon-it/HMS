@@ -41,9 +41,7 @@ export default function OrderLab({
             </div>
             <div className="col-span-2">{e.lab}</div>
             <div className="col-span-2">{e.date.toDateString()}</div>
-            <div className="col-span-2">
-              {e.lab === "In house" ? "-" : e.slot}
-            </div>
+            <div className="col-span-2">{e.slot}</div>
             <div className="col-span-1">{e.priority}</div>
             <div className="col-span-2 text-right flex justify-end gap-2">
               {/* <Button

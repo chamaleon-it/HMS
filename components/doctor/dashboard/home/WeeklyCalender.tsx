@@ -88,7 +88,7 @@ export default function WeeklyCalender({
   setOpenAppointment,
   selectedDate,
 }: {
-  setOpenAppointment: Dispatch<SetStateAction<boolean>>;
+  setOpenAppointment: Dispatch<SetStateAction<"walk-in" | boolean>>;
   selectedDate: Date | undefined;
 }) {
   const { data: weeklyData } = useSWR<{ message: string; data: WeekItem[] }>(

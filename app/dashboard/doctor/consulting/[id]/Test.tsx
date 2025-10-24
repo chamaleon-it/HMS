@@ -432,7 +432,11 @@ export default function Test({
         date: new Date(),
         lab: "In house",
         priority,
-        slot: "09:00 AM",
+        slot: new Date().toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        }),
       };
 
       setData((prev) => ({ ...prev, test: [...prev.test, newTest] }));

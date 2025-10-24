@@ -5,7 +5,7 @@ import React, {
   Dispatch,
   SetStateAction,
 } from "react";
-import { CalendarPlus } from "lucide-react";
+import { CalendarPlus, UserPlus } from "lucide-react";
 import ScheduleTabsPreview from "./ScheduleTabsPreview";
 import { AppointmentType } from "./interface";
 import { PatientCard } from "./PatientCard";
@@ -41,7 +41,7 @@ export default function DailyViewTimeline({
   setOpenAppointment,
   selectedDate,
 }: {
-  setOpenAppointment: Dispatch<SetStateAction<boolean>>;
+  setOpenAppointment: Dispatch<SetStateAction<"walk-in" | boolean>>;
   selectedDate: Date | undefined;
 }) {
   const day = selectedDate ? new Date(selectedDate) : new Date();
@@ -142,12 +142,24 @@ export default function DailyViewTimeline({
     <div>
       <div className="flex items-center justify-between mb-3">
         <h1 className="text-2xl font-semibold">Today&apos;s Schedule</h1>
-        <button
-          className="inline-flex items-center gap-2 rounded-xl bg-black text-white px-4 py-2 hover:opacity-90 transition cursor-pointer"
-          onClick={() => setOpenAppointment(true)}
-        >
-          <CalendarPlus className="h-4 w-4" /> Add Appointment
-        </button>
+        <div className="flex gap-5">
+          <button
+            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 text-white px-4 py-2 hover:bg-emerald-700 transition font-medium shadow-sm cursor-pointer"
+            onClick={() => setOpenAppointment("walk-in")}
+          >
+            <UserPlus className="h-4 w-4" />
+            Walk-in Appointment
+          </button>
+
+          {/* Regular Appointment */}
+          <button
+            className="inline-flex items-center gap-2 rounded-xl bg-black text-white px-4 py-2 hover:bg-black/80 transition font-medium shadow-sm cursor-pointer"
+            onClick={() => setOpenAppointment(true)}
+          >
+            <CalendarPlus className="h-4 w-4" />
+            Add Appointment
+          </button>
+        </div>
       </div>
 
       <ScheduleTabsPreview
@@ -189,7 +201,7 @@ export default function DailyViewTimeline({
                       <div className=" flex  items-center gap-1 rounded-full bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-medium text-indigo-700 shadow-sm">
                         <p className="block h-1.5 w-1.5 rounded-full bg-indigo-600" />
                         <p className=" whitespace-nowrap flex items-center">
-                        Now {fromMinutes(nowMin)}
+                          Now {fromMinutes(nowMin)}
                         </p>
                       </div>
                     )}

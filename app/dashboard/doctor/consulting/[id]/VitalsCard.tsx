@@ -5,7 +5,6 @@ export default function VitalsCard({
   heightCm = 172,
   weightKg = 72,
   className = "",
-  compact = true,
   showImperialTooltips = true,
   editable = true,
   size = "sm",
@@ -53,152 +52,78 @@ export default function VitalsCard({
       })()
     : null;
 
-  if (compact) {
-    // header variant, larger per size
-    return (
-      <div
-        className={
-          `flex items-center ${ui.gap} ${ui.text} text-gray-700 whitespace-nowrap overflow-hidden [&>*]:shrink-0 ` +
-          className
-        }
-      >
-        {/* Height */}
-        <span
-          className="inline-flex items-center gap-1"
-          title={
-            imperial
-              ? `Height: ${safeH} cm (${imperial.feet}′${imperial.inches}″)`
-              : `Height: ${safeH} cm`
-          }
-        >
-          <Ruler className={ui.icon} />
-          {editable ? (
-            <NumInput
-              value={h}
-              onChange={updateHeight}
-              suffix="cm"
-              ariaLabel="Height in centimeters"
-              wClass={ui.inputW}
-            />
-          ) : (
-            <span>{safeH} cm</span>
-          )}
-        </span>
-
-        <Dot />
-
-        {/* Weight */}
-        <span
-          className="inline-flex items-center gap-1"
-          title={
-            imperial
-              ? `Weight: ${safeW} kg (${imperial.pounds} lb)`
-              : `Weight: ${safeW} kg`
-          }
-        >
-          <Weight className={ui.icon} />
-          {editable ? (
-            <NumInput
-              value={w}
-              onChange={updateWeight}
-              suffix="kg"
-              ariaLabel="Weight in kilograms"
-              wClass={ui.inputW}
-            />
-          ) : (
-            <span>{safeW} kg</span>
-          )}
-        </span>
-
-        <Dot />
-
-        {/* BMI */}
-        <span
-          className="inline-flex items-center gap-1"
-          title={`BMI: ${isFinite(bmiRaw || NaN) ? bmi : "—"} • ${
-            bmiInfo.label
-          }`}
-        >
-          <Gauge className={`${ui.icon} ${bmiInfo.text}`} />
-          <span className={ui.valueWeight}>
-            {isFinite(bmiRaw || NaN) ? bmi : "—"}
-          </span>
-          <span
-            className={`${ui.chipPad} ${ui.chipText} rounded-full ${bmiInfo.bg} ${bmiInfo.text}`}
-          >
-            {bmiInfo.short}
-          </span>
-        </span>
-      </div>
-    );
-  }
-
-  // non‑compact, still minimal
   return (
     <div
       className={
-        `flex items-center ${ui.gapWide} ${ui.textWide} text-gray-700 ` +
+        `flex items-center ${ui.gap} ${ui.text} text-gray-700 whitespace-nowrap overflow-hidden [&>*]:shrink-0 ` +
         className
       }
     >
-      <div
-        className="flex items-center gap-2"
+      {/* Height */}
+      <span
+        className="inline-flex items-center gap-1"
         title={
           imperial
             ? `Height: ${safeH} cm (${imperial.feet}′${imperial.inches}″)`
             : `Height: ${safeH} cm`
         }
       >
-        <Ruler className={ui.iconWide} />
+        <Ruler className={ui.icon} />
         {editable ? (
           <NumInput
             value={h}
             onChange={updateHeight}
             suffix="cm"
             ariaLabel="Height in centimeters"
-            wClass={ui.inputWWide}
+            wClass={ui.inputW}
           />
         ) : (
           <span>{safeH} cm</span>
         )}
-      </div>
+      </span>
 
-      <div
-        className="flex items-center gap-2"
+      <Dot />
+
+      {/* Weight */}
+      <span
+        className="inline-flex items-center gap-1"
         title={
           imperial
             ? `Weight: ${safeW} kg (${imperial.pounds} lb)`
             : `Weight: ${safeW} kg`
         }
       >
-        <Weight className={ui.iconWide} />
+        <Weight className={ui.icon} />
         {editable ? (
           <NumInput
             value={w}
             onChange={updateWeight}
             suffix="kg"
             ariaLabel="Weight in kilograms"
-            wClass={ui.inputWWide}
+            wClass={ui.inputW}
           />
         ) : (
           <span>{safeW} kg</span>
         )}
-      </div>
+      </span>
 
-      <div
-        className="flex items-center gap-2"
+      <Dot />
+
+      {/* BMI */}
+      <span
+        className="inline-flex items-center gap-1"
         title={`BMI: ${isFinite(bmiRaw || NaN) ? bmi : "—"} • ${bmiInfo.label}`}
       >
-        <Gauge className={`${ui.iconWide} ${bmiInfo.text}`} />
-        <span className={ui.valueWeightWide}>
-          BMI {isFinite(bmiRaw || NaN) ? bmi : "—"}
+        <Gauge className={`${ui.icon} ${bmiInfo.text}`} />
+        <span className={ui.valueWeight}>
+          {isFinite(bmiRaw || NaN) ? bmi : "—"}
         </span>
-        <span
-          className={`${ui.chipPadWide} ${ui.chipTextWide} rounded-full ${bmiInfo.bg} ${bmiInfo.text}`}
-        >
-          {bmiInfo.label}
-        </span>
-      </div>
+        {/* <span
+            className={`${ui.chipPad} ${ui.chipText} rounded-full ${bmiInfo.bg} ${bmiInfo.text}`}
+          >
+            {bmiInfo.short}
+          </span> */}
+      </span>
     </div>
   );
 }
@@ -365,40 +290,4 @@ export function cmToFeetInches(cm: number) {
 export function kgToLb(kg: number) {
   if (!isFinite(kg) || kg <= 0) return 0;
   return kg * 2.2046226218;
-}
-
-// --- Lightweight self-tests -----------------------------------------------
-export function __runVitalsSelfTest() {
-  const cases = [
-    { h: 172, w: 50, exp: "Underweight" },
-    { h: 172, w: 72, exp: "Healthy" },
-    { h: 172, w: 80, exp: "Overweight" },
-    { h: 172, w: 95, exp: "Obese" },
-  ];
-  const results = cases.map((t) => {
-    const bmi = t.w / Math.pow(t.h / 100, 2);
-    const info = getBmiInfo(bmi);
-    return {
-      ...t,
-      bmi: Number(bmi.toFixed(1)),
-      got: info.label,
-      pass: info.label === t.exp,
-    };
-  });
-
-  console.table(results);
-  return results.every((r) => r.pass);
-}
-
-export function __simulateEditTest() {
-  // Simulate editing from 72kg to 80kg at 172cm; BMI should increase from ~24.3 to ~27.0
-  const h = 172;
-  const w1 = 72;
-  const w2 = 80;
-  const bmi1 = Number((w1 / Math.pow(h / 100, 2)).toFixed(1));
-  const bmi2 = Number((w2 / Math.pow(h / 100, 2)).toFixed(1));
-  const ok = bmi2 > bmi1 && getBmiInfo(bmi1).label !== getBmiInfo(bmi2).label;
-
-  console.log({ bmi1, bmi2, ok });
-  return ok;
 }

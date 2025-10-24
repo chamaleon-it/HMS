@@ -12,7 +12,9 @@ import Drawer from "@/components/ui/drawer";
 import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 
 export default function Dashboard() {
-  const [openAppointment, setOpenAppointment] = useState(false);
+  const [openAppointment, setOpenAppointment] = useState<"walk-in" | boolean>(
+    false
+  );
 
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     () => new Date()
@@ -63,7 +65,7 @@ export default function Dashboard() {
       </div>
 
       <Drawer
-        open={openAppointment}
+        open={!!openAppointment}
         onClose={() => {
           setOpenAppointment(false);
         }}
@@ -74,6 +76,7 @@ export default function Dashboard() {
           onClose={() => {
             setOpenAppointment(false);
           }}
+          walkIn={openAppointment === "walk-in"}
         />
       </Drawer>
     </div>

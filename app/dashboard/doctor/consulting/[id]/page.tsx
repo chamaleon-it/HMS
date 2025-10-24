@@ -33,7 +33,7 @@ export default function ConsultingMenu() {
     appointment: null,
     consultationNotes: {
       presentHistory: null,
-      pastHistory: null,
+      pastHistory: "No records",
       diagnosis: null,
     },
     examinationNote: {

@@ -1,16 +1,10 @@
-import React, { useState } from "react";
+import React from "react";
 import { AppointmentType } from "./interface";
 import { fTime } from "@/lib/fDateAndTime";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
-import { DoorOpen, EllipsisVertical, Megaphone, Trash2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { DoorOpen, Trash2 } from "lucide-react";
 
 // Utility to format visit number into readable label
 function ordinal(n: number) {
@@ -114,7 +108,7 @@ export function PatientCard({
     }
   };
 
-  const [ring, setRing] = useState(false);
+  // const [ring, setRing] = useState(false);
   const router = useRouter();
 
   return (
@@ -148,25 +142,19 @@ export function PatientCard({
         </div>
 
         <div className="flex items-center gap-3 flex-wrap justify-end">
-          {(ring || a.status === "Upcoming") && (
+          {
             <>
-              <ActionButton onClick={() => setRing(true)}>
+              {/* <ActionButton onClick={() => setRing(true)}>
                 <>
                   <Megaphone className="h-4 w-4 mr-2" />
                   Call In
                 </>
-              </ActionButton>
+              </ActionButton> */}
               <ActionButton
-                ring={ring}
+                // ring={ring}
                 variant="outline"
                 onClick={() => {
-                  if (ring) {
-                    router.push(`/dashboard/doctor/consulting/${a._id}`);
-                  } else {
-                    toast.error(
-                      "Please call first before starting the consultation."
-                    );
-                  }
+                  router.push(`/dashboard/doctor/consulting/${a._id}`);
                 }}
               >
                 <>
@@ -186,34 +174,10 @@ export function PatientCard({
                 </>
               </ActionButton>
             </>
-          )}
+          }
           <div className="text-sm text-gray-500 ml-2 w-20 text-right">
             {fTime(a.date)}
           </div>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <EllipsisVertical className="h-4 cursor-pointer" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => {
-                  setRing(true);
-                }}
-              >
-                Call again
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                className="text-destructive cursor-pointer"
-                onClick={() => {
-                  updateStatus(a._id, "Not show");
-                }}
-              >
-                Remove
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
     </div>

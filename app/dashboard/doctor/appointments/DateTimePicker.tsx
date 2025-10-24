@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,55 +7,20 @@ import { Label } from "@/components/ui/label";
 import { UseFormSetValue } from "react-hook-form";
 import useSWR from "swr";
 import { Matcher } from "react-day-picker";
-import { to12h } from "@/lib/fDateAndTime";
+import {
+  combineToIST,
+  dayNameToIndex,
+  generateTimeSlots,
+  isBeforeDay,
+  isSameDay,
+  startOfDay,
+  to12h,
+  toMinutes,
+  endOfDay,
+  startOfToday,
+} from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-
-function generateTimeSlots(
-  start: string,
-  end: string,
-  intervalMinutes: number
-) {
-  const times: string[] = [];
-  const [startH, startM] = start.split(":").map(Number);
-  const [endH, endM] = end.split(":").map(Number);
-  const current = new Date();
-  current.setHours(startH, startM, 0, 0);
-  const endDate = new Date();
-  endDate.setHours(endH, endM, 0, 0);
-  while (current <= endDate) {
-    const hh = current.getHours().toString().padStart(2, "0");
-    const mm = current.getMinutes().toString().padStart(2, "0");
-    times.push(`${hh}:${mm}`);
-    current.setMinutes(current.getMinutes() + intervalMinutes);
-  }
-  return times;
-}
-
-function combineToIST(date: Date, time: string) {
-  const [h, m] = time.split(":").map(Number);
-  const istDate = new Date(date);
-  istDate.setHours(h, m, 0, 0);
-  return istDate;
-}
-
-const startOfDay = (d: Date) => {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-};
-
-const endOfDay = (d: Date) => {
-  const x = new Date(d);
-  x.setHours(23, 59, 59, 999);
-  return x;
-};
-
-const startOfToday = () => startOfDay(new Date());
-
-const toMinutes = (t: string) => {
-  const [h, m] = t.split(":").map(Number);
-  return h * 60 + m;
-};
+import WaklInAppoinmentUI from "./WaklInAppoinmentUI";
 
 const getRoundForTime = (
   time: string,
@@ -69,26 +34,7 @@ const getRoundForTime = (
   );
 };
 
-const isSameDay = (a: Date, b: Date) =>
-  startOfDay(a).getTime() === startOfDay(b).getTime();
-
-const isBeforeDay = (a: Date, b: Date) =>
-  startOfDay(a).getTime() < startOfDay(b).getTime();
-
-const dayNameToIndex: Record<string, number> = {
-  Sun: 0,
-  Mon: 1,
-  Tue: 2,
-  Wed: 3,
-  Thu: 4,
-  Fri: 5,
-  Sat: 6,
-};
-
-export default function DateTimePicker({
-  setValue,
-  doctor,
-}: {
+interface Props {
   setValue: UseFormSetValue<{
     patient: string;
     doctor: string;
@@ -100,13 +46,19 @@ export default function DateTimePicker({
     type?: string;
   }>;
   doctor: string;
-}) {
+  walkIn: boolean;
+}
+
+export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
-  const [selectedTime, setSelectedTime] = useState<string>("");
+  const [selectedTime, setSelectedTime] = useState<string>("09:00");
 
-  const handleTimeClick = (time: string) => setSelectedTime(time);
+  const handleTimeClick = useCallback((time: string) => {
+  setSelectedTime(time);
+}, []);
+
 
   useEffect(() => {
     if (selectedDate && selectedTime) {
@@ -159,6 +111,80 @@ export default function DateTimePicker({
     }
     return matchers;
   }, [availability?.startDate, availability?.endDate, availability?.days]);
+
+  const { data: walkInData, mutate: walkInMutate } = useSWR<{
+    message: string;
+    data: {
+      alreadyBooked: Date[];
+      nextAvailableDate: Date;
+    };
+  }>(walkIn && doctor ? `/appointments/walk-in/${doctor}` : null);
+
+  useEffect(() => {
+    if (walkIn && doctor) {
+      walkInMutate();
+    }
+  }, [walkIn, doctor, walkInMutate]);
+
+  useEffect(() => {
+    if (!walkIn || !doctor || !availability || !walkInData?.data) return;
+
+    const { alreadyBooked, nextAvailableDate } = walkInData.data;
+
+    const nextDate = new Date(nextAvailableDate);
+    const today = startOfDay(new Date());
+    const isNextDayToday = isSameDay(nextDate, today);
+
+    const now = new Date();
+    const cutoffMins = isNextDayToday
+      ? now.getHours() * 60 + now.getMinutes()
+      : -1;
+
+    const bookedSet = new Set(
+      (alreadyBooked ?? []).map((d) => new Date(d).getTime())
+    );
+
+    const nextDateTime = nextDate.getTime();
+    setSelectedDate((prev) =>
+      prev?.getTime() === nextDateTime ? prev : nextDate
+    );
+
+    const times = generateTimeSlots(
+      availability.startTime ?? "09:00",
+      availability.endTime ?? "18:00",
+      15
+    );
+
+    const firstFree = times.find((time) => {
+      const round = getRoundForTime(time, availability.rounds);
+      if (round) return false;
+
+      const tm = toMinutes(time);
+      if (isNextDayToday && tm < cutoffMins) return false;
+
+      const slotDate = combineToIST(nextDate, time);
+      if (bookedSet.has(slotDate.getTime())) return false;
+
+      return true;
+    });
+
+    setSelectedTime((prev) =>
+      prev === (firstFree ?? "09:00") ? prev : firstFree ?? "09:00"
+    );
+  }, [walkIn, doctor, availability, walkInData]);
+
+  if (walkIn && !doctor) {
+    return null;
+  }
+
+  if (walkIn) {
+    return (
+      <WaklInAppoinmentUI
+        selectedDate={selectedDate}
+        selectedTime={selectedTime}
+      />
+    );
+  }
 
   return (
     <div className="col-span-full">

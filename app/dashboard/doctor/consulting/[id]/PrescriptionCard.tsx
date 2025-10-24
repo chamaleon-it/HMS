@@ -49,14 +49,14 @@ export default function PrescriptionCard({
           dosage: "1 tab",
           frequency: "1-0-1",
           food: "After Food",
-          duration: "7",
+          duration: "7 days",
         },
         {
           drug: "Paracetamol 650mg",
           dosage: "1 tab",
           frequency: "1-1-1",
           food: "After Food",
-          duration: "5",
+          duration: "5 days",
         },
       ],
     },
@@ -69,7 +69,7 @@ export default function PrescriptionCard({
           dosage: "1 tab",
           frequency: "1-1-1",
           food: "After Food",
-          duration: "5",
+          duration: "5 days",
         },
       ],
     },
@@ -371,7 +371,14 @@ export default function PrescriptionCard({
 
                   <div className="col-span-1">
                     <LabeledCombobox
-                      options={["3", "5", "7", "10", "14", "28"]}
+                      options={[
+                        "3 days",
+                        "5 days",
+                        "7 days",
+                        "10 days",
+                        "14 days",
+                        "28 days",
+                      ]}
                       label="Duration"
                       value={m.duration}
                       onChange={(e) => updateField(i, "duration", e)}
@@ -734,11 +741,6 @@ function LabeledCombobox({
     setText(value ?? "");
   }, [value]);
 
-  const filtered = useMemo(() => {
-    const q = (text || "").toLowerCase();
-    return options.filter((o) => o.toLowerCase().includes(q));
-  }, [text, options]);
-
   const handleChange = (raw: string) => {
     const v = digitsOnly ? raw.replace(/[^0-9]/g, "") : raw;
     setText(v);
@@ -758,6 +760,7 @@ function LabeledCombobox({
         value={text}
         onChange={(e) => handleChange(e.target.value)}
         onFocus={() => setOpen(true)}
+        onClick={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 120)}
         placeholder=" "
         className="peer w-full rounded-xl border border-slate-200 bg-transparent px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 z-20 relative"
@@ -769,9 +772,9 @@ function LabeledCombobox({
         ▾
       </span>
 
-      {open && filtered.length > 0 && (
+      {open && options.length > 0 && (
         <div className="absolute left-0 right-0  z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1">
-          {filtered.map((opt: string) => (
+          {options.map((opt: string) => (
             <button
               key={opt}
               type="button"

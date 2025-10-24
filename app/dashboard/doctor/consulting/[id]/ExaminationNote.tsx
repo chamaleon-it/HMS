@@ -70,7 +70,7 @@ const ALL_FIELDS: Record<FieldKey, FieldMeta> = {
   HR: { id: "HR", label: "HR", type: "input", unit: "bpm" },
   BP: { id: "BP", label: "BP", type: "input", unit: "mmHg" },
   SpO2: { id: "SpO2", label: "SpO₂", type: "input", unit: "%" },
-  Temp: { id: "Temp", label: "Temp", type: "input" },
+  Temp: { id: "Temp", label: "Temp", type: "input", unit: "C F" },
   RS: { id: "RS", label: "RS", type: "textarea" },
   CVS: { id: "CVS", label: "CVS", type: "textarea" },
   PA: { id: "PA", label: "P/A", type: "textarea" },
