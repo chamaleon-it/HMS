@@ -7,7 +7,7 @@ interface OptionButtonProps {
   value: string;
   selectedValues: string[];
   setSelectedValues: React.Dispatch<React.SetStateAction<string[]>>;
-  setData: React.Dispatch<React.SetStateAction<any>>;
+  setData: React.Dispatch<React.SetStateAction<DataType>>;
   fieldName: "diagnosis" | "pastHistory" | "presentHistory";
  setValues: React.Dispatch<React.SetStateAction<{
     presentHistory: string[];
