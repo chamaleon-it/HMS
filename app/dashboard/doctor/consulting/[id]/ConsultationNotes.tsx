@@ -4,8 +4,15 @@ import React, { useEffect, useState } from "react";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { DataType } from "./interface";
 import { Consultations } from "./History";
-import { Plus } from "lucide-react";
+import {  EllipsisVertical, Pencil, Plus } from "lucide-react";
 import OptionButton from "./OptionButton";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const PRESENT_HISTORY = [
   "Fever",
@@ -36,7 +43,6 @@ interface Props {
 }
 
 const STORAGE_KEY = "consultation_values";
-
 
 export default function ConsultationNotes({
   data,
@@ -71,9 +77,12 @@ export default function ConsultationNotes({
     };
   });
 
-    useEffect(() => {
+  useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
   }, [values]);
+
+
+  const [editable, setEditable] = useState<"diagnosis" | "pastHistory" | "presentHistory"  | null>(null)
 
   return (
     <Card>
@@ -91,6 +100,7 @@ export default function ConsultationNotes({
               setValues={setValues}
               setData={setData}
               fieldName="presentHistory"
+              editable={editable}
             />
           ))}
 
@@ -117,6 +127,20 @@ export default function ConsultationNotes({
             <Plus className="h-3 w-3" />
             Add
           </button>
+          <div className="relative z-20 flex items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <EllipsisVertical className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem className="text-sm" onClick={()=>setEditable("presentHistory")}>
+                    <Pencil className="w-3 h-3" /> Edit
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-4">
           <LabeledTextarea
@@ -144,6 +168,7 @@ export default function ConsultationNotes({
                   setValues={setValues}
                   setData={setData}
                   fieldName="pastHistory"
+                  editable={editable}
                 />
               ))}
 
@@ -172,6 +197,20 @@ export default function ConsultationNotes({
                 <Plus className="h-3 w-3" />
                 Add
               </button>
+              <div className="relative z-20 flex items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <EllipsisVertical className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem className="text-sm" onClick={()=>setEditable("pastHistory")}>
+                    <Pencil className="w-3 h-3" /> Edit
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
             </div>
             {consulting[0]?.createdAt && (
               <p className="text-sm text-gray-600 shrink-0">
@@ -205,6 +244,7 @@ export default function ConsultationNotes({
                 setValues={setValues}
                 setData={setData}
                 fieldName="diagnosis"
+                editable={editable}
               />
             ))}
 
@@ -231,6 +271,20 @@ export default function ConsultationNotes({
               <Plus className="h-3 w-3" />
               Add
             </button>
+            <div className="relative z-20 flex items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <EllipsisVertical className="h-4 w-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem className="text-sm" onClick={()=>setEditable("diagnosis")}>
+                    <Pencil className="w-3 h-3" /> Edit
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           </div>
           <LabeledTextarea
             label="Diagnosis"
