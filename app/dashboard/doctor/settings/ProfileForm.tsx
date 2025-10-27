@@ -62,22 +62,28 @@ export default function ProfileForm() {
     };
   }>("/users/profile");
 
-  const { register, handleSubmit, watch, setValue, reset,formState:{errors} } =
-    useForm<UpdateSettingsInput>({
-      resolver: zodResolver(updateSettingsSchema),
-      defaultValues: {
-        name: userData?.data.name,
-        phoneNumber: userData?.data.phoneNumber || "+91",
-        email: userData?.data.email,
-        hospital: userData?.data.hospital || null,
-        specialization: userData?.data.specialization || null,
-        profilePic: userData?.data.profilePic || null,
-        signature: userData?.data.signature || null,
-        availability: userData?.data.availability,
-      },
-    });
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<UpdateSettingsInput>({
+    resolver: zodResolver(updateSettingsSchema),
+    defaultValues: {
+      name: userData?.data.name,
+      phoneNumber: userData?.data.phoneNumber || "+91",
+      email: userData?.data.email,
+      hospital: userData?.data.hospital || null,
+      specialization: userData?.data.specialization || null,
+      profilePic: userData?.data.profilePic || null,
+      signature: userData?.data.signature || null,
+      availability: userData?.data.availability,
+    },
+  });
 
-    console.log(errors);
+  console.log(errors);
 
   const values = watch();
 
@@ -92,7 +98,7 @@ export default function ProfileForm() {
       signature: userData?.data.signature || null,
       availability: userData?.data.availability,
     });
-  }, [userData?.data,reset]);
+  }, [userData?.data, reset]);
 
   const updateUser = handleSubmit(async (data) => {
     try {
@@ -198,8 +204,9 @@ export default function ProfileForm() {
                         <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                    <PopoverContent className="p-0 max-h-80 overflow-y-scroll">
                       <Command
+                        className=""
                         filter={(value, search) =>
                           value.toLowerCase().includes(search.toLowerCase())
                             ? 1

@@ -50,7 +50,7 @@ function VisitBadge({ count }: { count: number }) {
   );
 }
 
-function ActionButton({
+export function ActionButton({
   children,
   variant = "default",
   onClick,
