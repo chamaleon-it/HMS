@@ -1,28 +1,32 @@
 "use client";
 
+import React, { useEffect, useMemo, useState } from "react";
+import useSWR from "swr";
 import AppShell from "@/components/layout/app-shell";
-import React, { useEffect, useState } from "react";
+import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 import PatientTable from "./PatientTable";
 import Filter from "./Filter";
 import Statistics from "./Statistics";
-import Drawer from "@/components/ui/drawer";
-import useSWR from "swr";
+import { Data } from "./PatientTable";
 
 export interface FilterType {
-  query: undefined | string;
-  gender: undefined | string;
-  doctor: undefined | string;
-  date: undefined | Date;
+  query?: string;
+  gender?: string;
+  doctor?: string;
+  date?: Date;
   age: [number, number];
-  lastVisit: undefined | number;
+  lastVisit?: number | string;
   conditions: string[];
-  status: undefined | string;
+  status?: string;
+  dateRange: {
+    from?: string;
+    to?: string;
+  };
 }
 
 export default function PatientsEnhanced() {
   const [openCreate, setOpenCreate] = useState(false);
-
   const [filter, setFilter] = useState<FilterType>({
     query: undefined,
     gender: undefined,
@@ -32,65 +36,49 @@ export default function PatientsEnhanced() {
     conditions: [],
     date: undefined,
     status: undefined,
+    dateRange: { from: undefined, to: undefined },
   });
 
-  const params = new URLSearchParams();
+  // ✅ Build query params efficiently using useMemo (avoids recomputation)
+  const queryString = useMemo(() => {
+    const params = new URLSearchParams();
 
-  if (filter.query) {
-    params.append("query", filter.query);
-  }
-  if (filter.gender) {
-    params.append("gender", filter.gender);
-  }
+    const addParam = (key: string, value?: string | number) => {
+      if (value !== undefined && value !== null && value !== "") {
+        params.append(key, String(value));
+      }
+    };
 
-  if (filter.doctor) {
-    params.append("doctor", filter.doctor);
-  }
+    addParam("query", filter.query);
+    addParam("gender", filter.gender);
+    addParam("doctor", filter.doctor);
+    addParam("minAge", filter.age?.[0]);
+    addParam("maxAge", filter.age?.[1]);
+    addParam("status", filter.status);
 
-  if (filter.age) {
-    params.append("minAge", filter.age[0].toString());
-    params.append("maxAge", filter.age[1].toString());
-  }
-  if (filter.lastVisit) {
-    params.append("lastVisit", filter.lastVisit.toString());
-  }
-  if (filter.conditions) {
-    params.append("conditions", JSON.stringify(filter.conditions));
-  }
+    // Handle date filters
+    if (typeof filter.lastVisit === "number") {
+      const now = new Date();
+      const from = new Date();
+      from.setDate(now.getDate() - filter.lastVisit);
+      addParam("from", from.toISOString());
+      addParam("to", now.toISOString());
+    } else if (filter.dateRange.from && filter.dateRange.to) {
+      addParam("from", new Date(filter.dateRange.from).toISOString());
+      addParam("to", new Date(filter.dateRange.to).toISOString());
+    }
 
-  if (filter.date) {
-    params.append("date", filter.date.toISOString());
-  }
+    if (filter.date) addParam("date", filter.date.toISOString());
+    if (filter.conditions?.length)
+      addParam("conditions", JSON.stringify(filter.conditions));
 
-  if (filter.status) {
-    params.append("status", filter.status);
-  }
+    return params.toString();
+  }, [filter]);
 
   const { data: tableData, mutate: tableMutate } = useSWR<{
     message: string;
-    data: {
-      _id: string;
-      name: string;
-      phoneNumber: string;
-      email: string;
-      gender: "Male" | "Female" | "Other";
-      dateOfBirth: Date;
-      conditions: string[];
-      blood: string;
-      allergies: string;
-      address: string;
-      notes: string;
-      mrn: string;
-      doctor: {
-        _id: string;
-        name: string;
-        email: string;
-        role: string;
-        phoneNumber: string;
-      };
-      createdAt: Date;
-    }[];
-  }>(`/patients?${params}`);
+    data: Data[];
+  }>(`/patients?${queryString}`);
 
   const { data: statisticsData, mutate: statisticsMutate } = useSWR<{
     data: {
@@ -108,21 +96,26 @@ export default function PatientsEnhanced() {
     message: string;
   }>("/patients/statistics");
 
+  // ✅ Extract stats once
   const statistics = statisticsData?.data;
 
+  // ✅ Open create modal if URL includes hash
   useEffect(() => {
     if (window.location.hash.includes("register")) {
       setOpenCreate(true);
     }
   }, []);
 
-
+  // ✅ Refetch when filter changes
   useEffect(() => {
-    
-  tableMutate()
-  statisticsMutate()
-  }, [tableMutate,statisticsMutate])
-  
+    tableMutate();
+    statisticsMutate();
+  }, [queryString, tableMutate, statisticsMutate]);
+
+  const refreshData = () => {
+    tableMutate();
+    statisticsMutate();
+  };
 
   return (
     <AppShell>
@@ -135,44 +128,42 @@ export default function PatientsEnhanced() {
               Search, filter & review patient history
             </p>
           </div>
-          <div className="flex gap-3">
-            <button
-              className="px-4 py-2 rounded-xl bg-black text-white hover:opacity-90 cursor-pointer"
-              onClick={() => setOpenCreate(true)}
-            >
-              New Patient
-            </button>
-          </div>
+          <button
+            className="px-4 py-2 rounded-xl bg-black text-white hover:opacity-90 cursor-pointer"
+            onClick={() => setOpenCreate(true)}
+          >
+            New Patient
+          </button>
         </div>
 
+        {/* Statistics */}
         <Statistics statistics={statistics} />
-        <Filter filter={filter} setFilter={setFilter} />
-        <PatientTable
-          data={tableData}
-          tableMutate={() => {
-            tableMutate();
-            statisticsMutate();
-          }}
-        />
 
+        {/* Filters */}
+        <Filter filter={filter} setFilter={setFilter} />
+
+        {/* Table */}
+        <PatientTable data={tableData} tableMutate={refreshData} />
+
+        {/* Pagination (future ready) */}
         <div className="flex items-center justify-between mt-4">
-          <div className="text-sm text-gray-500">
-            Showing <span className="font-medium text-gray-700">{100}</span> of{" "}
-            <span className="font-medium text-gray-700">{100}</span> patients
-          </div>
+          <p className="text-sm text-gray-500">
+            Showing <span className="font-medium text-gray-700">100</span> of{" "}
+            <span className="font-medium text-gray-700">100</span> patients
+          </p>
           <div className="flex gap-2">
             <button
               className="px-3 h-10 rounded-xl bg-white ring-1 ring-gray-200 disabled:opacity-50"
-              disabled={1 === 1}
+              disabled
             >
               Prev
             </button>
             <div className="px-3 h-10 grid place-items-center rounded-xl bg-gray-100 text-sm">
-              {1} / {1}
+              1 / 1
             </div>
             <button
               className="px-3 h-10 rounded-xl bg-white ring-1 ring-gray-200 disabled:opacity-50"
-              disabled={1 === 1}
+              disabled
             >
               Next
             </button>
@@ -180,6 +171,7 @@ export default function PatientsEnhanced() {
         </div>
       </div>
 
+      {/* Drawer for new patient */}
       <Drawer
         open={openCreate}
         onClose={() => setOpenCreate(false)}
@@ -187,10 +179,7 @@ export default function PatientsEnhanced() {
       >
         <RegisterPatient
           onClose={() => setOpenCreate(false)}
-          mutate={() => {
-            tableMutate();
-            statisticsMutate();
-          }}
+          mutate={refreshData}
         />
       </Drawer>
     </AppShell>

@@ -2,15 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FilterType } from "./page";
 import { CONDITIONS } from "./RegisterPatient";
 import useSWR from "swr";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { ChevronDownIcon } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
-import { fDate } from "@/lib/fDateAndTime";
+
 
 export default function Filter({
   filter,
@@ -28,7 +20,7 @@ export default function Filter({
     message: string;
   }>("/users/doctors");
 
-  const [open, setOpen] = useState(false);
+
 
   return (
     <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-sm mb-4">
@@ -54,7 +46,11 @@ export default function Filter({
               lastVisit: undefined,
               conditions: [],
               date: undefined,
-              status:undefined
+              status: undefined,
+              dateRange: {
+                from: undefined,
+                to: undefined,
+              },
             })
           }
           className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
@@ -71,7 +67,7 @@ export default function Filter({
           <FilterSelect
             value={filter.status}
             onChange={(v: string) => {
-              setFilter(prev=>({...prev,status:v}))
+              setFilter((prev) => ({ ...prev, status: v }));
             }}
             placeholder="All statuses"
             options={[
@@ -80,7 +76,7 @@ export default function Filter({
               "Inactive",
               "Critical",
               "Discharged",
-              "Deleted"
+              "Deleted",
             ].map((s) => ({
               label:
                 s === "Active"
@@ -206,23 +202,24 @@ export default function Filter({
               { label: "All time", value: undefined },
               { label: "7 days", value: 7 },
               { label: "30 days", value: 30 as const },
+              { label: "Custom", value: "Custom" },
             ]}
             value={filter.lastVisit}
             onChange={(v) => setFilter((prev) => ({ ...prev, lastVisit: v }))}
           />
         </div>
 
-        {/* {visitPreset === "Custom" && (
+        {filter.lastVisit === "Custom" && (
           <div className="flex items-end gap-2">
             <div className="flex-1 flex flex-col gap-1">
               <label className="text-sm text-gray-600">From</label>
               <input
                 type="date"
-                value={visitRange.from ?? ""}
+                value={filter.dateRange.from ?? ""}
                 onChange={(e) =>
-                  setVisitRange((v) => ({
-                    ...v,
-                    from: e.target.value || null,
+                  setFilter((prev) => ({
+                    ...prev,
+                    dateRange: { ...prev.dateRange, from: e.target.value },
                   }))
                 }
                 className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
@@ -232,20 +229,20 @@ export default function Filter({
               <label className="text-sm text-gray-600">To</label>
               <input
                 type="date"
-                value={visitRange.to ?? ""}
+                value={filter.dateRange.to ?? ""}
                 onChange={(e) =>
-                  setVisitRange((v) => ({
-                    ...v,
-                    to: e.target.value || null,
+                  setFilter((prev) => ({
+                    ...prev,
+                    dateRange: { ...prev.dateRange, to: e.target.value },
                   }))
                 }
                 className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
               />
             </div>
           </div>
-        )} */}
+        )}
 
-        <div className="min-w-[170px]">
+        {/* <div className="min-w-[170px]">
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger asChild>
               <Button
@@ -272,7 +269,7 @@ export default function Filter({
               />
             </PopoverContent>
           </Popover>
-        </div>
+        </div> */}
       </div>
 
       <div className="mt-4">
@@ -321,9 +318,9 @@ function Segmented({
   value,
   onChange,
 }: {
-  options: { label: string; value: number | undefined }[];
-  value: number | undefined;
-  onChange: (v: number | undefined) => void;
+  options: { label: string; value: number | undefined | string }[];
+  value: number | undefined | string;
+  onChange: (v: number | undefined | string) => void;
 }) {
   return (
     <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
