@@ -790,7 +790,7 @@ export default function LabResultsPage() {
         </div>
 
         {/* Row 3: Date field + presets */}
-        <div className="mt-3 grid md:grid-cols-3 gap-3 items-end">
+        <div className="mt-3 grid md:grid-cols-4 gap-3">
           <div className="flex flex-col gap-1">
             <span className="text-xs text-gray-500 px-1">Date field</span>
             <Segmented
