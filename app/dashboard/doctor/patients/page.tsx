@@ -1,13 +1,14 @@
 "use client";
 
 import AppShell from "@/components/layout/app-shell";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { RegisterPatient } from "./RegisterPatient";
 import PatientTable from "./PatientTable";
 import Filter from "./Filter";
 import Statistics from "./Statistics";
 import Drawer from "@/components/ui/drawer";
 import useSWR from "swr";
+import { string } from "zod";
 
 export interface FilterType {
   query: undefined | string;
@@ -17,6 +18,7 @@ export interface FilterType {
   age: [number, number];
   lastVisit: undefined | number;
   conditions: string[];
+  status: undefined | string;
 }
 
 export default function PatientsEnhanced() {
@@ -30,6 +32,7 @@ export default function PatientsEnhanced() {
     lastVisit: undefined,
     conditions: [],
     date: undefined,
+    status: undefined,
   });
 
   const params = new URLSearchParams();
@@ -58,6 +61,10 @@ export default function PatientsEnhanced() {
 
   if (filter.date) {
     params.append("date", filter.date.toISOString());
+  }
+
+  if (filter.status) {
+    params.append("status", filter.status);
   }
 
   const { data: tableData, mutate: tableMutate } = useSWR<{
@@ -103,6 +110,20 @@ export default function PatientsEnhanced() {
   }>("/patients/statistics");
 
   const statistics = statisticsData?.data;
+
+  useEffect(() => {
+    if (window.location.hash.includes("register")) {
+      setOpenCreate(true);
+    }
+  }, []);
+
+
+  useEffect(() => {
+    
+  tableMutate()
+  statisticsMutate()
+  }, [])
+  
 
   return (
     <AppShell>

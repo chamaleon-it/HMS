@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Calendar,
   FlaskRound as Flask,
@@ -17,7 +17,6 @@ import {
   FileArchive,
 } from "lucide-react";
 
-// shadcn/ui components (assumed available)
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -45,6 +44,9 @@ import PatientSnapshot from "./PatientSnapshot";
 import Overview from "./Overview";
 import Med from "./Med";
 import Visit from "./Visit";
+import useSWR from "swr";
+import { useParams } from "next/navigation";
+import { ConsultationType, PatientType } from "./interface";
 
 // --- Helper small components ---
 function Stat({
@@ -68,9 +70,6 @@ function Stat({
 }
 
 export default function PatientFullDetailPage() {
-  // ---- CONFIG ----
-  const API_BASE = "/api"; // change to your backend base URL
-  const patientId = "0045238"; // pass via route or prop in real app
   const ACCENT_CLASS = "bg-[#6E59F9] hover:bg-[#5b46f4]"; // HMS purple
 
   // ---- STATE ----
@@ -78,13 +77,11 @@ export default function PatientFullDetailPage() {
   const [showPHI, setShowPHI] = useState(true);
   const [maskIDs, setMaskIDs] = useState(false);
 
-  // Dialog states
   const [openAddMed, setOpenAddMed] = useState(false);
   const [openAddLab, setOpenAddLab] = useState(false);
   const [openAddImage, setOpenAddImage] = useState(false);
   const [openAddNote, setOpenAddNote] = useState(false);
 
-  // Temp form states
   const [formMed, setFormMed] = useState({
     brand: "",
     generic: "",
@@ -118,6 +115,27 @@ export default function PatientFullDetailPage() {
 
   const blurIDsClass = maskIDs ? "blur-sm" : "";
 
+  const params = useParams();
+  const { id: patientId } = params;
+
+  const { data: patientData, mutate: patientMutate } = useSWR<{
+    message: string;
+    data: PatientType;
+  }>(`/patients/single/${patientId}`);
+
+  const patient = patientData?.data;
+
+  const { data: consultingData, mutate: consultingMutate } = useSWR<{
+    message: string;
+    data: ConsultationType[];
+  }>(`/consultings/patient/${patientId}`);
+  const consult = consultingData?.data || [];
+
+  useEffect(() => {
+    patientMutate();
+    consultingMutate();
+  }, [patientMutate,consultingMutate]);
+
   return (
     <AppShell>
       <div className="min-h-screen w-full bg-gradient-to-b from-background to-muted/30">
@@ -128,6 +146,7 @@ export default function PatientFullDetailPage() {
             blurIDsClass={blurIDsClass}
             setOpenAddNote={setOpenAddImage}
             showPHI={showPHI}
+            patient={patient}
           />
 
           {/* Tabs */}
@@ -158,6 +177,8 @@ export default function PatientFullDetailPage() {
             setOpenAddMed={setOpenAddMed}
             setShowPHI={setShowPHI}
             showPHI={showPHI}
+            patient={patient}
+            consult={consult}
           />
 
           {/* Right Column: Main Tabs */}
@@ -237,7 +258,9 @@ export default function PatientFullDetailPage() {
               </CardHeader>
 
               <CardContent>
-                {tab === "overview" && <Overview setTab={setTab} />}
+                {tab === "overview" && (
+                  <Overview setTab={setTab} consult={consult} />
+                )}
 
                 {tab === "clinical" && (
                   <div className="grid grid-cols-1 gap-4">
@@ -478,7 +501,7 @@ export default function PatientFullDetailPage() {
                   </div>
                 )}
 
-                {tab === "meds" && <Med />}
+                {tab === "meds" && <Med consult={consult} />}
 
                 {tab === "visits" && <Visit />}
 
@@ -517,15 +540,6 @@ export default function PatientFullDetailPage() {
                                     if (!f) return;
                                     const fd = new FormData();
                                     fd.append("file", f);
-                                    try {
-                                      await fetch(
-                                        `${API_BASE}/patients/${patientId}/upload`,
-                                        { method: "POST", body: fd }
-                                      );
-                                      alert("Uploaded");
-                                    } catch {
-                                      alert("Upload failed");
-                                    }
                                   }}
                                 />
                               </label>

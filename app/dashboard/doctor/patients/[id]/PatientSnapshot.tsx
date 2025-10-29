@@ -13,11 +13,9 @@ import {
   ShieldAlert,
   Wallet,
 } from "lucide-react";
-import { useParams } from "next/navigation";
 import React from "react";
-import useSWR from "swr";
-import { Consultations } from "../../consulting/[id]/History";
 import { fDate } from "@/lib/fDateAndTime";
+import { ConsultationType, PatientType } from "./interface";
 
 export default function PatientSnapshot({
   blurIDsClass,
@@ -26,6 +24,8 @@ export default function PatientSnapshot({
   setShowPHI,
   setMaskIDs,
   maskIDs,
+  consult,
+  patient
 }: {
   blurIDsClass: "" | "blur-sm";
   showPHI: boolean;
@@ -33,44 +33,10 @@ export default function PatientSnapshot({
   setShowPHI: React.Dispatch<React.SetStateAction<boolean>>;
   setMaskIDs: React.Dispatch<React.SetStateAction<boolean>>;
   maskIDs: boolean;
+  consult:ConsultationType[],
+  patient:PatientType | undefined
 }) {
-  const params = useParams();
-  const { id: patientId } = params;
-
-  const { data: patientData } = useSWR<{
-    message: string;
-    data: {
-      address: string;
-      dateOfBirth: Date;
-      allergies: string;
-      blood: string;
-      conditions: string[];
-      createdAt: Date;
-      email: string;
-      gender: string;
-      name: string;
-      notes: string;
-      phoneNumber: string;
-      _id: string;
-      mrn: string;
-      doctor: {
-        _id: string;
-        name: string;
-        specialization: string;
-      };
-      insurance: string;
-      insuranceValidity: Date;
-      emergencyContactNumber: string;
-    };
-  }>(`/patients/single/${patientId}`);
-
-  const patient = patientData?.data;
-
-  const { data: consultingData } = useSWR<{
-    message: "string";
-    data: Consultations[];
-  }>(`/consultings/patient/${patientId}`);
-  const counsult = consultingData?.data || [];
+  
 
   return (
     <div className="lg:col-span-4 space-y-4">
@@ -82,81 +48,81 @@ export default function PatientSnapshot({
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-2 gap-4">
-            {counsult[0]?.examinationNote?.hr && (
+            {consult[0]?.examinationNote?.hr && (
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"HR"}
-                  value={counsult[0]?.examinationNote.hr}
+                  value={consult[0]?.examinationNote.hr}
                   sub={"bpm"}
                 />
               </div>
             )}
 
-            {counsult[0]?.examinationNote?.bp && (
+            {consult[0]?.examinationNote?.bp && (
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"BP"}
-                  value={counsult[0]?.examinationNote.bp}
+                  value={consult[0]?.examinationNote.bp}
                   sub={"mmHg"}
                 />
               </div>
             )}
 
-            {counsult[0]?.examinationNote?.spo2 && (
+            {consult[0]?.examinationNote?.spo2 && (
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"SpO2"}
-                  value={counsult[0]?.examinationNote.spo2}
+                  value={consult[0]?.examinationNote.spo2}
                   sub={"%"}
                 />
               </div>
             )}
 
-            {counsult[0]?.examinationNote?.temp && (
+            {consult[0]?.examinationNote?.temp && (
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"Temp"}
-                  value={counsult[0]?.examinationNote.temp}
+                  value={consult[0]?.examinationNote.temp}
                   sub={"°C"}
                 />
               </div>
             )}
 
-            {counsult[0]?.examinationNote?.rs && (
+            {consult[0]?.examinationNote?.rs && (
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"RS"}
-                  value={counsult[0]?.examinationNote.rs}
+                  value={consult[0]?.examinationNote.rs}
                   sub={""}
                 />
               </div>
             )}
 
-            {counsult[0]?.examinationNote?.cvs && (
+            {consult[0]?.examinationNote?.cvs && (
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"CVS"}
-                  value={counsult[0]?.examinationNote.cvs}
+                  value={consult[0]?.examinationNote.cvs}
                   sub={""}
                 />
               </div>
             )}
 
-            {counsult[0]?.examinationNote?.pa && (
+            {consult[0]?.examinationNote?.pa && (
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"P/A"}
-                  value={counsult[0]?.examinationNote.pa}
+                  value={consult[0]?.examinationNote.pa}
                   sub={""}
                 />
               </div>
             )}
 
-            {counsult[0]?.examinationNote?.cns && (
+            {consult[0]?.examinationNote?.cns && (
               <div className="rounded-xl border p-3">
                 <Stat
                   label={"CNS"}
-                  value={counsult[0]?.examinationNote.cns}
+                  value={consult[0]?.examinationNote.cns}
                   sub={""}
                 />
               </div>
@@ -164,14 +130,14 @@ export default function PatientSnapshot({
           </div>
           <Separator className="my-4" />
           <LabeledRow label="Primary Doctor">
-            {counsult[0]?.doctor?.name ?? patient?.doctor?.name}
+            {consult[0]?.doctor?.name ?? patient?.doctor?.name}
           </LabeledRow>
 
-          {/* {!!counsult[0]?.consultationNotes?.diagnosis && (
+          {/* {!!consult[0]?.consultationNotes?.diagnosis && (
             <LabeledRow label="Conditions">
               <div className="flex flex-wrap gap-2">
                 <Badge variant="outline">
-                  {counsult[0]?.consultationNotes?.diagnosis}
+                  {consult[0]?.consultationNotes?.diagnosis}
                 </Badge>
               </div>
             </LabeledRow>
@@ -256,7 +222,7 @@ export default function PatientSnapshot({
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-2">
-          {counsult[0]?.medicines.map((m, i) => (
+          {consult[0]?.medicines.map((m, i) => (
             <div
               key={i}
               className="flex items-start justify-between rounded-lg border p-3"
@@ -270,7 +236,7 @@ export default function PatientSnapshot({
                 </div>
                 <div className="text-xs text-muted-foreground">
                   Frequancy: {m.frequency} · Duration: {m.duration} · Since{" "}
-                  {fDate(counsult[0]?.createdAt)}
+                  {fDate(consult[0]?.createdAt)}
                 </div>
               </div>
               <Badge variant={true ? "default" : "secondary"}>

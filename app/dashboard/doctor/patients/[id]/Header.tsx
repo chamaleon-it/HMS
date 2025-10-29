@@ -14,47 +14,22 @@ import {
 } from "@/components/ui/tooltip";
 import { fAge } from "@/lib/fDateAndTime";
 import { Download, FileText, Plus, Printer, Share2, User2 } from "lucide-react";
-import { useParams } from "next/navigation";
 import React from "react";
-import useSWR from "swr";
+import { PatientType } from "./interface";
 
 export default function Header({
   mask,
   blurIDsClass,
   showPHI,
   setOpenAddNote,
+  patient,
 }: {
   mask: (val: string) => string;
   blurIDsClass: "" | "blur-sm";
   showPHI: boolean;
   setOpenAddNote: React.Dispatch<React.SetStateAction<boolean>>;
+  patient: PatientType | undefined;
 }) {
-  const params = useParams();
-  const { id: patientId } = params;
-
-  const { data: patientData } = useSWR<{
-    message: string;
-    data: {
-      address: string;
-      dateOfBirth: Date;
-      allergies: string;
-      blood: string;
-      conditions: string[];
-      createdAt: Date;
-      email: string;
-      gender: string;
-      name: string;
-      notes: string;
-      phoneNumber: string;
-      _id: string;
-      mrn: string;
-      insurance: string;
-      uhid: string;
-    };
-  }>(`/patients/single/${patientId}`);
-
-  const patient = patientData?.data;
-
   return (
     <div className="p-5 flex items-center gap-3 md:gap-4">
       <User2 className="h-9 w-9 md:h-10 md:w-10" />

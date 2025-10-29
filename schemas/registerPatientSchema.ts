@@ -16,8 +16,13 @@ export const registerPatientSchema = z.object({
   phoneNumber: z
     .string()
     .min(1, "Phone number is required")
-    .refine((v) => !v || /^\+?\d{7,15}$/.test(v), {
-      message: "Invalid phone number",
+    .transform((val) => {
+      /* This code snippet is a transformation function for formatting phone numbers. */
+      if (val.length === 10) {
+        return `${val.slice(0, 5)} ${val.slice(5)}`;
+      } else {
+        return `${val.slice(0, 3)} ${val.slice(3, 7)} ${val.slice(7)}`;
+      }
     }),
 
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
@@ -43,8 +48,15 @@ export const registerPatientSchema = z.object({
   emergencyContactNumber: z
     .string()
     .optional()
-    .refine((v) => !v || /^\+?\d{7,15}$/.test(v), {
-      message: "Invalid phone number",
+    .transform((val) => val?.trim() || "")
+    .transform((val) => {
+      if (!val) return val;
+
+      if (val.length === 10) {
+        return `${val.slice(0, 5)} ${val.slice(5)}`;
+      } else {
+        return `${val.slice(0, 3)} ${val.slice(3, 7)} ${val.slice(7)}`;
+      }
     }),
 
   address: z.string().max(500).optional(),

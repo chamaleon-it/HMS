@@ -1,7 +1,8 @@
 import { TabsContent } from "@/components/ui/tabs";
-import React from "react";
+import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
+import { cn } from "@/lib/utils";
 
 const colorMap = {
   Consultation: {
@@ -35,8 +36,12 @@ const consultedStyles = {
     "inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200",
 } as const;
 
-export default function MonthlyCalender({selectedDate}:{selectedDate:Date | undefined}) {
-  const { data } = useSWR<{
+export default function MonthlyCalender({
+  selectedDate=new Date(),
+}: {
+  selectedDate: Date | undefined;
+}) {
+  const { data, mutate } = useSWR<{
     message: string;
     data: {
       _id: string;
@@ -48,6 +53,11 @@ export default function MonthlyCalender({selectedDate}:{selectedDate:Date | unde
       status: string;
     }[];
   }>(`/appointments/calender-monthly?date=${selectedDate}`);
+
+  useEffect(() => {
+    mutate();
+  }, [mutate]);
+
   return (
     <TabsContent
       value="month"
@@ -73,8 +83,16 @@ export default function MonthlyCalender({selectedDate}:{selectedDate:Date | unde
         </div>
       </div>
       <div className="grid grid-cols-7 gap-2">
-        {[...Array(30)].map((_, i) => {
-          const date = `${selectedDate?.getFullYear() || new Date().getFullYear()}-${(selectedDate?.getMonth() ?? 0) + 1}-${String(i + 1).padStart(2, "0")}`;
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(e=><p key={e} className="text-center p-2.5 border rounded-lg">{e}</p>)}
+        {Array(new Date(new Date(selectedDate).getFullYear(), new Date(selectedDate).getMonth(), 1).getDay()).fill(0).map((_,idx)=><div key={idx}></div>)}
+
+        {[...Array(31)].map((_, i) => {
+          const date = `${
+            selectedDate?.getFullYear() || new Date().getFullYear()
+          }-${(selectedDate?.getMonth() ?? 0) + 1}-${String(i + 1).padStart(
+            2,
+            "0"
+          )}`;
           const events = data?.data.filter((b) => b.date === date) || [];
 
           return (
@@ -98,9 +116,16 @@ export default function MonthlyCalender({selectedDate}:{selectedDate:Date | unde
                 return (
                   <div
                     key={j}
-                    className={`mt-1 text-[11px] rounded px-1 truncate bg-gray-200`}
+                    className={
+                      cn('mt-1 text-[11px] rounded px-1 truncate bg-gray-200',
+                        ev.status === "Upcoming" && "bg-[#2b7fff]",
+                        ev.status === "Consulted" && "bg-gray-200",
+                        ev.status === "Test" && "bg-[#fe9a00]",
+                      )
+                      
+                      }
                   >
-                    {ev.patient.name} ({ev.type}){" • " + ev.status}
+                    {ev.patient.name}{" • " + ev.status}
                   </div>
                 );
               })}

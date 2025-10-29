@@ -54,6 +54,7 @@ export default function Filter({
               lastVisit: undefined,
               conditions: [],
               date: undefined,
+              status:undefined
             })
           }
           className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
@@ -68,17 +69,18 @@ export default function Filter({
         <div className="flex flex-col gap-1">
           <span className="text-xs text-gray-500 px-1">Status</span>
           <FilterSelect
-            value={"All"}
+            value={filter.status}
             onChange={(v: string) => {
-              console.log(v);
+              setFilter(prev=>({...prev,status:v}))
             }}
             placeholder="All statuses"
             options={[
-              "All",
+              undefined,
               "Active",
               "Inactive",
               "Critical",
               "Discharged",
+              "Deleted"
             ].map((s) => ({
               label:
                 s === "Active"
@@ -89,6 +91,8 @@ export default function Filter({
                   ? "🔴 Critical"
                   : s === "Discharged"
                   ? "🔵 Discharged"
+                  : s === "Deleted"
+                  ? "🔴 Deleted"
                   : "All statuses",
               value: s,
             }))}
@@ -351,9 +355,9 @@ function FilterSelect({
   searchable = false,
   className = "",
 }: {
-  value: string;
+  value: string | undefined;
   onChange: (v: string) => void;
-  options: { label: string; value: string | null }[];
+  options: { label: string; value: string | undefined | null }[];
   placeholder: string;
   searchable?: boolean;
   className?: string;

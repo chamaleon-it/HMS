@@ -92,11 +92,17 @@ const PatientSelection: React.FC<Props> = ({ setValue, values }) => {
     return u.pathname + u.search;
   }, [debounced]);
 
-  const { data, isLoading } = useSWR<{ data: Patient[] }>(
+  const { data, isLoading,mutate } = useSWR<{ data: Patient[] }>(
     // Only hit API when user typed enough or when they focus & have something
     debounced.length >= MIN_QUERY_LEN ? listUrl : null
   );
   const patients = data?.data ?? [];
+
+
+  useEffect(() => {
+    mutate()
+  }, [input])
+  
 
   const handleSelect = useCallback(
     (p: Patient) => {
@@ -198,7 +204,10 @@ const PatientSelection: React.FC<Props> = ({ setValue, values }) => {
                   No results found for “{input}”
                 </div>
                 <Link
-                  href="/dashboard/doctor/patients"
+                  href={`/dashboard/doctor/patients?name=${input
+                    .trim()
+                    .replace(/\s+/g, " ")
+                    .replace(/\b\w/g, (char) => char.toUpperCase())}#register`}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
                 >
                   <span className="text-lg">➕</span> Add new patient

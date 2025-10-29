@@ -1,23 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import React from "react";
-import useSWR from "swr";
-import { Consultations } from "../../consulting/[id]/History";
-import { useParams } from "next/navigation";
 import { fDate } from "@/lib/fDateAndTime";
+import { ConsultationType } from "./interface";
 
-export default function Med() {
-  const params = useParams();
-  const { id: patientId } = params;
-
-  const { data: consultingData } = useSWR<{
-    message: "string";
-    data: Consultations[];
-  }>(`/consultings/patient/${patientId}`);
-  const counsult = consultingData?.data || [];
-
+export default function Med({consult}:{consult:ConsultationType[]}) {
+  
   return (
     <div className="space-y-2">
-      {counsult[0]?.medicines.map((m, i) => (
+      {consult[0]?.medicines.map((m, i) => (
         <div
           key={i}
           className="flex items-start justify-between rounded-lg border p-3"
@@ -31,7 +21,7 @@ export default function Med() {
             </div>
             <div className="text-xs text-muted-foreground">
               Frequancy: {m.frequency} · Duration: {m.duration} · Since{" "}
-              {fDate(counsult[0]?.createdAt)}
+              {fDate(consult[0]?.createdAt)}
             </div>
           </div>
           <Badge variant={true ? "default" : "secondary"}>

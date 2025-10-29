@@ -22,7 +22,7 @@ import registerPatientSchema from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ChevronDownIcon, UserRound, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FieldErrors, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import Address from "./Address";
@@ -30,6 +30,7 @@ import Address from "./Address";
 import useSWR from "swr";
 import AppointmentSelect from "./AppointmentSelect";
 import { cn } from "@/lib/utils";
+import { useSearchParams } from "next/navigation";
 export function RegisterPatient({
   onClose,
   mutate,
@@ -84,6 +85,14 @@ export function RegisterPatient({
     message: string;
   }>("/users/doctors");
 
+
+    const searchParams = useSearchParams();
+    const name = searchParams.get("name");
+
+  useEffect(() => {
+    if (name) setValue("name", name);
+  }, [name,setValue]);
+
   return (
     <form className="space-y-5" onSubmit={createPatient}>
       <section className="space-y-3">
@@ -101,7 +110,7 @@ export function RegisterPatient({
           </div>
           <div className="grid gap-2">
             <Label>Phone *</Label>
-            <Input placeholder="+91" {...register("phoneNumber")} />
+            <Input placeholder="+91" {...register("phoneNumber")} value={values.phoneNumber}/>
             {errors.phoneNumber && (
               <p className="text-red-500 text-xs my-1">
                 {errors.phoneNumber.message}

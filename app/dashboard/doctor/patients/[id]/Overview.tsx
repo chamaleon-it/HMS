@@ -1,19 +1,10 @@
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import React from "react";
-import useSWR from "swr";
-import { Consultations } from "../../consulting/[id]/History";
-import { useParams } from "next/navigation";
+import React from "react";;
+import { ConsultationType } from "./interface";
 
-export default function Overview({ setTab }: { setTab: (t: string) => void }) {
-  const params = useParams();
-  const { id: patientId } = params;
-
-  const { data: consultingData } = useSWR<{
-    message: "string";
-    data: Consultations[];
-  }>(patientId ? `/consultings/patient/${patientId}` : null);
-  const counsult = consultingData?.data || [];
+export default function Overview({ setTab,consult }: { setTab: (t: string) => void;consult:ConsultationType[] }) {
+  
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -25,9 +16,9 @@ export default function Overview({ setTab }: { setTab: (t: string) => void }) {
             View All
           </Button>
         </div>
-        {counsult[0]?.consultationNotes.diagnosis && (
+        {consult[0]?.consultationNotes.diagnosis && (
           <p className="mt-2 text-sm text-muted-foreground leading-6">
-            {counsult[0]?.consultationNotes.diagnosis}
+            {consult[0]?.consultationNotes.diagnosis}
           </p>
         )}
       </div>

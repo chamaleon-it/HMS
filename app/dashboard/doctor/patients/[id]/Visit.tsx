@@ -12,7 +12,7 @@ export default function Visit() {
     message: "string";
     data: Consultations[];
   }>(`/consultings/patient/${patientId}`);
-  const counsult = consultingData?.data || [];
+  const consult = consultingData?.data || [];
 
   return (
     <div className="rounded-xl border overflow-hidden">
@@ -22,7 +22,7 @@ export default function Visit() {
         <div className="col-span-3">Doctor</div>
       </div>
       <div>
-        {counsult.map((v, i) => (
+        {consult.map((v, i) => (
           <div key={i} className="grid grid-cols-12 px-3 py-3 border-t text-sm">
             <div className="col-span-4">{fDate(v.createdAt)}</div>
             <div className="col-span-5">{v.consultationNotes.diagnosis}</div>

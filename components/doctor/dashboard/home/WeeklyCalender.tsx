@@ -1,5 +1,5 @@
 import { TabsContent } from "@/components/ui/tabs";
-import React, { Dispatch, SetStateAction, useMemo } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
@@ -91,10 +91,15 @@ export default function WeeklyCalender({
   setOpenAppointment: Dispatch<SetStateAction<"walk-in" | boolean>>;
   selectedDate: Date | undefined;
 }) {
-  const { data: weeklyData } = useSWR<{ message: string; data: WeekItem[] }>(
-    `/appointments/calender/weekly?date=${selectedDate}`
-  );
+  const { data: weeklyData, mutate } = useSWR<{
+    message: string;
+    data: WeekItem[];
+  }>(`/appointments/calender/weekly?date=${selectedDate}`);
   const weekItems = useMemo(() => weeklyData?.data ?? [], [weeklyData]);
+
+  useEffect(() => {
+    mutate();
+  }, [mutate]);
 
   const { eventsInWeek } = useMemo(() => {
     const ws = startOfWeekSunday(selectedDate);
