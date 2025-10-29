@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { DataType } from "./interface";
 import { Consultations } from "./History";
-import {  EllipsisVertical, Pencil, Plus } from "lucide-react";
+import { EllipsisVertical, Pencil } from "lucide-react";
 import OptionButton from "./OptionButton";
 import {
   DropdownMenu,
@@ -81,8 +81,15 @@ export default function ConsultationNotes({
     localStorage.setItem(STORAGE_KEY, JSON.stringify(values));
   }, [values]);
 
+  const [editable, setEditable] = useState<
+    "diagnosis" | "pastHistory" | "presentHistory" | null
+  >(null);
 
-  const [editable, setEditable] = useState<"diagnosis" | "pastHistory" | "presentHistory"  | null>(null)
+  const [addValues, setAddValues] = useState<
+    "diagnosis" | "pastHistory" | "presentHistory" | null
+  >(null);
+
+  const [value, setValue] = useState("");
 
   return (
     <Card>
@@ -104,29 +111,40 @@ export default function ConsultationNotes({
             />
           ))}
 
-          <button
-            onClick={() => {
-              if (data?.consultationNotes?.presentHistory) {
-                setValues((prev) => {
-                  const newItems = (data.consultationNotes.presentHistory ?? "")
-                    .split(",")
-                    .map((str) => str.trim())
-                    .filter(Boolean);
+          {addValues !== "presentHistory" ? (
+            <button
+              type="button"
+              onClick={() => setAddValues("presentHistory")}
+              className="inline-flex items-center rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-cyan-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+            >
+              + Add Condition
+            </button>
+          ) : (
+            <div className="relative inline-flex items-center gap-2">
+              <input
+                className="h-8 w-56 rounded-md border border-slate-200 bg-white px-2 text-sm outline-none focus:ring-2 focus:ring-blue-300"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+              />
 
-                  const merged = [...prev.presentHistory, ...newItems];
-
-                  return {
+              <button
+                type="button"
+                onClick={() => {
+                  setValues((prev) => ({
                     ...prev,
-                    presentHistory: Array.from(new Set(merged)),
-                  };
-                });
-              }
-            }}
-            className={`px-3 py-1 rounded-md text-xs border transition hover:shadow-sm ${"bg-[#fe9a00]/50"} flex gap-0.5 items-center`}
-          >
-            <Plus className="h-3 w-3" />
-            Add
-          </button>
+                    presentHistory: [...prev.presentHistory, value.trim()],
+                  }));
+                  setValue("");
+                  setAddValues(null);
+                }}
+                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+                disabled={!value.trim()}
+              >
+                Save
+              </button>
+            </div>
+          )}
+
           <div className="relative z-20 flex items-center">
             <DropdownMenu>
               <DropdownMenuTrigger>
@@ -134,7 +152,10 @@ export default function ConsultationNotes({
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuGroup>
-                  <DropdownMenuItem className="text-sm" onClick={()=>setEditable("presentHistory")}>
+                  <DropdownMenuItem
+                    className="text-sm"
+                    onClick={() => setEditable("presentHistory")}
+                  >
                     <Pencil className="w-3 h-3" /> Edit
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
@@ -172,45 +193,57 @@ export default function ConsultationNotes({
                 />
               ))}
 
-              <button
-                onClick={() => {
-                  if (data?.consultationNotes?.pastHistory) {
-                    setValues((prev) => {
-                      const newItems = (
-                        data.consultationNotes.pastHistory ?? ""
-                      )
-                        .split(",")
-                        .map((str) => str.trim())
-                        .filter(Boolean);
+              {addValues !== "pastHistory" ? (
+                <button
+                  type="button"
+                  onClick={() => setAddValues("pastHistory")}
+                  className="inline-flex items-center rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-cyan-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                >
+                  + Add Condition
+                </button>
+              ) : (
+                <div className="relative inline-flex items-center gap-2">
+                  <input
+                    className="h-8 w-56 rounded-md border border-slate-200 bg-white px-2 text-sm outline-none focus:ring-2 focus:ring-blue-300"
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                  />
 
-                      const merged = [...prev.pastHistory, ...newItems];
-
-                      return {
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setValues((prev) => ({
                         ...prev,
-                        pastHistory: Array.from(new Set(merged)),
-                      };
-                    });
-                  }
-                }}
-                className={`px-3 py-1 rounded-md text-xs border transition hover:shadow-sm ${"bg-[#fe9a00]/50"} flex gap-0.5 items-center`}
-              >
-                <Plus className="h-3 w-3" />
-                Add
-              </button>
+                        pastHistory: [...prev.pastHistory, value.trim()],
+                      }));
+                      setValue("");
+                      setAddValues(null);
+                    }}
+                    className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+                    disabled={!value.trim()}
+                  >
+                    Save
+                  </button>
+                </div>
+              )}
+
               <div className="relative z-20 flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <EllipsisVertical className="h-4 w-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem className="text-sm" onClick={()=>setEditable("pastHistory")}>
-                    <Pencil className="w-3 h-3" /> Edit
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger>
+                    <EllipsisVertical className="h-4 w-4" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        className="text-sm"
+                        onClick={() => setEditable("pastHistory")}
+                      >
+                        <Pencil className="w-3 h-3" /> Edit
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
             {consulting[0]?.createdAt && (
               <p className="text-sm text-gray-600 shrink-0">
@@ -248,43 +281,57 @@ export default function ConsultationNotes({
               />
             ))}
 
-            <button
-              onClick={() => {
-                if (data?.consultationNotes?.diagnosis) {
-                  setValues((prev) => {
-                    const newItems = (data.consultationNotes.diagnosis ?? "")
-                      .split(",")
-                      .map((str) => str.trim())
-                      .filter(Boolean);
+            {addValues !== "diagnosis" ? (
+              <button
+                type="button"
+                onClick={() => setAddValues("diagnosis")}
+                className="inline-flex items-center rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-cyan-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              >
+                + Add Condition
+              </button>
+            ) : (
+              <div className="relative inline-flex items-center gap-2">
+                <input
+                  className="h-8 w-56 rounded-md border border-slate-200 bg-white px-2 text-sm outline-none focus:ring-2 focus:ring-blue-300"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                />
 
-                    const merged = [...prev.diagnosis, ...newItems];
-
-                    return {
+                <button
+                  type="button"
+                  onClick={() => {
+                    setValues((prev) => ({
                       ...prev,
-                      diagnosis: Array.from(new Set(merged)),
-                    };
-                  });
-                }
-              }}
-              className={`px-3 py-1 rounded-md text-xs border transition hover:shadow-sm ${"bg-[#fe9a00]/50"} flex gap-0.5 items-center`}
-            >
-              <Plus className="h-3 w-3" />
-              Add
-            </button>
+                      diagnosis: [...prev.diagnosis, value.trim()],
+                    }));
+                    setValue("");
+                    setAddValues(null);
+                  }}
+                  className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+                  disabled={!value.trim()}
+                >
+                  Save
+                </button>
+              </div>
+            )}
+
             <div className="relative z-20 flex items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger>
-                <EllipsisVertical className="h-4 w-4" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuGroup>
-                  <DropdownMenuItem className="text-sm" onClick={()=>setEditable("diagnosis")}>
-                    <Pencil className="w-3 h-3" /> Edit
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <EllipsisVertical className="h-4 w-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem
+                      className="text-sm"
+                      onClick={() => setEditable("diagnosis")}
+                    >
+                      <Pencil className="w-3 h-3" /> Edit
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
           <LabeledTextarea
             label="Diagnosis"

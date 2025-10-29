@@ -76,7 +76,7 @@ const OptionButton: React.FC<OptionButtonProps> = ({
             "bg-red-500 text-white shadow-sm hover:bg-red-600",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/60",
             "transition-opacity",
-            "opacity-0 group-hover:opacity-100"
+            "opacity-100"
           )}
           onClick={remove}
         >
