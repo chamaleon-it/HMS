@@ -3,12 +3,10 @@
 import React, { useState } from "react";
 import {
   Calendar,
-  FileText,
   FlaskRound as Flask,
   Image as ImageIcon,
   NotebookPen,
   Pill,
-  Plus,
   Printer,
   Stethoscope,
   Upload,
@@ -16,14 +14,12 @@ import {
   Download,
   Search,
   Edit3,
-  Eye,
   FileArchive,
 } from "lucide-react";
 
 // shadcn/ui components (assumed available)
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -46,6 +42,9 @@ import {
 import AppShell from "@/components/layout/app-shell";
 import Header from "./Header";
 import PatientSnapshot from "./PatientSnapshot";
+import Overview from "./Overview";
+import Med from "./Med";
+import Visit from "./Visit";
 
 // --- Helper small components ---
 function Stat({
@@ -68,61 +67,6 @@ function Stat({
   );
 }
 
-const initialMeds = [
-  {
-    brand: "T Dolo 650 mg",
-    generic: "Paracetamol/Acetaminophen",
-    hsn: "30045019",
-    barcode: "8901234567890",
-    sig: "SOS",
-    start: "2025-07-21",
-    active: true,
-  },
-  {
-    brand: "T Xtan 40 mg",
-    generic: "Telmisartan",
-    hsn: "30049099",
-    barcode: "8901234567891",
-    sig: "1-0-0",
-    start: "2025-08-10",
-    active: true,
-  },
-  {
-    brand: "T Acemax SP",
-    generic: "Aceclofenac+Serratiopeptidase+Paracetamol",
-    hsn: "30049079",
-    barcode: "8901234567892",
-    sig: "1-0-1",
-    start: "2025-06-02",
-    active: false,
-  },
-];
-
-const initialLabs = [
-  { type: "CBC", date: "2025-09-02", status: "Normal" },
-  { type: "Fasting Blood Sugar", date: "2025-08-15", status: "High" },
-  { type: "Lipid Panel", date: "2025-08-15", status: "Borderline" },
-];
-
-const initialImages = [
-  {
-    type: "Chest X-Ray PA",
-    date: "2025-07-02",
-    impression: "No active disease",
-  },
-  {
-    type: "Abdominal USG",
-    date: "2025-06-18",
-    impression: "Fatty liver grade I",
-  },
-];
-
-const initialVisits = [
-  { date: "2025-10-01 10:20", reason: "Follow-up HTN", by: "Dr. Nadisha" },
-  { date: "2025-08-12 11:40", reason: "Headache", by: "Dr. Nadisha" },
-  { date: "2025-06-05 09:15", reason: "Annual Check-up", by: "Dr. Abbas" },
-];
-
 export default function PatientFullDetailPage() {
   // ---- CONFIG ----
   const API_BASE = "/api"; // change to your backend base URL
@@ -133,22 +77,6 @@ export default function PatientFullDetailPage() {
   const [tab, setTab] = useState("overview");
   const [showPHI, setShowPHI] = useState(true);
   const [maskIDs, setMaskIDs] = useState(false);
-
-  const [meds, setMeds] = useState(initialMeds);
-  const [labs, setLabs] = useState(initialLabs);
-  const [images, setImages] = useState(initialImages);
-  const [notes, setNotes] = useState([
-    {
-      d: "2025-10-01",
-      t: "Follow-up: BP stable; lifestyle advice.",
-      by: "Dr. Nadisha",
-    },
-    {
-      d: "2025-08-12",
-      t: "Migraine suspected; start prophylaxis if persists.",
-      by: "Dr. Nadisha",
-    },
-  ]);
 
   // Dialog states
   const [openAddMed, setOpenAddMed] = useState(false);
@@ -189,110 +117,6 @@ export default function PatientFullDetailPage() {
   };
 
   const blurIDsClass = maskIDs ? "blur-sm" : "";
-
-  // ---- ACTION HANDLERS (with API + optimistic UI) ----
-  const handleAddMed = async () => {
-    if (!formMed.brand) return alert("Enter Brand name");
-    const payload = {
-      brand: formMed.brand,
-      generic: formMed.generic,
-      hsn: formMed.hsn,
-      barcode: formMed.barcode,
-      sig: formMed.sig || "1-0-1",
-      start: formMed.start || new Date().toISOString().slice(0, 10),
-      active: true,
-    };
-    try {
-      const res = await fetch(`${API_BASE}/patients/${patientId}/meds`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error("Failed to save");
-      const saved = await res.json();
-      setMeds((prev) => [saved, ...prev]);
-    } catch {
-      setMeds((prev) => [payload, ...prev]);
-    }
-    setFormMed({
-      brand: "",
-      generic: "",
-      hsn: "",
-      barcode: "",
-      sig: "",
-      start: "",
-    });
-    setOpenAddMed(false);
-  };
-
-  const handleAddLab = async () => {
-    if (!formLab.type) return alert("Enter lab test type");
-    const payload = {
-      type: formLab.type,
-      date: formLab.date || new Date().toISOString().slice(0, 10),
-      status: formLab.status || "Pending",
-    };
-    try {
-      const res = await fetch(`${API_BASE}/patients/${patientId}/labs`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error();
-      const saved = await res.json();
-      setLabs((prev) => [saved, ...prev]);
-    } catch {
-      setLabs((prev) => [payload, ...prev]);
-    }
-    setFormLab({ type: "", date: "", status: "Pending" });
-    setOpenAddLab(false);
-  };
-
-  const handleAddImage = async () => {
-    if (!formImg.type) return alert("Enter imaging type");
-    const payload = {
-      type: formImg.type,
-      date: formImg.date || new Date().toISOString().slice(0, 10),
-      impression: formImg.impression || "--",
-    };
-    try {
-      const res = await fetch(`${API_BASE}/patients/${patientId}/imaging`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error();
-      const saved = await res.json();
-      setImages((prev) => [saved, ...prev]);
-    } catch {
-      setImages((prev) => [payload, ...prev]);
-    }
-    setFormImg({ type: "", date: "", impression: "" });
-    setOpenAddImage(false);
-  };
-
-  const handleAddNote = async () => {
-    if (!formNote.t) return alert("Write a note");
-    const payload = {
-      d: formNote.d || new Date().toISOString().slice(0, 10),
-      t: formNote.t,
-      by: formNote.by || "Dr. Nadisha",
-    };
-    try {
-      const res = await fetch(`${API_BASE}/patients/${patientId}/notes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      if (!res.ok) throw new Error();
-      const saved = await res.json();
-      setNotes((prev) => [saved, ...prev]);
-    } catch {
-      setNotes((prev) => [payload, ...prev]);
-    }
-    setFormNote({ d: "", t: "", by: "Dr. Nadisha" });
-    setOpenAddNote(false);
-  };
 
   return (
     <AppShell>
@@ -413,111 +237,7 @@ export default function PatientFullDetailPage() {
               </CardHeader>
 
               <CardContent>
-                {tab === "overview" && (
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                    <div className="rounded-xl border p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium">Latest Summary</div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setTab("clinical")}
-                        >
-                          <Eye className="h-4 w-4 mr-2" />
-                          View All
-                        </Button>
-                      </div>
-                      <p className="mt-2 text-sm text-muted-foreground leading-6">
-                        Patient with HTN on Telmisartan, BP controlled. Reports
-                        intermittent headaches and poor sleep. Lifestyle
-                        counselling provided. Next review in 4 weeks.
-                      </p>
-                    </div>
-
-                    <div className="rounded-xl border p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium">Recent Labs</div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setTab("labs")}
-                        >
-                          See Labs
-                        </Button>
-                      </div>
-                      <div className="mt-2 space-y-2">
-                        {labs.slice(0, 3).map((d, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between rounded-lg bg-muted/40 p-2"
-                          >
-                            <div className="text-sm">
-                              {d.type}{" "}
-                              <span className="text-xs text-muted-foreground">
-                                · {d.date}
-                              </span>
-                            </div>
-                            <Badge
-                              variant={
-                                d.status === "Normal"
-                                  ? "secondary"
-                                  : d.status === "High"
-                                  ? "destructive"
-                                  : "outline"
-                              }
-                            >
-                              {d.status}
-                            </Badge>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium">Imaging</div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => setTab("imaging")}
-                        >
-                          See Imaging
-                        </Button>
-                      </div>
-                      <ul className="mt-2 space-y-2 text-sm">
-                        {images.slice(0, 2).map((im, i) => (
-                          <li key={i} className="rounded-lg bg-muted/40 p-2">
-                            <div className="flex items-center justify-between">
-                              <span>{im.type}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {im.date}
-                              </span>
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              Impression: {im.impression}
-                            </div>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    <div className="rounded-xl border p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium">Upcoming</div>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => alert("Open calendar")}
-                        >
-                          Open Calendar
-                        </Button>
-                      </div>
-                      <div className="mt-2 text-sm text-muted-foreground">
-                        No upcoming appointments.
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {tab === "overview" && <Overview setTab={setTab} />}
 
                 {tab === "clinical" && (
                   <div className="grid grid-cols-1 gap-4">
@@ -602,7 +322,7 @@ export default function PatientFullDetailPage() {
                     <div className="rounded-xl border p-4">
                       <div className="font-medium mb-2">Previous Notes</div>
                       <div className="space-y-3">
-                        {notes.map((n, i) => (
+                        {/* {notes.map((n, i) => (
                           <div
                             key={i}
                             className="rounded-lg bg-muted/40 p-3 text-sm"
@@ -615,7 +335,7 @@ export default function PatientFullDetailPage() {
                             </div>
                             <div>{n.t}</div>
                           </div>
-                        ))}
+                        ))} */}
                       </div>
                     </div>
                   </div>
@@ -623,7 +343,7 @@ export default function PatientFullDetailPage() {
 
                 {tab === "labs" && (
                   <div className="space-y-3">
-                    {labs.map((d, i) => (
+                    {/* {labs.map((d, i) => (
                       <div key={i} className="rounded-xl border p-3">
                         <div className="flex items-center justify-between">
                           <div className="font-medium">{d.type}</div>
@@ -680,8 +400,8 @@ export default function PatientFullDetailPage() {
                           </Button>
                         </div>
                       </div>
-                    ))}
-                    <div className="flex justify-end">
+                    ))} */}
+                    {/* <div className="flex justify-end">
                       <Button
                         size="sm"
                         className={ACCENT_CLASS}
@@ -690,13 +410,13 @@ export default function PatientFullDetailPage() {
                         <Plus className="h-4 w-4 mr-2" />
                         Order / Add Lab
                       </Button>
-                    </div>
+                    </div> */}
                   </div>
                 )}
 
                 {tab === "imaging" && (
                   <div className="space-y-3">
-                    {images.map((im, i) => (
+                    {/* {images.map((im, i) => (
                       <div key={i} className="rounded-xl border p-3">
                         <div className="flex items-center justify-between">
                           <div className="font-medium">{im.type}</div>
@@ -744,8 +464,8 @@ export default function PatientFullDetailPage() {
                           </Button>
                         </div>
                       </div>
-                    ))}
-                    <div className="flex justify-end">
+                    ))} */}
+                    {/* <div className="flex justify-end">
                       <Button
                         size="sm"
                         className={ACCENT_CLASS}
@@ -754,78 +474,13 @@ export default function PatientFullDetailPage() {
                         <Plus className="h-4 w-4 mr-2" />
                         Order / Add Imaging
                       </Button>
-                    </div>
+                    </div> */}
                   </div>
                 )}
 
-                {tab === "meds" && (
-                  <div className="space-y-2">
-                    {meds.map((m, i) => (
-                      <div
-                        key={i}
-                        className="flex items-start justify-between rounded-xl border p-3"
-                      >
-                        <div>
-                          <div className="font-medium">
-                            {m.brand}{" "}
-                            <span className="text-muted-foreground text-xs">
-                              (Gen: {m.generic})
-                            </span>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            HSN: {m.hsn} · SIG: {m.sig} · Since {m.start}
-                          </div>
-                          <div className="mt-1 text-[11px] tracking-wider">
-                            Barcode: {m.barcode || "—"}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant={m.active ? "default" : "secondary"}>
-                            {m.active ? "Active" : "Stopped"}
-                          </Badge>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => alert("Edit medication modal")}
-                          >
-                            Edit
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
-                    <div className="pt-2">
-                      <Button
-                        className={ACCENT_CLASS}
-                        onClick={() => setOpenAddMed(true)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Medication
-                      </Button>
-                    </div>
-                  </div>
-                )}
+                {tab === "meds" && <Med />}
 
-                {tab === "visits" && (
-                  <div className="rounded-xl border overflow-hidden">
-                    <div className="grid grid-cols-12 bg-muted/50 px-3 py-2 text-xs font-medium uppercase tracking-wider">
-                      <div className="col-span-4">Date & Time</div>
-                      <div className="col-span-5">Reason</div>
-                      <div className="col-span-3">Doctor</div>
-                    </div>
-                    <div>
-                      {initialVisits.map((v, i) => (
-                        <div
-                          key={i}
-                          className="grid grid-cols-12 px-3 py-3 border-t text-sm"
-                        >
-                          <div className="col-span-4">{v.date}</div>
-                          <div className="col-span-5">{v.reason}</div>
-                          <div className="col-span-3">{v.by}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {tab === "visits" && <Visit />}
 
                 {tab === "docs" && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -901,16 +556,16 @@ export default function PatientFullDetailPage() {
                         </Button>
                       </div>
                       <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Stat label="Balance" value="₹ 1,250" />
+                        <Stat label="Balance" value="₹ 0" />
                         <Stat
                           label="Last Payment"
-                          value="₹ 500"
+                          value="₹ 0"
                           sub="12 Sep 2025"
                         />
                         <Stat
                           label="Insurance Claims"
-                          value="2"
-                          sub="1 pending"
+                          value="0"
+                          sub="0 pending"
                         />
                         <Stat label="Packages" value="0" />
                       </div>
@@ -921,7 +576,7 @@ export default function PatientFullDetailPage() {
                         <div className="col-span-5">Item</div>
                         <div className="col-span-3 text-right">Amount</div>
                       </div>
-                      {[
+                      {/* {[
                         { d: "2025-09-02", item: "Consultation", amt: "₹ 500" },
                         { d: "2025-09-02", item: "CBC Test", amt: "₹ 400" },
                         { d: "2025-08-15", item: "FBS Test", amt: "₹ 350" },
@@ -934,14 +589,14 @@ export default function PatientFullDetailPage() {
                           <div className="col-span-5">{r.item}</div>
                           <div className="col-span-3 text-right">{r.amt}</div>
                         </div>
-                      ))}
+                      ))} */}
                     </div>
                   </div>
                 )}
 
                 {tab === "timeline" && (
                   <div className="space-y-4">
-                    {[
+                    {/* {[
                       {
                         t: "2025-10-01 10:20",
                         e: "Progress note added (Follow-up HTN)",
@@ -977,7 +632,7 @@ export default function PatientFullDetailPage() {
                           </div>
                         </div>
                       </div>
-                    ))}
+                    ))} */}
                   </div>
                 )}
               </CardContent>
@@ -1099,9 +754,7 @@ export default function PatientFullDetailPage() {
               <Button variant="outline" onClick={() => setOpenAddMed(false)}>
                 Cancel
               </Button>
-              <Button className={ACCENT_CLASS} onClick={handleAddMed}>
-                Save
-              </Button>
+              <Button className={ACCENT_CLASS}>Save</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -1149,9 +802,7 @@ export default function PatientFullDetailPage() {
               <Button variant="outline" onClick={() => setOpenAddLab(false)}>
                 Cancel
               </Button>
-              <Button className={ACCENT_CLASS} onClick={handleAddLab}>
-                Save
-              </Button>
+              <Button className={ACCENT_CLASS}>Save</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -1199,9 +850,7 @@ export default function PatientFullDetailPage() {
               <Button variant="outline" onClick={() => setOpenAddImage(false)}>
                 Cancel
               </Button>
-              <Button className={ACCENT_CLASS} onClick={handleAddImage}>
-                Save
-              </Button>
+              <Button className={ACCENT_CLASS}>Save</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
@@ -1249,9 +898,7 @@ export default function PatientFullDetailPage() {
               <Button variant="outline" onClick={() => setOpenAddNote(false)}>
                 Cancel
               </Button>
-              <Button className={ACCENT_CLASS} onClick={handleAddNote}>
-                Save
-              </Button>
+              <Button className={ACCENT_CLASS}>Save</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>

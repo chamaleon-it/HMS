@@ -1,6 +1,16 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { FilterType } from "./page";
 import { CONDITIONS } from "./RegisterPatient";
+import useSWR from "swr";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { ChevronDownIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { fDate } from "@/lib/fDateAndTime";
 
 export default function Filter({
   filter,
@@ -9,6 +19,17 @@ export default function Filter({
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 }) {
+  const { data } = useSWR<{
+    data: {
+      _id: string;
+      name: string;
+      email: string;
+    }[];
+    message: string;
+  }>("/users/doctors");
+
+  const [open, setOpen] = useState(false);
+
   return (
     <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-sm mb-4">
       {/* Top row: Search + Reset */}
@@ -32,6 +53,7 @@ export default function Filter({
               age: [0, 100],
               lastVisit: undefined,
               conditions: [],
+              date: undefined,
             })
           }
           className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
@@ -76,7 +98,7 @@ export default function Filter({
         {/* Gender — attractive pills */}
         <div className="flex flex-col gap-1">
           <span className="text-xs text-gray-500 px-1">Gender</span>
-          <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto">
+          <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
             {[
               { label: "All", value: undefined, icon: "•" },
               { label: "Female", value: "Female", icon: "♀" },
@@ -127,10 +149,15 @@ export default function Filter({
           <span className="text-xs text-gray-500 px-1">Doctor</span>
           <FilterSelect
             value={filter.doctor || ""}
-            onChange={(v) => setFilter((prev) => ({ ...prev, v }))}
+            onChange={(v) => setFilter((prev) => ({ ...prev, doctor: v }))}
             placeholder="All doctors"
-            searchable
-            options={[{ label: "All doctors", value: "All" }]}
+            options={[
+              { label: "All Doctors", value: null },
+              ...(data?.data?.map(({ name, _id }) => ({
+                label: name,
+                value: _id,
+              })) ?? []),
+            ]}
           />
         </div>
       </div>
@@ -213,6 +240,35 @@ export default function Filter({
             </div>
           </div>
         )} */}
+
+        <div className="min-w-[170px]">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                id="date"
+                className="w-48 justify-between font-normal flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto h-11"
+              >
+                {filter.date ? fDate(filter.date) : "Select date"}
+                <ChevronDownIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent
+              className="w-auto overflow-hidden p-0"
+              align="start"
+            >
+              <Calendar
+                mode="single"
+                selected={filter.date}
+                captionLayout="dropdown"
+                onSelect={(date) => {
+                  setFilter((prev) => ({ ...prev, date }));
+                  setOpen(false);
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       <div className="mt-4">
@@ -266,7 +322,7 @@ function Segmented({
   onChange: (v: number | undefined) => void;
 }) {
   return (
-    <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto">
+    <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
       {options.map((o) => {
         const active = value === o.value;
         return (
@@ -297,7 +353,7 @@ function FilterSelect({
 }: {
   value: string;
   onChange: (v: string) => void;
-  options: { label: string; value: string }[];
+  options: { label: string; value: string | null }[];
   placeholder: string;
   searchable?: boolean;
   className?: string;

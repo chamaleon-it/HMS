@@ -13,6 +13,7 @@ export interface FilterType {
   query: undefined | string;
   gender: undefined | string;
   doctor: undefined | string;
+  date: undefined | Date;
   age: [number, number];
   lastVisit: undefined | number;
   conditions: string[];
@@ -28,6 +29,7 @@ export default function PatientsEnhanced() {
     age: [0, 100],
     lastVisit: undefined,
     conditions: [],
+    date: undefined,
   });
 
   const params = new URLSearchParams();
@@ -54,6 +56,10 @@ export default function PatientsEnhanced() {
     params.append("conditions", JSON.stringify(filter.conditions));
   }
 
+  if (filter.date) {
+    params.append("date", filter.date.toISOString());
+  }
+
   const { data: tableData, mutate: tableMutate } = useSWR<{
     message: string;
     data: {
@@ -69,7 +75,7 @@ export default function PatientsEnhanced() {
       address: string;
       notes: string;
       mrn: string;
-      createdBy: {
+      doctor: {
         _id: string;
         name: string;
         email: string;
@@ -121,8 +127,13 @@ export default function PatientsEnhanced() {
 
         <Statistics statistics={statistics} />
         <Filter filter={filter} setFilter={setFilter} />
-
-        <PatientTable data={tableData} />
+        <PatientTable
+          data={tableData}
+          tableMutate={() => {
+            tableMutate();
+            statisticsMutate();
+          }}
+        />
 
         <div className="flex items-center justify-between mt-4">
           <div className="text-sm text-gray-500">

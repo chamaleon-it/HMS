@@ -274,9 +274,13 @@ export default function WeeklyCalender({
       </div>
 
       <div className="mt-4 flex justify-end relative z-10">
-        <Button size="sm" onClick={() => setOpenAppointment(true)}>
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Add Schedule
+        <Button
+          size="sm"
+          onClick={() => setOpenAppointment(true)}
+          className="cursor-pointer"
+        >
+          <PlusCircle className="w-4 h-4 mr-0.5" />
+          Add Appointment
         </Button>
       </div>
     </TabsContent>

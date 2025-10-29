@@ -21,6 +21,7 @@ export default function useAppointmentList({
       _id: string;
       patient: {
         _id: string;
+        mrn: string;
         name: string;
         phoneNumber: string;
         gender: string;

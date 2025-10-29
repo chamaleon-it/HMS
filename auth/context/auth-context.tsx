@@ -65,7 +65,6 @@ export function AuthProvider({
     } catch (error) {
       console.log(error);
       setLoading(false);
-      router.replace("/");
     } finally {
       setLoading(false);
     }

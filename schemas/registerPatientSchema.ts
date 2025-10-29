@@ -3,7 +3,15 @@ import { z } from "zod";
 const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
 export const registerPatientSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .transform((val) =>
+      val
+        .trim()
+        .replace(/\s+/g, " ")
+        .replace(/\b\w/g, (char) => char.toUpperCase())
+    ),
 
   phoneNumber: z
     .string()
@@ -12,10 +20,9 @@ export const registerPatientSchema = z.object({
       message: "Invalid phone number",
     }),
 
-  email: z
-    .string()
-    .email("Invalid email address")
-    .min(1, "Email address is required"),
+  email: z.string().email("Invalid email address").optional().or(z.literal("")),
+
+  doctor: z.string().trim().min(1, "Select a doctor."),
 
   gender: z.enum(["Male", "Female", "Other"]),
 
@@ -26,6 +33,19 @@ export const registerPatientSchema = z.object({
   blood: z.enum([...BLOOD_GROUPS]).optional(),
 
   allergies: z.string().max(500).optional(),
+
+  insurance: z.string().max(100).optional(),
+
+  insuranceValidity: z.string().max(40).optional(),
+
+  uhid: z.string().max(500).optional(),
+
+  emergencyContactNumber: z
+    .string()
+    .optional()
+    .refine((v) => !v || /^\+?\d{7,15}$/.test(v), {
+      message: "Invalid phone number",
+    }),
 
   address: z.string().max(500).optional(),
 

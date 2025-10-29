@@ -48,6 +48,8 @@ export default function Header({
       phoneNumber: string;
       _id: string;
       mrn: string;
+      insurance: string;
+      uhid: string;
     };
   }>(`/patients/single/${patientId}`);
 
@@ -67,27 +69,35 @@ export default function Header({
               Age {fAge(patient?.dateOfBirth)}
             </Badge>
           )}
-          <Badge variant="secondary" className="rounded-full">
-            {patient?.gender}
-          </Badge>
-          <Badge variant="outline" className="rounded-full">
-            {patient?.blood}ve
-          </Badge>
+          {patient?.gender && (
+            <Badge variant="secondary" className="rounded-full">
+              {patient?.gender}
+            </Badge>
+          )}
+          {patient?.blood && (
+            <Badge variant="outline" className="rounded-full">
+              {patient?.blood}ve
+            </Badge>
+          )}
           {patient?.allergies && (
             <Badge className="rounded-full bg-amber-500 text-black">
               Allergy
             </Badge>
           )}
-          <Badge className="rounded-full bg-blue-500">
-            Insurance: Star Health
-          </Badge>
+          {patient?.insurance && (
+            <Badge className="rounded-full bg-blue-500">
+              Insurance: {patient.insurance}
+            </Badge>
+          )}
         </div>
         <p className="text-xs md:text-sm text-muted-foreground">
           <span className={blurIDsClass}>
             {showPHI ? patient?.phoneNumber : "+91 ******"}
           </span>{" "}
-          ·{/* {patient?.address} ·{" "} */}
-          <span className={blurIDsClass}>UHID: HMS-2025-1129</span>
+          {patient?.uhid && ". "}
+          {patient?.uhid && (
+            <span className={blurIDsClass}>UHID : {patient?.uhid}</span>
+          )}
         </p>
       </div>
       <div className="hidden md:flex items-center gap-2">

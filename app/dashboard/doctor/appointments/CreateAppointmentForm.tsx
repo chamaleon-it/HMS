@@ -5,7 +5,7 @@ import api from "@/lib/axios";
 import { createAppointmentSchema } from "@/schemas/createAppointmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, UserRound } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import useSWR from "swr";
@@ -23,7 +23,6 @@ export function CreateAppointmentForm({
   mutate?: () => void;
   walkIn?: boolean;
 }) {
-  const [showAdvanced, setShowAdvanced] = useState(true);
   const { data } = useSWR<{
     data: {
       _id: string;
@@ -36,7 +35,7 @@ export function CreateAppointmentForm({
   const {
     register,
     handleSubmit,
-    // formState: { errors },
+    formState: { errors },
     watch,
     reset,
     setValue,
@@ -77,6 +76,11 @@ export function CreateAppointmentForm({
         </div>
         <div className="">
           <PatientSelection setValue={setValue} values={values} />
+          {errors.patient && (
+            <p className="text-red-500 text-xs mt-1.5">
+              Please select a patient
+            </p>
+          )}
         </div>
       </section>
 
@@ -96,6 +100,11 @@ export function CreateAppointmentForm({
                 data?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
               }
             />
+            {errors.doctor && (
+              <p className="text-red-500 text-xs mt-1.5">
+                Please select a doctor
+              </p>
+            )}
           </div>
           <div>
             <Label>Method</Label>
@@ -105,12 +114,24 @@ export function CreateAppointmentForm({
               placeholder="In-clinic / Video / Phone"
               options={METHODS.map((s) => ({ label: s, value: s })) ?? []}
             />
+            {errors.method && (
+              <p className="text-red-500 text-xs mt-1.5">
+                {errors.method.message}
+              </p>
+            )}
           </div>
-          <DateTimePicker
-            setValue={setValue}
-            doctor={values.doctor}
-            walkIn={walkIn}
-          />
+          <div className="w-full col-span-full">
+            <DateTimePicker
+              setValue={setValue}
+              doctor={values.doctor}
+              walkIn={walkIn}
+            />
+            {errors.date && (
+              <p className="text-red-500 text-xs mt-1.5">
+                Please select date and time
+              </p>
+            )}
+          </div>
 
           <div className="sm:col-span-2">
             <Label>Reason / Notes</Label>
@@ -120,6 +141,11 @@ export function CreateAppointmentForm({
               {...register("notes")}
               className="mt-2.5"
             />
+            {errors.notes && (
+              <p className="text-red-500 text-xs mt-1.5">
+                {errors.notes.message}
+              </p>
+            )}
           </div>
         </div>
       </section>
@@ -127,55 +153,62 @@ export function CreateAppointmentForm({
       <section className="space-y-3">
         <div className="flex items-center justify-between">
           <h3 className="font-medium">Advanced</h3>
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-zinc-500">Show</span>
-            <input
-              type="checkbox"
-              onChange={(e) => setShowAdvanced(e.target.checked)}
-            />
-          </div>
         </div>
-        {showAdvanced && (
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <Label>Appointment Type</Label>
 
-                <Select
-                  value={values.type || "New"}
-                  onChange={(v) => setValue("type", v)}
-                  placeholder="Appointment Type"
-                  options={
-                    ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
-                    []
-                  }
-                />
-              </div>
-              <div>
-                <Label>Payment Status</Label>
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <Label>Appointment Type</Label>
 
-                <Select
-                  value={values.isPaid}
-                  onChange={(v) => setValue("isPaid", v)}
-                  placeholder="Payment Status"
-                  options={[
-                    { value: "false", label: "Unpaid" },
-                    { value: "true", label: "Paid" },
-                  ]}
-                />
-              </div>
+              <Select
+                value={values.type || "New"}
+                onChange={(v) => setValue("type", v)}
+                placeholder="Appointment Type"
+                options={
+                  ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
+                  []
+                }
+              />
+              {errors.type && (
+                <p className="text-red-500 text-xs mt-1.5">
+                  {errors.type.message}
+                </p>
+              )}
             </div>
             <div>
-              <Label>Internal Note</Label>
-              <Textarea
-                rows={3}
-                placeholder="Visible to staff only"
-                {...register("internalNotes")}
-                className="mt-2.5"
+              <Label>Payment Status</Label>
+
+              <Select
+                value={values.isPaid}
+                onChange={(v) => setValue("isPaid", v)}
+                placeholder="Payment Status"
+                options={[
+                  { value: "false", label: "Unpaid" },
+                  { value: "true", label: "Paid" },
+                ]}
               />
+              {errors.isPaid && (
+                <p className="text-red-500 text-xs mt-1.5">
+                  {errors.isPaid.message}
+                </p>
+              )}
             </div>
           </div>
-        )}
+          <div>
+            <Label>Internal Note</Label>
+            <Textarea
+              rows={3}
+              placeholder="Visible to staff only"
+              {...register("internalNotes")}
+              className="mt-2.5"
+            />
+            {errors.internalNotes && (
+              <p className="text-red-500 text-xs mt-1.5">
+                {errors.internalNotes.message}
+              </p>
+            )}
+          </div>
+        </div>
       </section>
 
       <div className="flex items-center justify-between pt-2">

@@ -9,7 +9,8 @@ export default function Address({
   setValue: UseFormSetValue<{
     name: string;
     phoneNumber: string;
-    email: string;
+    email?: string;
+    doctor: string;
     gender: "Male" | "Female" | "Other";
     dateOfBirth: string;
     conditions?: string[] | undefined;

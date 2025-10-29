@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
-import { fAge } from "@/lib/fDateAndTime";
+import { fAge, fDate } from "@/lib/fDateAndTime";
 import registerPatientSchema from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -26,6 +26,10 @@ import { useState } from "react";
 import { FieldErrors, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import Address from "./Address";
+
+import useSWR from "swr";
+import AppointmentSelect from "./AppointmentSelect";
+import { cn } from "@/lib/utils";
 export function RegisterPatient({
   onClose,
   mutate,
@@ -47,8 +51,8 @@ export function RegisterPatient({
     },
   });
 
-  const conditions = watch("conditions");
-  const dateOfBirth = watch("dateOfBirth");
+  const values = watch();
+  const { conditions, dateOfBirth } = values;
 
   const createPatient = handleSubmit(async (data) => {
     try {
@@ -68,6 +72,17 @@ export function RegisterPatient({
   });
 
   const [openCalander, setOpenCalander] = useState(false);
+  const [openInsuranceValidityCalander, setOpenInsuranceValidityCalander] =
+    useState(false);
+
+  const { data } = useSWR<{
+    data: {
+      _id: string;
+      name: string;
+      email: string;
+    }[];
+    message: string;
+  }>("/users/doctors");
 
   return (
     <form className="space-y-5" onSubmit={createPatient}>
@@ -78,14 +93,14 @@ export function RegisterPatient({
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="grid gap-2">
-            <Label>Name</Label>
+            <Label>Name *</Label>
             <Input placeholder="Enter patient name" {...register("name")} />
             {errors.name && (
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
             )}
           </div>
           <div className="grid gap-2">
-            <Label>Phone</Label>
+            <Label>Phone *</Label>
             <Input placeholder="+91" {...register("phoneNumber")} />
             {errors.phoneNumber && (
               <p className="text-red-500 text-xs my-1">
@@ -107,8 +122,25 @@ export function RegisterPatient({
             )}
           </div>
 
+          <div>
+            <Label>Doctor *</Label>
+            <AppointmentSelect
+              value={values.doctor}
+              onChange={(v) => setValue("doctor", v)}
+              placeholder="Choose doctor"
+              options={
+                data?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
+              }
+            />
+            {errors.doctor && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.doctor.message}
+              </p>
+            )}
+          </div>
+
           <div className="grid gap-2">
-            <Label>Gender</Label>
+            <Label>Gender *</Label>
             <Select
               onValueChange={(value: "Male" | "Female" | "Other") =>
                 setValue("gender", value)
@@ -133,7 +165,7 @@ export function RegisterPatient({
           </div>
 
           <div className="grid gap-2">
-            <Label>Date of Birth</Label>
+            <Label>Date of Birth *</Label>
 
             <Popover open={openCalander} onOpenChange={setOpenCalander}>
               <PopoverTrigger asChild>
@@ -206,6 +238,94 @@ export function RegisterPatient({
             {errors.allergies && (
               <p className="text-red-500 text-xs my-1">
                 {errors.allergies.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Insurance</Label>
+            <Input placeholder="Insurance" {...register("insurance")} />
+            {errors.insurance && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.insurance.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Insurance validity</Label>
+
+            {/* <Input placeholder="Insurance validity" {...register("insuranceValidity")} /> */}
+
+            <Popover
+              open={openInsuranceValidityCalander}
+              onOpenChange={setOpenInsuranceValidityCalander}
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  id="date"
+                  className={cn(
+                    "file:text-foreground placeholder:text-muted-foreground selection:bg-primary selection:text-primary-foreground dark:bg-input/30 border-input flex h-9 w-full min-w-0 rounded-md border bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+                    "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]",
+                    "aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive flex justify-between items-center"
+                  )}
+                >
+                  {values.insuranceValidity
+                    ? fDate(values.insuranceValidity)
+                    : "Select date"}
+                  <ChevronDownIcon />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="start"
+              >
+                <Calendar
+                  disabled={{
+                    before: new Date(),
+                  }}
+                  startMonth={new Date(2025, 0)}
+                  endMonth={new Date(2030, 0)}
+                  mode="single"
+                  selected={
+                    values.insuranceValidity
+                      ? new Date(values.insuranceValidity)
+                      : new Date()
+                  }
+                  captionLayout="dropdown"
+                  onSelect={(date) => {
+                    setValue("insuranceValidity", date?.toISOString());
+                    setOpenInsuranceValidityCalander(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {errors.insuranceValidity && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.insuranceValidity.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label>UHID</Label>
+            <Input placeholder="UHID" {...register("uhid")} />
+            {errors.uhid && (
+              <p className="text-red-500 text-xs my-1">{errors.uhid.message}</p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Emergency Contact Number</Label>
+            <Input
+              placeholder="Emergency Contact Number"
+              {...register("emergencyContactNumber")}
+            />
+            {errors.emergencyContactNumber && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.emergencyContactNumber.message}
               </p>
             )}
           </div>

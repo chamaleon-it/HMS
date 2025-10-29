@@ -53,6 +53,14 @@ export default function PatientSnapshot({
       phoneNumber: string;
       _id: string;
       mrn: string;
+      doctor: {
+        _id: string;
+        name: string;
+        specialization: string;
+      };
+      insurance: string;
+      insuranceValidity: Date;
+      emergencyContactNumber: string;
     };
   }>(`/patients/single/${patientId}`);
 
@@ -156,10 +164,10 @@ export default function PatientSnapshot({
           </div>
           <Separator className="my-4" />
           <LabeledRow label="Primary Doctor">
-            {counsult[0]?.doctor.name}
+            {counsult[0]?.doctor?.name ?? patient?.doctor?.name}
           </LabeledRow>
 
-          {!!counsult[0]?.consultationNotes?.diagnosis && (
+          {/* {!!counsult[0]?.consultationNotes?.diagnosis && (
             <LabeledRow label="Conditions">
               <div className="flex flex-wrap gap-2">
                 <Badge variant="outline">
@@ -167,9 +175,9 @@ export default function PatientSnapshot({
                 </Badge>
               </div>
             </LabeledRow>
-          )}
+          )} */}
 
-          {/* {!!patient?.conditions.length && (
+          {!!patient?.conditions.length && (
             <LabeledRow label="Conditions">
               <div className="flex flex-wrap gap-2">
                 {patient?.conditions.map((condition) => (
@@ -179,7 +187,7 @@ export default function PatientSnapshot({
                 ))}
               </div>
             </LabeledRow>
-          )} */}
+          )}
           {patient?.allergies && (
             <LabeledRow label="Allergies">
               <div className="flex flex-wrap gap-2">
@@ -189,43 +197,54 @@ export default function PatientSnapshot({
               </div>
             </LabeledRow>
           )}
-          <LabeledRow label="Insurance">
-            Star Health (Valid till 31 Dec 2025)
-          </LabeledRow>
-          <LabeledRow label="Emergency Contact">
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />{" "}
-              <span className={blurIDsClass}>
-                {showPHI ? patient?.phoneNumber : "A. · ******"}
-              </span>
-            </div>
-          </LabeledRow>
+          {patient?.insurance && (
+            <LabeledRow label="Insurance">
+              {patient.insurance} (Valid till {fDate(patient.insuranceValidity)}
+              )
+            </LabeledRow>
+          )}
+          {patient?.emergencyContactNumber && (
+            <LabeledRow label="Emergency Contact">
+              <div className="flex items-center gap-2">
+                <Phone className="h-4 w-4" />{" "}
+                <span className={blurIDsClass}>
+                  {showPHI ? patient?.emergencyContactNumber : "A. · ******"}
+                </span>
+              </div>
+            </LabeledRow>
+          )}
           <div className="mt-4 flex flex-wrap gap-2">
             {[
               {
+                view: Boolean(patient?.allergies),
                 label: "Allergy",
                 icon: <AlertTriangle className="h-3.5 w-3.5" />,
                 color: "bg-red-500/10 text-red-600",
               },
               {
+                view: true,
                 label: "Chronic",
                 icon: <Heart className="h-3.5 w-3.5" />,
                 color: "bg-rose-500/10 text-rose-600",
               },
               {
+                view: Boolean(patient?.insurance),
                 label: "Insurance",
                 icon: <Wallet className="h-3.5 w-3.5" />,
                 color: "bg-emerald-500/10 text-emerald-600",
               },
-            ].map((f) => (
-              <span
-                key={f.label}
-                className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ${f.color}`}
-              >
-                {f.icon}
-                {f.label}
-              </span>
-            ))}
+            ].map(
+              (f) =>
+                f.view && (
+                  <span
+                    key={f.label}
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs ${f.color}`}
+                  >
+                    {f.icon}
+                    {f.label}
+                  </span>
+                )
+            )}
           </div>
         </CardContent>
       </Card>

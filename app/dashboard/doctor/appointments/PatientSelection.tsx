@@ -4,6 +4,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { fAge } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import { ChevronRight, MapPin, Phone, X } from "lucide-react";
+import Link from "next/link";
 import React, {
   useCallback,
   useEffect,
@@ -170,7 +171,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values }) => {
             type="button"
             aria-label="Clear"
             onClick={clearInput}
-            className="absolute right-2.5 top-[calc(50%+5px)] -translate-y-1/2 rounded-full p-1 text-zinc-500 hover:bg-zinc-100"
+            className="absolute right-2.5 top-[calc(50%)] -translate-y-1/2 rounded-full p-1 text-zinc-500 hover:bg-zinc-100"
           >
             <X className="h-4 w-4" />
           </button>
@@ -186,14 +187,36 @@ const PatientSelection: React.FC<Props> = ({ setValue, values }) => {
           )}
           data-hidden={!open}
         >
-          <div className="px-2 pt-2 text-xs text-zinc-500">
+          <div className="px-2 pt-2 text-sm text-zinc-500">
             {debounced.length < MIN_QUERY_LEN ? (
               <span>Type at least {MIN_QUERY_LEN} characters to search…</span>
             ) : isLoading ? (
               <span>Loading…</span>
             ) : patients.length === 0 ? (
-              <span>No patients found. Register a patient first.</span>
+              <div>
+                <div className="p-3 text-gray-500 text-sm border-b">
+                  No results found for “{input}”
+                </div>
+                <Link
+                  href="/dashboard/doctor/patients"
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
+                >
+                  <span className="text-lg">➕</span> Add new patient
+                </Link>
+              </div>
             ) : (
+              // <div className="flex items-center gap-2">
+              //   <span>No patients found.</span>
+              //   <span>Can’t find?</span>
+              //   <Button
+              //     asChild
+              //     variant={"default"}
+              //     className="bg-emerald-600 text-white hover:bg-emerald-700 transition"
+              //     size={"sm"}
+              //   >
+              //     <Link href="/dashboard/doctor/patients">Add New</Link>
+              //   </Button>
+              // </div>
               <span>Press ↑/↓ to navigate, Enter to select.</span>
             )}
           </div>
@@ -346,11 +369,13 @@ const PatientCard: React.FC<{
 
               {/* Meta pills */}
               <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
                   {safeAge(p.dateOfBirth)}
                 </span>
+
+                {/* Gender */}
                 {p.gender ? (
-                  <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">
+                  <span className="rounded-full bg-pink-100 px-2 py-0.5 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300">
                     {p.gender}
                   </span>
                 ) : null}

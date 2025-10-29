@@ -15,13 +15,7 @@ export default function List({
   activeStatuses: string[];
   date: Date;
 }) {
-  const params = new URLSearchParams();
-
-  if (query) params.append("query", query);
-  if (activeStatuses) params.append("status", JSON.stringify(activeStatuses));
-  if (date) params.append("date", date.toISOString());
-
-  const { data } = useAppointmentList({ query, activeStatuses, date });
+  const { data } = useAppointmentList({ activeStatuses, date });
 
   return (
     <div className="rounded-2xl border border-zinc-200 overflow-hidden mt-4">
@@ -33,60 +27,73 @@ export default function List({
         <div className="col-span-1 text-right">Status</div>
       </div>
       <ul className="divide-y">
-        {data?.data.map((row) => (
-          <li
-            key={row._id}
-            className={cx("px-4 py-3 grid grid-cols-11 items-center")}
-          >
-            <div className="col-span-2 font-medium">{fTime(row.date)}</div>
+        {data?.data
+          .filter((a) => {
+            if (!query) return true;
 
-            <div className="col-span-3 flex items-center gap-3 min-w-0">
-              <Initials text={row.patient.name} />
-              <div className="min-w-0">
-                <div className="truncate text-sm font-medium">
-                  {row.patient.name}
-                </div>
-                <div className="text-xs text-zinc-500 truncate">
-                  {row.patient.phoneNumber}
+            const q = query.toLowerCase();
+            const name = a?.patient?.name?.toLowerCase() || "";
+            const mrn = a?.patient?.mrn?.toLowerCase() || "";
+
+            return name.includes(q) || mrn.includes(q);
+          })
+          .map((row) => (
+            <li
+              key={row._id}
+              className={cx("px-4 py-3 grid grid-cols-11 items-center")}
+            >
+              <div className="col-span-2 font-medium">{fTime(row.date)}</div>
+
+              <div className="col-span-3 flex items-center gap-3 min-w-0">
+                <Initials text={row.patient.name} />
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-medium">
+                    {row.patient.name}{" "}
+                    <span className="text-xs text-gray-400 font-normal">
+                      ({row.patient.mrn})
+                    </span>
+                  </div>
+                  <div className="text-xs text-zinc-500 truncate">
+                    {row.patient.phoneNumber}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="col-span-3 flex items-center gap-3 min-w-0">
-              <Initials text={row.doctor.name} />
-              <div className="">
-                <div className="truncate text-sm font-medium">
-                  {row.doctor.name}
-                </div>
-                <div className="text-xs text-zinc-500 truncate">
-                  {row.doctor.email}
+              <div className="col-span-3 flex items-center gap-3 min-w-0">
+                <Initials text={row.doctor.name} />
+                <div className="">
+                  <div className="truncate text-sm font-medium">
+                    {row.doctor.name}
+                  </div>
+                  <div className="text-xs text-zinc-500 truncate">
+                    {row.doctor.email}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="col-span-1 flex items-center gap-2">
-              <span className="inline-flex items-center gap-2 text-sm">
-                {row.method === "In clinic" && <MapPin className="h-4 w-4" />}
-                {row.method === "Video" && <Video className="h-4 w-4" />}
-                {row.method === "Phone" && <Phone className="h-4 w-4" />}
-                {row.method}
-              </span>
-            </div>
-            <div className="col-span-1 flex items-center justify-end gap-2">
-              <span className="inline-flex items-center gap-2 text-sm">
-                <Chip
-                  label={row.status}
-                  tone={
-                    (row.status === "Not show" && "red") ||
-                    (row.status === "Upcoming" && "gray") ||
-                    (row.status === "Consulted" && "blue") ||
-                    (row.status === "Observation" && "amber") ||
-                    (row.status === "Completed" && "green") ||
-                    "gray"
-                  }
-                />
-              </span>
-            </div>
-          </li>
-        ))}
+              <div className="col-span-1 flex items-center gap-2">
+                <span className="inline-flex items-center gap-2 text-sm">
+                  {row.method === "In clinic" && <MapPin className="h-4 w-4" />}
+                  {row.method === "Video" && <Video className="h-4 w-4" />}
+                  {row.method === "Phone" && <Phone className="h-4 w-4" />}
+                  {row.method}
+                </span>
+              </div>
+              <div className="col-span-1 flex items-center justify-end gap-2">
+                <span className="inline-flex items-center gap-2 text-sm">
+                  <Chip
+                    label={row.status}
+                    tone={
+                      (row.status === "Not show" && "red") ||
+                      (row.status === "Upcoming" && "gray") ||
+                      (row.status === "Consulted" && "blue") ||
+                      (row.status === "Observation" && "amber") ||
+                      (row.status === "Completed" && "green") ||
+                      "gray"
+                    }
+                  />
+                </span>
+              </div>
+            </li>
+          ))}
       </ul>
     </div>
   );

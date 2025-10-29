@@ -1,10 +1,25 @@
 import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
-import useSWR from "swr";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import History from "./History";
+import Share from "./Share";
+import { Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
-interface Data {
+export interface Data {
   _id: string;
   name: string;
   phoneNumber: string;
@@ -17,7 +32,7 @@ interface Data {
   address: string;
   notes: string;
   mrn: string;
-  createdBy: {
+  doctor: {
     _id: string;
     name: string;
     email: string;
@@ -29,7 +44,9 @@ interface Data {
 
 export default function PatientTable({
   data,
+  tableMutate,
 }: {
+  tableMutate: () => void;
   data:
     | {
         message: string;
@@ -39,323 +56,232 @@ export default function PatientTable({
 }) {
   const [history, setHistory] = useState<Data | null>(null);
   const [share, setShare] = useState<Data | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [open, setOpen] = useState(false);
+
+  const deleteBulkPatient = useCallback(async () => {
+    try {
+      await toast.promise(
+        api.delete("/patients", {
+          data: {
+            ids: selectedIds,
+          },
+        }),
+        {
+          loading: "Patient is deleting...",
+          success: ({ data }) => data.message,
+          error: ({ response }) => response.data.message,
+        }
+      );
+      tableMutate();
+      setSelectedIds([]);
+      setOpen(false);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [selectedIds, tableMutate]);
 
   return (
-    <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
-      <table className="w-full">
-        <thead>
-          <tr className="bg-gray-50 text-xs text-gray-600">
-            <th className="w-14 text-left px-4 py-3">No.</th>
-            {headerCell("Patient")}
-            {headerCell("Phone Number")}
-            <th className="w-24 text-left px-4 py-3">Patient ID</th>
-            {headerCell("Age / Gender")}
-            {headerCell("Created At")}
-            {headerCell("Created By")}
-            <th className="text-left px-4 py-3">Conditions</th>
-            {headerCell("Blood")}
-            {headerCell("Allergies")}
+    <>
+      {Boolean(selectedIds.length) && (
+        <div className=" z-10 mb-2 flex items-center justify-between rounded-xl bg-black text-white px-4 py-2">
+          <div className="text-sm">{selectedIds.length} selected</div>
+          <div className="flex gap-2">
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  className="font-semibold cursor-pointer"
+                  variant={"destructive"}
+                >
+                  <Trash className="h-4 w-4" strokeWidth={3} />
+                  Delete {selectedIds.length === data?.data.length && "All"}
+                </Button>
+              </DialogTrigger>
 
-            <th className="w-40 text-right px-4 py-3">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data?.data.map((r, idx) => {
-            const serial = (0 - 1) * 0 + idx + 1; // serial number after filters & sort
-            return (
-              <tr
-                key={r._id}
-                className="border-t border-gray-100 hover:bg-gray-50/60"
-              >
-                <td className="px-2 py-3 text-sm text-gray-500" align="center">
-                  {serial}
-                </td>
-                <td className="px-2 py-3">
-                  <Link href={`/dashboard/doctor/patients/${r._id}`}>
-                    <div className="font-medium text-gray-900">{r.name}</div>
-                  </Link>
-                  <div className="text-xs text-gray-500">{r.email}</div>
-                </td>
-                <td className="px-2 py-3 text-sm text-gray-700">
-                  {r.phoneNumber}
-                </td>
-                <td className="px-2 py-3 text-sm text-gray-600">{r?.mrn}</td>
-                <td className="px-2 py-3 text-sm text-gray-700">
-                  {fAge(r.dateOfBirth)} <span className="text-gray-400">/</span>{" "}
-                  {r.gender}
-                </td>
-                <td className="px-2 py-3 text-sm text-gray-700">
-                  {fDateandTime(r.createdAt)}
-                </td>
-                <td className="px-2 py-3 text-sm text-gray-700">
-                  {r.createdBy.name} - {r.createdBy.role}
-                </td>
-                <td className="px-2 py-3">
-                  <div className="flex flex-wrap gap-1.5">
-                    {r?.conditions &&
-                      r.conditions
-                        .slice(0, 3)
-                        .map((condition) => (
-                          <Chip
-                            key={condition}
-                            label={condition}
-                            tone={
-                              condition?.toLowerCase().includes("fever")
-                                ? "amber"
-                                : condition?.toLowerCase().includes("diabetes")
-                                ? "amber"
-                                : "gray"
-                            }
-                          />
-                        ))}
-                  </div>
-                </td>
-                <td className="px-2 py-3 text-sm text-gray-700">{r.blood}</td>
-                <td className="px-2 py-3 text-sm text-gray-700">
-                  {r.allergies}
-                </td>
-                <td className="px-2 py-3 text-right">
-                  <div className="inline-flex gap-1">
-                    <Link
-                      href={`/dashboard/doctor/patients/${r._id}`}
-                      className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                    >
-                      View
-                    </Link>
-                    <button
-                      className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                      onClick={() => setHistory(r)}
-                    >
-                      History
-                    </button>
-                    <button
-                      className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                      onClick={() => setShare(r)}
-                    >
-                      Share
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            );
-          })}
+              <DialogContent className="sm:max-w-[420px]">
+                <DialogHeader>
+                  <DialogTitle>Delete patients</DialogTitle>
+                  <DialogDescription>
+                    Are you sure you want to delete{" "}
+                    <span className="font-semibold">
+                      {selectedIds.length} patients
+                    </span>
+                    ? This action cannot be undone.
+                  </DialogDescription>
+                </DialogHeader>
 
-          {data?.data.length === 0 && (
-            <tr>
-              <td
-                colSpan={11}
-                className="px-4 py-12 text-center text-sm text-gray-500"
-              >
-                No patients match your filters.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-      {history && <History setHistory={setHistory} history={history} />}
-      {share && <Share setShare={setShare} share={share} />}
-    </div>
-  );
-}
+                <DialogFooter>
+                  <DialogClose asChild>
+                    <Button variant="outline" className="cursor-pointer">
+                      Cancel
+                    </Button>
+                  </DialogClose>
 
-const History = ({
-  setHistory,
-  history,
-}: {
-  setHistory: (v: null | Data) => void;
-  history?: Data;
-}) => {
-  const router = useRouter();
-  const { data } = useSWR<{
-    message: string;
-    data: {
-      _id: string;
-      patient: Data;
-      doctor: {
-        _id: string;
-        name: string;
-        specialization: string;
-      };
-      method: string;
-      date: Date;
-    }[];
-  }>(history?._id ? `/appointments/patient/${history._id}` : null);
-  return (
-    <div className="fixed inset-0 z-40">
-      <div
-        className="absolute inset-0 bg-black/30"
-        onClick={() => setHistory(null)}
-      />
-      <div className="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-2xl p-6 overflow-y-auto">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold">History — {history?.name}</h2>
-          <button
-            onClick={() => setHistory(null)}
-            className="text-gray-500 hover:text-gray-900"
-          >
-            ✕
-          </button>
+                  <Button onClick={deleteBulkPatient}>Delete patient</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            <button
+              className="px-3 h-9 rounded-lg bg-white/10 hover:bg-white/15 cursor-pointer"
+              onClick={() => setSelectedIds([])}
+            >
+              Clear
+            </button>
+          </div>
         </div>
-        <ol className="relative border-s border-gray-200 ps-5 space-y-6">
-          {/* <li>
-                  <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
-                  <div className="text-sm">
-                    <span className="font-medium">{fDate(data?.data[0].date)}</span> —
-                    Last visit recorded
-                  </div>
-                </li> */}
+      )}
 
-          <li>
-            <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
-            <div className="text-sm">
-              <span className="font-medium">{data?.data.length} visit(s)</span>
-            </div>
-          </li>
+      <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
+        <table className="w-full">
+          <thead>
+            <tr className="bg-gray-50 text-xs text-gray-600">
+              <th className="w-14  px-4 py-3">
+                <Checkbox
+                  checked={selectedIds.length === data?.data.length}
+                  onCheckedChange={(checked: boolean) =>
+                    checked
+                      ? setSelectedIds(data?.data.map((e) => e._id) ?? [])
+                      : setSelectedIds([])
+                  }
+                />
+              </th>
+              <th className="w-14 text-left px-4 py-3">No.</th>
+              {headerCell("Patient")}
+              {headerCell("Phone Number")}
+              {headerCell("Age / Gender")}
+              {headerCell("Created At")}
+              {headerCell("Doctor")}
+              <th className="text-left px-4 py-3">Conditions</th>
+              {headerCell("Blood")}
+              {headerCell("Allergies")}
 
-          {data?.data.map((e) => {
-            return (
-              <li key={e._id} className="">
-                <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
-
-                <div className=" grid gap-1">
-                  <div className="flex items-start gap-2 text-sm">
-                    <div className="min-w-0">
+              <th className="w-40 text-right px-4 py-3">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data?.data.map((r, idx) => {
+              const serial = (0 - 1) * 0 + idx + 1; // serial number after filters & sort
+              return (
+                <tr
+                  key={r._id}
+                  className="border-t border-gray-100 hover:bg-gray-50/60"
+                >
+                  <td align="center">
+                    <Checkbox
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedIds((prev) => [...prev, r._id]);
+                        } else {
+                          setSelectedIds((prev) =>
+                            prev.filter((e) => e !== r._id)
+                          );
+                        }
+                      }}
+                      checked={selectedIds.includes(r._id)}
+                    />
+                  </td>
+                  <td
+                    className="px-2 py-3 text-sm text-gray-500"
+                    align="center"
+                  >
+                    {serial}
+                  </td>
+                  <td className="px-2 py-3">
+                    <Link href={`/dashboard/doctor/patients/${r._id}`}>
                       <div className="font-medium text-gray-900">
-                        {fDateandTime(e.date)}
-                      </div>
-                      <div className="text-gray-600">
-                        <span className="truncate">
-                          {e.doctor.name}
-                          {e.doctor.specialization
-                            ? ` — ${e.doctor.specialization}`
-                            : ""}
+                        {r.name}{" "}
+                        <span className="text-sm text-gray-500">
+                          ({r?.mrn})
                         </span>
                       </div>
+                    </Link>
+                    <div className="text-xs text-gray-500">{r.email}</div>
+                  </td>
+                  <td className="px-2 py-3 text-sm text-gray-700">
+                    {r.phoneNumber}
+                  </td>
+                  <td className="px-2 py-3 text-sm text-gray-700">
+                    {fAge(r.dateOfBirth)}{" "}
+                    <span className="text-gray-400">/</span> {r.gender}
+                  </td>
+                  <td className="px-2 py-3 text-sm text-gray-700">
+                    {fDateandTime(r.createdAt)}
+                  </td>
+                  <td className="px-2 py-3 text-sm text-gray-700">
+                    {r?.doctor?.name}
+                  </td>
+                  <td className="px-2 py-3">
+                    <div className="flex flex-wrap gap-1.5">
+                      {r?.conditions &&
+                        r.conditions
+                          .slice(0, 3)
+                          .map((condition) => (
+                            <Chip
+                              key={condition}
+                              label={condition}
+                              tone={
+                                condition?.toLowerCase().includes("fever")
+                                  ? "amber"
+                                  : condition
+                                      ?.toLowerCase()
+                                      .includes("diabetes")
+                                  ? "amber"
+                                  : "gray"
+                              }
+                            />
+                          ))}
                     </div>
-                  </div>
-                  {e.method ? (
-                    <div className="">
-                      <span className="rounded-full border px-2 py-0.5 text-xs text-gray-700">
-                        {e.method}
-                      </span>
+                  </td>
+                  <td className="px-2 py-3 text-sm text-gray-700">{r.blood}</td>
+                  <td className="px-2 py-3 text-sm text-gray-700">
+                    {r.allergies}
+                  </td>
+                  <td className="px-2 py-3 text-right">
+                    <div className="inline-flex gap-1">
+                      <Link
+                        href={`/dashboard/doctor/patients/${r._id}`}
+                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
+                      >
+                        View
+                      </Link>
+
+                      <button
+                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setHistory(r)}
+                      >
+                        History
+                      </button>
+                      <button
+                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setShare(r)}
+                      >
+                        Share
+                      </button>
                     </div>
-                  ) : null}
-                </div>
-              </li>
-            );
-          })}
-        </ol>
-        <button
-          onClick={() => {
-            router.push(`/dashboard/doctor/patients/${history?._id}`);
-          }}
-          className="mt-6 w-full h-11 rounded-xl bg-black text-white"
-        >
-          Open full history
-        </button>
-      </div>
-    </div>
-  );
-};
+                  </td>
+                </tr>
+              );
+            })}
 
-const Share = ({
-  setShare,
-  share,
-}: {
-  setShare: (v: null | Data) => void;
-  share: Data | null;
-}) => {
-  const [shareTarget, setShareTarget] = useState("");
-  const [shareVia, setShareVia] = useState("");
-  const [shareDoctor, setShareDoctor] = useState<string>("");
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center p-4">
-      <div
-        className="absolute inset-0 bg-black/40"
-        onClick={() => setShare(null)}
-      />
-      <div className="relative w-full max-w-md bg-white rounded-2xl p-5 shadow-xl">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-lg font-semibold">Share patient</h3>
-          <button
-            onClick={() => setShare(null)}
-            className="text-gray-500 hover:text-gray-900"
-          >
-            ✕
-          </button>
-        </div>
-        <div className="text-sm text-gray-500">{share?.name}</div>
-
-        <div className="mt-4 space-y-4">
-          <div>
-            <div className="text-sm font-medium mb-2">Share to</div>
-            <Segmented
-              options={[
-                { label: "Doctor", value: "Doctor" as const },
-                { label: "Pharmacy", value: "Pharmacy" as const },
-                { label: "Lab", value: "Lab" as const },
-              ]}
-              value={shareTarget}
-              onChange={(v) => setShareTarget(v)}
-            />
-          </div>
-
-          {shareTarget === "Doctor" && (
-            <div>
-              <div className="text-sm font-medium mb-2">Select doctor</div>
-
-              <div className="w-full">
-                <FilterSelect
-                  className="w-full"
-                  value={shareDoctor}
-                  onChange={(v) => setShareDoctor(v)}
-                  placeholder="Select doctor"
-                  searchable
-                  options={[{ label: "All doctors", value: "All" }]}
-                />
-              </div>
-            </div>
-          )}
-
-          <div>
-            <div className="text-sm font-medium mb-2">Via</div>
-            <Segmented
-              options={[
-                { label: "Copy link", value: "Copy link" as const },
-                { label: "Email", value: "Email" as const },
-                { label: "WhatsApp", value: "WhatsApp" as const },
-              ]}
-              value={shareVia}
-              onChange={(v) => setShareVia(v)}
-            />
-          </div>
-
-          <div className="grid gap-2">
-            {shareVia === "Email" && (
-              <input
-                placeholder="Enter email"
-                className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
-              />
+            {data?.data.length === 0 && (
+              <tr>
+                <td
+                  colSpan={11}
+                  className="px-4 py-12 text-center text-sm text-gray-500"
+                >
+                  No patients match your filters.
+                </td>
+              </tr>
             )}
-            {shareVia === "WhatsApp" && (
-              <input
-                placeholder="Enter WhatsApp number"
-                className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
-              />
-            )}
-          </div>
-
-          <button
-            onClick={() => {}}
-            className="w-full h-11 rounded-xl bg-black text-white"
-          >
-            Share
-          </button>
-        </div>
+          </tbody>
+        </table>
+        {history && <History setHistory={setHistory} history={history} />}
+        {share && <Share setShare={setShare} share={share} />}
       </div>
-    </div>
+    </>
   );
-};
+}
 
 function headerCell(label: string) {
   return (
@@ -390,7 +316,7 @@ const Chip: React.FC<{
   );
 };
 
-function Segmented<T extends string>({
+export function Segmented<T extends string>({
   options,
   value,
   onChange,
@@ -423,7 +349,7 @@ function Segmented<T extends string>({
   );
 }
 
-function FilterSelect<T extends string>({
+export function FilterSelect<T extends string>({
   value,
   onChange,
   options,

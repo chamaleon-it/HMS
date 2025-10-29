@@ -1,5 +1,11 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { AlertTriangle, CalendarDays, CheckCircle2, Clock } from "lucide-react";
+import {
+  AlertTriangle,
+  Bed,
+  CalendarDays,
+  Clock,
+  FlaskConical,
+} from "lucide-react";
 import React from "react";
 import useSWR from "swr";
 
@@ -12,11 +18,13 @@ export default function Statistics() {
       consulted: number;
       observation: number;
       completed: number;
+      test: number;
+      admit: number;
       notShow: number;
     };
   }>("/appointments/statistics");
   return (
-    <div className="grid grid-cols-2 md:grid-cols-6 gap-3 my-4">
+    <div className="grid grid-cols-3 md:grid-cols-7 gap-3 my-4">
       <StatTile
         title="Today"
         value={data?.data.today}
@@ -38,9 +46,15 @@ export default function Statistics() {
         icon={<Clock className="h-4 w-4" />}
       />
       <StatTile
-        title="Completed"
-        value={data?.data.completed}
-        icon={<CheckCircle2 className="h-4 w-4" />}
+        title="Send to test"
+        value={data?.data.test}
+        icon={<FlaskConical className="h-4 w-4" />}
+      />
+
+      <StatTile
+        title="Admit"
+        value={data?.data.admit}
+        icon={<Bed className="h-4 w-4" />}
       />
       <StatTile
         title="No Show"
