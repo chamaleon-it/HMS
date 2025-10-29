@@ -8,7 +8,6 @@ import Filter from "./Filter";
 import Statistics from "./Statistics";
 import Drawer from "@/components/ui/drawer";
 import useSWR from "swr";
-import { string } from "zod";
 
 export interface FilterType {
   query: undefined | string;
@@ -122,7 +121,7 @@ export default function PatientsEnhanced() {
     
   tableMutate()
   statisticsMutate()
-  }, [])
+  }, [tableMutate,statisticsMutate])
   
 
   return (

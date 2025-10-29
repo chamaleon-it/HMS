@@ -95,7 +95,7 @@ export default function WeeklyCalender({
 
   useEffect(() => {
     mutate()
-  }, [mutate()])
+  }, [mutate])
   
 
   const { eventsInWeek } = useMemo(() => {

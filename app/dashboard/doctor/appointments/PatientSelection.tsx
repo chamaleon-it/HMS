@@ -101,7 +101,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values }) => {
 
   useEffect(() => {
     mutate()
-  }, [input])
+  }, [input,mutate])
   
 
   const handleSelect = useCallback(
