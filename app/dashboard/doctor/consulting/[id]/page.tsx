@@ -41,6 +41,7 @@ export default function ConsultingMenu() {
       bp: null,
       spo2: null,
       temp: null,
+      tempUnit: "°C",
       rs: null,
       cvs: null,
       pa: null,
@@ -111,7 +112,11 @@ export default function ConsultingMenu() {
                 <Test data={data} setData={setData} />
 
                 <Advice data={data} setData={setData} />
-                <FollowUpTime setData={setData} data={data} />
+                <FollowUpTime
+                  setData={setData}
+                  doctor={appointment.doctor}
+                  patient={appointment.patient._id}
+                />
                 <ActionButton data={data} />
               </Card>
             </div>

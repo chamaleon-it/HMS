@@ -61,11 +61,23 @@ export default function PatientsEnhanced() {
       const now = new Date();
       const from = new Date();
       from.setDate(now.getDate() - filter.lastVisit);
+
+      // set time boundaries
+      from.setHours(0, 0, 0, 0); // 00:00:00.000
+      now.setHours(23, 59, 59, 999); // 23:59:59.999
+
       addParam("from", from.toISOString());
       addParam("to", now.toISOString());
     } else if (filter.dateRange.from && filter.dateRange.to) {
-      addParam("from", new Date(filter.dateRange.from).toISOString());
-      addParam("to", new Date(filter.dateRange.to).toISOString());
+      const from = new Date(filter.dateRange.from);
+      const to = new Date(filter.dateRange.to);
+
+      // set time boundaries
+      from.setHours(0, 0, 0, 0); // start of day
+      to.setHours(23, 59, 59, 999); // end of day
+
+      addParam("from", from.toISOString());
+      addParam("to", to.toISOString());
     }
 
     if (filter.date) addParam("date", filter.date.toISOString());

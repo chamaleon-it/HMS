@@ -31,6 +31,8 @@ import useSWR from "swr";
 import AppointmentSelect from "./AppointmentSelect";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
+import { BLOOD_GROUPS, CONDITIONS } from "./data";
+import InsuranceSelection from "./InsuranceSelection";
 export function RegisterPatient({
   onClose,
   mutate,
@@ -85,13 +87,12 @@ export function RegisterPatient({
     message: string;
   }>("/users/doctors");
 
-
-    const searchParams = useSearchParams();
-    const name = searchParams.get("name");
+  const searchParams = useSearchParams();
+  const name = searchParams.get("name");
 
   useEffect(() => {
     if (name) setValue("name", name);
-  }, [name,setValue]);
+  }, [name, setValue]);
 
   return (
     <form className="space-y-5" onSubmit={createPatient}>
@@ -110,7 +111,11 @@ export function RegisterPatient({
           </div>
           <div className="grid gap-2">
             <Label>Phone *</Label>
-            <Input placeholder="+91" {...register("phoneNumber")} value={values.phoneNumber}/>
+            <Input
+              placeholder="+91"
+              {...register("phoneNumber")}
+              value={values.phoneNumber}
+            />
             {errors.phoneNumber && (
               <p className="text-red-500 text-xs my-1">
                 {errors.phoneNumber.message}
@@ -251,20 +256,10 @@ export function RegisterPatient({
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label>Insurance</Label>
-            <Input placeholder="Insurance" {...register("insurance")} />
-            {errors.insurance && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.insurance.message}
-              </p>
-            )}
-          </div>
+          <InsuranceSelection errors={errors} setValue={setValue} />
 
           <div className="grid gap-2">
             <Label>Insurance validity</Label>
-
-            {/* <Input placeholder="Insurance validity" {...register("insuranceValidity")} /> */}
 
             <Popover
               open={openInsuranceValidityCalander}
@@ -489,239 +484,3 @@ export default function MultiConditionSelect({
     </div>
   );
 }
-
-export const BLOOD_GROUPS = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-
-export const CONDITIONS = [
-  // 🩺 Common & General
-  "Fever",
-  "Cold",
-  "Cough",
-  "Headache",
-  "Body Pain",
-  "Fatigue",
-  "Chills",
-  "Dehydration",
-  "Dizziness",
-  "Nausea",
-  "Vomiting",
-  "Diarrhea",
-  "Constipation",
-  "Abdominal Pain",
-  "Back Pain",
-  "Neck Pain",
-  "Shoulder Pain",
-  "Joint Pain",
-  "Muscle Cramps",
-  "Swelling",
-  "Loss of Appetite",
-  "Weight Loss",
-  "Weight Gain",
-  "Insomnia",
-  "Snoring",
-  "Weakness",
-
-  // 👃 ENT (Ear, Nose, Throat)
-  "Sore Throat",
-  "Tonsillitis",
-  "Ear Pain",
-  "Hearing Loss",
-  "Sinusitis",
-  "Blocked Nose",
-  "Nasal Allergy",
-  "Runny Nose",
-  "Voice Change",
-  "Vertigo",
-
-  // 👁️ Eye
-  "Red Eyes",
-  "Itchy Eyes",
-  "Blurred Vision",
-  "Eye Pain",
-  "Watery Eyes",
-  "Conjunctivitis",
-  "Cataract",
-  "Glaucoma",
-  "Night Blindness",
-
-  // 🫁 Respiratory
-  "Asthma",
-  "Bronchitis",
-  "Shortness of Breath",
-  "Wheezing",
-  "Pneumonia",
-  "Tuberculosis",
-  "COPD",
-  "Allergic Rhinitis",
-
-  // ❤️ Cardiac
-  "Chest Pain",
-  "Palpitations",
-  "High Blood Pressure (Hypertension)",
-  "Low Blood Pressure (Hypotension)",
-  "Heart Attack (Myocardial Infarction)",
-  "Heart Failure",
-  "Coronary Artery Disease",
-  "Arrhythmia",
-  "Stroke",
-
-  // 🍽️ Digestive
-  "Acidity / Heartburn",
-  "Gastritis",
-  "Peptic Ulcer",
-  "GERD (Acid Reflux)",
-  "Indigestion",
-  "Irritable Bowel Syndrome (IBS)",
-  "Liver Disease",
-  "Fatty Liver",
-  "Gallstones",
-  "Pancreatitis",
-  "Jaundice",
-  "Appendicitis",
-  "Ulcerative Colitis",
-  "Crohn’s Disease",
-  "Hernia",
-
-  // 🧠 Neurological
-  "Migraine",
-  "Tension Headache",
-  "Epilepsy",
-  "Stroke (Cerebrovascular Accident)",
-  "Parkinson’s Disease",
-  "Alzheimer’s Disease",
-  "Tremors",
-  "Numbness / Tingling",
-  "Paralysis",
-  "Sleep Disorder",
-  "Memory Loss",
-
-  // 🩸 Endocrine & Metabolic
-  "Diabetes Type 1",
-  "Diabetes Type 2",
-  "Thyroid Disorder (Hypo/Hyper)",
-  "Obesity",
-  "Metabolic Syndrome",
-  "Vitamin Deficiency",
-  "Calcium Deficiency",
-  "Cholesterol (High Lipids)",
-
-  // 🦴 Bones & Joints
-  "Arthritis",
-  "Rheumatoid Arthritis",
-  "Osteoarthritis",
-  "Osteoporosis",
-  "Gout",
-  "Fracture",
-  "Sprain",
-  "Scoliosis",
-  "Slipped Disc",
-
-  // 💧 Kidney & Urinary
-  "Urinary Tract Infection (UTI)",
-  "Kidney Stones",
-  "Chronic Kidney Disease",
-  "Nephritis",
-  "Frequent Urination",
-  "Blood in Urine",
-  "Incontinence",
-
-  // 🧬 Immune / Autoimmune
-  "Lupus (SLE)",
-  "Psoriasis",
-  "Eczema",
-  "Vitiligo",
-  "Allergies",
-  "Autoimmune Thyroiditis",
-
-  // 🧠 Mental Health
-  "Anxiety",
-  "Depression",
-  "Stress",
-  "Panic Attacks",
-  "Bipolar Disorder",
-  "Schizophrenia",
-  "PTSD (Post-Traumatic Stress Disorder)",
-  "Obsessive Compulsive Disorder (OCD)",
-
-  // 👩‍⚕️ Female Health
-  "Menstrual Pain",
-  "Irregular Periods",
-  "PCOS (Polycystic Ovary Syndrome)",
-  "Menopause Symptoms",
-  "Pregnancy Complications",
-  "Pelvic Pain",
-  "Uterine Fibroids",
-  "Ovarian Cyst",
-  "Endometriosis",
-  "Breast Lump",
-  "Breast Cancer",
-
-  // 👨‍⚕️ Male Health
-  "Erectile Dysfunction",
-  "Prostate Enlargement (BPH)",
-  "Prostate Cancer",
-  "Low Testosterone",
-  "Infertility",
-  "Premature Ejaculation",
-
-  // 🧒 Pediatric / General
-  "Chickenpox",
-  "Measles",
-  "Mumps",
-  "Whooping Cough",
-  "Hand, Foot, and Mouth Disease",
-  "Common Cold in Children",
-  "Tonsillitis in Children",
-  "Teething Pain",
-
-  // 🧫 Infectious Diseases
-  "Viral Fever",
-  "Malaria",
-  "Typhoid",
-  "Dengue Fever",
-  "Chikungunya",
-  "COVID-19",
-  "Hepatitis A",
-  "Hepatitis B",
-  "Hepatitis C",
-  "HIV / AIDS",
-
-  // 🧍 Skin & Hair
-  "Acne",
-  "Hair Loss / Alopecia",
-  "Dandruff",
-  "Fungal Infection",
-  "Ringworm",
-  "Skin Rash",
-  "Hives",
-  "Sunburn",
-  "Pigmentation",
-  "Melasma",
-
-  // 🦷 Dental
-  "Toothache",
-  "Gum Bleeding",
-  "Bad Breath",
-  "Dental Cavity",
-  "Mouth Ulcer",
-  "Sensitive Teeth",
-
-  // 🦠 Cancer (Major)
-  "Lung Cancer",
-  "Colon Cancer",
-  "Liver Cancer",
-  "Pancreatic Cancer",
-  "Brain Tumor",
-  "Leukemia",
-  "Lymphoma",
-
-  // ⚕️ Others
-  "Anemia",
-  "Seizure",
-  "Injury",
-  "Post-Surgery Recovery",
-  "Allergic Reaction",
-  "Poisoning",
-  "Heat Stroke",
-  "Sunstroke",
-];

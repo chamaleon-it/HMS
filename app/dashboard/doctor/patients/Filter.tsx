@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { FilterType } from "./page";
-import { CONDITIONS } from "./RegisterPatient";
+import { CONDITIONS } from "./data";
 import useSWR from "swr";
-
 
 export default function Filter({
   filter,
@@ -19,8 +18,6 @@ export default function Filter({
     }[];
     message: string;
   }>("/users/doctors");
-
-
 
   return (
     <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-sm mb-4">

@@ -25,7 +25,7 @@ export default function PatientSnapshot({
   setMaskIDs,
   maskIDs,
   consult,
-  patient
+  patient,
 }: {
   blurIDsClass: "" | "blur-sm";
   showPHI: boolean;
@@ -33,11 +33,9 @@ export default function PatientSnapshot({
   setShowPHI: React.Dispatch<React.SetStateAction<boolean>>;
   setMaskIDs: React.Dispatch<React.SetStateAction<boolean>>;
   maskIDs: boolean;
-  consult:ConsultationType[],
-  patient:PatientType | undefined
+  consult: ConsultationType[];
+  patient: PatientType | undefined;
 }) {
-  
-
   return (
     <div className="lg:col-span-4 space-y-4">
       <Card className="overflow-hidden">
@@ -83,7 +81,7 @@ export default function PatientSnapshot({
                 <Stat
                   label={"Temp"}
                   value={consult[0]?.examinationNote.temp}
-                  sub={"°C"}
+                  sub={consult[0]?.examinationNote.tempUnit || "°C"}
                 />
               </div>
             )}
@@ -319,8 +317,10 @@ function Stat({
       <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
         {label}
       </span>
-      <div className="text-lg font-semibold leading-tight">{value}</div>
-      {sub && <span className="text-xs text-muted-foreground">{sub}</span>}
+      <div className="text-lg font-semibold leading-tight">
+        {value}{" "}
+        {sub && <span className="text-xs text-muted-foreground">{sub}</span>}
+      </div>
     </div>
   );
 }

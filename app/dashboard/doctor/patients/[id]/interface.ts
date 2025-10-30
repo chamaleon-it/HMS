@@ -48,6 +48,7 @@ export interface ConsultationType {
     bp: string;
     spo2: string;
     temp: string;
+    tempUnit: "°C" | "°F";
     rs: string;
     cvs: string;
     pa: string;
@@ -77,29 +78,27 @@ export interface ConsultationType {
   updatedAt: Date;
 }
 
-
-
-export interface PatientType  {
-      address: string;
-      dateOfBirth: Date;
-      allergies: string;
-      blood: string;
-      conditions: string[];
-      createdAt: Date;
-      email: string;
-      gender: string;
-      name: string;
-      notes: string;
-      phoneNumber: string;
-      _id: string;
-      mrn: string;
-      doctor: {
-        _id: string;
-        name: string;
-        specialization: string;
-      };
-      insurance: string;
-      insuranceValidity: Date;
-      emergencyContactNumber: string;
-      uhid:string
-    }
+export interface PatientType {
+  address: string;
+  dateOfBirth: Date;
+  allergies: string;
+  blood: string;
+  conditions: string[];
+  createdAt: Date;
+  email: string;
+  gender: string;
+  name: string;
+  notes: string;
+  phoneNumber: string;
+  _id: string;
+  mrn: string;
+  doctor: {
+    _id: string;
+    name: string;
+    specialization: string;
+  };
+  insurance: string;
+  insuranceValidity: Date;
+  emergencyContactNumber: string;
+  uhid: string;
+}

@@ -38,6 +38,7 @@ export interface DataType {
     bp: null | string;
     spo2: null | string;
     temp: null | string;
+    tempUnit: "°C" | "°F";
     rs: null | string;
     cvs: null | string;
     pa: null | string;

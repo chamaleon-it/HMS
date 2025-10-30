@@ -79,17 +79,7 @@ export default function List({
               </div>
               <div className="col-span-1 flex items-center justify-end gap-2">
                 <span className="inline-flex items-center gap-2 text-sm">
-                  <Chip
-                    label={row.status}
-                    tone={
-                      (row.status === "Not show" && "red") ||
-                      (row.status === "Upcoming" && "gray") ||
-                      (row.status === "Consulted" && "blue") ||
-                      (row.status === "Observation" && "amber") ||
-                      (row.status === "Completed" && "green") ||
-                      "gray"
-                    }
-                  />
+                  <Chip label={row.status} tone={row.status || "gray"} />
                 </span>
               </div>
             </li>
@@ -101,14 +91,32 @@ export default function List({
 
 const Chip: React.FC<{
   label: string;
-  tone?: "green" | "gray" | "red" | "blue" | "amber";
+  tone?:
+    | "green"
+    | "gray"
+    | "red"
+    | "blue"
+    | "amber"
+    | "Upcoming"
+    | "Test"
+    | "Observation"
+    | "Admit"
+    | "Consulted"
+    | "Not show";
 }> = ({ label, tone = "gray" }) => {
   const tones: Record<string, string> = {
-    green: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    gray: "bg-slate-100 text-slate-700 ring-slate-200",
-    red: "bg-rose-50 text-rose-700 ring-rose-200",
-    blue: "bg-sky-50 text-sky-700 ring-sky-200",
-    amber: "bg-amber-50 text-amber-700 ring-amber-200",
+    // green: "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    // gray: "bg-slate-100 text-slate-700 ring-slate-200",
+    // red: "bg-rose-50 text-rose-700 ring-rose-200",
+    // blue: "bg-sky-50 text-sky-700 ring-sky-200",
+    // amber: "bg-amber-50 text-amber-700 ring-amber-200",
+
+    Upcoming: "bg-slate-400 text-slate-700 ring-slate-700",
+    Test: "bg-sky-400  text-white ring-sky-700",
+    Observation: "bg-amber-400  text-white ring-amber-700",
+    Admit: "bg-rose-400  text-white ring-rose-700",
+    Consulted: "bg-emerald-400  text-white ring-emerald-700",
+    "Not show": "bg-red-700 text-white ring-red-700",
   };
   return (
     <span

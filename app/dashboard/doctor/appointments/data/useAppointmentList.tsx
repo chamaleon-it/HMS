@@ -50,7 +50,7 @@ export default function useAppointmentList({
         | "Upcoming"
         | "Consulted"
         | "Observation"
-        | "Completed"
+        // | "Completed"
         | "Not show";
       isPaid: boolean;
       createdAt: Date;
