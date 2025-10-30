@@ -164,13 +164,13 @@ export default function DoctorProfile() {
               <User className="mr-2 h-4 w-4" /> View profile
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem className="px-3">
+            <DropdownMenuItem className="px-3" asChild>
               <Button
                 onClick={() => {
                   logout();
                 }}
                 variant={"ghost"}
-                className="flex gap-2 items-center text-rose-600 hover:text-rose-700"
+                className="flex gap-2 items-center text-rose-600 hover:text-rose-700 w-full text-left justify-start py-5"
               >
                 <LogOut className="h-4 w-4 text-rose-600 hover:text-rose-700" />{" "}
                 Log out
