@@ -143,79 +143,84 @@ export default function ExaminationNote({
   setData: React.Dispatch<React.SetStateAction<DataType>>;
 }) {
   const [isFahrenheit, setIsFahrenheit] = useState(false);
-  const ALL_FIELDS: Record<FieldKey, FieldMeta> = {
-    HR: { id: "HR", label: "HR", type: "input", unit: "bpm" },
-    BP: { id: "BP", label: "BP", type: "input", unit: "mmHg" },
-    SpO2: { id: "SpO2", label: "SpO₂", type: "input", unit: "%" },
-    Temp: {
-      id: "Temp",
-      label: "Temp",
-      type: "input",
-      unit: (
-        <div className="flex items-center gap-3">
-          {/* °C Label */}
-          <span
-            className={`text-sm transition-colors ${
-              !isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
-            }`}
-          >
-            °C
-          </span>
 
-          {/* Futuristic Toggle */}
-          <button
-            onClick={() => {
-              setIsFahrenheit((prevIsFahrenheit) => {
-                const nextIsFahrenheit = !prevIsFahrenheit;
+  const ALL_FIELDS: Record<FieldKey, FieldMeta> = useMemo(() => {
+    return {
+      HR: { id: "HR", label: "HR", type: "input", unit: "bpm" },
+      BP: { id: "BP", label: "BP", type: "input", unit: "mmHg" },
+      SpO2: { id: "SpO2", label: "SpO₂", type: "input", unit: "%" },
+      Temp: {
+        id: "Temp",
+        label: "Temp",
+        type: "input",
+        unit: (
+          <div className="flex items-center gap-3">
+            {/* °C Label */}
+            <span
+              className={`text-sm transition-colors ${
+                !isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
+              }`}
+            >
+              °C
+            </span>
 
-                setData((prevData) => ({
-                  ...prevData,
-                  examinationNote: {
-                    ...prevData.examinationNote,
-                    tempUnit: nextIsFahrenheit ? "°F" : "°C",
-                  },
-                }));
-
-                return nextIsFahrenheit;
-              });
-            }}
-            aria-pressed={isFahrenheit}
-            className="relative w-10 h-5 rounded-full bg-green-600 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-          >
-            <motion.div
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-30"
-              animate={{ opacity: isFahrenheit ? 0.6 : 0.25 }}
-              transition={{ duration: 0.3 }}
-            />
-            <motion.div
-              className="absolute top-1/2 left-[3px] w-3.5 h-3.5 rounded-full bg-white shadow transform -translate-y-1/2"
-              animate={{
-                x: isFahrenheit ? 20 : 0,
-                backgroundColor: isFahrenheit ? "#FFF" : "#ffffff",
+            {/* Futuristic Toggle */}
+            <button
+              onClick={() => {
+                setIsFahrenheit((prevIsFahrenheit) => {
+                  const nextIsFahrenheit = !prevIsFahrenheit;
+                  setData((prevData) => ({
+                    ...prevData,
+                    examinationNote: {
+                      ...prevData.examinationNote,
+                      tempUnit: nextIsFahrenheit ? "°F" : "°C",
+                    },
+                  }));
+                  return nextIsFahrenheit;
+                });
               }}
-              transition={{ type: "spring", stiffness: 260, damping: 18 }}
-            />
-          </button>
+              aria-pressed={isFahrenheit}
+              className="relative w-10 h-5 rounded-full bg-green-600 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+            >
+              <motion.div
+                className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-30"
+                animate={{ opacity: isFahrenheit ? 0.6 : 0.25 }}
+                transition={{ duration: 0.3 }}
+              />
+              <motion.div
+                className="absolute top-1/2 left-[3px] w-3.5 h-3.5 rounded-full bg-white shadow transform -translate-y-1/2"
+                animate={{
+                  x: isFahrenheit ? 20 : 0,
+                  backgroundColor: "#ffffff",
+                }}
+                transition={{ type: "spring", stiffness: 260, damping: 18 }}
+              />
+            </button>
 
-          {/* °F Label */}
-          <span
-            className={`text-sm transition-colors ${
-              isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
-            }`}
-          >
-            °F
-          </span>
-        </div>
-      ),
-    },
-    RS: { id: "RS", label: "RS", type: "textarea" },
-    CVS: { id: "CVS", label: "CVS", type: "textarea" },
-    PA: { id: "PA", label: "P/A", type: "textarea" },
-    CNS: { id: "CNS", label: "CNS", type: "textarea" },
-    LE: { id: "LE", label: "L/E", type: "textarea" },
-  };
+            {/* °F Label */}
+            <span
+              className={`text-sm transition-colors ${
+                isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
+              }`}
+            >
+              °F
+            </span>
+          </div>
+        ),
+      },
+      RS: { id: "RS", label: "RS", type: "textarea" },
+      CVS: { id: "CVS", label: "CVS", type: "textarea" },
+      PA: { id: "PA", label: "P/A", type: "textarea" },
+      CNS: { id: "CNS", label: "CNS", type: "textarea" },
+      LE: { id: "LE", label: "L/E", type: "textarea" },
+    };
+  }, [isFahrenheit, setIsFahrenheit, setData]);
 
-  const ALL_KEYS = Object.keys(ALL_FIELDS) as FieldKey[];
+  const ALL_KEYS = useMemo(
+    () => Object.keys(ALL_FIELDS) as FieldKey[],
+    [ALL_FIELDS]
+  );
+
   const isFieldKey = useCallback(
     (x: unknown): x is FieldKey => {
       return (

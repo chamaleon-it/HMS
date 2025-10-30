@@ -321,7 +321,9 @@ export default function FollowUpTimePro({
         </Card>
       </div>
       <div className="flex justify-end">
-        <Button onClick={Book}>Book</Button>
+        <Button onClick={Book} type="button">
+          Book
+        </Button>
       </div>
     </>
   );
