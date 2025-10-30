@@ -118,7 +118,7 @@ const Chip: React.FC<{
   };
   return (
     <span
-      className={`px-2.5 py-1 rounded-full text-xs font-medium ring-1 whitespace-nowrap ${tones[tone]}`}
+      className={`px-2.5 py-1 rounded-full text-xs font-medium ring-1 ${tones[tone]}`}
     >
       {label}
     </span>
