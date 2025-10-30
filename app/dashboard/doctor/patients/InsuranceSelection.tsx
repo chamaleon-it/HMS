@@ -71,7 +71,7 @@ export default function InsuranceSelection({
               ref={inputRef}
               placeholder="Select or type insurance"
               value={query}
-              onFocus={() => setOpen(true)}
+              // onFocus={() => setOpen(true)}
               onChange={(e) => {
                 const v = e.target.value;
                 setQuery(v);

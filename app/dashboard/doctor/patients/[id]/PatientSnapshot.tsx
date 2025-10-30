@@ -185,12 +185,12 @@ export default function PatientSnapshot({
                 icon: <AlertTriangle className="h-3.5 w-3.5" />,
                 color: "bg-red-500/10 text-red-600",
               },
-              {
-                view: true,
-                label: "Chronic",
-                icon: <Heart className="h-3.5 w-3.5" />,
-                color: "bg-rose-500/10 text-rose-600",
-              },
+              // {
+              //   view: true,
+              //   label: "Chronic",
+              //   icon: <Heart className="h-3.5 w-3.5" />,
+              //   color: "bg-rose-500/10 text-rose-600",
+              // },
               {
                 view: Boolean(patient?.insurance),
                 label: "Insurance",

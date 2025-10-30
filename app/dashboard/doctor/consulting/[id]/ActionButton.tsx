@@ -54,7 +54,8 @@ export default function ActionButton({ data }: { data: DataType }) {
       </Button>
       <motion.div whileTap={{ scale: 0.98 }} className="flex flex-wrap gap-3">
         {/* Test Button */}
-        <Button type="button"
+        <Button
+          type="button"
           onClick={() => consulting("Test")}
           className="flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold shadow-sm cursor-pointer"
         >
@@ -63,7 +64,8 @@ export default function ActionButton({ data }: { data: DataType }) {
         </Button>
 
         {/* Observation Button */}
-        <Button type="button"
+        <Button
+          type="button"
           onClick={() => consulting("Observation")}
           className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-semibold shadow-sm cursor-pointer"
         >
@@ -72,7 +74,8 @@ export default function ActionButton({ data }: { data: DataType }) {
         </Button>
 
         {/* Admit Button */}
-        <Button type="button"
+        <Button
+          type="button"
           onClick={() => consulting("Admit")}
           className="flex items-center gap-2 bg-rose-600 hover:bg-rose-700 text-white font-semibold shadow-sm cursor-pointer"
         >
@@ -81,7 +84,8 @@ export default function ActionButton({ data }: { data: DataType }) {
         </Button>
 
         {/* Complete Consultation */}
-        <Button type="button"
+        <Button
+          type="button"
           onClick={() => consulting("Consulted")}
           className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold shadow-sm cursor-pointer"
         >

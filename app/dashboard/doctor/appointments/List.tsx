@@ -24,7 +24,7 @@ export default function List({
         <div className="col-span-3">Patient</div>
         <div className="col-span-3">Doctor</div>
         <div className="col-span-1">Method</div>
-        <div className="col-span-1 text-right">Status</div>
+        <div className="col-span-1">Status</div>
       </div>
       <ul className="divide-y">
         {data?.data
@@ -77,10 +77,8 @@ export default function List({
                   {row.method}
                 </span>
               </div>
-              <div className="col-span-1 flex items-center justify-end gap-2">
-                <span className="inline-flex items-center gap-2 text-sm">
-                  <Chip label={row.status} tone={row.status || "gray"} />
-                </span>
+              <div className="col-span-1 flex items-center justify-start gap-2">
+                <Chip label={row.status} tone={row.status || "gray"} />
               </div>
             </li>
           ))}
@@ -111,12 +109,12 @@ const Chip: React.FC<{
     // blue: "bg-sky-50 text-sky-700 ring-sky-200",
     // amber: "bg-amber-50 text-amber-700 ring-amber-200",
 
-    Upcoming: "bg-slate-400 text-slate-700 ring-slate-700",
-    Test: "bg-sky-400  text-white ring-sky-700",
-    Observation: "bg-amber-400  text-white ring-amber-700",
-    Admit: "bg-rose-400  text-white ring-rose-700",
-    Consulted: "bg-emerald-400  text-white ring-emerald-700",
-    "Not show": "bg-red-700 text-white ring-red-700",
+    Upcoming: "bg-slate-100 text-slate-700 ring-slate-700",
+    Test: "bg-sky-100  text-sky-700 ring-sky-700",
+    Observation: "bg-amber-100  text-amber-700 ring-amber-700",
+    Admit: "bg-rose-100  text-rose-700 ring-rose-700",
+    Consulted: "bg-emerald-100  text-emerald-700 ring-emerald-700",
+    "Not show": "bg-red-100 text-red-700 ring-red-700",
   };
   return (
     <span
