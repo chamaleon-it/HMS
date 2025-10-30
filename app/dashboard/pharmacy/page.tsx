@@ -1,16 +1,9 @@
 "use client";
 
-import React, { JSX, useEffect, useState } from "react";
-import {
-  Calendar as CalendarIcon,
-  Bell,
-  RefreshCcw,
-  Search,
-  Home,
-} from "lucide-react";
+import React, { useState, useEffect } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Table,
@@ -28,33 +21,46 @@ import {
 } from "@/components/ui/dialog";
 import AppShell from "@/components/layout/app-shell";
 
-// -----------------------------
-// Types
-// -----------------------------
-type Priority = "STAT" | "VIP" | "Routine";
-type Status = "Filling" | "Clinical Check" | "Ready";
+const today = new Date().toLocaleDateString("en-IN", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
 
-type RxQueueItem = {
-  id: string;
-  patient: string;
-  items: number;
-  priority: Priority;
-  status: Status | string;
-  assignedTo: string | null;
+const formatINR = (n: number | undefined | null) =>
+  new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+  }).format(n || 0);
+
+const calcTotals = (items: RxItem[] = []) => {
+  let sub = 0;
+  for (const it of items) {
+    sub += (Number(it.qty) || 0) * (Number(it.mrp) || 0);
+  }
+  const grand = Math.round(sub);
+  const round = +(grand - sub).toFixed(2);
+  return { sub, round, grand };
 };
 
-type RxItem = {
+// -----------------------------------------------------------------------------
+// Types (for clarity & IDE hints)
+// -----------------------------------------------------------------------------
+
+interface RxItem {
   sl: number;
-  name: string;
+  brand: string;
+  generic: string;
+  hsn?: string;
   batch: string;
   exp: string;
   qty: number;
   mrp: number;
-  sig: string;
-  subs?: string[];
-};
+  sig: string; // instructions
+  subs?: string[]; // substitutions
+}
 
-type RxDetail = {
+interface RxDetailsEntry {
   billNo: string;
   date: string;
   doctor: { name: string; reg: string };
@@ -66,40 +72,24 @@ type RxDetail = {
     address: string;
   };
   items: RxItem[];
-};
+}
 
-type PackedState = Record<number, boolean>;
+interface RxQueueRow {
+  id: string;
+  patient: string;
+  items: number;
+  priority: string;
+  status: string;
+  assignedTo: string | null;
+}
 
-type Totals = { sub: number; round: number; grand: number };
+// -----------------------------------------------------------------------------
+// Mock data
+// -----------------------------------------------------------------------------
 
-// -----------------------------
-// Helpers
-// -----------------------------
-const today: string = new Date().toLocaleDateString("en-IN", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
-
-const formatINR = (n: number | undefined | null): string =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
-    Number(n ?? 0)
-  );
-
-const calcTotals = (items: RxItem[] = []): Totals => {
-  let sub = 0;
-  for (const it of items) sub += (Number(it.qty) || 0) * (Number(it.mrp) || 0);
-  const grand = Math.round(sub);
-  const round = +(grand - sub).toFixed(2);
-  return { sub, round, grand };
-};
-
-// -----------------------------
-// Data (mock)
-// -----------------------------
 const currentPharmacist = "sahla";
 
-const rxQueue: RxQueueItem[] = [
+const rxQueue: RxQueueRow[] = [
   {
     id: "RX-2401",
     patient: "Ameen K",
@@ -134,7 +124,7 @@ const rxQueue: RxQueueItem[] = [
   },
 ];
 
-const rxDetails: Record<string, RxDetail> = {
+const rxDetails: Record<string, RxDetailsEntry> = {
   "RX-2401": {
     billNo: "B-10245",
     date: today,
@@ -149,17 +139,21 @@ const rxDetails: Record<string, RxDetail> = {
     items: [
       {
         sl: 1,
-        name: "Paracetamol 500 mg Tab",
+        brand: "T Dolo 650 mg",
+        generic: "Paracetamol / Acetaminophen",
+        hsn: "3004",
         batch: "PARA23A",
         exp: "01/2027",
         qty: 1,
         mrp: 35.0,
         sig: "1 tab SOS for fever",
-        subs: ["Dolo 650", "Crocin 500"],
+        subs: ["Crocin 500"],
       },
       {
         sl: 2,
-        name: "Cetirizine 10 mg Tab",
+        brand: "T Cetirizine 10 mg",
+        generic: "Cetirizine Hydrochloride",
+        hsn: "3004",
         batch: "CET24B",
         exp: "04/2027",
         qty: 1,
@@ -169,7 +163,9 @@ const rxDetails: Record<string, RxDetail> = {
       },
       {
         sl: 3,
-        name: "ORS 21g Sachet",
+        brand: "ORS 21g Sachet",
+        generic: "Oral Rehydration Salts",
+        hsn: "3004",
         batch: "ORS25C",
         exp: "11/2026",
         qty: 2,
@@ -193,7 +189,9 @@ const rxDetails: Record<string, RxDetail> = {
     items: [
       {
         sl: 1,
-        name: "Amoxicillin 500 mg Cap",
+        brand: "Cap Amoxicillin 500 mg",
+        generic: "Amoxicillin Trihydrate",
+        hsn: "3003",
         batch: "AMX25A",
         exp: "11/2025",
         qty: 1,
@@ -203,7 +201,9 @@ const rxDetails: Record<string, RxDetail> = {
       },
       {
         sl: 2,
-        name: "Lactobacillus Caps",
+        brand: "Capsule Lactobacillus",
+        generic: "Probiotic (Lactobacillus)",
+        hsn: "3004",
         batch: "LAC25D",
         exp: "02/2027",
         qty: 1,
@@ -215,9 +215,10 @@ const rxDetails: Record<string, RxDetail> = {
   },
 };
 
-// -----------------------------
+// -----------------------------------------------------------------------------
 // Small barcode (visual only)
-// -----------------------------
+// -----------------------------------------------------------------------------
+
 function Barcode({ value }: { value: string }) {
   const bars = Array.from(value || "").map(
     (ch, i) => ((ch.charCodeAt(0) + i) % 7) + 2
@@ -227,7 +228,9 @@ function Barcode({ value }: { value: string }) {
   return (
     <svg width={totalW} height={48} className="bg-white">
       {bars.map((w, i) => {
-        const rect = <rect key={i} x={x} y={0} width={w} height={48} fill="#000" />;
+        const rect = (
+          <rect key={i} x={x} y={0} width={w} height={48} fill="#000" />
+        );
         x += w + 1;
         return rect;
       })}
@@ -235,76 +238,58 @@ function Barcode({ value }: { value: string }) {
   );
 }
 
-// -----------------------------
-// Badges / Topbar
-// -----------------------------
-function StatusBadge({ status }: { status: Status | string }) {
+// -----------------------------------------------------------------------------
+// Badges + Topbar
+// -----------------------------------------------------------------------------
+
+function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
     Filling: "bg-blue-100 text-blue-700",
     "Clinical Check": "bg-amber-100 text-amber-700",
     Ready: "bg-emerald-100 text-emerald-700",
   };
   return (
-    <Badge className={`${map[status] || "bg-slate-100 text-slate-700"}`}>
+    <Badge className={map[status] || "bg-slate-100 text-slate-700"}>
       {status}
     </Badge>
   );
 }
 
-function PriorityBadge({ priority }: { priority: Priority }) {
-  const map: Record<Priority, string> = {
+function PriorityBadge({ priority }: { priority: string }) {
+  const map: Record<string, string> = {
     STAT: "bg-rose-100 text-rose-700",
     VIP: "bg-purple-100 text-purple-700",
     Routine: "bg-sky-100 text-sky-700",
   };
-  return <Badge className={map[priority]}>{priority}</Badge>;
-}
-
-function Topbar() {
   return (
-    <div className=" bg-white/80 backdrop-blur border-b">
-      <div className="max-w-7xl mx-auto px-4 py-3 flex items-center gap-2">
-        <Home className="w-6 h-6" />
-        <div className="font-semibold tracking-tight">Pharmacy — Home</div>
-        <div className="ml-auto flex items-center gap-2">
-          <div className="relative w-64">
-            <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-            <Input className="pl-8" placeholder="Search RX, patients, SKUs…" />
-          </div>
-          <Button variant="outline" className="gap-2">
-            <CalendarIcon className="w-4 h-4" />
-            {today}
-          </Button>
-          <Button variant="outline" size="icon">
-            <RefreshCcw className="w-4 h-4" />
-          </Button>
-          <Button variant="outline" size="icon">
-            <Bell className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
+    <Badge className={map[priority] || "bg-slate-100 text-slate-700"}>
+      {priority}
+    </Badge>
   );
 }
 
-// -----------------------------
-// RX Queue + Packing View
-// -----------------------------
-function RxQueue() {
-  const [open, setOpen] = useState<boolean>(false);
-  const [selected, setSelected] = useState<RxQueueItem | null>(null);
-  const [packed, setPacked] = useState<PackedState>({});
+// -----------------------------------------------------------------------------
+// RX Queue + Packing View Dialog
+// -----------------------------------------------------------------------------
 
+function RxQueue() {
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<RxQueueRow | null>(null);
+  const [packed, setPacked] = useState<Record<number, boolean>>({});
+
+  // init packed[] when modal opens on a new RX
   useEffect(() => {
     if (!selected) return;
     const d = rxDetails[selected.id];
     if (!d) return;
-    const init: PackedState = {};
-    d.items.forEach((it) => (init[it.sl] = false));
+    const init: Record<number, boolean> = {};
+    d.items.forEach((it) => {
+      init[it.sl] = false;
+    });
     setPacked(init);
   }, [selected]);
 
-  const handleView = (rx: RxQueueItem) => {
+  const handleView = (rx: RxQueueRow) => {
     setSelected(rx);
     setOpen(true);
   };
@@ -313,15 +298,20 @@ function RxQueue() {
     if (!selected) return;
     const d = rxDetails[selected.id];
     if (!d) return;
-    const next: PackedState = {};
-    d.items.forEach((it) => (next[it.sl] = true));
+    const next: Record<number, boolean> = {};
+    d.items.forEach((it) => {
+      next[it.sl] = true;
+    });
     setPacked(next);
   };
 
-  const headerBg = "bg-slate-700"; // toned-down header color
+  // helper for footer label
+  const allPacked =
+    Object.values(packed).length > 0 && Object.values(packed).every(Boolean);
 
   return (
     <div>
+      {/* Queue header row */}
       <div className="flex items-center justify-between mb-2">
         <div>
           <h2 className="text-lg font-semibold">RX Queue</h2>
@@ -336,8 +326,9 @@ function RxQueue() {
         </Tabs>
       </div>
 
+      {/* RX table */}
       <Table>
-        <TableHeader className={headerBg}>
+        <TableHeader className="bg-slate-700">
           <TableRow>
             <TableHead className="text-white font-semibold">Sl No</TableHead>
             <TableHead className="text-white font-semibold">RX ID</TableHead>
@@ -393,19 +384,25 @@ function RxQueue() {
                 )}
               </TableCell>
               <TableCell className="text-right space-x-2">
-                <Button size="sm" variant="outline" onClick={() => handleView(r)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleView(r)}
+                >
                   View
                 </Button>
-                <Button size="sm" variant="outline">Delete</Button>
+                <Button size="sm" variant="outline">
+                  Delete
+                </Button>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
-      {/* Packing View */}
+      {/* Packing View Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-7xl min-w-5xl w-full">
+        <DialogContent className="!w-[98vw] !max-w-7xl">
           <DialogHeader>
             <DialogTitle className="text-xl">
               Packing View — {selected?.id}
@@ -416,17 +413,19 @@ function RxQueue() {
             (() => {
               const d = rxDetails[selected.id];
               const { sub, round, grand } = calcTotals(d.items);
-              const allPacked = Object.values(packed).every(Boolean);
 
               return (
                 <div className="space-y-4 max-h-[75vh] overflow-auto pr-1 pb-16">
-                  {/* Patient & RX header */}
+                  {/* Patient + Bill Row */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
+                    {/* Patient card */}
                     <div className="border rounded-lg p-3 md:col-span-2">
                       <div className="text-xs uppercase tracking-wide text-slate-500">
                         Patient
                       </div>
-                      <div className="font-semibold text-lg">{d.patient.name}</div>
+                      <div className="font-semibold text-lg">
+                        {d.patient.name}
+                      </div>
                       <div className="text-sm text-slate-700">
                         Age/Gender: {d.patient.age} / {d.patient.gender} • Ph:{" "}
                         {d.patient.phone}
@@ -438,16 +437,20 @@ function RxQueue() {
                         Doctor: {d.doctor.name} • Reg: {d.doctor.reg}
                       </div>
                     </div>
+
+                    {/* Bill card */}
                     <div className="border rounded-lg p-3 flex items-center justify-between">
                       <div>
                         <div className="text-xs text-slate-600">
-                          Bill No: <span className="font-medium">{d.billNo}</span>
+                          Bill No:{" "}
+                          <span className="font-medium">{d.billNo}</span>
                         </div>
                         <div className="text-xs text-slate-600">
                           Date: <span className="font-medium">{d.date}</span>
                         </div>
                         <div className="text-xs text-slate-600">
-                          RX ID: <span className="font-medium">{selected.id}</span>
+                          RX ID:{" "}
+                          <span className="font-medium">{selected.id}</span>
                         </div>
                       </div>
                       <div className="ml-3 bg-white p-1 rounded border">
@@ -456,7 +459,7 @@ function RxQueue() {
                     </div>
                   </div>
 
-                  {/* Items table */}
+                  {/* Items List */}
                   <div className="rounded-lg border overflow-hidden">
                     <table className="w-full text-[15px]">
                       <thead className="bg-slate-50 text-slate-700">
@@ -479,22 +482,42 @@ function RxQueue() {
                             (Number(it.qty) || 0) * (Number(it.mrp) || 0);
                           return (
                             <tr key={it.sl} className="border-t align-top">
-                              <td className="p-2">{it.sl}</td>
-                              <td className="p-2 font-medium">{it.name}</td>
-                              <td className="p-2">{it.batch}</td>
-                              <td className="p-2">{it.exp}</td>
-                              <td className="p-2 text-right text-lg font-semibold">
+                              <td className="p-2 align-top">{it.sl}</td>
+                              <td className="p-2 align-top">
+                                <div className="font-medium text-slate-900 leading-snug">
+                                  {it.brand}
+                                </div>
+                                <div className="text-[12px] text-slate-600 leading-snug">
+                                  (Gen: {it.generic})
+                                </div>
+                                {it.hsn && (
+                                  <div className="text-[11px] text-slate-400 leading-snug">
+                                    HSN: {it.hsn}
+                                  </div>
+                                )}
+                              </td>
+                              <td className="p-2 align-top text-slate-700">
+                                {it.batch}
+                              </td>
+                              <td className="p-2 align-top text-slate-700">
+                                {it.exp}
+                              </td>
+                              <td className="p-2 align-top text-right text-lg font-semibold text-slate-900">
                                 {it.qty}
                               </td>
-                              <td className="p-2 text-slate-700">{it.sig}</td>
-                              <td className="p-2 text-slate-700">
-                                {it.subs?.join(", ") || "-"}
+                              <td className="p-2 align-top text-slate-700">
+                                {it.sig}
                               </td>
-                              <td className="p-2 text-right">{formatINR(it.mrp)}</td>
-                              <td className="p-2 text-right font-medium">
+                              <td className="p-2 align-top text-slate-700">
+                                {it.subs?.length ? it.subs.join(", ") : "-"}
+                              </td>
+                              <td className="p-2 align-top text-right whitespace-nowrap">
+                                {formatINR(it.mrp)}
+                              </td>
+                              <td className="p-2 align-top text-right font-medium whitespace-nowrap">
                                 {formatINR(amount)}
                               </td>
-                              <td className="p-2 text-center">
+                              <td className="p-2 align-top text-center">
                                 <input
                                   type="checkbox"
                                   className="h-5 w-5"
@@ -541,7 +564,7 @@ function RxQueue() {
                   </div>
 
                   {/* Footer actions */}
-                  <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-3 pb-2 mt-4 flex items-center justify-between">
+                  <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-3 pb-2 mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm">
                     <div className="text-sm">
                       Packed:{" "}
                       <span
@@ -552,6 +575,7 @@ function RxQueue() {
                         {allPacked ? "All items confirmed" : "In progress"}
                       </span>
                     </div>
+
                     <div className="flex items-center gap-2">
                       <Button
                         className="bg-emerald-600 hover:bg-emerald-700 text-white"
@@ -561,7 +585,7 @@ function RxQueue() {
                       </Button>
                       <Button
                         className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                        onClick={() => (typeof window !== "undefined" ? window.print?.() : undefined)}
+                        onClick={() => window.print?.()}
                       >
                         Print
                       </Button>
@@ -582,16 +606,16 @@ function RxQueue() {
   );
 }
 
-export default function PharmacyPage(): JSX.Element {
+// -----------------------------------------------------------------------------
+// Page wrapper
+// -----------------------------------------------------------------------------
+
+export default function PharmacyHome() {
   return (
     <AppShell>
-
-    <div className="min-h-[calc(100vh-80px)]">
-      <Topbar />
-      <main className="px-5 space-y-6">
+      <main className="p-5 min-h-[calc(100vh-80px)]">
         <RxQueue />
       </main>
-    </div>
     </AppShell>
   );
 }

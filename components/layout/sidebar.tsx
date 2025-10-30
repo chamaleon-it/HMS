@@ -8,6 +8,9 @@ import {
   CalendarClock,
   Users2,
   CreditCard,
+  Warehouse,
+  Undo2,
+  ShoppingCart,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -79,6 +82,24 @@ export function Sidebar() {
         label: "Dashboard",
         icon: LayoutDashboard,
         link: "/dashboard/pharmacy",
+      },
+      {
+        key: "inventory",
+        label: "Inventory",
+        icon: Warehouse,
+        link: "/dashboard/pharmacy/inventory",
+      },
+      {
+        key: "return",
+        label: "Return",
+        icon: Undo2,
+        link: "/dashboard/pharmacy/return",
+      },
+      {
+        key: "purchase",
+        label: "Purchase",
+        icon: ShoppingCart,
+        link: "/dashboard/pharmacy/purchase",
       },
     ]) ||
     [];
