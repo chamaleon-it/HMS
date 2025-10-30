@@ -5,7 +5,7 @@ import api from "@/lib/axios";
 import { createAppointmentSchema } from "@/schemas/createAppointmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, UserRound } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import useSWR from "swr";
@@ -18,10 +18,50 @@ export function CreateAppointmentForm({
   onClose,
   mutate,
   walkIn = false,
+  appointment,
 }: {
   onClose: () => void;
   mutate?: () => void;
   walkIn?: boolean;
+  appointment?: {
+    _id: string;
+    patient: {
+      _id: string;
+      mrn: string;
+      name: string;
+      phoneNumber: string;
+      gender: string;
+      dateOfBirth: Date;
+      blood: string;
+      allergies: string;
+      address: string;
+      notes: string;
+      createdAt: Date;
+    };
+    doctor: {
+      _id: string;
+      name: string;
+      email: string;
+      phoneNumber: string | null;
+      address: string | null;
+      profilePic: string | null;
+    };
+    createdBy: string;
+    method: "In clinic" | "Video" | "Phone";
+    date: Date;
+    notes: string | null;
+    internalNotes: string | null;
+    type: "New" | "Follow up";
+    status:
+      | "Upcoming"
+      | "Consulted"
+      | "Observation"
+      // | "Completed"
+      | "Not show";
+    isPaid: boolean;
+    createdAt: Date;
+    visitCount: number;
+  };
 }) {
   const { data } = useSWR<{
     data: {
@@ -48,10 +88,42 @@ export function CreateAppointmentForm({
     },
   });
 
+  useEffect(() => {
+    if (appointment) {
+      reset({
+        date: new Date(appointment.date).toISOString(),
+        doctor: appointment.doctor._id,
+        internalNotes: appointment.internalNotes || undefined,
+        isPaid: appointment.isPaid ? "true" : "false",
+        method: appointment.method,
+        notes: appointment.notes || undefined,
+        patient: appointment.patient._id,
+        type: appointment.type,
+      });
+    }
+  }, [appointment,reset]);
+
   const values = watch();
 
   const createAppointment = handleSubmit(async (data) => {
     try {
+      if (appointment?._id) {
+        await toast.promise(
+          api.patch(`/appointments/${appointment._id}`, data),
+          {
+            loading: "Please wait, We are Updating an appointment",
+            success: ({ data }) => data.message,
+            error: ({ response }) => response.data.message,
+          }
+        );
+        reset();
+        onClose();
+        if (mutate) {
+          mutate();
+        }
+
+        return;
+      }
       await toast.promise(api.post("/appointments", data), {
         loading: "Please wait, We are creating an appointment",
         success: ({ data }) => data.message,
@@ -75,7 +147,11 @@ export function CreateAppointmentForm({
           <h3 className="font-medium">Patient</h3>
         </div>
         <div className="">
-          <PatientSelection setValue={setValue} values={values} />
+          <PatientSelection
+            setValue={setValue}
+            values={values}
+            patient={appointment?.patient}
+          />
           {errors.patient && (
             <p className="text-red-500 text-xs mt-1.5">
               Please select a patient
@@ -215,7 +291,9 @@ export function CreateAppointmentForm({
         <Button variant="ghost" onClick={onClose} type="button">
           Close
         </Button>
-        <Button type="submit">Create Appointment</Button>
+        <Button type="submit">
+          {appointment?._id ? "Edit" : "Create"} Appointment
+        </Button>
       </div>
     </form>
   );

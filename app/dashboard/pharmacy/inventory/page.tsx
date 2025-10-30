@@ -192,19 +192,21 @@ export default function InventoryPage() {
             <CardContent>
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-purple-100">
-                    <TableHead>Sl. No</TableHead>
-                    <TableHead>Item Name</TableHead>
-                    <TableHead>Generic / HSN</TableHead>
-                    <TableHead>SKU / Barcode</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Quantity</TableHead>
-                    <TableHead>Unit Price (₹)</TableHead>
-                    <TableHead>Total Value (₹)</TableHead>
-                    <TableHead>Expiry Date</TableHead>
-                    <TableHead>Supplier</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
+                  <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
+                    <TableHead className="text-white">Sl. No</TableHead>
+                    <TableHead className="text-white">Item Name</TableHead>
+                    <TableHead className="text-white">Generic / HSN</TableHead>
+                    <TableHead className="text-white">SKU / Barcode</TableHead>
+                    <TableHead className="text-white">Category</TableHead>
+                    <TableHead className="text-white">Quantity</TableHead>
+                    <TableHead className="text-white">Unit Price (₹)</TableHead>
+                    <TableHead className="text-white">
+                      Total Value (₹)
+                    </TableHead>
+                    <TableHead className="text-white">Expiry Date</TableHead>
+                    <TableHead className="text-white">Supplier</TableHead>
+                    <TableHead className="text-white">Status</TableHead>
+                    <TableHead className="text-white">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

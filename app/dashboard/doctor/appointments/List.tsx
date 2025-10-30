@@ -1,7 +1,9 @@
 import { fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video } from "lucide-react";
-import React from "react";
+import React, { useState } from "react";
 import useAppointmentList from "./data/useAppointmentList";
+import Drawer from "@/components/ui/drawer";
+import { CreateAppointmentForm } from "./CreateAppointmentForm";
 
 const cx = (...cls: (string | false | null | undefined)[]) =>
   cls.filter(Boolean).join(" ");
@@ -15,7 +17,47 @@ export default function List({
   activeStatuses: string[];
   date: Date;
 }) {
-  const { data } = useAppointmentList({ activeStatuses, date });
+  const { data,mutate } = useAppointmentList({ activeStatuses, date });
+
+  const [edit, setEdit] = useState<null | {
+    _id: string;
+    patient: {
+      _id: string;
+      mrn: string;
+      name: string;
+      phoneNumber: string;
+      gender: string;
+      dateOfBirth: Date;
+      blood: string;
+      allergies: string;
+      address: string;
+      notes: string;
+      createdAt: Date;
+    };
+    doctor: {
+      _id: string;
+      name: string;
+      email: string;
+      phoneNumber: string | null;
+      address: string | null;
+      profilePic: string | null;
+    };
+    createdBy: string;
+    method: "In clinic" | "Video" | "Phone";
+    date: Date;
+    notes: string | null;
+    internalNotes: string | null;
+    type: "New" | "Follow up";
+    status:
+      | "Upcoming"
+      | "Consulted"
+      | "Observation"
+      // | "Completed"
+      | "Not show";
+    isPaid: boolean;
+    createdAt: Date;
+    visitCount: number;
+  }>(null);
 
   return (
     <div className="rounded-2xl border border-zinc-200 overflow-hidden mt-4">
@@ -25,6 +67,7 @@ export default function List({
         <div className="col-span-3">Doctor</div>
         <div className="col-span-1">Method</div>
         <div className="col-span-1">Status</div>
+        <div className="col-span-1">Actions</div>
       </div>
       <ul className="divide-y">
         {data?.data
@@ -80,9 +123,29 @@ export default function List({
               <div className="col-span-1 flex items-center justify-start gap-2">
                 <Chip label={row.status} tone={row.status || "gray"} />
               </div>
+              <div className="col-span-1 flex items-center justify-start gap-2">
+                 <button
+                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setEdit(row)}
+                      >
+                        Edit
+                      </button>
+              </div>
             </li>
           ))}
       </ul>
+
+       {edit?._id && <Drawer
+          open={Boolean(edit)}
+          onClose={() => setEdit(null)}
+          title="Edit Appointment"
+        >
+          <CreateAppointmentForm
+            onClose={() => setEdit(null)}
+            mutate={mutate}
+            appointment={edit}
+          />
+        </Drawer>}
     </div>
   );
 }

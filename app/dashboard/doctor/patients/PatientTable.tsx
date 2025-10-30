@@ -18,6 +18,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import Drawer from "@/components/ui/drawer";
+import { RegisterPatient } from "./RegisterPatient";
 
 export interface Data {
   _id: string;
@@ -32,6 +34,10 @@ export interface Data {
   address: string;
   notes: string;
   mrn: string;
+  emergencyContactNumber:string;
+  insurance:string;
+  insuranceValidity:Date;
+  uhid:string;
   doctor: {
     _id: string;
     name: string;
@@ -57,6 +63,7 @@ export default function PatientTable({
   const [history, setHistory] = useState<Data | null>(null);
   const [share, setShare] = useState<Data | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [edit, setEdit] = useState<Data | null>(null)
   const [open, setOpen] = useState(false);
 
   const deleteBulkPatient = useCallback(async () => {
@@ -239,6 +246,12 @@ export default function PatientTable({
                   </td>
                   <td className="px-2 py-3 text-right">
                     <div className="inline-flex gap-1">
+                       <button
+                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
+                        onClick={() => setEdit(r)}
+                      >
+                        Edit
+                      </button>
                       <Link
                         href={`/dashboard/doctor/patients/${r._id}`}
                         className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
@@ -279,6 +292,19 @@ export default function PatientTable({
         {history && <History setHistory={setHistory} history={history} />}
         {share && <Share setShare={setShare} share={share} />}
       </div>
+
+
+         {edit?._id && <Drawer
+        open={Boolean(edit)}
+        onClose={() => setEdit(null)}
+        title="Patient Edit"
+      >
+        <RegisterPatient
+          onClose={() => setEdit(null)}
+          mutate={tableMutate}
+          patient={edit}
+        />
+      </Drawer>}
     </>
   );
 }

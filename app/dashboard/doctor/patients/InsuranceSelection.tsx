@@ -12,7 +12,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FieldErrors, UseFormSetValue } from "react-hook-form";
 import { TopInsuranceCompany } from "./data";
 import { X } from "lucide-react";
@@ -38,12 +38,20 @@ interface FormType {
 export default function InsuranceSelection({
   setValue,
   errors,
+  values
 }: {
   setValue: UseFormSetValue<FormType>;
   errors: FieldErrors<FormType>;
+  values:FormType
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
+
+  useEffect(() => {
+    
+  setQuery(values.insurance || "")
+  }, [values.insurance])
+  
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Case-insensitive filtering; de-dup if needed

@@ -20,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import AppShell from "@/components/layout/app-shell";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const today = new Date().toLocaleDateString("en-IN", {
   day: "2-digit",
@@ -330,6 +331,9 @@ function RxQueue() {
       <Table>
         <TableHeader className="bg-slate-700">
           <TableRow>
+            <TableHead className="text-white font-semibold">
+              <Checkbox />
+            </TableHead>
             <TableHead className="text-white font-semibold">Sl No</TableHead>
             <TableHead className="text-white font-semibold">RX ID</TableHead>
             <TableHead className="text-white font-semibold">Patient</TableHead>
@@ -354,6 +358,10 @@ function RxQueue() {
                   : "bg-slate-50 hover:bg-slate-100"
               }
             >
+              <TableCell>
+                <Checkbox />
+              </TableCell>
+
               <TableCell>{idx + 1}</TableCell>
               <TableCell className="font-medium">{r.id}</TableCell>
               <TableCell>{r.patient}</TableCell>

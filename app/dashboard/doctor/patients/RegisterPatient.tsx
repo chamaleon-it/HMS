@@ -33,12 +33,15 @@ import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { BLOOD_GROUPS, CONDITIONS } from "./data";
 import InsuranceSelection from "./InsuranceSelection";
+import { Data } from "./PatientTable";
 export function RegisterPatient({
   onClose,
   mutate,
+  patient,
 }: {
   onClose: () => void;
   mutate?: () => void;
+  patient?: Data;
 }) {
   const {
     register,
@@ -54,11 +57,54 @@ export function RegisterPatient({
     },
   });
 
+  useEffect(() => {
+    if (patient) {
+      reset({
+        address: patient.address,
+        allergies: patient.allergies,
+        blood: patient.blood,
+        conditions: patient.conditions,
+        dateOfBirth: patient.dateOfBirth
+          ? new Date(patient.dateOfBirth).toISOString()
+          : undefined,
+        doctor: patient.doctor?._id,
+        email: patient.email,
+        emergencyContactNumber: patient.emergencyContactNumber.replace(
+          /\s+/g,
+          ""
+        ),
+        gender: patient.gender,
+        insurance: patient.insurance,
+        insuranceValidity: patient.insuranceValidity
+          ? new Date(patient.insuranceValidity).toISOString()
+          : undefined,
+        name: patient.name,
+        notes: patient.notes,
+        phoneNumber: patient.phoneNumber.replace(/\s+/g, ""),
+        uhid: patient.uhid,
+      });
+    }
+  }, [patient,reset]);
+
   const values = watch();
   const { conditions, dateOfBirth } = values;
 
-  const createPatient = handleSubmit(async (data) => {
+  const createEditPatient = handleSubmit(async (data) => {
     try {
+      if (patient?._id) {
+        await toast.promise(api.patch(`/patients/${patient._id}`, data), {
+          loading: "Patient is updating...!",
+          error: ({ response }) => response.data.message,
+          success: ({ data }) => data.message,
+        });
+        reset();
+        onClose();
+        if (mutate) {
+          mutate();
+        }
+
+        return;
+      }
       await toast.promise(api.post("/patients", data), {
         loading: "Patient is registering...!",
         error: ({ response }) => response.data.message,
@@ -95,7 +141,7 @@ export function RegisterPatient({
   }, [name, setValue]);
 
   return (
-    <form className="space-y-5" onSubmit={createPatient}>
+    <form className="space-y-5" onSubmit={createEditPatient}>
       <section className="space-y-3">
         <div className="flex items-center gap-2">
           <UserRound className="h-4 w-4" />
@@ -159,6 +205,7 @@ export function RegisterPatient({
               onValueChange={(value: "Male" | "Female" | "Other") =>
                 setValue("gender", value)
               }
+              value={patient?.gender || values.gender}
             >
               <SelectTrigger className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                 <SelectValue placeholder="Choose gender" />
@@ -227,7 +274,10 @@ export function RegisterPatient({
 
           <div className="grid gap-2">
             <Label>Blood Group</Label>
-            <Select onValueChange={(value) => setValue("blood", value)}>
+            <Select
+              onValueChange={(value) => setValue("blood", value)}
+              value={patient?.blood || values.blood}
+            >
               <SelectTrigger className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                 <SelectValue placeholder="Choose Blood Group" />
               </SelectTrigger>
@@ -256,7 +306,11 @@ export function RegisterPatient({
             )}
           </div>
 
-          <InsuranceSelection errors={errors} setValue={setValue} />
+          <InsuranceSelection
+            errors={errors}
+            setValue={setValue}
+            values={values}
+          />
 
           <div className="grid gap-2">
             <Label>Insurance validity</Label>
@@ -361,7 +415,9 @@ export function RegisterPatient({
         <Button variant="ghost" onClick={onClose} type="button">
           Close
         </Button>
-        <Button type="submit">Register Patient</Button>
+        <Button type="submit">
+          {patient?._id ? "Edit" : "Register"} Patient
+        </Button>
       </div>
     </form>
   );

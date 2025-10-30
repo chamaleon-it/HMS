@@ -22,6 +22,14 @@ export default function Visit() {
         <div className="col-span-3">Doctor</div>
       </div>
       <div>
+        {!consult.length && (
+          <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
+            <h2 className="text-lg font-semibold text-zinc-700 mb-1">
+              No Results Found
+            </h2>
+          </div>
+        )}
+
         {consult.map((v, i) => (
           <div key={i} className="grid grid-cols-12 px-3 py-3 border-t text-sm">
             <div className="col-span-4">{fDate(v.createdAt)}</div>

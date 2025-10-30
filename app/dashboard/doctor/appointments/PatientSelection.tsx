@@ -26,6 +26,19 @@ type Patient = {
 };
 
 interface Props {
+  patient?:{
+      _id: string;
+    mrn: string;
+    name: string;
+    phoneNumber: string;
+    gender: string;
+    dateOfBirth: Date;
+    blood: string;
+    allergies: string;
+    address: string;
+    notes: string;
+    createdAt: Date;
+  }
   setValue: UseFormSetValue<{
     patient: string;
     doctor: string;
@@ -52,7 +65,7 @@ const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, values }) => {
+const PatientSelection: React.FC<Props> = ({ setValue, values,patient }) => {
   const [input, setInput] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
@@ -145,6 +158,13 @@ const PatientSelection: React.FC<Props> = ({ setValue, values }) => {
     setSelected(null);
     setValue("patient", "");
   };
+
+
+  useEffect(() => {
+    
+setInput(patient?.name ?? "")
+  }, [patient?.name])
+  
 
   return (
     <div ref={rootRef} className="relative w-full">

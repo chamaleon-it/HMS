@@ -134,7 +134,7 @@ export default function PatientFullDetailPage() {
   useEffect(() => {
     patientMutate();
     consultingMutate();
-  }, [patientMutate,consultingMutate]);
+  }, [patientMutate, consultingMutate]);
 
   return (
     <AppShell>
@@ -434,6 +434,11 @@ export default function PatientFullDetailPage() {
                         Order / Add Lab
                       </Button>
                     </div> */}
+                    <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
+                      <h2 className="text-lg font-semibold text-zinc-700 mb-1">
+                        No Results Found
+                      </h2>
+                    </div>
                   </div>
                 )}
 
@@ -498,6 +503,12 @@ export default function PatientFullDetailPage() {
                         Order / Add Imaging
                       </Button>
                     </div> */}
+
+                    <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
+                      <h2 className="text-lg font-semibold text-zinc-700 mb-1">
+                        No Results Found
+                      </h2>
+                    </div>
                   </div>
                 )}
 
@@ -604,6 +615,11 @@ export default function PatientFullDetailPage() {
                           <div className="col-span-3 text-right">{r.amt}</div>
                         </div>
                       ))} */}
+                      <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
+                        <h2 className="text-lg font-semibold text-zinc-700 mb-1">
+                          No Results Found
+                        </h2>
+                      </div>
                     </div>
                   </div>
                 )}

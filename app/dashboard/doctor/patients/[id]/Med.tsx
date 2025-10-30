@@ -4,9 +4,17 @@ import { fDate } from "@/lib/fDateAndTime";
 import { ConsultationType } from "./interface";
 
 export default function Med({consult}:{consult:ConsultationType[]}) {
+
+  
   
   return (
     <div className="space-y-2">
+
+      {!consult[0]?.medicines.length && <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
+                      <h2 className="text-lg font-semibold text-zinc-700 mb-1">
+                        No Results Found
+                      </h2>
+                    </div>}
       {consult[0]?.medicines.map((m, i) => (
         <div
           key={i}
