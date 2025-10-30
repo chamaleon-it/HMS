@@ -609,45 +609,46 @@ export default function PatientFullDetailPage() {
                 )}
 
                 {tab === "timeline" && (
-                  <div className="space-y-4">
-                    {/* {[
-                      {
-                        t: "2025-10-01 10:20",
-                        e: "Progress note added (Follow-up HTN)",
-                        by: "Dr. Nadisha",
-                      },
-                      {
-                        t: "2025-09-02 12:05",
-                        e: "Lab: CBC uploaded",
-                        by: "Lab: Chameleon Diagnostics",
-                      },
-                      {
-                        t: "2025-08-15 09:40",
-                        e: "Lab: Lipid + FBS ordered",
-                        by: "Dr. Nadisha",
-                      },
-                      {
-                        t: "2025-07-02 15:22",
-                        e: "Imaging: Chest X-Ray report attached",
-                        by: "Radiology",
-                      },
-                    ].map((i, idx) => (
-                      <div key={idx} className="relative pl-6">
-                        <div className="absolute left-0 top-2 h-3 w-3 rounded-full bg-primary" />
-                        <div className="rounded-xl border p-3">
-                          <div className="flex items-center justify-between">
-                            <div className="font-medium">{i.e}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {i.t}
-                            </div>
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {i.by}
-                          </div>
-                        </div>
-                      </div>
-                    ))} */}
-                  </div>
+                  // <div className="space-y-4">
+                  //   {/* {[
+                  //     {
+                  //       t: "2025-10-01 10:20",
+                  //       e: "Progress note added (Follow-up HTN)",
+                  //       by: "Dr. Nadisha",
+                  //     },
+                  //     {
+                  //       t: "2025-09-02 12:05",
+                  //       e: "Lab: CBC uploaded",
+                  //       by: "Lab: Chameleon Diagnostics",
+                  //     },
+                  //     {
+                  //       t: "2025-08-15 09:40",
+                  //       e: "Lab: Lipid + FBS ordered",
+                  //       by: "Dr. Nadisha",
+                  //     },
+                  //     {
+                  //       t: "2025-07-02 15:22",
+                  //       e: "Imaging: Chest X-Ray report attached",
+                  //       by: "Radiology",
+                  //     },
+                  //   ].map((i, idx) => (
+                  //     <div key={idx} className="relative pl-6">
+                  //       <div className="absolute left-0 top-2 h-3 w-3 rounded-full bg-primary" />
+                  //       <div className="rounded-xl border p-3">
+                  //         <div className="flex items-center justify-between">
+                  //           <div className="font-medium">{i.e}</div>
+                  //           <div className="text-xs text-muted-foreground">
+                  //             {i.t}
+                  //           </div>
+                  //         </div>
+                  //         <div className="text-xs text-muted-foreground">
+                  //           {i.by}
+                  //         </div>
+                  //       </div>
+                  //     </div>
+                  //   ))} */}
+                  // </div>
+                  <Visit />
                 )}
               </CardContent>
             </Card>
