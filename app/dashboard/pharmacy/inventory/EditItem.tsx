@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { pharmacyItemAddSchema } from "@/schemas/pharmacyItemAddSchema";

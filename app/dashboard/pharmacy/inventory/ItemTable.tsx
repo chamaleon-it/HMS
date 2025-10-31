@@ -16,7 +16,6 @@ import { PaginationBar } from "./PaginationBar";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Badge } from "@/components/ui/badge";
 
 const getQtyColor = (qty: number) => {
   if (qty === 0) return "bg-red-100 text-red-600 font-bold";
