@@ -295,7 +295,7 @@ const CustomDateFilter = ({
 }) => {
   return (
     <div className="flex items-end gap-2">
-      <div className="flex flex-col gap-1 w-fit">
+      <div className="clearflex flex-col gap-1 w-fit">
 
 
  <Popover>
@@ -321,7 +321,7 @@ const CustomDateFilter = ({
 
         
       </div>
-      <div className="flex flex-col gap-1 w-fit">
+      <div className="clearflex flex-col gap-1 w-fit">
         <Popover>
       <PopoverTrigger asChild>
         <Button
