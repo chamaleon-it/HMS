@@ -15,6 +15,8 @@ import { fDate } from "@/lib/fDateAndTime";
 import { PaginationBar } from "./PaginationBar";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 
 const getQtyColor = (qty: number) => {
   if (qty === 0) return "bg-red-100 text-red-600 font-bold";
@@ -61,12 +63,13 @@ export default function ItemTable({
   );
 
   return (
-    <Card>
-      <CardContent className="p-0">
+    <Card className="p-0 overflow-hidden">
+      <CardContent className="p-0 m-0">
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
+                <TableHead className="text-white"><Checkbox /></TableHead>
                 <TableHead className="text-white">Sl. No</TableHead>
                 <TableHead className="text-white">Item Name</TableHead>
                 <TableHead className="text-white">Generic / HSN</TableHead>
@@ -90,6 +93,7 @@ export default function ItemTable({
                   key={item._id}
                   className={i % 2 === 0 ? "bg-gray-50" : "bg-white"}
                 >
+                  <TableCell><Checkbox/></TableCell>
                   <TableCell>{(page - 1) * limit + i + 1}</TableCell>
 
                   <TableCell className="font-medium text-gray-900">
@@ -116,7 +120,9 @@ export default function ItemTable({
                   <TableCell>{fDate(item.expiryDate)}</TableCell>
                   <TableCell>{item.supplier}</TableCell>
                   <TableCell>{item.manufacturer}</TableCell>
-                  <TableCell>{item.status}</TableCell>
+                  <TableCell>
+                    <Chip label={item.status} tone={item.status as "Inactive" | "Active"}/>
+                    </TableCell>
 
                   <TableCell>
                     <div className="flex gap-2">
@@ -174,3 +180,45 @@ export default function ItemTable({
     </Card>
   );
 }
+
+
+const Chip: React.FC<{
+  label: string;
+  tone?:
+    | "green"
+    | "gray"
+    | "red"
+    | "blue"
+    | "amber"
+    | "Upcoming"
+    | "Test"
+    | "Observation"
+    | "Admit"
+    | "Consulted"
+    | "Not show"
+    | "Active"
+    | "Inactive"
+    ;
+}> = ({ label, tone = "gray" }) => {
+  const tones: Record<string, string> = {
+    "Active": "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    // gray: "bg-slate-100 text-slate-700 ring-slate-200",
+    "Inactive": "bg-rose-50 text-rose-700 ring-rose-200",
+    // blue: "bg-sky-50 text-sky-700 ring-sky-200",
+    // amber: "bg-amber-50 text-amber-700 ring-amber-200",
+
+    Upcoming: "bg-slate-100 text-slate-700 ring-slate-700",
+    Test: "bg-sky-100  text-sky-700 ring-sky-700",
+    Observation: "bg-amber-100  text-amber-700 ring-amber-700",
+    Admit: "bg-rose-100  text-rose-700 ring-rose-700",
+    Consulted: "bg-emerald-100  text-emerald-700 ring-emerald-700",
+    "Not show": "bg-red-100 text-red-700 ring-red-700",
+  };
+  return (
+    <span
+      className={`px-2.5 py-1 rounded-full text-xs font-medium ring-1 ${tones[tone]}`}
+    >
+      {label}
+    </span>
+  );
+};

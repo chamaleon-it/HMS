@@ -105,9 +105,24 @@ export default function InventoryPage() {
 
               {openView && selectedItem && <ViewItem item={selectedItem} />}
 
-              {openEdit && selectedItem && <EditItem item={selectedItem} />}
+              {openEdit && selectedItem && (
+                <EditItem
+                  item={selectedItem}
+                  onClose={() => {
+                    closeAll();
+                    mutate();
+                  }}
+                />
+              )}
 
-              {openAdd && <AddNewItem onClose={closeAll} />}
+              {openAdd && (
+                <AddNewItem
+                  onClose={() => {
+                    closeAll();
+                    mutate();
+                  }}
+                />
+              )}
             </div>
           </div>
         )}

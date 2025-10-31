@@ -60,9 +60,10 @@ export const pharmacyItemAddSchema = z.object({
     .min(1, { error: "Quantity cannot be zero or below" }),
 
   // Zod v4 provides z.iso.date() for ISO date strings
-  expiryDate: z.iso.date({
-    error: "Expiry date must be an ISO date (YYYY-MM-DD)",
-  }),
+  expiryDate: z.string({ error: "Expiry date is required" }),
+  // iso.date({
+  //   error: "Expiry date must be an ISO date (YYYY-MM-DD)",
+  // }),
 
   status: z.enum(["Active", "Inactive"], {
     error: "Status must be 'Active' or 'Inactive'",

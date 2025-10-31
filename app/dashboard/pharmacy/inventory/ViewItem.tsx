@@ -74,12 +74,12 @@ export function ViewItem({ item }: { item: ItemType }) {
       </div>
 
       {/* Movement History */}
-      <div className="rounded-lg border p-3">
+      {/* <div className="rounded-lg border p-3">
         <div className="text-xs font-semibold text-gray-800 mb-2">
           Stock Movements
         </div>
         <div className="space-y-2 text-[12px] text-gray-600">
-          {/* test cases / examples */}
+          
           <div className="flex justify-between">
             <span className="text-green-600 font-medium">+40 received</span>
             <span className="text-gray-400">28 Oct 2025 • by Admin</span>
@@ -95,7 +95,7 @@ export function ViewItem({ item }: { item: ItemType }) {
             <span className="text-gray-400">10 Oct 2025</span>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Actions */}
       <div className="flex gap-2 pt-2">
