@@ -17,7 +17,7 @@ export default function InventoryPage() {
   const [openAdd, setOpenAdd] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItemType | null>(null);
   const [filter, setFilter] = useState<FilterType>({
-    page: 9,
+    page: 1,
     limit: 10,
     q: undefined,
     category: undefined,
