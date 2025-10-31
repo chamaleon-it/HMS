@@ -69,7 +69,7 @@ export function RegisterPatient({
           : undefined,
         doctor: patient.doctor?._id,
         email: patient.email,
-        emergencyContactNumber: patient.emergencyContactNumber.replace(
+        emergencyContactNumber: patient?.emergencyContactNumber?.replace(
           /\s+/g,
           ""
         ),
@@ -84,7 +84,7 @@ export function RegisterPatient({
         uhid: patient.uhid,
       });
     }
-  }, [patient,reset]);
+  }, [patient, reset]);
 
   const values = watch();
   const { conditions, dateOfBirth } = values;
@@ -481,8 +481,7 @@ export default function MultiConditionSelect({
                       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border bg-white"
                     >
                       {s}
-                      <button
-                        type="button"
+                      <div
                         onClick={(e) => {
                           e.stopPropagation();
                           toggle(s);
@@ -491,7 +490,7 @@ export default function MultiConditionSelect({
                         aria-label={`remove ${s}`}
                       >
                         <X className="w-3 h-3" />
-                      </button>
+                      </div>
                     </span>
                   ))}
                 </div>

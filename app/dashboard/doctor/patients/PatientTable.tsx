@@ -25,19 +25,19 @@ export interface Data {
   _id: string;
   name: string;
   phoneNumber: string;
-  email: string;
+  email?: string;
   gender: "Male" | "Female" | "Other";
   dateOfBirth: Date;
   conditions: string[];
-  blood: string;
-  allergies: string;
-  address: string;
-  notes: string;
+  blood?: string;
+  allergies?: string;
+  address?: string;
+  notes?: string;
   mrn: string;
-  emergencyContactNumber:string;
-  insurance:string;
-  insuranceValidity:Date;
-  uhid:string;
+  emergencyContactNumber?: string;
+  insurance?: string;
+  insuranceValidity?: Date;
+  uhid?: string;
   doctor: {
     _id: string;
     name: string;
@@ -63,7 +63,7 @@ export default function PatientTable({
   const [history, setHistory] = useState<Data | null>(null);
   const [share, setShare] = useState<Data | null>(null);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [edit, setEdit] = useState<Data | null>(null)
+  const [edit, setEdit] = useState<Data | null>(null);
   const [open, setOpen] = useState(false);
 
   const deleteBulkPatient = useCallback(async () => {
@@ -246,7 +246,7 @@ export default function PatientTable({
                   </td>
                   <td className="px-2 py-3 text-right">
                     <div className="inline-flex gap-1">
-                       <button
+                      <button
                         className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
                         onClick={() => setEdit(r)}
                       >
@@ -293,18 +293,19 @@ export default function PatientTable({
         {share && <Share setShare={setShare} share={share} />}
       </div>
 
-
-         {edit?._id && <Drawer
-        open={Boolean(edit)}
-        onClose={() => setEdit(null)}
-        title="Patient Edit"
-      >
-        <RegisterPatient
+      {edit?._id && (
+        <Drawer
+          open={Boolean(edit)}
           onClose={() => setEdit(null)}
-          mutate={tableMutate}
-          patient={edit}
-        />
-      </Drawer>}
+          title="Patient Edit"
+        >
+          <RegisterPatient
+            onClose={() => setEdit(null)}
+            mutate={tableMutate}
+            patient={edit}
+          />
+        </Drawer>
+      )}
     </>
   );
 }

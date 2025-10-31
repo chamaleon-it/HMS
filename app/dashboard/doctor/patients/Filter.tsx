@@ -2,6 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FilterType } from "./page";
 import { CONDITIONS } from "./data";
 import useSWR from "swr";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
+import { fDate } from "@/lib/fDateAndTime";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function Filter({
   filter,
@@ -207,36 +212,7 @@ export default function Filter({
         </div>
 
         {filter.lastVisit === "Custom" && (
-          <div className="flex items-end gap-2">
-            <div className="flex-1 flex flex-col gap-1">
-              <label className="text-sm text-gray-600">From</label>
-              <input
-                type="date"
-                value={filter.dateRange.from ?? ""}
-                onChange={(e) =>
-                  setFilter((prev) => ({
-                    ...prev,
-                    dateRange: { ...prev.dateRange, from: e.target.value },
-                  }))
-                }
-                className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
-              />
-            </div>
-            <div className="flex-1 flex flex-col gap-1">
-              <label className="text-sm text-gray-600">To</label>
-              <input
-                type="date"
-                value={filter.dateRange.to ?? ""}
-                onChange={(e) =>
-                  setFilter((prev) => ({
-                    ...prev,
-                    dateRange: { ...prev.dateRange, to: e.target.value },
-                  }))
-                }
-                className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
-              />
-            </div>
-          </div>
+          <CustomDateFilter filter={filter} setFilter={setFilter} />
         )}
 
         {/* <div className="min-w-[170px]">
@@ -309,6 +285,67 @@ export default function Filter({
     </div>
   );
 }
+
+const CustomDateFilter = ({
+  filter,
+  setFilter,
+}: {
+  filter: FilterType;
+  setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
+}) => {
+  return (
+    <div className="flex items-end gap-2">
+      <div className="flex flex-col gap-1 w-fit">
+
+
+ <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          data-empty={!filter.dateRange.from}
+          className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
+        >
+          <CalendarIcon />
+          {filter.dateRange.from ? fDate(filter.dateRange.from) : <span>From</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar mode="single" selected={filter.dateRange.from ? new Date(filter.dateRange.from) : new Date()} onSelect={date=>{
+          setFilter((prev) => ({
+              ...prev,
+              dateRange: { ...prev.dateRange, from: date?.toISOString() },
+            }))
+        }} />
+      </PopoverContent>
+    </Popover>
+
+        
+      </div>
+      <div className="flex flex-col gap-1 w-fit">
+        <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          data-empty={!filter.dateRange.to}
+          className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
+        >
+          <CalendarIcon />
+          {filter.dateRange.to ? fDate(filter.dateRange.to) : <span>To</span>}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0">
+        <Calendar mode="single" selected={filter.dateRange.to ? new Date(filter.dateRange.to) : new Date()} onSelect={date=>{
+          setFilter((prev) => ({
+              ...prev,
+              dateRange: { ...prev.dateRange, to: date?.toISOString() },
+            }))
+        }} />
+      </PopoverContent>
+    </Popover>
+      </div>
+    </div>
+  );
+};
 
 function Segmented({
   options,
