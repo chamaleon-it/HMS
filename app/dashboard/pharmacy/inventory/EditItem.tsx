@@ -53,7 +53,7 @@ export function EditItem({
       supplier: item.supplier,
       unitPrice: item.unitPrice,
     });
-  }, [item]);
+  }, [item,reset]);
 
   const values = watch();
 

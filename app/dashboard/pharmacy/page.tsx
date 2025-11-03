@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Dialog,
@@ -29,15 +28,7 @@ const formatINR = (n: number | undefined | null) =>
     currency: "INR",
   }).format(n || 0);
 
-const calcTotals = (items: RxItem[] = []) => {
-  let sub = 0;
-  for (const it of items) {
-    sub += (Number(it.qty) || 0) * (Number(it.mrp) || 0);
-  }
-  const grand = Math.round(sub);
-  const round = +(grand - sub).toFixed(2);
-  return { sub, round, grand };
-};
+
 
 interface RxItem {
   sl: number;

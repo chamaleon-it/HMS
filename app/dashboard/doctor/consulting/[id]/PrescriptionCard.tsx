@@ -1,4 +1,4 @@
-import React, { ReactNode, useMemo, useRef, useState } from "react";
+import React, {  useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -664,56 +664,8 @@ export default function PrescriptionCard({
   );
 }
 
-type LabeledInputProps = {
-  label: string;
-  value: string;
-  onChange: (val: string) => void;
-  type?: string;
-  unit?: string;
-  right?: ReactNode;
-  inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
-  onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
-};
 
-function LabeledInput({
-  label,
-  value,
-  onChange,
-  type = "text",
-  unit,
-  right,
-  inputMode,
-  onKeyDown,
-}: LabeledInputProps) {
-  const hasRight = Boolean(right);
-  return (
-    <div className="relative w-full">
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={onKeyDown}
-        placeholder=" "
-        type={type}
-        inputMode={inputMode ?? (type === "number" ? "numeric" : undefined)}
-        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${
-          hasRight ? "pr-24" : unit ? "pr-12" : ""
-        }`}
-      />
-      <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
-        {label}
-      </label>
-      {hasRight ? (
-        <span className="absolute right-2 top-1/2 -translate-y-1/2">
-          {right}
-        </span>
-      ) : unit ? (
-        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-500">
-          {unit}
-        </span>
-      ) : null}
-    </div>
-  );
-}
+
 
 type LabeledComboboxProps = {
   label: string;
