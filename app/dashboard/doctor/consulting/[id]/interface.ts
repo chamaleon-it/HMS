@@ -47,7 +47,7 @@ export interface DataType {
     otherNotes: null | string;
   };
   medicines: {
-    drug: string;
+    name: string;
     dosage: string;
     frequency: string;
     food: string;

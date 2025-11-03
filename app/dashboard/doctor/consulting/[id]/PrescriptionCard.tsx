@@ -11,10 +11,11 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { AppointmentType, DataType } from "./interface";
+import Medicine from "./Medicine";
 
 // ------------------ Types ------------------
 interface Medicine {
-  drug: string;
+  name: string;
   dosage: string;
   frequency: string;
   food: string;
@@ -45,14 +46,14 @@ export default function PrescriptionCard({
       name: "Typhoid – Adult",
       medicines: [
         {
-          drug: "Amoxicillin 500mg",
+          name: "Amoxicillin 500mg",
           dosage: "1 tab",
           frequency: "1-0-1",
           food: "After Food",
           duration: "7 days",
         },
         {
-          drug: "Paracetamol 650mg",
+          name: "Paracetamol 650mg",
           dosage: "1 tab",
           frequency: "1-1-1",
           food: "After Food",
@@ -65,7 +66,7 @@ export default function PrescriptionCard({
       name: "Dengue – Standard",
       medicines: [
         {
-          drug: "Paracetamol 650mg",
+          name: "Paracetamol 650mg",
           dosage: "1 tab",
           frequency: "1-1-1",
           food: "After Food",
@@ -130,7 +131,7 @@ export default function PrescriptionCard({
       ...prev,
       medicines: [
         ...prev.medicines,
-        { dosage: "", drug: "", duration: "", food: "", frequency: "" },
+        { dosage: "", name: "", duration: "", food: "", frequency: "" },
       ],
     }));
   };
@@ -155,8 +156,8 @@ export default function PrescriptionCard({
   };
 
   const openSaveModal = () => {
-    const title = data.medicines[0]?.drug
-      ? `${data.medicines[0].drug} – Template`
+    const title = data.medicines[0]?.name
+      ? `${data.medicines[0].name} – Template`
       : "New Template";
     setTemplateName(title);
     setSaveModalOpen(true);
@@ -255,7 +256,7 @@ export default function PrescriptionCard({
                       {fav.medicines.map((med, idx) => (
                         <div key={idx} className="flex flex-wrap gap-1">
                           <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
-                            {med.drug}
+                            {med.name}
                           </span>
                           <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">
                             {med.dosage}
@@ -315,11 +316,7 @@ export default function PrescriptionCard({
                   className="grid grid-cols-12 gap-2 mt-2 items-start"
                 >
                   <div className="col-span-3">
-                    <LabeledInput
-                      label="Drug"
-                      value={m.drug}
-                      onChange={(e) => updateField(i, "drug", e)}
-                    />
+                    <Medicine i={i} m={m} updateField={updateField} />
                   </div>
 
                   <div className="col-span-2">
@@ -476,7 +473,7 @@ export default function PrescriptionCard({
                           {fav.medicines.map((med, idx) => (
                             <div key={idx} className="flex flex-wrap gap-1">
                               <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
-                                {med.drug}
+                                {med.name}
                               </span>
                               <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">
                                 {med.dosage}
@@ -588,9 +585,9 @@ export default function PrescriptionCard({
                       className="grid grid-cols-12 gap-2 items-center"
                     >
                       <input
-                        value={m.drug}
+                        value={m.name}
                         onChange={(e) =>
-                          updateEditField(idx, "drug", e.target.value)
+                          updateEditField(idx, "name", e.target.value)
                         }
                         placeholder="Drug"
                         className="border rounded-md p-2 text-xs col-span-3"

@@ -1,0 +1,115 @@
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import React from "react";
+import { OrderType } from "./interface";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+
+export default function OrderTable({
+  handleView,
+  orders
+}: {
+  handleView: (rx: OrderType) => void;
+  orders:OrderType[]
+}) {
+  return (
+    <Table>
+      <TableHeader className="bg-slate-700">
+        <TableRow>
+          <TableHead className="text-white font-semibold">
+            <Checkbox />
+          </TableHead>
+          <TableHead className="text-white font-semibold">Sl No</TableHead>
+          <TableHead className="text-white font-semibold">RX ID</TableHead>
+          <TableHead className="text-white font-semibold">Patient</TableHead>
+          <TableHead className="text-white font-semibold">Items</TableHead>
+          <TableHead className="text-white font-semibold">Priority</TableHead>
+          <TableHead className="text-white font-semibold">Status</TableHead>
+          <TableHead className="text-left text-white font-semibold">
+            Assigned To
+          </TableHead>
+          <TableHead className="text-right text-white font-semibold">
+            Actions
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {orders.map((r: OrderType, idx) => (
+          <TableRow
+            key={r._id}
+            className={
+              idx % 2 === 0
+                ? "bg-white hover:bg-slate-50/60"
+                : "bg-slate-50 hover:bg-slate-100"
+            }
+          >
+            <TableCell>
+              <Checkbox />
+            </TableCell>
+
+            <TableCell>{idx + 1}</TableCell>
+            <TableCell className="font-medium">{r.mrn}</TableCell>
+            <TableCell>{r.patient.name}</TableCell>
+            <TableCell>{r.items.length}</TableCell>
+            <TableCell>
+              <PriorityBadge priority={r.priority} />
+            </TableCell>
+            <TableCell>
+              <StatusBadge status={r.status} />
+            </TableCell>
+            <TableCell className="text-left">
+              {r.assignedTo ? (
+                <Badge className={"bg-emerald-100 text-emerald-700"}>
+                  r.assignedTo
+                </Badge>
+              ) : (
+                <span className="text-slate-500">Unassigned</span>
+              )}
+            </TableCell>
+            <TableCell className="text-right space-x-2">
+              <Button size="sm" variant="outline" onClick={() => handleView(r)}>
+                View
+              </Button>
+              <Button size="sm" variant="outline">
+                Delete
+              </Button>
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+  );
+}
+
+function PriorityBadge({ priority }: { priority: string }) {
+  const map: Record<string, string> = {
+    STAT: "bg-rose-100 text-rose-700",
+    VIP: "bg-purple-100 text-purple-700",
+    Routine: "bg-sky-100 text-sky-700",
+  };
+  return (
+    <Badge className={map[priority] || "bg-slate-100 text-slate-700"}>
+      {priority}
+    </Badge>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const map: Record<string, string> = {
+    Filling: "bg-blue-100 text-blue-700",
+    "Clinical Check": "bg-amber-100 text-amber-700",
+    Ready: "bg-emerald-100 text-emerald-700",
+  };
+  return (
+    <Badge className={map[status] || "bg-slate-100 text-slate-700"}>
+      {status}
+    </Badge>
+  );
+}

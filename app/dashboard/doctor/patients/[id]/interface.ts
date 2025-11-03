@@ -57,7 +57,10 @@ export interface ConsultationType {
     _id: string;
   };
   medicines: {
-    drug: string;
+    name:{
+      name:string
+      _id:string;
+    }
     dosage: string;
     frequency: string;
     food: string;

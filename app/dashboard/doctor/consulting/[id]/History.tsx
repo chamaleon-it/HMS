@@ -118,7 +118,7 @@ export interface ExaminationNote {
 }
 
 export interface Medicine {
-  drug: string;
+  name: string;
   dosage: string;
   frequency: string;
   food: string;

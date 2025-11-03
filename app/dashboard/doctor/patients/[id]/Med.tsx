@@ -22,7 +22,7 @@ export default function Med({consult}:{consult:ConsultationType[]}) {
         >
           <div>
             <div className="font-medium">
-              {m.drug}{" "}
+              {m.name.name}{" "}
               <span className="text-muted-foreground text-xs">
                 (Dose: {m.dosage})
               </span>
