@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import AppShell from "@/components/layout/app-shell";
+import { formatINR } from "@/lib/fNumber";
 
 const today = new Date().toLocaleDateString("en-IN", {
   weekday: "short",
@@ -34,12 +35,7 @@ const today = new Date().toLocaleDateString("en-IN", {
   year: "numeric",
 });
 
-const formatINR = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-  }).format(n || 0);
+
 
 const emergencyOrdersToday = 3;
 

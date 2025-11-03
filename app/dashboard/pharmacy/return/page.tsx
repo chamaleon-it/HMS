@@ -20,145 +20,49 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import AppShell from "@/components/layout/app-shell";
-
-const formatINR = (n: number) =>
-  new Intl.NumberFormat("en-IN", { style: "currency", currency: "INR" }).format(
-    n || 0
-  );
+import { OrderType } from "./interface";
+import Header from "./Header";
+import { formatINR } from "@/lib/fNumber";
+import Search from "./Search";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import { fDate, fTime } from "@/lib/fDateAndTime";
+import { useAuth } from "@/auth/context/auth-context";
 
 export default function PharmacyReturnPage() {
   const [showDialog, setShowDialog] = useState(false);
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      hsn: "30045010",
-      name: "T Dolo 650 mg",
-      generic: "Paracetamol / Acetaminophen",
-      batch: "B1234",
-      expiry: "12/26",
-      qtySold: 10,
-      qtyReturn: 2,
-      rate: 18,
-      reason: "Expired",
-    },
-  ]);
+  const {user} = useAuth()
 
-  const totalRefund = items.reduce(
-    (sum, it) => sum + it.qtyReturn * it.rate,
-    0
-  );
+  const [filter, setFilter] = useState<{ q: null | string }>({
+    q: null,
+  });
+
+  const [order, setOrder] = useState<null | OrderType>(null);
+
+  const fetchOrder = async () => {
+    try {
+      if(!filter.q){
+        toast.error("Please enter a valid RX id")
+        return
+      }
+      const params = new URLSearchParams();
+      
+        params.set("q", filter.q);
+      
+
+      const { data } = await api.get(`/pharmacy/orders/single?${params}`);
+      setOrder(data.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <AppShell>
       <div className="p-5 flex flex-col gap-6 text-sm min-h-[calc(100vh-80px)]">
-        {/* PAGE HEADER */}
-        <header className="flex flex-wrap items-start justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <div className="flex flex-col">
-              <span className="text-xs text-slate-500">
-                Return / Credit Note
-              </span>
-              <h1 className="text-xl font-semibold leading-tight text-slate-900">
-                Pharmacy Return
-              </h1>
-            </div>
-            <Badge className="rounded-full bg-amber-100 text-amber-700 border-amber-200 hover:bg-amber-100">
-              Draft
-            </Badge>
-          </div>
+        <Header />
 
-          <div className="flex flex-col items-end text-right">
-            <div className="text-[10px] text-slate-500 uppercase tracking-wide">
-              Return No
-            </div>
-            <div className="font-medium text-slate-900">RET-00023</div>
-            <div className="text-[10px] text-slate-400">
-              {new Date().toLocaleDateString("en-IN", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })}
-            </div>
-          </div>
-        </header>
-
-        {/* SEARCH + PATIENT/INVOICE ROW */}
-        <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-          {/* LEFT: SEARCH BOX */}
-          <Card className="xl:col-span-1 shadow-sm border-slate-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-slate-700 flex items-center gap-2">
-                <span>Find Bill / Patient</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-3">
-              <div className="flex items-center gap-2">
-                <div className="relative flex-1">
-                  <Input
-                    placeholder="Search invoice no. / patient name..."
-                    className="pl-9 text-sm h-9 rounded-lg border-slate-300 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-                  />
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
-                    🔍
-                  </span>
-                </div>
-                <Button className="h-9 rounded-lg bg-slate-900 text-white hover:bg-slate-800 px-3 text-xs font-medium">
-                  Load
-                </Button>
-              </div>
-              <div className="flex items-center justify-between text-[11px] text-slate-500">
-                <div className="flex flex-col">
-                  <span className="uppercase tracking-wide">Invoice No</span>
-                  <span className="text-slate-900 font-medium text-xs">
-                    INV-1024
-                  </span>
-                </div>
-                <div className="flex flex-col text-right">
-                  <span className="uppercase tracking-wide">Invoice Date</span>
-                  <span className="text-slate-900 font-medium text-xs">
-                    28 Oct 2025
-                  </span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* RIGHT: BILL SUMMARY */}
-          <Card className="xl:col-span-2 shadow-sm border-slate-200">
-            <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 text-[11px] text-slate-600">
-              <div className="flex flex-col">
-                <span className="uppercase tracking-wide">Patient</span>
-                <span className="text-slate-900 font-medium text-sm leading-tight">
-                  John Mathew
-                </span>
-                <span className="text-[10px] text-slate-400">PID: P-88921</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="uppercase tracking-wide">Doctor</span>
-                <span className="text-slate-900 font-medium text-sm leading-tight">
-                  Dr. Rahul Nair
-                </span>
-                <span className="text-[10px] text-slate-400">OPD</span>
-              </div>
-              <div className="flex flex-col">
-                <span className="uppercase tracking-wide">Payment Mode</span>
-                <span className="text-slate-900 font-medium text-sm leading-tight">
-                  UPI
-                </span>
-                <span className="text-[10px] text-slate-400">
-                  Txn: TXN284712
-                </span>
-              </div>
-              <div className="flex flex-col">
-                <span className="uppercase tracking-wide">Invoice Total</span>
-                <span className="text-slate-900 font-semibold text-base leading-tight">
-                  {formatINR(1800)}
-                </span>
-                <span className="text-[10px] text-slate-400">incl. GST</span>
-              </div>
-            </CardContent>
-          </Card>
-        </section>
+        <Search fetchOrder={fetchOrder} filter={filter} setFilter={setFilter} order={order}/>
 
         {/* RETURNED ITEMS TABLE */}
         <section className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -189,66 +93,53 @@ export default function PharmacyReturnPage() {
               </TableHeader>
 
               <TableBody className="[&>tr:nth-child(even)]:bg-slate-50/40">
-                {items.map((it, i) => (
-                  <TableRow key={it.id} className="text-[11px]">
+                {order?.items.map((it, i) => (
+                  <TableRow key={it.name._id} className="text-[11px]">
                     <TableCell className="text-center align-top text-slate-500">
                       {i + 1}
                     </TableCell>
 
                     <TableCell className="align-top">
                       <div className="text-slate-900 font-medium text-[12px] leading-tight">
-                        {it.name}
+                        {it.name.name}
                       </div>
                       <div className="text-[10px] text-slate-500 leading-tight">
-                        (Gen: {it.generic})
+                        (Gen: {it.name.generic})
                       </div>
                     </TableCell>
 
                     <TableCell className="align-top text-slate-600">
-                      {it.hsn}
+                      {it.name.hsnCode}
                     </TableCell>
 
                     <TableCell className="align-top text-slate-600">
-                      {it.batch}
+                      {"B1234"}
                     </TableCell>
 
                     <TableCell className="align-top text-slate-600">
-                      {it.expiry}
+                      {fDate(it.name.expiryDate)}
                     </TableCell>
 
                     <TableCell className="text-center font-medium text-slate-700">
-                      {it.qtySold}
+                      {1}
                     </TableCell>
 
                     <TableCell className="text-center">
                       <Input
                         type="number"
                         min={0}
-                        max={it.qtySold}
-                        value={it.qtyReturn}
+                        max={10}
                         className="h-8 w-14 text-center rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-                        onChange={(e) => {
-                          const v = Number(e.target.value || 0);
-                          setItems((prev) =>
-                            prev.map((row) =>
-                              row.id === it.id
-                                ? {
-                                    ...row,
-                                    qtyReturn: v > it.qtySold ? it.qtySold : v,
-                                  }
-                                : row
-                            )
-                          );
-                        }}
+                        defaultValue={1}
                       />
                     </TableCell>
 
                     <TableCell className="text-right tabular-nums text-slate-700 font-medium">
-                      {formatINR(it.rate)}
+                      {formatINR(it.name.unitPrice)}
                     </TableCell>
 
                     <TableCell className="text-right tabular-nums font-semibold text-slate-900">
-                      {formatINR(it.qtyReturn * it.rate)}
+                      {formatINR(it.name.unitPrice)}
                     </TableCell>
 
                     <TableCell className="align-top">
@@ -275,7 +166,7 @@ export default function PharmacyReturnPage() {
               <div className="flex justify-between gap-6">
                 <span className="text-slate-500">Subtotal</span>
                 <span className="font-medium text-slate-700">
-                  {formatINR(totalRefund)}
+                  {formatINR(0)}
                 </span>
               </div>
               <div className="flex justify-between gap-6 text-[11px]">
@@ -286,7 +177,7 @@ export default function PharmacyReturnPage() {
               </div>
               <div className="flex justify-between gap-6 text-sm font-semibold text-slate-900">
                 <span>Total Refund</span>
-                <span>{formatINR(totalRefund)}</span>
+                <span>{formatINR(0)}</span>
               </div>
             </div>
           </div>
@@ -363,10 +254,10 @@ export default function PharmacyReturnPage() {
                   <div>
                     Handled by{" "}
                     <span className="text-slate-900 font-medium">
-                      Pharmacy Staff
+                      {user?.name}
                     </span>
                   </div>
-                  <div className="text-[10px]">11:42 AM</div>
+                  <div className="text-[10px]">{fTime(new Date())}</div>
                 </div>
               </div>
 

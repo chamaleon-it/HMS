@@ -32,17 +32,13 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import AppShell from "@/components/layout/app-shell";
+import { formatINR } from "@/lib/fNumber";
 
 // ---------------------------------------------------
 // Shared helpers / mock data
 // ---------------------------------------------------
 
-const formatINR = (n: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-  }).format(n || 0);
+
 
 // mock product catalog for dropdown in PO form
 const PRODUCTS = [

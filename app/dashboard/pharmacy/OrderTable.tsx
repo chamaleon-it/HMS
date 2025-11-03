@@ -11,13 +11,16 @@ import React from "react";
 import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { fDateandTime } from "@/lib/fDateAndTime";
 
 export default function OrderTable({
   handleView,
-  orders
+  orders,
+  handleDelete,
 }: {
   handleView: (rx: OrderType) => void;
-  orders:OrderType[]
+  orders: OrderType[];
+  handleDelete: (rx: OrderType) => void;
 }) {
   return (
     <Table>
@@ -34,6 +37,10 @@ export default function OrderTable({
           <TableHead className="text-white font-semibold">Status</TableHead>
           <TableHead className="text-left text-white font-semibold">
             Assigned To
+          </TableHead>
+
+          <TableHead className="text-left text-white font-semibold">
+            Created At
           </TableHead>
           <TableHead className="text-right text-white font-semibold">
             Actions
@@ -73,11 +80,17 @@ export default function OrderTable({
                 <span className="text-slate-500">Unassigned</span>
               )}
             </TableCell>
+            <TableCell>{fDateandTime(r.createdAt)}</TableCell>
             <TableCell className="text-right space-x-2">
-              <Button size="sm" variant="outline" onClick={() => handleView(r)}>
+              <Button size="sm" variant="outline" onClick={() => handleView(r)} className="cursor-pointer">
                 View
               </Button>
-              <Button size="sm" variant="outline">
+              <Button
+                size="sm"
+                variant="default"
+                onClick={() => handleDelete(r)}
+                className="bg-red-600 hover:bg-red-600 font-bold cursor-pointer"
+              >
                 Delete
               </Button>
             </TableCell>

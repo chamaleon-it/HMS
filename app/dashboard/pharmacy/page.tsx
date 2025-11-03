@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,142 +15,10 @@ import OrderTable from "./OrderTable";
 import { OrderType } from "./interface";
 import useSWR from "swr";
 import { fAge, fDate, fDateandTime } from "@/lib/fDateAndTime";
-
-const today = new Date().toLocaleDateString("en-IN", {
-  day: "2-digit",
-  month: "short",
-  year: "numeric",
-});
-
-const formatINR = (n: number | undefined | null) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-  }).format(n || 0);
+import DeleteOrder from "./DeleteOrder";
+import { formatINR } from "@/lib/fNumber";
 
 
-
-interface RxItem {
-  sl: number;
-  brand: string;
-  generic: string;
-  hsn?: string;
-  batch: string;
-  exp: string;
-  qty: number;
-  mrp: number;
-  sig: string; // instructions
-  subs?: string[]; // substitutions
-}
-
-interface RxDetailsEntry {
-  billNo: string;
-  date: string;
-  doctor: { name: string; reg: string };
-  patient: {
-    name: string;
-    age: number;
-    gender: string;
-    phone: string;
-    address: string;
-  };
-  items: RxItem[];
-}
-
-const rxDetails: Record<string, RxDetailsEntry> = {
-  "RX-2401": {
-    billNo: "B-10245",
-    date: today,
-    doctor: { name: "Dr. Nadirsha", reg: "KMC/IM/20345" },
-    patient: {
-      name: "Ameen K",
-      age: 34,
-      gender: "M",
-      phone: "+91 98xxxxxx21",
-      address: "Nilambur, Kerala",
-    },
-    items: [
-      {
-        sl: 1,
-        brand: "T Dolo 650 mg",
-        generic: "Paracetamol / Acetaminophen",
-        hsn: "3004",
-        batch: "PARA23A",
-        exp: "01/2027",
-        qty: 1,
-        mrp: 35.0,
-        sig: "1 tab SOS for fever",
-        subs: ["Crocin 500"],
-      },
-      {
-        sl: 2,
-        brand: "T Cetirizine 10 mg",
-        generic: "Cetirizine Hydrochloride",
-        hsn: "3004",
-        batch: "CET24B",
-        exp: "04/2027",
-        qty: 1,
-        mrp: 28.0,
-        sig: "1 tab HS",
-        subs: ["Levocetirizine 5 mg", "Allegra 120 mg"],
-      },
-      {
-        sl: 3,
-        brand: "ORS 21g Sachet",
-        generic: "Oral Rehydration Salts",
-        hsn: "3004",
-        batch: "ORS25C",
-        exp: "11/2026",
-        qty: 2,
-        mrp: 18.0,
-        sig: "Dissolve in 200ml water",
-        subs: ["Electral ORS", "Dripdrop ORS"],
-      },
-    ],
-  },
-  "RX-2402": {
-    billNo: "B-10246",
-    date: today,
-    doctor: { name: "Dr. Nadirsha", reg: "KMC/ENT/88761" },
-    patient: {
-      name: "Nadisha M",
-      age: 28,
-      gender: "F",
-      phone: "+91 97xxxxxx12",
-      address: "Kochi, Kerala",
-    },
-    items: [
-      {
-        sl: 1,
-        brand: "Cap Amoxicillin 500 mg",
-        generic: "Amoxicillin Trihydrate",
-        hsn: "3003",
-        batch: "AMX25A",
-        exp: "11/2025",
-        qty: 1,
-        mrp: 95.0,
-        sig: "1 cap TID x 5 days",
-        subs: ["Mox 500", "Novamox 500"],
-      },
-      {
-        sl: 2,
-        brand: "Capsule Lactobacillus",
-        generic: "Probiotic (Lactobacillus)",
-        hsn: "3004",
-        batch: "LAC25D",
-        exp: "02/2027",
-        qty: 1,
-        mrp: 120.0,
-        sig: "1 cap OD x 5 days",
-        subs: ["Econorm", "Bifilac"],
-      },
-    ],
-  },
-};
-
-// -----------------------------------------------------------------------------
-// Small barcode (visual only)
-// -----------------------------------------------------------------------------
 
 function Barcode({ value }: { value: string }) {
   const bars = Array.from(value || "").map(
@@ -171,51 +39,33 @@ function Barcode({ value }: { value: string }) {
   );
 }
 
-// -----------------------------------------------------------------------------
-// RX Queue + Packing View Dialog
-// -----------------------------------------------------------------------------
-
 function RxQueue() {
   const [open, setOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [selected, setSelected] = useState<OrderType | null>(null);
-  const [packed, setPacked] = useState<Record<number, boolean>>({});
-
-  useEffect(() => {
-    if (!selected) return;
-    const d = rxDetails[selected._id];
-    if (!d) return;
-    const init: Record<number, boolean> = {};
-    d.items.forEach((it) => {
-      init[it.sl] = false;
-    });
-    setPacked(init);
-  }, [selected]);
 
   const handleView = (rx: OrderType) => {
     setSelected(rx);
     setOpen(true);
   };
 
-  const markAllPacked = () => {
-    if (!selected) return;
-    const d = rxDetails[selected._id];
-    if (!d) return;
-    const next: Record<number, boolean> = {};
-    d.items.forEach((it) => {
-      next[it.sl] = true;
-    });
-    setPacked(next);
+  const handleDelete = (rx: OrderType) => {
+    setSelected(rx);
+    setDeleteOpen(true);
   };
 
-  // helper for footer label
-  const allPacked =
-    Object.values(packed).length > 0 && Object.values(packed).every(Boolean);
+  const markAllPacked = () => {};
 
-  const { data:ordersData } = useSWR<{ message: string; data: OrderType[] }>(
-    "/pharmacy/orders"
-  );
+  const { data: ordersData, mutate: OrderMutate } = useSWR<{
+    message: string;
+    data: OrderType[];
+  }>("/pharmacy/orders");
 
-  const orders = ordersData?.data ?? []
+  const orders = ordersData?.data ?? [];
+
+  useEffect(() => {
+    OrderMutate();
+  }, [OrderMutate]);
 
   return (
     <div>
@@ -234,10 +84,12 @@ function RxQueue() {
         </Tabs>
       </div>
 
-      {/* RX table */}
-      <OrderTable handleView={handleView} orders={orders}/>
+      <OrderTable
+        handleView={handleView}
+        orders={orders}
+        handleDelete={handleDelete}
+      />
 
-      {/* Packing View Dialog */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="!w-[98vw] !max-w-7xl">
           <DialogHeader>
@@ -246,186 +98,198 @@ function RxQueue() {
             </DialogTitle>
           </DialogHeader>
 
-            
+          <div className="space-y-4 max-h-[75vh] overflow-auto pr-1 pb-16">
+            {/* Patient + Bill Row */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
+              {/* Patient card */}
+              <div className="border rounded-lg p-3 md:col-span-2">
+                <div className="text-xs uppercase tracking-wide text-slate-500">
+                  Patient
+                </div>
+                <div className="font-semibold text-lg">
+                  {selected?.patient?.name}
+                </div>
+                <div className="text-sm text-slate-700">
+                  Age/Gender: {fAge(selected?.patient?.dateOfBirth)} /{" "}
+                  {selected?.patient?.gender} • Ph:
+                  {selected?.patient?.phoneNumber}
+                </div>
+                <div className="text-sm text-slate-700">
+                  Address: {selected?.patient.address}
+                </div>
+                <div className="mt-2 text-xs text-slate-500">
+                  Doctor: {selected?.doctor.name} • Specialization:{" "}
+                  {selected?.doctor.specialization}
+                </div>
+              </div>
 
-            
-                <div className="space-y-4 max-h-[75vh] overflow-auto pr-1 pb-16">
-                  {/* Patient + Bill Row */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
-                    {/* Patient card */}
-                    <div className="border rounded-lg p-3 md:col-span-2">
-                      <div className="text-xs uppercase tracking-wide text-slate-500">
-                        Patient
-                      </div>
-                      <div className="font-semibold text-lg">
-                        {selected?.patient?.name}
-                      </div>
-                      <div className="text-sm text-slate-700">
-                        Age/Gender: {fAge(selected?.patient?.dateOfBirth)} / {selected?.patient?.gender} • Ph: 
-                        {selected?.patient?.phoneNumber}
-                      </div>
-                      <div className="text-sm text-slate-700">
-                        Address: {selected?.patient.address}
-                      </div>
-                      <div className="mt-2 text-xs text-slate-500">
-                        Doctor: {selected?.doctor.name} • Specialization: {selected?.doctor.specialization}
-                      </div>
-                    </div>
-
-                    {/* Bill card */}
-                    <div className="border rounded-lg p-3 flex items-center justify-between">
-                      <div>
-                       
-                        <div className="text-xs text-slate-600">
-                          Date: <span className="font-medium">{fDateandTime(selected?.createdAt)}</span>
-                        </div>
-                        <div className="text-xs text-slate-600">
-                          RX ID:{" "}
-                          <span className="font-medium">{selected?.mrn}</span>
-                        </div>
-                      </div>
-                      <div className="ml-3 bg-white p-1 rounded border">
-                        <Barcode value={selected?.mrn ?? ""} />
-                      </div>
-                    </div>
+              {/* Bill card */}
+              <div className="border rounded-lg p-3 flex items-center justify-between">
+                <div>
+                  <div className="text-xs text-slate-600">
+                    Date:{" "}
+                    <span className="font-medium">
+                      {fDateandTime(selected?.createdAt)}
+                    </span>
                   </div>
-
-                  {/* Items List */}
-                  <div className="rounded-lg border overflow-hidden">
-                    <table className="w-full text-[15px]">
-                      <thead className="bg-slate-50 text-slate-700">
-                        <tr>
-                          <th className="p-2 text-left">Sl</th>
-                          <th className="p-2 text-left">Medicine</th>
-                          <th className="p-2 text-left">Exp</th>
-                          <th className="p-2 text-right">Qty</th>
-                          <th className="p-2 text-left">Instructions</th>
-                          <th className="p-2 text-left">Substitution</th>
-                          <th className="p-2 text-right">MRP</th>
-                          <th className="p-2 text-right">Amount</th>
-                          <th className="p-2 text-center">Packed</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selected?.items.map((it,idx) => {
-                          const amount =
-                            (Number(1) || 0) * (Number(it.name.unitPrice) || 0);
-                          return (
-                            <tr key={it.name._id} className="border-t align-top">
-                              <td className="p-2 align-top">{idx+1}</td>
-                              <td className="p-2 align-top">
-                                <div className="font-medium text-slate-900 leading-snug">
-                                  {it.name.name}
-                                </div>
-                                <div className="text-[12px] text-slate-600 leading-snug">
-                                  (Gen: {it.name.generic})
-                                </div>
-                                {it?.name?.hsnCode && (
-                                  <div className="text-[11px] text-slate-400 leading-snug">
-                                    HSN: {it?.name?.hsnCode}
-                                  </div>
-                                )}
-                              </td>
-                              
-                              <td className="p-2 align-top text-slate-700">
-                                {fDate(it.name.expiryDate)}
-                              </td>
-                              <td className="p-2 align-top text-right text-lg font-semibold text-slate-900">
-                                {1}
-                              </td>
-                              <td className="p-2 align-top text-slate-700">
-                                {/* {it.sig} */}
-                              </td>
-                              <td className="p-2 align-top text-slate-700">
-                                {/* {it.subs?.length ? it.subs.join(", ") : "-"} */}
-                              </td>
-                              <td className="p-2 align-top text-right whitespace-nowrap">
-                                {formatINR(it.name.unitPrice)}
-                              </td>
-                              <td className="p-2 align-top text-right font-medium whitespace-nowrap">
-                                {formatINR(amount)}
-                              </td>
-                              <td className="p-2 align-top text-center">
-                                <input
-                                  type="checkbox"
-                                  className="h-5 w-5"
-                                  // checked={!!packed[it.sl]}
-                                
-                                />
-                              </td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                      <tfoot>
-                        <tr className="border-t">
-                          <td colSpan={8}></td>
-                          <td className="p-2 text-right text-sm">Subtotal</td>
-                          <td className="p-2 text-right text-sm">
-                            {formatINR(selected?.items.reduce((a,b)=>a+b.name.unitPrice * 1,0))}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td colSpan={8}></td>
-                          <td className="p-2 text-right text-sm">Round Off</td>
-                          <td className="p-2 text-right text-sm">
-                            {/* {round >= 0 ? "+" : ""} */}
-                            {/* {round.toFixed(2)} */}
-                          </td>
-                        </tr>
-                        <tr>
-                          <td colSpan={8}></td>
-                          <td className="p-2 text-right font-semibold">
-                            Grand Total
-                          </td>
-                          <td className="p-2 text-right font-semibold">
-                            {formatINR(selected?.items.reduce((a,b)=>a+b.name.unitPrice * 1,0))}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-
-                  {/* Footer actions */}
-                  <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-3 pb-2 mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm">
-                    <div className="text-sm">
-                      Packed:{" "}
-                      <span
-                        className={`font-medium ${
-                          allPacked ? "text-emerald-700" : "text-slate-700"
-                        }`}
-                      >
-                        {allPacked ? "All items confirmed" : "In progress"}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <Button
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                        onClick={markAllPacked}
-                      >
-                        Mark all packed
-                      </Button>
-                      <Button
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                        onClick={() => window.print?.()}
-                      >
-                        Print
-                      </Button>
-                      <Button>Share</Button>
-                    </div>
+                  <div className="text-xs text-slate-600">
+                    RX ID: <span className="font-medium">{selected?.mrn}</span>
                   </div>
                 </div>
-            
+                <div className="ml-3 bg-white p-1 rounded border">
+                  <Barcode value={selected?.mrn ?? ""} />
+                </div>
+              </div>
+            </div>
+
+            {/* Items List */}
+            <div className="rounded-lg border overflow-hidden">
+              <table className="w-full text-[15px]">
+                <thead className="bg-slate-50 text-slate-700">
+                  <tr>
+                    <th className="p-2 text-left">Sl</th>
+                    <th className="p-2 text-left">Medicine</th>
+                    <th className="p-2 text-left">Exp</th>
+                    <th className="p-2 text-right">Qty</th>
+                    <th className="p-2 text-left">Instructions</th>
+                    <th className="p-2 text-left">Substitution</th>
+                    <th className="p-2 text-right">MRP</th>
+                    <th className="p-2 text-right">Amount</th>
+                    <th className="p-2 text-center">Packed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {selected?.items.map((it, idx) => {
+                    const amount =
+                      (Number(1) || 0) * (Number(it.name.unitPrice) || 0);
+                    return (
+                      <tr key={it.name._id} className="border-t align-top">
+                        <td className="p-2 align-top">{idx + 1}</td>
+                        <td className="p-2 align-top">
+                          <div className="font-medium text-slate-900 leading-snug">
+                            {it.name.name}
+                          </div>
+                          <div className="text-[12px] text-slate-600 leading-snug">
+                            (Gen: {it.name.generic})
+                          </div>
+                          {it?.name?.hsnCode && (
+                            <div className="text-[11px] text-slate-400 leading-snug">
+                              HSN: {it?.name?.hsnCode}
+                            </div>
+                          )}
+                        </td>
+
+                        <td className="p-2 align-top text-slate-700">
+                          {fDate(it.name.expiryDate)}
+                        </td>
+                        <td className="p-2 align-top text-right text-lg font-semibold text-slate-900">
+                          {1}
+                        </td>
+                        <td className="p-2 align-top text-slate-700">
+                          {/* {it.sig} */}
+                        </td>
+                        <td className="p-2 align-top text-slate-700">
+                          {/* {it.subs?.length ? it.subs.join(", ") : "-"} */}
+                        </td>
+                        <td className="p-2 align-top text-right whitespace-nowrap">
+                          {formatINR(it.name.unitPrice)}
+                        </td>
+                        <td className="p-2 align-top text-right font-medium whitespace-nowrap">
+                          {formatINR(amount)}
+                        </td>
+                        <td className="p-2 align-top text-center">
+                          <input
+                            type="checkbox"
+                            className="h-5 w-5"
+                            // checked={!!packed[it.sl]}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t">
+                    <td colSpan={8}></td>
+                    <td className="p-2 text-right text-sm">Subtotal</td>
+                    <td className="p-2 text-right text-sm">
+                      {formatINR(
+                        selected?.items.reduce(
+                          (a, b) => a + b.name.unitPrice * 1,
+                          0
+                        ) || 0
+                      )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan={8}></td>
+                    <td className="p-2 text-right text-sm">Round Off</td>
+                    <td className="p-2 text-right text-sm">
+                      {/* {round >= 0 ? "+" : ""} */}
+                      {/* {round.toFixed(2)} */}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td colSpan={8}></td>
+                    <td className="p-2 text-right font-semibold">
+                      Grand Total
+                    </td>
+                    <td className="p-2 text-right font-semibold">
+                      {formatINR(
+                        selected?.items.reduce(
+                          (a, b) => a + b.name.unitPrice * 1,
+                          0
+                        ) 
+                        || 0
+                      )}
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+
+            {/* Footer actions */}
+            <div className="sticky bottom-0 left-0 right-0 bg-white border-t pt-3 pb-2 mt-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm">
+              <div className="text-sm">
+                Packed:{" "}
+                <span
+                  className={`font-medium ${
+                    false ? "text-emerald-700" : "text-slate-700"
+                  }`}
+                >
+                  {false ? "All items confirmed" : "In progress"}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Button
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                  onClick={markAllPacked}
+                >
+                  Mark all packed
+                </Button>
+                <Button
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                  onClick={() => window.print?.()}
+                >
+                  Print
+                </Button>
+                <Button>Share</Button>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
+
+      <DeleteOrder
+        open={deleteOpen}
+        setOpen={setDeleteOpen}
+        selected={selected}
+        onDeleted={OrderMutate}
+      />
     </div>
   );
 }
-
-// -----------------------------------------------------------------------------
-// Page wrapper
-// -----------------------------------------------------------------------------
 
 export default function PharmacyHome() {
   return (

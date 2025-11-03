@@ -6,12 +6,15 @@ import DoctorProfile from "./Profile";
 import { CreateAppointmentForm } from "@/app/dashboard/doctor/appointments/CreateAppointmentForm";
 import Drawer from "../ui/drawer";
 import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
+import { useAuth } from "@/auth/context/auth-context";
 
 export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
 
   const today = useMemo(() => new Date(), []);
   const { mutate } = useAppointmentList({ date: today });
+
+  const { user } = useAuth();
 
   return (
     <>
@@ -59,12 +62,14 @@ export default function Header() {
             className="ml-4 flex items-center gap-3 sm:gap-4"
             data-testid="actions"
           >
-            <button
-              className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
-              onClick={() => setOpenCreate(true)}
-            >
-              <Plus className="h-4 w-4" /> New Appointment
-            </button>
+            {user?.role === "Doctor" && (
+              <button
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
+                onClick={() => setOpenCreate(true)}
+              >
+                <Plus className="h-4 w-4" /> New Appointment
+              </button>
+            )}
             <button
               className="relative rounded-xl border border-slate-200 bg-white/90 p-2 shadow-sm transition hover:bg-slate-50 cursor-pointer"
               aria-label="Notifications"
