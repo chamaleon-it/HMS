@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, {  useMemo } from "react";
 import { DataType } from "./interface";
 import ExaminationNote from "./ExaminationNote";
 import useSWR from "swr";
@@ -15,7 +15,7 @@ export default function ConsultationAndExaminationNotes({
   setData: React.Dispatch<React.SetStateAction<DataType>>;
   patientId: string;
 }) {
-  const { data: consultingData, mutate } = useSWR<{
+  const { data: consultingData } = useSWR<{
     message: string;
     data: Consultations[];
   }>(`/consultings/patient/${patientId}`);
@@ -25,9 +25,6 @@ export default function ConsultationAndExaminationNotes({
     [consultingData]
   );
 
-  useEffect(() => {
-    mutate();
-  }, [mutate]);
 
   return (
     <div className=" space-y-6">

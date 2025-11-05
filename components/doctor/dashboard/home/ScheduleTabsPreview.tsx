@@ -1,6 +1,6 @@
 "use client";
 
-import React, { JSX, useEffect, useMemo } from "react";
+import React, { JSX, useMemo } from "react";
 import {
   CheckCircle,
   Eye,
@@ -21,7 +21,7 @@ export default function ScheduleTabsPreview({
     React.SetStateAction<"Upcoming" | "Consulted" | "Observation" | "Not show">
   >;
 }): JSX.Element {
-  const { data: appointmentStatisticsData, mutate } = useSWR<{
+  const { data: appointmentStatisticsData } = useSWR<{
     message: string;
     data: {
       completed: number;
@@ -46,9 +46,7 @@ export default function ScheduleTabsPreview({
     admit: 0,
   };
 
-  useEffect(() => {
-    mutate();
-  }, [mutate]);
+  
 
   const tabs = useMemo(
     () => [

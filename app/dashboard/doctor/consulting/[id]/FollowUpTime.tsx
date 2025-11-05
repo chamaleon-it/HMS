@@ -52,7 +52,7 @@ export default function FollowUpTimePro({
     setSelectedTime(time);
   }, []);
 
-  const { data: availabilityRes, mutate: availabilityMutate } = useSWR<{
+  const { data: availabilityRes, } = useSWR<{
     message: string;
     data: {
       startDate: Date;
@@ -207,10 +207,7 @@ export default function FollowUpTimePro({
     bookedMutate();
   };
 
-  useEffect(() => {
-    availabilityMutate();
-    bookedMutate();
-  }, [availabilityMutate, bookedMutate]);
+  
 
   if (!showFollowUp) {
     return (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, {  useState } from "react";
 import { Bell, Search, Plus } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { CreateAppointmentForm } from "@/app/dashboard/doctor/appointments/CreateAppointmentForm";
@@ -11,8 +11,8 @@ import { useAuth } from "@/auth/context/auth-context";
 export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
 
-  const today = useMemo(() => new Date(), []);
-  const { mutate } = useAppointmentList({ date: today });
+  
+  const { mutate } = useAppointmentList({});
 
   const { user } = useAuth();
 
@@ -88,7 +88,7 @@ export default function Header() {
           data-testid="header-divider"
         />
       </header>
-      <div className="w-full overflow-hidden">
+      {user?.role === "Doctor" && <div className="w-full overflow-hidden">
         <Drawer
           open={openCreate}
           onClose={() => setOpenCreate(false)}
@@ -99,7 +99,7 @@ export default function Header() {
             mutate={mutate}
           />
         </Drawer>
-      </div>
+      </div>}
     </>
   );
 }

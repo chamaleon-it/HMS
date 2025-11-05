@@ -21,7 +21,7 @@ export default function SWRProvider({
         errorRetryInterval: 3000,
         revalidateOnFocus: true,
         revalidateOnReconnect: true,
-        revalidateIfStale: false,
+        revalidateIfStale: true,
         refreshInterval: 0, // set >0 if you need periodic refresh
         suspense: false,
         onError: (err) => {

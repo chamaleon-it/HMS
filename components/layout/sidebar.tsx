@@ -31,7 +31,9 @@ export function Sidebar() {
       today: number;
       upcoming: number;
     };
-  }>("/appointments/statistics");
+  }>(user?.role === "Doctor" ? "/appointments/statistics" : null,{
+    revalidateIfStale:false
+  });
 
   const appointmentStatistics = appointmentStatisticsData?.data ?? {
     completed: 0,

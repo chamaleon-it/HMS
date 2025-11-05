@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -17,8 +17,8 @@ import useSWR from "swr";
 import { fAge, fDate, fDateandTime } from "@/lib/fDateAndTime";
 import DeleteOrder from "./DeleteOrder";
 import { formatINR } from "@/lib/fNumber";
-
-
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
 function Barcode({ value }: { value: string }) {
   const bars = Array.from(value || "").map(
@@ -54,7 +54,7 @@ function RxQueue() {
     setDeleteOpen(true);
   };
 
-  const markAllPacked = () => {};
+  
 
   const { data: ordersData, mutate: OrderMutate } = useSWR<{
     message: string;
@@ -63,9 +63,20 @@ function RxQueue() {
 
   const orders = ordersData?.data ?? [];
 
-  useEffect(() => {
-    OrderMutate();
-  }, [OrderMutate]);
+
+  const markAllPacked = async() => {
+    try {
+      await toast.promise(api.post("/pharmacy/orders/mark_all_as_packed",{order:selected?._id}),{
+        loading:"Marking all item is packed",
+        error:({response})=>response.data.message,
+        success:({data})=>data.message
+      })
+      setSelected(prev=>prev ? ({...prev,items:prev.items.map(it=>({...it,isPacked:true}))}) : null)
+      OrderMutate()
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div>
@@ -161,7 +172,8 @@ function RxQueue() {
                 <tbody>
                   {selected?.items.map((it, idx) => {
                     const amount =
-                      (Number(1) || 0) * (Number(it.name.unitPrice) || 0);
+                      (Number(it.quantity) || 1) *
+                      (Number(it.name.unitPrice) || 0);
                     return (
                       <tr key={it.name._id} className="border-t align-top">
                         <td className="p-2 align-top">{idx + 1}</td>
@@ -183,7 +195,7 @@ function RxQueue() {
                           {fDate(it.name.expiryDate)}
                         </td>
                         <td className="p-2 align-top text-right text-lg font-semibold text-slate-900">
-                          {1}
+                          {it.quantity}
                         </td>
                         <td className="p-2 align-top text-slate-700">
                           {/* {it.sig} */}
@@ -201,7 +213,43 @@ function RxQueue() {
                           <input
                             type="checkbox"
                             className="h-5 w-5"
-                            // checked={!!packed[it.sl]}
+                            checked={it.isPacked}
+                            onChange={async () => {
+                              try {
+
+                                if(it.isPacked){
+                                  toast.error("This item is already packed")
+                                  return
+                                }
+                                await toast.promise(
+                                  api.post("/pharmacy/orders/packed", {
+                                    order: selected._id,
+                                    item: it.name._id,
+                                  }),
+                                  {
+                                    loading: "item is packing...",
+                                    error: ({ response }) =>
+                                      response.data.message,
+                                    success: ({ data }) => data.message,
+                                  }
+                                );
+                                OrderMutate();
+                                setSelected((prev) =>
+                                  prev
+                                    ? {
+                                        ...prev,
+                                        items: prev.items.map((i) =>
+                                          i.name._id === it.name._id
+                                            ? { ...i, isPacked: true }
+                                            : i
+                                        ),
+                                      }
+                                    : null
+                                );
+                              } catch (error) {
+                                console.log(error);
+                              }
+                            }}
                           />
                         </td>
                       </tr>
@@ -215,7 +263,7 @@ function RxQueue() {
                     <td className="p-2 text-right text-sm">
                       {formatINR(
                         selected?.items.reduce(
-                          (a, b) => a + b.name.unitPrice * 1,
+                          (a, b) => a + b.name.unitPrice * b.quantity,
                           0
                         ) || 0
                       )}
@@ -237,10 +285,9 @@ function RxQueue() {
                     <td className="p-2 text-right font-semibold">
                       {formatINR(
                         selected?.items.reduce(
-                          (a, b) => a + b.name.unitPrice * 1,
+                          (a, b) => a + b.name.unitPrice * b.quantity,
                           0
-                        ) 
-                        || 0
+                        ) || 0
                       )}
                     </td>
                   </tr>

@@ -70,7 +70,9 @@ export function CreateAppointmentForm({
       email: string;
     }[];
     message: string;
-  }>("/users/doctors");
+  }>("/users/doctors",{
+    revalidateIfStale:false
+  });
 
   const {
     register,

@@ -25,6 +25,8 @@ export interface Item {
     frequency: string;
     food:      string;
     duration:  string;
+    quantity:number;
+    return?:number;
 }
 
 export interface Name {

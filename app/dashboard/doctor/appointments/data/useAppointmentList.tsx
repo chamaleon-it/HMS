@@ -1,3 +1,4 @@
+import { useAuth } from "@/auth/context/auth-context";
 import useSWR from "swr";
 
 export default function useAppointmentList({
@@ -9,6 +10,7 @@ export default function useAppointmentList({
   activeStatuses?: string[];
   date?: Date;
 }) {
+  const {user} = useAuth()
   const params = new URLSearchParams();
 
   if (query) params.append("query", query);
@@ -56,7 +58,9 @@ export default function useAppointmentList({
       createdAt: Date;
       visitCount: number;
     }[];
-  }>(`/appointments/list?${params?.toString()}`);
+  }>(user?.role === "Doctor" ? `/appointments/list?${params?.toString()}` : null,{
+    revalidateIfStale:false
+  });
 
   return { data, isLoading, mutate, error };
 }

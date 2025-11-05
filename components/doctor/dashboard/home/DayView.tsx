@@ -45,11 +45,7 @@ export default function DailyViewTimeline({
   selectedDate: Date | undefined;
 }) {
   const day = selectedDate ? new Date(selectedDate) : new Date();
-  const keyDate = new Date(
-    day.getFullYear(),
-    day.getMonth(),
-    day.getDate()
-  ).toISOString();
+  
 
   const { data: appointmentData, mutate } = useAppointmentList({ date: day });
   const appointment = useMemo(
@@ -65,9 +61,7 @@ export default function DailyViewTimeline({
     return () => clearInterval(id);
   }, []);
 
-  useEffect(() => {
-    mutate();
-  }, [mutate, keyDate]);
+  
 
   const [currenctStatus, setCurrenctStatus] = useState<
     "Upcoming" | "Consulted" | "Observation" | "Not show"

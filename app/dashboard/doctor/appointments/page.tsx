@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 
 import { CalendarDays, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,9 +23,7 @@ export default function AppointmentPage() {
 
   const { mutate } = useAppointmentList({ query, activeStatuses, date });
 
-  useEffect(() => {
-    mutate();
-  }, [mutate]);
+  
 
   return (
     <AppShell>

@@ -2,23 +2,19 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { Search } from "lucide-react";
-import React, { useEffect } from "react";
+import React from "react";
 import useSWR from "swr";
 
 export default function History({ patientId }: { patientId: string }) {
   const {
     data: consultingData,
-    isLoading,
-    mutate,
+    isLoading
   } = useSWR<{ message: string; data: Consultations[] }>(
     `/consultings/patient/${patientId}`
   );
 
   const consultations = consultingData?.data ?? [];
 
-  useEffect(() => {
-    mutate();
-  }, [mutate]);
 
   if (isLoading) {
     <div className="mt-4">Loading...!</div>;

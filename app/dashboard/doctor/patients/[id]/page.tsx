@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import {
   Calendar,
   FlaskRound as Flask,
@@ -118,23 +118,20 @@ export default function PatientFullDetailPage() {
   const params = useParams();
   const { id: patientId } = params;
 
-  const { data: patientData, mutate: patientMutate } = useSWR<{
+  const { data: patientData } = useSWR<{
     message: string;
     data: PatientType;
   }>(`/patients/single/${patientId}`);
 
   const patient = patientData?.data;
 
-  const { data: consultingData, mutate: consultingMutate } = useSWR<{
+  const { data: consultingData } = useSWR<{
     message: string;
     data: ConsultationType[];
   }>(`/consultings/patient/${patientId}`);
   const consult = consultingData?.data || [];
 
-  useEffect(() => {
-    patientMutate();
-    consultingMutate();
-  }, [patientMutate, consultingMutate]);
+  
 
   return (
     <AppShell>

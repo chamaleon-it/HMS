@@ -31,7 +31,7 @@ import { useAuth } from "@/auth/context/auth-context";
 
 export default function PharmacyReturnPage() {
   const [showDialog, setShowDialog] = useState(false);
-  const {user} = useAuth()
+  const { user } = useAuth();
 
   const [filter, setFilter] = useState<{ q: null | string }>({
     q: null,
@@ -41,14 +41,13 @@ export default function PharmacyReturnPage() {
 
   const fetchOrder = async () => {
     try {
-      if(!filter.q){
-        toast.error("Please enter a valid RX id")
-        return
+      if (!filter.q) {
+        toast.error("Please enter a valid RX id");
+        return;
       }
       const params = new URLSearchParams();
-      
-        params.set("q", filter.q);
-      
+
+      params.set("q", filter.q);
 
       const { data } = await api.get(`/pharmacy/orders/single?${params}`);
       setOrder(data.data);
@@ -62,7 +61,12 @@ export default function PharmacyReturnPage() {
       <div className="p-5 flex flex-col gap-6 text-sm min-h-[calc(100vh-80px)]">
         <Header />
 
-        <Search fetchOrder={fetchOrder} filter={filter} setFilter={setFilter} order={order}/>
+        <Search
+          fetchOrder={fetchOrder}
+          filter={filter}
+          setFilter={setFilter}
+          order={order}
+        />
 
         {/* RETURNED ITEMS TABLE */}
         <section className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
@@ -121,16 +125,37 @@ export default function PharmacyReturnPage() {
                     </TableCell>
 
                     <TableCell className="text-center font-medium text-slate-700">
-                      {1}
+                      {it.quantity}
                     </TableCell>
 
                     <TableCell className="text-center">
                       <Input
                         type="number"
                         min={0}
-                        max={10}
+                        max={it.quantity}
                         className="h-8 w-14 text-center rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-                        defaultValue={1}
+                        value={it.return}
+                        onChange={(e) => {
+                          const value = Number(e.target.value)
+                          if(value>it.quantity){
+                            return
+                          }
+                          setOrder((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  items: prev.items.map((item) =>
+                                    item.name._id === it.name._id
+                                      ? {
+                                          ...item,
+                                          return: value || 0,
+                                        }
+                                      : item
+                                  ),
+                                }
+                              : null
+                          );
+                        }}
                       />
                     </TableCell>
 
@@ -139,7 +164,7 @@ export default function PharmacyReturnPage() {
                     </TableCell>
 
                     <TableCell className="text-right tabular-nums font-semibold text-slate-900">
-                      {formatINR(it.name.unitPrice)}
+                      {formatINR(it.name.unitPrice * (it.return ?? 0))}
                     </TableCell>
 
                     <TableCell className="align-top">
@@ -166,7 +191,7 @@ export default function PharmacyReturnPage() {
               <div className="flex justify-between gap-6">
                 <span className="text-slate-500">Subtotal</span>
                 <span className="font-medium text-slate-700">
-                  {formatINR(0)}
+                  {formatINR(order?.items.reduce((a,b)=>a+b.name.unitPrice* (b.return ?? 0),0) ?? 0)}
                 </span>
               </div>
               <div className="flex justify-between gap-6 text-[11px]">
@@ -177,7 +202,7 @@ export default function PharmacyReturnPage() {
               </div>
               <div className="flex justify-between gap-6 text-sm font-semibold text-slate-900">
                 <span>Total Refund</span>
-                <span>{formatINR(0)}</span>
+                <span>{formatINR(order?.items.reduce((a,b)=>a+b.name.unitPrice* (b.return ?? 0),0) ?? 0)}</span>
               </div>
             </div>
           </div>

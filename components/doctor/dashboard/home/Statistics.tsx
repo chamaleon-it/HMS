@@ -1,5 +1,5 @@
 import { ClipboardCheck, ListChecks, UserRoundPlus, Users } from "lucide-react";
-import React, { useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import useSWR from "swr";
@@ -7,7 +7,6 @@ import useSWR from "swr";
 export default function Statistics() {
   const {
     data: appointmentStatisticsData,
-    mutate: appointmentStatisticsMutate,
   } = useSWR<{
     message: string;
     data: {
@@ -31,7 +30,7 @@ export default function Statistics() {
     upcoming: 0,
   };
 
-  const { data: patientsStatisticsData, mutate: patientsStatisticsMutate } =
+  const { data: patientsStatisticsData } =
     useSWR<{
       message: string;
       data: {
@@ -53,10 +52,7 @@ export default function Statistics() {
     female: 0,
   };
 
-  useEffect(() => {
-    appointmentStatisticsMutate();
-    patientsStatisticsMutate();
-  }, [appointmentStatisticsMutate, patientsStatisticsMutate]);
+  
 
   return (
     <div className="grid grid-cols-4 gap-4 p-6">

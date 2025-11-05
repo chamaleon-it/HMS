@@ -112,7 +112,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     return matchers;
   }, [availability?.startDate, availability?.endDate, availability?.days]);
 
-  const { data: walkInData, mutate: walkInMutate } = useSWR<{
+  const { data: walkInData } = useSWR<{
     message: string;
     data: {
       alreadyBooked: Date[];
@@ -120,11 +120,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     };
   }>(walkIn && doctor ? `/appointments/walk-in/${doctor}` : null);
 
-  useEffect(() => {
-    if (walkIn && doctor) {
-      walkInMutate();
-    }
-  }, [walkIn, doctor, walkInMutate]);
+  
 
   useEffect(() => {
     if (!walkIn || !doctor || !availability || !walkInData?.data) return;

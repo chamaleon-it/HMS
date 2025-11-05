@@ -1,5 +1,5 @@
 import { TabsContent } from "@/components/ui/tabs";
-import React, { useEffect } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
 import { cn } from "@/lib/utils";
@@ -41,7 +41,7 @@ export default function MonthlyCalender({
 }: {
   selectedDate: Date | undefined;
 }) {
-  const { data, mutate } = useSWR<{
+  const { data } = useSWR<{
     message: string;
     data: {
       _id: string;
@@ -54,9 +54,7 @@ export default function MonthlyCalender({
     }[];
   }>(`/appointments/calender-monthly?date=${selectedDate}`);
 
-  useEffect(() => {
-    mutate();
-  }, [mutate]);
+ 
 
   return (
     <TabsContent

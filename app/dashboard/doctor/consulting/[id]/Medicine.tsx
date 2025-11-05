@@ -8,6 +8,7 @@ interface Medicine {
   frequency: string;
   food: string;
   duration: string;
+  quantity:number;
 }
 
 type Item = { _id: string; name: string; generic: string };

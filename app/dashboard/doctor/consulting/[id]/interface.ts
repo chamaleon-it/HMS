@@ -52,6 +52,7 @@ export interface DataType {
     frequency: string;
     food: string;
     duration: string;
+    quantity:number;
   }[];
   advice: null | string;
   followUp: null | Date;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import {  useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import ItemTable from "./ItemTable";
 import ItemFilter from "./ItemFilter";
@@ -29,9 +29,7 @@ export default function InventoryPage() {
     filter,
   });
 
-  useEffect(() => {
-    mutate();
-  }, [mutate]);
+  
 
   // open overlays
   const handleView = (item: ItemType) => {

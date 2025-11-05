@@ -105,16 +105,13 @@ const PatientSelection: React.FC<Props> = ({ setValue, values,patient }) => {
     return u.pathname + u.search;
   }, [debounced]);
 
-  const { data, isLoading,mutate } = useSWR<{ data: Patient[] }>(
+  const { data, isLoading } = useSWR<{ data: Patient[] }>(
     // Only hit API when user typed enough or when they focus & have something
     debounced.length >= MIN_QUERY_LEN ? listUrl : null
   );
   const patients = data?.data ?? [];
 
 
-  useEffect(() => {
-    mutate()
-  }, [input,mutate])
   
 
   const handleSelect = useCallback(

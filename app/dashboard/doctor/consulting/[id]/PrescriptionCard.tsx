@@ -1,4 +1,4 @@
-import React, {  useMemo, useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +20,7 @@ interface Medicine {
   frequency: string;
   food: string;
   duration: string;
+  quantity: number;
 }
 
 interface FavoriteTemplate {
@@ -51,6 +52,7 @@ export default function PrescriptionCard({
           frequency: "1-0-1",
           food: "After Food",
           duration: "7 days",
+          quantity: 14,
         },
         {
           name: "Paracetamol 650mg",
@@ -58,6 +60,7 @@ export default function PrescriptionCard({
           frequency: "1-1-1",
           food: "After Food",
           duration: "5 days",
+          quantity: 15,
         },
       ],
     },
@@ -71,6 +74,7 @@ export default function PrescriptionCard({
           frequency: "1-1-1",
           food: "After Food",
           duration: "5 days",
+          quantity: 15,
         },
       ],
     },
@@ -131,7 +135,14 @@ export default function PrescriptionCard({
       ...prev,
       medicines: [
         ...prev.medicines,
-        { dosage: "", name: "", duration: "", food: "", frequency: "" },
+        {
+          dosage: "",
+          name: "",
+          duration: "",
+          food: "",
+          frequency: "",
+          quantity: 0,
+        },
       ],
     }));
   };
@@ -146,7 +157,11 @@ export default function PrescriptionCard({
     }));
   };
 
-  const updateField = (idx: number, key: keyof Medicine, val: string) => {
+  const updateField = (
+    idx: number,
+    key: keyof Medicine,
+    val: string | number
+  ) => {
     setData((prev) => ({
       ...prev,
       medicines: prev.medicines.map((m, i) =>
@@ -167,7 +182,7 @@ export default function PrescriptionCard({
     const trimmed = templateName.trim();
     if (!trimmed) return;
     const cleaned = data.medicines.filter((m) =>
-      Object.values(m).some((v) => (v || "").trim() !== "")
+      Object.values(m).some((v) => (String(v) || "").trim() !== "")
     );
     if (!cleaned.length) return;
     const nextId = favorites.length
@@ -301,12 +316,13 @@ export default function PrescriptionCard({
             {/* Dynamic rows */}
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2">
-                <div className="col-span-3">Drug</div>
+                <div className="col-span-2">Drug</div>
                 <div className="col-span-2">Dosage</div>
                 <div className="col-span-2">Frequency</div>
                 <div className="col-span-2">Food</div>
-                <div className="col-span-1">Duration</div>
-                <div className="col-span-2 text-right">Actions</div>
+                <div className="col-span-2">Duration</div>
+                <div className="col-span-1">Quantity</div>
+                <div className="col-span-1 text-right">Actions</div>
               </div>
 
               {/* Rows */}
@@ -315,7 +331,7 @@ export default function PrescriptionCard({
                   key={i}
                   className="grid grid-cols-12 gap-2 mt-2 items-start"
                 >
-                  <div className="col-span-3">
+                  <div className="col-span-2">
                     <Medicine i={i} m={m} updateField={updateField} />
                   </div>
 
@@ -366,7 +382,7 @@ export default function PrescriptionCard({
                     />
                   </div>
 
-                  <div className="col-span-1">
+                  <div className="col-span-2">
                     <LabeledCombobox
                       options={[
                         "3 days",
@@ -382,7 +398,28 @@ export default function PrescriptionCard({
                     />
                   </div>
 
-                  <div className="col-span-2 flex justify-end gap-2">
+                  <div className="col-span-1">
+                    <div className="relative w-full">
+                      <input
+                        placeholder="quantity"
+                        type="number"
+                        onChange={(e) =>
+                          updateField(
+                            i,
+                            "quantity",
+                            parseInt(e.target.value) ?? 0
+                          )
+                        }
+                        inputMode={"numeric"}
+                        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+                      />
+                      <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+                        Quantity
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="col-span-1 flex justify-end gap-2">
                     <Button
                       className="!bg-emerald-600 hover:!bg-emerald-700 text-white !border-emerald-600"
                       onClick={addMedicineRow}
@@ -663,9 +700,6 @@ export default function PrescriptionCard({
     </Card>
   );
 }
-
-
-
 
 type LabeledComboboxProps = {
   label: string;

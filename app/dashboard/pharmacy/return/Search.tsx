@@ -109,7 +109,7 @@ export default function Search({
             <span className="uppercase tracking-wide">Invoice Total</span>
             <span className="text-slate-900 font-semibold text-base leading-tight">
               {formatINR(
-                order?.items.reduce((a, b) => a + b.name.unitPrice * 1, 0) ?? 0
+                order?.items.reduce((a, b) => a + b.name.unitPrice * b.quantity, 0) ?? 0
               )}
             </span>
             <span className="text-[10px] text-slate-400">incl. GST</span>

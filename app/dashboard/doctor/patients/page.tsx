@@ -119,10 +119,7 @@ export default function PatientsEnhanced() {
   }, []);
 
   // ✅ Refetch when filter changes
-  useEffect(() => {
-    tableMutate();
-    statisticsMutate();
-  }, [queryString, tableMutate, statisticsMutate]);
+  
 
   const refreshData = () => {
     tableMutate();
