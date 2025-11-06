@@ -222,7 +222,7 @@ function PurchaseOrderPage({ onBack }: { onBack: () => void }) {
   const [urgent, setUrgent] = useState(false);
 
   return (
-    <div className="flex flex-col gap-6 pb-28 max-w-screen-xl mx-auto px-4">
+    <div className="flex flex-col gap-6 p-5 ">
       {/* HEADER WITH BACK */}
       <header className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 bg-gradient-to-br from-background via-background to-muted/40 border rounded-2xl p-4 lg:p-5 shadow-sm">
         <div className="flex flex-col gap-3 w-full">
@@ -663,8 +663,8 @@ function PurchaseOrderPage({ onBack }: { onBack: () => void }) {
         </CardContent>
       </Card>
 
-      {/* STICKY FOOTER BAR */}
-      <div className="fixed bottom-0 left-0 right-0 border-t bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-lg">
+<Card>
+      <div className="">
         <div className="max-w-screen-xl mx-auto px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div className="text-sm flex flex-col md:flex-row md:items-center md:gap-4 leading-tight">
             <div className="font-medium">Items: {items.length}</div>
@@ -693,6 +693,7 @@ function PurchaseOrderPage({ onBack }: { onBack: () => void }) {
           </div>
         </div>
       </div>
+      </Card>
     </div>
   );
 }
@@ -711,7 +712,11 @@ export default function PurchaseOrdersListPage() {
 
   // if creating new PO, render form
   if (showCreate) {
-    return <PurchaseOrderPage onBack={() => setShowCreate(false)} />;
+    return (
+    <AppShell>
+
+    <PurchaseOrderPage onBack={() => setShowCreate(false)} />
+    </AppShell>)
   }
 
   // otherwise render list/table view
