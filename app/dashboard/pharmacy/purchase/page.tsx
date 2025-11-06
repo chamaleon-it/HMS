@@ -222,7 +222,7 @@ function PurchaseOrderPage({ onBack }: { onBack: () => void }) {
   const [urgent, setUrgent] = useState(false);
 
   return (
-    <div className="flex flex-col gap-6 p-5 ">
+    <div className="flex flex-col gap-6   p-5 ">
       {/* HEADER WITH BACK */}
       <header className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 bg-gradient-to-br from-background via-background to-muted/40 border rounded-2xl p-4 lg:p-5 shadow-sm">
         <div className="flex flex-col gap-3 w-full">
