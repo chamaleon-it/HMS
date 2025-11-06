@@ -13,12 +13,6 @@ import {
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import AppShell from "@/components/layout/app-shell";
 import { OrderType } from "./interface";
 import Header from "./Header";
@@ -28,9 +22,19 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { fDate, fTime } from "@/lib/fDateAndTime";
 import { useAuth } from "@/auth/context/auth-context";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export default function PharmacyReturnPage() {
-  const [showDialog, setShowDialog] = useState(false);
   const { user } = useAuth();
 
   const [filter, setFilter] = useState<{ q: null | string }>({
@@ -51,6 +55,67 @@ export default function PharmacyReturnPage() {
 
       const { data } = await api.get(`/pharmacy/orders/single?${params}`);
       setOrder(data.data);
+      setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const [state, setState] = useState({
+    refundMode: "Cash",
+    returnedBy: "Patient",
+    remarks: "",
+  });
+
+  const returnOrder = async () => {
+    if (!order) {
+      toast.error("Please select an order first");
+      return;
+    }
+
+    const items = order.items ?? [];
+
+    if (items.length === 0) {
+      toast.error("No items to return");
+      return;
+    }
+
+    const hasInvalidReturn = items.some((it) => (it.return ?? 0) <= 0);
+    if (hasInvalidReturn) {
+      toast.error("Please select return quantity or remove the items");
+      return;
+    }
+
+    try {
+      const payload: {
+        patient: string;
+        order: string;
+        refundMode: string;
+        returnedBy: string;
+        remarks: string;
+        items: {
+          name: string;
+          quantity: number;
+          reason: string;
+        }[];
+      } = {
+        patient: order?.patient._id,
+        order: order?._id,
+        refundMode: state.refundMode,
+        returnedBy: state.returnedBy,
+        remarks: state.remarks,
+        items: order?.items.map((it) => ({
+          name: it.name._id,
+          quantity: it.return || 0,
+          reason: it.reason,
+        })),
+      };
+      await toast.promise(api.post("pharmacy/return", payload), {
+        loading: "Returning...!",
+        success: ({ data }) => data.message,
+        error: ({ respose }) => respose.data.message,
+      });
+      setOrder(null);
     } catch (error) {
       console.log(error);
     }
@@ -93,6 +158,7 @@ export default function PharmacyReturnPage() {
                   <TableHead className="text-right">Rate</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
                   <TableHead>Reason</TableHead>
+                  <TableHead>Action</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -136,9 +202,9 @@ export default function PharmacyReturnPage() {
                         className="h-8 w-14 text-center rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                         value={it.return}
                         onChange={(e) => {
-                          const value = Number(e.target.value)
-                          if(value>it.quantity){
-                            return
+                          const value = Number(e.target.value);
+                          if (value > it.quantity) {
+                            return;
                           }
                           setOrder((prev) =>
                             prev
@@ -169,7 +235,27 @@ export default function PharmacyReturnPage() {
 
                     <TableCell className="align-top">
                       <div className="relative inline-block text-[11px]">
-                        <select className="appearance-none h-8 rounded-lg border border-slate-300 bg-white pr-7 pl-2 text-[11px] leading-none text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400">
+                        <select
+                          value={it.reason}
+                          onChange={(e) => {
+                            setOrder((prev) =>
+                              prev
+                                ? {
+                                    ...prev,
+                                    items: prev.items.map((item) =>
+                                      item.name._id === it.name._id
+                                        ? {
+                                            ...item,
+                                            reason: e.target.value,
+                                          }
+                                        : item
+                                    ),
+                                  }
+                                : null
+                            );
+                          }}
+                          className="appearance-none h-8 rounded-lg border border-slate-300 bg-white pr-7 pl-2 text-[11px] leading-none text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                        >
                           <option>Expired</option>
                           <option>Damaged</option>
                           <option>Wrong item</option>
@@ -179,6 +265,26 @@ export default function PharmacyReturnPage() {
                           ▾
                         </span>
                       </div>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        size={"sm"}
+                        className="bg-red-600 hover:bg-red-700 transform duration-200"
+                        onClick={() => {
+                          setOrder((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  items: prev.items.filter(
+                                    (e) => e.name._id !== it.name._id
+                                  ),
+                                }
+                              : null
+                          );
+                        }}
+                      >
+                        Remove
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -191,7 +297,12 @@ export default function PharmacyReturnPage() {
               <div className="flex justify-between gap-6">
                 <span className="text-slate-500">Subtotal</span>
                 <span className="font-medium text-slate-700">
-                  {formatINR(order?.items.reduce((a,b)=>a+b.name.unitPrice* (b.return ?? 0),0) ?? 0)}
+                  {formatINR(
+                    order?.items.reduce(
+                      (a, b) => a + b.name.unitPrice * (b.return ?? 0),
+                      0
+                    ) ?? 0
+                  )}
                 </span>
               </div>
               <div className="flex justify-between gap-6 text-[11px]">
@@ -202,7 +313,14 @@ export default function PharmacyReturnPage() {
               </div>
               <div className="flex justify-between gap-6 text-sm font-semibold text-slate-900">
                 <span>Total Refund</span>
-                <span>{formatINR(order?.items.reduce((a,b)=>a+b.name.unitPrice* (b.return ?? 0),0) ?? 0)}</span>
+                <span>
+                  {formatINR(
+                    order?.items.reduce(
+                      (a, b) => a + b.name.unitPrice * (b.return ?? 0),
+                      0
+                    ) ?? 0
+                  )}
+                </span>
               </div>
             </div>
           </div>
@@ -223,7 +341,16 @@ export default function PharmacyReturnPage() {
                   Refund Mode
                 </span>
                 <div className="relative inline-block">
-                  <select className="appearance-none h-9 w-full rounded-lg border border-slate-300 bg-white pr-8 pl-3 text-[12px] leading-none text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400">
+                  <select
+                    value={state.refundMode}
+                    onChange={(e) =>
+                      setState((prev) => ({
+                        ...prev,
+                        refundMode: e.target.value,
+                      }))
+                    }
+                    className="appearance-none h-9 w-full rounded-lg border border-slate-300 bg-white pr-8 pl-3 text-[12px] leading-none text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                  >
                     <option>Cash</option>
                     <option>UPI</option>
                     <option>Adjust in Next Bill</option>
@@ -239,7 +366,16 @@ export default function PharmacyReturnPage() {
                   Returned By
                 </span>
                 <div className="relative inline-block">
-                  <select className="appearance-none h-9 w-full rounded-lg border border-slate-300 bg-white pr-8 pl-3 text-[12px] leading-none text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400">
+                  <select
+                    value={state.returnedBy}
+                    onChange={(e) =>
+                      setState((prev) => ({
+                        ...prev,
+                        returnedBy: e.target.value,
+                      }))
+                    }
+                    className="appearance-none h-9 w-full rounded-lg border border-slate-300 bg-white pr-8 pl-3 text-[12px] leading-none text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                  >
                     <option>Patient</option>
                     <option>Staff</option>
                   </select>
@@ -254,6 +390,10 @@ export default function PharmacyReturnPage() {
                   Remarks
                 </span>
                 <Input
+                  value={state.remarks}
+                  onChange={(e) =>
+                    setState((prev) => ({ ...prev, remarks: e.target.value }))
+                  }
                   placeholder="example: Returned sealed strip, verified"
                   className="h-9 rounded-lg border-slate-300 text-[12px] focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                 />
@@ -297,48 +437,38 @@ export default function PharmacyReturnPage() {
                   >
                     Preview Credit Note
                   </Button>
-                  <Button
-                    onClick={() => setShowDialog(true)}
-                    className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]"
-                  >
-                    Confirm & Refund
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]">
+                        Confirm & Refund
+                      </Button>
+                    </AlertDialogTrigger>
+
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Confirm Refund</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to confirm this return and
+                          process the refund? This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-emerald-600 hover:bg-emerald-700"
+                          onClick={returnOrder}
+                        >
+                          Yes, Confirm
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </CardContent>
           </Card>
         </section>
-
-        {/* SUCCESS DIALOG */}
-        <Dialog open={showDialog} onOpenChange={setShowDialog}>
-          <DialogContent className="rounded-xl max-w-sm">
-            <DialogHeader>
-              <DialogTitle className="text-base font-semibold text-slate-900 flex items-center gap-2">
-                <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-[11px] font-bold">
-                  ✓
-                </span>
-                Return Completed
-              </DialogTitle>
-            </DialogHeader>
-            <div className="text-xs text-slate-600 leading-relaxed">
-              Stock updated. Refund recorded. Credit note ready to print.
-            </div>
-            <div className="flex justify-end gap-2 mt-4">
-              <Button
-                variant="outline"
-                className="h-8 rounded-lg border-slate-300 text-[12px] font-medium px-3"
-              >
-                Print Credit Note
-              </Button>
-              <Button
-                onClick={() => setShowDialog(false)}
-                className="h-8 rounded-lg bg-slate-900 text-white hover:bg-slate-800 text-[12px] font-medium px-3"
-              >
-                Close
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
       </div>
     </AppShell>
   );

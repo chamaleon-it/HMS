@@ -65,7 +65,7 @@ export default function DeleteOrder({
 
   return (
     <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogContent className="!max-w-md">
+      <AlertDialogContent className="!max-w-sm">
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>

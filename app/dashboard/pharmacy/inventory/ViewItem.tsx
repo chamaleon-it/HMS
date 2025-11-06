@@ -1,8 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useCallback } from "react";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
-export function ViewItem({ item }: { item: ItemType }) {
+export function ViewItem({ item,editItem,mutate,onClose }: { item: ItemType,editItem:()=>void,mutate:()=>void,onClose:()=>void }) {
+
+
+  const deleteItem = useCallback(
+    async (_id: string) => {
+      await toast.promise(api.delete(`/pharmacy/items/${_id}`), {
+        loading: "Item is deleting...",
+        success: ({ data }) => data.message,
+        error: ({ response }) => response.data.message,
+      });
+      if (mutate) {
+        mutate();
+      }
+      onClose()
+    },
+    [mutate,onClose]
+  );
+
   return (
     <div className="w-full bg-white rounded-2xl shadow-xl p-6 space-y-4 text-sm">
       {/* Header */}
@@ -99,10 +120,42 @@ export function ViewItem({ item }: { item: ItemType }) {
 
       {/* Actions */}
       <div className="flex gap-2 pt-2">
-        <Button className="bg-purple-600 text-white flex-1">Edit Item</Button>
-        <Button variant="destructive" className="flex-1">
+        <Button className="bg-purple-600 text-white flex-1" onClick={()=>editItem()}>Edit Item</Button>
+        
+        
+
+
+         <AlertDialog >
+                        <AlertDialogTrigger asChild>
+                          <Button variant="destructive" className="flex-1">
           Delete
         </Button>
+                        </AlertDialogTrigger>
+
+                        <AlertDialogContent  className="!max-w-sm">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will
+                              permanently delete the item{" "}
+                              <span className="font-semibold">
+                                {item?.name}
+                              </span>
+                              .
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteItem(item._id)}
+                              className="bg-destructive text-white hover:bg-destructive/90"
+                            >
+                              Delete Item
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import {  useState } from "react";
+import { useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import ItemTable from "./ItemTable";
 import ItemFilter from "./ItemFilter";
@@ -10,6 +10,13 @@ import { AddNewItem } from "./AddNewItem";
 import Header from "./Header";
 import { FilterType, ItemType } from "./interface";
 import useItems from "./useItems";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { formatINR } from "@/lib/fNumber";
 
 export default function InventoryPage() {
   const [openView, setOpenView] = useState(false);
@@ -28,8 +35,6 @@ export default function InventoryPage() {
   const { items, total, isLoading, isValidating, mutate } = useItems({
     filter,
   });
-
-  
 
   // open overlays
   const handleView = (item: ItemType) => {
@@ -86,22 +91,29 @@ export default function InventoryPage() {
           {/* Footer */}
           <div className="flex justify-between text-sm text-gray-600">
             <p>Total Items: {items.length}</p>
-            <p>Total Value: ₹{0}</p>
+            <p>Total Value: {formatINR(items?.reduce(((a,b)=>a+(b.unitPrice * b.quantity)),0))}</p>
           </div>
         </div>
 
-        {(openView || openEdit || openAdd) && (
-          <div className="fixed inset-0 bg-black/40 flex items-center justify-center p-4 z-50">
-            <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto">
-              {/* Close button */}
-              <button
-                onClick={closeAll}
-                className="absolute -top-3 -right-3 bg-white shadow-lg rounded-full h-8 w-8 flex items-center justify-center text-gray-700 text-sm border hover:bg-gray-50"
-              >
-                ✕
-              </button>
+        <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>
+          <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto p-0 gap-1">
+            <DialogHeader className="flex justify-between items-center border-b p-4">
+              <DialogTitle>
+                {openView
+                  ? "View Item"
+                  : openEdit
+                  ? "Edit Item"
+                  : openAdd
+                  ? "Add New Item"
+                  : ""}
+              </DialogTitle>
+            </DialogHeader>
 
-              {openView && selectedItem && <ViewItem item={selectedItem} />}
+            <div className="p-2">
+              {openView && selectedItem && <ViewItem item={selectedItem} editItem={()=>{setOpenView(false);setOpenEdit(true)}} mutate={mutate}   onClose={() => {
+                    closeAll();
+                    mutate();
+                  }}/>}
 
               {openEdit && selectedItem && (
                 <EditItem
@@ -122,8 +134,8 @@ export default function InventoryPage() {
                 />
               )}
             </div>
-          </div>
-        )}
+          </DialogContent>
+        </Dialog>
       </div>
     </AppShell>
   );

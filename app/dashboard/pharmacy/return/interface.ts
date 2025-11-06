@@ -27,6 +27,7 @@ export interface Item {
     duration:  string;
     quantity:number;
     return?:number;
+    reason:string
 }
 
 export interface Name {

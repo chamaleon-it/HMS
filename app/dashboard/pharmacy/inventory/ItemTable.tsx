@@ -16,6 +16,18 @@ import { PaginationBar } from "./PaginationBar";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { formatINR } from "@/lib/fNumber";
 
 const getQtyColor = (qty: number) => {
   if (qty === 0) return "bg-red-100 text-red-600 font-bold";
@@ -68,7 +80,9 @@ export default function ItemTable({
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
-                <TableHead className="text-white"><Checkbox /></TableHead>
+                <TableHead className="text-white">
+                  <Checkbox />
+                </TableHead>
                 <TableHead className="text-white">Sl. No</TableHead>
                 <TableHead className="text-white">Item Name</TableHead>
                 <TableHead className="text-white">Generic / HSN</TableHead>
@@ -92,7 +106,9 @@ export default function ItemTable({
                   key={item._id}
                   className={i % 2 === 0 ? "bg-gray-50" : "bg-white"}
                 >
-                  <TableCell><Checkbox/></TableCell>
+                  <TableCell>
+                    <Checkbox />
+                  </TableCell>
                   <TableCell>{(page - 1) * limit + i + 1}</TableCell>
 
                   <TableCell className="font-medium text-gray-900">
@@ -113,15 +129,18 @@ export default function ItemTable({
                   <TableCell className={getQtyColor(item.quantity)}>
                     {item.quantity}
                   </TableCell>
-                  <TableCell>₹ {item.purchasePrice}</TableCell>
-                  <TableCell>₹ {item.unitPrice}</TableCell>
-                  <TableCell>₹ {item.quantity * item.unitPrice}</TableCell>
+                  <TableCell>{formatINR(item.purchasePrice)}</TableCell>
+                  <TableCell>{formatINR(item.unitPrice)}</TableCell>
+                  <TableCell>{formatINR(item.quantity * item.unitPrice)}</TableCell>
                   <TableCell>{fDate(item.expiryDate)}</TableCell>
                   <TableCell>{item.supplier}</TableCell>
                   <TableCell>{item.manufacturer}</TableCell>
                   <TableCell>
-                    <Chip label={item.status} tone={item.status as "Inactive" | "Active"}/>
-                    </TableCell>
+                    <Chip
+                      label={item.status}
+                      tone={item.status as "Inactive" | "Active"}
+                    />
+                  </TableCell>
 
                   <TableCell>
                     <div className="flex gap-2">
@@ -139,13 +158,37 @@ export default function ItemTable({
                       >
                         Edit
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="destructive"
-                        onClick={() => deleteItem(item._id)}
-                      >
-                        Delete
-                      </Button>
+                      <AlertDialog >
+                        <AlertDialogTrigger asChild>
+                          <Button size="sm" variant="destructive">
+                            Delete
+                          </Button>
+                        </AlertDialogTrigger>
+
+                        <AlertDialogContent  className="!max-w-sm">
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will
+                              permanently delete the item{" "}
+                              <span className="font-semibold">
+                                {item?.name}
+                              </span>
+                              .
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => deleteItem(item._id)}
+                              className="bg-destructive text-white hover:bg-destructive/90"
+                            >
+                              Delete Item
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
                     </div>
                   </TableCell>
                 </TableRow>
@@ -180,7 +223,6 @@ export default function ItemTable({
   );
 }
 
-
 const Chip: React.FC<{
   label: string;
   tone?:
@@ -196,13 +238,12 @@ const Chip: React.FC<{
     | "Consulted"
     | "Not show"
     | "Active"
-    | "Inactive"
-    ;
+    | "Inactive";
 }> = ({ label, tone = "gray" }) => {
   const tones: Record<string, string> = {
-    "Active": "bg-emerald-50 text-emerald-700 ring-emerald-200",
+    Active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
     // gray: "bg-slate-100 text-slate-700 ring-slate-200",
-    "Inactive": "bg-rose-50 text-rose-700 ring-rose-200",
+    Inactive: "bg-rose-50 text-rose-700 ring-rose-200",
     // blue: "bg-sky-50 text-sky-700 ring-sky-200",
     // amber: "bg-amber-50 text-amber-700 ring-amber-200",
 
