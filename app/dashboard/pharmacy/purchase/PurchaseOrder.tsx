@@ -19,6 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import api from "@/lib/axios";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import { ArrowLeft, Plus, Trash2 } from "lucide-react";
@@ -45,7 +46,7 @@ interface State {
   urgent: boolean;
 }
 
-function PurchaseOrder({ onBack }: { onBack: () => void }) {
+function PurchaseOrder({ onBack,mutate }: { onBack: () => void,mutate:()=>void }) {
   const [state, setState] = useState<State>({
     wholesaler: null,
     contactPerson: null,
@@ -111,12 +112,12 @@ function PurchaseOrder({ onBack }: { onBack: () => void }) {
     }
 
     if (state.items.some((e) => e.quantity === 0)) {
-      toast.error("Some product has quantity is zero");
+      toast.error("Some product has quantity is zero.");
       return;
     }
 
     if (state.items.some((e) => e.unitPrice === 0)) {
-      toast.error("Some product has unit price is zero");
+      toast.error("Some product has unit price is zero.");
       return;
     }
 
@@ -126,6 +127,25 @@ function PurchaseOrder({ onBack }: { onBack: () => void }) {
     }
 
     try {
+      await toast.promise(api.post("/pharmacy/purchase", state), {
+        loading: "Purchase order is creating.",
+        error: ({ response }) => response.data.message,
+        success: ({ data }) => data.message,
+      });
+      setState({
+        wholesaler: null,
+        contactPerson: null,
+        phoneNumber: null,
+        deliveryAddress: null,
+        expectedDelivery: null,
+        paymentTerms: null,
+        items: [],
+        shipping: null,
+        instructions: null,
+        partialDelivery: false,
+        urgent: false,
+      });
+      mutate()
       onBack();
     } catch (error) {
       console.log(error);

@@ -1,9 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { Plus, Eye, Search } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -14,61 +13,15 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
-import AppShell from "@/components/layout/app-shell";
-import { formatINR } from "@/lib/fNumber";
-import PurchaseOrder from "./PurchaseOrder";
+import { Card, CardContent } from "@/components/ui/card";
 
-const SAMPLE_ORDERS = [
-  {
-    poNumber: "PO-2025-1030-001",
-    supplier: "A1 Pharma Distributors",
-    createdOn: "30 Oct 2025",
-    expected: "31 Oct 2025",
-    status: "Sent",
-    tone: "bg-blue-100 text-blue-700 border-blue-300",
-    total: 47320,
-    receivedPct: 0,
-  },
-  {
-    poNumber: "PO-2025-1028-004",
-    supplier: "Medline Wholesale",
-    createdOn: "28 Oct 2025",
-    expected: "29 Oct 2025",
-    status: "Partially Received",
-    tone: "bg-amber-100 text-amber-700 border-amber-300",
-    total: 19850,
-    receivedPct: 60,
-  },
-  {
-    poNumber: "PO-2025-1025-002",
-    supplier: "A1 Pharma Distributors",
-    createdOn: "25 Oct 2025",
-    expected: "26 Oct 2025",
-    status: "Completed",
-    tone: "bg-emerald-100 text-emerald-700 border-emerald-300",
-    total: 55200,
-    receivedPct: 100,
-  },
-  {
-    poNumber: "PO-2025-1025-003",
-    supplier: "Medline Wholesale",
-    createdOn: "25 Oct 2025",
-    expected: "25 Oct 2025",
-    status: "Draft",
-    tone: "bg-muted text-foreground/70 border-border/60",
-    total: 0,
-    receivedPct: 0,
-  },
-];
+import AppShell from "@/components/layout/app-shell";
+
+import PurchaseOrder from "./PurchaseOrder";
+import PurchaseTable from "./PurchaseTable";
+import useSWR from "swr";
+import { useAuth } from "@/auth/context/auth-context";
+import { PurchaseDataType } from "./interface";
 
 export default function PurchaseOrdersListPage() {
   const [supplierFilter, setSupplierFilter] = useState("all");
@@ -77,10 +30,31 @@ export default function PurchaseOrdersListPage() {
 
   const [showCreate, setShowCreate] = useState(false);
 
+  const {user} = useAuth()
+
+  const [filter, setFilter] = useState({
+    page:1,
+    limit:100,
+    pharmacy:user?._id
+  })
+
+  const param = new URLSearchParams()
+
+  param.set("page",String(filter.page))
+  param.set("limit",String(filter.limit))
+  if(filter.pharmacy){
+
+    param.set("pharmacy",filter?.pharmacy)
+  }
+
+  const {data:PurchaseData,mutate} = useSWR<PurchaseDataType>(`/pharmacy/purchase?${param.toString()}`)
+
+  const purchase = PurchaseData?.data ?? []
+
   if (showCreate) {
     return (
       <AppShell>
-        <PurchaseOrder onBack={() => setShowCreate(false)} />
+        <PurchaseOrder onBack={() => setShowCreate(false)} mutate={mutate} />
       </AppShell>
     );
   }
@@ -169,62 +143,7 @@ export default function PurchaseOrdersListPage() {
         </Card>
 
         {/* TABLE OF ORDERS */}
-        <Card className="rounded-2xl shadow-sm border-border/60">
-          <CardHeader className="pb-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <CardTitle className="text-base font-medium">
-              All Purchase Orders
-            </CardTitle>
-            <div className="text-xs text-muted-foreground">
-              {SAMPLE_ORDERS.length} orders found
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="rounded-xl border overflow-x-auto">
-              <Table className="min-w-[900px] text-sm">
-                <TableHeader className="bg-muted/40">
-                  <TableRow>
-                    <TableHead>PO #</TableHead>
-                    <TableHead>Supplier</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Expected</TableHead>
-                    <TableHead className="text-right">Total (₹)</TableHead>
-                    <TableHead className="text-center">Status</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {SAMPLE_ORDERS.map((row, i) => (
-                    <TableRow key={i}>
-                      <TableCell>{row.poNumber}</TableCell>
-                      <TableCell>{row.supplier}</TableCell>
-                      <TableCell>{row.createdOn}</TableCell>
-                      <TableCell>{row.expected}</TableCell>
-                      <TableCell className="text-right">
-                        {formatINR(row.total)}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge
-                          className={`rounded-full text-[11px] border ${row.tone}`}
-                        >
-                          {row.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2 rounded-lg text-xs"
-                        >
-                          <Eye className="h-4 w-4 mr-1" /> View
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </CardContent>
-        </Card>
+        <PurchaseTable purchase={purchase} total={PurchaseData?.total ?? 0}/>
       </div>
     </AppShell>
   );
