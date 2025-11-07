@@ -105,6 +105,7 @@ export default function Form() {
             <option value="">I&apos;m a</option>
             <option value="Doctor">Doctor</option>
             <option value="Pharmacy">Pharmacy</option>
+            <option value="Pharmacy Wholesaler">Pharmacy Wholesaler</option>
             <option value="Lab">Lab</option>
           </select>
         </div>

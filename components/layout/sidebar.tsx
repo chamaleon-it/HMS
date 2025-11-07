@@ -31,8 +31,8 @@ export function Sidebar() {
       today: number;
       upcoming: number;
     };
-  }>(user?.role === "Doctor" ? "/appointments/statistics" : null,{
-    revalidateIfStale:false
+  }>(user?.role === "Doctor" ? "/appointments/statistics" : null, {
+    revalidateIfStale: false,
   });
 
   const appointmentStatistics = appointmentStatisticsData?.data ?? {
@@ -102,6 +102,14 @@ export function Sidebar() {
         label: "Purchase",
         icon: ShoppingCart,
         link: "/dashboard/pharmacy/purchase",
+      },
+    ]) ||
+    (user?.role === "Pharmacy Wholesaler" && [
+      {
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        link: "/dashboard/pharmacy-wholesaler",
       },
     ]) ||
     [];
