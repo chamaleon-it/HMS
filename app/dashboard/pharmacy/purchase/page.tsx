@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, {  useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,7 +32,7 @@ export default function PurchaseOrdersListPage() {
 
   const {user} = useAuth()
 
-  const [filter, setFilter] = useState({
+  const [filter] = useState({
     page:1,
     limit:100,
     pharmacy:user?._id
