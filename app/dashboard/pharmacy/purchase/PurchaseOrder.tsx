@@ -136,11 +136,6 @@ function PurchaseOrder({ onBack }: { onBack: () => void }) {
   const [medicine, setMedicine] = useState<null | string>(null);
 
   const addItems = async (name: string) => {
-    if (state.items.find((e) => e.name === name)) {
-      toast.error("Item already added");
-      return;
-    }
-
     const formated = name
       .trim()
       .replace(/\s+/g, " ")
@@ -149,10 +144,14 @@ function PurchaseOrder({ onBack }: { onBack: () => void }) {
       .map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w))
       .join(" ");
 
+    if (!formated) {
+      return;
+    }
 
-      if(!formated){
-return
-      }
+    if (state.items.find((e) => e.name === formated)) {
+      toast.error("Item already added");
+      return;
+    }
 
     setState((prev) => ({
       ...prev,
@@ -391,7 +390,7 @@ return
               onKeyDown={(e) => {
                 if (!medicine) return;
 
-                if (e.key === "Enter" || e.key === "Shift" || e.key === "Tab") {
+                if (e.key === "Enter" || e.key === "Tab") {
                   e.preventDefault();
                   addItems(medicine);
                 }
