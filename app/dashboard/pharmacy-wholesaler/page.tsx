@@ -30,7 +30,7 @@ export default function WholesalerDashboard() {
   param.set("page", String(filter.page));
   param.set("limit", String(filter.limit));
   if (filter.wholesaler) {
-    param.set("pharmacy", filter?.wholesaler);
+    param.set("wholesaler", filter?.wholesaler);
   }
   if (filter.mrn) {
     param.set("mrn", filter.mrn);
