@@ -1,6 +1,6 @@
 "use client";
 
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,30 +26,34 @@ import { PurchaseDataType } from "./interface";
 export default function PurchaseOrdersListPage() {
   const [supplierFilter, setSupplierFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [search, setSearch] = useState("");
 
   const [showCreate, setShowCreate] = useState(false);
 
-  const {user} = useAuth()
+  const { user } = useAuth();
 
-  const [filter] = useState({
-    page:1,
-    limit:100,
-    pharmacy:user?._id
-  })
+  const [filter, setFilter] = useState({
+    page: 1,
+    limit: 100,
+    pharmacy: user?._id,
+    mrn: "",
+  });
 
-  const param = new URLSearchParams()
+  const param = new URLSearchParams();
 
-  param.set("page",String(filter.page))
-  param.set("limit",String(filter.limit))
-  if(filter.pharmacy){
-
-    param.set("pharmacy",filter?.pharmacy)
+  param.set("page", String(filter.page));
+  param.set("limit", String(filter.limit));
+  if (filter.pharmacy) {
+    param.set("pharmacy", filter?.pharmacy);
+  }
+  if (filter.mrn) {
+    param.set("mrn", filter.mrn);
   }
 
-  const {data:PurchaseData,mutate} = useSWR<PurchaseDataType>(`/pharmacy/purchase?${param.toString()}`)
+  const { data: PurchaseData, mutate } = useSWR<PurchaseDataType>(
+    `/pharmacy/purchase?${param.toString()}`
+  );
 
-  const purchase = PurchaseData?.data ?? []
+  const purchase = PurchaseData?.data ?? [];
 
   if (showCreate) {
     return (
@@ -91,9 +95,11 @@ export default function PurchaseOrdersListPage() {
                 <Search className="h-4 w-4 text-muted-foreground absolute left-2 top-1/2 -translate-y-1/2" />
                 <Input
                   className="pl-8 rounded-xl h-9"
-                  placeholder="Search PO # / Supplier / Notes"
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search PO #"
+                  value={filter.mrn}
+                  onChange={(e) =>
+                    setFilter((prev) => ({ ...prev, mrn: e.target.value }))
+                  }
                 />
               </div>
             </div>
@@ -143,7 +149,7 @@ export default function PurchaseOrdersListPage() {
         </Card>
 
         {/* TABLE OF ORDERS */}
-        <PurchaseTable purchase={purchase} total={PurchaseData?.total ?? 0}/>
+        <PurchaseTable purchase={purchase} total={PurchaseData?.total ?? 0} />
       </div>
     </AppShell>
   );

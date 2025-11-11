@@ -47,7 +47,7 @@ export default function PurchaseTable({purchase,total}:Props) {
             <TableBody>
               {purchase.map((row, i) => (
                 <TableRow key={i}>
-                  <TableCell>{row._id}</TableCell>
+                  <TableCell>{row.mrn}</TableCell>
                   <TableCell>{row.wholesaler.name}</TableCell>
                   <TableCell>{fDateandTime(row.createdAt)}</TableCell>
                   <TableCell>{fDate(row.expectedDelivery)}</TableCell>
