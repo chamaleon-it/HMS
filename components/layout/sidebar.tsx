@@ -103,6 +103,12 @@ export function Sidebar() {
         icon: ShoppingCart,
         link: "/dashboard/pharmacy/purchase",
       },
+      {
+        key: "billing",
+        label: "Billing",
+        icon: CreditCard,
+        link: "/dashboard/pharmacy/billing",
+      },
     ]) ||
     (user?.role === "Pharmacy Wholesaler" && [
       {
@@ -110,6 +116,12 @@ export function Sidebar() {
         label: "Dashboard",
         icon: LayoutDashboard,
         link: "/dashboard/pharmacy-wholesaler",
+      },
+       {
+        key: "billing",
+        label: "Billing",
+        icon: CreditCard,
+        link: "/dashboard/pharmacy-wholesaler/billing",
       },
     ]) ||
     [];
