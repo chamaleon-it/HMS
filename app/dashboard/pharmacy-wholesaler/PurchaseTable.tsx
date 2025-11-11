@@ -81,7 +81,7 @@ export default function PurchaseTable({ purchase }: PropType) {
                 </TableCell>
                 <TableCell className="py-3 align-top text-zinc-800 font-semibold">
                   {formatINR(
-                    row.items.reduce((a, b) => a + b.quantity * b.unitPrice, 0)
+                    row.items.reduce((a, b) => a + b.quantity * b.unitPrice, 0) + row.shipping
                   )}
                 </TableCell>
                 <TableCell className="py-3 align-top">

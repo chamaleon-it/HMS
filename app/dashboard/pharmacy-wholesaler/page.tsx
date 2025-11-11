@@ -51,10 +51,11 @@ export default function WholesalerDashboard() {
           <PendingDispatch orders={purchase.length} />
           <OutstandingPayments
             amount={purchase.reduce((total, order) => {
-              const orderTotal = order.items.reduce(
-                (sum, item) => sum + item.quantity * item.unitPrice,
-                0
-              );
+              const orderTotal =
+                order.items.reduce(
+                  (sum, item) => sum + item.quantity * item.unitPrice,
+                  0
+                ) + order.shipping;
               return total + orderTotal;
             }, 0)}
           />
