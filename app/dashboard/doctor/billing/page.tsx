@@ -8,8 +8,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "./Header";
 import useSWR from "swr";
 
+
+export interface FilterType {
+  q:null | string,
+  status:null | string,
+  method:null | string,
+}
+
 export default function BillingPage() {
   const [tab, setTab] = useState<"all" | "new">("all");
+const [filter, setFilter] = useState<FilterType>({
+  q:null,
+  status:null,
+  method:null
+})
+
 
   const { data: billingData, mutate: billingMutate } = useSWR<{
     message: string;
@@ -61,7 +74,7 @@ export default function BillingPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="all">
-              <AllBill billing={billing} />
+              <AllBill billing={billing} filter={filter} setFilter={setFilter}/>
             </TabsContent>
             <TabsContent value="new">
               <CreateBill billingMutate={billingMutate} />

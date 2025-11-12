@@ -1,67 +1,76 @@
-import { AnimatePresence,motion } from 'framer-motion';
-import { ChevronDown, Filter, RefreshCcw, Search } from 'lucide-react'
-import React from 'react'
-import { createPortal } from 'react-dom';
+import { AnimatePresence, motion } from "framer-motion";
+import { ChevronDown, Filter, RefreshCcw, Search } from "lucide-react";
+import React from "react";
+import { createPortal } from "react-dom";
+import { FilterType } from "./page";
 
-export default function Filters() {
-  return (
-    <div
-        className={
-          "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
-        }
-      >
-        <div className="grid grid-cols-12 items-center gap-3">
-          <div className="col-span-12 md:col-span-5">
-            <div className="flex items-center gap-2">
-              <Search className="h-4 w-4 text-slate-500" />
-              <input
-                placeholder="Search invoice no. / patient name / ID"
-                className={
-                  "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                }
-              />
-            </div>
-          </div>
-          <div className="col-span-6 md:col-span-3 flex items-center gap-2">
-            <Filter className="h-4 w-4 text-slate-500" />
-            <PopSelect
-              label="Status"
-              value={"All"}
-              onChange={()=>{}}
-              options={[
-                { label: "All", value: "All" },
-                { label: "Paid", value: "Paid", tone: "success" },
-                { label: "Partial", value: "Partial", tone: "warn" },
-                { label: "Unpaid", value: "Unpaid", tone: "danger" },
-              ]}
-            />
-          </div>
-          <div className="col-span-6 md:col-span-3">
-            <PopSelect
-              label="Method"
-              value={"All"}
-              onChange={()=>{}}
-              options={[
-                { label: "All", value: "All" },
-                { label: "Cash", value: "Cash" },
-                { label: "Card / UPI", value: "Card/UPI" },
-                { label: "Insurance", value: "Insurance" },
-                { label: "Mixed", value: "Mixed" },
-              ]}
-            />
-          </div>
-          <div className="col-span-12 md:col-span-1 flex items-center">
-            <button className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-              <RefreshCcw className="mr-2 inline h-4 w-4" /> Reset
-            </button>
-          </div>
-        </div>
-      </div>
-  )
+interface PropsType {
+  filter: FilterType;
+  setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 }
 
+export default function Filters({ filter, setFilter }: PropsType) {
+  return (
+    <div
+      className={
+        "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
+      }
+    >
+      <div className="grid grid-cols-12 items-center gap-3">
+        <div className="col-span-12 md:col-span-5">
+          <div className="flex items-center gap-2">
+            <Search className="h-4 w-4 text-slate-500" />
+            <input
+              value={filter.q ?? ""}
+              onChange={(e) =>
+                setFilter((prev) => ({ ...prev, q: e.target.value }))
+              }
+              placeholder="Search invoice no. / patient name / ID"
+              className={
+                "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+              }
+            />
+          </div>
+        </div>
+        <div className="col-span-6 md:col-span-3 flex items-center gap-2">
+          <Filter className="h-4 w-4 text-slate-500" />
+          <PopSelect
+            label="Status"
+            value={filter.status}
+            onChange={(e) => setFilter((prev) => ({ ...prev, status: e }))}
+            options={[
+              { label: "All", value: null },
+              { label: "Paid", value: "Paid", tone: "success" },
+              { label: "Partial", value: "Partial", tone: "warn" },
+              { label: "Unpaid", value: "Unpaid", tone: "danger" },
+            ]}
+          />
+        </div>
+        <div className="col-span-6 md:col-span-3">
+          <PopSelect
+            label="Method"
+            value={"All"}
+            onChange={() => {}}
+            options={[
+              { label: "All", value: "All" },
+              { label: "Cash", value: "Cash" },
+              { label: "Card / UPI", value: "Card/UPI" },
+              { label: "Insurance", value: "Insurance" },
+              { label: "Mixed", value: "Mixed" },
+            ]}
+          />
+        </div>
+        <div className="col-span-12 md:col-span-1 flex items-center">
+          <button className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+            <RefreshCcw className="mr-2 inline h-4 w-4" /> Reset
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-function PopSelect<T extends string>({
+function PopSelect<T extends string | null>({
   label,
   value,
   onChange,
@@ -124,7 +133,7 @@ function PopSelect<T extends string>({
       : "bg-white text-slate-700 border-slate-200";
 
   return (
-    <div className="relative inline-flex">
+    <div className="relative z-50">
       <button
         ref={btnRef}
         onClick={() => setOpen((o) => !o)}
@@ -138,44 +147,36 @@ function PopSelect<T extends string>({
           className={`h-4 w-4 transition ${open ? "rotate-180" : "rotate-0"}`}
         />
       </button>
-      <AnimatePresence>
-        {open &&
-          pos &&
-          createPortal(
-            <motion.div
-              initial={{ opacity: 0, y: 6, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 4, scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 300, damping: 22 }}
-              className="fixed z-[1000] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900"
-              style={{ top: pos.top, left: pos.left, width: pos.width }}
-              role="listbox"
+
+      {open && pos && (
+        <div
+          className="absolute z-[1000] rounded-xl border border-slate-200 bg-white shadow-lg dark:border-slate-700 dark:bg-slate-900"
+          
+          role="listbox"
+        >
+          {options.map((opt) => (
+            <button
+              key={String(opt.value)}
+              onClick={() => {
+                onChange(opt.value);
+                setOpen(false);
+              }}
+              role="option"
+              aria-selected={value === opt.value}
+              className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-800 ${
+                value === opt.value ? "bg-slate-50 dark:bg-slate-800" : ""
+              }`}
             >
-              {options.map((opt) => (
-                <button
-                  key={String(opt.value)}
-                  onClick={() => {
-                    onChange(opt.value);
-                    setOpen(false);
-                  }}
-                  role="option"
-                  aria-selected={value === opt.value}
-                  className={`flex w-full items-center justify-between px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-800 ${
-                    value === opt.value ? "bg-slate-50 dark:bg-slate-800" : ""
-                  }`}
-                >
-                  <span>{opt.label}</span>
-                  {value === opt.value && (
-                    <span className="rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold text-white dark:bg-white dark:text-slate-900">
-                      Selected
-                    </span>
-                  )}
-                </button>
-              ))}
-            </motion.div>,
-            document.body
-          )}
-      </AnimatePresence>
+              <span>{opt.label}</span>
+              {value === opt.value && (
+                <span className="rounded-full bg-slate-900 px-2 py-0.5 text-[10px] font-semibold text-white dark:bg-white dark:text-slate-900">
+                  Selected
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
