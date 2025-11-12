@@ -11,10 +11,11 @@ import useSWR from "swr";
 export default function BillingPage() {
   const [tab, setTab] = useState<"all" | "new">("all");
 
-  const { data: billingData } = useSWR<{
+  const { data: billingData, mutate: billingMutate } = useSWR<{
     message: string;
     data: {
       _id: string;
+      mrn: string;
       createdAt: Date;
       cash: number;
       online: number;
@@ -63,7 +64,7 @@ export default function BillingPage() {
               <AllBill billing={billing} />
             </TabsContent>
             <TabsContent value="new">
-              <CreateBill />
+              <CreateBill billingMutate={billingMutate} />
             </TabsContent>
           </Tabs>
         </div>

@@ -12,6 +12,7 @@ interface BillRow {
 
 interface PropsType {
   billing: {
+    mrn: string;
     _id: string;
     createdAt: Date;
     cash: number;
@@ -61,7 +62,7 @@ export default function AllBill({ billing }: PropsType) {
                   className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50"
                 >
                   <td className="py-2 pr-2">
-                    <div className="font-medium">{b._id}</div>
+                    <div className="font-medium">{b.mrn}</div>
                     <div className="text-[11px] text-slate-500 space-x-1">
                       {Boolean(b.cash) && <MethodPill m="cash" />}
                       {Boolean(b.online) && <MethodPill m="online" />}

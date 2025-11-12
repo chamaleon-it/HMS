@@ -40,7 +40,7 @@ const defaultPayload = {
   online: 0,
 };
 
-export default function CreateBill() {
+export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
   const router = useRouter();
 
   const [item, setItem] = useState<null | string>(null);
@@ -190,10 +190,11 @@ export default function CreateBill() {
         error: ({ response }) => response.data.message,
       });
       setPayload(defaultPayload);
+      billingMutate()
     } catch (error) {
       console.log(error);
     }
-  }, [payload]);
+  }, [payload,billingMutate]);
 
   return (
     <div className="space-y-4">
