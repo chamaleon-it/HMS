@@ -345,6 +345,7 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
                               <input
                                 value={it.name}
                                 readOnly
+                                disabled
                                 className={
                                   "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
                                 }
@@ -354,7 +355,8 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
                               <input
                                 type="number"
                                 min={1}
-                                value={it.quantity}
+                                value={it.quantity===0 ?  "" : it.quantity.toString()}
+                                placeholder="0"
                                 onChange={(e) =>
                                   updateQty(it.name, Number(e.target.value))
                                 }
@@ -368,7 +370,8 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
                               <input
                                 type="number"
                                 min={0}
-                                value={it.unitPrice}
+                                value={it.unitPrice===0 ?  "" : it.unitPrice.toString()}
+                                placeholder="0"
                                 onChange={(e) =>
                                   updatePrice(it.name, Number(e.target.value))
                                 }
@@ -383,7 +386,8 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
                                 type="number"
                                 min={0}
                                 max={28}
-                                value={it.gst}
+                                value={it.gst===0 ?  "" : it.gst.toString()}
+                                placeholder="0"
                                 onChange={(e) =>
                                   updateGST(it.name, Number(e.target.value))
                                 }
@@ -539,7 +543,8 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
                       <input
                         type="number"
                         min={0}
-                        value={payload[key as "cash" | "online" | "insurance"]}
+                        placeholder="0"
+                        value={payload[key as "cash" | "online" | "insurance"]===0 ?  "" : payload[key as "cash" | "online" | "insurance"].toString()}
                         onChange={(e) =>
                           setPayload((prev) => ({
                             ...prev,
