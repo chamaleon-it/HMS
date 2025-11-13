@@ -126,7 +126,7 @@ export default function InvoiceView() {
           <div className="p-8">
             <h3 className="text-sm text-gray-500 mb-2">Clinic Details</h3>
             <div className="text-sm text-gray-700">
-              <p className="font-semibold text-gray-800">Synapse HMS</p>
+              <p className="font-semibold text-gray-800">Mark Hospital</p>
               <p>contact@synapsehms.com</p>
               <p className="mt-1">Pothukallu, Nilambur, Kerala</p>
               <p>+91 98765 43210</p>

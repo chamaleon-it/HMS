@@ -4,6 +4,7 @@ import Link from "next/link";
 import Filters from "./Filter";
 import { formatINR } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
+import { FilterType } from "./page";
 
 interface BillRow {
   status: "Paid" | "Partial" | "Unpaid";
@@ -11,6 +12,8 @@ interface BillRow {
 }
 
 interface PropsType {
+  filter: FilterType;
+   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
     mrn: string;
     _id: string;
@@ -27,10 +30,10 @@ interface PropsType {
     };
   }[];
 }
-export default function AllBill({ billing }: PropsType) {
+export default function AllBill({ billing,filter,setFilter }: PropsType) {
   return (
     <div className="space-y-4">
-      <Filters />
+      <Filters filter={filter} setFilter={setFilter}/>
 
       <div
         className={

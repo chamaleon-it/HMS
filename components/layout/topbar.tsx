@@ -1,17 +1,17 @@
 "use client";
 
-import React, {  useState } from "react";
-import { Bell, Search, Plus } from "lucide-react";
+import React, { useState } from "react";
+import { Bell, Plus } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { CreateAppointmentForm } from "@/app/dashboard/doctor/appointments/CreateAppointmentForm";
 import Drawer from "../ui/drawer";
 import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
+import SearchBar from "./SearchBar";
 
 export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
 
-  
   const { mutate } = useAppointmentList({});
 
   const { user } = useAuth();
@@ -42,20 +42,7 @@ export default function Header() {
           </div>
 
           {/* Search */}
-          <div className="flex-1 max-w-2xl">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search patients or appointments…"
-                data-testid="search-input"
-                className="w-full rounded-2xl border border-slate-200 bg-white/90 pl-12 pr-24 py-2.5 text-sm shadow-sm outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-              />
-              <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 rounded-lg border border-slate-200 bg-white/80 px-2 py-1 text-[10px] text-slate-500">
-                ⌘K
-              </kbd>
-            </div>
-          </div>
+          <SearchBar />
 
           {/* Actions */}
           <div
@@ -88,18 +75,20 @@ export default function Header() {
           data-testid="header-divider"
         />
       </header>
-      {user?.role === "Doctor" && <div className="w-full overflow-hidden">
-        <Drawer
-          open={openCreate}
-          onClose={() => setOpenCreate(false)}
-          title="Create Appointment"
-        >
-          <CreateAppointmentForm
+      {user?.role === "Doctor" && (
+        <div className="w-full overflow-hidden">
+          <Drawer
+            open={openCreate}
             onClose={() => setOpenCreate(false)}
-            mutate={mutate}
-          />
-        </Drawer>
-      </div>}
+            title="Create Appointment"
+          >
+            <CreateAppointmentForm
+              onClose={() => setOpenCreate(false)}
+              mutate={mutate}
+            />
+          </Drawer>
+        </div>
+      )}
     </>
   );
 }

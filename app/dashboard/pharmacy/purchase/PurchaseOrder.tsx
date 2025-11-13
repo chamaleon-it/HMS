@@ -280,7 +280,7 @@ function PurchaseOrder({
         </CardHeader>
 
         <CardContent className="grid gap-6 lg:grid-cols-2">
-          <div className="grid gap-4">
+          <div className="grid gap-2">
             {/* Wholesaler */}
             <div className="grid gap-2">
               <Label className="text-sm font-medium">
@@ -292,7 +292,7 @@ function PurchaseOrder({
                 }}
                 value={state.wholesaler ?? ""}
               >
-                <SelectTrigger className="rounded-xl h-10">
+                <SelectTrigger className="rounded-md h-10">
                   <SelectValue placeholder="Select wholesaler" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl shadow-lg">
@@ -306,12 +306,12 @@ function PurchaseOrder({
             </div>
 
             {/* Contact */}
-            <div className="grid gap-2">
+            <div className="grid gap-2 lg:w-1/2">
               <Label className="text-sm font-medium">
                 Contact person <span className="text-red-500">*</span>
               </Label>
               <Input
-                className="rounded-xl h-10"
+                className="rounded-md h-10"
                 onChange={(e) =>
                   setState((prev) => ({
                     ...prev,
@@ -323,12 +323,12 @@ function PurchaseOrder({
             </div>
 
             {/* Phone */}
-            <div className="grid gap-2">
+            <div className="grid gap-2 lg:w-1/2">
               <Label className="text-sm font-medium">
                 Phone / WhatsApp <span className="text-red-500">*</span>
               </Label>
               <Input
-                className="rounded-xl h-10"
+                className="rounded-md h-10"
                 onChange={(e) =>
                   setState((prev) => ({ ...prev, phoneNumber: e.target.value }))
                 }
@@ -337,34 +337,19 @@ function PurchaseOrder({
             </div>
           </div>
 
-          <div className="grid gap-4">
-            {/* Address */}
-            <div className="grid gap-2">
-              <Label className="text-sm font-medium">
-                Delivery address <span className="text-red-500">*</span>
-              </Label>
-              <Textarea
-                rows={4}
-                className="rounded-xl resize-none"
-                onChange={(e) =>
-                  setState((prev) => ({
-                    ...prev,
-                    deliveryAddress: e.target.value,
-                  }))
-                }
-                value={state.deliveryAddress ?? ""}
-              />
-            </div>
+          <div className="grid gap-2">
+            
+           
 
             {/* Expected + Terms */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="grid gap-2">
+              <div >
                 <Label className="text-sm font-medium">
                   Expected delivery <span className="text-red-500">*</span>
                 </Label>
 
-                <Popover open={openCalander} onOpenChange={setOpenCalander}>
-                  <PopoverTrigger asChild>
+                <Popover open={openCalander} onOpenChange={setOpenCalander} >
+                  <PopoverTrigger asChild className="mt-2">
                     <Button
                       variant="outline"
                       id="date"
@@ -402,7 +387,7 @@ function PurchaseOrder({
                 </Popover>
               </div>
 
-              <div className="grid gap-2">
+              <div >
                 <Label className="text-sm font-medium">
                   Payment terms <span className="text-red-500">*</span>
                 </Label>
@@ -412,8 +397,8 @@ function PurchaseOrder({
                   }}
                   value={state.paymentTerms ?? ""}
                 >
-                  <SelectTrigger className="rounded-xl h-10">
-                    <SelectValue placeholder="Select" />
+                  <SelectTrigger className="rounded-md h-10 mt-2 max-w-[150px] w-full">
+                    <SelectValue placeholder="Select" /> 
                   </SelectTrigger>
                   <SelectContent className="rounded-xl shadow-lg">
                     <SelectItem value="cod">Cash on delivery</SelectItem>
@@ -423,6 +408,26 @@ function PurchaseOrder({
                 </Select>
               </div>
             </div>
+
+             <div className="grid gap-2">
+              <Label className="text-sm font-medium">
+                Delivery address <span className="text-red-500">*</span>
+              </Label>
+              <Textarea
+                rows={4}
+                className="rounded-md resize-none"
+                onChange={(e) =>
+                  setState((prev) => ({
+                    ...prev,
+                    deliveryAddress: e.target.value,
+                  }))
+                }
+                value={state.deliveryAddress ?? ""}
+              />
+            </div>
+<div className=""></div>
+<div className=""></div>
+
           </div>
         </CardContent>
       </Card>
@@ -497,10 +502,14 @@ function PurchaseOrder({
                         <Input
                           type="number"
                           className="h-9 rounded-lg text-right"
+                          placeholder="0"
+                            onFocus={e=>e.target.placeholder = ""}
+                                onBlur={e=>e.target.placeholder="0"}
+
                           onChange={(e) =>
                             updateItems(row.name, "unitPrice", e.target.value)
                           }
-                          value={row.unitPrice}
+                          value={row.unitPrice === 0 ?"": row.unitPrice}
                         />
                       </TableCell>
 
@@ -509,7 +518,10 @@ function PurchaseOrder({
                           type="number"
                           min={1}
                           className="h-9 rounded-lg text-right"
-                          value={row.quantity}
+                          value={row.quantity === 0 ? "" : row.quantity}
+                          placeholder="0"
+                            onFocus={e=>e.target.placeholder = ""}
+                                onBlur={e=>e.target.placeholder="0"}
                           onChange={(e) =>
                             updateItems(row.name, "quantity", e.target.value)
                           }

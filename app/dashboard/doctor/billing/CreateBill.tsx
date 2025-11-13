@@ -360,6 +360,8 @@ export default function CreateBill({
                                     : it.quantity.toString()
                                 }
                                 placeholder="0"
+                                onFocus={e=>e.target.placeholder = ""}
+                                onBlur={e=>e.target.placeholder="0"}
                                 onChange={(e) =>
                                   updateQty(it.name, Number(e.target.value))
                                 }
@@ -379,6 +381,8 @@ export default function CreateBill({
                                     : it.unitPrice.toString()
                                 }
                                 placeholder="0"
+                                onFocus={e=>e.target.placeholder = ""}
+                                onBlur={e=>e.target.placeholder="0"}
                                 onChange={(e) =>
                                   updatePrice(it.name, Number(e.target.value))
                                 }
@@ -395,6 +399,8 @@ export default function CreateBill({
                                 max={28}
                                 value={it.gst === 0 ? "" : it.gst.toString()}
                                 placeholder="0"
+                                onFocus={e=>e.target.placeholder = ""}
+                                onBlur={e=>e.target.placeholder="0"}
                                 onChange={(e) =>
                                   updateGST(it.name, Number(e.target.value))
                                 }
@@ -551,6 +557,8 @@ export default function CreateBill({
                         type="number"
                         min={0}
                         placeholder="0"
+                        onFocus={e=>e.target.placeholder = ""}
+                                onBlur={e=>e.target.placeholder="0"}
                         value={
                           payload[key as "cash" | "online" | "insurance"] === 0
                             ? ""

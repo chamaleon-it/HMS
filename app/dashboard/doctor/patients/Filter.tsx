@@ -2,7 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FilterType } from "./page";
 import { CONDITIONS } from "./data";
 import useSWR from "swr";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { fDate } from "@/lib/fDateAndTime";
@@ -171,7 +175,10 @@ export default function Filter({
           <div className="flex items-center gap-2">
             <input
               type="number"
-              value={filter.age[0]}
+              value={filter.age[0] ===0 ? "" : filter.age[0]}
+              placeholder="0"
+              onFocus={(e) => (e.target.placeholder = "")}
+              onBlur={(e) => (e.target.placeholder = "0")}
               onChange={(e) => {
                 const age: [number, number] = [
                   Number(e.target.value),
@@ -179,7 +186,7 @@ export default function Filter({
                 ];
                 setFilter((prev) => ({ ...prev, age }));
               }}
-              className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200"
+              className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200 placeholder:text-black"
             />
             <span className="text-gray-400">–</span>
             <input
@@ -296,52 +303,70 @@ const CustomDateFilter = ({
   return (
     <div className="flex items-end gap-2">
       <div className="clearflex flex-col gap-1 w-fit">
-
-
- <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          data-empty={!filter.dateRange.from}
-          className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
-        >
-          <CalendarIcon />
-          {filter.dateRange.from ? fDate(filter.dateRange.from) : <span>From</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={filter.dateRange.from ? new Date(filter.dateRange.from) : new Date()} onSelect={date=>{
-          setFilter((prev) => ({
-              ...prev,
-              dateRange: { ...prev.dateRange, from: date?.toISOString() },
-            }))
-        }} />
-      </PopoverContent>
-    </Popover>
-
-        
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              data-empty={!filter.dateRange.from}
+              className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
+            >
+              <CalendarIcon />
+              {filter.dateRange.from ? (
+                fDate(filter.dateRange.from)
+              ) : (
+                <span>From</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={
+                filter.dateRange.from
+                  ? new Date(filter.dateRange.from)
+                  : new Date()
+              }
+              onSelect={(date) => {
+                setFilter((prev) => ({
+                  ...prev,
+                  dateRange: { ...prev.dateRange, from: date?.toISOString() },
+                }));
+              }}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
       <div className="clearflex flex-col gap-1 w-fit">
         <Popover>
-      <PopoverTrigger asChild>
-        <Button
-          variant="outline"
-          data-empty={!filter.dateRange.to}
-          className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
-        >
-          <CalendarIcon />
-          {filter.dateRange.to ? fDate(filter.dateRange.to) : <span>To</span>}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-auto p-0">
-        <Calendar mode="single" selected={filter.dateRange.to ? new Date(filter.dateRange.to) : new Date()} onSelect={date=>{
-          setFilter((prev) => ({
-              ...prev,
-              dateRange: { ...prev.dateRange, to: date?.toISOString() },
-            }))
-        }} />
-      </PopoverContent>
-    </Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              data-empty={!filter.dateRange.to}
+              className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
+            >
+              <CalendarIcon />
+              {filter.dateRange.to ? (
+                fDate(filter.dateRange.to)
+              ) : (
+                <span>To</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0">
+            <Calendar
+              mode="single"
+              selected={
+                filter.dateRange.to ? new Date(filter.dateRange.to) : new Date()
+              }
+              onSelect={(date) => {
+                setFilter((prev) => ({
+                  ...prev,
+                  dateRange: { ...prev.dateRange, to: date?.toISOString() },
+                }));
+              }}
+            />
+          </PopoverContent>
+        </Popover>
       </div>
     </div>
   );

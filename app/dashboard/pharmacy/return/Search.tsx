@@ -40,7 +40,7 @@ export default function Search({
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
               <Input
-                placeholder="Search invoice no. / patient name..."
+                placeholder="Search invoice no. "
                 className="pl-9 text-sm h-9 rounded-lg border-slate-300 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                 value={filter.q ?? ""}
                 onChange={(e) =>
