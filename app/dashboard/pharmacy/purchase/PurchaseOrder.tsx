@@ -1,7 +1,13 @@
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -22,7 +28,7 @@ import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
-import { ArrowLeft, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import useSWR from "swr";
@@ -46,7 +52,13 @@ interface State {
   urgent: boolean;
 }
 
-function PurchaseOrder({ onBack,mutate }: { onBack: () => void,mutate:()=>void }) {
+function PurchaseOrder({
+  onBack,
+  mutate,
+}: {
+  onBack: () => void;
+  mutate: () => void;
+}) {
   const [state, setState] = useState<State>({
     wholesaler: null,
     contactPerson: null,
@@ -145,7 +157,7 @@ function PurchaseOrder({ onBack,mutate }: { onBack: () => void,mutate:()=>void }
         partialDelivery: false,
         urgent: false,
       });
-      mutate()
+      mutate();
       onBack();
     } catch (error) {
       console.log(error);
@@ -211,6 +223,8 @@ function PurchaseOrder({ onBack,mutate }: { onBack: () => void,mutate:()=>void }
       }),
     }));
   };
+
+  const [openCalander, setOpenCalander] = useState(false);
 
   return (
     <div className="flex flex-col gap-6   p-5 ">
@@ -348,24 +362,44 @@ function PurchaseOrder({ onBack,mutate }: { onBack: () => void,mutate:()=>void }
                 <Label className="text-sm font-medium">
                   Expected delivery <span className="text-red-500">*</span>
                 </Label>
-                <Input
-                  type="date"
-                  min={new Date().toISOString().split("T")[0]}
-                  className="rounded-xl h-10"
-                  onChange={(e) =>
-                    setState((prev) => ({
-                      ...prev,
-                      expectedDelivery: new Date(e.target.value).toISOString(),
-                    }))
-                  }
-                  value={
-                    state.expectedDelivery
-                      ? new Date(state.expectedDelivery ?? "")
-                          .toISOString()
-                          .split("T")[0]
-                      : ""
-                  }
-                />
+
+                <Popover open={openCalander} onOpenChange={setOpenCalander}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      id="date"
+                      className="w-48 justify-between font-normal"
+                    >
+                      {state.expectedDelivery
+                        ? fDate(state.expectedDelivery)
+                        : "Select date"}
+                      <ChevronDownIcon />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-auto overflow-hidden p-0"
+                    align="start"
+                  >
+                    <Calendar
+                      mode="single"
+                      selected={
+                        state.expectedDelivery
+                          ? new Date(state.expectedDelivery)
+                          : undefined
+                      }
+                      captionLayout="dropdown"
+                      onSelect={(date) => {
+                        if (date) {
+                          setState((prev) => ({
+                            ...prev,
+                            expectedDelivery: date?.toISOString(),
+                          }));
+                        }
+                        setOpenCalander(false);
+                      }}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div className="grid gap-2">

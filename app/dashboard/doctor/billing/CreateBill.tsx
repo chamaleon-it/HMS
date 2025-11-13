@@ -10,7 +10,6 @@ import {
   IndianRupee,
   Plus,
   Printer,
-  Search,
   Share2,
   Trash2,
   User2,
@@ -25,6 +24,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import PatientSelection from "./PatientSelection";
+import ItemSelected from "./ItemSelected";
 
 const theme = {
   from: "#4f46e5",
@@ -40,7 +40,11 @@ const defaultPayload = {
   online: 0,
 };
 
-export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
+export default function CreateBill({
+  billingMutate,
+}: {
+  billingMutate: () => void;
+}) {
   const router = useRouter();
 
   const [item, setItem] = useState<null | string>(null);
@@ -70,33 +74,55 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
     router.push("/dashboard/doctor/patients#register");
   }, [router]);
 
-  const addItem = useCallback(() => {
-    if (item) {
-      if (!payload.items.find((e) => e.name === item)) {
-        setPayload((prev) => ({
-          ...prev,
-          items: [
-            ...prev.items,
-            {
-              name: item,
-              discount: 0,
-              gst: 0,
-              quantity: 0,
-              total: 0,
-              unitPrice: 0,
-            },
-          ],
-        }));
-      } else {
-        toast.error("Item already exist.");
-      }
+  const addItem = useCallback(
+    (i?: string) => {
+      if (i) {
+        if (!payload.items.find((e) => e.name === i)) {
+          setPayload((prev) => ({
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                name: i,
+                discount: 0,
+                gst: 0,
+                quantity: 0,
+                total: 0,
+                unitPrice: 0,
+              },
+            ],
+          }));
+        }
+        itemRef.current?.focus();
+        setItem(null);
+      } else if (item) {
+        if (!payload.items.find((e) => e.name === item)) {
+          setPayload((prev) => ({
+            ...prev,
+            items: [
+              ...prev.items,
+              {
+                name: item,
+                discount: 0,
+                gst: 0,
+                quantity: 0,
+                total: 0,
+                unitPrice: 0,
+              },
+            ],
+          }));
+        } else {
+          toast.error("Item already exist.");
+        }
 
-      itemRef.current?.focus();
-      setItem(null);
-    } else {
-      itemRef.current?.focus();
-    }
-  }, [item,payload.items]);
+        itemRef.current?.focus();
+        setItem(null);
+      } else {
+        itemRef.current?.focus();
+      }
+    },
+    [item, payload.items]
+  );
 
   const removeItem = useCallback(
     (name: string) => {
@@ -190,17 +216,17 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
         error: ({ response }) => response.data.message,
       });
       setPayload(defaultPayload);
-      billingMutate()
+      billingMutate();
     } catch (error) {
       console.log(error);
     }
-  }, [payload,billingMutate]);
+  }, [payload, billingMutate]);
 
   return (
     <div className="space-y-4">
       <div
         className={
-          "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
+          "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900 relative z-10"
         }
       >
         <div className="mb-4 grid grid-cols-12 gap-4">
@@ -255,39 +281,12 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
               </div>
             </div>
           </div>
-          <div className="col-span-12 md:col-span-4">
-            <div className="text-sm font-medium mb-2 flex items-center gap-2">
-              <span
-                className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-                }}
-              >
-                <Search className="h-4 w-4" />
-              </span>
-              Quick Add
-            </div>
-            <div className="flex items-center gap-2">
-              <input
-                placeholder="Search services / tests / items…"
-                ref={itemRef}
-                className={
-                  "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                }
-                value={item ?? ""}
-                onChange={(e) => setItem(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.code === "Enter" || e.code === "Tab") {
-                    e.preventDefault();
-                    addItem();
-                  }
-                }}
-              />
-              <PrimaryButton onClick={addItem}>
-                <Plus className="h-4 w-4" />
-              </PrimaryButton>
-            </div>
-          </div>
+          <ItemSelected
+            addItem={addItem}
+            item={item}
+            itemRef={itemRef}
+            setItem={setItem}
+          />
         </div>
       </div>
 
@@ -355,7 +354,11 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
                               <input
                                 type="number"
                                 min={1}
-                                value={it.quantity===0 ?  "" : it.quantity.toString()}
+                                value={
+                                  it.quantity === 0
+                                    ? ""
+                                    : it.quantity.toString()
+                                }
                                 placeholder="0"
                                 onChange={(e) =>
                                   updateQty(it.name, Number(e.target.value))
@@ -370,7 +373,11 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
                               <input
                                 type="number"
                                 min={0}
-                                value={it.unitPrice===0 ?  "" : it.unitPrice.toString()}
+                                value={
+                                  it.unitPrice === 0
+                                    ? ""
+                                    : it.unitPrice.toString()
+                                }
                                 placeholder="0"
                                 onChange={(e) =>
                                   updatePrice(it.name, Number(e.target.value))
@@ -386,7 +393,7 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
                                 type="number"
                                 min={0}
                                 max={28}
-                                value={it.gst===0 ?  "" : it.gst.toString()}
+                                value={it.gst === 0 ? "" : it.gst.toString()}
                                 placeholder="0"
                                 onChange={(e) =>
                                   updateGST(it.name, Number(e.target.value))
@@ -544,7 +551,13 @@ export default function CreateBill({billingMutate}:{billingMutate:()=>void}) {
                         type="number"
                         min={0}
                         placeholder="0"
-                        value={payload[key as "cash" | "online" | "insurance"]===0 ?  "" : payload[key as "cash" | "online" | "insurance"].toString()}
+                        value={
+                          payload[key as "cash" | "online" | "insurance"] === 0
+                            ? ""
+                            : payload[
+                                key as "cash" | "online" | "insurance"
+                              ].toString()
+                        }
                         onChange={(e) =>
                           setPayload((prev) => ({
                             ...prev,

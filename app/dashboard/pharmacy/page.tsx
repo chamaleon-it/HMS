@@ -54,29 +54,51 @@ function RxQueue() {
     setDeleteOpen(true);
   };
 
+  const [filter, setFilter] = useState({
+    q: "all",
+  });
+
+  const params = new URLSearchParams()
   
+  if(filter.q!=="all"){
+    params.set("q",filter.q)
+  }
+
 
   const { data: ordersData, mutate: OrderMutate } = useSWR<{
     message: string;
     data: OrderType[];
-  }>("/pharmacy/orders");
+  }>(`/pharmacy/orders?${params.toString()}`);
 
   const orders = ordersData?.data ?? [];
 
-
-  const markAllPacked = async() => {
+  const markAllPacked = async () => {
     try {
-      await toast.promise(api.post("/pharmacy/orders/mark_all_as_packed",{order:selected?._id}),{
-        loading:"Marking all item is packed",
-        error:({response})=>response.data.message,
-        success:({data})=>data.message
-      })
-      setSelected(prev=>prev ? ({...prev,items:prev.items.map(it=>({...it,isPacked:true}))}) : null)
-      OrderMutate()
+      await toast.promise(
+        api.post("/pharmacy/orders/mark_all_as_packed", {
+          order: selected?._id,
+        }),
+        {
+          loading: "Marking all item is packed",
+          error: ({ response }) => response.data.message,
+          success: ({ data }) => data.message,
+        }
+      );
+      setSelected((prev) =>
+        prev
+          ? {
+              ...prev,
+              items: prev.items.map((it) => ({ ...it, isPacked: true })),
+            }
+          : null
+      );
+      OrderMutate();
     } catch (error) {
       console.log(error);
     }
   };
+
+  
 
   return (
     <div>
@@ -86,7 +108,12 @@ function RxQueue() {
           <h2 className="text-lg font-semibold">RX Queue</h2>
           <p className="text-slate-600 text-sm">Live prescriptions</p>
         </div>
-        <Tabs defaultValue="all" className="w-auto">
+        <Tabs
+          defaultValue="all"
+          className="w-auto"
+          value={filter.q}
+          onValueChange={(v) => setFilter((prev) => ({ ...prev, q: v }))}
+        >
           <TabsList>
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="stat">STAT</TabsTrigger>
@@ -156,17 +183,16 @@ function RxQueue() {
             {/* Items List */}
             <div className="rounded-lg border overflow-hidden">
               <table className="w-full text-[15px]">
-                <thead className="bg-slate-50 text-slate-700">
-                  <tr>
-                    <th className="p-2 text-left">Sl</th>
-                    <th className="p-2 text-left">Medicine</th>
-                    <th className="p-2 text-left">Exp</th>
-                    <th className="p-2 text-right">Qty</th>
-                    <th className="p-2 text-left">Instructions</th>
-                    <th className="p-2 text-left">Substitution</th>
-                    <th className="p-2 text-right">MRP</th>
-                    <th className="p-2 text-right">Amount</th>
-                    <th className="p-2 text-center">Packed</th>
+                <thead className="bg-slate-50 text-slate-700 w-full">
+                  <tr className="w-full">
+                    <th className="w-[5%] p-2 text-left">Sl</th>
+                    <th className="w-[25%] p-2 text-left">Medicine</th>
+                    <th className="w-[10%] p-2 text-left">Exp</th>
+                    <th className="w-[10%] p-2 text-right">Qty</th>
+                    <th className="w-[10%] p-2 text-right">Available</th>
+                    <th className="w-[10%] p-2 text-right">MRP</th>
+                    <th className="w-[15%] p-2 text-right">Amount</th>
+                    <th className="w-[15%] p-2 text-right">Packed</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -175,7 +201,10 @@ function RxQueue() {
                       (Number(it.quantity) || 1) *
                       (Number(it.name.unitPrice) || 0);
                     return (
-                      <tr key={it.name._id} className="border-t align-top">
+                      <tr
+                        key={it.name._id}
+                        className="border-t align-top w-full"
+                      >
                         <td className="p-2 align-top">{idx + 1}</td>
                         <td className="p-2 align-top">
                           <div className="font-medium text-slate-900 leading-snug">
@@ -197,11 +226,8 @@ function RxQueue() {
                         <td className="p-2 align-top text-right text-lg font-semibold text-slate-900">
                           {it.quantity}
                         </td>
-                        <td className="p-2 align-top text-slate-700">
-                          {/* {it.sig} */}
-                        </td>
-                        <td className="p-2 align-top text-slate-700">
-                          {/* {it.subs?.length ? it.subs.join(", ") : "-"} */}
+                        <td className="p-2 align-top text-center text-lg font-semibold text-slate-900">
+                          {it.name.quantity}
                         </td>
                         <td className="p-2 align-top text-right whitespace-nowrap">
                           {formatINR(it.name.unitPrice)}
@@ -209,17 +235,16 @@ function RxQueue() {
                         <td className="p-2 align-top text-right font-medium whitespace-nowrap">
                           {formatINR(amount)}
                         </td>
-                        <td className="p-2 align-top text-center">
+                        <td className="p-2 align-top text-right">
                           <input
                             type="checkbox"
                             className="h-5 w-5"
                             checked={it.isPacked}
                             onChange={async () => {
                               try {
-
-                                if(it.isPacked){
-                                  toast.error("This item is already packed")
-                                  return
+                                if (it.isPacked) {
+                                  toast.error("This item is already packed");
+                                  return;
                                 }
                                 await toast.promise(
                                   api.post("/pharmacy/orders/packed", {
@@ -258,7 +283,7 @@ function RxQueue() {
                 </tbody>
                 <tfoot>
                   <tr className="border-t">
-                    <td colSpan={8}></td>
+                    <td colSpan={6}></td>
                     <td className="p-2 text-right text-sm">Subtotal</td>
                     <td className="p-2 text-right text-sm">
                       {formatINR(
@@ -270,7 +295,7 @@ function RxQueue() {
                     </td>
                   </tr>
                   <tr>
-                    <td colSpan={8}></td>
+                    <td colSpan={6}></td>
                     <td className="p-2 text-right text-sm">Round Off</td>
                     <td className="p-2 text-right text-sm">
                       {/* {round >= 0 ? "+" : ""} */}
@@ -278,7 +303,7 @@ function RxQueue() {
                     </td>
                   </tr>
                   <tr>
-                    <td colSpan={8}></td>
+                    <td colSpan={6}></td>
                     <td className="p-2 text-right font-semibold">
                       Grand Total
                     </td>

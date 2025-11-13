@@ -29,13 +29,14 @@ export default function ItemFilter({ filter, setFilter }: Props) {
 
         <Select
           onValueChange={(v) =>
-            setFilter((prev) => ({ ...prev, category: v, page: 1 }))
+            setFilter((prev) => ({ ...prev, category: v==="all"? undefined : v, page: 1 }))
           }
         >
           <SelectTrigger>
             <SelectValue placeholder="Category" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="Medicine">Medicine</SelectItem>
             <SelectItem value="Equipment">Equipment</SelectItem>
             <SelectItem value="Consumables">Consumables</SelectItem>
@@ -44,13 +45,14 @@ export default function ItemFilter({ filter, setFilter }: Props) {
 
         <Select
           onValueChange={(v) =>
-            setFilter((prev) => ({ ...prev, stock: v, page: 1 }))
+            setFilter((prev) => ({ ...prev, stock: v==="all"? undefined : v, page: 1 }))
           }
         >
           <SelectTrigger>
             <SelectValue placeholder="Stock Status" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="Instock">In Stock</SelectItem>
             <SelectItem value="Low">Low Stock</SelectItem>
             <SelectItem value="Out">Out of Stock</SelectItem>
@@ -61,7 +63,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
           onValueChange={(v) =>
             setFilter((prev) => ({
               ...prev,
-              expiry: v ? Number(v) : undefined,
+              expiry: v === "all" ? undefined : Number(v),
               page: 1,
             }))
           }
@@ -70,6 +72,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
             <SelectValue placeholder="Expiry Filter" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="all">All</SelectItem>
             <SelectItem value="30">Expiring in 30 days</SelectItem>
             <SelectItem value="60">Expiring in 60 days</SelectItem>
             <SelectItem value="90">Expiring in 90 days</SelectItem>

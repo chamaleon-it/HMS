@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -8,9 +10,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import api from "@/lib/axios";
+import { fDate } from "@/lib/fDateAndTime";
 import { pharmacyItemAddSchema } from "@/schemas/pharmacyItemAddSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect } from "react";
+import { ChevronDownIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -48,6 +52,8 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
   useEffect(() => {
     setValue("quantity", values.openingStockQuantity);
   }, [values.openingStockQuantity, setValue]);
+
+  const [openCalander, setOpenCalander] = useState(false)
 
   return (
     <form
@@ -238,7 +244,32 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
           <label className="text-[12px] text-gray-600 font-medium">
             Expiry Date
           </label>
-          <Input type="date" className="mt-1" {...register("expiryDate")} />
+
+          <Popover open={openCalander} onOpenChange={setOpenCalander}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            id="date"
+            className="w-full justify-between font-normal"
+          >
+            {values.expiryDate ? fDate(new Date(values.expiryDate)) : "Select date"}
+            <ChevronDownIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
+            captionLayout="dropdown"
+            onSelect={(date) => {
+              if(date){
+                setValue("expiryDate",date.toISOString())
+              }
+              setOpenCalander(false)
+            }}
+          />
+        </PopoverContent>
+      </Popover>
           {errors.expiryDate && (
             <p className="text-xs text-red-600 my-1">
               {errors.expiryDate.message}

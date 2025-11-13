@@ -9,13 +9,16 @@ import {
 import { Button } from "@/components/ui/button";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { pharmacyItemAddSchema } from "@/schemas/pharmacyItemAddSchema";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { useAuth } from "@/auth/context/auth-context";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { ChevronDownIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 
 export function EditItem({
   item,
@@ -78,6 +81,8 @@ export function EditItem({
   }, [values.openingStockQuantity, setValue]);
 
   const {user} = useAuth()
+
+    const [openCalander, setOpenCalander] = useState(false)
 
   return (
     <form
@@ -271,7 +276,33 @@ export function EditItem({
           <label className="text-[12px] text-gray-600 font-medium">
             Expiry Date
           </label>
-          <Input type="date" className="mt-1" {...register("expiryDate")} />
+
+            <Popover open={openCalander} onOpenChange={setOpenCalander}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            id="date"
+            className="w-full justify-between font-normal"
+          >
+            {values.expiryDate ? fDate(new Date(values.expiryDate)) : "Select date"}
+            <ChevronDownIcon />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+          <Calendar
+            mode="single"
+            selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
+            captionLayout="dropdown"
+            onSelect={(date) => {
+              if(date){
+                setValue("expiryDate",date.toISOString())
+              }
+              setOpenCalander(false)
+            }}
+          />
+        </PopoverContent>
+      </Popover>
+
           {errors.expiryDate && (
             <p className="text-xs text-red-600 my-1">
               {errors.expiryDate.message}

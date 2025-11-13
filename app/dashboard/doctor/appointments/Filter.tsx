@@ -81,7 +81,6 @@ export default function Filter({
                 </PopoverContent>
               </Popover>
 
-              {/* <Input type="date"  aria-label="Filter by date"  value={date.toISOString().slice(0,10)} onChange={e=>setDate(new Date(e.target.value))}/> */}
             </div>
           </div>
 

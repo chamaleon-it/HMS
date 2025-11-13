@@ -1,3 +1,4 @@
+import { AlertTriangle, XCircle } from "lucide-react";
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import useSWR from "swr";
 
@@ -8,10 +9,10 @@ interface Medicine {
   frequency: string;
   food: string;
   duration: string;
-  quantity:number;
+  quantity: number;
 }
 
-type Item = { _id: string; name: string; generic: string };
+type Item = { _id: string; name: string; generic: string; quantity: number };
 type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
 
@@ -36,9 +37,15 @@ export default function MedicineField({
   // what the user is typing
   const [query, setQuery] = useState("");
   // the item the user selected (id + label for display)
-  const [selected, setSelected] = useState<{ id: string; name: string } | null>(null);
+  const [selected, setSelected] = useState<{ id: string; name: string } | null>(
+    null
+  );
 
-  const [filter, setFilter] = useState<{ limit: number; q: string; page: number }>({
+  const [filter, setFilter] = useState<{
+    limit: number;
+    q: string;
+    page: number;
+  }>({
     limit: 5,
     q: "",
     page: 1,
@@ -70,7 +77,9 @@ export default function MedicineField({
   }, [filter.limit, filter.page, debouncedQ]);
 
   const swrKey = `/pharmacy/items?${qs}`;
-  const { data, isLoading } = useSWR<ItemsApi>(swrKey, { keepPreviousData: true });
+  const { data, isLoading } = useSWR<ItemsApi>(swrKey, {
+    keepPreviousData: true,
+  });
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
@@ -116,9 +125,6 @@ export default function MedicineField({
     }
   };
 
-  // What the input shows:
-  // - while typing/open => query
-  // - otherwise => selected name (if any)
   const displayValue = open || query ? query : selected?.name ?? "";
 
   return (
@@ -173,10 +179,30 @@ export default function MedicineField({
                     idx === activeIdx ? "bg-emerald-50" : "hover:bg-slate-50"
                   }`}
                 >
-                  <div className="font-medium leading-tight">{it.name}</div>
-                  {it.generic ? (
-                    <div className="text-xs text-slate-500">{it.generic}</div>
-                  ) : null}
+                  <div className="flex justify-between items-center">
+                    <div className="">
+                      <div className="font-medium leading-tight">{it.name}</div>
+                      {it.generic ? (
+                        <div className="text-xs text-slate-500">
+                          {it.generic}
+                        </div>
+                      ) : null}
+                    </div>
+
+                    <div>
+                      {it.quantity <= 0 ? (
+                        <div className="flex items-center gap-1 text-red-600 text-xs font-medium">
+                          <XCircle className="w-3 h-3" />
+                          <span>Out of stock</span>
+                        </div>
+                      ) : it.quantity < 15 ? (
+                        <div className="flex items-center gap-1 text-amber-600 text-xs font-medium">
+                          <AlertTriangle className="w-3 h-3" />
+                          <span>{it.quantity} left - Low stock</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
                 </li>
               ))}
             </ul>

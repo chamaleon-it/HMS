@@ -316,8 +316,8 @@ export default function PrescriptionCard({
             {/* Dynamic rows */}
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2">
-                <div className="col-span-2">Drug</div>
-                <div className="col-span-2">Dosage</div>
+                <div className="col-span-3">Drug</div>
+                <div className="col-span-1">Dosage</div>
                 <div className="col-span-2">Frequency</div>
                 <div className="col-span-2">Food</div>
                 <div className="col-span-2">Duration</div>
@@ -331,11 +331,11 @@ export default function PrescriptionCard({
                   key={i}
                   className="grid grid-cols-12 gap-2 mt-2 items-start"
                 >
-                  <div className="col-span-2">
+                  <div className="col-span-3">
                     <Medicine i={i} m={m} updateField={updateField} />
                   </div>
 
-                  <div className="col-span-2">
+                  <div className="col-span-1">
                     <LabeledCombobox
                       options={[
                         "½ tab",
