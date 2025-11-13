@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronDownIcon, Filter, RefreshCcw, Search } from "lucide-react";
+import {  ChevronDownIcon, Filter, RefreshCcw, Search } from "lucide-react";
 import React, { useState } from "react";
 import { FilterType } from "./page";
 import {
@@ -10,7 +10,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
