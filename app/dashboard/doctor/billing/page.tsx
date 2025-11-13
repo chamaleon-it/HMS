@@ -8,21 +8,38 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "./Header";
 import useSWR from "swr";
 
-
 export interface FilterType {
-  q:null | string,
-  status:null | string,
-  method:null | string,
+  q: null | string;
+  status: string;
+  method: string;
+  date:undefined | Date
 }
 
 export default function BillingPage() {
   const [tab, setTab] = useState<"all" | "new">("all");
-const [filter, setFilter] = useState<FilterType>({
-  q:null,
-  status:null,
-  method:null
-})
+  const [filter, setFilter] = useState<FilterType>({
+    q: null,
+    status: "",
+    method: "",
+    date:undefined
+  });
 
+  const params = new URLSearchParams();
+
+  if (filter.q) {
+    params.set("q", filter.q);
+  }
+
+  if (filter.status !== "all") {
+    params.set("status", filter.status);
+  }
+
+  if (filter.method !== "all") {
+    params.set("method", filter.method);
+  }
+  if(filter.date){
+    params.set("date",filter.date.toISOString())
+  }
 
   const { data: billingData, mutate: billingMutate } = useSWR<{
     message: string;
@@ -41,7 +58,7 @@ const [filter, setFilter] = useState<FilterType>({
         mrn: string;
       };
     }[];
-  }>("/billing");
+  }>(`/billing?${params.toString()}`);
 
   const billing = billingData?.data ?? [];
 
@@ -74,7 +91,11 @@ const [filter, setFilter] = useState<FilterType>({
               </TabsTrigger>
             </TabsList>
             <TabsContent value="all">
-              <AllBill billing={billing} filter={filter} setFilter={setFilter}/>
+              <AllBill
+                billing={billing}
+                filter={filter}
+                setFilter={setFilter}
+              />
             </TabsContent>
             <TabsContent value="new">
               <CreateBill billingMutate={billingMutate} />
