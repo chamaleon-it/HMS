@@ -91,6 +91,12 @@ export function Sidebar() {
         icon: Warehouse,
         link: "/dashboard/pharmacy/inventory",
       },
+       {
+        key: "customers",
+        label: "Customers",
+        icon: Warehouse,
+        link: "/dashboard/pharmacy/customers",
+      },
       {
         key: "return",
         label: "Return",
