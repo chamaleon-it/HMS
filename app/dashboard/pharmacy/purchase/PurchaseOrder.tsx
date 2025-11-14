@@ -27,7 +27,6 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
 import { fDate } from "@/lib/fDateAndTime";
-import { formatINR } from "@/lib/fNumber";
 import { ArrowLeft, ChevronDownIcon, Plus, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
@@ -42,11 +41,9 @@ interface State {
   paymentTerms: null | string;
   items: {
     name: string;
-    unitPrice: number;
     quantity: number;
     notes?: string;
   }[];
-  shipping: null | number;
   instructions?: null | string;
   partialDelivery: boolean;
   urgent: boolean;
@@ -67,7 +64,6 @@ function PurchaseOrder({
     expectedDelivery: null,
     paymentTerms: null,
     items: [],
-    shipping: null,
     instructions: null,
     partialDelivery: false,
     urgent: false,
@@ -128,15 +124,8 @@ function PurchaseOrder({
       return;
     }
 
-    if (state.items.some((e) => e.unitPrice === 0)) {
-      toast.error("Some product has unit price is zero.");
-      return;
-    }
 
-    if (!state.shipping) {
-      toast.error("Shipping and other is required.");
-      return;
-    }
+
 
     try {
       await toast.promise(api.post("/pharmacy/purchase", state), {
@@ -152,7 +141,6 @@ function PurchaseOrder({
         expectedDelivery: null,
         paymentTerms: null,
         items: [],
-        shipping: null,
         instructions: null,
         partialDelivery: false,
         urgent: false,
@@ -475,13 +463,8 @@ function PurchaseOrder({
               <TableHeader className="bg-muted/40">
                 <TableRow>
                   <TableHead className="w-[28%]">Item</TableHead>
-                  <TableHead className="w-[10%] text-right">
-                    Unit Cost (₹)
-                  </TableHead>
-                  <TableHead className="w-[10%] text-right">Qty</TableHead>
-                  <TableHead className="w-[12%] text-right">
-                    Line Total
-                  </TableHead>
+                  <TableHead className="w-[10%]">Quantity</TableHead>
+                 
                   <TableHead className="w-[30%]">Notes</TableHead>
                   <TableHead className="w-[10%] text-center">Remove</TableHead>
                 </TableRow>
@@ -489,31 +472,17 @@ function PurchaseOrder({
 
               <TableBody>
                 {state.items.map((row, idx) => {
-                  const lineTotal = row.unitPrice * row.quantity;
                   return (
-                    <TableRow key={idx} className="align-top">
-                      <TableCell className="py-4">
+                    <TableRow key={idx} >
+                      <TableCell className="">
                         <div className="text-md font-bold">
                           {row.name || "—"}
                         </div>
                       </TableCell>
 
-                      <TableCell className="py-4 align-top text-right">
-                        <Input
-                          type="number"
-                          className="h-9 rounded-lg text-right"
-                          placeholder="0"
-                            onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                      
 
-                          onChange={(e) =>
-                            updateItems(row.name, "unitPrice", e.target.value)
-                          }
-                          value={row.unitPrice === 0 ?"": row.unitPrice}
-                        />
-                      </TableCell>
-
-                      <TableCell className="py-4 align-top text-right">
+                      <TableCell className="py-4  text-right">
                         <Input
                           type="number"
                           min={1}
@@ -528,14 +497,12 @@ function PurchaseOrder({
                         />
                       </TableCell>
 
-                      <TableCell className="py-4 align-top text-right font-medium">
-                        {formatINR(lineTotal)}
-                      </TableCell>
+                   
 
                       <TableCell className="py-4 align-top">
                         <Textarea
-                          rows={2}
-                          className="resize-none h-[72px] text-sm rounded-lg"
+                          rows={1}
+                          className="text-sm rounded-lg"
                           placeholder="Batch preference / colour / etc."
                           value={row.notes}
                           onChange={(e) =>
@@ -544,7 +511,7 @@ function PurchaseOrder({
                         />
                       </TableCell>
 
-                      <TableCell className="py-4 align-top text-center">
+                      <TableCell className="text-center">
                         <Button
                           size="icon"
                           variant="ghost"
@@ -561,50 +528,7 @@ function PurchaseOrder({
             </Table>
           </div>
 
-          {/* COST SUMMARY */}
-          <div className="flex flex-col items-end">
-            <div className="w-full max-w-sm border rounded-xl p-4 bg-muted/20 space-y-3 text-sm shadow-sm">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span className="font-medium">
-                  {formatINR(
-                    state.items.reduce(
-                      (a, b) => a + b.quantity * b.unitPrice,
-                      0
-                    )
-                  )}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center">
-                <span className="text-muted-foreground">
-                  Shipping / Other <span className="text-red-500">*</span>
-                </span>
-                <Input
-                  type="number"
-                  className="h-8 w-24 text-right rounded-lg"
-                  onChange={(e) =>
-                    setState((prev) => ({
-                      ...prev,
-                      shipping: Number(e.target.value),
-                    }))
-                  }
-                  value={state.shipping ?? ""}
-                />
-              </div>
-              <div className="border-t pt-3 flex justify-between text-base font-semibold">
-                <span>Total</span>
-                <span>
-                  {formatINR(
-                    state.items.reduce(
-                      (a, b) => a + b.quantity * b.unitPrice,
-                      0
-                    ) + (state.shipping ?? 0)
-                  )}
-                </span>
-              </div>
-            </div>
-          </div>
+       
         </CardContent>
       </Card>
 
@@ -676,17 +600,6 @@ function PurchaseOrder({
           <div className="max-w-screen-xl mx-auto px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div className="text-sm flex flex-col md:flex-row md:items-center md:gap-4 leading-tight">
               <div className="font-medium">Items: {state.items.length}</div>
-              <div className="text-muted-foreground">
-                Grand Total:{" "}
-                <span className="font-semibold text-foreground">
-                  {formatINR(
-                    state.items.reduce(
-                      (a, b) => a + b.quantity * b.unitPrice,
-                      0
-                    ) + (state.shipping ?? 0)
-                  )}
-                </span>
-              </div>
             </div>
 
             <div className="flex gap-2">

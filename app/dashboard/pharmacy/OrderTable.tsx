@@ -63,7 +63,7 @@ export default function OrderTable({
 
             <TableCell>{idx + 1}</TableCell>
             <TableCell className="font-medium">{r.mrn}</TableCell>
-            <TableCell>{r.patient.name}</TableCell>
+            <TableCell>{r.patient.name} <br /> <span className="text-xs">({r.patient.mrn})</span></TableCell>
             <TableCell>{r.items.length}</TableCell>
             <TableCell>
               <PriorityBadge priority={r.priority} />

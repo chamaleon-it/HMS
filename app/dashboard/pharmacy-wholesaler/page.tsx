@@ -50,14 +50,7 @@ export default function WholesalerDashboard() {
           <TotalOrder orders={purchase.length} />
           <PendingDispatch orders={purchase.length} />
           <OutstandingPayments
-            amount={purchase.reduce((total, order) => {
-              const orderTotal =
-                order.items.reduce(
-                  (sum, item) => sum + item.quantity * item.unitPrice,
-                  0
-                ) + order.shipping;
-              return total + orderTotal;
-            }, 0)}
+            amount={0}
           />
           <EmergencyOrders
             urgentOrders={purchase.filter((e) => e.urgent).length}

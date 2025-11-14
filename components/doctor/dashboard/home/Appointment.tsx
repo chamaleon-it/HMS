@@ -85,7 +85,7 @@ export default function Appointment({
                 a.status === "consulted" && "line-through"
               )}
             >
-              {a.patient.name}
+              {a.patient.name} <span>{a.patient.mrn}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="shrink-0 text-sm text-gray-500">

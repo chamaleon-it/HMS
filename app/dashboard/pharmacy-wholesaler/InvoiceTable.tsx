@@ -15,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatINR } from "@/lib/fNumber";
 import React from "react";
 import { PurchaseType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
@@ -56,9 +55,6 @@ export default function InvoiceTable({ purchase }: PropType) {
                 Retailer
               </TableHead>
               <TableHead className="text-zinc-700 font-medium">
-                Amount
-              </TableHead>
-              <TableHead className="text-zinc-700 font-medium">
                 Status
               </TableHead>
               <TableHead className="text-zinc-700 font-medium">Due</TableHead>
@@ -72,11 +68,6 @@ export default function InvoiceTable({ purchase }: PropType) {
                 </TableCell>
                 <TableCell className="py-3 align-top text-zinc-600">
                   {row.pharmacy.name}
-                </TableCell>
-                <TableCell className="py-3 align-top text-zinc-800 font-semibold">
-                  {formatINR(
-                    row.items.reduce((a, b) => a + b.unitPrice * b.quantity, 0) + + row.shipping
-                  )}
                 </TableCell>
                 <TableCell className="py-3 align-top">
                   <Badge

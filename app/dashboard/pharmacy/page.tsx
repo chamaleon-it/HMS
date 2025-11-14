@@ -144,8 +144,8 @@ function RxQueue() {
                 <div className="text-xs uppercase tracking-wide text-slate-500">
                   Patient
                 </div>
-                <div className="font-semibold text-lg">
-                  {selected?.patient?.name}
+                <div className="font-semibold text-lg flex items-center gap-1">
+                  <p>{selected?.patient?.name}</p> - <span className="text-sm">({selected?.patient.mrn})</span>
                 </div>
                 <div className="text-sm text-slate-700">
                   Age/Gender: {fAge(selected?.patient?.dateOfBirth)} /{" "}

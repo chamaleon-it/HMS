@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatINR } from "@/lib/fNumber";
 import { Eye } from "lucide-react";
 import React from "react";
 import { PurchaseType } from "./interface";
@@ -39,7 +38,6 @@ export default function PurchaseTable({purchase,total}:Props) {
                 <TableHead>Supplier</TableHead>
                 <TableHead>Created</TableHead>
                 <TableHead>Expected</TableHead>
-                <TableHead className="text-right">Total (₹)</TableHead>
                 <TableHead className="text-center">Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -51,9 +49,6 @@ export default function PurchaseTable({purchase,total}:Props) {
                   <TableCell>{row.wholesaler.name}</TableCell>
                   <TableCell>{fDateandTime(row.createdAt)}</TableCell>
                   <TableCell>{fDate(row.expectedDelivery)}</TableCell>
-                  <TableCell className="text-right">
-                    {formatINR(row.items.reduce((a,b)=>a+b.quantity*b.unitPrice,0)+row.shipping)}
-                  </TableCell>
                   <TableCell className="text-center">
                     <Badge
                       className={`rounded-full text-[11px] border bg-amber-200 text-amber-700 font-bold`}

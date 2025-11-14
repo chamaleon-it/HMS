@@ -16,7 +16,6 @@ export interface PurchaseType {
   expectedDelivery: Date;
   paymentTerms: string;
   items: Item[];
-  shipping: number;
   instructions: string;
   partialDelivery: boolean;
   urgent: boolean;
@@ -27,7 +26,6 @@ export interface PurchaseType {
 
 export interface Item {
   name: string;
-  unitPrice: number;
   quantity: number;
   notes: null;
   _id: string;

@@ -15,7 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatINR } from "@/lib/fNumber";
 import React from "react";
 import { PurchaseType } from "./interface";
 
@@ -55,7 +54,6 @@ export default function PurchaseTable({ purchase }: PropType) {
                 Order ID
               </TableHead>
               <TableHead className="text-zinc-700 font-medium">Items</TableHead>
-              <TableHead className="text-zinc-700 font-medium">Total</TableHead>
               <TableHead className="text-zinc-700 font-medium">
                 Status
               </TableHead>
@@ -79,11 +77,7 @@ export default function PurchaseTable({ purchase }: PropType) {
                 <TableCell className="py-3 align-top text-zinc-600">
                   {row.items.length}
                 </TableCell>
-                <TableCell className="py-3 align-top text-zinc-800 font-semibold">
-                  {formatINR(
-                    row.items.reduce((a, b) => a + b.quantity * b.unitPrice, 0) + row.shipping
-                  )}
-                </TableCell>
+
                 <TableCell className="py-3 align-top">
                   <Badge
                     className={`border bg-amber-200 text-amber-700 rounded-full text-[10px] font-medium px-2 py-0.5`}

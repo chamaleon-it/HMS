@@ -32,6 +32,7 @@ interface Doctor {
 interface Patient {
   _id: string;
   name: string;
+  mrn:string;
   phoneNumber: string;
   email: string;
   gender: string;

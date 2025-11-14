@@ -50,26 +50,7 @@ export default function LowStock() {
           </TableHeader>
 
           <TableBody>
-            {[
-              {
-                name: "T Dolo 650 mg",
-                gen: "(Gen: Paracetamol)",
-                qty: "12 strips",
-                min: "Min 50",
-              },
-              {
-                name: "T Xtan 40 mg",
-                gen: "(Gen: Telmisartan)",
-                qty: "4 strips",
-                min: "Min 30",
-              },
-              {
-                name: "Azithro 500 mg",
-                gen: "(Gen: Azithromycin)",
-                qty: "0 box",
-                min: "Min 10",
-              },
-            ].map((row, i) => (
+            {[].map((row: Record<string, string | number>, i) => (
               <TableRow key={i} className="border-zinc-100 hover:bg-zinc-50/50">
                 <TableCell className="py-3 align-top text-zinc-800 font-medium">
                   <div className="leading-tight">

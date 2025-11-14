@@ -5,7 +5,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { formatINR } from "@/lib/fNumber";
 import { AlertTriangle } from "lucide-react";
 import React from "react";
 
@@ -22,7 +21,7 @@ export default function AlertMessage() {
       </CardHeader>
 
       <CardContent className="flex flex-col gap-3 text-[13px] text-amber-800">
-        <div className="bg-white/70 border border-amber-200 rounded-xl px-3 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.03)]">
+        {/* <div className="bg-white/70 border border-amber-200 rounded-xl px-3 py-2 shadow-[0_8px_24px_rgba(0,0,0,0.03)]">
           <div className="font-medium text-[13px] text-amber-900">
             Payment overdue
           </div>
@@ -47,7 +46,7 @@ export default function AlertMessage() {
           <div className="text-[12px] text-amber-700 leading-snug">
             Monthly GST filing due in 2 days.
           </div>
-        </div>
+        </div> */}
       </CardContent>
     </Card>
   );
