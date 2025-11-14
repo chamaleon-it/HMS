@@ -1,182 +1,26 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import AppShell from "@/components/layout/app-shell";
 import { useParams, useRouter } from "next/navigation";
 import { formatINR } from "@/lib/fNumber";
-import { fDate } from "@/lib/fDateAndTime";
-
-interface PatientVisitItem {
-  sl: number;
-  brand: string;
-  generic: string;
-  qty: number;
-  mrp: number;
-}
-
-interface PatientVisit {
-  date: string;
-  rxId: string;
-  billNo: string;
-  items: PatientVisitItem[];
-}
-
-interface PatientRecord {
-  id: string;
-  name: string;
-  age: number;
-  gender: "M" | "F" | "O";
-  phone: string;
-  address: string;
-  visits: PatientVisit[];
-}
-
-const patientsMock: PatientRecord[] = [
-  {
-    id: "PT-1001",
-    name: "Ameen K",
-    age: 34,
-    gender: "M",
-    phone: "+91 98xxxxxx21",
-    address: "Nilambur, Kerala",
-    visits: [
-      {
-        date: fDate(new Date()),
-        rxId: "RX-2401",
-        billNo: "B-10245",
-        items: [
-          {
-            sl: 1,
-            brand: "T Dolo 650 mg",
-            generic: "Paracetamol / Acetaminophen",
-            qty: 1,
-            mrp: 35,
-          },
-          {
-            sl: 2,
-            brand: "T Cetirizine 10 mg",
-            generic: "Cetirizine HCl",
-            qty: 1,
-            mrp: 28,
-          },
-        ],
-      },
-      {
-        date: "12 Nov 2025",
-        rxId: "RX-2388",
-        billNo: "B-10198",
-        items: [
-          {
-            sl: 1,
-            brand: "ORS 21g Sachet",
-            generic: "Oral Rehydration Salts",
-            qty: 2,
-            mrp: 18,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "PT-1002",
-    name: "Nadisha M",
-    age: 28,
-    gender: "F",
-    phone: "+91 97xxxxxx12",
-    address: "Kochi, Kerala",
-    visits: [
-      {
-        date: fDate(new Date()),
-        rxId: "RX-2402",
-        billNo: "B-10246",
-        items: [
-          {
-            sl: 1,
-            brand: "Cap Amoxicillin 500 mg",
-            generic: "Amoxicillin",
-            qty: 1,
-            mrp: 95,
-          },
-          {
-            sl: 2,
-            brand: "Capsule Lactobacillus",
-            generic: "Probiotic (Lactobacillus)",
-            qty: 1,
-            mrp: 120,
-          },
-        ],
-      },
-    ],
-  },
-  {
-    id: "PT-1003",
-    name: "S. Kumar",
-    age: 41,
-    gender: "M",
-    phone: "+91 90xxxxxx88",
-    address: "Calicut, Kerala",
-    visits: [],
-  },
-];
-
-function sumVisit(visit: PatientVisit) {
-  return visit.items.reduce((acc, it) => acc + it.qty * it.mrp, 0);
-}
-
-function sumPatient(p: PatientRecord) {
-  return p.visits.reduce((acc, v) => acc + sumVisit(v), 0);
-}
-
-function lastPurchaseDate(p: PatientRecord) {
-  if (!p.visits.length) return "—";
-
-  return p.visits[0].date;
-}
-
-function avgTicket(p: PatientRecord) {
-  if (!p.visits.length) return 0;
-  return sumPatient(p) / p.visits.length;
-}
+import { fAge, fDate } from "@/lib/fDateAndTime";
+import useSWR from "swr";
+import { CustomerType, Order } from "./interface";
 
 const Customer: React.FC = () => {
   const router = useRouter();
-
   const { id } = useParams();
-  const [selected, setSelected] = useState<PatientRecord | null>(null);
-
-  useEffect(() => {
-    setSelected(patientsMock.find((e) => e.id === id) ?? null);
-  }, [id]);
-
-  const [selectedVisit, setSelectedVisit] = useState<PatientVisit | null>(null);
+  const { data: customerData } = useSWR<CustomerType>(
+    `/pharmacy/orders/customers/${id}`
+  );
+  const customer = customerData?.data;
+  const [selectedVisit, setSelectedVisit] = useState<Order | null>(null);
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
-
-  const handlePrint = () => {
-    if (typeof window !== "undefined" && (window as Window).print) {
-      (window as Window).print();
-    }
-  };
-
-  if (!selected) return null;
-  const v = selectedVisit;
-  const hasHistory = selected.visits.length > 0;
-
-  const filteredBills = selected.visits.filter((bill) => {
-    if (!dateFrom && !dateTo) return true;
-    const billDate = new Date(bill.date);
-    if (dateFrom) {
-      const from = new Date(dateFrom);
-      if (billDate < from) return false;
-    }
-    if (dateTo) {
-      const to = new Date(dateTo);
-      if (billDate > to) return false;
-    }
-    return true;
-  });
+  const handlePrint = () => {};
 
   return (
     <AppShell>
@@ -196,25 +40,26 @@ const Customer: React.FC = () => {
 
           <div className="border rounded-2xl bg-white shadow-sm px-5 py-4 flex flex-wrap items-start gap-4">
             <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white text-lg font-semibold">
-              {selected.name.charAt(0)}
+              {customer?.patient.name.charAt(0)}
             </div>
             <div className="flex-1 min-w-[220px]">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-                  {selected.name}
+                  {customer?.patient.name}
                 </h1>
                 <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                  UHID: {selected.id}
+                  {customer?.patient.mrn}
                 </span>
               </div>
               <p className="text-sm text-slate-600 mt-1">
-                Age {selected.age} / {selected.gender} • Ph: {selected.phone}
+                Age {fAge(customer?.patient.dateOfBirth)} /{" "}
+                {customer?.patient.gender} • Ph: {customer?.patient.phoneNumber}
               </p>
               <p className="text-sm text-slate-500 mt-0.5">
-                {selected.address}
+                {customer?.patient.address}
               </p>
               <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
-                {!hasHistory && (
+                {customer?.orders.length === 0 && (
                   <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
                     No purchase history yet
                   </span>
@@ -229,7 +74,7 @@ const Customer: React.FC = () => {
                 Total Spend
               </div>
               <div className="text-2xl font-semibold text-emerald-900">
-                {formatINR(sumPatient(selected))}
+                {formatINR(customer?.totalSpend ?? 0)}
               </div>
             </div>
             <div className="border rounded-2xl p-4 bg-gradient-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
@@ -237,7 +82,7 @@ const Customer: React.FC = () => {
                 Total Visits
               </div>
               <div className="text-3xl font-semibold text-sky-900">
-                {selected.visits.length}
+                {customer?.totalVisit}
               </div>
             </div>
             <div className="border rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
@@ -245,7 +90,7 @@ const Customer: React.FC = () => {
                 Last Purchase
               </div>
               <div className="text-sm font-semibold text-violet-900">
-                {lastPurchaseDate(selected)}
+                {fDate(customer?.lastPurchase)}
               </div>
             </div>
             <div className="border rounded-2xl p-4 bg-gradient-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
@@ -253,7 +98,7 @@ const Customer: React.FC = () => {
                 Avg Ticket
               </div>
               <div className="text-2xl font-semibold text-amber-900">
-                {formatINR(avgTicket(selected) || 0)}
+                {formatINR(customer?.averageSpend || 0)}
               </div>
             </div>
           </section>
@@ -263,13 +108,14 @@ const Customer: React.FC = () => {
               <div className="px-4 py-3 bg-slate-900 text-slate-50 flex items-center justify-between">
                 <div className="text-sm font-medium flex items-center gap-2">
                   <span className="h-7 w-7 rounded-full bg-slate-800 flex items-center justify-center text-[11px]">
-                    {selected.visits.length}
+                    {customer?.totalVisit}
                   </span>
                   Bills / Visits
                 </div>
                 <div className="text-[11px] text-slate-200">
-                  {selected.visits.length || "No"} bill
-                  {selected.visits.length === 1 ? "" : "s"}
+                  {customer?.totalVisit !== 0 ? customer?.totalVisit : "No"}{" "}
+                  bill
+                  {customer?.totalVisit === 1 ? "" : "s"}
                 </div>
               </div>
 
@@ -304,24 +150,24 @@ const Customer: React.FC = () => {
               </div>
 
               <div className="flex-1 overflow-y-auto divide-y">
-                {selected.visits.length === 0 && (
+                {customer?.totalVisit === 0 && (
                   <div className="p-4 text-xs text-slate-500">
                     No purchase history for this patient.
                   </div>
                 )}
 
-                {selected.visits.length > 0 && filteredBills.length === 0 && (
+                {customer?.orders.length === 0 && (
                   <div className="p-4 text-xs text-slate-500">
                     No bills in this date range.
                   </div>
                 )}
 
-                {filteredBills.map((bill) => {
-                  const amount = sumVisit(bill);
-                  const active = v && v.rxId === bill.rxId;
+                {customer?.orders.map((bill) => {
+                  const active =
+                    selectedVisit && selectedVisit._id === bill._id;
                   return (
                     <button
-                      key={bill.rxId}
+                      key={bill._id}
                       type="button"
                       onClick={() => setSelectedVisit(bill)}
                       className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${
@@ -332,14 +178,19 @@ const Customer: React.FC = () => {
                     >
                       <div className="flex items-center justify-between gap-2">
                         <span className="font-medium">
-                          {bill.date} • {bill.billNo}
+                          {fDate(bill.createdAt)} • {bill.mrn}
                         </span>
                         <span className="text-xs font-semibold">
-                          {formatINR(amount)}
+                          {formatINR(
+                            bill.items.reduce(
+                              (a, b) => a + b.quantity * b.name.unitPrice,
+                              0
+                            )
+                          )}
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-2 text-[12px]">
-                        <span className="opacity-80">RX: {bill.rxId}</span>
+                        <span className="opacity-80">RX: {bill.mrn}</span>
                         <span
                           className={active ? "opacity-80" : "text-slate-500"}
                         >
@@ -356,33 +207,35 @@ const Customer: React.FC = () => {
             <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
               <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                 <div className="text-sm font-semibold text-slate-900">
-                  {v ? `Bill Details — ${v.billNo}` : "Bill Details"}
+                  {selectedVisit
+                    ? `Bill Details — ${selectedVisit?.mrn}`
+                    : "Bill Details"}
                 </div>
-                {v && (
+                {selectedVisit && (
                   <div className="text-[11px] text-slate-500 flex flex-col items-end">
                     <span>
                       Date:{" "}
                       <span className="font-medium text-slate-700">
-                        {v.date}
+                        {fDate(selectedVisit.createdAt)}
                       </span>
                     </span>
                     <span>
                       RX ID:{" "}
                       <span className="font-medium text-slate-700">
-                        {v.rxId}
+                        {selectedVisit.mrn}
                       </span>
                     </span>
                   </div>
                 )}
               </div>
 
-              {!v && (
+              {!selectedVisit && (
                 <div className="p-6 text-sm text-slate-500">
                   Select a bill on the left to see its item-wise details.
                 </div>
               )}
 
-              {v && (
+              {selectedVisit && (
                 <>
                   <div className="flex-1 overflow-auto">
                     <table className="w-full text-[15px]">
@@ -398,29 +251,29 @@ const Customer: React.FC = () => {
                         </tr>
                       </thead>
                       <tbody>
-                        {v.items.map((it) => {
-                          const amount = it.qty * it.mrp;
+                        {selectedVisit.items.map((it, i) => {
+                          const amount = it.quantity * it.name.unitPrice;
                           return (
                             <tr
-                              key={it.sl}
+                              key={it.name.name}
                               className="border-t align-top hover:bg-slate-50/70 transition-colors"
                             >
                               <td className="p-2 align-top text-slate-500">
-                                {it.sl}
+                                {i}
                               </td>
                               <td className="p-2 align-top">
                                 <div className="font-medium text-slate-900 leading-snug">
-                                  {it.brand}
+                                  {it.name.name}
                                 </div>
                                 <div className="text-[12px] text-slate-600 leading-snug">
-                                  (Gen: {it.generic})
+                                  (Gen: {it.name.generic})
                                 </div>
                               </td>
                               <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
-                                {it.qty}
+                                {it.quantity}
                               </td>
                               <td className="p-2 align-top text-right text-slate-800">
-                                {formatINR(it.mrp)}
+                                {formatINR(it.name.unitPrice)}
                               </td>
                               <td className="p-2 align-top text-right font-semibold text-slate-900">
                                 {formatINR(amount)}
@@ -429,7 +282,7 @@ const Customer: React.FC = () => {
                           );
                         })}
 
-                        {v.items.length === 0 && (
+                        {selectedVisit.items.length === 0 && (
                           <tr>
                             <td
                               className="p-3 text-center text-slate-500"
@@ -449,7 +302,12 @@ const Customer: React.FC = () => {
                             Total
                           </td>
                           <td className="p-2 text-right text-sm font-semibold text-slate-900">
-                            {formatINR(sumVisit(v))}
+                            {formatINR(
+                              selectedVisit.items.reduce(
+                                (a, b) => a + b.quantity * b.name.unitPrice,
+                                0
+                              )
+                            )}
                           </td>
                         </tr>
                       </tfoot>

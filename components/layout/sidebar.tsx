@@ -11,6 +11,7 @@ import {
   Warehouse,
   Undo2,
   ShoppingCart,
+  Users,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -94,7 +95,7 @@ export function Sidebar() {
        {
         key: "customers",
         label: "Customers",
-        icon: Warehouse,
+        icon: Users,
         link: "/dashboard/pharmacy/customers",
       },
       {
