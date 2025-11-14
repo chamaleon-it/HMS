@@ -52,10 +52,11 @@ export default function LoginPage() {
         redirect("/dashboard/doctor");
       } else if (user.role === "Pharmacy") {
         redirect("/dashboard/pharmacy");
-      }else if (user.role === "Pharmacy Wholesaler") {
+      } else if (user.role === "Pharmacy Wholesaler") {
         redirect("/dashboard/pharmacy-wholesaler");
+      } else if (user.role === "Lab") {
+        redirect("/dashboard/lab");
       }
-
     }
   }
 

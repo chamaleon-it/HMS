@@ -117,11 +117,32 @@ export function Sidebar() {
         icon: LayoutDashboard,
         link: "/dashboard/pharmacy-wholesaler",
       },
-       {
+      {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
         link: "/dashboard/pharmacy-wholesaler/billing",
+      },
+    ]) ||
+    (user?.role === "Lab" && [
+      {
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        link: "/dashboard/lab",
+      },
+
+      {
+        key: "investigations",
+        label: "Investigations",
+        icon: FlaskConical,
+        link: "/dashboard/lab/investigations",
+      },
+      {
+        key: "billing",
+        label: "Billing",
+        icon: CreditCard,
+        link: "/dashboard/lab/billing",
       },
     ]) ||
     [];
