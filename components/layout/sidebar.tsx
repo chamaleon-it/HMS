@@ -214,13 +214,24 @@ export function Sidebar() {
           link={"/dashboard/pharmacy/settings"}
         />}
 
-        {user?.role !== "Pharmacy" && <NavItem
+
+         {user?.role === "Pharmacy Wholesaler" && <NavItem
+          active={pathname === "/dashboard/pharmacy-wholesaler/settings"}
+          collapsed={collapsed}
+          icon={Settings}
+          label="Settings"
+          link={"/dashboard/pharmacy-wholesaler/settings"}
+        />}
+
+        {user?.role === "Doctor"  && <NavItem
           active={pathname === "/dashboard/doctor/settings"}
           collapsed={collapsed}
           icon={Settings}
           label="Settings"
           link={"/dashboard/doctor/settings"}
         />}
+
+
       </nav>
 
       
