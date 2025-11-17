@@ -27,10 +27,11 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
 import { fDate } from "@/lib/fDateAndTime";
-import { ArrowLeft, ChevronDownIcon, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon,  Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import useSWR from "swr";
+import SelectMedicine from "./SelectItem";
 
 interface State {
   wholesaler: null | string;
@@ -123,9 +124,6 @@ function PurchaseOrder({
       toast.error("Some product has quantity is zero.");
       return;
     }
-
-
-
 
     try {
       await toast.promise(api.post("/pharmacy/purchase", state), {
@@ -248,9 +246,7 @@ function PurchaseOrder({
           </div>
         </div>
 
-        <div className="flex gap-2 ml-auto">
-        
-        </div>
+        <div className="flex gap-2 ml-auto"></div>
       </header>
 
       {/* SUPPLIER CARD */}
@@ -320,17 +316,14 @@ function PurchaseOrder({
           </div>
 
           <div className="grid gap-2">
-            
-           
-
             {/* Expected + Terms */}
             <div className="grid grid-cols-2 gap-4">
-              <div >
+              <div>
                 <Label className="text-sm font-medium">
                   Expected delivery <span className="text-red-500">*</span>
                 </Label>
 
-                <Popover open={openCalander} onOpenChange={setOpenCalander} >
+                <Popover open={openCalander} onOpenChange={setOpenCalander}>
                   <PopoverTrigger asChild className="mt-2">
                     <Button
                       variant="outline"
@@ -369,7 +362,7 @@ function PurchaseOrder({
                 </Popover>
               </div>
 
-              <div >
+              <div>
                 <Label className="text-sm font-medium">
                   Payment terms <span className="text-red-500">*</span>
                 </Label>
@@ -380,7 +373,7 @@ function PurchaseOrder({
                   value={state.paymentTerms ?? ""}
                 >
                   <SelectTrigger className="rounded-md h-10 mt-2 max-w-[150px] w-full">
-                    <SelectValue placeholder="Select" /> 
+                    <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl shadow-lg">
                     <SelectItem value="cod">Cash on delivery</SelectItem>
@@ -391,7 +384,7 @@ function PurchaseOrder({
               </div>
             </div>
 
-             <div className="grid gap-2">
+            <div className="grid gap-2">
               <Label className="text-sm font-medium">
                 Delivery address <span className="text-red-500">*</span>
               </Label>
@@ -407,9 +400,8 @@ function PurchaseOrder({
                 value={state.deliveryAddress ?? ""}
               />
             </div>
-<div className=""></div>
-<div className=""></div>
-
+            <div className=""></div>
+            <div className=""></div>
           </div>
         </CardContent>
       </Card>
@@ -421,34 +413,12 @@ function PurchaseOrder({
             Items
           </CardTitle>
 
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
-            <Input
-              placeholder="Type product"
-              className="h-10 rounded-xl sm:w-[220px]"
-              onChange={(e) => setMedicine(e.target.value)}
-              value={medicine ?? ""}
-              ref={medicineRef}
-              onKeyDown={(e) => {
-                if (!medicine) return;
-
-                if (e.key === "Enter" || e.key === "Tab") {
-                  e.preventDefault();
-                  addItems(medicine);
-                }
-              }}
-            />
-            <Button
-              size="sm"
-              variant="outline"
-              className="rounded-xl h-10 gap-1 text-sm bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white"
-              onClick={() => {
-                if (!medicine) return;
-                addItems(medicine);
-              }}
-            >
-              <Plus className="h-4 w-4" /> Add Item
-            </Button>
-          </div>
+          <SelectMedicine
+            addItems={addItems}
+            medicine={medicine}
+            medicineRef={medicineRef}
+            setMedicine={setMedicine}
+          />
         </CardHeader>
 
         <CardContent className="space-y-6">
@@ -458,7 +428,7 @@ function PurchaseOrder({
                 <TableRow>
                   <TableHead className="w-[28%]">Item</TableHead>
                   <TableHead className="w-[10%]">Quantity</TableHead>
-                 
+
                   <TableHead className="w-[30%]">Notes</TableHead>
                   <TableHead className="w-[10%] text-center">Remove</TableHead>
                 </TableRow>
@@ -467,14 +437,12 @@ function PurchaseOrder({
               <TableBody>
                 {state.items.map((row, idx) => {
                   return (
-                    <TableRow key={idx} >
+                    <TableRow key={idx}>
                       <TableCell className="">
                         <div className="text-md font-bold">
                           {row.name || "—"}
                         </div>
                       </TableCell>
-
-                      
 
                       <TableCell className="py-4  text-right">
                         <Input
@@ -483,15 +451,13 @@ function PurchaseOrder({
                           className="h-9 rounded-lg text-right"
                           value={row.quantity === 0 ? "" : row.quantity}
                           placeholder="0"
-                            onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                          onFocus={(e) => (e.target.placeholder = "")}
+                          onBlur={(e) => (e.target.placeholder = "0")}
                           onChange={(e) =>
                             updateItems(row.name, "quantity", e.target.value)
                           }
                         />
                       </TableCell>
-
-                   
 
                       <TableCell className="py-4 align-top">
                         <Textarea
@@ -521,8 +487,6 @@ function PurchaseOrder({
               </TableBody>
             </Table>
           </div>
-
-       
         </CardContent>
       </Card>
 
@@ -602,7 +566,6 @@ function PurchaseOrder({
           </div>
         </CardContent>
       </Card>
-
     </div>
   );
 }
