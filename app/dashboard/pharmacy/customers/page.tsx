@@ -61,8 +61,8 @@ const Customers: React.FC = () => {
 
           <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
             <Table>
-              <TableHeader className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900">
-                <TableRow className="text-sm">
+              <TableHeader className="">
+                <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
                   <TableHead className="text-white py-3">Sl</TableHead>
                   <TableHead className="text-white py-3">Customers</TableHead>
                   <TableHead className="text-white py-3">UHID</TableHead>

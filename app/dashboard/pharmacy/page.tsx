@@ -182,8 +182,8 @@ function RxQueue() {
 
             {/* Items List */}
             <div className="rounded-lg border overflow-hidden">
-              <table className="w-full text-[15px]">
-                <thead className="bg-slate-50 text-slate-700 w-full">
+              <table className="w-full text-[15px] rounded-xl">
+                <thead className="bg-slate-700 hover:bg-slate-700 text-white ">
                   <tr className="w-full">
                     <th className="w-[5%] p-2 text-left">Sl</th>
                     <th className="w-[25%] p-2 text-left">Medicine</th>

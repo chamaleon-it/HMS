@@ -23,9 +23,11 @@ export default function OrderTable({
   handleDelete: (rx: OrderType) => void;
 }) {
   return (
+    <div className="rounded-2xl overflow-hidden">  
+    
     <Table>
-      <TableHeader className="bg-slate-700">
-        <TableRow>
+      <TableHeader className="bg-slate-700 hover:bg-slate-700">
+        <TableRow className="bg-slate-700 hover:bg-slate-700">
           <TableHead className="text-white font-semibold">
             <Checkbox />
           </TableHead>
@@ -98,6 +100,7 @@ export default function OrderTable({
         ))}
       </TableBody>
     </Table>
+    </div>
   );
 }
 

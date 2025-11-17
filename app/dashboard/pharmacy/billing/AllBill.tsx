@@ -44,18 +44,18 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
           <div className="text-sm font-semibold">Bills</div>
           <div className="text-xs text-slate-500">{billing.length} results</div>
         </div>
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto rounded-xl ">
           <table className="w-full table-fixed text-sm">
-            <thead className="sticky top-0 z-10 bg-white/80 backdrop-blur">
-              <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-                <th className="py-2 text-left">Invoice</th>
+            <thead className="sticky top-0 z-10 bg-slate-700 backdrop-blur">
+              <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-white ">
+                <th className="py-2 text-left pl-2">Invoice</th>
                 <th className="py-2 text-left">Date</th>
                 <th className="py-2 text-left">Patient</th>
                 <th className="py-2 text-right">Items</th>
                 <th className="py-2 text-right">Total</th>
                 <th className="py-2 text-right">Paid</th>
                 <th className="py-2 text-right">Due</th>
-                <th className="py-2 text-center">Status</th>
+                <th className="py-2 text-center ">Status</th>
               </tr>
             </thead>
             <tbody>
@@ -64,7 +64,7 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                   key={b._id}
                   className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50"
                 >
-                  <td className="py-2 pr-2">
+                  <td className="py-2 px-2">
                     <div className="font-medium">{b.mrn}</div>
                     <div className="text-[11px] text-slate-500 space-x-1">
                       {Boolean(b.cash) && <MethodPill m="cash" />}
