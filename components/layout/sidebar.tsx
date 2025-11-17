@@ -206,14 +206,24 @@ export function Sidebar() {
         {/* Divider */}
         <div className="my-3 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
-        <NavItem
+        {user?.role === "Pharmacy" && <NavItem
+          active={pathname === "/dashboard/pharmacy/settings"}
+          collapsed={collapsed}
+          icon={Settings}
+          label="Settings"
+          link={"/dashboard/pharmacy/settings"}
+        />}
+
+        {user?.role !== "Pharmacy" && <NavItem
           active={pathname === "/dashboard/doctor/settings"}
           collapsed={collapsed}
           icon={Settings}
           label="Settings"
           link={"/dashboard/doctor/settings"}
-        />
+        />}
       </nav>
+
+      
 
       {/* Account card */}
       <div className="mt-auto p-4">

@@ -9,11 +9,12 @@ import { formatINR } from "@/lib/fNumber";
 import { fAge, fDate } from "@/lib/fDateAndTime";
 import useSWR from "swr";
 import { CustomerType, Order } from "./interface";
+import { EmptyPurchases } from "./EmptyPurchases";
 
 const Customer: React.FC = () => {
   const router = useRouter();
   const { id } = useParams();
-  const { data: customerData } = useSWR<CustomerType>(
+  const { data: customerData, error } = useSWR<CustomerType>(
     `/pharmacy/orders/customers/${id}`
   );
   const customer = customerData?.data;
@@ -37,299 +38,306 @@ const Customer: React.FC = () => {
               Back to customers
             </Button>
           </div>
-
-          <div className="border rounded-2xl bg-white shadow-sm px-5 py-4 flex flex-wrap items-start gap-4">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white text-lg font-semibold">
-              {customer?.patient.name.charAt(0)}
-            </div>
-            <div className="flex-1 min-w-[220px]">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-                  {customer?.patient.name}
-                </h1>
-                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                  {customer?.patient.mrn}
-                </span>
+          {
+            error && <EmptyPurchases />
+          }
+          {!error && <>
+            <div className="border rounded-2xl bg-white shadow-sm px-5 py-4 flex flex-wrap items-start gap-4">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white text-lg font-semibold">
+                {customer?.patient?.name?.charAt(0)}
               </div>
-              <p className="text-sm text-slate-600 mt-1">
-                Age {fAge(customer?.patient.dateOfBirth)} /{" "}
-                {customer?.patient.gender} • Ph: {customer?.patient.phoneNumber}
-              </p>
-              <p className="text-sm text-slate-500 mt-0.5">
-                {customer?.patient.address}
-              </p>
-              <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
-                {customer?.orders.length === 0 && (
-                  <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
-                    No purchase history yet
+              <div className="flex-1 min-w-[220px]">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                    {customer?.patient?.name}
+                  </h1>
+                  <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                    {customer?.patient?.mrn}
                   </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="border rounded-2xl p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-              <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
-                Total Spend
-              </div>
-              <div className="text-2xl font-semibold text-emerald-900">
-                {formatINR(customer?.totalSpend ?? 0)}
-              </div>
-            </div>
-            <div className="border rounded-2xl p-4 bg-gradient-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-              <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
-                Total Visits
-              </div>
-              <div className="text-3xl font-semibold text-sky-900">
-                {customer?.totalVisit}
-              </div>
-            </div>
-            <div className="border rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-              <div className="text-xs font-medium text-violet-700 uppercase tracking-wide">
-                Last Purchase
-              </div>
-              <div className="text-sm font-semibold text-violet-900">
-                {fDate(customer?.lastPurchase)}
-              </div>
-            </div>
-            <div className="border rounded-2xl p-4 bg-gradient-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-              <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
-                Avg Ticket
-              </div>
-              <div className="text-2xl font-semibold text-amber-900">
-                {formatINR(customer?.averageSpend || 0)}
-              </div>
-            </div>
-          </section>
-
-          <section className="grid gap-5 md:grid-cols-5 items-start">
-            <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
-              <div className="px-4 py-3 bg-slate-900 text-slate-50 flex items-center justify-between">
-                <div className="text-sm font-medium flex items-center gap-2">
-                  <span className="h-7 w-7 rounded-full bg-slate-800 flex items-center justify-center text-[11px]">
-                    {customer?.totalVisit}
-                  </span>
-                  Bills / Visits
                 </div>
-                <div className="text-[11px] text-slate-200">
-                  {customer?.totalVisit !== 0 ? customer?.totalVisit : "No"}{" "}
-                  bill
-                  {customer?.totalVisit === 1 ? "" : "s"}
+                <p className="text-sm text-slate-600 mt-1">
+                  Age {fAge(customer?.patient?.dateOfBirth)} /{" "}
+                  {customer?.patient?.gender} • Ph:{" "}
+                  {customer?.patient?.phoneNumber}
+                </p>
+                <p className="text-sm text-slate-500 mt-0.5">
+                  {customer?.patient?.address}
+                </p>
+                <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
+                  {customer?.orders.length === 0 && (
+                    <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
+                      No purchase history yet
+                    </span>
+                  )}
                 </div>
               </div>
+            </div>
 
-              <div className="px-4 py-3 bg-slate-50 border-b flex items-center gap-3 text-[12px] text-slate-700">
-                <span className="font-medium">Filter:</span>
-                <Input
-                  type="date"
-                  className="h-8 text-xs bg-white border-slate-300"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                />
-                <span className="text-slate-500">to</span>
-                <Input
-                  type="date"
-                  className="h-8 text-xs bg-white border-slate-300"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                />
-                {(dateFrom || dateTo) && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 text-[11px] px-3"
-                    onClick={() => {
-                      setDateFrom("");
-                      setDateTo("");
-                    }}
-                  >
-                    Clear
-                  </Button>
-                )}
+            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="border rounded-2xl p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
+                  Total Spend
+                </div>
+                <div className="text-2xl font-semibold text-emerald-900">
+                  {formatINR(customer?.totalSpend ?? 0)}
+                </div>
               </div>
+              <div className="border rounded-2xl p-4 bg-gradient-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
+                  Total Visits
+                </div>
+                <div className="text-3xl font-semibold text-sky-900">
+                  {customer?.totalVisit}
+                </div>
+              </div>
+              <div className="border rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="text-xs font-medium text-violet-700 uppercase tracking-wide">
+                  Last Purchase
+                </div>
+                <div className="text-sm font-semibold text-violet-900">
+                  {fDate(customer?.lastPurchase)}
+                </div>
+              </div>
+              <div className="border rounded-2xl p-4 bg-gradient-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
+                  Avg Spend
+                </div>
+                <div className="text-2xl font-semibold text-amber-900">
+                  {formatINR(customer?.averageSpend || 0)}
+                </div>
+              </div>
+            </section>
 
-              <div className="flex-1 overflow-y-auto divide-y">
-                {customer?.totalVisit === 0 && (
-                  <div className="p-4 text-xs text-slate-500">
-                    No purchase history for this patient.
+            <section className="grid gap-5 md:grid-cols-5 items-start">
+              <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
+                <div className="px-4 py-3 bg-slate-900 text-slate-50 flex items-center justify-between">
+                  <div className="text-sm font-medium flex items-center gap-2">
+                    <span className="h-7 w-7 rounded-full bg-slate-800 flex items-center justify-center text-[11px]">
+                      {customer?.totalVisit}
+                    </span>
+                    Bills / Visits
                   </div>
-                )}
-
-                {customer?.orders.length === 0 && (
-                  <div className="p-4 text-xs text-slate-500">
-                    No bills in this date range.
+                  <div className="text-[11px] text-slate-200">
+                    {customer?.totalVisit !== 0 ? customer?.totalVisit : "No"}{" "}
+                    bill
+                    {customer?.totalVisit === 1 ? "" : "s"}
                   </div>
-                )}
+                </div>
 
-                {customer?.orders.map((bill) => {
-                  const active =
-                    selectedVisit && selectedVisit._id === bill._id;
-                  return (
-                    <button
-                      key={bill._id}
-                      type="button"
-                      onClick={() => setSelectedVisit(bill)}
-                      className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${
-                        active
-                          ? "bg-slate-900 text-slate-50"
-                          : "hover:bg-slate-50"
-                      }`}
+                <div className="px-4 py-3 bg-slate-50 border-b flex items-center gap-3 text-[12px] text-slate-700">
+                  <span className="font-medium">Filter:</span>
+                  <Input
+                    type="date"
+                    className="h-8 text-xs bg-white border-slate-300"
+                    value={dateFrom}
+                    onChange={(e) => setDateFrom(e.target.value)}
+                  />
+                  <span className="text-slate-500">to</span>
+                  <Input
+                    type="date"
+                    className="h-8 text-xs bg-white border-slate-300"
+                    value={dateTo}
+                    onChange={(e) => setDateTo(e.target.value)}
+                  />
+                  {(dateFrom || dateTo) && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-8 text-[11px] px-3"
+                      onClick={() => {
+                        setDateFrom("");
+                        setDateTo("");
+                      }}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="font-medium">
-                          {fDate(bill.createdAt)} • {bill.mrn}
-                        </span>
-                        <span className="text-xs font-semibold">
-                          {formatINR(
-                            bill.items.reduce(
-                              (a, b) => a + b.quantity * b.name.unitPrice,
-                              0
-                            )
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between gap-2 text-[12px]">
-                        <span className="opacity-80">RX: {bill.mrn}</span>
-                        <span
-                          className={active ? "opacity-80" : "text-slate-500"}
-                        >
-                          {bill.items.length} item
-                          {bill.items.length === 1 ? "" : "s"}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
-              <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
-                <div className="text-sm font-semibold text-slate-900">
-                  {selectedVisit
-                    ? `Bill Details — ${selectedVisit?.mrn}`
-                    : "Bill Details"}
+                      Clear
+                    </Button>
+                  )}
                 </div>
-                {selectedVisit && (
-                  <div className="text-[11px] text-slate-500 flex flex-col items-end">
-                    <span>
-                      Date:{" "}
-                      <span className="font-medium text-slate-700">
-                        {fDate(selectedVisit.createdAt)}
-                      </span>
-                    </span>
-                    <span>
-                      RX ID:{" "}
-                      <span className="font-medium text-slate-700">
-                        {selectedVisit.mrn}
-                      </span>
-                    </span>
-                  </div>
-                )}
-              </div>
 
-              {!selectedVisit && (
-                <div className="p-6 text-sm text-slate-500">
-                  Select a bill on the left to see its item-wise details.
-                </div>
-              )}
+                <div className="flex-1 overflow-y-auto divide-y">
+                  {customer?.totalVisit === 0 && (
+                    <div className="p-4 text-xs text-slate-500">
+                      No purchase history for this patient.
+                    </div>
+                  )}
 
-              {selectedVisit && (
-                <>
-                  <div className="flex-1 overflow-auto">
-                    <table className="w-full text-[15px]">
-                      <thead className="bg-slate-50 text-slate-700 sticky top-0 text-sm">
-                        <tr>
-                          <th className="p-2 text-left font-medium">Sl</th>
-                          <th className="p-2 text-left font-medium">
-                            Medicine
-                          </th>
-                          <th className="p-2 text-right font-medium">Qty</th>
-                          <th className="p-2 text-right font-medium">MRP</th>
-                          <th className="p-2 text-right font-medium">Amount</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {selectedVisit.items.map((it, i) => {
-                          const amount = it.quantity * it.name.unitPrice;
-                          return (
-                            <tr
-                              key={it.name.name}
-                              className="border-t align-top hover:bg-slate-50/70 transition-colors"
-                            >
-                              <td className="p-2 align-top text-slate-500">
-                                {i}
-                              </td>
-                              <td className="p-2 align-top">
-                                <div className="font-medium text-slate-900 leading-snug">
-                                  {it.name.name}
-                                </div>
-                                <div className="text-[12px] text-slate-600 leading-snug">
-                                  (Gen: {it.name.generic})
-                                </div>
-                              </td>
-                              <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
-                                {it.quantity}
-                              </td>
-                              <td className="p-2 align-top text-right text-slate-800">
-                                {formatINR(it.name.unitPrice)}
-                              </td>
-                              <td className="p-2 align-top text-right font-semibold text-slate-900">
-                                {formatINR(amount)}
-                              </td>
-                            </tr>
-                          );
-                        })}
+                  {customer?.orders.length === 0 && (
+                    <div className="p-4 text-xs text-slate-500">
+                      No bills in this date range.
+                    </div>
+                  )}
 
-                        {selectedVisit.items.length === 0 && (
-                          <tr>
-                            <td
-                              className="p-3 text-center text-slate-500"
-                              colSpan={5}
-                            >
-                              No items.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                      <tfoot>
-                        <tr className="border-t bg-slate-50/80">
-                          <td
-                            colSpan={4}
-                            className="p-2 text-right text-xs text-slate-600"
-                          >
-                            Total
-                          </td>
-                          <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                  {customer?.orders.map((bill) => {
+                    const active =
+                      selectedVisit && selectedVisit._id === bill._id;
+                    return (
+                      <button
+                        key={bill._id}
+                        type="button"
+                        onClick={() => setSelectedVisit(bill)}
+                        className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${
+                          active
+                            ? "bg-slate-900 text-slate-50"
+                            : "hover:bg-slate-50"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="font-medium">
+                            {fDate(bill.createdAt)} • {bill.mrn}
+                          </span>
+                          <span className="text-xs font-semibold">
                             {formatINR(
-                              selectedVisit.items.reduce(
+                              bill.items.reduce(
                                 (a, b) => a + b.quantity * b.name.unitPrice,
                                 0
                               )
                             )}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2 text-[12px]">
+                          <span className="opacity-80">RX: {bill.mrn}</span>
+                          <span
+                            className={active ? "opacity-80" : "text-slate-500"}
+                          >
+                            {bill.items.length} item
+                            {bill.items.length === 1 ? "" : "s"}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
 
-                  <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
-                    <div className="text-[12px] text-slate-500">
-                      Use Print bill to generate a hard copy. In production this
-                      can open a dedicated A5/A4 receipt template.
-                    </div>
-                    <Button
-                      className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                      onClick={handlePrint}
-                    >
-                      Print bill
-                    </Button>
+              <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
+                <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
+                  <div className="text-sm font-semibold text-slate-900">
+                    {selectedVisit
+                      ? `Bill Details — ${selectedVisit?.mrn}`
+                      : "Bill Details"}
                   </div>
-                </>
-              )}
-            </div>
-          </section>
+                  {selectedVisit && (
+                    <div className="text-[11px] text-slate-500 flex flex-col items-end">
+                      <span>
+                        Date:{" "}
+                        <span className="font-medium text-slate-700">
+                          {fDate(selectedVisit.createdAt)}
+                        </span>
+                      </span>
+                      <span>
+                        RX ID:{" "}
+                        <span className="font-medium text-slate-700">
+                          {selectedVisit.mrn}
+                        </span>
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {!selectedVisit && (
+                  <div className="p-6 text-sm text-slate-500">
+                    Select a bill on the left to see its item-wise details.
+                  </div>
+                )}
+
+                {selectedVisit && (
+                  <>
+                    <div className="flex-1 overflow-auto">
+                      <table className="w-full text-[15px]">
+                        <thead className="bg-slate-50 text-slate-700 sticky top-0 text-sm">
+                          <tr>
+                            <th className="p-2 text-left font-medium">Sl</th>
+                            <th className="p-2 text-left font-medium">
+                              Medicine
+                            </th>
+                            <th className="p-2 text-right font-medium">Qty</th>
+                            <th className="p-2 text-right font-medium">MRP</th>
+                            <th className="p-2 text-right font-medium">
+                              Amount
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selectedVisit.items.map((it, i) => {
+                            const amount = it.quantity * it.name.unitPrice;
+                            return (
+                              <tr
+                                key={it.name.name}
+                                className="border-t align-top hover:bg-slate-50/70 transition-colors"
+                              >
+                                <td className="p-2 align-top text-slate-500">
+                                  {i}
+                                </td>
+                                <td className="p-2 align-top">
+                                  <div className="font-medium text-slate-900 leading-snug">
+                                    {it.name.name}
+                                  </div>
+                                  <div className="text-[12px] text-slate-600 leading-snug">
+                                    (Gen: {it.name.generic})
+                                  </div>
+                                </td>
+                                <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
+                                  {it.quantity}
+                                </td>
+                                <td className="p-2 align-top text-right text-slate-800">
+                                  {formatINR(it.name.unitPrice)}
+                                </td>
+                                <td className="p-2 align-top text-right font-semibold text-slate-900">
+                                  {formatINR(amount)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+
+                          {selectedVisit.items.length === 0 && (
+                            <tr>
+                              <td
+                                className="p-3 text-center text-slate-500"
+                                colSpan={5}
+                              >
+                                No items.
+                              </td>
+                            </tr>
+                          )}
+                        </tbody>
+                        <tfoot>
+                          <tr className="border-t bg-slate-50/80">
+                            <td
+                              colSpan={4}
+                              className="p-2 text-right text-xs text-slate-600"
+                            >
+                              Total
+                            </td>
+                            <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                              {formatINR(
+                                selectedVisit.items.reduce(
+                                  (a, b) => a + b.quantity * b.name.unitPrice,
+                                  0
+                                )
+                              )}
+                            </td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+
+                    <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
+                      <div className="text-[12px] text-slate-500">
+                        Use Print bill to generate a hard copy. In production
+                        this can open a dedicated A5/A4 receipt template.
+                      </div>
+                      <Button
+                        className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                        onClick={handlePrint}
+                      >
+                        Print bill
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </section>
+          </>}
         </main>
       </div>
     </AppShell>

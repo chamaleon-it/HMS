@@ -1,3 +1,4 @@
+import { useAuth } from "@/auth/context/auth-context";
 import { fAge } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import { ChevronRight, MapPin, Phone, Search } from "lucide-react";
@@ -6,6 +7,7 @@ import React, { useState } from "react";
 import useSWR from "swr";
 
 export default function SearchBar() {
+  const {user} = useAuth()
   const [q, setQ] = useState<null | string>(null);
 
   const { data } = useSWR<{
@@ -30,6 +32,16 @@ export default function SearchBar() {
     }[];
   }>(q ? `/patients?query=${q}` : null);
 
+
+  const generateLink = (id:string)=> {
+    if(user?.role === "Pharmacy"){
+      return `/dashboard/pharmacy/customers/${id}`
+    }else{
+      return `/dashboard/doctor/patients/${id}`
+    }
+  }
+
+
   return (
     <div className="flex-1 max-w-2xl">
       <div className="relative">
@@ -48,7 +60,7 @@ export default function SearchBar() {
         {Boolean(data?.data.length) && (
           <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5">
             {data?.data.map((p) => (
-              <Link href={`/dashboard/doctor/patients/${p._id}`} className="block" key={p._id}>
+              <Link href={generateLink(p._id)} className="block" key={p._id}>
                 <PatientCard p={p}  />
               </Link>
             ))}
