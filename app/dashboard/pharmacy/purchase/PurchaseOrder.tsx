@@ -249,13 +249,7 @@ function PurchaseOrder({
         </div>
 
         <div className="flex gap-2 ml-auto">
-          <Button
-            className="rounded-xl h-9 px-4"
-            // For now assume we send and return to list
-            onClick={sendOrders}
-          >
-            Send Order
-          </Button>
+        
         </div>
       </header>
 
@@ -446,7 +440,7 @@ function PurchaseOrder({
             <Button
               size="sm"
               variant="outline"
-              className="rounded-xl h-10 gap-1 text-sm"
+              className="rounded-xl h-10 gap-1 text-sm bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white"
               onClick={() => {
                 if (!medicine) return;
                 addItems(medicine);
@@ -592,16 +586,7 @@ function PurchaseOrder({
               />
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-      <Card>
-        <div className="">
-          <div className="max-w-screen-xl mx-auto px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <div className="text-sm flex flex-col md:flex-row md:items-center md:gap-4 leading-tight">
-              <div className="font-medium">Items: {state.items.length}</div>
-            </div>
-
+          <div className="flex justify-end col-span-full">
             <div className="flex gap-2">
               <Button
                 variant="ghost"
@@ -615,8 +600,9 @@ function PurchaseOrder({
               </Button>
             </div>
           </div>
-        </div>
+        </CardContent>
       </Card>
+
     </div>
   );
 }

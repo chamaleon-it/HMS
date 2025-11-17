@@ -41,7 +41,7 @@ const Customers: React.FC = () => {
 
   return (
     <AppShell>
-      <div className="bg-slate-50 p-5">
+      <div className="bg-slate-50 p-5 min-h-[calc(100vh-80px)]">
         <main className="space-y-6">
           <div className="flex items-center justify-between gap-3">
             <div>
