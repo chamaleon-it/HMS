@@ -44,6 +44,7 @@ export default function BillingPage() {
   const { data: billingData, mutate: billingMutate } = useSWR<{
     message: string;
     data: {
+      roundOff:boolean;
       _id: string;
       mrn: string;
       createdAt: Date;
@@ -61,6 +62,28 @@ export default function BillingPage() {
   }>(`/billing?${params.toString()}`);
 
   const billing = billingData?.data ?? [];
+
+  const {data} = useSWR<{
+    message:string,
+    data:{
+pharmacy:{
+  billing:{
+    autoPrintAfterSave:boolean,
+    defaultGst?:number | undefined,
+    roundOff:boolean,
+    prefix:string
+  }
+}
+    }
+  }>("/users/profile")
+
+  const pharmacyBilling = data?.data.pharmacy.billing ?? {
+    autoPrintAfterSave:false,
+    roundOff:false,
+    prefix:"INV"
+  }
+
+  console.log(data);
 
   return (
     <AppShell>
@@ -98,7 +121,7 @@ export default function BillingPage() {
               />
             </TabsContent>
             <TabsContent value="new">
-              <CreateBill billingMutate={billingMutate} />
+              <CreateBill billingMutate={billingMutate} pharmacyBilling={pharmacyBilling}/>
             </TabsContent>
           </Tabs>
         </div>

@@ -17,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatINR } from "@/lib/fNumber";
+import useSWR from "swr";
 
 export default function InventoryPage() {
   const [openView, setOpenView] = useState(false);
@@ -64,6 +65,25 @@ export default function InventoryPage() {
     setOpenAdd(false);
   };
 
+  const { data } = useSWR<{
+    message: string;
+    data: {
+      pharmacy: {
+        inventory: {
+          lowStockThreshold: number;
+          expiryAlert: number;
+          allowNegativeStock: boolean;
+        };
+      };
+    };
+  }>("/users/profile");
+
+  const pharmacyInventory = data?.data.pharmacy.inventory ?? {
+    lowStockThreshold: 20,
+    expiryAlert: 90,
+    allowNegativeStock: false,
+  };
+
   return (
     <AppShell>
       <div className="p-5 min-h-[calc(100vh-80px)]">
@@ -86,12 +106,18 @@ export default function InventoryPage() {
             setFilter={setFilter}
             isBusy={isLoading || isValidating}
             mutate={mutate}
+            pharmacyInventory={pharmacyInventory}
           />
 
           {/* Footer */}
           <div className="flex justify-between text-sm text-gray-600">
             <p>Total Items: {items.length}</p>
-            <p>Total Value: {formatINR(items?.reduce(((a,b)=>a+(b.unitPrice * b.quantity)),0))}</p>
+            <p>
+              Total Value:{" "}
+              {formatINR(
+                items?.reduce((a, b) => a + b.unitPrice * b.quantity, 0)
+              )}
+            </p>
           </div>
         </div>
 
@@ -110,10 +136,20 @@ export default function InventoryPage() {
             </DialogHeader>
 
             <div className="p-2">
-              {openView && selectedItem && <ViewItem item={selectedItem} editItem={()=>{setOpenView(false);setOpenEdit(true)}} mutate={mutate}   onClose={() => {
+              {openView && selectedItem && (
+                <ViewItem
+                  item={selectedItem}
+                  editItem={() => {
+                    setOpenView(false);
+                    setOpenEdit(true);
+                  }}
+                  mutate={mutate}
+                  onClose={() => {
                     closeAll();
                     mutate();
-                  }}/>}
+                  }}
+                />
+              )}
 
               {openEdit && selectedItem && (
                 <EditItem

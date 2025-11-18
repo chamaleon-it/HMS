@@ -4,7 +4,7 @@ import AppShell from "@/components/layout/app-shell";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
-import { formatINR } from "@/lib/fNumber";
+import { formatINR, getDecimal } from "@/lib/fNumber";
 import { Download, Printer } from "lucide-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
@@ -40,6 +40,7 @@ export default function InvoiceView() {
         discount: number;
         total: number;
       }[];
+      roundOff: boolean;
       cash: number;
       online: number;
       insurance: number;
@@ -131,7 +132,6 @@ export default function InvoiceView() {
               <p className="mt-1">Pothukallu, Nilambur, Kerala</p>
               <p>+91 98765 43210</p>
               <p className="mt-1">Booking No: BK2025-00921</p>
-             
             </div>
           </div>
           <div className="p-8">
@@ -174,7 +174,10 @@ export default function InvoiceView() {
             <tbody>
               {billing?.items.map((item) => {
                 return (
-                  <tr className="border-b hover:bg-gray-50 transition" key={item.name}>
+                  <tr
+                    className="border-b hover:bg-gray-50 transition"
+                    key={item.name}
+                  >
                     <td className="p-4">{item.name}</td>
                     <td className="text-right p-4">{item.quantity}</td>
                     <td className="text-right p-4">
@@ -219,28 +222,62 @@ export default function InvoiceView() {
                 )}
               </span>
             </div>
-            <div className="flex justify-between py-2 font-semibold text-gray-900 border-t mt-2 pt-2">
-              <span>Total</span> <span>
+            <div className="flex justify-between py-1">
+              <span>Round off</span>{" "}
+              <span>
                 {formatINR(
-                  billing?.items?.reduce(
-                    (acc, { total }) =>
-                      acc +total,
-                    0
-                  ) ?? 0
+                  billing?.roundOff
+                    ? getDecimal(
+                        billing?.items?.reduce(
+                          (acc, { total }) => acc + total,
+                          0
+                        )
+                      )
+                    : 0
+                )}
+              </span>
+            </div>
+            <div className="flex justify-between py-2 font-semibold text-gray-900 border-t mt-2 pt-2">
+              <span>Total</span>{" "}
+              <span>
+                {formatINR(
+                  (billing?.items?.reduce((s, { total }) => s + total, 0) ??
+                    0) -
+                    getDecimal(
+                      billing?.items?.reduce((s, { total }) => s + total, 0) ??
+                        0
+                    )
                 )}
               </span>
             </div>
             <div className="flex justify-between py-1 text-sm text-green-700">
-              <span>Paid</span> <span>{formatINR((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))}</span>
+              <span>Paid</span>{" "}
+              <span>
+                {formatINR(
+                  (billing?.cash ?? 0) +
+                    (billing?.online ?? 0) +
+                    (billing?.insurance ?? 0)
+                )}
+              </span>
             </div>
             <div className="flex justify-between py-1 text-sm text-red-600">
-              <span>Due</span> <span>{formatINR(
-                  (billing?.items?.reduce(
-                    (acc, { total }) =>
-                      acc +total,
-                    0
-                  ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
-                )}</span>
+              <span>Due</span>{" "}
+              <span>
+                {formatINR(
+                  (billing?.items?.reduce((acc, { total }) => acc + total, 0) ??
+                    0) -
+                    ((billing?.cash ?? 0) +
+                      (billing?.online ?? 0) +
+                      (billing?.insurance ?? 0))
+
+                      -
+
+                       getDecimal(
+                      billing?.items?.reduce((s, { total }) => s + total, 0) ??
+                        0
+                    )
+                )}
+              </span>
             </div>
           </div>
         </div>

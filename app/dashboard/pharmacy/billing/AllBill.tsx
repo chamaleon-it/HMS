@@ -2,7 +2,7 @@ import { Eye } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import Filters from "./Filter";
-import { formatINR } from "@/lib/fNumber";
+import { formatINR, getDecimal } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { FilterType } from "./page";
 
@@ -15,6 +15,7 @@ interface PropsType {
   filter: FilterType;
    setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
+    roundOff:boolean;
     mrn: string;
     _id: string;
     createdAt: Date;
@@ -53,6 +54,7 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                 <th className="py-2 text-left">Patient</th>
                 <th className="py-2 text-right">Items</th>
                 <th className="py-2 text-right">Total</th>
+                <th className="py-2 text-right">Round off</th>
                 <th className="py-2 text-right">Paid</th>
                 <th className="py-2 text-right">Due</th>
                 <th className="py-2 text-center ">Status</th>
@@ -86,11 +88,15 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                     {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
                   </td>
                   <td className="py-2 pr-2 text-right tabular-nums">
+                    {(b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0)}
+                  </td>
+                  <td className="py-2 pr-2 text-right tabular-nums">
                     {formatINR(b.insurance + b.cash + b.online)}
                   </td>
                   <td className="py-2 pr-2 text-right tabular-nums">
                     {formatINR(
-                      b.items.reduce((a, b) => a + b.total, 0) -
+                      b.items.reduce((a, b) => a + b.total, 0)  - 
+                      (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
                         (b.insurance + b.cash + b.online)
                     )}
                   </td>
@@ -102,7 +108,7 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                             (sum, i) => sum + i.total,
                             0
                           );
-                          const paid = b.cash + b.online + b.insurance;
+                          const paid = b.cash + b.online + b.insurance + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
                           return total <= paid
                             ? "Paid"
                             : paid === 0
@@ -111,7 +117,7 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                         })()}
                       />
                       <Link
-                        href={`/dashboard/doctor/billing/${b._id}`}
+                        href={`/dashboard/pharmacy/billing/${b._id}`}
                         className="ml-2 inline-flex items-center rounded-md border border-slate-200 bg-white px-2 py-1 text-xs hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
                       >
                         <Eye className="mr-1 h-3.5 w-3.5" /> View

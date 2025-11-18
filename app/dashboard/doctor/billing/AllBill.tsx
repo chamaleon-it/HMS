@@ -15,6 +15,7 @@ interface PropsType {
   filter: FilterType;
    setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
+    roundOff:boolean
     mrn: string;
     _id: string;
     createdAt: Date;

@@ -19,6 +19,7 @@ import DeleteOrder from "./DeleteOrder";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import NewOrder from "./NewOrder";
 
 function Barcode({ value }: { value: string }) {
   const bars = Array.from(value || "").map(
@@ -108,18 +109,23 @@ function RxQueue() {
           <h2 className="text-lg font-semibold">RX Queue</h2>
           <p className="text-slate-600 text-sm">Live prescriptions</p>
         </div>
+        <div className="flex gap-5 items-center">
+
         <Tabs
           defaultValue="all"
           className="w-auto"
           value={filter.q}
           onValueChange={(v) => setFilter((prev) => ({ ...prev, q: v }))}
-        >
+          >
           <TabsList>
             <TabsTrigger value="all">All</TabsTrigger>
             <TabsTrigger value="stat">STAT</TabsTrigger>
             <TabsTrigger value="ready">Ready</TabsTrigger>
           </TabsList>
         </Tabs>
+
+        <NewOrder OrderMutate={OrderMutate}/>
+          </div>
       </div>
 
       <OrderTable

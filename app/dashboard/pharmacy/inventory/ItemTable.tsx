@@ -29,9 +29,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { formatINR } from "@/lib/fNumber";
 
-const getQtyColor = (qty: number) => {
+const getQtyColor = (qty: number,lowStockThreshold:number) => {
   if (qty === 0) return "bg-red-100 text-red-600 font-bold";
-  if (qty < 20) return "bg-orange-100 text-orange-600 font-bold";
+  if (qty < lowStockThreshold) return "bg-orange-100 text-orange-600 font-bold";
   return "";
 };
 
@@ -46,6 +46,11 @@ interface Props {
   setFilter: Dispatch<SetStateAction<FilterType>>;
   isBusy?: boolean; // to disable controls while loading
   mutate: () => void;
+  pharmacyInventory: {
+    lowStockThreshold: number;
+    expiryAlert: number;
+    allowNegativeStock: boolean;
+}
 }
 
 export default function ItemTable({
@@ -58,6 +63,7 @@ export default function ItemTable({
   setFilter,
   mutate,
   isBusy,
+  pharmacyInventory
 }: Props) {
   const deleteItem = useCallback(
     async (_id: string) => {
@@ -126,7 +132,7 @@ export default function ItemTable({
 
                   <TableCell>{item.sku}</TableCell>
                   <TableCell>{item.category}</TableCell>
-                  <TableCell className={getQtyColor(item.quantity)}>
+                  <TableCell className={getQtyColor(item.quantity,pharmacyInventory.lowStockThreshold)}>
                     {item.quantity}
                   </TableCell>
                   <TableCell>{formatINR(item.purchasePrice)}</TableCell>

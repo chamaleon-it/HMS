@@ -16,10 +16,10 @@ import {
   UserPlus,
   Wallet2,
 } from "lucide-react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fDate } from "@/lib/fDateAndTime";
-import { formatINR } from "@/lib/fNumber";
+import { formatINR, getDecimal } from "@/lib/fNumber";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -32,25 +32,40 @@ const theme = {
   accent: "#06b6d4",
 };
 
-const defaultPayload = {
+
+
+export default function CreateBill({
+  billingMutate,
+  pharmacyBilling
+}: {
+  billingMutate: () => void;
+  pharmacyBilling: {
+    autoPrintAfterSave: boolean;
+    defaultGst?: number | undefined;
+    roundOff: boolean;
+    prefix: string;
+}
+}) {
+
+
+  const defaultPayload = useMemo(() => ({
   patient: "",
   items: [],
   cash: 0,
   insurance: 0,
   online: 0,
-};
+  roundOff:pharmacyBilling.roundOff
+}), [pharmacyBilling.roundOff])
 
-export default function CreateBill({
-  billingMutate,
-}: {
-  billingMutate: () => void;
-}) {
+ 
+
   const router = useRouter();
 
   const [item, setItem] = useState<null | string>(null);
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
   const itemRef = useRef<null | HTMLInputElement>(null);
   const [payload, setPayload] = useState<{
+    roundOff:boolean,
     patient: string;
     items: {
       name: string;
@@ -85,7 +100,7 @@ export default function CreateBill({
               {
                 name: i,
                 discount: 0,
-                gst: 0,
+                gst:pharmacyBilling.defaultGst ?? 0,
                 quantity: 0,
                 total: 0,
                 unitPrice: 0,
@@ -104,7 +119,7 @@ export default function CreateBill({
               {
                 name: item,
                 discount: 0,
-                gst: 0,
+                gst: pharmacyBilling.defaultGst ?? 0,
                 quantity: 0,
                 total: 0,
                 unitPrice: 0,
@@ -121,7 +136,7 @@ export default function CreateBill({
         itemRef.current?.focus();
       }
     },
-    [item, payload.items]
+    [item, payload.items,pharmacyBilling.defaultGst]
   );
 
   const removeItem = useCallback(
@@ -220,7 +235,7 @@ export default function CreateBill({
     } catch (error) {
       console.log(error);
     }
-  }, [payload, billingMutate]);
+  }, [payload, billingMutate,defaultPayload]);
 
   return (
     <div className="space-y-4">
@@ -721,11 +736,21 @@ export default function CreateBill({
                   )}
                 </span>
               </div>
+
+                <div className="flex items-center justify-between">
+                <span className="text-slate-500">Round off</span>
+                <span className="font-medium tabular-nums">
+                  {formatINR(pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)}
+                </span>
+              </div>
               <div className="my-2 h-px bg-slate-200" />
               <div className="flex items-center justify-between text-base font-semibold">
                 <span>Total</span>
                 <span className="tabular-nums">
-                  {formatINR(payload.items.reduce((a, b) => a + b.total, 0))}
+                  {formatINR(
+                    payload.items.reduce((a, b) => a + b.total, 0)
+                    -(pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)
+                    )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -738,7 +763,7 @@ export default function CreateBill({
                 <span className="font-semibold">Due</span>
                 <span className="font-semibold tabular-nums">
                   {formatINR(
-                    payload.items.reduce((a, b) => a + b.total, 0) -
+                    payload.items.reduce((a, b) => a + b.total, 0) - (pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0) -
                       (payload.cash + payload.online + payload.insurance)
                   )}
                 </span>

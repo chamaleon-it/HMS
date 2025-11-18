@@ -67,3 +67,25 @@ export interface Patient {
     createdAt:   Date;
     updatedAt:   Date;
 }
+
+
+
+
+
+
+
+
+export interface DataType {
+   patient: string;
+  doctor: string;
+  items: {
+    name: string;
+    dosage: string;
+    frequency: string;
+    food: string;
+    duration: string;
+    quantity: number;
+  }[];
+  priority: string;
+  status: string;
+}

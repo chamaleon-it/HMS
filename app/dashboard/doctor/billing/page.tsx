@@ -50,6 +50,7 @@ export default function BillingPage() {
       cash: number;
       online: number;
       insurance: number;
+      roundOff:boolean
       items: {
         total: number;
       }[];

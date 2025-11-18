@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function Header({ handleAdd, items }: Props) {
-const [downloadingCsv, setDownloadingCsv] = useState(false);
+  const [downloadingCsv, setDownloadingCsv] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0); // optional
 
   const exportCsv = useCallback(async () => {
@@ -28,7 +28,9 @@ const [downloadingCsv, setDownloadingCsv] = useState(false);
             signal: controller.signal,
             onDownloadProgress: (ev) => {
               if (ev.lengthComputable) {
-                setDownloadProgress(Math.round((ev.loaded * 100) / (ev.total || 1)));
+                setDownloadProgress(
+                  Math.round((ev.loaded * 100) / (ev.total || 1))
+                );
               }
             },
           });
@@ -38,7 +40,9 @@ const [downloadingCsv, setDownloadingCsv] = useState(false);
             type: resp.headers["content-type"] || "text/csv",
           });
 
-          const filename = resp.data.filename ||`inventory_${new Date().toISOString().slice(0, 10)}.csv`;
+          const filename =
+            resp.data.filename ||
+            `inventory_${new Date().toISOString().slice(0, 10)}.csv`;
 
           // Create object URL + simulate anchor click
           const url = window.URL.createObjectURL(blob);
@@ -64,9 +68,8 @@ const [downloadingCsv, setDownloadingCsv] = useState(false);
       );
     } catch (err) {
       // distinguish abort vs other errors if desired
-    
-        console.error("CSV export error:", err);
-      
+
+      console.error("CSV export error:", err);
     } finally {
       setDownloadingCsv(false);
       setDownloadProgress(0);
@@ -83,7 +86,9 @@ const [downloadingCsv, setDownloadingCsv] = useState(false);
         <Button className="bg-purple-600 text-white" onClick={handleAdd}>
           + Add New Item
         </Button>
-        <Button variant="outline" onClick={exportCsv} disabled={downloadingCsv}>{downloadingCsv ? `Exporting (${downloadProgress}%)` : "Export CSV"}</Button>
+        <Button variant="outline" onClick={exportCsv} disabled={downloadingCsv}>
+          {downloadingCsv ? `Exporting (${downloadProgress}%)` : "Export CSV"}
+        </Button>
         <LowStockButton items={items} />
       </div>
     </div>
