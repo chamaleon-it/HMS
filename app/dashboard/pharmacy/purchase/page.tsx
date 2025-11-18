@@ -6,13 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import {
-  Select,
-  SelectTrigger,
-  SelectValue,
-  SelectContent,
-  SelectItem,
-} from "@/components/ui/select";
+
 import { Card, CardContent } from "@/components/ui/card";
 
 import AppShell from "@/components/layout/app-shell";
@@ -24,8 +18,7 @@ import { useAuth } from "@/auth/context/auth-context";
 import { PurchaseDataType } from "./interface";
 
 export default function PurchaseOrdersListPage() {
-  const [supplierFilter, setSupplierFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
+  
 
   const [showCreate, setShowCreate] = useState(false);
 
@@ -104,47 +97,8 @@ export default function PurchaseOrdersListPage() {
               </div>
             </div>
 
-            {/* SUPPLIER FILTER */}
-            <div className="flex flex-col gap-2">
-              <Label className="text-xs font-medium text-muted-foreground">
-                Supplier
-              </Label>
-              <Select value={supplierFilter} onValueChange={setSupplierFilter}>
-                <SelectTrigger className="rounded-xl h-9">
-                  <SelectValue placeholder="All suppliers" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All suppliers</SelectItem>
-                  <SelectItem value="A1 Pharma Distributors">
-                    A1 Pharma Distributors
-                  </SelectItem>
-                  <SelectItem value="Medline Wholesale">
-                    Medline Wholesale
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* STATUS FILTER */}
-            <div className="flex flex-col gap-2">
-              <Label className="text-xs font-medium text-muted-foreground">
-                Status
-              </Label>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="rounded-xl h-9">
-                  <SelectValue placeholder="All status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="Draft">Draft</SelectItem>
-                  <SelectItem value="Sent">Sent</SelectItem>
-                  <SelectItem value="Partially Received">
-                    Partially Received
-                  </SelectItem>
-                  <SelectItem value="Completed">Completed</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+           
+           
           </CardContent>
         </Card>
 
