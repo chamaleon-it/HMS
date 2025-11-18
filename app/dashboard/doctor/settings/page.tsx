@@ -15,7 +15,7 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen bg-white">
+      <div className="min-h-[calc(100vh-80px)] bg-white">
         <div className="sticky top-0 z-10 bg-white/70 backdrop-blur border-b">
           <div className="px-4 py-4 flex items-center justify-between">
             <div className="flex items-center gap-3">

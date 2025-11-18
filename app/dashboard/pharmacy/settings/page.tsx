@@ -25,7 +25,7 @@ const PharmacySettingsPage: React.FC = () => {
 
   return (
     <AppShell>
-      <div className="bg-white/70 backdrop-blur border-b">
+      <div className="bg-white/70 backdrop-blur border-b ">
         <div className="p-5 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Shield className="h-5 w-5" />

@@ -25,7 +25,9 @@ export default function AppShell({ children }: AppShellProps) {
       <Sidebar />
       <div className="min-h-screen flex-1">
         <Header />
+        <div className="min-h-[calc(100vh-80px)]">
         {children}
+        </div>
         <Footer />
       </div>
     </div>
