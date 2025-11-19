@@ -29,7 +29,7 @@ export const registerPatientSchema = z.object({
 
   doctor: z.string().trim().min(1, "Select a doctor."),
 
-  gender: z.enum(["Male", "Female", "Other"]),
+  gender: z.enum(["Male", "Female", "Other","Prefer not to say"]),
 
   dateOfBirth: z.string(),
 

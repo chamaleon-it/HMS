@@ -11,7 +11,7 @@ export default function Address({
     phoneNumber: string;
     email?: string;
     doctor: string;
-    gender: "Male" | "Female" | "Other" | "Prefer not to say";
+    gender: "Male" | "Female" | "Other";
     dateOfBirth: string;
     conditions?: string[] | undefined;
     blood?: string | undefined;

@@ -59,12 +59,11 @@ function RxQueue() {
     q: "all",
   });
 
-  const params = new URLSearchParams()
-  
-  if(filter.q!=="all"){
-    params.set("q",filter.q)
-  }
+  const params = new URLSearchParams();
 
+  if (filter.q !== "all") {
+    params.set("q", filter.q);
+  }
 
   const { data: ordersData, mutate: OrderMutate } = useSWR<{
     message: string;
@@ -99,8 +98,6 @@ function RxQueue() {
     }
   };
 
-  
-
   return (
     <div>
       {/* Queue header row */}
@@ -110,22 +107,20 @@ function RxQueue() {
           <p className="text-slate-600 text-sm">Live prescriptions</p>
         </div>
         <div className="flex gap-5 items-center">
-
-        <Tabs
-          defaultValue="all"
-          className="w-auto"
-          value={filter.q}
-          onValueChange={(v) => setFilter((prev) => ({ ...prev, q: v }))}
+          <NewOrder OrderMutate={OrderMutate} />
+          <Tabs
+            defaultValue="all"
+            className="w-auto"
+            value={filter.q}
+            onValueChange={(v) => setFilter((prev) => ({ ...prev, q: v }))}
           >
-          <TabsList>
-            <TabsTrigger value="all">All</TabsTrigger>
-            <TabsTrigger value="stat">STAT</TabsTrigger>
-            <TabsTrigger value="ready">Ready</TabsTrigger>
-          </TabsList>
-        </Tabs>
-
-        <NewOrder OrderMutate={OrderMutate}/>
-          </div>
+            <TabsList>
+              <TabsTrigger value="all">All</TabsTrigger>
+              <TabsTrigger value="stat">STAT</TabsTrigger>
+              <TabsTrigger value="ready">Ready</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </div>
       </div>
 
       <OrderTable
@@ -151,7 +146,8 @@ function RxQueue() {
                   Patient
                 </div>
                 <div className="font-semibold text-lg flex items-center gap-1">
-                  <p>{selected?.patient?.name}</p> - <span className="text-sm">({selected?.patient.mrn})</span>
+                  <p>{selected?.patient?.name}</p> -{" "}
+                  <span className="text-sm">({selected?.patient.mrn})</span>
                 </div>
                 <div className="text-sm text-slate-700">
                   Age/Gender: {fAge(selected?.patient?.dateOfBirth)} /{" "}

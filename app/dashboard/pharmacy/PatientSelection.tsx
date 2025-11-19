@@ -120,7 +120,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
 
   return (
     <div ref={rootRef} className="relative w-full max-w-[500px]">
-      <Label className="block">Patient Name</Label>
+      <Label className="block">Customer Name</Label>
 
       <div
         role="combobox"
@@ -181,7 +181,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
                   }}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
                 >
-                  <span className="text-lg">➕</span> Add new patient
+                  <span className="text-lg">➕</span> Add new customer
                 </button>
               </div>
             ) : (

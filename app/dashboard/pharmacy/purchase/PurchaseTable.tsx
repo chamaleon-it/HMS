@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -9,10 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye } from "lucide-react";
 import React from "react";
 import { PurchaseType } from "./interface";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
+import ViewOrders from "./ViewOrders";
 
 
 interface Props {
@@ -58,13 +57,8 @@ export default function PurchaseTable({purchase,total}:Props) {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-8 px-2 rounded-lg text-xs"
-                    >
-                      <Eye className="h-4 w-4 mr-1" /> View
-                    </Button>
+                    <ViewOrders row={row}/>
+                    
                   </TableCell>
                 </TableRow>
               ))}

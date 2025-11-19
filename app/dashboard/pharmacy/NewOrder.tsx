@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -17,7 +17,7 @@ import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import Drawer from "@/components/ui/drawer";
-import { RegisterPatient } from "../doctor/patients/RegisterPatient";
+import { RegisterPatient } from "./RegisterPatient";
 
 export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const { user } = useAuth();
@@ -27,7 +27,16 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const [payload, setPayload] = useState<DataType>({
     patient: "",
     doctor: user?._id ?? "",
-    items: [],
+    items: [
+      {
+        dosage: "",
+        name: "",
+        duration: "",
+        food: "",
+        frequency: "",
+        quantity: 0,
+      },
+    ],
     priority: "Normal",
     status: "Pending",
   });
@@ -84,6 +93,27 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     }
   };
 
+  useEffect(() => {
+    if (open === false) {
+      setPayload({
+        patient: "",
+        doctor: user?._id ?? "",
+        items: [
+          {
+            dosage: "",
+            name: "",
+            duration: "",
+            food: "",
+            frequency: "",
+            quantity: 0,
+          },
+        ],
+        priority: "Normal",
+        status: "Pending",
+      });
+    }
+  }, [open,user?._id]);
+
   return (
     <>
       <Dialog open={open} onOpenChange={setOpen}>
@@ -131,7 +161,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       <Drawer
         open={openCreate}
         onClose={() => setOpenCreate(false)}
-        title="Patient Register"
+        title="Customer Register"
       >
         <RegisterPatient onClose={() => setOpenCreate(false)} />
       </Drawer>

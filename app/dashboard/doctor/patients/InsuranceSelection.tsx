@@ -21,7 +21,7 @@ interface FormType {
   name: string;
   phoneNumber: string;
   doctor: string;
-  gender: "Male" | "Female" | "Other";
+  gender: "Male" | "Female" | "Other" | "Prefer not to say";
   dateOfBirth: string;
   email?: string | undefined;
   conditions?: string[] | undefined;

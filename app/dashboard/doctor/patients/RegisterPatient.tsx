@@ -202,7 +202,7 @@ export function RegisterPatient({
           <div className="grid gap-2">
             <Label>Gender *</Label>
             <Select
-              onValueChange={(value: "Male" | "Female" | "Other") =>
+              onValueChange={(value: "Male" | "Female" | "Other" | "Prefer not to say") =>
                 setValue("gender", value)
               }
               value={patient?.gender || values.gender}
@@ -211,7 +211,7 @@ export function RegisterPatient({
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other"].map((v) => (
+                {["Male", "Female", "Other" , "Prefer not to say"].map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>

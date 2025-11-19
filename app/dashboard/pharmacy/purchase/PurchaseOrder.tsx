@@ -376,9 +376,9 @@ function PurchaseOrder({
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl shadow-lg">
-                    <SelectItem value="cod">Cash on delivery</SelectItem>
-                    <SelectItem value="7d">7 days credit</SelectItem>
-                    <SelectItem value="30d">30 days credit</SelectItem>
+                    <SelectItem value="Cash on delivery">Cash on delivery</SelectItem>
+                    <SelectItem value="7 days credit">7 days credit</SelectItem>
+                    <SelectItem value="30 days credit">30 days credit</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
