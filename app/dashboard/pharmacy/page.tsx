@@ -348,7 +348,6 @@ function RxQueue() {
                 >
                   Print
                 </Button>
-                <Button>Share</Button>
               </div>
             </div>
           </div>
