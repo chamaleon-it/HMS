@@ -3,7 +3,7 @@ export interface ProfileType {
   phoneNumber?: string;
   email: string;
   address?: string;
-  pharmacy?: {
+  lab?: {
     general?: {
       owner?: string;
       gstin?: string;
@@ -13,11 +13,6 @@ export interface ProfileType {
       defaultGst: number;
       roundOff: boolean;
       autoPrintAfterSave: boolean;
-    };
-    inventory?: {
-      lowStockThreshold: number;
-      expiryAlert: number;
-      allowNegativeStock: boolean;
     };
     notifications?: {
       whatsapp: boolean;

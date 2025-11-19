@@ -10,10 +10,53 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { Bell, Save } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { ProfileType } from "./interface";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
-export default function Notifications() {
-  
+export default function Notifications({
+  profile,
+  profileMutate,
+}: {
+  profile?: ProfileType;
+  profileMutate: () => void;
+}) {
+  const [payload, setPayload] = useState({
+    whatsapp: false,
+    sms: false,
+    inApp: false,
+    note: "",
+  });
+
+  useEffect(() => {
+    setPayload((prev) => ({
+      ...prev,
+      whatsapp: profile?.lab?.notifications?.whatsapp ?? false,
+      sms: profile?.lab?.notifications?.sms ?? false,
+      inApp: profile?.lab?.notifications?.inApp ?? false,
+      note: profile?.lab?.notifications?.note ?? "",
+    }));
+  }, [profile]);
+
+  const [loading, setLoading] = useState(false);
+
+  const updateNotificationsSettings = async () => {
+    try {
+      setLoading(true);
+      await toast.promise(api.patch("/users/lab/notifications", payload), {
+        loading: "Updating notifications settings...!",
+        success: ({ data }) => data.message,
+        error: ({ response }) => response.data.message,
+      });
+      profileMutate();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
       {/* Notifications */}
@@ -45,6 +88,10 @@ export default function Notifications() {
                 </p>
               </div>
               <Switch
+                checked={payload.whatsapp}
+                onCheckedChange={(v) =>
+                  setPayload((prev) => ({ ...prev, whatsapp: v }))
+                }
               />
             </div>
 
@@ -56,7 +103,10 @@ export default function Notifications() {
                 </p>
               </div>
               <Switch
-                
+                checked={payload.sms}
+                onCheckedChange={(v) =>
+                  setPayload((prev) => ({ ...prev, sms: v }))
+                }
               />
             </div>
 
@@ -70,7 +120,10 @@ export default function Notifications() {
                 </p>
               </div>
               <Switch
-                
+                checked={payload.inApp}
+                onCheckedChange={(v) =>
+                  setPayload((prev) => ({ ...prev, inApp: v }))
+                }
               />
             </div>
           </div>
@@ -80,7 +133,10 @@ export default function Notifications() {
               Internal note (for staff)
             </Label>
             <Textarea
-              
+              value={payload.note}
+              onChange={(e) =>
+                setPayload((prev) => ({ ...prev, note: e.target.value }))
+              }
               className="min-h-[90px] rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
               placeholder="Eg: Do not ignore expiry alerts. Check near-expiry rack daily before closing."
             />
@@ -88,15 +144,16 @@ export default function Notifications() {
 
           <div className="flex items-center justify-between pt-2 text-xs text-slate-500">
             <span>
-              Notification preferences are per pharmacy, not per user.
+              Notification preferences are per lab, not per user.
             </span>
             <Button
               size="default"
               className="h-9 gap-2 rounded-full bg-slate-900 px-5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
-              
+              onClick={updateNotificationsSettings}
+              disabled={loading}
             >
               <Save className="h-4 w-4" />
-              Save Notifications
+              {loading ? "Updating" : "Save Notifications"}
             </Button>
           </div>
         </CardContent>

@@ -14,7 +14,7 @@ import useSWR from "swr";
 import { ProfileType } from "./interface";
 import TestCatalogue from "./TestCatalogue";
 
-const PharmacySettingsPage: React.FC = () => {
+const LabSettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
 
   const { data: ProfileData, mutate: profileMutate } = useSWR<{
@@ -24,9 +24,8 @@ const PharmacySettingsPage: React.FC = () => {
   const profile = ProfileData?.data;
 
   useEffect(() => {
-    profileMutate()
-  }, [profileMutate])
-  
+    profileMutate();
+  }, [profileMutate]);
 
   return (
     <AppShell>
@@ -90,14 +89,22 @@ const PharmacySettingsPage: React.FC = () => {
       </Tabs>
       <div className="flex flex-col gap-6 p-5 w-full bg-slate-50 text-slate-900">
         <TopSummary profile={profile} />
-        {activeSection === "general" && <General />}
-        {activeSection === "billing" && <Billing />}
-        {activeSection === "catalogue" && <TestCatalogue />}
-        {activeSection === "notifications" && <Notifications />}
+        {activeSection === "general" && (
+          <General profile={profile} profileMutate={profileMutate} />
+        )}
+        {activeSection === "billing" && (
+          <Billing profile={profile} profileMutate={profileMutate} />
+        )}
+        {activeSection === "catalogue" && (
+          <TestCatalogue profile={profile} profileMutate={profileMutate} />
+        )}
+        {activeSection === "notifications" && (
+          <Notifications profile={profile} profileMutate={profileMutate} />
+        )}
         {activeSection === "security" && <Security />}
       </div>
     </AppShell>
   );
 };
 
-export default PharmacySettingsPage;
+export default LabSettingsPage;

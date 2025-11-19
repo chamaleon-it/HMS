@@ -17,11 +17,54 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { ReceiptIndianRupee, Save } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { ProfileType } from "./interface";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
+export default function Billing({
+  profile,
+  profileMutate,
+}: {
+  profile?: ProfileType;
+  profileMutate: () => void;
+}) {
+  const [payload, setPayload] = useState({
+    prefix: "INV",
+    defaultGst: 5,
+    roundOff: false,
+    autoPrintAfterSave: false,
+  });
 
-export default function Billing() {
-  
+  useEffect(() => {
+    setPayload((prev) => ({
+      ...prev,
+      prefix: profile?.lab?.billing?.prefix ?? "INV",
+      defaultGst: profile?.lab?.billing?.defaultGst ?? 5,
+      roundOff: profile?.lab?.billing?.roundOff ?? false,
+      autoPrintAfterSave:
+        profile?.lab?.billing?.autoPrintAfterSave ?? false,
+    }));
+  }, [profile]);
+
+  const [loading, setLoading] = useState(false);
+
+  const updateBillingSettings = async () => {
+    try {
+      setLoading(true);
+      await toast.promise(api.patch("/users/lab/billing", payload), {
+        loading: "Updating billing settings...!",
+        success: ({ data }) => data.message,
+        error: ({ response }) => response.data.message,
+      });
+      profileMutate();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
       {/* Billing settings */}
@@ -51,6 +94,10 @@ export default function Billing() {
                 className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm uppercase tracking-wide placeholder:text-slate-400 focus-visible:ring-sky-500/70"
                 maxLength={6}
                 placeholder="Eg: PHM, RX, MED"
+                value={payload.prefix}
+                onChange={(e) =>
+                  setPayload((prev) => ({ ...prev, prefix: e.target.value }))
+                }
               />
               <p className="text-xs text-slate-500">
                 Appears before bill number. Useful if multiple counters.
@@ -62,6 +109,10 @@ export default function Billing() {
                 Default GST %
               </Label>
               <Select
+                value={String(payload.defaultGst)}
+                onValueChange={(v) =>
+                  setPayload((prev) => ({ ...prev, defaultGst: Number(v) }))
+                }
               >
                 <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm focus:ring-sky-500/70">
                   <SelectValue placeholder="Select GST %" />
@@ -90,6 +141,10 @@ export default function Billing() {
                 </p>
               </div>
               <Switch
+                checked={payload.roundOff}
+                onCheckedChange={(v) =>
+                  setPayload((prev) => ({ ...prev, roundOff: v }))
+                }
               />
             </div>
             <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
@@ -102,6 +157,10 @@ export default function Billing() {
                 </p>
               </div>
               <Switch
+                checked={payload.autoPrintAfterSave}
+                onCheckedChange={(v) =>
+                  setPayload((prev) => ({ ...prev, autoPrintAfterSave: v }))
+                }
               />
             </div>
           </div>
@@ -110,9 +169,11 @@ export default function Billing() {
             <Button
               size="default"
               className="h-9 gap-2 rounded-full bg-slate-900 px-5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
+              onClick={updateBillingSettings}
+              disabled={loading}
             >
               <Save className="h-4 w-4" />
-              Save Billing
+              {loading ? "Updating..!" : "Save Billing"}
             </Button>
           </div>
         </CardContent>
@@ -130,7 +191,7 @@ export default function Billing() {
         </CardHeader>
         <CardContent className="space-y-3 text-xs text-slate-500">
           <ul className="list-disc space-y-1 pl-4">
-            <li>Use different prefixes for OP, IP and Pharmacy counters.</li>
+            <li>Use different prefixes for OP, IP and Lab counters.</li>
             <li>Keep GST default same as most used slab.</li>
             <li>Enable round off to avoid coin differences at counter.</li>
           </ul>

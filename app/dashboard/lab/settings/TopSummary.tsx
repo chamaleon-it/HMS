@@ -37,8 +37,8 @@ export default function TopSummary({ profile }: { profile?: ProfileType }) {
               Billing
             </CardTitle>
             <p className="text-base font-semibold text-slate-900">
-              GST {profile?.pharmacy?.billing?.defaultGst ?? 12}% • Rounding{" "}
-              {profile?.pharmacy?.billing?.roundOff ? "ON" : "OFF"}
+              GST {profile?.lab?.billing?.defaultGst ?? 12}% • Rounding{" "}
+              {profile?.lab?.billing?.roundOff ? "ON" : "OFF"}
             </p>
           </div>
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100">
@@ -48,40 +48,17 @@ export default function TopSummary({ profile }: { profile?: ProfileType }) {
         <CardContent className="pt-0 text-sm text-slate-500">
           Bill prefix{" "}
           <span className="font-semibold text-slate-800">
-            {profile?.pharmacy?.billing?.prefix ?? "INV"}
+            {profile?.lab?.billing?.prefix ?? "INV"}
           </span>
           . Print on save{" "}
-          {profile?.pharmacy?.billing?.autoPrintAfterSave
+          {profile?.lab?.billing?.autoPrintAfterSave
             ? "enabled"
             : "disabled"}
           .
         </CardContent>
       </Card>
 
-      <Card className="group border border-slate-200 bg-white/80 shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:border-sky-200 hover:shadow-md">
-        <CardHeader className="flex flex-row items-center justify-between pb-3">
-          <div className="space-y-1">
-            <CardTitle className="text-sm font-medium text-slate-500">
-              Inventory Alerts
-            </CardTitle>
-            <p className="text-base font-semibold text-slate-900">
-              Below {profile?.pharmacy?.inventory?.lowStockThreshold ?? 10} qty
-              • {profile?.pharmacy?.inventory?.expiryAlert ?? 90} days
-            </p>
-          </div>
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 text-amber-600 ring-1 ring-amber-100">
-            <Package className="h-5 w-5" />
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0 text-sm text-slate-500">
-          Negative stock{" "}
-          {profile?.pharmacy?.inventory?.allowNegativeStock
-            ? "allowed"
-            : "blocked"}
-          . WhatsApp alerts{" "}
-          {profile?.pharmacy?.notifications?.whatsapp ? "ON" : "OFF"}.
-        </CardContent>
-      </Card>
+      
     </div>
   );
 }

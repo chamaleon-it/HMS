@@ -3,8 +3,17 @@ import { Switch } from '@/components/ui/switch'
 import React from 'react'
 import { Button } from '@/components/ui/button';
 import { Save } from 'lucide-react';
+import { ProfileType } from './interface';
 
-export default function TestCatalogue() {
+export default function TestCatalogue(
+  {
+    profile,
+    profileMutate,
+  }: {
+    profile?: ProfileType;
+    profileMutate: () => void;
+  }
+) {
   return (
      <div className="grid gap-4 md:grid-cols-2">
             <Card>

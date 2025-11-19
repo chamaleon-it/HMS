@@ -10,10 +10,57 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Save, Store } from "lucide-react";
-import React  from "react";
+import React, { useEffect, useState } from "react";
+import { ProfileType } from "./interface";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
-export default function General() {
-  
+export default function General({
+  profile,
+  profileMutate,
+}: {
+  profile?: ProfileType;
+  profileMutate: () => void;
+}) {
+  const [payload, setPayload] = useState({
+    name: "",
+    owner: "",
+    phoneNumber: "",
+    email: "",
+    gstin: "",
+    address: "",
+  });
+
+  useEffect(() => {
+    setPayload((prev) => ({
+      ...prev,
+      name: profile?.name ?? "",
+      owner: profile?.lab?.general?.owner ?? "",
+      phoneNumber: profile?.phoneNumber ?? "",
+      email: profile?.email ?? "",
+      gstin: profile?.lab?.general?.gstin ?? "",
+      address: profile?.address ?? "",
+    }));
+  }, [profile]);
+
+  const [loading, setLoading] = useState(false);
+
+  const updateGeneralSettings = async () => {
+    try {
+      setLoading(true);
+      await toast.promise(api.patch("/users/lab/general", payload), {
+        loading: "Updating general settings...!",
+        success: ({ data }) => data.message,
+        error: ({ response }) => response.data.message,
+      });
+      profileMutate();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
       <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
@@ -24,7 +71,7 @@ export default function General() {
                 <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-50 text-sky-600 ring-1 ring-sky-100">
                   <Store className="h-5 w-5" />
                 </span>
-                Pharmacy Profile
+                Lab Profile
               </CardTitle>
               <CardDescription className="text-sm text-slate-500">
                 Basic details used in headers, bills and reports.
@@ -38,12 +85,15 @@ export default function General() {
         <CardContent className="space-y-4 text-sm">
           <div className="space-y-2">
             <Label className="text-xs font-medium text-slate-700">
-              Pharmacy Name
+              Lab Name
             </Label>
             <Input
               className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
-              placeholder="Enter pharmacy name"
-              
+              placeholder="Enter lab name"
+              value={payload.name}
+              onChange={(e) =>
+                setPayload((prev) => ({ ...prev, name: e.target.value }))
+              }
             />
           </div>
 
@@ -55,6 +105,10 @@ export default function General() {
               <Input
                 className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
                 placeholder="Name of responsible person"
+                value={payload.owner}
+                onChange={(e) =>
+                  setPayload((prev) => ({ ...prev, owner: e.target.value }))
+                }
               />
             </div>
             <div className="space-y-2">
@@ -64,6 +118,13 @@ export default function General() {
               <Input
                 className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
                 placeholder="Primary phone number"
+                value={payload.phoneNumber}
+                onChange={(e) =>
+                  setPayload((prev) => ({
+                    ...prev,
+                    phoneNumber: e.target.value,
+                  }))
+                }
               />
             </div>
           </div>
@@ -76,6 +137,10 @@ export default function General() {
               <Input
                 className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
                 placeholder="For reports & backup"
+                value={payload.email}
+                onChange={(e) =>
+                  setPayload((prev) => ({ ...prev, email: e.target.value }))
+                }
               />
             </div>
 
@@ -86,7 +151,10 @@ export default function General() {
               <Input
                 className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm uppercase tracking-wide placeholder:text-slate-400 focus-visible:ring-sky-500/70"
                 placeholder="18-CHAR GST NUMBER"
-                
+                value={payload.gstin}
+                onChange={(e) =>
+                  setPayload((prev) => ({ ...prev, gstin: e.target.value }))
+                }
               />
             </div>
           </div>
@@ -98,7 +166,10 @@ export default function General() {
             <Textarea
               className="min-h-[90px] rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
               placeholder="This will appear on printed bills and reports"
-              
+              value={payload.address}
+              onChange={(e) =>
+                setPayload((prev) => ({ ...prev, address: e.target.value }))
+              }
             />
           </div>
 
@@ -106,10 +177,11 @@ export default function General() {
             <Button
               size="default"
               className="h-9 gap-2 rounded-full bg-slate-900 px-5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
-              
+              onClick={updateGeneralSettings}
+              disabled={loading}
             >
               <Save className="h-4 w-4" />
-              Save Profile
+              {loading ? "Updating..!" : "Save Profile"}
             </Button>
           </div>
         </CardContent>
@@ -123,12 +195,12 @@ export default function General() {
           </CardTitle>
           <CardDescription className="text-xs text-slate-500">
             These details are shown on printed bills, prescription headers and
-            pharmacy reports.
+            Lab reports.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3 text-xs text-slate-500">
           <ul className="list-disc space-y-1 pl-4">
-            <li>Pharmacy name and address in bill header.</li>
+            <li>Lab name and address in bill header.</li>
             <li>GSTIN included in tax summary section.</li>
             <li>Contact number and email on patient copy.</li>
           </ul>
