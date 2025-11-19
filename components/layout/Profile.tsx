@@ -92,7 +92,7 @@ export default function DoctorProfile() {
           <DropdownMenuGroup>
             <DropdownMenuItem className="px-3" asChild>
               <Link
-                href={`/dashboard/${user?.role==="Doctor" && "doctor" || user?.role==="Pharmacy" && "pharmacy" || user?.role==="Pharmacy Wholesaler" && "pharmacy-wholesaler" || "doctor" }/settings`}
+                href={`/dashboard/${user?.role==="Doctor" && "doctor" || user?.role==="Pharmacy" && "pharmacy" || user?.role==="Pharmacy Wholesaler" && "pharmacy-wholesaler" || user?.role==="Lab" && "lab" || "doctor" }/settings`}
                 className="flex items-center gap-1"
               >
                 <Settings className="mr-2 h-4 w-4" /> Settings

@@ -155,6 +155,8 @@ export function Sidebar() {
     [];
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const settingsLink :string | undefined =user?.role ?  settingsLinks[user.role] : undefined
+  
   return (
     <aside
       className={
@@ -206,30 +208,15 @@ export function Sidebar() {
         {/* Divider */}
         <div className="my-3 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
-        {user?.role === "Pharmacy" && <NavItem
-          active={pathname === "/dashboard/pharmacy/settings"}
-          collapsed={collapsed}
-          icon={Settings}
-          label="Settings"
-          link={"/dashboard/pharmacy/settings"}
-        />}
-
-
-         {user?.role === "Pharmacy Wholesaler" && <NavItem
-          active={pathname === "/dashboard/pharmacy-wholesaler/settings"}
-          collapsed={collapsed}
-          icon={Settings}
-          label="Settings"
-          link={"/dashboard/pharmacy-wholesaler/settings"}
-        />}
-
-        {user?.role === "Doctor"  && <NavItem
-          active={pathname === "/dashboard/doctor/settings"}
-          collapsed={collapsed}
-          icon={Settings}
-          label="Settings"
-          link={"/dashboard/doctor/settings"}
-        />}
+        {settingsLink && (
+  <NavItem
+    active={pathname === settingsLink}
+    collapsed={collapsed}
+    icon={Settings}
+    label="Settings"
+    link={settingsLink}
+  />
+)}
 
 
       </nav>
@@ -264,6 +251,13 @@ export function Sidebar() {
     </aside>
   );
 }
+
+const settingsLinks:Record<string,string> = {
+  Pharmacy: "/dashboard/pharmacy/settings",
+  "Pharmacy Wholesaler": "/dashboard/pharmacy-wholesaler/settings",
+  Doctor: "/dashboard/doctor/settings",
+  Lab: "/dashboard/lab/settings",
+};
 
 function NavItem({
   active,
