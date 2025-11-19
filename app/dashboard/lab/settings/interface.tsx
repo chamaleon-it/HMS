@@ -8,6 +8,10 @@ export interface ProfileType {
       owner?: string;
       gstin?: string;
     };
+    catalogue:{
+      showProfilesOnPatientBill: boolean;
+      allowEditingPanelComposition: boolean;
+    }
     billing?: {
       prefix: string;
       defaultGst: number;
