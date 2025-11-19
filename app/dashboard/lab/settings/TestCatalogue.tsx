@@ -24,7 +24,7 @@ export default function TestCatalogue({
       ...prev,
       showProfilesOnPatientBill:
         profile?.lab?.catalogue?.showProfilesOnPatientBill ?? false,
-      allowEditingPanelComposition: profile?.lab?.catalogue.allowEditingPanelComposition ?? false,
+      allowEditingPanelComposition: profile?.lab?.catalogue?.allowEditingPanelComposition ?? false,
     }));
   }, [profile]);
 
