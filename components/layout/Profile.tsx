@@ -4,35 +4,22 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuGroup,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Settings, Building2, User } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/auth/context/auth-context";
 import configuration from "@/config/configuration";
 
-const STATUSES = ["Available", "Consulting", "Away", "Do Not Disturb"] as const;
 
-type Status = (typeof STATUSES)[number];
+
+
 
 export default function DoctorProfile() {
-  const [status, setStatus] = React.useState<Status>("Available");
   const { user, logout } = useAuth();
-
-  const dot = (s: Status) =>
-    ({
-      Available: "bg-emerald-500",
-      Consulting: "bg-sky-500",
-      Away: "bg-amber-500",
-      "Do Not Disturb": "bg-rose-500",
-    }[s]);
 
   return (
     <div className="">
@@ -55,9 +42,7 @@ export default function DoctorProfile() {
                 </AvatarFallback>
               </Avatar>
               <span
-                className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full ring-2 ring-white ${dot(
-                  status
-                )}`}
+                className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full ring-2 ring-white bg-emerald-500`}
               />
             </span>
             <span className="text-left">
@@ -103,66 +88,17 @@ export default function DoctorProfile() {
 
           <DropdownMenuSeparator />
 
-          {/* Status */}
-          <DropdownMenuLabel className="px-3 pt-2 pb-1 text-[11px] text-slate-500">
-            Status
-          </DropdownMenuLabel>
-          <DropdownMenuGroup>
-            {STATUSES.map((s) => (
-              <DropdownMenuItem
-                key={s}
-                onClick={() => setStatus(s)}
-                className="px-3"
-              >
-                <span className={`h-2.5 w-2.5 rounded-full mr-2 ${dot(s)}`} />{" "}
-                {s}
-                {status === s && (
-                  <span className="ml-auto text-[11px] text-slate-500">
-                    Active
-                  </span>
-                )}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuGroup>
-
-          <DropdownMenuSeparator />
-
-          {/* Clinic */}
-          <DropdownMenuLabel className="px-3 pt-2 pb-1 text-[11px] text-slate-500">
-            Clinic
-          </DropdownMenuLabel>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger className="px-3">
-              <Building2 className="mr-2 h-4 w-4" /> Nilambur Heart Center
-            </DropdownMenuSubTrigger>
-            <DropdownMenuSubContent className="w-56">
-              <DropdownMenuItem>
-                <Building2 className="mr-2 h-4 w-4" /> Nilambur Heart Center
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Building2 className="mr-2 h-4 w-4" /> Calicut Cardio Clinic
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Building2 className="mr-2 h-4 w-4" /> Malappuram Medicals
-              </DropdownMenuItem>
-            </DropdownMenuSubContent>
-          </DropdownMenuSub>
-
-          <DropdownMenuSeparator />
-
           {/* Settings & logout */}
           <DropdownMenuGroup>
-            <DropdownMenuItem className="px-3">
+            <DropdownMenuItem className="px-3" asChild>
               <Link
-                href={"/dashboard/doctor/settings"}
+                href={`/dashboard/${user?.role==="Doctor" && "doctor" || user?.role==="Pharmacy" && "pharmacy" || user?.role==="Pharmacy Wholesaler" && "pharmacy-wholesaler" || "doctor" }/settings`}
                 className="flex items-center gap-1"
               >
                 <Settings className="mr-2 h-4 w-4" /> Settings
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem className="px-3">
-              <User className="mr-2 h-4 w-4" /> View profile
-            </DropdownMenuItem>
+
             <DropdownMenuSeparator />
             <DropdownMenuItem className="px-3" asChild>
               <Button
