@@ -7,8 +7,7 @@ import { ProfileType } from './interface';
 
 export default function TestCatalogue(
   {
-    profile,
-    profileMutate,
+    
   }: {
     profile?: ProfileType;
     profileMutate: () => void;
