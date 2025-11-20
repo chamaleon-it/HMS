@@ -2,19 +2,41 @@ import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import React from "react";
 import { DataType } from "./interface";
+import { fDate, fTime } from "@/lib/fDateAndTime";
 
 export default function OrderLab({
   booked,
   setData,
+  Labs
 }: {
   booked: {
-    name: string[];
+    name: {
+      code: string;
+  max?: number;
+  min?: number;
+  name: string;
+  type: "Lab" | "Imaging";
+  unit: string;
+  _id: string;
+    }[];
     date: Date;
     lab: string;
-    slot: string;
     priority: string;
   }[];
   setData: (value: React.SetStateAction<DataType>) => void;
+  Labs: {
+    _id: string;
+    name: string;
+    tests: {
+        code: string;
+        name: string;
+        type: "Lab" | "Imaging";
+        min?: number;
+        max?: number;
+        unit: string;
+        _id: string;
+    }[];
+}[]
 }) {
   return (
     <div className="border rounded-xl p-4">
@@ -36,20 +58,15 @@ export default function OrderLab({
           >
             <div className="col-span-3">
               {e.name?.map((e) => (
-                <p key={e}>{e}</p>
+                <p key={e._id}>{e.name} ({e.code})</p>
               ))}
             </div>
-            <div className="col-span-2">{e.lab}</div>
-            <div className="col-span-2">{e.date.toDateString()}</div>
-            <div className="col-span-2">{e.slot}</div>
+            <div className="col-span-2">{Labs.find(l=>l._id==e.lab)?.name}</div>
+            <div className="col-span-2">{fDate(e.date)}</div>
+            <div className="col-span-2">{fTime(e.date)}</div>
             <div className="col-span-1">{e.priority}</div>
             <div className="col-span-2 text-right flex justify-end gap-2">
-              {/* <Button
-                className="!bg-green-600 hover:!bg-green-700 text-white !border-green-600"
-                title="Edit Test"
-              >
-                <Pencil  className="w-4 h-4"/>
-              </Button> */}
+             
 
               <Button
                 onClick={() => {

@@ -52,15 +52,22 @@ export interface DataType {
     frequency: string;
     food: string;
     duration: string;
-    quantity:number;
+    quantity: number;
   }[];
   advice: null | string;
   followUp: null | Date;
   test: {
-    name: string[];
+    name: {
+      code: string;
+      max?: number;
+      min?: number;
+      name: string;
+      type: "Lab" | "Imaging";
+      unit: string;
+      _id: string;
+    }[];
     date: Date;
     lab: string;
-    slot: string;
     priority: string;
   }[];
 }

@@ -3,15 +3,23 @@ export interface ProfileType {
   phoneNumber?: string;
   email: string;
   address?: string;
-  lab?: {
+  lab: {
     general?: {
       owner?: string;
       gstin?: string;
     };
-    catalogue:{
+    catalogue: {
       showProfilesOnPatientBill: boolean;
       allowEditingPanelComposition: boolean;
     }
+    tests: {
+      code: string;
+      name: string;
+      type: 'Lab' | 'Imaging' | '';
+      min?: number;
+      max?: number;
+      unit: string;
+    }[],
     billing?: {
       prefix: string;
       defaultGst: number;

@@ -111,3 +111,24 @@ export const dayNameToIndex: Record<string, number> = {
   Fri: 5,
   Sat: 6,
 };
+
+
+
+
+export function combineDateAndSlot(date: Date, slot: string) {
+  // slot like "09:30 AM"
+  const [time, meridian] = slot.split(" ");
+  let  hours = Number(time.split(":")[0]);
+
+  const minutes = Number(time.split(":")[1]);
+
+  // Convert to 24-hour format
+  if (meridian === "PM" && hours !== 12) hours += 12;
+  if (meridian === "AM" && hours === 12) hours = 0;
+
+  // Create new date with time attached (IST)
+  const result = new Date(date);
+  result.setHours(hours, minutes, 0, 0);
+
+  return result;
+}

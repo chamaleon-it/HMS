@@ -1,6 +1,8 @@
 "use client";
 
+import { fAge, fDate } from "@/lib/fDateAndTime";
 import React, { useMemo, useState, useEffect } from "react";
+import useSWR from "swr";
 
 // ----- Types -----
 type Gender = "M" | "F" | "O";
@@ -26,125 +28,6 @@ type LabResult = {
   facility: FacilityType; // Lab vs Imaging
   center: string; // Which lab/center performed
 };
-
-// ----- Demo Data (replace with API data) -----
-const INITIAL_RESULTS: LabResult[] = [
-  {
-    id: "LR-0001",
-    patientId: "P-0003",
-    patientName: "Mohammed Iqbal",
-    age: 55,
-    gender: "M",
-    testName: "Fasting Blood Glucose",
-    sampleType: "Blood",
-    collectedAt: "2025-09-02",
-    reportedAt: "2025-09-03",
-    doctor: "Dr. Nadir Sha",
-    value: "128",
-    units: "mg/dL",
-    reference: "70 – 100",
-    status: "Flagged",
-    abnormal: true,
-    facility: "Lab",
-    center: "Central Lab",
-  },
-  {
-    id: "LR-0002",
-    patientId: "P-0001",
-    patientName: "John Mathew",
-    age: 42,
-    gender: "M",
-    testName: "Complete Blood Count",
-    sampleType: "Blood",
-    collectedAt: "2025-09-03",
-    reportedAt: "2025-09-03",
-    doctor: "Dr. Nadir Sha",
-    value: "Normal",
-    units: "",
-    reference: "",
-    status: "Completed",
-    abnormal: false,
-    facility: "Lab",
-    center: "Central Lab",
-  },
-  {
-    id: "LR-0003",
-    patientId: "P-0004",
-    patientName: "Sara Ali",
-    age: 28,
-    gender: "F",
-    testName: "Urine Routine",
-    sampleType: "Urine",
-    collectedAt: "2025-09-04",
-    reportedAt: null,
-    doctor: "Dr. Nadir Sha",
-    value: "—",
-    units: "",
-    reference: "",
-    status: "In Progress",
-    abnormal: false,
-    facility: "Lab",
-    center: "Apollo Diagnostics",
-  },
-  {
-    id: "LR-0004",
-    patientId: "P-0002",
-    patientName: "Aisha Kareem",
-    age: 33,
-    gender: "F",
-    testName: "TSH",
-    sampleType: "Blood",
-    collectedAt: "2025-09-01",
-    reportedAt: "2025-09-02",
-    doctor: "Dr. Nadir Sha",
-    value: "5.6",
-    units: "µIU/mL",
-    reference: "0.4 – 4.0",
-    status: "Flagged",
-    abnormal: true,
-    facility: "Lab",
-    center: "Apollo Diagnostics",
-  },
-  {
-    id: "LR-0005",
-    patientId: "P-0005",
-    patientName: "Ravi Kumar",
-    age: 47,
-    gender: "M",
-    testName: "CRP",
-    sampleType: "Blood",
-    collectedAt: "2025-09-04",
-    reportedAt: null,
-    doctor: "Dr. Nadir Sha",
-    value: "—",
-    units: "mg/L",
-    reference: "< 3",
-    status: "Pending",
-    abnormal: false,
-    facility: "Lab",
-    center: "Central Lab",
-  },
-  // Imaging example
-  {
-    id: "LR-0006",
-    patientId: "P-0006",
-    patientName: "Deepa Menon",
-    age: 38,
-    gender: "F",
-    testName: "Chest X‑Ray",
-    sampleType: "Other",
-    collectedAt: "2025-09-05",
-    reportedAt: "2025-09-05",
-    doctor: "Dr. Nadir Sha",
-    value: "No acute findings",
-    units: "",
-    reference: "",
-    status: "Completed",
-    abnormal: false,
-    facility: "Imaging",
-    center: "Radiology Suite A",
-  },
-];
 
 // ----- Small UI helpers -----
 const Chip: React.FC<{
@@ -351,13 +234,10 @@ type SortKey = keyof Pick<
 type SortDir = "asc" | "desc";
 
 // ----- Main Component -----
-export default function DashboardLabHome() {
-  const [rows] = useState<LabResult[]>(INITIAL_RESULTS);
+export default function LabResultsPage() {
+  const [rows] = useState<LabResult[]>([]);
 
-  // query
   const [q, setQ] = useState("");
-
-  // filters
   const [status, setStatus] = useState<LabStatus | "All">("All");
   const [doctor, setDoctor] = useState<string | "All">("All");
   const [sample, setSample] = useState<SampleType | "All">("All");
@@ -374,11 +254,8 @@ export default function DashboardLabHome() {
     to: string | null;
   }>({ from: null, to: null });
 
-  // sorting
   const [sortKey, setSortKey] = useState<SortKey>("reportedAt");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
-
-  // modals / drawers
   const [preview, setPreview] = useState<LabResult | null>(null);
   const [history, setHistory] = useState<LabResult | null>(null);
   const [shareFor, setShareFor] = useState<LabResult | null>(null);
@@ -387,7 +264,6 @@ export default function DashboardLabHome() {
   const [shareDoctor, setShareDoctor] = useState<string>("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
-  // pagination
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
@@ -547,13 +423,65 @@ export default function DashboardLabHome() {
       return next;
     });
 
+  const { data } = useSWR<{
+    message: string;
+    data: {
+      _id: string;
+      patient: {
+        _id: string;
+        name: string;
+        phoneNumber: string;
+        email: string;
+        gender: string;
+        dateOfBirth: Date;
+        conditions: string[];
+        blood: string;
+        allergies: string;
+        address: string;
+        notes: string;
+        createdBy: string;
+        status: string;
+        mrn: string;
+        createdAt: Date;
+        updatedAt: Date;
+      };
+      doctor: {
+        _id: string;
+        name: string;
+        specialization: null | string;
+      };
+      lab: {
+        _id: string;
+        name: string;
+        specialization: null | string;
+      };
+      date: Date;
+      priority: string;
+      name: {
+        code: string;
+        name: string;
+        unit: string;
+        min?: number;
+        max?: number;
+        type: string;
+        _id: string;
+      }[];
+      sampleType: string;
+      status: string;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+  }>("/lab/report");
+
+  const REPORT = data?.data ?? []
+
   return (
-    <div className="min-h-[calc(100vh-80px)] w-full bg-gradient-to-b from-white to-slate-50 p-5">
+    <div className="min-h-[calc(100vh-80px)] w-full bg-gradient-to-b from-white to-slate-50 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Lab Dashboard
+            Investigations
           </h1>
           <p className="text-sm text-gray-500">
             Track, filter & review lab and imaging results
@@ -871,8 +799,8 @@ export default function DashboardLabHome() {
       )}
 
       {/* Table */}
-      <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
-        <table className="w-full">
+      <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
+        <table className="w-full whitespace-nowrap  overflow-scroll">
           <thead>
             <tr className="bg-gray-50 text-xs text-gray-600">
               <th className="w-10 text-left px-4 py-3">
@@ -885,13 +813,12 @@ export default function DashboardLabHome() {
               </th>
               <th className="w-14 text-left px-4 py-3">No.</th>
               {headerCell("Patient", "patientName", sortKey, sortDir, setSort)}
-              <th className="w-24 text-left px-4 py-3">Lab ID</th>
               {headerCell("Test", "testName", sortKey, sortDir, setSort)}
               {headerCell("Sample", "sampleType", sortKey, sortDir, setSort)}
               {headerCell("Facility", "facility", sortKey, sortDir, setSort)}
               {headerCell("Center", "center", sortKey, sortDir, setSort)}
               {headerCell(
-                "Collected",
+                "Created At",
                 "collectedAt",
                 sortKey,
                 sortDir,
@@ -905,95 +832,73 @@ export default function DashboardLabHome() {
             </tr>
           </thead>
           <tbody>
-            {pageRows.map((r, idx) => {
+            {REPORT.map((r, idx) => {
               const serial = (page - 1) * pageSize + idx + 1;
-              const dateDisplay = (iso: string | null) => (iso ? iso : "—");
               return (
                 <tr
-                  key={r.id}
+                  key={r._id}
                   className="border-t border-gray-100 hover:bg-gray-50/60"
                 >
                   <td className="px-2 py-3">
                     <input
                       type="checkbox"
                       className="h-4 w-4"
-                      checked={selected.has(r.id)}
-                      onChange={() => toggleRow(r.id)}
+                      checked={selected.has(r._id)}
+                      onChange={() => toggleRow(r._id)}
                     />
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-500">{serial}</td>
                   <td className="px-2 py-3">
                     <div className="font-medium text-gray-900">
-                      {r.patientName}
+                      {r.patient.name}
                     </div>
                     <div className="text-xs text-gray-500">
-                      {r.patientId} • {r.age}/{r.gender}
+                      {r.patient.mrn} • {fAge(r.patient.dateOfBirth)}/{r.patient.gender}
                     </div>
                   </td>
-                  <td className="px-2 py-3 text-sm text-gray-600">{r.id}</td>
                   <td className="px-2 py-3 text-sm text-gray-700">
-                    {r.testName}
+                    {r.name.map(e=><p key={e._id}>{e.name}</p>)}
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">
                     {r.sampleType}
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">
-                    {r.facility === "Lab" ? "🧪 Lab" : "🩻 Imaging"}
+                    {r.name.map(e=><p key={e._id}>{e.type === "Lab" ? "🧪 Lab" : "🩻 Imaging"}</p>)}
+                    
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">
-                    {r.center}
+                    {r.lab.name}
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">
-                    {dateDisplay(r.collectedAt)}
+                    {fDate(r.createdAt)}
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">
-                    {dateDisplay(r.reportedAt)}
+                    {fDate(r.date)}
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">
-                    {r.doctor}
+                    Dr: {r.doctor.name} 
+                  </td>
+                  <td className="px-2 py-3 text-xs">
+                    {r.name.map(e=>e.min && e.max&& <p key={e._id}>{`${e?.min} ${e.unit} to ${e?.max} ${e.unit}`}</p>)}
+                    
                   </td>
                   <td className="px-2 py-3">
-                    {r.value && (
-                      <div className="text-sm text-gray-900">
-                        <span className="font-medium">{r.value}</span>
-                        {r.units ? ` ${r.units}` : ""}
-                      </div>
-                    )}
-                    {r.reference && (
-                      <div className="text-xs text-gray-500">
-                        Ref: {r.reference}
-                      </div>
-                    )}
-                    {r.abnormal && (
-                      <div className="mt-1">
-                        <Chip label="Abnormal" tone="amber" />
-                      </div>
-                    )}
-                  </td>
-                  <td className="px-2 py-3">
-                    <Chip label={r.status} tone={statusTone(r.status)} />
+                    <Chip label={r.status} tone={statusTone("Pending")} />
                   </td>
                   <td className="px-2 py-3 text-right">
                     <div className="inline-flex gap-1">
                       <button
-                        onClick={() => setPreview(r)}
                         className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
                       >
                         View
                       </button>
                       <button
-                        onClick={() => setHistory(r)}
                         className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
                       >
                         History
                       </button>
                       <button
-                        onClick={() => {
-                          setShareFor(r);
-                          setShareTarget("Doctor");
-                          setShareVia("Copy link");
-                          setShareDoctor(r.doctor);
-                        }}
+                        
                         className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50"
                       >
                         Share
@@ -1004,16 +909,7 @@ export default function DashboardLabHome() {
               );
             })}
 
-            {pageRows.length === 0 && (
-              <tr>
-                <td
-                  colSpan={14}
-                  className="px-4 py-12 text-center text-sm text-gray-500"
-                >
-                  No lab results match your filters.
-                </td>
-              </tr>
-            )}
+          
           </tbody>
         </table>
       </div>
