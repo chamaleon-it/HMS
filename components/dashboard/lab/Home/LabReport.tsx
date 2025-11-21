@@ -190,7 +190,7 @@ export default function LabResultsPage() {
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name.split(' ')[0]}</span>
+                      <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name}</span>
                     </div>
                   </td>
 
