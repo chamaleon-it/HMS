@@ -11,16 +11,17 @@ const Chip: React.FC<{
   tone?: "green" | "gray" | "red" | "blue" | "amber";
 }> = ({ label, tone = "gray" }) => {
   const tones: Record<string, string> = {
-    green: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    gray: "bg-slate-100 text-slate-700 ring-slate-200",
-    red: "bg-rose-50 text-rose-700 ring-rose-200",
-    blue: "bg-sky-50 text-sky-700 ring-sky-200",
-    amber: "bg-amber-50 text-amber-700 ring-amber-200",
+    green: "bg-emerald-50 text-emerald-700 ring-emerald-200/50",
+    gray: "bg-slate-50 text-slate-600 ring-slate-200/50",
+    red: "bg-rose-50 text-rose-700 ring-rose-200/50",
+    blue: "bg-sky-50 text-sky-700 ring-sky-200/50",
+    amber: "bg-amber-50 text-amber-700 ring-amber-200/50",
   };
   return (
     <span
-      className={`px-2.5 py-1 rounded-full text-xs font-medium ring-1 ${tones[tone]}`}
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${tones[tone]}`}
     >
+      <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === 'gray' ? 'bg-slate-400' : tone === 'green' ? 'bg-emerald-500' : tone === 'amber' ? 'bg-amber-500' : tone === 'blue' ? 'bg-sky-500' : 'bg-rose-500'}`}></span>
       {label}
     </span>
   );
@@ -32,10 +33,10 @@ export default function LabResultsPage() {
     s === "Completed"
       ? "green"
       : s === "Pending"
-      ? "gray"
-      : s === "In Progress"
-      ? "amber"
-      : "red";
+        ? "gray"
+        : s === "In Progress"
+          ? "amber"
+          : "red";
 
   const { data } = useSWR<{
     message: string;
@@ -99,7 +100,7 @@ export default function LabResultsPage() {
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-semibold tracking-tight">
-            Investigations
+            Dashboard
           </h1>
           <p className="text-sm text-gray-500">
             Track, filter & review lab and imaging results
@@ -116,23 +117,20 @@ export default function LabResultsPage() {
 
       <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
         <table className="w-full whitespace-nowrap  overflow-scroll">
-          <thead>
-            <tr className="bg-gray-50 text-xs text-gray-600">
-              <th className="w-10 text-left px-4 py-3">
-                <input type="checkbox" className="h-4 w-4" />
+          <thead className="bg-slate-700 hover:bg-slate-700">
+            <tr className="bg-slate-700 hover:bg-slate-700 border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
+              <th className="w-10 text-left px-3 py-2">
+                <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" />
               </th>
-              <th className="w-14 text-left px-4 py-3">No.</th>
+              <th className="w-14 text-left px-3 py-2">No.</th>
               {headerCell("Patient")}
-              {headerCell("Test")}
-              {headerCell("Sample")}
-              {headerCell("Facility")}
-              {headerCell("Center")}
+              {headerCell("Test & Facility")}
+              <th className="text-left px-3 py-2">Value</th>
               {headerCell("Created At")}
               {headerCell("Reported")}
               {headerCell("Doctor")}
-              <th className="text-left px-4 py-3">Value</th>
               {headerCell("Status")}
-              <th className="w-40 text-right px-4 py-3">Actions</th>
+              <th className="w-40 text-right px-3 py-2">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -142,71 +140,72 @@ export default function LabResultsPage() {
               return (
                 <tr
                   key={r._id}
-                  className="border-t border-gray-100 hover:bg-gray-50/60"
+                  className="group border-b border-gray-100 hover:bg-gray-50/80 transition-colors duration-200 last:border-0"
                 >
-                  <td className="px-2 py-3">
-                    <input type="checkbox" className="h-4 w-4" />
+                  <td className="px-3 py-2">
+                    <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" />
                   </td>
-                  <td className="px-2 py-3 text-sm text-gray-500">{idx+1}</td>
-                  <td className="px-2 py-3">
-                    <div className="font-medium text-gray-900">
-                      {r.patient.name}
+                  <td className="px-3 py-2 text-sm text-gray-400 font-mono">{String(idx + 1).padStart(2, '0')}</td>
+                  <td className="px-3 py-2">
+                    <div className="flex flex-col">
+                      <span className="font-semibold text-gray-900 text-sm">
+                        {r.patient.name}
+                      </span>
+                      <span className="text-xs text-gray-500 mt-0.5">
+                        <span className="font-medium text-gray-600">{r.patient.mrn}</span> • {fAge(r.patient.dateOfBirth)} • {r.patient.gender}
+                      </span>
                     </div>
-                    <div className="text-xs text-gray-500">
-                      {r.patient.mrn} • {fAge(r.patient.dateOfBirth)}/
-                      {r.patient.gender}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-700">
+                    <div className="flex flex-col gap-2">
+                      {r.name.map((e) => (
+                        <div key={e._id} className="flex items-center gap-1 h-5">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
+                            {e.name}
+                          </span>
+                        </div>
+                      ))}
                     </div>
                   </td>
-                  <td className="px-2 py-3 text-sm text-gray-700">
-                    {r.name.map((e) => (
-                      <p key={e._id}>{e.name}</p>
-                    ))}
+                  <td className="px-3 py-2 text-xs">
+                    <div className="flex flex-col gap-2">
+                      {r.name.map(
+                        (e) =>
+                          e.min &&
+                          e.max && (
+                            <span
+                              key={e._id}
+                              className="text-gray-600 font-mono h-5"
+                            >{`${e?.min} - ${e?.max} ${e.unit}`}</span>
+                          )
+                      )}
+                    </div>
                   </td>
-                  <td className="px-2 py-3 text-sm text-gray-700">
-                    {r.sampleType}
-                  </td>
-                  <td className="px-2 py-3 text-sm text-gray-700">
-                    {r.name.map((e) => (
-                      <p key={e._id}>
-                        {e.type === "Lab" ? "🧪 Lab" : "🩻 Imaging"}
-                      </p>
-                    ))}
-                  </td>
-                  <td className="px-2 py-3 text-sm text-gray-700">
-                    {r.lab.name}
-                  </td>
-                  <td className="px-2 py-3 text-sm text-gray-700">
+
+                  <td className="px-3 py-2 text-sm text-gray-500">
                     {fDate(r.createdAt)}
                   </td>
-                  <td className="px-2 py-3 text-sm text-gray-700">
+                  <td className="px-3 py-2 text-sm text-gray-500">
                     {fDate(r.date)}
                   </td>
-                  <td className="px-2 py-3 text-sm text-gray-700">
-                    Dr: {r.doctor.name}
+                  <td className="px-3 py-2 text-sm text-gray-600">
+                    <div className="flex items-center gap-2">
+                      <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name.split(' ')[0]}</span>
+                    </div>
                   </td>
-                  <td className="px-2 py-3 text-xs">
-                    {r.name.map(
-                      (e) =>
-                        e.min &&
-                        e.max && (
-                          <p
-                            key={e._id}
-                          >{`${e?.min} ${e.unit} to ${e?.max} ${e.unit}`}</p>
-                        )
-                    )}
+
+                  <td className="px-3 py-2">
+                    <Chip label={r.status} tone={statusTone(r.status)} />
                   </td>
-                  <td className="px-2 py-3">
-                    <Chip label={r.status} tone={statusTone("Pending")} />
-                  </td>
-                  <td className="px-2 py-3 text-right">
-                    <div className="inline-flex gap-1">
-                      <button className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">
+                  <td className="px-3 py-2 text-right">
+                    <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
+                      <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
                         View
                       </button>
-                      <button className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">
+                      <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
                         History
                       </button>
-                      <button className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50">
+                      <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
                         Share
                       </button>
                     </div>
@@ -223,17 +222,8 @@ export default function LabResultsPage() {
 
 function headerCell(label: string) {
   return (
-    <th className="text-left px-2 py-3 select-none">
-      <button
-        className={`inline-flex items-center gap-1.5 text-xs font-medium ${
-          false ? "text-gray-900" : "text-gray-600"
-        } hover:text-gray-900`}
-      >
-        {label}
-        <span
-          className={`text-[10px] ${false ? "opacity-100" : "opacity-40"}`}
-        ></span>
-      </button>
+    <th className="text-left px-3 py-2">
+      {label}
     </th>
   );
 }

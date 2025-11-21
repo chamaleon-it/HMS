@@ -27,124 +27,7 @@ type LabResult = {
   center: string; // Which lab/center performed
 };
 
-// ----- Demo Data (replace with API data) -----
-const INITIAL_RESULTS: LabResult[] = [
-  {
-    id: "LR-0001",
-    patientId: "P-0003",
-    patientName: "Mohammed Iqbal",
-    age: 55,
-    gender: "M",
-    testName: "Fasting Blood Glucose",
-    sampleType: "Blood",
-    collectedAt: "2025-09-02",
-    reportedAt: "2025-09-03",
-    doctor: "Dr. Nadir Sha",
-    value: "128",
-    units: "mg/dL",
-    reference: "70 – 100",
-    status: "Flagged",
-    abnormal: true,
-    facility: "Lab",
-    center: "Central Lab",
-  },
-  {
-    id: "LR-0002",
-    patientId: "P-0001",
-    patientName: "John Mathew",
-    age: 42,
-    gender: "M",
-    testName: "Complete Blood Count",
-    sampleType: "Blood",
-    collectedAt: "2025-09-03",
-    reportedAt: "2025-09-03",
-    doctor: "Dr. Nadir Sha",
-    value: "Normal",
-    units: "",
-    reference: "",
-    status: "Completed",
-    abnormal: false,
-    facility: "Lab",
-    center: "Central Lab",
-  },
-  {
-    id: "LR-0003",
-    patientId: "P-0004",
-    patientName: "Sara Ali",
-    age: 28,
-    gender: "F",
-    testName: "Urine Routine",
-    sampleType: "Urine",
-    collectedAt: "2025-09-04",
-    reportedAt: null,
-    doctor: "Dr. Nadir Sha",
-    value: "—",
-    units: "",
-    reference: "",
-    status: "In Progress",
-    abnormal: false,
-    facility: "Lab",
-    center: "Apollo Diagnostics",
-  },
-  {
-    id: "LR-0004",
-    patientId: "P-0002",
-    patientName: "Aisha Kareem",
-    age: 33,
-    gender: "F",
-    testName: "TSH",
-    sampleType: "Blood",
-    collectedAt: "2025-09-01",
-    reportedAt: "2025-09-02",
-    doctor: "Dr. Nadir Sha",
-    value: "5.6",
-    units: "µIU/mL",
-    reference: "0.4 – 4.0",
-    status: "Flagged",
-    abnormal: true,
-    facility: "Lab",
-    center: "Apollo Diagnostics",
-  },
-  {
-    id: "LR-0005",
-    patientId: "P-0005",
-    patientName: "Ravi Kumar",
-    age: 47,
-    gender: "M",
-    testName: "CRP",
-    sampleType: "Blood",
-    collectedAt: "2025-09-04",
-    reportedAt: null,
-    doctor: "Dr. Nadir Sha",
-    value: "—",
-    units: "mg/L",
-    reference: "< 3",
-    status: "Pending",
-    abnormal: false,
-    facility: "Lab",
-    center: "Central Lab",
-  },
-  // Imaging example
-  {
-    id: "LR-0006",
-    patientId: "P-0006",
-    patientName: "Deepa Menon",
-    age: 38,
-    gender: "F",
-    testName: "Chest X‑Ray",
-    sampleType: "Other",
-    collectedAt: "2025-09-05",
-    reportedAt: "2025-09-05",
-    doctor: "Dr. Nadir Sha",
-    value: "No acute findings",
-    units: "",
-    reference: "",
-    status: "Completed",
-    abnormal: false,
-    facility: "Imaging",
-    center: "Radiology Suite A",
-  },
-];
+
 
 // ----- Small UI helpers -----
 const Chip: React.FC<{
@@ -204,11 +87,10 @@ function Segmented<T extends string>({
           <button
             key={o.value}
             onClick={() => onChange(o.value)}
-            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${
-              active
+            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${active
                 ? "bg-white ring-gray-300 shadow-sm text-gray-900"
                 : "bg-transparent ring-transparent text-gray-600 hover:text-gray-900"
-            }`}
+              }`}
           >
             {o.label}
           </button>
@@ -313,11 +195,10 @@ function FilterSelect<T extends string>({
                       onChange(o.value);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
-                      active
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${active
                         ? "bg-gray-100 text-gray-900"
                         : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                      }`}
                   >
                     <span className="truncate">{o.label}</span>
                     {active && <span>✓</span>}
@@ -352,7 +233,7 @@ type SortDir = "asc" | "desc";
 
 // ----- Main Component -----
 export default function DashboardLabReport() {
-  const [rows] = useState<LabResult[]>(INITIAL_RESULTS);
+  const [rows] = useState<LabResult[]>([]);
 
   // query
   const [q, setQ] = useState("");
@@ -406,10 +287,10 @@ export default function DashboardLabReport() {
     s === "Completed"
       ? "green"
       : s === "Pending"
-      ? "gray"
-      : s === "In Progress"
-      ? "amber"
-      : "red";
+        ? "gray"
+        : s === "In Progress"
+          ? "amber"
+          : "red";
 
   const resetFilters = () => {
     setQ("");
@@ -642,12 +523,12 @@ export default function DashboardLabReport() {
                   s === "Pending"
                     ? "⏳ Pending"
                     : s === "In Progress"
-                    ? "🔧 In Progress"
-                    : s === "Completed"
-                    ? "✅ Completed"
-                    : s === "Flagged"
-                    ? "🚩 Flagged"
-                    : "All statuses",
+                      ? "🔧 In Progress"
+                      : s === "Completed"
+                        ? "✅ Completed"
+                        : s === "Flagged"
+                          ? "🚩 Flagged"
+                          : "All statuses",
                 value: s,
               }))}
             />
@@ -689,9 +570,8 @@ export default function DashboardLabReport() {
                     onClick={() => setFacility(opt.value)}
                     aria-pressed={active}
                     aria-label={`Facility: ${opt.label}`}
-                    className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 ${
-                      active ? opt.activeClass : opt.idleClass
-                    }`}
+                    className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 ${active ? opt.activeClass : opt.idleClass
+                      }`}
                   >
                     {opt.value !== "All" && <span aria-hidden>{opt.icon}</span>}
                     <span className="truncate">{opt.label}</span>
@@ -744,9 +624,8 @@ export default function DashboardLabReport() {
                     onClick={() => setSample(opt.value)}
                     aria-pressed={active}
                     aria-label={`Sample Type: ${opt.label}`}
-                    className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 ${
-                      active ? opt.activeClass : opt.idleClass
-                    }`}
+                    className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 ${active ? opt.activeClass : opt.idleClass
+                      }`}
                   >
                     {opt.value !== "All" && <span aria-hidden>{opt.icon}</span>}
                     <span className="truncate">{opt.label}</span>
@@ -1274,8 +1153,7 @@ export default function DashboardLabReport() {
                     );
                   setShareFor(null);
                   alert(
-                    `Shared with ${shareTarget}${
-                      shareTarget === "Doctor" ? " — " + shareDoctor : ""
+                    `Shared with ${shareTarget}${shareTarget === "Doctor" ? " — " + shareDoctor : ""
                     } via ${shareVia}`
                   );
                 }}
@@ -1303,9 +1181,8 @@ function headerCell(
     <th className="text-left px-2 py-3 select-none">
       <button
         onClick={() => setSort(key)}
-        className={`inline-flex items-center gap-1.5 text-xs font-medium ${
-          isActive ? "text-gray-900" : "text-gray-600"
-        } hover:text-gray-900`}
+        className={`inline-flex items-center gap-1.5 text-xs font-medium ${isActive ? "text-gray-900" : "text-gray-600"
+          } hover:text-gray-900`}
       >
         {label}
         <span
