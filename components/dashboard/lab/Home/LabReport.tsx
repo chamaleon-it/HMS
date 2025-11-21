@@ -4,41 +4,14 @@ import { fAge, fDate } from "@/lib/fDateAndTime";
 import React, { useState } from "react";
 import useSWR from "swr";
 import LabStatus from "./LabStatus";
+import { Checkbox } from "@/components/ui/checkbox";
+import NewTest from "./NewTest";
+import { useAuth } from "@/auth/context/auth-context";
 
-// ----- Small UI helpers -----
-const Chip: React.FC<{
-  label: string;
-  tone?: "green" | "gray" | "red" | "blue" | "amber";
-}> = ({ label, tone = "gray" }) => {
-  const tones: Record<string, string> = {
-    green: "bg-emerald-50 text-emerald-700 ring-emerald-200/50",
-    gray: "bg-slate-50 text-slate-600 ring-slate-200/50",
-    red: "bg-rose-50 text-rose-700 ring-rose-200/50",
-    blue: "bg-sky-50 text-sky-700 ring-sky-200/50",
-    amber: "bg-amber-50 text-amber-700 ring-amber-200/50",
-  };
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${tones[tone]}`}
-    >
-      <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === 'gray' ? 'bg-slate-400' : tone === 'green' ? 'bg-emerald-500' : tone === 'amber' ? 'bg-amber-500' : tone === 'blue' ? 'bg-sky-500' : 'bg-rose-500'}`}></span>
-      {label}
-    </span>
-  );
-};
-
-// ----- Main Component -----
 export default function LabResultsPage() {
-  const statusTone = (s: string): "green" | "gray" | "red" | "blue" | "amber" =>
-    s === "Completed"
-      ? "green"
-      : s === "Pending"
-        ? "gray"
-        : s === "In Progress"
-          ? "amber"
-          : "red";
+  const { user } = useAuth()
 
-  const { data } = useSWR<{
+  const { data, mutate } = useSWR<{
     message: string;
     data: {
       _id: string;
@@ -103,15 +76,15 @@ export default function LabResultsPage() {
             Dashboard
           </h1>
           <p className="text-sm text-gray-500">
-            Track, filter & review lab and imaging results
+            Lab and imaging results
           </p>
         </div>
         <div className="flex gap-3 items-center">
-          <LabStatus currenctStatus={status} setCurrenctStatus={setStatus} />
 
-          <button className="px-4 py-2 rounded-xl bg-white ring-1 ring-gray-200 text-gray-700 hover:bg-gray-50">
-            Export
-          </button>
+
+          <LabStatus currenctStatus={status} setCurrenctStatus={setStatus} />
+          <NewTest mutate={mutate} />
+
         </div>
       </div>
 
@@ -120,17 +93,19 @@ export default function LabResultsPage() {
           <thead className="bg-slate-700 hover:bg-slate-700">
             <tr className="bg-slate-700 hover:bg-slate-700 border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
               <th className="w-10 text-left px-3 py-2">
-                <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                <Checkbox />
               </th>
-              <th className="w-14 text-left px-3 py-2">No.</th>
+              {headerCell("No.")}
               {headerCell("Patient")}
-              {headerCell("Test & Facility")}
-              <th className="text-left px-3 py-2">Value</th>
+              {headerCell("Test")}
+              {headerCell("Value")}
+              {headerCell("Reference")}
               {headerCell("Created At")}
               {headerCell("Reported")}
               {headerCell("Doctor")}
               {headerCell("Status")}
-              <th className="w-40 text-right px-3 py-2">Actions</th>
+              {headerCell("Actions")}
+
             </tr>
           </thead>
           <tbody>
@@ -143,7 +118,7 @@ export default function LabResultsPage() {
                   className="group border-b border-gray-100 hover:bg-gray-50/80 transition-colors duration-200 last:border-0"
                 >
                   <td className="px-3 py-2">
-                    <input type="checkbox" className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" />
+                    <Checkbox />
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-400 font-mono">{String(idx + 1).padStart(2, '0')}</td>
                   <td className="px-3 py-2">
@@ -152,32 +127,44 @@ export default function LabResultsPage() {
                         {r.patient.name}
                       </span>
                       <span className="text-xs text-gray-500 mt-0.5">
-                        <span className="font-medium text-gray-600">{r.patient.mrn}</span> • {fAge(r.patient.dateOfBirth)} • {r.patient.gender}
+                        <span className="font-medium text-gray-600">{r.patient.mrn}</span> • {fAge(r.patient.dateOfBirth)} yrs • {r.patient.gender}
                       </span>
                     </div>
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-700">
                     <div className="flex flex-col gap-2">
                       {r.name.map((e) => (
-                        <div key={e._id} className="flex items-center gap-1 h-5">
-                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800">
-                            {e.name}
-                          </span>
+                        <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
+                          {e.name}
                         </div>
                       ))}
                     </div>
                   </td>
+
                   <td className="px-3 py-2 text-xs">
                     <div className="flex flex-col gap-2">
                       {r.name.map(
                         (e) =>
-                          e.min &&
-                          e.max && (
-                            <span
-                              key={e._id}
-                              className="text-gray-600 font-mono h-5"
-                            >{`${e?.min} - ${e?.max} ${e.unit}`}</span>
-                          )
+                        (
+                          <span
+                            key={e._id}
+                            className="text-gray-600 font-mono h-5"
+                          >{e?.min ? `140 ${e.unit}` : "-"}</span>
+                        )
+                      )}
+                    </div>
+                  </td>
+
+                  <td className="px-3 py-2 text-xs">
+                    <div className="flex flex-col gap-2">
+                      {r.name.map(
+                        (e) =>
+                        (
+                          <span
+                            key={e._id}
+                            className="text-gray-600 font-mono h-5"
+                          >{`${e?.min ?? ""} - ${e?.max ?? ""} ${e?.min ? e.unit : ""}`}</span>
+                        )
                       )}
                     </div>
                   </td>
@@ -190,7 +177,7 @@ export default function LabResultsPage() {
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name}</span>
+                      {r.doctor._id !== user?._id ? <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name}</span> : <span>Direct</span>}
                     </div>
                   </td>
 
@@ -227,3 +214,37 @@ function headerCell(label: string) {
     </th>
   );
 }
+
+
+const statusTone = (s: string): "green" | "gray" | "red" | "blue" | "amber" =>
+  s === "Completed"
+    ? "green"
+    : s === "Pending"
+      ? "gray"
+      : s === "In Progress"
+        ? "amber"
+        : "red";
+
+
+
+// ----- Small UI helpers -----
+const Chip: React.FC<{
+  label: string;
+  tone?: "green" | "gray" | "red" | "blue" | "amber";
+}> = ({ label, tone = "gray" }) => {
+  const tones: Record<string, string> = {
+    green: "bg-emerald-50 text-emerald-700 ring-emerald-200/50",
+    gray: "bg-slate-50 text-slate-600 ring-slate-200/50",
+    red: "bg-rose-50 text-rose-700 ring-rose-200/50",
+    blue: "bg-sky-50 text-sky-700 ring-sky-200/50",
+    amber: "bg-amber-50 text-amber-700 ring-amber-200/50",
+  };
+  return (
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${tones[tone]}`}
+    >
+      <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === 'gray' ? 'bg-slate-400' : tone === 'green' ? 'bg-emerald-500' : tone === 'amber' ? 'bg-amber-500' : tone === 'blue' ? 'bg-sky-500' : 'bg-rose-500'}`}></span>
+      {label}
+    </span>
+  );
+};

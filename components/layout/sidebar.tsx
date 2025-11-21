@@ -12,11 +12,13 @@ import {
   Undo2,
   ShoppingCart,
   Users,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
 
 export function Sidebar() {
@@ -45,7 +47,20 @@ export function Sidebar() {
     upcoming: 0,
   };
 
-  const items =
+  const items: {
+    key: string;
+    label: string;
+    icon: React.ElementType,
+    link?: string;
+    badge?: string;
+    childrens?: {
+      key: string;
+      label: string;
+      link: string;
+    }[
+
+    ]
+  }[] =
     (user?.role === "Doctor" && [
       {
         key: "dashboard",
@@ -92,7 +107,7 @@ export function Sidebar() {
         icon: Warehouse,
         link: "/dashboard/pharmacy/inventory",
       },
-       {
+      {
         key: "customers",
         label: "Customers",
         icon: Users,
@@ -141,9 +156,20 @@ export function Sidebar() {
 
       {
         key: "investigations",
-        label: "Investigations",
+        label: "Test",
         icon: FlaskConical,
-        link: "/dashboard/lab/investigations",
+        childrens: [
+          {
+            key: "lab",
+            label: "Lab",
+            link: "/dashboard/lab/test/lab",
+          },
+          {
+            key: "imagine",
+            label: "Imagine",
+            link: "/dashboard/lab/test/imagine",
+          }
+        ]
       },
       {
         key: "billing",
@@ -155,8 +181,8 @@ export function Sidebar() {
     [];
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
-  const settingsLink :string | undefined =user?.role ?  settingsLinks[user.role] : undefined
-  
+  const settingsLink: string | undefined = user?.role ? settingsLinks[user.role] : undefined
+
   return (
     <aside
       className={
@@ -172,14 +198,14 @@ export function Sidebar() {
       {/* Brand */}
       <div className="px-4 py-4 flex items-center gap-3">
         <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">
-          D
+          S
         </div>
         {!collapsed && (
           <div>
             <div className="text-lg font-semibold text-slate-800 leading-tight">
-              DocHub
+              Synapse
             </div>
-            <div className="text-xs text-slate-500">Clinic OS</div>
+            <div className="text-xs text-slate-500">HMS</div>
           </div>
         )}
         <button
@@ -200,8 +226,9 @@ export function Sidebar() {
             collapsed={collapsed}
             icon={it.icon}
             label={it.label}
-            badge={it.badge}
+            badge={it.badge ?? ""}
             link={it.link}
+            childrens={it.childrens}
           />
         ))}
 
@@ -209,19 +236,19 @@ export function Sidebar() {
         <div className="my-3 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
 
         {settingsLink && (
-  <NavItem
-    active={pathname === settingsLink}
-    collapsed={collapsed}
-    icon={Settings}
-    label="Settings"
-    link={settingsLink}
-  />
-)}
+          <NavItem
+            active={pathname === settingsLink}
+            collapsed={collapsed}
+            icon={Settings}
+            label="Settings"
+            link={settingsLink}
+          />
+        )}
 
 
       </nav>
 
-      
+
 
       {/* Account card */}
       <div className="mt-auto p-4">
@@ -252,7 +279,7 @@ export function Sidebar() {
   );
 }
 
-const settingsLinks:Record<string,string> = {
+const settingsLinks: Record<string, string> = {
   Pharmacy: "/dashboard/pharmacy/settings",
   "Pharmacy Wholesaler": "/dashboard/pharmacy-wholesaler/settings",
   Doctor: "/dashboard/doctor/settings",
@@ -264,32 +291,45 @@ function NavItem({
   collapsed,
   icon: Icon,
   label,
-
   badge,
   link,
+  childrens,
 }: {
   active?: boolean;
   collapsed?: boolean;
   icon: React.ElementType;
   label: string;
-
   badge?: string;
   link?: string;
+  childrens?: {
+    key: string;
+    label: string;
+    link: string;
+  }[];
 }) {
-  return (
-    <Link
-      href={link || "/"}
-      className={
-        "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border " +
-        (active
-          ? "border-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
-          : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
-      }
-    >
+  const pathname = usePathname(); // Assuming usePathname is available in this scope or passed down
+  const hasChildren = childrens && childrens.length > 0;
+  const isParentActive = active || (hasChildren && childrens.some(child => pathname === child.link));
+  const [isSubMenuOpen, setIsSubMenuOpen] = useState(isParentActive);
+
+  useEffect(() => {
+    if (isParentActive) {
+      setIsSubMenuOpen(true);
+    }
+  }, [isParentActive]);
+
+  const toggleSubMenu = () => {
+    if (hasChildren) {
+      setIsSubMenuOpen((prev) => !prev);
+    }
+  };
+
+  const navItemContent = (
+    <>
       <span
         className={
           "grid h-9 w-9 place-items-center rounded-xl transition-all " +
-          (active
+          (isParentActive
             ? "bg-white/20 text-white"
             : "bg-slate-100 text-slate-600 group-hover:bg-slate-200")
         }
@@ -303,7 +343,7 @@ function NavItem({
             <span
               className={
                 "ml-auto inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 " +
-                (active
+                (isParentActive
                   ? "bg-white/20 text-white"
                   : "bg-slate-100 text-slate-700")
               }
@@ -311,8 +351,72 @@ function NavItem({
               {badge}
             </span>
           )}
+          {hasChildren && (
+            <span className="ml-auto">
+              {isSubMenuOpen ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+            </span>
+          )}
         </>
       )}
-    </Link>
+    </>
+  );
+
+  return (
+    <div>
+      {hasChildren ? (
+        <div
+          onClick={toggleSubMenu}
+          className={
+            "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border cursor-pointer " +
+            (isParentActive
+              ? "border-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
+              : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
+          }
+        >
+          {navItemContent}
+        </div>
+      ) : (
+        <Link
+          href={link || "/"}
+          className={
+            "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border " +
+            (isParentActive
+              ? "border-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
+              : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
+          }
+        >
+          {navItemContent}
+        </Link>
+      )}
+
+      {hasChildren && isSubMenuOpen && !collapsed && (
+        <div className="ml-8 mt-1 space-y-1">
+          {childrens.map((child) => (
+            <Link
+              key={child.key}
+              href={child.link}
+              className={
+                "group w-full flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-all " +
+                (pathname === child.link
+                  ? "bg-indigo-100 text-indigo-700 font-medium"
+                  : "text-slate-600 hover:bg-slate-50")
+              }
+            >
+              <span
+                className={
+                  "h-2 w-2 rounded-full " +
+                  (pathname === child.link ? "bg-indigo-500" : "bg-slate-400")
+                }
+              ></span>
+              {child.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

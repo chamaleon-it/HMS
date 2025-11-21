@@ -31,13 +31,13 @@ export default function Header() {
           {/* Brand */}
           <div className="flex items-center gap-3 pr-2" data-testid="brand">
             <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">
-              D
+              S
             </div>
             <div className="hidden md:block leading-tight">
               <div className="text-base font-semibold text-slate-800">
-                DocHub
+                Synapse
               </div>
-              <div className="text-xs text-slate-500">Clinic OS</div>
+              <div className="text-xs text-slate-500">HMS</div>
             </div>
           </div>
 
