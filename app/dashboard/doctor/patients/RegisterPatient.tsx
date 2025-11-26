@@ -17,7 +17,15 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
-import { fAge, fDate } from "@/lib/fDateAndTime";
+import {
+  combineToIST,
+  fAge,
+  fDate,
+  generateTimeSlots,
+  isSameDay,
+  startOfDay,
+  toMinutes,
+} from "@/lib/fDateAndTime";
 import registerPatientSchema from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -34,6 +42,19 @@ import { useSearchParams } from "next/navigation";
 import { BLOOD_GROUPS, CONDITIONS } from "./data";
 import InsuranceSelection from "./InsuranceSelection";
 import { Data } from "./PatientTable";
+
+const getRoundForTime = (
+  time: string,
+  rounds?: { label: string; start: string; end: string }[]
+) => {
+  if (!rounds?.length) return null;
+  const tm = toMinutes(time);
+  return (
+    rounds.find((r) => tm >= toMinutes(r.start) && tm <= toMinutes(r.end)) ||
+    null
+  );
+};
+
 export function RegisterPatient({
   onClose,
   mutate,
@@ -89,6 +110,30 @@ export function RegisterPatient({
   const values = watch();
   const { conditions, dateOfBirth } = values;
 
+  const { data: walkInData } = useSWR<{
+    message: string;
+    data: {
+      alreadyBooked: Date[];
+      nextAvailableDate: Date;
+    };
+  }>(
+    values.doctor ? `/appointments/walk-in/${values.doctor}` : null
+  );
+
+  const { data: availabilityData } = useSWR<{
+    message: string;
+    data: {
+      startDate: Date;
+      endDate: Date;
+      startTime: string;
+      endTime: string;
+      days: string[];
+      rounds: { label: string; start: string; end: string }[];
+    };
+  }>(values.doctor ? `/users/doctor_availability/${values.doctor}` : null);
+
+  const availability = availabilityData?.data;
+
   const createEditPatient = handleSubmit(async (data) => {
     try {
       if (patient?._id) {
@@ -105,10 +150,79 @@ export function RegisterPatient({
 
         return;
       }
-      await toast.promise(api.post("/patients", data), {
+
+      const res = await toast.promise(api.post("/patients", data), {
         loading: "Patient is registering...!",
         error: ({ response }) => response.data.message,
         success: ({ data }) => data.message,
+      });
+
+      if (!walkInData?.data || !availability) return;
+      const { alreadyBooked, nextAvailableDate } = walkInData.data;
+
+      const nextDate = new Date(nextAvailableDate);
+      const today = startOfDay(new Date());
+      const isNextDayToday = isSameDay(nextDate, today);
+
+      const now = new Date();
+      const cutoffMins = isNextDayToday
+        ? now.getHours() * 60 + now.getMinutes()
+        : -1;
+
+      const bookedSet = new Set(
+        (alreadyBooked ?? []).map((d) => new Date(d).getTime())
+      );
+
+      const times = generateTimeSlots(
+        availability.startTime ?? "09:00",
+        availability.endTime ?? "18:00",
+        15
+      );
+
+  
+
+      const firstFree = times.find((time) => {
+        const round = getRoundForTime(time, availability.rounds);
+      
+        if (round) return false;
+
+        const tm = toMinutes(time);
+        console.log(tm);
+        if (isNextDayToday && tm < cutoffMins) return false;
+
+        const slotDate = combineToIST(nextDate, time);
+        if (bookedSet.has(slotDate.getTime())) return false;
+
+         return true;
+      });
+
+     
+      if (!nextAvailableDate || !firstFree) {
+        return null;
+      }
+
+
+      const istDate = combineToIST(nextDate, firstFree);
+
+      const appointmentPayload: {
+        patient: string;
+        doctor: string;
+        method: string;
+        date: string;
+        isPaid: any;
+        type: string;
+      } = {
+        patient: res.data.data._id,
+        doctor: data.doctor,
+        method: "In clinic",
+        isPaid: false,
+        type: "New",
+        date: istDate.toISOString(),
+      };
+      await toast.promise(api.post("/appointments", appointmentPayload), {
+        loading: "We are booking a walk in appointment for you.",
+        error: ({ response }) => response.data.message,
+        success: "We booked a walk in appointment.",
       });
       reset();
       onClose();
@@ -202,16 +316,16 @@ export function RegisterPatient({
           <div className="grid gap-2">
             <Label>Gender *</Label>
             <Select
-              onValueChange={(value: "Male" | "Female" | "Other" | "Prefer not to say") =>
-                setValue("gender", value)
-              }
+              onValueChange={(
+                value: "Male" | "Female" | "Other" | "Prefer not to say"
+              ) => setValue("gender", value)}
               value={patient?.gender || values.gender}
             >
               <SelectTrigger className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other" , "Prefer not to say"].map((v) => (
+                {["Male", "Female", "Other", "Prefer not to say"].map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>
