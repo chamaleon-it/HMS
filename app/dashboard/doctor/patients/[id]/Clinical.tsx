@@ -37,10 +37,10 @@ export default function Clinical({ consult }: { consult: ConsultationType[] }) {
                 <Checkbox className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700" />
               </TableHead>
               <TableHead className="text-white w-[50px]">SL</TableHead>
-              <TableHead className="text-white">Patient</TableHead>
+              <TableHead className="text-white">Consulted Date</TableHead>
               <TableHead className="text-white">Doctor</TableHead>
               <TableHead className="text-white">Medicines</TableHead>
-              <TableHead className="text-white">Consulted Date</TableHead>
+              <TableHead className="text-white">Investigations</TableHead>
               <TableHead className="text-white text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -87,14 +87,10 @@ const Row = React.memo(function Row({
         {idx + 1}
       </TableCell>
 
-      <TableCell>
-        <div className="flex flex-col">
-          <span className="font-medium">{row.patient.name}</span>
-          <span className="text-xs text-muted-foreground font-mono">
-            {row.patient.mrn}
-          </span>
-        </div>
+      <TableCell className="text-muted-foreground text-sm">
+        {fDateandTime(row.createdAt)}
       </TableCell>
+
 
       <TableCell>
         <div className="flex flex-col">
@@ -107,7 +103,7 @@ const Row = React.memo(function Row({
 
       <TableCell className="max-w-[300px]">
         <div className="flex flex-wrap gap-1">
-          {row.medicines.slice(0, 3).map((m, i) => (
+          {row.medicines.map((m, i) => (
             <Badge
               key={m._id ?? i}
               variant="secondary"
@@ -116,17 +112,16 @@ const Row = React.memo(function Row({
               {m.name.name}
             </Badge>
           ))}
-          {row.medicines.length > 3 && (
-            <Badge variant="outline" className="text-xs">
-              +{row.medicines.length - 3} more
-            </Badge>
-          )}
         </div>
       </TableCell>
 
-      <TableCell className="text-muted-foreground text-sm">
-        {fDateandTime(row.createdAt)}
+      <TableCell className="max-w-[300px]">
+        <div className="flex flex-wrap gap-1">
+          {row.test.map((m, i) => m.name.map((e, j) => (<Badge key={i * j} variant="secondary" className="font-normal text-xs whitespace-nowrap">{e.name}</Badge>)))}
+        </div>
       </TableCell>
+
+
 
       <TableCell className="text-right">
         <Button
