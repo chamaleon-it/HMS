@@ -4,6 +4,7 @@ import useSWR from "swr";
 
 interface Medicine {
   // Store ONLY the id in your form model
+  referralName:string;
   name: string; // _id
   dosage: string;
   frequency: string;
@@ -95,6 +96,7 @@ export default function MedicineField({
   const handleSelect = (item: Item) => {
     // store only id in your form
     updateField(i, "name", item._id);
+    updateField(i, "referralName", item.name);
     // remember the label locally
     setSelected({ id: item._id, name: item.name });
     // clear query and close
@@ -125,7 +127,7 @@ export default function MedicineField({
     }
   };
 
-  const displayValue = open || query ? query : selected?.name ?? "";
+  const displayValue = open || query ? query : selected?.name ?? m.referralName;
 
   return (
     <div ref={containerRef} className="relative w-full">

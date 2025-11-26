@@ -50,14 +50,15 @@ export default function ConsultingMenu() {
       otherNotes: null,
     },
     medicines: [
-       {
-          dosage: "",
-          name: "",
-          duration: "",
-          food: "",
-          frequency: "",
-          quantity: 0,
-        },
+      {
+        dosage: "",
+        name: "",
+        duration: "",
+        food: "",
+        frequency: "",
+        quantity: 0,
+        referralName: "",
+      }
     ],
     advice: null,
     followUp: null,

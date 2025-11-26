@@ -3,6 +3,7 @@ export interface ConsultationType {
   patient: {
     _id: string;
     name: string;
+    mrn:string;
     phoneNumber: string;
     email: string;
     gender: string;
@@ -70,10 +71,12 @@ export interface ConsultationType {
   advice: string;
   followUp: Date;
   test: {
-    name: string[];
+    name: {
+      code:string;
+      name:string;
+    }[];
     date: Date;
     lab: string;
-    slot: string;
     priority: string;
     _id: string;
   }[];

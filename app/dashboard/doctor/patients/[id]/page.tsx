@@ -1,19 +1,11 @@
 "use client";
 
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import {
-  Calendar,
-  FlaskRound as Flask,
-  Image as ImageIcon,
-  NotebookPen,
-  Pill,
-  Printer,
   Stethoscope,
   Upload,
   Wallet,
   Download,
-  Search,
-  Edit3,
   FileArchive,
 } from "lucide-react";
 
@@ -23,14 +15,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
 
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -47,6 +32,8 @@ import Visit from "./Visit";
 import useSWR from "swr";
 import { useParams } from "next/navigation";
 import { ConsultationType, PatientType } from "./interface";
+import { cn } from "@/lib/utils";
+import Clinical from "./Clinical";
 
 // --- Helper small components ---
 function Stat({
@@ -131,7 +118,7 @@ export default function PatientFullDetailPage() {
   }>(`/consultings/patient/${patientId}`);
   const consult = consultingData?.data || [];
 
-  
+
 
   return (
     <AppShell>
@@ -167,7 +154,7 @@ export default function PatientFullDetailPage() {
         {/* Content */}
         <div className="p-5 grid grid-cols-1 lg:grid-cols-12 gap-4 md:gap-6">
           {/* Left Column: Patient Snapshot */}
-          <PatientSnapshot
+          {tab !== "clinical" && <PatientSnapshot
             blurIDsClass={blurIDsClass}
             maskIDs={maskIDs}
             setMaskIDs={setMaskIDs}
@@ -176,10 +163,10 @@ export default function PatientFullDetailPage() {
             showPHI={showPHI}
             patient={patient}
             consult={consult}
-          />
+          />}
 
           {/* Right Column: Main Tabs */}
-          <div className="lg:col-span-8 space-y-4">
+          <div className={cn("space-y-4", tab === "clinical" ? "col-span-full" : "lg:col-span-8")}>
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between gap-3">
@@ -188,69 +175,22 @@ export default function PatientFullDetailPage() {
                     {tab === "overview"
                       ? "Clinical Overview"
                       : tab === "clinical"
-                      ? "Clinical Notes"
-                      : tab === "labs"
-                      ? "Lab Results"
-                      : tab === "imaging"
-                      ? "Imaging"
-                      : tab === "meds"
-                      ? "Medications"
-                      : tab === "visits"
-                      ? "Visits"
-                      : tab === "docs"
-                      ? "Documents"
-                      : tab === "billing"
-                      ? "Billing & Claims"
-                      : "Timeline"}
+                        ? "Clinical Notes"
+                        : tab === "labs"
+                          ? "Lab Results"
+                          : tab === "imaging"
+                            ? "Imaging"
+                            : tab === "meds"
+                              ? "Medications"
+                              : tab === "visits"
+                                ? "Visits"
+                                : tab === "docs"
+                                  ? "Documents"
+                                  : tab === "billing"
+                                    ? "Billing & Claims"
+                                    : "Timeline"}
                   </CardTitle>
-                  <div className="flex items-center gap-2">
-                    <div className="hidden md:flex items-center gap-2">
-                      <Input
-                        placeholder="Search within patient…"
-                        className="w-64"
-                      />
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        aria-label="find"
-                        onClick={() => alert("Search coming soon")}
-                      >
-                        <Search className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm">
-                          <Edit3 className="h-4 w-4 mr-2" />
-                          Quick actions
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => setOpenAddNote(true)}>
-                          <NotebookPen className="h-4 w-4 mr-2" />
-                          Add Progress Note
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setOpenAddLab(true)}>
-                          <Flask className="h-4 w-4 mr-2" />
-                          Order Lab
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setOpenAddImage(true)}>
-                          <ImageIcon className="h-4 w-4 mr-2" />
-                          Order Imaging
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => setOpenAddMed(true)}>
-                          <Pill className="h-4 w-4 mr-2" />
-                          Add Prescription
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => alert("Open scheduler")}
-                        >
-                          <Calendar className="h-4 w-4 mr-2" />
-                          Schedule Follow-up
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
+
                 </div>
               </CardHeader>
 
@@ -259,178 +199,11 @@ export default function PatientFullDetailPage() {
                   <Overview setTab={setTab} consult={consult} />
                 )}
 
-                {tab === "clinical" && (
-                  <div className="grid grid-cols-1 gap-4">
-                    <div className="rounded-xl border">
-                      <div className="flex items-center justify-between p-3">
-                        <div className="font-semibold">Add Progress Note</div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => alert("Templates list")}
-                          >
-                            Templates
-                          </Button>
-                          <Button
-                            size="sm"
-                            className={ACCENT_CLASS}
-                            onClick={() => setOpenAddNote(true)}
-                          >
-                            Quick Note
-                          </Button>
-                        </div>
-                      </div>
-                      <Separator />
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4">
-                        <div>
-                          <Label>Chief Complaint</Label>
-                          <Input
-                            placeholder="e.g., Headache since 2 days"
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label>Onset & Duration</Label>
-                          <Input
-                            placeholder="e.g., Gradual, 2 days"
-                            className="mt-1"
-                          />
-                        </div>
-                        <div className="md:col-span-2">
-                          <Label>History of Present Illness</Label>
-                          <Textarea
-                            rows={6}
-                            className="mt-1"
-                            placeholder="HPI..."
-                          />
-                        </div>
-                        <div className="md:col-span-2">
-                          <Label>Examination</Label>
-                          <Textarea
-                            rows={4}
-                            className="mt-1"
-                            placeholder="General, systemic..."
-                          />
-                        </div>
-                        <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <Button
-                            variant="outline"
-                            onClick={() => setOpenAddLab(true)}
-                          >
-                            <Flask className="h-4 w-4 mr-2" />
-                            Order Lab
-                          </Button>
-                          <Button
-                            variant="outline"
-                            onClick={() => setOpenAddImage(true)}
-                          >
-                            <ImageIcon className="h-4 w-4 mr-2" />
-                            Order Imaging
-                          </Button>
-                          <Button
-                            className={ACCENT_CLASS}
-                            onClick={() => setOpenAddMed(true)}
-                          >
-                            <Pill className="h-4 w-4 mr-2" />
-                            Add Prescription
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="rounded-xl border p-4">
-                      <div className="font-medium mb-2">Previous Notes</div>
-                      <div className="space-y-3">
-                        {/* {notes.map((n, i) => (
-                          <div
-                            key={i}
-                            className="rounded-lg bg-muted/40 p-3 text-sm"
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="font-medium">{n.d}</div>
-                              <span className="text-xs text-muted-foreground">
-                                {n.by}
-                              </span>
-                            </div>
-                            <div>{n.t}</div>
-                          </div>
-                        ))} */}
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {tab === "clinical" && (<Clinical consult={consult} />)}
 
                 {tab === "labs" && (
                   <div className="space-y-3">
-                    {/* {labs.map((d, i) => (
-                      <div key={i} className="rounded-xl border p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="font-medium">{d.type}</div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Calendar className="h-4 w-4" /> {d.date}{" "}
-                            <Badge>{d.status}</Badge>
-                          </div>
-                        </div>
-                        <div className="mt-2 grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-                          <div className="rounded-lg bg-muted/40 p-2">
-                            Hemoglobin: 14.1 g/dL
-                          </div>
-                          <div className="rounded-lg bg-muted/40 p-2">
-                            WBC: 7.2 x10⁹/L
-                          </div>
-                          <div className="rounded-lg bg-muted/40 p-2">
-                            Platelets: 240 x10⁹/L
-                          </div>
-                        </div>
-                        <div className="mt-3 flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => alert("Open lab report viewer")}
-                          >
-                            {" "}
-                            <FileText className="h-4 w-4 mr-2" />
-                            Report
-                          </Button>
-                          <Button asChild size="sm" variant="outline">
-                            <label className="cursor-pointer">
-                              <Upload className="h-4 w-4 mr-2 inline" />
-                              Attach
-                              <input
-                                type="file"
-                                className="hidden"
-                                onChange={async (e) => {
-                                  const f = e.target.files?.[0];
-                                  if (!f) return;
-                                  const fd = new FormData();
-                                  fd.append("file", f);
-                                  try {
-                                    await fetch(
-                                      `${API_BASE}/patients/${patientId}/upload`,
-                                      { method: "POST", body: fd }
-                                    );
-                                    alert("Uploaded");
-                                  } catch {
-                                    alert("Upload failed");
-                                  }
-                                }}
-                              />
-                            </label>
-                          </Button>
-                        </div>
-                      </div>
-                    ))} */}
-                    {/* <div className="flex justify-end">
-                      <Button
-                        size="sm"
-                        className={ACCENT_CLASS}
-                        onClick={() => setOpenAddLab(true)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Order / Add Lab
-                      </Button>
-                    </div> */}
+
                     <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
                       <h2 className="text-lg font-semibold text-zinc-700 mb-1">
                         No Results Found
@@ -441,65 +214,7 @@ export default function PatientFullDetailPage() {
 
                 {tab === "imaging" && (
                   <div className="space-y-3">
-                    {/* {images.map((im, i) => (
-                      <div key={i} className="rounded-xl border p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="font-medium">{im.type}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {im.date}
-                          </div>
-                        </div>
-                        <div className="mt-2 text-sm">
-                          Impression: {im.impression}
-                        </div>
-                        <div className="mt-3 flex justify-end gap-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => alert("Open DICOM/image viewer")}
-                          >
-                            {" "}
-                            <ImageIcon className="h-4 w-4 mr-2" />
-                            View Image
-                          </Button>
-                          <Button asChild size="sm" variant="outline">
-                            <label className="cursor-pointer">
-                              <Upload className="h-4 w-4 mr-2 inline" />
-                              Attach
-                              <input
-                                type="file"
-                                className="hidden"
-                                onChange={async (e) => {
-                                  const f = e.target.files?.[0];
-                                  if (!f) return;
-                                  const fd = new FormData();
-                                  fd.append("file", f);
-                                  try {
-                                    await fetch(
-                                      `${API_BASE}/patients/${patientId}/upload`,
-                                      { method: "POST", body: fd }
-                                    );
-                                    alert("Uploaded");
-                                  } catch {
-                                    alert("Upload failed");
-                                  }
-                                }}
-                              />
-                            </label>
-                          </Button>
-                        </div>
-                      </div>
-                    ))} */}
-                    {/* <div className="flex justify-end">
-                      <Button
-                        size="sm"
-                        className={ACCENT_CLASS}
-                        onClick={() => setOpenAddImage(true)}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Order / Add Imaging
-                      </Button>
-                    </div> */}
+
 
                     <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
                       <h2 className="text-lg font-semibold text-zinc-700 mb-1">
@@ -598,20 +313,7 @@ export default function PatientFullDetailPage() {
                         <div className="col-span-5">Item</div>
                         <div className="col-span-3 text-right">Amount</div>
                       </div>
-                      {/* {[
-                        { d: "2025-09-02", item: "Consultation", amt: "₹ 500" },
-                        { d: "2025-09-02", item: "CBC Test", amt: "₹ 400" },
-                        { d: "2025-08-15", item: "FBS Test", amt: "₹ 350" },
-                      ].map((r, i) => (
-                        <div
-                          key={i}
-                          className="grid grid-cols-12 px-3 py-3 border-t text-sm"
-                        >
-                          <div className="col-span-4">{r.d}</div>
-                          <div className="col-span-5">{r.item}</div>
-                          <div className="col-span-3 text-right">{r.amt}</div>
-                        </div>
-                      ))} */}
+
                       <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
                         <h2 className="text-lg font-semibold text-zinc-700 mb-1">
                           No Results Found
@@ -622,87 +324,12 @@ export default function PatientFullDetailPage() {
                 )}
 
                 {tab === "timeline" && (
-                  // <div className="space-y-4">
-                  //   {/* {[
-                  //     {
-                  //       t: "2025-10-01 10:20",
-                  //       e: "Progress note added (Follow-up HTN)",
-                  //       by: "Dr. Nadisha",
-                  //     },
-                  //     {
-                  //       t: "2025-09-02 12:05",
-                  //       e: "Lab: CBC uploaded",
-                  //       by: "Lab: Chameleon Diagnostics",
-                  //     },
-                  //     {
-                  //       t: "2025-08-15 09:40",
-                  //       e: "Lab: Lipid + FBS ordered",
-                  //       by: "Dr. Nadisha",
-                  //     },
-                  //     {
-                  //       t: "2025-07-02 15:22",
-                  //       e: "Imaging: Chest X-Ray report attached",
-                  //       by: "Radiology",
-                  //     },
-                  //   ].map((i, idx) => (
-                  //     <div key={idx} className="relative pl-6">
-                  //       <div className="absolute left-0 top-2 h-3 w-3 rounded-full bg-primary" />
-                  //       <div className="rounded-xl border p-3">
-                  //         <div className="flex items-center justify-between">
-                  //           <div className="font-medium">{i.e}</div>
-                  //           <div className="text-xs text-muted-foreground">
-                  //             {i.t}
-                  //           </div>
-                  //         </div>
-                  //         <div className="text-xs text-muted-foreground">
-                  //           {i.by}
-                  //         </div>
-                  //       </div>
-                  //     </div>
-                  //   ))} */}
-                  // </div>
+
                   <Visit />
                 )}
               </CardContent>
             </Card>
 
-            {/* Bottom Sticky Action Bar */}
-            <div className="sticky bottom-3 z-30">
-              <div className="mx-auto w-full">
-                <div className="mx-auto max-w-[900px] rounded-2xl border bg-background/80 p-2 backdrop-blur shadow-lg flex items-center justify-center gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setOpenAddNote(true)}
-                  >
-                    <NotebookPen className="h-4 w-4 mr-2" />
-                    Note
-                  </Button>
-                  <Button variant="outline" onClick={() => setOpenAddLab(true)}>
-                    <Flask className="h-4 w-4 mr-2" />
-                    Lab
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => setOpenAddImage(true)}
-                  >
-                    <ImageIcon className="h-4 w-4 mr-2" />
-                    Imaging
-                  </Button>
-                  <Button variant="outline" onClick={() => setOpenAddMed(true)}>
-                    <Pill className="h-4 w-4 mr-2" />
-                    Rx
-                  </Button>
-                  <Button
-                    className={ACCENT_CLASS}
-                    onClick={() => alert("Print / Save")}
-                  >
-                    {" "}
-                    <Printer className="h-4 w-4 mr-2" />
-                    Print / Save
-                  </Button>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 

@@ -212,10 +212,10 @@ export default function PatientSnapshot({
         </CardContent>
       </Card>
 
-      <Card>
+     {Boolean(consult[0]?.medicines.length) && <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2">
-            <Pill className="h-5 w-5" /> Active Medications
+            <Pill className="h-5 w-5" /> Last Prescribed Medicine
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-2">
@@ -252,7 +252,7 @@ export default function PatientSnapshot({
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </Card>}
 
       <Card>
         <CardHeader className="pb-2">

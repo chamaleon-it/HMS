@@ -134,7 +134,7 @@ export default function MonthlyCalender({
                       ev.status === "Test" && "bg-amber-500"
                     )}
                   >
-                    {ev.patient.name} ({ev.type}){" • " + ev.status}
+                    {ev?.patient?.name} ({ev.type}){" • " + ev.status}
                   </div>
                 );
               })}

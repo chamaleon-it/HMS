@@ -179,11 +179,11 @@ export function RegisterPatient({
         15
       );
 
-  
+
 
       const firstFree = times.find((time) => {
         const round = getRoundForTime(time, availability.rounds);
-      
+
         if (round) return false;
 
         const tm = toMinutes(time);
@@ -193,10 +193,10 @@ export function RegisterPatient({
         const slotDate = combineToIST(nextDate, time);
         if (bookedSet.has(slotDate.getTime())) return false;
 
-         return true;
+        return true;
       });
 
-     
+
       if (!nextAvailableDate || !firstFree) {
         return null;
       }
@@ -209,7 +209,7 @@ export function RegisterPatient({
         doctor: string;
         method: string;
         date: string;
-        isPaid: any;
+        isPaid: boolean;
         type: string;
       } = {
         patient: res.data.data._id,
@@ -351,10 +351,10 @@ export function RegisterPatient({
                 >
                   {dateOfBirth
                     ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })} - Age : ${fAge(new Date(dateOfBirth))}`
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })} - Age : ${fAge(new Date(dateOfBirth))}`
                     : "Select date of birth"}
                   <ChevronDownIcon />
                 </Button>

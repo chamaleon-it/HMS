@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,12 +9,19 @@ import {
   Edit,
   X,
   AlertTriangle,
+  EllipsisVertical,
+  Pencil,
+  Minus,
 } from "lucide-react";
 import { AppointmentType, DataType } from "./interface";
-import Medicine from "./Medicine";
+import MedicineComponent from "./Medicine";
+import LabeledCombobox from "./LabeledCombobox";
+import toast from "react-hot-toast";
+import { cn } from "@/lib/utils";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
-// ------------------ Types ------------------
 interface Medicine {
+  referralName: string;
   name: string;
   dosage: string;
   frequency: string;
@@ -40,45 +47,47 @@ export default function PrescriptionCard({
     data: AppointmentType;
   };
 }) {
-  // --- Favorites (templates) ---
-  const [favorites, setFavorites] = useState<FavoriteTemplate[]>([
-    {
-      id: 1,
-      name: "Typhoid – Adult",
-      medicines: [
-        {
-          name: "Amoxicillin 500mg",
-          dosage: "1 tab",
-          frequency: "1-0-1",
-          food: "After Food",
-          duration: "7 days",
-          quantity: 14,
-        },
-        {
-          name: "Paracetamol 650mg",
-          dosage: "1 tab",
-          frequency: "1-1-1",
-          food: "After Food",
-          duration: "5 days",
-          quantity: 15,
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: "Dengue – Standard",
-      medicines: [
-        {
-          name: "Paracetamol 650mg",
-          dosage: "1 tab",
-          frequency: "1-1-1",
-          food: "After Food",
-          duration: "5 days",
-          quantity: 15,
-        },
-      ],
-    },
-  ]);
+  const [favoritesPills, setFavoritesPills] = useState<Medicine[]>([]);
+  const [favorites, setFavorites] = useState<FavoriteTemplate[]>([]);
+
+  // Load from localStorage on first render
+  useEffect(() => {
+    const stored = localStorage.getItem("@favorites");
+    if (stored) {
+      setFavorites(JSON.parse(stored));
+    }
+    const pills = localStorage.getItem("@favoritesPills");
+    if (pills) {
+      setFavoritesPills(JSON.parse(pills));
+    }
+  }, []);
+
+  // Save to localStorage whenever favorites changes
+  useEffect(() => {
+    if (favorites.length !== 0) {
+      localStorage.setItem("@favorites", JSON.stringify(favorites));
+    }
+  }, [favorites]);
+
+  const addFavoritesPills = (m: Medicine) => {
+    const found = favoritesPills.find((e) => e.referralName === m.referralName);
+    if (found) {
+      toast.error("Already pills exist");
+      return;
+    }
+    const newPills: Medicine[] = [...favoritesPills, m];
+    setFavoritesPills(newPills);
+    localStorage.setItem("@favoritesPills", JSON.stringify(newPills));
+  };
+
+  const removeFavoritesPills = (referralName: string) => {
+    const newPills: Medicine[] = favoritesPills.filter(
+      (m) => referralName !== m.referralName
+    );
+    setFavoritesPills(newPills);
+    localStorage.setItem("@favoritesPills", JSON.stringify(newPills));
+  };
+
   const [favSearch, setFavSearch] = useState<string>("");
 
   const filteredFavorites = useMemo(() => {
@@ -96,7 +105,7 @@ export default function PrescriptionCard({
   // --- UI state ---
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [saveModalOpen, setSaveModalOpen] = useState<boolean>(false);
-  const [templateName, setTemplateName] = useState<string>("");
+  const [templateName, setTemplateName] = useState<string>("New Template");
   const [appendMode] = useState<boolean>(true); // NEW: allow applying multiple diseases
 
   // --- Edit modal state ---
@@ -113,7 +122,7 @@ export default function PrescriptionCard({
       if (appendMode) {
         const base =
           prev.medicines.length === 1 &&
-          Object.values(prev.medicines[0]).every((v) => !v)
+            Object.values(prev.medicines[0]).every((v) => !v)
             ? []
             : prev.medicines;
 
@@ -142,6 +151,7 @@ export default function PrescriptionCard({
           food: "",
           frequency: "",
           quantity: 0,
+          referralName: "",
         },
       ],
     }));
@@ -171,10 +181,6 @@ export default function PrescriptionCard({
   };
 
   const openSaveModal = () => {
-    const title = data.medicines[0]?.name
-      ? `${data.medicines[0].name} – Template`
-      : "New Template";
-    setTemplateName(title);
     setSaveModalOpen(true);
   };
 
@@ -196,8 +202,13 @@ export default function PrescriptionCard({
     setTemplateName("");
   };
 
-  const removeFavorite = (id: number) =>
+  const removeFavorite = (id: number) => {
     setFavorites((prev) => prev.filter((f) => f.id !== id));
+    localStorage.setItem(
+      "@favorites",
+      JSON.stringify(favorites.filter((f) => f.id !== id))
+    );
+  };
 
   const openEditModal = (id: number) => {
     const t = favorites.find((f) => f.id === id);
@@ -231,13 +242,12 @@ export default function PrescriptionCard({
     setEditModalOpen(false);
   };
 
-  // ------------------ JSX ------------------
+  const [editFPill, setEditFPill] = useState(false)
+
   return (
     <Card>
       <CardContent>
         <div className="">
-          {/* Favorites Section */}
-
           <div className="mb-4">
             <div className="flex items-center gap-2.5 mb-2">
               <h2 className="font-semibold text-lg">Prescriptions</h2>
@@ -248,153 +258,216 @@ export default function PrescriptionCard({
                 </div>
               )}
             </div>
-              {/* Prescription Form */}
-          <div className="border rounded-xl p-4">
-            {/* Dynamic rows */}
-            <div className="flex flex-col gap-3">
-              <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2">
-                <div className="col-span-1">Sl No</div> 
-                <div className="col-span-2">Drug</div>
-                <div className="col-span-1">Dosage</div>
-                <div className="col-span-2">Frequency</div>
-                <div className="col-span-2">Food</div>
-                <div className="col-span-2">Duration</div>
-                <div className="col-span-1">Quantity</div>
-                <div className="col-span-1 text-right">Actions</div>
-              </div>
+            <div className="flex gap-2.5 mb-3">
 
-              {/* Rows */}
-              {data.medicines.map((m, i) => (
-                <div
-                  key={i}
-                  className="grid grid-cols-12 gap-2 mt-2 items-start"
-                >
-                   <div className="col-span-1 flex justify-start items-center h-full">
-                   {i+1}
-                  </div>
-                  <div className="col-span-2">
-                    <Medicine i={i} m={m} updateField={updateField} />
-                  </div>
+              {favoritesPills.map(f =>
+                <div className="relative" key={f.referralName}>
+                  {editFPill && <button
+                    className={cn(
+                      "absolute -right-1 -top-1 grid place-items-center size-3.5 rounded-md cursor-pointer",
+                      "bg-red-500 text-white shadow-sm hover:bg-red-600",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/60",
+                      "transition-opacity",
+                      "opacity-100"
+                    )}
+                    onClick={() => removeFavoritesPills(f.referralName)}
+                  >
+                    <Minus className="h-3 w-3" />
+                  </button>}
+                  <button
+                    onClick={() => {
+                      setData(prev => ({ ...prev, medicines: [...prev.medicines, f] }))
+                    }}
+                    className={cn(
+                      "px-3 py-1 rounded-full text-xs border select-none transition-shadow",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
+                      "disabled:opacity-50 disabled:cursor-not-allowed",
+                      "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                    )}
+                  >
+                    {f.referralName}
+                  </button>
+                </div>
+              )}
 
-                  <div className="col-span-1">
-                    <LabeledCombobox
-                      options={[
-                        "½ tab",
-                        "1 tab",
-                        "2 tab",
-                        "5 ml",
-                        "10 ml",
-                        "20 ml",
-                      ]}
-                      label="Dosage"
-                      value={m.dosage}
-                      onChange={(e) => updateField(i, "dosage", e)}
-                    />
-                  </div>
+              {
+                Boolean(favoritesPills.length) &&
+                <div className="relative z-20 flex items-center">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger>
+                      <EllipsisVertical className="h-4 w-4" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem
+                          onClick={() => setEditFPill(prev => !prev)}
+                          className="text-sm"
+                        >
+                          <Pencil className="w-3 h-3" /> Edit
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              }
+            </div>
+            {/* Prescription Form */}
+            <div className="border rounded-xl p-4">
+              {/* Dynamic rows */}
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2">
+                  <div className="col-span-1">Sl No</div>
+                  <div className="col-span-3">Drug</div>
+                  <div className="col-span-1">Dosage</div>
+                  <div className="col-span-1">Frequency</div>
+                  <div className="col-span-1">Food</div>
+                  <div className="col-span-1">Duration</div>
+                  <div className="col-span-2">Quantity</div>
+                  <div className="col-span-2 text-right">Actions</div>
+                </div>
 
-                  <div className="col-span-2">
-                    <LabeledCombobox
-                      options={[
-                        "1-0-1",
-                        "1-1-1",
-                        "0-1-1",
-                        "1-0-0",
-                        "0-0-1",
-                        "SOS",
-                      ]}
-                      label="Frequency"
-                      value={m.frequency}
-                      onChange={(e) => updateField(i, "frequency", e)}
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <LabeledCombobox
-                      options={[
-                        "After food",
-                        "Before food",
-                        "With food",
-                        "Empty stomach",
-                        "Anytime",
-                      ]}
-                      label="Food"
-                      value={m.food}
-                      onChange={(e) => updateField(i, "food", e)}
-                    />
-                  </div>
-
-                  <div className="col-span-2">
-                    <LabeledCombobox
-                      options={[
-                        "3 days",
-                        "5 days",
-                        "7 days",
-                        "10 days",
-                        "14 days",
-                        "28 days",
-                      ]}
-                      label="Duration"
-                      value={m.duration}
-                      onChange={(e) => updateField(i, "duration", e)}
-                    />
-                  </div>
-
-                  <div className="col-span-1">
-                    <div className="relative w-full">
-                      <input
-                        placeholder="quantity"
-                        type="number"
-                        onChange={(e) =>
-                          updateField(
-                            i,
-                            "quantity",
-                            parseInt(e.target.value) ?? 0
-                          )
-                        }
-                        inputMode={"numeric"}
-                        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+                {/* Rows */}
+                {data.medicines.map((m, i) => (
+                  <div
+                    key={i}
+                    className="grid grid-cols-12 gap-2 mt-2 items-start"
+                  >
+                    <div className="col-span-1 flex justify-start items-center h-full">
+                      {i + 1}
+                    </div>
+                    <div className="col-span-3">
+                      <MedicineComponent
+                        i={i}
+                        m={m}
+                        updateField={updateField}
                       />
-                      <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
-                        Quantity
-                      </label>
+                    </div>
+
+                    <div className="col-span-1">
+                      <LabeledCombobox
+                        options={[
+                          "½ tab",
+                          "1 tab",
+                          "2 tab",
+                          "5 ml",
+                          "10 ml",
+                          "20 ml",
+                        ]}
+                        label="Dosage"
+                        value={m.dosage}
+                        onChange={(e) => updateField(i, "dosage", e)}
+                      />
+                    </div>
+
+                    <div className="col-span-1">
+                      <LabeledCombobox
+                        options={[
+                          "1-0-1",
+                          "1-1-1",
+                          "0-1-1",
+                          "1-0-0",
+                          "0-0-1",
+                          "SOS",
+                        ]}
+                        label="Frequency"
+                        value={m.frequency}
+                        onChange={(e) => updateField(i, "frequency", e)}
+                      />
+                    </div>
+
+                    <div className="col-span-1">
+                      <LabeledCombobox
+                        options={[
+                          "After food",
+                          "Before food",
+                          "With food",
+                          "Empty stomach",
+                          "Anytime",
+                        ]}
+                        label="Food"
+                        value={m.food}
+                        onChange={(e) => updateField(i, "food", e)}
+                      />
+                    </div>
+
+                    <div className="col-span-1">
+                      <LabeledCombobox
+                        options={[
+                          "3 days",
+                          "5 days",
+                          "7 days",
+                          "10 days",
+                          "14 days",
+                          "28 days",
+                        ]}
+                        label="Duration"
+                        value={m.duration}
+                        onChange={(e) => updateField(i, "duration", e)}
+                      />
+                    </div>
+
+                    <div className="col-span-2">
+                      <div className="relative w-full">
+                        <input
+                          placeholder="0"
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            updateField(
+                              i,
+                              "quantity",
+                              value === "" ? 0 : Number(value)
+                            );
+                          }}
+                          inputMode={"numeric"}
+                          className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+                          value={m.quantity === 0 ? "" : m.quantity}
+                          onFocus={e => e.target.placeholder = ""}
+                          onBlur={e => e.target.placeholder = "0"}
+                        />
+                        <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+                          Quantity
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="col-span-2 flex justify-end gap-2">
+                      <Button
+                        className="!bg-emerald-600 hover:!bg-emerald-700 text-white !border-emerald-600"
+                        onClick={addMedicineRow}
+                        title="Add medicine"
+                      >
+                        <Plus className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        className="!bg-red-600 hover:!bg-red-700 text-white !border-red-600"
+                        onClick={() => removeMedicineRow(i)}
+                        title="Remove medicine"
+                      >
+                        <Trash className="w-4 h-4" />
+                      </Button>
+                      <Button variant={"outline"} onClick={() => addFavoritesPills(data.medicines[i])}>
+                        <Star className="w-4 h-4 text-yellow-500" />
+                      </Button>
                     </div>
                   </div>
-
-                  <div className="col-span-1 flex justify-end gap-2">
-                    <Button
-                      className="!bg-emerald-600 hover:!bg-emerald-700 text-white !border-emerald-600"
-                      onClick={addMedicineRow}
-                      title="Add medicine"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      className="!bg-red-600 hover:!bg-red-700 text-white !border-red-600"
-                      onClick={() => removeMedicineRow(i)}
-                      title="Remove medicine"
-                    >
-                      <Trash className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <div className="mt-4 flex gap-3">
+                <Button
+                  onClick={addMedicineRow}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
+                >
+                  + Add Medicine
+                </Button>
+                <Button
+                  onClick={openSaveModal}
+                  variant="outline"
+                  className="flex items-center gap-1"
+                >
+                  <Star className="w-4 h-4 text-yellow-500" /> Add to Favorites
+                </Button>
+              </div>
             </div>
-            <div className="mt-4 flex gap-3">
-              <Button
-                onClick={addMedicineRow}
-                className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
-              >
-                + Add Medicine
-              </Button>
-              <Button
-                onClick={openSaveModal}
-                variant="outline"
-                className="flex items-center gap-1"
-              >
-                <Star className="w-4 h-4 text-yellow-500" /> Add to Favorites
-              </Button>
-            </div>
-          </div>
             <input
               value={favSearch}
               onChange={(e) => setFavSearch(e.target.value)}
@@ -418,7 +491,7 @@ export default function PrescriptionCard({
                       {fav.medicines.map((med, idx) => (
                         <div key={idx} className="flex flex-wrap gap-1">
                           <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
-                            {med.name}
+                            {med.referralName}
                           </span>
                           <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">
                             {med.dosage}
@@ -458,7 +531,7 @@ export default function PrescriptionCard({
               </Card>
             </div>
           </div>
-        
+
           {/* Sidebar: Browse / Manage All Templates */}
           {sidebarOpen && (
             <div className="fixed inset-0 z-40">
@@ -703,80 +776,5 @@ export default function PrescriptionCard({
         </div>
       </CardContent>
     </Card>
-  );
-}
-
-type LabeledComboboxProps = {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  options: string[];
-  digitsOnly?: boolean; // e.g., for duration
-};
-
-function LabeledCombobox({
-  label,
-  value,
-  onChange,
-  options,
-  digitsOnly,
-}: LabeledComboboxProps) {
-  const [open, setOpen] = useState(false);
-  const [text, setText] = useState(value ?? "");
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    setText(value ?? "");
-  }, [value]);
-
-  const handleChange = (raw: string) => {
-    const v = digitsOnly ? raw.replace(/[^0-9]/g, "") : raw;
-    setText(v);
-    onChange(v);
-    setOpen(true);
-  };
-
-  const commit = (val: string) => {
-    setText(val);
-    onChange(val);
-    setOpen(false);
-  };
-
-  return (
-    <div className="relative w-full" ref={containerRef}>
-      <input
-        value={text}
-        onChange={(e) => handleChange(e.target.value)}
-        onFocus={() => setOpen(true)}
-        onClick={() => setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 120)}
-        placeholder=" "
-        className="peer w-full rounded-xl border border-slate-200 bg-transparent px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 z-20 relative"
-      />
-      <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
-        {label}
-      </label>
-      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-        ▾
-      </span>
-
-      {open && options.length > 0 && (
-        <div className="absolute left-0 right-0  z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1">
-          {options.map((opt: string) => (
-            <button
-              key={opt}
-              type="button"
-              className="w-full text-left px-2 py-1.5 rounded-lg text-sm bg-white hover:bg-emerald-50 hover:text-emerald-700"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                commit(opt);
-              }}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
   );
 }

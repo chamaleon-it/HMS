@@ -123,7 +123,7 @@ export default function MonthlyCalender({
                       
                       }
                   >
-                    {ev.patient.name}{" • " + ev.status}
+                    {ev?.patient?.name}{" • " + ev.status}
                   </div>
                 );
               })}
