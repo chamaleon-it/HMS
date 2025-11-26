@@ -248,75 +248,13 @@ export default function PrescriptionCard({
                 </div>
               )}
             </div>
-            <input
-              value={favSearch}
-              onChange={(e) => setFavSearch(e.target.value)}
-              placeholder="Search templates..."
-              className="border rounded-md p-2 text-sm w-full mb-3"
-            />
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {filteredFavorites.map((fav) => (
-                <Card
-                  key={fav.id}
-                  className="min-w-[280px] rounded-xl shadow-sm border"
-                >
-                  <CardContent className="p-3">
-                    <div
-                      className="font-medium text-sm mb-2 truncate"
-                      title={fav.name}
-                    >
-                      {fav.name}
-                    </div>
-                    <div className="flex flex-col gap-1 text-xs mb-3 max-h-24 overflow-y-auto pr-1">
-                      {fav.medicines.map((med, idx) => (
-                        <div key={idx} className="flex flex-wrap gap-1">
-                          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
-                            {med.name}
-                          </span>
-                          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">
-                            {med.dosage}
-                          </span>
-                          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-md">
-                            {med.frequency}
-                          </span>
-                          <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md">
-                            {med.food}
-                          </span>
-                          <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md">
-                            {med.duration}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                    <Button
-                      onClick={() => applyTemplate(fav)}
-                      size="sm"
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
-                    >
-                      Apply
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-              {/* Browse All Button */}
-              <Card
-                onClick={() => setSidebarOpen(true)}
-                className="min-w-[160px] rounded-xl border-dashed border-2 flex items-center justify-center cursor-pointer hover:bg-gray-50"
-              >
-                <CardContent className="p-3 text-center">
-                  <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray-600">
-                    Browse All <ChevronRight className="w-4 h-4" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-          {/* Prescription Form */}
+              {/* Prescription Form */}
           <div className="border rounded-xl p-4">
             {/* Dynamic rows */}
             <div className="flex flex-col gap-3">
               <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2">
-                <div className="col-span-3">Drug</div>
+                <div className="col-span-1">Sl No</div> 
+                <div className="col-span-2">Drug</div>
                 <div className="col-span-1">Dosage</div>
                 <div className="col-span-2">Frequency</div>
                 <div className="col-span-2">Food</div>
@@ -331,7 +269,10 @@ export default function PrescriptionCard({
                   key={i}
                   className="grid grid-cols-12 gap-2 mt-2 items-start"
                 >
-                  <div className="col-span-3">
+                   <div className="col-span-1 flex justify-start items-center h-full">
+                   {i+1}
+                  </div>
+                  <div className="col-span-2">
                     <Medicine i={i} m={m} updateField={updateField} />
                   </div>
 
@@ -454,6 +395,70 @@ export default function PrescriptionCard({
               </Button>
             </div>
           </div>
+            <input
+              value={favSearch}
+              onChange={(e) => setFavSearch(e.target.value)}
+              placeholder="Search templates..."
+              className="border rounded-md p-2 text-sm w-full my-3"
+            />
+            <div className="flex gap-3 overflow-x-auto pb-2">
+              {filteredFavorites.map((fav) => (
+                <Card
+                  key={fav.id}
+                  className="min-w-[280px] rounded-xl shadow-sm border"
+                >
+                  <CardContent className="p-3">
+                    <div
+                      className="font-medium text-sm mb-2 truncate"
+                      title={fav.name}
+                    >
+                      {fav.name}
+                    </div>
+                    <div className="flex flex-col gap-1 text-xs mb-3 max-h-24 overflow-y-auto pr-1">
+                      {fav.medicines.map((med, idx) => (
+                        <div key={idx} className="flex flex-wrap gap-1">
+                          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
+                            {med.name}
+                          </span>
+                          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">
+                            {med.dosage}
+                          </span>
+                          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-md">
+                            {med.frequency}
+                          </span>
+                          <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md">
+                            {med.food}
+                          </span>
+                          <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md">
+                            {med.duration}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                    <Button
+                      onClick={() => applyTemplate(fav)}
+                      size="sm"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
+                    >
+                      Apply
+                    </Button>
+                  </CardContent>
+                </Card>
+              ))}
+              {/* Browse All Button */}
+              <Card
+                onClick={() => setSidebarOpen(true)}
+                className="min-w-[160px] rounded-xl border-dashed border-2 flex items-center justify-center cursor-pointer hover:bg-gray-50"
+              >
+                <CardContent className="p-3 text-center">
+                  <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray-600">
+                    Browse All <ChevronRight className="w-4 h-4" />
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        
           {/* Sidebar: Browse / Manage All Templates */}
           {sidebarOpen && (
             <div className="fixed inset-0 z-40">

@@ -49,7 +49,16 @@ export default function ConsultingMenu() {
       le: null,
       otherNotes: null,
     },
-    medicines: [],
+    medicines: [
+       {
+          dosage: "",
+          name: "",
+          duration: "",
+          food: "",
+          frequency: "",
+          quantity: 0,
+        },
+    ],
     advice: null,
     followUp: null,
     test: [],
