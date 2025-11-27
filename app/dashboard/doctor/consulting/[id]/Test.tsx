@@ -50,33 +50,33 @@ const PRIORITIES: Priority[] = [
   { id: "Normal", label: "Normal" },
 ];
 
-// type Mode = "inhouse" | "external";
+type Mode = "inhouse" | "external";
 
-// type ModeToggleProps = {
-//   mode: Mode;
-//   onChange: (mode: Mode) => void;
-// };
+type ModeToggleProps = {
+  mode: Mode;
+  onChange: (mode: Mode) => void;
+};
 
-// const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onChange }) => (
-//   <div className="inline-flex rounded-full border border-zinc-200 bg-white p-1 shadow-sm">
-//     {(["inhouse", "external"] as const).map((m) => (
-//       <button
-//         key={m}
-//         onClick={() => onChange(m)}
-//         className={[
-//           "px-4 py-1.5 rounded-full text-sm font-medium transition",
-//           mode === m
-//             ? m === "inhouse"
-//               ? "bg-emerald-500 text-white shadow"
-//               : "bg-amber-500 text-white shadow"
-//             : "text-zinc-600 hover:bg-zinc-50",
-//         ].join(" ")}
-//       >
-//         {m === "inhouse" ? "In‑House" : "External"}
-//       </button>
-//     ))}
-//   </div>
-// );
+const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onChange }) => (
+  <div className="inline-flex rounded-full border border-zinc-200 bg-white p-1 shadow-sm">
+    {(["inhouse", "external"] as const).map((m) => (
+      <button
+        key={m}
+        onClick={() => onChange(m)}
+        className={[
+          "px-4 py-1.5 rounded-full text-sm font-medium transition",
+          mode === m
+            ? m === "inhouse"
+              ? "bg-emerald-500 text-white shadow"
+              : "bg-amber-500 text-white shadow"
+            : "text-zinc-600 hover:bg-zinc-50",
+        ].join(" ")}
+      >
+        {m === "inhouse" ? "In‑House" : "External"}
+      </button>
+    ))}
+  </div>
+);
 
 type TestItemProps = {
   test: TestItemType;
@@ -92,8 +92,8 @@ const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle }) => (
       false
         ? "opacity-50 cursor-not-allowed bg-zinc-50 border-zinc-200"
         : selected
-        ? "border-emerald-500 bg-emerald-50"
-        : "border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50",
+          ? "border-emerald-500 bg-emerald-50"
+          : "border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50",
     ].join(" ")}
   >
     <div className="truncate">
@@ -166,10 +166,10 @@ export default function Test({
 
   const bookTest = () => {
     if (booked) return;
-const datetime = combineDateAndSlot(date, slot);
+    const datetime = combineDateAndSlot(date, slot);
     const newTest = {
       name: selectedTests,
-      date:datetime,
+      date: datetime,
       lab: labId,
       priority,
     };
@@ -204,6 +204,8 @@ const datetime = combineDateAndSlot(date, slot);
     ).values(),
   ];
 
+  const [mode, setMode] = useState<Mode>("inhouse");
+
   return (
     <>
       <div className="">
@@ -220,7 +222,7 @@ const datetime = combineDateAndSlot(date, slot);
             <h1 className="text-xl font-semibold text-zinc-900">
               Lab / Imaging Booking
             </h1>
-            {/* {show && <ModeToggle mode={mode} onChange={onModeChange} />} */}
+            {show && <ModeToggle mode={mode} onChange={setMode} />}
           </div>
 
           {!show && (
@@ -309,16 +311,18 @@ const datetime = combineDateAndSlot(date, slot);
             </section>
 
             <section className="lg:col-span-8 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-              <p className="text-sm text-zinc-600">
-                Calendar → Lab → Time (in separate columns). Priority optional.
-              </p>
+              {mode === "external" && <>
 
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="rounded-xl border border-zinc-200 p-4">
-                  <div className="font-medium text-zinc-800 mb-2">
-                    Select Date
-                  </div>
-                  
+                <p className="text-sm text-zinc-600">
+                  Calendar → Lab → Time (in separate columns). Priority optional.
+                </p>
+
+                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="rounded-xl border border-zinc-200 p-4">
+                    <div className="font-medium text-zinc-800 mb-2">
+                      Select Date
+                    </div>
+
                     <Calendar
                       required
                       mode="single"
@@ -327,83 +331,83 @@ const datetime = combineDateAndSlot(date, slot);
                       className="rounded-md border shadow-sm w-full"
                       captionLayout="dropdown"
                     />
-                  
-                </div>
 
-                <div className="rounded-xl border border-zinc-200 p-4">
-                  <div className="font-medium text-zinc-800 mb-2">
-                    Select Lab
                   </div>
-                  <div className="flex flex-col gap-2">
-                    {Labs.filter((l) => {
-                      const labCodes = l.tests.map((t) => t.code);
-                      const selectedCode = selectedTests.map((t) => t.code);
-                      if (selectedCode.length === 0) return false;
-                      return selectedCode.every((code) =>
-                        labCodes.includes(code)
-                      );
-                    }).map((l) => (
-                      <button
-                        key={l._id}
-                        onClick={() => setLabId(l._id)}
-                        className={[
-                          "text-left rounded-xl border px-3 py-2",
-                          labId === l._id
-                            ? "border-amber-500 bg-amber-50"
-                            : "border-zinc-200 hover:border-zinc-400",
-                        ].join(" ")}
-                      >
-                        {l.name}
-                      </button>
-                    ))}
+
+                  <div className="rounded-xl border border-zinc-200 p-4">
+                    <div className="font-medium text-zinc-800 mb-2">
+                      Select Lab
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      {Labs.filter((l) => {
+                        const labCodes = l.tests.map((t) => t.code);
+                        const selectedCode = selectedTests.map((t) => t.code);
+                        if (selectedCode.length === 0) return false;
+                        return selectedCode.every((code) =>
+                          labCodes.includes(code)
+                        );
+                      }).map((l) => (
+                        <button
+                          key={l._id}
+                          onClick={() => setLabId(l._id)}
+                          className={[
+                            "text-left rounded-xl border px-3 py-2",
+                            labId === l._id
+                              ? "border-amber-500 bg-amber-50"
+                              : "border-zinc-200 hover:border-zinc-400",
+                          ].join(" ")}
+                        >
+                          {l.name}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Slots & Priority */}
+                  <div className="rounded-xl border border-zinc-200 p-4">
+                    <div className="font-medium text-zinc-800 mb-2">
+                      Available Time
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mb-3">
+                      {SLOTS.map((s) => (
+                        <button
+                          key={s}
+                          onClick={() => {
+                            setSlot(s)
+                          }}
+                          className={[
+                            "rounded-lg border px-3 py-2 text-sm",
+                            slot === s
+                              ? "bg-zinc-900 text-white border-zinc-900"
+                              : "border-zinc-200 hover:border-zinc-400",
+                          ].join(" ")}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="font-medium text-zinc-800 mb-1">Priority</div>
+                    <div className="flex flex-wrap gap-2">
+                      {PRIORITIES.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => setPriority(p.id)}
+                          className={[
+                            "rounded-full border px-3 py-1 text-xs font-medium",
+                            priority === p.id
+                              ? p.id === "High"
+                                ? "border-amber-500 bg-amber-50 text-amber-700"
+                                : "border-zinc-900 bg-zinc-900 text-white"
+                              : "border-zinc-200 text-zinc-700 hover:border-zinc-400",
+                          ].join(" ")}
+                        >
+                          {p.label}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
-
-                {/* Slots & Priority */}
-                <div className="rounded-xl border border-zinc-200 p-4">
-                  <div className="font-medium text-zinc-800 mb-2">
-                    Available Time
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 mb-3">
-                    {SLOTS.map((s) => (
-                      <button
-                        key={s}
-                        onClick={() => {
-                          setSlot(s)
-                        }}
-                        className={[
-                          "rounded-lg border px-3 py-2 text-sm",
-                          slot === s
-                            ? "bg-zinc-900 text-white border-zinc-900"
-                            : "border-zinc-200 hover:border-zinc-400",
-                        ].join(" ")}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="font-medium text-zinc-800 mb-1">Priority</div>
-                  <div className="flex flex-wrap gap-2">
-                    {PRIORITIES.map((p) => (
-                      <button
-                        key={p.id}
-                        onClick={() => setPriority(p.id)}
-                        className={[
-                          "rounded-full border px-3 py-1 text-xs font-medium",
-                          priority === p.id
-                            ? p.id === "High"
-                              ? "border-amber-500 bg-amber-50 text-amber-700"
-                              : "border-zinc-900 bg-zinc-900 text-white"
-                            : "border-zinc-200 text-zinc-700 hover:border-zinc-400",
-                        ].join(" ")}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
+              </>}
               <div className="mt-4 flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50/60 p-4 text-sm text-zinc-700">
                 <div className="truncate">
                   {selectedTests.length > 0 ? (
@@ -422,6 +426,7 @@ const datetime = combineDateAndSlot(date, slot);
                     <>Select tests to start booking.</>
                   )}
                 </div>
+
                 <button
                   onClick={bookTest}
                   disabled={!canBook}
