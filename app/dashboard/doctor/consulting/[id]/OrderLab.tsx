@@ -12,12 +12,12 @@ export default function OrderLab({
   booked: {
     name: {
       code: string;
-  max?: number;
-  min?: number;
-  name: string;
-  type: "Lab" | "Imaging";
-  unit: string;
-  _id: string;
+      max?: number;
+      min?: number;
+      name: string;
+      type: "Lab" | "Imaging";
+      unit: string;
+      _id: string;
     }[];
     date: Date;
     lab: string;
@@ -28,15 +28,15 @@ export default function OrderLab({
     _id: string;
     name: string;
     tests: {
-        code: string;
-        name: string;
-        type: "Lab" | "Imaging";
-        min?: number;
-        max?: number;
-        unit: string;
-        _id: string;
+      code: string;
+      name: string;
+      type: "Lab" | "Imaging";
+      min?: number;
+      max?: number;
+      unit: string;
+      _id: string;
     }[];
-}[]
+  }[]
 }) {
   return (
     <div className="border rounded-xl p-4">
@@ -61,12 +61,12 @@ export default function OrderLab({
                 <p key={e._id}>{e.name} ({e.code})</p>
               ))}
             </div>
-            <div className="col-span-2">{Labs.find(l=>l._id==e.lab)?.name}</div>
+            <div className="col-span-2">{Labs.find(l => l._id == e.lab)?.name ?? "Inhouse"}</div>
             <div className="col-span-2">{fDate(e.date)}</div>
             <div className="col-span-2">{fTime(e.date)}</div>
             <div className="col-span-1">{e.priority}</div>
             <div className="col-span-2 text-right flex justify-end gap-2">
-             
+
 
               <Button
                 onClick={() => {

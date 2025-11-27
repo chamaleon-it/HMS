@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DataType } from "./interface";
 import OrderLab from "./OrderLab";
-import { Image as ImageIcon, TestTubeDiagonal } from "lucide-react";
+import { Image as ImageIcon, TestTubeDiagonal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useSWR from "swr";
 import { combineDateAndSlot, fDate } from "@/lib/fDateAndTime";
@@ -156,7 +156,9 @@ export default function Test({
     );
   };
 
-  const canBook = selectedTests.length > 0 && Boolean(date && labId && slot);
+  const [mode, setMode] = useState<Mode>("inhouse");
+
+  const canBook = selectedTests.length > 0 && (mode === "inhouse" || Boolean(date && labId && slot));
 
   const [booked, setBooked] = useState(false);
 
@@ -166,10 +168,11 @@ export default function Test({
 
   const bookTest = () => {
     if (booked) return;
+
     const datetime = combineDateAndSlot(date, slot);
     const newTest = {
       name: selectedTests,
-      date: datetime,
+      date: mode === "inhouse" ? new Date() : datetime,
       lab: labId,
       priority,
     };
@@ -204,7 +207,7 @@ export default function Test({
     ).values(),
   ];
 
-  const [mode, setMode] = useState<Mode>("inhouse");
+
 
   return (
     <>
@@ -408,6 +411,54 @@ export default function Test({
                   </div>
                 </div>
               </>}
+
+              {
+                mode === "inhouse" && (
+                  <div className="mt-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-medium text-zinc-900">
+                        Selected for Booking
+                      </h3>
+                      {selectedTests.length > 0 && (
+                        <span className="text-xs text-zinc-500 font-medium bg-zinc-100 px-2 py-1 rounded-full">
+                          {selectedTests.length} items
+                        </span>
+                      )}
+                    </div>
+
+                    {selectedTests.length === 0 ? (
+                      <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 p-8 text-center">
+                        <p className="text-sm text-zinc-500">No tests selected yet.</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {selectedTests.map((test) => (
+                          <div
+                            key={test._id}
+                            className="group flex items-center justify-between p-3 rounded-xl bg-zinc-50 border border-zinc-100 hover:border-zinc-200 transition-colors"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className={`h-8 w-8 rounded-lg grid place-items-center ${test.type === 'Lab' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
+                                {test.type === 'Lab' ? <TestTubeDiagonal className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
+                              </div>
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-zinc-900">{test.name}</span>
+                                <span className="text-xs text-zinc-500">{test.code}</span>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => toggleTest(test)}
+                              className="h-8 w-8 grid place-items-center rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                              title="Remove test"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
               <div className="mt-4 flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50/60 p-4 text-sm text-zinc-700">
                 <div className="truncate">
                   {selectedTests.length > 0 ? (
