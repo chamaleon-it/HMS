@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import useSWR from "swr";
 import { combineDateAndSlot, fDate } from "@/lib/fDateAndTime";
 import { Calendar } from "@/components/ui/calendar";
+import configuration from "@/config/configuration";
 
 type TabKey = "All" | "Lab" | "Imaging";
 
@@ -173,7 +174,7 @@ export default function Test({
     const newTest = {
       name: selectedTests,
       date: mode === "inhouse" ? new Date() : datetime,
-      lab: labId ?? undefined,
+      lab: labId ?? configuration().in_house_lab_id,
       priority,
     };
     setData((prev) => ({ ...prev, test: [...prev.test, newTest] }));
