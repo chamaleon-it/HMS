@@ -173,7 +173,7 @@ export default function Test({
     const newTest = {
       name: selectedTests,
       date: mode === "inhouse" ? new Date() : datetime,
-      lab: labId,
+      lab: labId ?? undefined,
       priority,
     };
     setData((prev) => ({ ...prev, test: [...prev.test, newTest] }));
