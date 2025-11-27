@@ -144,7 +144,7 @@ export default function Test({
   const [selectedTests, setSelectedTests] = useState<TestItemType[]>([]);
 
   const [date, setDate] = useState<Date>(new Date());
-  const [labId, setLabId] = useState<string>("");
+  const [labId, setLabId] = useState<string>(configuration().in_house_lab_id);
   const [slot, setSlot] = useState<string>("");
   const [priority, setPriority] = useState<PriorityId>("Normal");
 
@@ -174,7 +174,7 @@ export default function Test({
     const newTest = {
       name: selectedTests,
       date: mode === "inhouse" ? new Date() : datetime,
-      lab: labId === "" ? labId : configuration().in_house_lab_id as string,
+      lab: labId === "" ? labId : configuration().in_house_lab_id,
       priority,
     };
     setData((prev) => ({ ...prev, test: [...prev.test, newTest] }));
