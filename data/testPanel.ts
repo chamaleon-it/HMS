@@ -10,14 +10,11 @@ export const testPanel = [
     "Electrolyte Panel",
     "Coagulation Profile (PT/INR, APTT)",
     "Cardiac Enzymes",
-    "CRP",
-    "ESR",
     "Urine Routine",
-    "Vitamin D",
-    "Vitamin B12",
     "Iron Studies",
     "Hormone Panel",
     "Infection Panel",
     "Liver Enzymes",
     "Renal Profile",
+    "Other"
 ];
