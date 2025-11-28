@@ -212,6 +212,8 @@ export default function Test({
   ];
 
 
+  const [selectedPanel, setSelectedPanel] = useState<string>("");
+
 
   return (
     <>
@@ -248,8 +250,9 @@ export default function Test({
               <div className="panel my-5 flex gap-1.5 flex-wrap">
                 {testPanel.map(panel => <button
                   onClick={() => {
-                    const tests = Tests.filter((e) => e.panel === panel)
-                    tests.forEach(test => toggleTest(test))
+                    // const tests = Tests.filter((e) => e.panel === panel)
+                    // tests.forEach(test => toggleTest(test))
+                    setSelectedPanel(panel)
                   }}
                   key={panel}
                   className={cn(
@@ -261,6 +264,23 @@ export default function Test({
                 >
                   {panel}
                 </button>)}
+
+
+                <button
+                  onClick={() => {
+                    setSelectedPanel("")
+                  }}
+
+                  className={cn(
+                    "px-3 py-1 rounded-full text-xs border select-none transition-shadow",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
+                    "disabled:opacity-50 disabled:cursor-not-allowed",
+                    "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                  )}
+                >
+                  Clear
+                </button>
+
               </div>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex gap-2">
@@ -310,6 +330,9 @@ export default function Test({
                     return t.type === "Imaging";
                   } else if (tab === "Lab") {
                     return t.type === "Lab";
+                  }
+                  if (selectedPanel) {
+                    return t.panel === selectedPanel;
                   }
                   return true;
                 })
