@@ -209,6 +209,37 @@ export default function CreateBill({
       toast.error("Please add atleast one item.");
       return;
     }
+
+    const itemWithZeroQty = payload.items.find((item) => item.quantity <= 0);
+    if (itemWithZeroQty) {
+      toast.error(`Item "${itemWithZeroQty.name}" has a quantity of zero or less.`);
+      return;
+    }
+    const itemWithZeroPrice = payload.items.find((item) => item.unitPrice <= 0);
+    if (itemWithZeroPrice) {
+      toast.error(`Item "${itemWithZeroPrice.name}" has a unit price of zero or less.`);
+      return;
+    }
+
+    const itemWithNegativeGst = payload.items.find((item) => item.gst < 0);
+    if (itemWithNegativeGst) {
+      toast.error(`Item "${itemWithNegativeGst.name}" has a negative GST value.`);
+      return;
+    }
+
+    const itemWithNegativeDiscount = payload.items.find((item) => item.discount < 0);
+    if (itemWithNegativeDiscount) {
+      toast.error(`Item "${itemWithNegativeDiscount.name}" has a negative discount value.`);
+      return;
+    }
+
+    const totalAmount = payload.items.reduce((acc, item) => acc + item.total, 0);
+    if (totalAmount <= 0) {
+      toast.error("Total amount should be greater than zero.");
+      return;
+    }
+
+
     try {
       await toast.promise(api.post("/billing", payload), {
         loading: "We are generating this bill.",
@@ -350,6 +381,8 @@ export default function CreateBill({
                                 }
                               />
                             </td>
+
+
                             <td className="py-2 pr-2 text-right">
                               <input
                                 type="number"
@@ -360,8 +393,8 @@ export default function CreateBill({
                                     : it.quantity.toString()
                                 }
                                 placeholder="0"
-                                onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                                onFocus={e => e.target.placeholder = ""}
+                                onBlur={e => e.target.placeholder = "0"}
                                 onChange={(e) =>
                                   updateQty(it.name, Number(e.target.value))
                                 }
@@ -381,8 +414,8 @@ export default function CreateBill({
                                     : it.unitPrice.toString()
                                 }
                                 placeholder="0"
-                                onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                                onFocus={e => e.target.placeholder = ""}
+                                onBlur={e => e.target.placeholder = "0"}
                                 onChange={(e) =>
                                   updatePrice(it.name, Number(e.target.value))
                                 }
@@ -392,6 +425,7 @@ export default function CreateBill({
                                 }
                               />
                             </td>
+
                             <td className="py-2 pr-2 text-right">
                               <input
                                 type="number"
@@ -399,8 +433,8 @@ export default function CreateBill({
                                 max={28}
                                 value={it.gst === 0 ? "" : it.gst.toString()}
                                 placeholder="0"
-                                onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                                onFocus={e => e.target.placeholder = ""}
+                                onBlur={e => e.target.placeholder = "0"}
                                 onChange={(e) =>
                                   updateGST(it.name, Number(e.target.value))
                                 }
@@ -424,9 +458,8 @@ export default function CreateBill({
                                 className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
                               >
                                 <ChevronDown
-                                  className={`h-4 w-4 transition ${
-                                    isOpen ? "rotate-180" : "rotate-0"
-                                  }`}
+                                  className={`h-4 w-4 transition ${isOpen ? "rotate-180" : "rotate-0"
+                                    }`}
                                 />
                               </button>
                               <button
@@ -557,14 +590,14 @@ export default function CreateBill({
                         type="number"
                         min={0}
                         placeholder="0"
-                        onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                        onFocus={e => e.target.placeholder = ""}
+                        onBlur={e => e.target.placeholder = "0"}
                         value={
                           payload[key as "cash" | "online" | "insurance"] === 0
                             ? ""
                             : payload[
-                                key as "cash" | "online" | "insurance"
-                              ].toString()
+                              key as "cash" | "online" | "insurance"
+                            ].toString()
                         }
                         onChange={(e) =>
                           setPayload((prev) => ({
@@ -739,7 +772,7 @@ export default function CreateBill({
                 <span className="font-semibold tabular-nums">
                   {formatINR(
                     payload.items.reduce((a, b) => a + b.total, 0) -
-                      (payload.cash + payload.online + payload.insurance)
+                    (payload.cash + payload.online + payload.insurance)
                   )}
                 </span>
               </div>

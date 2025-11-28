@@ -87,9 +87,9 @@ function RxQueue() {
       setSelected((prev) =>
         prev
           ? {
-              ...prev,
-              items: prev.items.map((it) => ({ ...it, isPacked: true })),
-            }
+            ...prev,
+            items: prev.items.map((it) => ({ ...it, isPacked: true })),
+          }
           : null
       );
       OrderMutate();
@@ -147,7 +147,7 @@ function RxQueue() {
                 </div>
                 <div className="font-semibold text-lg flex items-center gap-1">
                   <p>{selected?.patient?.name}</p> -{" "}
-                  <span className="text-sm">({selected?.patient.mrn})</span>
+                  <span className="text-sm">({selected?.patient?.mrn})</span>
                 </div>
                 <div className="text-sm text-slate-700">
                   Age/Gender: {fAge(selected?.patient?.dateOfBirth)} /{" "}
@@ -155,11 +155,11 @@ function RxQueue() {
                   {selected?.patient?.phoneNumber}
                 </div>
                 <div className="text-sm text-slate-700">
-                  Address: {selected?.patient.address}
+                  Address: {selected?.patient?.address}
                 </div>
                 <div className="mt-2 text-xs text-slate-500">
-                  Doctor: {selected?.doctor.name} • Specialization:{" "}
-                  {selected?.doctor.specialization}
+                  Doctor: {selected?.doctor?.name} • Specialization:{" "}
+                  {selected?.doctor?.specialization}
                 </div>
               </div>
 
@@ -264,13 +264,13 @@ function RxQueue() {
                                 setSelected((prev) =>
                                   prev
                                     ? {
-                                        ...prev,
-                                        items: prev.items.map((i) =>
-                                          i.name._id === it.name._id
-                                            ? { ...i, isPacked: true }
-                                            : i
-                                        ),
-                                      }
+                                      ...prev,
+                                      items: prev.items.map((i) =>
+                                        i.name._id === it.name._id
+                                          ? { ...i, isPacked: true }
+                                          : i
+                                      ),
+                                    }
                                     : null
                                 );
                               } catch (error) {
@@ -327,9 +327,8 @@ function RxQueue() {
               <div className="text-sm">
                 Packed:{" "}
                 <span
-                  className={`font-medium ${
-                    false ? "text-emerald-700" : "text-slate-700"
-                  }`}
+                  className={`font-medium ${false ? "text-emerald-700" : "text-slate-700"
+                    }`}
                 >
                   {false ? "All items confirmed" : "In progress"}
                 </span>

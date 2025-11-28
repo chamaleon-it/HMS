@@ -9,6 +9,8 @@ import useSWR from "swr";
 import { combineDateAndSlot, fDate } from "@/lib/fDateAndTime";
 import { Calendar } from "@/components/ui/calendar";
 import configuration from "@/config/configuration";
+import { testPanel } from "@/data/testPanel";
+import { cn } from "@/lib/utils";
 
 type TabKey = "All" | "Lab" | "Imaging";
 
@@ -192,6 +194,7 @@ export default function Test({
         code: string;
         name: string;
         type: "Lab" | "Imaging";
+        panel: string;
         min?: number;
         max?: number;
         unit: string;
@@ -242,6 +245,23 @@ export default function Test({
         {show && (
           <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
             <section className="lg:col-span-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
+              <div className="panel my-5 flex gap-1.5 flex-wrap">
+                {testPanel.map(panel => <button
+                  onClick={() => {
+                    const tests = Tests.filter((e) => e.panel === panel)
+                    tests.forEach(test => toggleTest(test))
+                  }}
+                  key={panel}
+                  className={cn(
+                    "px-3 py-1 rounded-full text-xs border select-none transition-shadow",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
+                    "disabled:opacity-50 disabled:cursor-not-allowed",
+                    "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                  )}
+                >
+                  {panel}
+                </button>)}
+              </div>
               <div className="flex items-center justify-between gap-3">
                 <div className="flex gap-2">
                   {(

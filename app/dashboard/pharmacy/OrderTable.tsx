@@ -23,83 +23,83 @@ export default function OrderTable({
   handleDelete: (rx: OrderType) => void;
 }) {
   return (
-    <div className="rounded-2xl overflow-hidden">  
-    
-    <Table>
-      <TableHeader className="bg-slate-700 hover:bg-slate-700">
-        <TableRow className="bg-slate-700 hover:bg-slate-700">
-          <TableHead className="text-white font-semibold">
-            <Checkbox />
-          </TableHead>
-          <TableHead className="text-white font-semibold">Sl No</TableHead>
-          <TableHead className="text-white font-semibold">RX ID</TableHead>
-          <TableHead className="text-white font-semibold">Patient</TableHead>
-          <TableHead className="text-white font-semibold">Items</TableHead>
-          <TableHead className="text-white font-semibold">Priority</TableHead>
-          <TableHead className="text-white font-semibold">Status</TableHead>
-          <TableHead className="text-left text-white font-semibold">
-            Assigned To
-          </TableHead>
+    <div className="rounded-2xl overflow-hidden">
 
-          <TableHead className="text-left text-white font-semibold">
-            Created At
-          </TableHead>
-          <TableHead className="text-right text-white font-semibold">
-            Actions
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {orders.map((r: OrderType, idx) => (
-          <TableRow
-            key={r._id}
-            className={
-              idx % 2 === 0
-                ? "bg-white hover:bg-slate-50/60"
-                : "bg-slate-50 hover:bg-slate-100"
-            }
-          >
-            <TableCell>
+      <Table>
+        <TableHeader className="bg-slate-700 hover:bg-slate-700">
+          <TableRow className="bg-slate-700 hover:bg-slate-700">
+            <TableHead className="text-white font-semibold">
               <Checkbox />
-            </TableCell>
+            </TableHead>
+            <TableHead className="text-white font-semibold">Sl No</TableHead>
+            <TableHead className="text-white font-semibold">RX ID</TableHead>
+            <TableHead className="text-white font-semibold">Patient</TableHead>
+            <TableHead className="text-white font-semibold">Items</TableHead>
+            <TableHead className="text-white font-semibold">Priority</TableHead>
+            <TableHead className="text-white font-semibold">Status</TableHead>
+            <TableHead className="text-left text-white font-semibold">
+              Assigned To
+            </TableHead>
 
-            <TableCell>{idx + 1}</TableCell>
-            <TableCell className="font-medium">{r.mrn}</TableCell>
-            <TableCell>{r.patient.name} <br /> <span className="text-xs">({r.patient.mrn})</span></TableCell>
-            <TableCell>{r.items.length}</TableCell>
-            <TableCell>
-              <PriorityBadge priority={r.priority} />
-            </TableCell>
-            <TableCell>
-              <StatusBadge status={r.status} />
-            </TableCell>
-            <TableCell className="text-left">
-              {r.assignedTo ? (
-                <Badge className={"bg-emerald-100 text-emerald-700"}>
-                  r.assignedTo
-                </Badge>
-              ) : (
-                <span className="text-slate-500">Unassigned</span>
-              )}
-            </TableCell>
-            <TableCell>{fDateandTime(r.createdAt)}</TableCell>
-            <TableCell className="text-right space-x-2">
-              <Button size="sm" variant="outline" onClick={() => handleView(r)} className="cursor-pointer">
-                View
-              </Button>
-              <Button
-                size="sm"
-                variant="default"
-                onClick={() => handleDelete(r)}
-                className="bg-red-600 hover:bg-red-600 font-bold cursor-pointer"
-              >
-                Delete
-              </Button>
-            </TableCell>
+            <TableHead className="text-left text-white font-semibold">
+              Created At
+            </TableHead>
+            <TableHead className="text-right text-white font-semibold">
+              Actions
+            </TableHead>
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {orders?.map((r: OrderType, idx) => (
+            <TableRow
+              key={r._id}
+              className={
+                idx % 2 === 0
+                  ? "bg-white hover:bg-slate-50/60"
+                  : "bg-slate-50 hover:bg-slate-100"
+              }
+            >
+              <TableCell>
+                <Checkbox />
+              </TableCell>
+
+              <TableCell>{idx + 1}</TableCell>
+              <TableCell className="font-medium">{r?.mrn}</TableCell>
+              <TableCell>{r?.patient?.name} <br /> <span className="text-xs">({r?.patient?.mrn})</span></TableCell>
+              <TableCell>{r?.items?.length}</TableCell>
+              <TableCell>
+                <PriorityBadge priority={r?.priority} />
+              </TableCell>
+              <TableCell>
+                <StatusBadge status={r?.status} />
+              </TableCell>
+              <TableCell className="text-left">
+                {r?.assignedTo ? (
+                  <Badge className={"bg-emerald-100 text-emerald-700"}>
+                    {r?.assignedTo}
+                  </Badge>
+                ) : (
+                  <span className="text-slate-500">Unassigned</span>
+                )}
+              </TableCell>
+              <TableCell>{fDateandTime(r?.createdAt)}</TableCell>
+              <TableCell className="text-right space-x-2">
+                <Button size="sm" variant="outline" onClick={() => handleView(r)} className="cursor-pointer">
+                  View
+                </Button>
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => handleDelete(r)}
+                  className="bg-red-600 hover:bg-red-600 font-bold cursor-pointer"
+                >
+                  Delete
+                </Button>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
     </div>
   );
 }

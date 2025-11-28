@@ -16,6 +16,7 @@ export interface ProfileType {
       code: string;
       name: string;
       type: 'Lab' | 'Imaging' | '';
+      panel: string;
       min?: number;
       max?: number;
       unit: string;

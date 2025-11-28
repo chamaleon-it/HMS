@@ -284,6 +284,7 @@ const settingsLinks: Record<string, string> = {
   "Pharmacy Wholesaler": "/dashboard/pharmacy-wholesaler/settings",
   Doctor: "/dashboard/doctor/settings",
   Lab: "/dashboard/lab/settings",
+  Admin: "/dashboard/admin/settings",
 };
 
 function NavItem({

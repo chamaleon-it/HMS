@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
+import { testPanel } from "@/data/testPanel";
 
 export default function TestCatalogue({
   profile,
@@ -71,6 +72,7 @@ export default function TestCatalogue({
     code: string;
     name: string;
     type: "Lab" | "Imaging" | "";
+    panel: string;
     min?: number;
     max?: number;
     unit: string;
@@ -78,12 +80,13 @@ export default function TestCatalogue({
     code: "",
     name: "",
     type: "",
+    panel: "",
     unit: "",
   });
 
   const addNewTest = async () => {
     try {
-      if (!newTest.code || !newTest.name || !newTest.type || !newTest.unit) {
+      if (!newTest.code || !newTest.name || !newTest.type || !newTest.unit || !newTest.panel) {
         toast.error("Please fill all required fields");
         return;
       }
@@ -92,6 +95,7 @@ export default function TestCatalogue({
         code: "",
         name: "",
         type: "",
+        panel: "",
         unit: "",
         min: undefined,
         max: undefined,
@@ -148,18 +152,39 @@ export default function TestCatalogue({
                   className="h-9 bg-slate-50"
                 />
               </div>
-              <div className="col-span-4 space-y-1.5">
+              <div className="col-span-2 space-y-1.5">
                 <Label className="text-xs font-medium text-slate-700">Type *</Label>
                 <Select
                   value={newTest.type}
                   onValueChange={(val: "Lab" | "Imaging") => setNewTest(prev => ({ ...prev, type: val }))}
                 >
-                  <SelectTrigger className="h-9 bg-slate-50">
+                  <SelectTrigger className="h-9 bg-slate-50 w-full">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="Lab">Lab Test</SelectItem>
                     <SelectItem value="Imaging">Imaging</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
+                <Label className="text-xs font-medium text-slate-700">Panel *</Label>
+                <Select
+                  value={newTest.panel}
+                  onValueChange={(val: string) => setNewTest(prev => ({ ...prev, panel: val }))}
+                >
+                  <SelectTrigger className="h-9 bg-slate-50 w-full">
+                    <SelectValue placeholder="Select panel" />
+                  </SelectTrigger>
+                  <SelectContent className="w-full h-72">
+                    {
+                      testPanel.map((panel) => (
+                        <SelectItem key={panel} value={panel}>
+                          {panel}
+                        </SelectItem>
+                      ))
+                    }
                   </SelectContent>
                 </Select>
               </div>
@@ -221,6 +246,7 @@ export default function TestCatalogue({
                     <TableHead className="w-[100px]">Code</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Panel</TableHead>
                     <TableHead>Range</TableHead>
                     <TableHead>Unit</TableHead>
                   </TableRow>
@@ -242,6 +268,7 @@ export default function TestCatalogue({
                             {test.type}
                           </span>
                         </TableCell>
+                        <TableCell>{test.panel}</TableCell>
                         <TableCell className="text-slate-500 text-xs">
                           {test.min} - {test.max}
                         </TableCell>
