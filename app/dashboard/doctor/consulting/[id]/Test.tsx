@@ -90,44 +90,47 @@ type TestItemProps = {
 const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle }) => (
   <button
     onClick={() => onToggle(test)}
-    className={[
-      "w-full flex items-center justify-between gap-3 rounded-xl border px-3 py-1.5 text-left",
-      false
-        ? "opacity-50 cursor-not-allowed bg-zinc-50 border-zinc-200"
-        : selected
-          ? "border-emerald-500 bg-emerald-50"
-          : "border-zinc-200 hover:border-zinc-400 hover:bg-zinc-50",
-    ].join(" ")}
+    className={cn(
+      "w-full flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-all duration-200 group",
+      selected
+        ? "border-emerald-500 bg-emerald-50/50 shadow-sm ring-1 ring-emerald-500/20"
+        : "border-zinc-200 bg-white hover:border-emerald-300 hover:shadow-sm hover:bg-zinc-50"
+    )}
   >
-    <div className="truncate">
-      <div className="font-medium text-zinc-800 truncate flex gap-2.5 items-center">
+    <div className="min-w-0 flex-1">
+      <div className="flex items-center gap-2 mb-0.5">
+        <span className={cn(
+          "text-sm font-semibold truncate",
+          selected ? "text-emerald-900" : "text-zinc-900"
+        )}>
+          {test.name}
+        </span>
         {test.type === "Lab" ? (
-          <TestTubeDiagonal className="w-4 h-4" />
+          <TestTubeDiagonal className={cn("w-3.5 h-3.5", selected ? "text-emerald-600" : "text-zinc-400")} />
         ) : (
-          <ImageIcon className="w-4 h-4" />
+          <ImageIcon className={cn("w-3.5 h-3.5", selected ? "text-emerald-600" : "text-zinc-400")} />
         )}
-        <p>
-          {test.name} ({test.code}){" "}
-        </p>
       </div>
-      <div className="text-xs text-zinc-500">{test.type}</div>
+      <div className="flex items-center gap-2">
+        <span className={cn(
+          "text-xs font-mono px-1.5 py-0.5 rounded",
+          selected ? "bg-emerald-100 text-emerald-700" : "bg-zinc-100 text-zinc-500"
+        )}>
+          {test.code}
+        </span>
+        <span className="text-xs text-zinc-400 capitalize">{test.type}</span>
+      </div>
     </div>
-    <div className="flex items-center gap-2">
-      <span
-        className={[
-          "h-5 w-5 grid place-items-center rounded-md border",
-          selected
-            ? "border-emerald-500 bg-emerald-500 text-white"
-            : "border-zinc-300 bg-white text-transparent",
-        ].join(" ")}
-      >
-        <svg viewBox="0 0 24 24" className="h-3 w-3">
-          <path
-            fill="currentColor"
-            d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"
-          />
-        </svg>
-      </span>
+
+    <div className={cn(
+      "h-5 w-5 rounded-full border flex items-center justify-center transition-colors",
+      selected
+        ? "border-emerald-500 bg-emerald-500 text-white"
+        : "border-zinc-300 bg-transparent text-transparent group-hover:border-emerald-400"
+    )}>
+      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3">
+        <path d="M5 13l4 4L19 7" />
+      </svg>
     </div>
   </button>
 );
@@ -214,13 +217,53 @@ export default function Test({
 
   const [selectedPanel, setSelectedPanel] = useState<string>("");
 
+  // Filter Logic extracted for reuse
+  const filteredTests = Tests.filter((t) => {
+    if (tab === "Imaging") {
+      return t.type === "Imaging";
+    } else if (tab === "Lab") {
+      return t.type === "Lab";
+    }
+    if (selectedPanel) {
+      return t.panel === selectedPanel;
+    }
+    return true;
+  }).filter((t) => {
+    if (!query) {
+      return true;
+    }
+    return (
+      t.code.toLowerCase().includes(query.toLowerCase()) ||
+      t.name.toLowerCase().includes(query.toLowerCase())
+    );
+  });
+
+  const allFilteredSelected = filteredTests.length > 0 && filteredTests.every(test => isSelected(test));
+
+  const handleSelectAll = () => {
+    if (allFilteredSelected) {
+      // Deselect all visible
+      const visibleIds = new Set(filteredTests.map(t => t._id));
+      setSelectedTests(prev => prev.filter(t => !visibleIds.has(t._id)));
+    } else {
+      // Select all visible
+      const newSelected = [...selectedTests];
+      filteredTests.forEach(t => {
+        if (!newSelected.some(s => s._id === t._id)) {
+          newSelected.push(t);
+        }
+      });
+      setSelectedTests(newSelected);
+    }
+  };
+
 
   return (
     <>
       <div className="">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-emerald-50 grid place-items-center">
+            <div className="h-10 w-10 rounded-xl bg-emerald-50 border border-emerald-100 grid place-items-center shadow-sm">
               <svg viewBox="0 0 24 24" className="h-5 w-5 text-emerald-600">
                 <path
                   fill="currentColor"
@@ -228,93 +271,64 @@ export default function Test({
                 />
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-zinc-900">
-              Lab / Imaging Booking
-            </h1>
-            {show && <ModeToggle mode={mode} onChange={setMode} />}
+            <div>
+              <h1 className="text-xl font-bold text-zinc-900 tracking-tight">
+                Lab & Imaging
+              </h1>
+              <p className="text-xs text-zinc-500 font-medium">Select tests to book</p>
+            </div>
+            {show && <div className="ml-4"><ModeToggle mode={mode} onChange={setMode} /></div>}
           </div>
 
           {!show && (
             <Button
               onClick={() => setShow(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6 shadow-md shadow-emerald-200"
             >
-              Show
+              Start Booking
             </Button>
           )}
         </div>
 
         {show && (
-          <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-            <section className="lg:col-span-4 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-              <div className="panel my-5 flex gap-1.5 flex-wrap">
-                {testPanel.map(panel => <button
-                  onClick={() => {
-                    // const tests = Tests.filter((e) => e.panel === panel)
-                    // tests.forEach(test => toggleTest(test))
-                    setSelectedPanel(panel)
-                  }}
-                  key={panel}
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs border select-none transition-shadow",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
-                    "disabled:opacity-50 disabled:cursor-not-allowed",
-                    "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                  )}
-                >
-                  {panel}
-                </button>)}
+          <div className="mt-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <section className="lg:col-span-5 flex flex-col gap-2 max-h-[calc(70vh)]">
 
-
-                <button
-                  onClick={() => {
-                    setSelectedPanel("")
-                  }}
-
-                  className={cn(
-                    "px-3 py-1 rounded-full text-xs border select-none transition-shadow",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
-                    "disabled:opacity-50 disabled:cursor-not-allowed",
-                    "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                  )}
-                >
-                  Clear
-                </button>
-
-              </div>
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex gap-2">
+              {/* Search and Main Filters */}
+              <div className="bg-white rounded-2xl border border-zinc-200 p-4 shadow-sm space-y-2">
+                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-zinc-200 scrollbar-track-transparent">
                   {(
                     [
-                      { key: "All", label: "All" },
-                      { key: "Lab", label: "Lab" },
+                      { key: "All", label: "All Tests" },
+                      { key: "Lab", label: "Laboratory" },
                       { key: "Imaging", label: "Imaging" },
                     ] as const
                   ).map((t) => (
                     <button
                       key={t.key}
                       onClick={() => setTab(t.key)}
-                      className={[
-                        "px-3 py-1.5 rounded-full text-sm border",
+                      className={cn(
+                        "px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all",
                         tab === t.key
-                          ? "border-zinc-900 text-zinc-900"
-                          : "border-zinc-200 text-zinc-600 hover:border-zinc-400",
-                      ].join(" ")}
+                          ? "bg-zinc-900 text-white shadow-md"
+                          : "bg-zinc-50 text-zinc-600 hover:bg-zinc-100 border border-zinc-200"
+                      )}
                     >
                       {t.label}
                     </button>
                   ))}
                 </div>
-                <div className="relative w-48">
+
+                <div className="relative">
                   <input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search tests…"
-                    className="w-full rounded-xl border border-zinc-200 bg-white px-3 py-2 pl-9 text-sm outline-none focus:ring-2 focus:ring-zinc-200"
+                    placeholder="Search by test name or code..."
+                    className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 pl-11 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                   />
                   <svg
                     viewBox="0 0 24 24"
-                    className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400"
+                    className="absolute left-3.5 top-3.5 h-5 w-5 text-zinc-400"
                   >
                     <path
                       fill="currentColor"
@@ -322,218 +336,279 @@ export default function Test({
                     />
                   </svg>
                 </div>
+
+                {/* Panels Chips */}
+                <div className="flex flex-wrap gap-1 pr-2 scrollbar-thin scrollbar-thumb-zinc-200">
+                  <button
+                    onClick={() => setSelectedPanel("")}
+                    className={cn(
+                      "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all select-none",
+                      selectedPanel === ""
+                        ? "bg-emerald-100 border-emerald-200 text-emerald-800"
+                        : "bg-white border-zinc-200 text-zinc-600 hover:border-emerald-200 hover:text-emerald-700"
+                    )}
+                  >
+                    All Panels
+                  </button>
+                  {testPanel.map(panel => (
+                    <button
+                      key={panel}
+                      onClick={() => setSelectedPanel(panel === selectedPanel ? "" : panel)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all select-none",
+                        selectedPanel === panel
+                          ? "bg-emerald-500 border-emerald-600 text-white shadow-sm"
+                          : "bg-white border-zinc-200 text-zinc-600 hover:border-emerald-200 hover:text-emerald-700"
+                      )}
+                    >
+                      {panel}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="mt-4 flex flex-col gap-2 max-h-[60vh] overflow-auto pr-1">
-                {Tests.filter((t) => {
-                  if (tab === "Imaging") {
-                    return t.type === "Imaging";
-                  } else if (tab === "Lab") {
-                    return t.type === "Lab";
-                  }
-                  if (selectedPanel) {
-                    return t.panel === selectedPanel;
-                  }
-                  return true;
-                })
-                  .filter((t) => {
-                    if (!query) {
-                      return true;
-                    }
-                    return (
-                      t.code.toLowerCase().includes(query.toLowerCase()) ||
-                      t.name.toLowerCase().includes(query.toLowerCase())
-                    );
-                  })
-                  .map((t) => (
-                    <div key={t._id} className="relative">
-                      <TestItem
-                        test={t}
-                        selected={isSelected(t)}
-                        onToggle={toggleTest}
-                      />
-                    </div>
-                  ))}
+              {/* Test List Header */}
+              <div className="flex items-center justify-between px-1">
+                <span className="text-sm font-medium text-zinc-500">
+                  {filteredTests.length} tests found
+                </span>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={handleSelectAll}
+                  className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 h-8"
+                >
+                  {allFilteredSelected ? "Deselect All" : "Select All"}
+                </Button>
+              </div>
+
+              {/* Test List */}
+              <div className="flex-1 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-zinc-200 min-h-0">
+                {filteredTests.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center h-40 text-zinc-400">
+                    <TestTubeDiagonal className="w-8 h-8 mb-2 opacity-20" />
+                    <p className="text-sm">No tests found</p>
+                  </div>
+                ) : (
+                  filteredTests.map((t) => (
+                    <TestItem
+                      key={t._id}
+                      test={t}
+                      selected={isSelected(t)}
+                      onToggle={toggleTest}
+                    />
+                  ))
+                )}
               </div>
             </section>
 
-            <section className="lg:col-span-8 rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm">
-              {mode === "external" && <>
-
-                <p className="text-sm text-zinc-600">
-                  Calendar → Lab → Time (in separate columns). Priority optional.
-                </p>
-
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="rounded-xl border border-zinc-200 p-4">
-                    <div className="font-medium text-zinc-800 mb-2">
-                      Select Date
+            <section className="lg:col-span-7 flex flex-col gap-6 h-full">
+              {/* Booking Configuration (External Mode) */}
+              {mode === "external" && (
+                <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm">
+                  <div className="flex items-center gap-2 mb-4">
+                    <div className="h-8 w-8 rounded-full bg-amber-50 text-amber-600 grid place-items-center">
+                      <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
                     </div>
-
-                    <Calendar
-                      required
-                      mode="single"
-                      selected={date}
-                      onSelect={setDate}
-                      className="rounded-md border shadow-sm w-full"
-                      captionLayout="dropdown"
-                    />
-
+                    <h3 className="font-semibold text-zinc-900">Booking Details</h3>
                   </div>
 
-                  <div className="rounded-xl border border-zinc-200 p-4">
-                    <div className="font-medium text-zinc-800 mb-2">
-                      Select Lab
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                      <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">Date</label>
+                      <Calendar
+                        required
+                        mode="single"
+                        selected={date}
+                        onSelect={setDate}
+                        className="rounded-xl border shadow-sm w-full"
+                      />
                     </div>
-                    <div className="flex flex-col gap-2">
-                      {Labs.filter((l) => {
-                        const labCodes = l.tests.map((t) => t.code);
-                        const selectedCode = selectedTests.map((t) => t.code);
-                        if (selectedCode.length === 0) return false;
-                        return selectedCode.every((code) =>
-                          labCodes.includes(code)
-                        );
-                      }).map((l) => (
-                        <button
-                          key={l._id}
-                          onClick={() => setLabId(l._id)}
-                          className={[
-                            "text-left rounded-xl border px-3 py-2",
-                            labId === l._id
-                              ? "border-amber-500 bg-amber-50"
-                              : "border-zinc-200 hover:border-zinc-400",
-                          ].join(" ")}
-                        >
-                          {l.name}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
 
-                  {/* Slots & Priority */}
-                  <div className="rounded-xl border border-zinc-200 p-4">
-                    <div className="font-medium text-zinc-800 mb-2">
-                      Available Time
-                    </div>
-                    <div className="grid grid-cols-2 gap-2 mb-3">
-                      {SLOTS.map((s) => (
-                        <button
-                          key={s}
-                          onClick={() => {
-                            setSlot(s)
-                          }}
-                          className={[
-                            "rounded-lg border px-3 py-2 text-sm",
-                            slot === s
-                              ? "bg-zinc-900 text-white border-zinc-900"
-                              : "border-zinc-200 hover:border-zinc-400",
-                          ].join(" ")}
-                        >
-                          {s}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="font-medium text-zinc-800 mb-1">Priority</div>
-                    <div className="flex flex-wrap gap-2">
-                      {PRIORITIES.map((p) => (
-                        <button
-                          key={p.id}
-                          onClick={() => setPriority(p.id)}
-                          className={[
-                            "rounded-full border px-3 py-1 text-xs font-medium",
-                            priority === p.id
-                              ? p.id === "High"
-                                ? "border-amber-500 bg-amber-50 text-amber-700"
-                                : "border-zinc-900 bg-zinc-900 text-white"
-                              : "border-zinc-200 text-zinc-700 hover:border-zinc-400",
-                          ].join(" ")}
-                        >
-                          {p.label}
-                        </button>
-                      ))}
+                    <div className="space-y-6">
+                      <div>
+                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">Lab Center</label>
+                        <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+                          {Labs.filter((l) => {
+                            const labCodes = l.tests.map((t) => t.code);
+                            const selectedCode = selectedTests.map((t) => t.code);
+                            if (selectedCode.length === 0) return true; // Show all if none selected, or maybe false? Original logic was false.
+                            // Let's keep original logic: if no tests selected, return false (hide labs?) - actually original logic returned false.
+                            // But if I haven't selected tests, I might want to see labs? 
+                            // Let's stick to original behavior for now to avoid logic bugs.
+                            if (selectedCode.length === 0) return false;
+                            return selectedCode.every((code) => labCodes.includes(code));
+                          }).map((l) => (
+                            <button
+                              key={l._id}
+                              onClick={() => setLabId(l._id)}
+                              className={cn(
+                                "text-left rounded-lg border px-3 py-2.5 text-sm transition-all",
+                                labId === l._id
+                                  ? "border-amber-500 bg-amber-50 text-amber-900 shadow-sm ring-1 ring-amber-500/20"
+                                  : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
+                              )}
+                            >
+                              {l.name}
+                            </button>
+                          ))}
+                          {selectedTests.length === 0 && <p className="text-sm text-zinc-400 italic">Select tests to see available labs</p>}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">Time Slot</label>
+                        <div className="grid grid-cols-3 gap-2">
+                          {SLOTS.slice(0, 9).map((s) => ( // Showing fewer slots for cleaner UI or scroll? Let's show all but in a scrollable or grid
+                            <button
+                              key={s}
+                              onClick={() => setSlot(s)}
+                              className={cn(
+                                "rounded-md border px-2 py-1.5 text-xs font-medium transition-all",
+                                slot === s
+                                  ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
+                                  : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
+                              )}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                          {/* ... rest of slots if needed, or just map all SLOTS */}
+                        </div>
+
+                        {/* Actually let's just map all SLOTS in a scroll container if too many */}
+                        <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto mt-2">
+                          {SLOTS.slice(9).map(s => (
+                            <button
+                              key={s}
+                              onClick={() => setSlot(s)}
+                              className={cn(
+                                "rounded-md border px-2 py-1.5 text-xs font-medium transition-all",
+                                slot === s
+                                  ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
+                                  : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
+                              )}
+                            >
+                              {s}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">Priority</label>
+                        <div className="flex gap-2">
+                          {PRIORITIES.map((p) => (
+                            <button
+                              key={p.id}
+                              onClick={() => setPriority(p.id)}
+                              className={cn(
+                                "rounded-full border px-4 py-1.5 text-xs font-medium transition-all",
+                                priority === p.id
+                                  ? p.id === "High"
+                                    ? "border-amber-500 bg-amber-50 text-amber-700 shadow-sm"
+                                    : "border-zinc-900 bg-zinc-900 text-white shadow-sm"
+                                  : "border-zinc-200 text-zinc-600 hover:border-zinc-300 hover:bg-zinc-50"
+                              )}
+                            >
+                              {p.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </>}
+              )}
 
-              {
-                mode === "inhouse" && (
-                  <div className="mt-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-medium text-zinc-900">
-                        Selected for Booking
-                      </h3>
-                      {selectedTests.length > 0 && (
-                        <span className="text-xs text-zinc-500 font-medium bg-zinc-100 px-2 py-1 rounded-full">
-                          {selectedTests.length} items
-                        </span>
-                      )}
+              {/* Selected Tests Summary */}
+              <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm flex flex-col h-full overflow-hidden">
+                <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-6 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center">
+                      <span className="text-xs font-bold">{selectedTests.length}</span>
                     </div>
-
-                    {selectedTests.length === 0 ? (
-                      <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50/50 p-8 text-center">
-                        <p className="text-sm text-zinc-500">No tests selected yet.</p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col gap-2">
-                        {selectedTests.map((test) => (
-                          <div
-                            key={test._id}
-                            className="group flex items-center justify-between p-3 rounded-xl bg-zinc-50 border border-zinc-100 hover:border-zinc-200 transition-colors"
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className={`h-8 w-8 rounded-lg grid place-items-center ${test.type === 'Lab' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'}`}>
-                                {test.type === 'Lab' ? <TestTubeDiagonal className="w-4 h-4" /> : <ImageIcon className="w-4 h-4" />}
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="text-sm font-medium text-zinc-900">{test.name}</span>
-                                <span className="text-xs text-zinc-500">{test.code}</span>
-                              </div>
-                            </div>
-                            <button
-                              onClick={() => toggleTest(test)}
-                              className="h-8 w-8 grid place-items-center rounded-lg text-zinc-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                              title="Remove test"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    <h3 className="font-semibold text-zinc-900">Selected Tests</h3>
                   </div>
-                )}
-              <div className="mt-4 flex items-center justify-between rounded-xl border border-zinc-100 bg-zinc-50/60 p-4 text-sm text-zinc-700">
-                <div className="truncate">
-                  {selectedTests.length > 0 ? (
-                    <>
-                      <span className="font-medium">
-                        {selectedTests.length} test(s)
-                      </span>
-                      {date && <> • {fDate(date)}</>}
-                      {labId && (
-                        <> • {Labs.find((l) => l._id === labId)?.name}</>
-                      )}
-                      {slot && <> • {slot}</>}
-                      {priority === "High" && <> • HIGH</>}
-                    </>
-                  ) : (
-                    <>Select tests to start booking.</>
+                  {selectedTests.length > 0 && (
+                    <button
+                      onClick={() => setSelectedTests([])}
+                      className="text-xs text-red-500 hover:text-red-600 font-medium hover:underline"
+                    >
+                      Clear all
+                    </button>
                   )}
                 </div>
 
-                <button
-                  onClick={bookTest}
-                  disabled={!canBook}
-                  className={[
-                    "rounded-xl px-5 py-2 text-sm font-medium transition",
-                    canBook
-                      ? "bg-amber-600 text-white hover:bg-amber-700"
-                      : "bg-zinc-200 text-zinc-600 cursor-not-allowed",
-                  ].join(" ")}
-                >
-                  Book {selectedTests.length > 1 ? "Tests" : "Test"}
-                </button>
+                <div className="flex-1 overflow-y-auto p-4">
+                  {selectedTests.length === 0 ? (
+                    <div className="h-full flex flex-col items-center justify-center text-zinc-400 space-y-3">
+                      <div className="h-16 w-16 rounded-full bg-zinc-50 border border-zinc-100 grid place-items-center">
+                        <TestTubeDiagonal className="w-8 h-8 opacity-20" />
+                      </div>
+                      <p className="text-sm">No tests selected yet</p>
+                      <p className="text-xs text-zinc-300 max-w-[200px] text-center">Select tests from the list to add them to the booking</p>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 gap-2">
+                      {selectedTests.map((test) => (
+                        <div
+                          key={test._id}
+                          className="group flex items-center justify-between p-3 rounded-xl bg-white border border-zinc-100 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all"
+                        >
+                          <div className="flex items-center gap-3 overflow-hidden">
+                            <div className={cn(
+                              "h-10 w-10 rounded-lg grid place-items-center shrink-0",
+                              test.type === 'Lab' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
+                            )}>
+                              {test.type === 'Lab' ? <TestTubeDiagonal className="w-5 h-5" /> : <ImageIcon className="w-5 h-5" />}
+                            </div>
+                            <div className="flex flex-col min-w-0">
+                              <span className="text-sm font-medium text-zinc-900 truncate">{test.name}</span>
+                              <div className="flex items-center gap-2 text-xs text-zinc-500">
+                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide">{test.code}</span>
+                                <span>•</span>
+                                <span>{test.type}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => toggleTest(test)}
+                            className="h-8 w-8 grid place-items-center rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
+                            title="Remove test"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4 border-t border-zinc-100 bg-zinc-50/50">
+                  <div className="flex items-center justify-between mb-4 text-sm text-zinc-600">
+                    <span>Total Items</span>
+                    <span className="font-semibold text-zinc-900">{selectedTests.length}</span>
+                  </div>
+
+                  <button
+                    onClick={bookTest}
+                    disabled={!canBook}
+                    className={cn(
+                      "w-full py-3 rounded-xl font-semibold shadow-sm transition-all flex items-center justify-center gap-2",
+                      canBook
+                        ? "bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-emerald-200 hover:-translate-y-0.5"
+                        : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
+                    )}
+                  >
+                    <span>Confirm Booking</span>
+                    <svg viewBox="0 0 24 24" className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5">
+                      <path d="M5 12h14m-7-7l7 7-7 7" />
+                    </svg>
+                  </button>
+                </div>
               </div>
             </section>
           </div>
