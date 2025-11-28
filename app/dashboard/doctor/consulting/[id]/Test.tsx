@@ -6,7 +6,7 @@ import OrderLab from "./OrderLab";
 import { Image as ImageIcon, TestTubeDiagonal, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useSWR from "swr";
-import { combineDateAndSlot, fDate } from "@/lib/fDateAndTime";
+import { combineDateAndSlot } from "@/lib/fDateAndTime";
 import { Calendar } from "@/components/ui/calendar";
 import configuration from "@/config/configuration";
 import { testPanel } from "@/data/testPanel";
