@@ -249,8 +249,7 @@ export default function Test({
                 {testPanel.map(panel => <button
                   onClick={() => {
                     const tests = Tests.filter((e) => e.panel === panel)
-                    console.log(tests)
-                    // tests.forEach(test => toggleTest(test))
+                    tests.forEach(test => toggleTest(test))
                   }}
                   key={panel}
                   className={cn(
