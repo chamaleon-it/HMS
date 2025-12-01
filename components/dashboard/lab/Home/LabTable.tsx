@@ -123,7 +123,7 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                                                     className="text-gray-600 font-mono h-5"
                                                 >
                                                     {e.value ? <>
-                                                        {e.type === "Imagine" ? <a
+                                                        {e.type === "Imaging" ? <a
                                                             href={e?.value?.toString()}
                                                             target="_blank"
                                                             rel="noopener noreferrer"
