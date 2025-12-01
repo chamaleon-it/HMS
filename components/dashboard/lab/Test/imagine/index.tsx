@@ -55,6 +55,7 @@ export default function Imagine() {
         max?: number;
         type: string;
         _id: string;
+        value: string | number;
       }[];
       sampleType: string;
       status: string;
