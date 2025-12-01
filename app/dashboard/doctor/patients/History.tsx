@@ -45,35 +45,35 @@ const History = ({
           <li>
             <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
             <div className="text-sm">
-              <span className="font-medium">{data?.data.length} visit(s)</span>
+              <span className="font-medium">{data?.data?.length} visit(s)</span>
             </div>
           </li>
 
-          {data?.data.map((e) => {
+          {data?.data?.map((e) => {
             return (
-              <li key={e._id} className="">
+              <li key={e?._id} className="">
                 <div className="absolute -start-1.5 mt-1.5 w-3 h-3 rounded-full bg-gray-300" />
 
                 <div className=" grid gap-1">
                   <div className="flex items-start gap-2 text-sm">
                     <div className="min-w-0">
                       <div className="font-medium text-gray-900">
-                        {fDateandTime(e.date)}
+                        {fDateandTime(e?.date)}
                       </div>
                       <div className="text-gray-600">
                         <span className="truncate">
-                          {e.doctor.name}
-                          {e.doctor.specialization
-                            ? ` — ${e.doctor.specialization}`
+                          {e?.doctor?.name}
+                          {e?.doctor?.specialization
+                            ? ` — ${e?.doctor?.specialization}`
                             : ""}
                         </span>
                       </div>
                     </div>
                   </div>
-                  {e.method ? (
+                  {e?.method ? (
                     <div className="">
                       <span className="rounded-full border px-2 py-0.5 text-xs text-gray-700">
-                        {e.method}
+                        {e?.method}
                       </span>
                     </div>
                   ) : null}
