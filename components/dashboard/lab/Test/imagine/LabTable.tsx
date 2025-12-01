@@ -2,6 +2,7 @@ import { useAuth } from '@/auth/context/auth-context';
 import { fAge, fDate } from '@/lib/fDateAndTime';
 import { Checkbox } from '@radix-ui/react-checkbox';
 import React from 'react'
+import ResultUpdate from './ResultUpdate';
 
 
 interface PropsTypes {
@@ -46,6 +47,7 @@ interface PropsTypes {
             max?: number | undefined;
             type: string;
             _id: string;
+            value: string | number
         }[];
         sampleType: string;
         status: string;
@@ -117,10 +119,20 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                                         {r.name.map(
                                             (e) =>
                                                 e.type === "Imaging" && (
-                                                    <span
-                                                        key={e._id}
-                                                        className="text-gray-600 font-mono h-5"
-                                                    >{e?.min ? `140 ${e.unit}` : "-"}</span>
+                                                    <div key={e._id} className="h-5 flex items-center">
+                                                        {e.value ? (
+                                                            <a
+                                                                href={e.value.toString()}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                                                            >
+                                                                View Result
+                                                            </a>
+                                                        ) : (
+                                                            <span className="text-gray-400 text-xs">-</span>
+                                                        )}
+                                                    </div>
                                                 )
                                         )}
                                     </div>
@@ -157,15 +169,7 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                                 </td>
                                 <td className="px-3 py-2 text-right">
                                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
-                                        <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
-                                            View
-                                        </button>
-                                        <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
-                                            History
-                                        </button>
-                                        <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
-                                            Share
-                                        </button>
+                                        <ResultUpdate r={r} />
                                     </div>
                                 </td>
                             </tr>
