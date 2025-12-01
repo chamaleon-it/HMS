@@ -56,9 +56,10 @@ interface Props {
         createdAt: Date;
         updatedAt: Date;
     }
+    mutate: () => void
 }
 
-export default function ResultUpdate({ r }: Props) {
+export default function ResultUpdate({ r, mutate }: Props) {
 
 
     const [payload, setPayload] = useState({
@@ -75,13 +76,13 @@ export default function ResultUpdate({ r }: Props) {
         }
 
         try {
-            const { data } = await toast.promise(api.post("lab/report/result", payload), {
+            await toast.promise(api.post("lab/report/result", payload), {
                 loading: "Updating Result",
                 success: "Result Updated Successfully",
                 error: "Failed to Update Result"
             })
 
-            console.log(data)
+            mutate()
 
 
         } catch (error) {

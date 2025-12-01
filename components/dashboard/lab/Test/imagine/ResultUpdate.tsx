@@ -56,9 +56,10 @@ interface Props {
         createdAt: Date;
         updatedAt: Date;
     }
+    mutate: () => void
 }
 
-export default function ResultUpdate({ r }: Props) {
+export default function ResultUpdate({ r, mutate }: Props) {
 
 
     const [payload, setPayload] = useState({

@@ -46,6 +46,7 @@ interface PropsTypes {
             max?: number | undefined;
             type: string;
             _id: string;
+            value: string | number
         }[];
         sampleType: string;
         status: string;
@@ -120,7 +121,18 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                                                 <span
                                                     key={e._id}
                                                     className="text-gray-600 font-mono h-5"
-                                                >{e?.min ? `140 ${e.unit}` : "-"}</span>
+                                                >
+                                                    {e.value ? <>
+                                                        {e.type === "Imagine" ? <a
+                                                            href={e.value.toString()}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                                                        >
+                                                            View Result
+                                                        </a> : `${e.value} ${e.unit}`}
+                                                    </> : "-"}
+                                                </span>
                                             )
                                         )}
                                     </div>

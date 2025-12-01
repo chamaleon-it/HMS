@@ -13,7 +13,7 @@ import LabTable from "./LabTable";
 export default function Imagine() {
 
 
-  const { data } = useSWR<{
+  const { data, mutate } = useSWR<{
     message: string;
     data: {
       _id: string;
@@ -219,7 +219,7 @@ export default function Imagine() {
 
 
 
-      <LabTable REPORT={REPORT} status={status} />
+      <LabTable REPORT={REPORT} status={status} mutate={mutate} />
 
     </div>
   );

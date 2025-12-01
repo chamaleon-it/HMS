@@ -7,7 +7,7 @@ import LabTable from "./LabTable";
 export default function Lab() {
 
 
-  const { data } = useSWR<{
+  const { data, mutate } = useSWR<{
     message: string;
     data: {
       _id: string;
@@ -274,7 +274,7 @@ export default function Lab() {
 
 
       {/* Table */}
-      <LabTable REPORT={REPORT} status={status} />
+      <LabTable REPORT={REPORT} status={status} mutate={mutate} />
 
     </div>
   );

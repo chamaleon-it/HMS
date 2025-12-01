@@ -6,6 +6,7 @@ import ResultUpdate from './ResultUpdate';
 
 
 interface PropsTypes {
+    mutate: () => void
     status: "All" | "Upcoming" | "Waiting For Result" | "Completed"
     REPORT: {
         _id: string;
@@ -56,7 +57,7 @@ interface PropsTypes {
     }[]
 }
 
-export default function LabTable({ REPORT, status }: PropsTypes) {
+export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
     const { user } = useAuth()
     return (
         <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
@@ -159,7 +160,7 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                                 </td>
                                 <td className="px-3 py-2 text-right">
                                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
-                                        <ResultUpdate r={r} />
+                                        <ResultUpdate r={r} mutate={mutate} />
 
                                     </div>
                                 </td>
