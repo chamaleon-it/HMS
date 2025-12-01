@@ -64,12 +64,12 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
     const [payload, setPayload] = useState({
         _id: r._id,
-        name: r.name.filter((item) => item.type === "Lab").map((item) => ({ _id: item._id, value: item.value && item.value.toString(), name: item.name })),
+        name: r.name.filter((item) => item.type === "Lab").map((item) => ({ _id: item._id, value: item.value && item?.value?.toString(), name: item.name })),
     })
 
     const updateResult = async () => {
         for (const item of payload.name) {
-            if (!item.value || item.value.toString().trim() === "") {
+            if (!item.value || item?.value?.toString().trim() === "") {
                 toast.error(`Please provide a report/image for ${item.name}`);
                 return;
             }

@@ -123,7 +123,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                                     <div key={e._id} className="h-5 flex items-center">
                                                         {e.value ? (
                                                             <a
-                                                                href={e.value.toString()}
+                                                                href={e?.value?.toString()}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
