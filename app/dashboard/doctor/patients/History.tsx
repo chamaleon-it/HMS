@@ -1,7 +1,7 @@
 import { fDateandTime } from "@/lib/fDateAndTime";
-import { useRouter } from "next/router";
 import useSWR from "swr";
 import { Data } from "./PatientTable";
+import { useRouter } from "next/navigation";
 
 const History = ({
   setHistory,
