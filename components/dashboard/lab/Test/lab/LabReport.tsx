@@ -49,7 +49,7 @@ export default function Lab() {
         max?: number;
         type: string;
         _id: string;
-        value: string | number;
+        value?: string | number;
       }[];
       sampleType: string;
       status: string;

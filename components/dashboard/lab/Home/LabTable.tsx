@@ -46,7 +46,7 @@ interface PropsTypes {
             max?: number | undefined;
             type: string;
             _id: string;
-            value: string | number
+            value?: string | number
         }[];
         sampleType: string;
         status: string;

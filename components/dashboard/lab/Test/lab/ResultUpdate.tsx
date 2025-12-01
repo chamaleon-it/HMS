@@ -49,7 +49,7 @@ interface Props {
             max?: number | undefined;
             type: string;
             _id: string;
-            value: string | number;
+            value?: string | number;
         }[];
         sampleType: string;
         status: string;
@@ -61,6 +61,7 @@ interface Props {
 
 export default function ResultUpdate({ r, mutate }: Props) {
 
+    const [open, setOpen] = useState(false)
 
     const [payload, setPayload] = useState({
         _id: r._id,
@@ -83,7 +84,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
             })
 
             mutate()
-
+            setOpen(false)
 
         } catch (error) {
             console.log(error)
@@ -94,7 +95,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
 
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
                     Update Result
