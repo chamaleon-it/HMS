@@ -1,8 +1,68 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
+import useSWR from "swr";
+import LabTable from "./LabTable";
 
 export default function Lab() {
+
+
+  const { data } = useSWR<{
+    message: string;
+    data: {
+      _id: string;
+      patient: {
+        _id: string;
+        name: string;
+        phoneNumber: string;
+        email: string;
+        gender: string;
+        dateOfBirth: Date;
+        conditions: string[];
+        blood: string;
+        allergies: string;
+        address: string;
+        notes: string;
+        createdBy: string;
+        status: string;
+        mrn: string;
+        createdAt: Date;
+        updatedAt: Date;
+      };
+      doctor: {
+        _id: string;
+        name: string;
+        specialization: null | string;
+      };
+      lab: {
+        _id: string;
+        name: string;
+        specialization: null | string;
+      };
+      date: Date;
+      priority: string;
+      name: {
+        code: string;
+        name: string;
+        unit: string;
+        min?: number;
+        max?: number;
+        type: string;
+        _id: string;
+      }[];
+      sampleType: string;
+      status: string;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+  }>("/lab/report");
+
+  const REPORT = data?.data ?? [];
+
+  const [status] = useState<
+    "All" | "Upcoming" | "Waiting For Result" | "Completed"
+  >("All");
+
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full bg-gradient-to-b from-white to-slate-50 p-5">
@@ -20,7 +80,7 @@ export default function Lab() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatCard
           icon={<span className="text-xl">🧪</span>}
           label="Total"
@@ -33,12 +93,7 @@ export default function Lab() {
           value={0}
           tone="bg-slate-100"
         />
-        <StatCard
-          icon={<span className="text-xl">🩻</span>}
-          label="Imaging"
-          value={0}
-          tone="bg-slate-100"
-        />
+
         <StatCard
           icon={<span className="text-xl">✅</span>}
           label="Completed"
@@ -60,7 +115,7 @@ export default function Lab() {
           <div className="flex-1">
             <input
 
-              placeholder="Search by patient, lab ID, test, center…"
+              placeholder="Search by patient"
               className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
@@ -218,52 +273,13 @@ export default function Lab() {
 
 
       {/* Table */}
-      <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 text-xs text-gray-600">
-              <th className="w-10 text-left px-4 py-3">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4"
-
-                />
-              </th>
-              <th className="w-14 text-left px-4 py-3">No.</th>
-              {headerCell("Patient")}
-              {headerCell("Test")}
-
-              {headerCell("Collected")}
-              {headerCell("Reported")}
-              {headerCell("Doctor")}
-              <th className="text-left px-4 py-3">Value</th>
-              {headerCell("Status")}
-              <th className="w-40 text-right px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-
-        </table>
-      </div>
+      <LabTable REPORT={REPORT} status={status} />
 
     </div>
   );
 }
 
-function headerCell(
-  label: string,
-) {
-  return (
-    <th className="text-left px-2 py-3 select-none">
-      <button
 
-        className={`inline-flex items-center gap-1.5 text-xs font-medium  hover:text-gray-900`}
-      >
-        {label}
-
-      </button>
-    </th>
-  );
-}
 
 const StatCard: React.FC<{
   icon: React.ReactNode;

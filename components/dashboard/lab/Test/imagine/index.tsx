@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
+import useSWR from "swr";
+import LabTable from "./LabTable";
 
 
 
@@ -9,6 +11,63 @@ import React, { useMemo, useState, useEffect } from "react";
 
 
 export default function Imagine() {
+
+
+  const { data } = useSWR<{
+    message: string;
+    data: {
+      _id: string;
+      patient: {
+        _id: string;
+        name: string;
+        phoneNumber: string;
+        email: string;
+        gender: string;
+        dateOfBirth: Date;
+        conditions: string[];
+        blood: string;
+        allergies: string;
+        address: string;
+        notes: string;
+        createdBy: string;
+        status: string;
+        mrn: string;
+        createdAt: Date;
+        updatedAt: Date;
+      };
+      doctor: {
+        _id: string;
+        name: string;
+        specialization: null | string;
+      };
+      lab: {
+        _id: string;
+        name: string;
+        specialization: null | string;
+      };
+      date: Date;
+      priority: string;
+      name: {
+        code: string;
+        name: string;
+        unit: string;
+        min?: number;
+        max?: number;
+        type: string;
+        _id: string;
+      }[];
+      sampleType: string;
+      status: string;
+      createdAt: Date;
+      updatedAt: Date;
+    }[];
+  }>("/lab/report");
+
+  const REPORT = data?.data ?? [];
+
+  const [status,] = useState<
+    "All" | "Upcoming" | "Waiting For Result" | "Completed"
+  >("All");
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full bg-gradient-to-b from-white to-slate-50 p-5">
@@ -24,18 +83,12 @@ export default function Imagine() {
 
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <StatCard
           icon={<span className="text-xl">🧪</span>}
           label="Total"
           value={0}
           tone="bg-violet-100"
-        />
-        <StatCard
-          icon={<span className="text-xl">🏥</span>}
-          label="Lab"
-          value={0}
-          tone="bg-slate-100"
         />
         <StatCard
           icon={<span className="text-xl">🩻</span>}
@@ -62,7 +115,7 @@ export default function Imagine() {
           <div className="flex-1">
             <input
 
-              placeholder="Search by patient, lab ID, test, center…"
+              placeholder="Search by patient"
               className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
           </div>
@@ -107,55 +160,7 @@ export default function Imagine() {
 
 
 
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-gray-500 px-1">Sample Type</span>
-            <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
-              {[
-                {
-                  label: "All",
-                  value: "All" as const,
-                  icon: "•",
-                  activeClass: "bg-white text-gray-900 ring-gray-300",
-                  idleClass: "text-gray-600 ring-transparent hover:bg-gray-50",
-                },
-                {
-                  label: "Blood",
-                  value: "Blood" as const,
-                  icon: "🩸",
-                  activeClass: "bg-rose-600 text-white ring-rose-600",
-                  idleClass: "text-rose-600 ring-transparent hover:bg-rose-50",
-                },
-                {
-                  label: "Urine",
-                  value: "Urine" as const,
-                  icon: "💧",
-                  activeClass: "bg-amber-600 text-white ring-amber-600",
-                  idleClass:
-                    "text-amber-600 ring-transparent hover:bg-amber-50",
-                },
-                {
-                  label: "Other",
-                  value: "Other" as const,
-                  icon: "🔬",
-                  activeClass: "bg-violet-600 text-white ring-violet-600",
-                  idleClass:
-                    "text-violet-600 ring-transparent hover:bg-violet-50",
-                },
-              ].map((opt) => {
 
-                return (
-                  <button
-                    key={opt.value}
-                    aria-label={`Sample Type: ${opt.label}`}
-                    className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5`}
-                  >
-                    {opt.value !== "All" && <span aria-hidden>{opt.icon}</span>}
-                    <span className="truncate">{opt.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           <div className="flex flex-col gap-1">
             <span className="text-xs text-gray-500 px-1">Doctor</span>
@@ -169,10 +174,6 @@ export default function Imagine() {
               ]}
             />
           </div>
-        </div>
-
-
-        <div className="mt-3 grid md:grid-cols-4 gap-3">
 
 
           <div className="flex flex-col gap-1">
@@ -210,58 +211,19 @@ export default function Imagine() {
             </div>
           )}
         </div>
+
+
+
       </div>
 
 
 
-      <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
-        <table className="w-full">
-          <thead>
-            <tr className="bg-gray-50 text-xs text-gray-600">
-              <th className="w-10 text-left px-4 py-3">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4"
-
-                />
-              </th>
-              <th className="w-14 text-left px-4 py-3">No.</th>
-              {headerCell("Patient")}
-              {headerCell("Test")}
-
-              {headerCell("Collected")}
-              {headerCell("Reported")}
-              {headerCell("Doctor")}
-              <th className="text-left px-4 py-3">Value</th>
-              {headerCell("Status")}
-              <th className="w-40 text-right px-4 py-3">Actions</th>
-            </tr>
-          </thead>
-
-        </table>
-      </div>
+      <LabTable REPORT={REPORT} status={status} />
 
     </div>
   );
 }
 
-function headerCell(
-  label: string,
-
-) {
-
-  return (
-    <th className="text-left px-2 py-3 select-none">
-      <button
-
-        className={`inline-flex items-center gap-1.5 text-xs font-medium  hover:text-gray-900`}
-      >
-        {label}
-
-      </button>
-    </th>
-  );
-}
 
 
 const StatCard: React.FC<{
