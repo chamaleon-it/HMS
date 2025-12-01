@@ -6,7 +6,7 @@ import ResultUpdate from './ResultUpdate';
 
 
 interface PropsTypes {
-    status: "All" | "Upcoming" | "Waiting For Result" | "Completed"
+    status: string;
     REPORT: {
         _id: string;
         patient: {
@@ -84,7 +84,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                 </thead>
                 <tbody>
                     {REPORT.filter(
-                        () => status === "All" || status === "Upcoming"
+                        (r) => status === "All" || r.status === status
                     ).map((r, idx) => {
                         return r.name.some((e) => e.type === "Imaging") && (
                             <tr

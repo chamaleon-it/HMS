@@ -70,6 +70,18 @@ export default function Imagine() {
     "All" | "Upcoming" | "Waiting For Result" | "Completed"
   >("All");
 
+
+  const [filter, setFilter] = useState<{
+    patient: string;
+    status: string;
+    date: string;
+  }>({
+    patient: "",
+    status: "All",
+    date: "All time",
+  })
+
+
   return (
     <div className="min-h-[calc(100vh-80px)] w-full bg-gradient-to-b from-white to-slate-50 p-5">
       <div className="flex items-center justify-between mb-6">
@@ -88,25 +100,25 @@ export default function Imagine() {
         <StatCard
           icon={<span className="text-xl">🧪</span>}
           label="Total"
-          value={0}
+          value={REPORT.length}
           tone="bg-violet-100"
         />
         <StatCard
           icon={<span className="text-xl">🩻</span>}
           label="Imaging"
-          value={0}
+          value={REPORT.reduce((acc, r) => acc + (r.name.filter((e) => e.type === "Imaging").length ?? 0), 0)}
           tone="bg-slate-100"
         />
         <StatCard
           icon={<span className="text-xl">✅</span>}
           label="Completed"
-          value={0}
+          value={REPORT.filter((r) => r.status === "Completed").length}
           tone="bg-green-100"
         />
         <StatCard
           icon={<span className="text-xl">🚩</span>}
           label="Flagged"
-          value={0}
+          value={REPORT.filter((r) => r.status === "Flagged").length}
           tone="bg-amber-100"
         />
       </div>
@@ -115,7 +127,8 @@ export default function Imagine() {
         <div className="flex flex-col md:flex-row gap-3 md:items-center">
           <div className="flex-1">
             <input
-
+              value={filter.patient}
+              onChange={(e) => setFilter({ ...filter, patient: e.target.value })}
               placeholder="Search by patient"
               className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
             />
@@ -132,8 +145,8 @@ export default function Imagine() {
           <div className="flex flex-col gap-1">
             <span className="text-xs text-gray-500 px-1">Status</span>
             <FilterSelect
-              value={"All"}
-              onChange={() => { }}
+              value={filter.status}
+              onChange={(e) => setFilter({ ...filter, status: e })}
               placeholder="All statuses"
               options={(
                 [
@@ -184,33 +197,12 @@ export default function Imagine() {
                 { label: "All time", value: "All time" as const },
                 { label: "7 days", value: "7 days" as const },
                 { label: "30 days", value: "30 days" as const },
-                { label: "Custom", value: "Custom" as const },
               ]}
-              value={"30 days"}
-              onChange={() => { }}
+              value={filter.date}
+              onChange={(e) => setFilter({ ...filter, date: e })}
             />
           </div>
 
-          {false && (
-            <div className="flex items-end gap-2">
-              <div className="flex-1 flex flex-col gap-1">
-                <label className="text-sm text-gray-600">From</label>
-                <input
-                  type="date"
-
-                  className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
-                />
-              </div>
-              <div className="flex-1 flex flex-col gap-1">
-                <label className="text-sm text-gray-600">To</label>
-                <input
-                  type="date"
-
-                  className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
-                />
-              </div>
-            </div>
-          )}
         </div>
 
 
@@ -219,7 +211,13 @@ export default function Imagine() {
 
 
 
-      <LabTable REPORT={REPORT} status={status} mutate={mutate} />
+      <LabTable REPORT={
+        REPORT.filter((r) => {
+          const patientMatch = r.patient.name.toLowerCase().includes(filter.patient.toLowerCase())
+          const statusMatch = filter.status === "All" || r.status === filter.status
+          const dateMatch = filter.date === "All time" || r.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+          return patientMatch && statusMatch && dateMatch
+        })} status={filter.status} mutate={mutate} />
 
     </div>
   );

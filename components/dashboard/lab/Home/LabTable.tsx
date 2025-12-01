@@ -172,12 +172,6 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                                         <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
                                             View
                                         </button>
-                                        <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
-                                            History
-                                        </button>
-                                        <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
-                                            Share
-                                        </button>
                                     </div>
                                 </td>
                             </tr>

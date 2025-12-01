@@ -2,11 +2,9 @@ import { useAuth } from '@/auth/context/auth-context';
 import { fAge, fDate } from '@/lib/fDateAndTime';
 import { Checkbox } from '@radix-ui/react-checkbox';
 import React from 'react'
-import ResultUpdate from './ResultUpdate';
 
 
 interface PropsTypes {
-    mutate: () => void
     status: string;
     REPORT: {
         _id: string;
@@ -55,9 +53,10 @@ interface PropsTypes {
         createdAt: Date;
         updatedAt: Date;
     }[]
+    facility: "Lab" | "Imaging" | "All";
 }
 
-export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
+export default function LabTable({ REPORT, status, facility }: PropsTypes) {
     const { user } = useAuth()
     return (
         <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
@@ -76,7 +75,6 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         {headerCell("Reference")}
                         {headerCell("Created At")}
                         {headerCell("Reported")}
-                        {headerCell("Doctor")}
                         {headerCell("Status")}
                         {headerCell("Actions")}
 
@@ -85,8 +83,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                 <tbody>
                     {REPORT.filter(
                         (r) => status === "All" || r.status === status
+                            && (facility === "All" || r.name.some((e) => e.type === facility))
                     ).map((r, idx) => {
-                        return r.name.some((e) => e.type === "Lab") && (
+                        return (
                             <tr
                                 key={r._id}
                                 className="group border-b border-gray-100 hover:bg-gray-50/80 transition-colors duration-200 last:border-0"
@@ -107,7 +106,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 </td>
                                 <td className="px-3 py-2 text-sm text-gray-700">
                                     <div className="flex flex-col gap-2">
-                                        {r.name.map((e) => e.type === "Lab" && (
+                                        {r.name.map((e) => (facility === "All" || e.type === facility) && (
                                             <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
                                                 {e.name}
                                             </div>
@@ -118,13 +117,23 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
                                         {r.name.map(
-                                            (e) =>
-                                                e.type === "Lab" && (
-                                                    <span
-                                                        key={e._id}
-                                                        className="text-gray-600 font-mono h-5"
-                                                    >{e?.value ? `${e.value} ${e.unit}` : "-"}</span>
-                                                )
+                                            (e) => (facility === "All" || e.type === facility) && (
+                                                <span
+                                                    key={e._id}
+                                                    className="text-gray-600 font-mono h-5"
+                                                >
+                                                    {e.value ? <>
+                                                        {e.type === "Imaging" ? <a
+                                                            href={e?.value?.toString()}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                                                        >
+                                                            View Result
+                                                        </a> : `${e.value} ${e.unit}`}
+                                                    </> : "-"}
+                                                </span>
+                                            )
                                         )}
                                     </div>
                                 </td>
@@ -132,13 +141,12 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
                                         {r.name.map(
-                                            (e) =>
-                                                e.type === "Lab" && (
-                                                    <span
-                                                        key={e._id}
-                                                        className="text-gray-600 font-mono h-5"
-                                                    >{`${e?.min ?? ""} - ${e?.max ?? ""} ${e?.min ? e.unit : ""}`}</span>
-                                                )
+                                            (e) => (facility === "All" || e.type === facility) && (
+                                                <span
+                                                    key={e._id}
+                                                    className="text-gray-600 font-mono h-5"
+                                                >{`${e?.min ?? ""} - ${e?.max ?? ""} ${e?.min ? e.unit : ""}`}</span>
+                                            )
                                         )}
                                     </div>
                                 </td>
@@ -149,19 +157,16 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 <td className="px-3 py-2 text-sm text-gray-500">
                                     {fDate(r.date)}
                                 </td>
-                                <td className="px-3 py-2 text-sm text-gray-600">
-                                    <div className="flex items-center gap-2">
-                                        {r.doctor._id !== user?._id ? <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name}</span> : <span>Direct</span>}
-                                    </div>
-                                </td>
+
 
                                 <td className="px-3 py-2">
                                     <Chip label={r.status} tone={statusTone(r.status)} />
                                 </td>
                                 <td className="px-3 py-2 text-right">
                                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
-                                        <ResultUpdate r={r} mutate={mutate} />
-
+                                        <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
+                                            View
+                                        </button>
                                     </div>
                                 </td>
                             </tr>

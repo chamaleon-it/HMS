@@ -64,6 +64,15 @@ export default function Lab() {
     "All" | "Upcoming" | "Waiting For Result" | "Completed"
   >("All");
 
+  const [filter, setFilter] = useState<{
+    patient: string;
+    status: string;
+    date: string;
+  }>({
+    patient: "",
+    status: "All",
+    date: "All time",
+  })
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full bg-gradient-to-b from-white to-slate-50 p-5">
@@ -85,26 +94,26 @@ export default function Lab() {
         <StatCard
           icon={<span className="text-xl">🧪</span>}
           label="Total"
-          value={0}
+          value={REPORT.length}
           tone="bg-violet-100"
         />
         <StatCard
           icon={<span className="text-xl">🏥</span>}
           label="Lab"
-          value={0}
+          value={REPORT.reduce((acc, r) => acc + (r.name.filter((e) => e.type === "Lab").length ?? 0), 0)}
           tone="bg-slate-100"
         />
 
         <StatCard
           icon={<span className="text-xl">✅</span>}
           label="Completed"
-          value={0}
+          value={REPORT.filter((r) => r.status === "Completed").length}
           tone="bg-green-100"
         />
         <StatCard
           icon={<span className="text-xl">🚩</span>}
           label="Flagged"
-          value={0}
+          value={REPORT.filter((r) => r.status === "Flagged").length}
           tone="bg-amber-100"
         />
       </div>
@@ -115,6 +124,8 @@ export default function Lab() {
         <div className="flex flex-col md:flex-row gap-3 md:items-center">
           <div className="flex-1">
             <input
+              value={filter.patient}
+              onChange={(e) => setFilter({ ...filter, patient: e.target.value })}
 
               placeholder="Search by patient"
               className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
@@ -134,8 +145,8 @@ export default function Lab() {
           <div className="flex flex-col gap-1">
             <span className="text-xs text-gray-500 px-1">Status</span>
             <FilterSelect
-              value={"All"}
-              onChange={() => { }}
+              value={filter.status}
+              onChange={(e) => setFilter({ ...filter, status: e })}
               placeholder="All statuses"
               options={(
                 [
@@ -163,56 +174,7 @@ export default function Lab() {
 
 
 
-          {/* Sample Type — attractive pills */}
-          <div className="flex flex-col gap-1">
-            <span className="text-xs text-gray-500 px-1">Sample Type</span>
-            <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
-              {[
-                {
-                  label: "All",
-                  value: "All" as const,
-                  icon: "•",
-                  activeClass: "bg-white text-gray-900 ring-gray-300",
-                  idleClass: "text-gray-600 ring-transparent hover:bg-gray-50",
-                },
-                {
-                  label: "Blood",
-                  value: "Blood" as const,
-                  icon: "🩸",
-                  activeClass: "bg-rose-600 text-white ring-rose-600",
-                  idleClass: "text-rose-600 ring-transparent hover:bg-rose-50",
-                },
-                {
-                  label: "Urine",
-                  value: "Urine" as const,
-                  icon: "💧",
-                  activeClass: "bg-amber-600 text-white ring-amber-600",
-                  idleClass:
-                    "text-amber-600 ring-transparent hover:bg-amber-50",
-                },
-                {
-                  label: "Other",
-                  value: "Other" as const,
-                  icon: "🔬",
-                  activeClass: "bg-violet-600 text-white ring-violet-600",
-                  idleClass:
-                    "text-violet-600 ring-transparent hover:bg-violet-50",
-                },
-              ].map((opt) => {
 
-                return (
-                  <button
-                    key={opt.value}
-                    aria-label={`Sample Type: ${opt.label}`}
-                    className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5`}
-                  >
-                    {opt.value !== "All" && <span aria-hidden>{opt.icon}</span>}
-                    <span className="truncate">{opt.label}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
 
           {/* Doctor */}
           <div className="flex flex-col gap-1">
@@ -227,12 +189,6 @@ export default function Lab() {
               ]}
             />
           </div>
-        </div>
-
-
-        {/* Row 3: Date field + presets */}
-        <div className="mt-3 grid md:grid-cols-4 gap-3">
-
 
           <div className="flex flex-col gap-1">
             <span className="text-xs text-gray-500 px-1">Date range</span>
@@ -241,40 +197,28 @@ export default function Lab() {
                 { label: "All time", value: "All time" as const },
                 { label: "7 days", value: "7 days" as const },
                 { label: "30 days", value: "30 days" as const },
-                { label: "Custom", value: "Custom" as const },
               ]}
-              value={"30 days"}
-              onChange={() => { }}
+              value={filter.date}
+              onChange={(e) => setFilter({ ...filter, date: e })}
             />
           </div>
-
-          {false && (
-            <div className="flex items-end gap-2">
-              <div className="flex-1 flex flex-col gap-1">
-                <label className="text-sm text-gray-600">From</label>
-                <input
-                  type="date"
-
-                  className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
-                />
-              </div>
-              <div className="flex-1 flex flex-col gap-1">
-                <label className="text-sm text-gray-600">To</label>
-                <input
-                  type="date"
-
-                  className="h-11 px-3 rounded-xl ring-1 ring-gray-200"
-                />
-              </div>
-            </div>
-          )}
         </div>
+
+
+
       </div>
 
 
 
       {/* Table */}
-      <LabTable REPORT={REPORT} status={status} mutate={mutate} />
+      <LabTable
+        REPORT={REPORT.filter((r) => {
+          const patientMatch = r.patient.name.toLowerCase().includes(filter.patient.toLowerCase())
+          const statusMatch = filter.status === "All" || r.status === filter.status
+          const dateMatch = filter.date === "All time" || r.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+          return patientMatch && statusMatch && dateMatch
+        })}
+        status={filter.status} mutate={mutate} />
 
     </div>
   );
