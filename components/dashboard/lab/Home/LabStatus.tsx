@@ -7,19 +7,19 @@ export default function LabStatus({
   currenctStatus,
   setCurrenctStatus,
 }: {
-  currenctStatus: "All" | "Upcoming" | "Waiting For Result" | "Completed";
+  currenctStatus: "All" | "Pending" | "In Progress" | "Completed" | "Flagged";
   setCurrenctStatus: React.Dispatch<
     React.SetStateAction<
-      "All" | "Upcoming" | "Waiting For Result" | "Completed"
+      "All" | "Pending" | "In Progress" | "Completed" | "Flagged"
     >
   >;
 }): JSX.Element {
   const tabs = useMemo(
     () => [
       { key: "All", label: "All", icon: Clock },
-      { key: "Upcoming", label: "Upcoming", icon: Clock },
+      { key: "Pending", label: "Upcoming", icon: Clock },
 
-      { key: "Waiting For Result", label: "Waiting For Result", icon: Eye },
+      { key: "In Progress", label: "Waiting For Result", icon: Eye },
       { key: "Completed", label: "Completed", icon: CheckCircle },
     ],
     []
@@ -34,7 +34,7 @@ export default function LabStatus({
             key={key}
             onClick={() =>
               setCurrenctStatus(
-                key as "Upcoming" | "Waiting For Result" | "Completed"
+                key as "All" | "Pending" | "In Progress" | "Completed" | "Flagged"
               )
             }
             className={

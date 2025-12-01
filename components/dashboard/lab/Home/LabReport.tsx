@@ -62,7 +62,7 @@ export default function LabResultsPage() {
   const REPORT = data?.data ?? [];
 
   const [status, setStatus] = useState<
-    "All" | "Upcoming" | "Waiting For Result" | "Completed"
+    "All" | "Pending" | "In Progress" | "Completed" | "Flagged"
   >("All");
 
   return (
