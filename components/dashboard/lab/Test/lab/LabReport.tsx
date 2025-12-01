@@ -60,9 +60,6 @@ export default function Lab() {
 
   const REPORT = data?.data ?? [];
 
-  const [status] = useState<
-    "All" | "Upcoming" | "Waiting For Result" | "Completed"
-  >("All");
 
   const [filter, setFilter] = useState<{
     patient: string;

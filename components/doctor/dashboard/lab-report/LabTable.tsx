@@ -1,7 +1,7 @@
-import { useAuth } from '@/auth/context/auth-context';
 import { fAge, fDate } from '@/lib/fDateAndTime';
 import { Checkbox } from '@radix-ui/react-checkbox';
 import React from 'react'
+import ViewResultModal from './ViewResultModal';
 
 
 interface PropsTypes {
@@ -57,7 +57,6 @@ interface PropsTypes {
 }
 
 export default function LabTable({ REPORT, status, facility }: PropsTypes) {
-    const { user } = useAuth()
     return (
         <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
 
@@ -164,9 +163,7 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                 </td>
                                 <td className="px-3 py-2 text-right">
                                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
-                                        <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
-                                            View
-                                        </button>
+                                        <ViewResultModal r={r} />
                                     </div>
                                 </td>
                             </tr>

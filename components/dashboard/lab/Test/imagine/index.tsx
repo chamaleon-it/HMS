@@ -66,9 +66,7 @@ export default function Imagine() {
 
   const REPORT = data?.data ?? [];
 
-  const [status,] = useState<
-    "All" | "Upcoming" | "Waiting For Result" | "Completed"
-  >("All");
+
 
 
   const [filter, setFilter] = useState<{
