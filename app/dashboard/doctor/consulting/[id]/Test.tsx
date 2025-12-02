@@ -22,6 +22,7 @@ type TestItemType = {
   type: "Lab" | "Imaging";
   unit: string;
   _id: string;
+  panel: string;
 };
 
 type PriorityId = "High" | "Normal" | "Stat";
@@ -215,7 +216,7 @@ export default function Test({
   ];
 
 
-  const [selectedPanel, setSelectedPanel] = useState<string>("");
+  const [selectedPanel, setSelectedPanel] = useState<string[]>([]);
 
   // Filter Logic extracted for reuse
   const filteredTests = Tests.filter((t) => {
@@ -224,9 +225,9 @@ export default function Test({
     } else if (tab === "Lab") {
       return t.type === "Lab";
     }
-    if (selectedPanel) {
-      return t.panel === selectedPanel;
-    }
+    // if (selectedPanel) {
+    //   return t.panel === selectedPanel;
+    // }
     return true;
   }).filter((t) => {
     if (!query) {
@@ -339,24 +340,45 @@ export default function Test({
 
                 {/* Panels Chips */}
                 <div className="flex flex-wrap gap-1 pr-2 scrollbar-thin scrollbar-thumb-zinc-200">
-                  <button
-                    onClick={() => setSelectedPanel("")}
+                  {/* <button
+                    onClick={() => setSelectedPanel([])}
                     className={cn(
                       "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all select-none",
-                      selectedPanel === ""
+                      selectedPanel.length === 0
                         ? "bg-emerald-100 border-emerald-200 text-emerald-800"
                         : "bg-white border-zinc-200 text-zinc-600 hover:border-emerald-200 hover:text-emerald-700"
                     )}
                   >
                     All Panels
-                  </button>
+                  </button> */}
                   {testPanel.map(panel => (
                     <button
                       key={panel}
-                      onClick={() => setSelectedPanel(panel === selectedPanel ? "" : panel)}
+                      onClick={() => {
+                        setSelectedPanel(prev => {
+                          const exists = prev.includes(panel);
+
+                          if (exists) {
+                            const updatedPanels = prev.filter(p => p !== panel);
+                            setSelectedTests(prevTests =>
+                              prevTests.filter(t => t.panel !== panel)
+                            );
+                            return updatedPanels;
+                          } else {
+                            const updatedPanels = [...prev, panel];
+                            setSelectedTests(prevTests => {
+                              const merged = [...Tests.filter(t => t.panel === panel), ...prevTests];
+                              const unique = Array.from(new Map(merged.map(item => [item._id, item])).values());
+                              return unique;
+                            });
+
+                            return updatedPanels;
+                          }
+                        });
+                      }}
                       className={cn(
                         "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all select-none",
-                        selectedPanel === panel
+                        selectedPanel.includes(panel)
                           ? "bg-emerald-500 border-emerald-600 text-white shadow-sm"
                           : "bg-white border-zinc-200 text-zinc-600 hover:border-emerald-200 hover:text-emerald-700"
                       )}

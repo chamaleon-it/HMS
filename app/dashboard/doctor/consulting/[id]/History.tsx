@@ -1,9 +1,9 @@
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { fDateandTime } from "@/lib/fDateAndTime";
-import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { fDate } from "@/lib/fDateAndTime";
 import React from "react";
 import useSWR from "swr";
+import ConsultationDetails from "./ConsultationDetails";
 
 export default function History({ patientId }: { patientId: string }) {
   const {
@@ -20,38 +20,62 @@ export default function History({ patientId }: { patientId: string }) {
     <div className="mt-4">Loading...!</div>;
   }
 
+  const [open, setOpen] = React.useState(false);
+  const [selectedRow, setSelectedRow] = React.useState<Consultations | null>(null);
+
   return (
-    <div className="mt-4">
-      <Card className="p-6">
-        <div className="flex gap-2 mb-4 items-center">
-          <Search className="w-4 h-4 text-slate-400" />
-          <Input placeholder="Search history..." />
-        </div>
-        {consultations.map((h) => (
-          <div key={h._id} className="border rounded p-3 mb-3">
-            <div className="font-medium">
-              {fDateandTime(h.createdAt)} — Dr. {h.doctor.name}
-            </div>
-            <br />
-            <div className="text-sm">
-              <b>Present History</b> : {h.consultationNotes.presentHistory}
-            </div>{" "}
-            <br />
-            <div className="text-sm">
-              <b>Past History</b> : {h.consultationNotes.pastHistory}
-            </div>
-            <br />
-            <div className="text-sm">
-              <b>Diagnosis</b> : {h.consultationNotes.diagnosis}
-            </div>
-            <br />
-            <div className="text-sm">
-              <b>Advice</b> : {h.advice}
-            </div>
-          </div>
-        ))}
-      </Card>
-    </div>
+    <>
+
+      <Table className='rounded-2xl overflow-hidden'>
+        <TableHeader>
+          <TableRow className='bg-slate-700 hover:bg-slate-700'>
+            <TableHead className='text-white'>SL</TableHead>
+            <TableHead className='text-white'>Date</TableHead>
+            <TableHead className='text-white'>Doctor</TableHead>
+            <TableHead className='text-white'>Diagnosis</TableHead>
+            <TableHead className='text-white'>Action</TableHead>
+
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {
+            consultations?.map((consulting, index) => (
+              <TableRow key={consulting._id}>
+                <TableCell>{String(index + 1).padStart(2, '0')}</TableCell>
+                <TableCell>
+                  {fDate(consulting.createdAt)}
+                </TableCell>
+                <TableCell>
+                  {consulting.doctor.name}
+                </TableCell>
+                <TableCell>
+                  {consulting.consultationNotes.diagnosis}
+                </TableCell>
+                <TableCell>
+                  <Button
+                    variant="outline"
+                    className="ml-2"
+                    onClick={() => {
+                      setSelectedRow(consulting)
+                      setOpen(true)
+                    }}
+                  >
+                    View
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))
+          }
+        </TableBody>
+
+      </Table>
+      <ConsultationDetails
+        selectedRow={selectedRow}
+        open={open}
+        onOpenChange={setOpen}
+        onClose={() => setOpen(false)}
+      />
+    </>
   );
 }
 
@@ -111,10 +135,14 @@ export interface ExaminationNote {
   cns: string;
   otherNotes: string;
   _id: string;
+  tempUnit: string;
 }
 
 export interface Medicine {
-  name: string;
+  name: {
+    name: string;
+    _id: string;
+  };
   dosage: string;
   frequency: string;
   food: string;
@@ -140,7 +168,9 @@ export interface Patient {
 }
 
 export interface Test {
-  name: string[];
+  name: {
+    name: string
+  }[];
   date: Date;
   lab: string;
   slot: string;

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,8 +33,17 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useSearchParams } from "next/navigation";
 
 export default function PharmacyReturnPage() {
+
+
+  const searchParams = useSearchParams();
+  const mrn = searchParams.get("mrn");
+
+
+
+
   const { user } = useAuth();
 
   const [filter, setFilter] = useState<{ q: null | string }>({
@@ -43,15 +52,22 @@ export default function PharmacyReturnPage() {
 
   const [order, setOrder] = useState<null | OrderType>(null);
 
+
+
+
+
   const fetchOrder = async () => {
     try {
-      if (!filter.q) {
+
+
+      if (!mrn && !filter.q) {
         toast.error("Please enter a valid RX id");
         return;
       }
+
       const params = new URLSearchParams();
 
-      params.set("q", filter.q);
+      params.set("q", (filter.q ?? mrn) ?? "");
 
       const { data } = await api.get(`/pharmacy/orders/single?${params}`);
       setOrder(data.data);
@@ -60,6 +76,15 @@ export default function PharmacyReturnPage() {
       console.log(error);
     }
   };
+
+
+  useEffect(() => {
+    if (mrn) {
+      setFilter({ q: mrn });
+      fetchOrder();
+    }
+  }, [mrn])
+
 
   const [state, setState] = useState({
     refundMode: "Cash",
@@ -209,16 +234,16 @@ export default function PharmacyReturnPage() {
                           setOrder((prev) =>
                             prev
                               ? {
-                                  ...prev,
-                                  items: prev.items.map((item) =>
-                                    item.name._id === it.name._id
-                                      ? {
-                                          ...item,
-                                          return: value || 0,
-                                        }
-                                      : item
-                                  ),
-                                }
+                                ...prev,
+                                items: prev.items.map((item) =>
+                                  item.name._id === it.name._id
+                                    ? {
+                                      ...item,
+                                      return: value || 0,
+                                    }
+                                    : item
+                                ),
+                              }
                               : null
                           );
                         }}
@@ -241,16 +266,16 @@ export default function PharmacyReturnPage() {
                             setOrder((prev) =>
                               prev
                                 ? {
-                                    ...prev,
-                                    items: prev.items.map((item) =>
-                                      item.name._id === it.name._id
-                                        ? {
-                                            ...item,
-                                            reason: e.target.value,
-                                          }
-                                        : item
-                                    ),
-                                  }
+                                  ...prev,
+                                  items: prev.items.map((item) =>
+                                    item.name._id === it.name._id
+                                      ? {
+                                        ...item,
+                                        reason: e.target.value,
+                                      }
+                                      : item
+                                  ),
+                                }
                                 : null
                             );
                           }}
@@ -274,11 +299,11 @@ export default function PharmacyReturnPage() {
                           setOrder((prev) =>
                             prev
                               ? {
-                                  ...prev,
-                                  items: prev.items.filter(
-                                    (e) => e.name._id !== it.name._id
-                                  ),
-                                }
+                                ...prev,
+                                items: prev.items.filter(
+                                  (e) => e.name._id !== it.name._id
+                                ),
+                              }
                               : null
                           );
                         }}

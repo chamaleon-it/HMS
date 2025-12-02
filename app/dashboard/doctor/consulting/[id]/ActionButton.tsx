@@ -35,7 +35,13 @@ export default function ActionButton({ data }: { data: DataType }) {
         }
       );
 
-      await toast.promise(api.post("/consultings", data), {
+      if (data.medicines.find(e => e.name === "")) {
+        toast.error("Some medicine details are missing.");
+      }
+
+      const payload = { ...data, medicines: data.medicines.filter(e => !!e.name) }
+
+      await toast.promise(api.post("/consultings", payload), {
         loading: "We are recording this consultation.",
         error: ({ response }) => response.data.message,
         success: ({ data }) => data.message,

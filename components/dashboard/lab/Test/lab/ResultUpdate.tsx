@@ -1,10 +1,11 @@
 import React, { useState } from 'react'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Activity, Beaker, FlaskConical, Save, X } from 'lucide-react'
+import { Beaker, FlaskConical, Save, X } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
 import api from '@/lib/axios'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 
 
 
@@ -117,46 +118,49 @@ export default function ResultUpdate({ r, mutate }: Props) {
                 </DialogHeader>
 
                 <div className="p-6 bg-gray-50/30 max-h-[60vh] overflow-y-auto">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {r.name.filter(item => item.type === "Lab").map((labTest) => (
-                            <div key={labTest._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-blue-200 transition-all duration-200 group">
-                                <div className="flex items-start justify-between mb-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg group-hover:bg-indigo-100 transition-colors">
-                                            <Beaker className="w-4 h-4" />
-                                        </div>
-                                        <div>
-                                            <h4 className="font-semibold text-gray-900 text-sm">{labTest.name}</h4>
-                                            <p className="text-xs text-gray-400 font-mono mt-0.5">{labTest.code}</p>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-1">Result Value</label>
-                                        <div className="relative">
-                                            <Input
-                                                value={payload.name.find((item) => item._id === labTest._id)?.value}
-                                                onChange={(e) => setPayload({ ...payload, name: payload.name.map((item) => item._id === labTest._id ? { ...item, value: e.target.value } : item) })}
-                                                type="text"
-                                                placeholder="Enter value"
-                                                className="pl-3 pr-12 h-10 bg-gray-50 border-gray-200 focus:bg-white transition-all"
-                                            />
-                                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
-                                                {labTest.unit}
-                                            </span>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-50/80 p-2.5 rounded-lg border border-gray-100">
-                                        <Activity className="w-3.5 h-3.5 text-gray-400" />
-                                        <span className="font-medium">Ref Range:</span>
-                                        <span className="font-mono text-gray-600">{labTest.min ?? "0"} - {labTest.max ?? "N/A"}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                    <div className="">
+                        <div className="rounded-xl border border-gray-200 shadow-sm bg-white overflow-hidden">
+                            <Table>
+                                <TableHeader className="bg-gray-50/50">
+                                    <TableRow>
+                                        <TableHead className="w-[250px]">Test</TableHead>
+                                        <TableHead className="w-[100px]">Code</TableHead>
+                                        <TableHead>Result Value</TableHead>
+                                        <TableHead className="text-right">Reference Range</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {r.name.filter(item => item.type === "Lab").map((labTest) => (
+                                        <TableRow key={labTest._id} className="hover:bg-gray-50 transition-colors">
+                                            <TableCell className="font-medium flex items-center gap-3 py-3.5">
+                                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                                    <Beaker className="w-4 h-4" />
+                                                </div>
+                                                <span className="text-sm">{labTest.name}</span>
+                                            </TableCell>
+                                            <TableCell className="font-mono text-gray-600 text-sm py-3.5">{labTest.code}</TableCell>
+                                            <TableCell className="py-3.5">
+                                                <div className="relative max-w-[200px]">
+                                                    <Input
+                                                        value={payload.name.find((item) => item._id === labTest._id)?.value}
+                                                        onChange={(e) => setPayload({ ...payload, name: payload.name.map((item) => item._id === labTest._id ? { ...item, value: e.target.value } : item) })}
+                                                        type="text"
+                                                        placeholder="Enter value"
+                                                        className="pl-3 pr-12 h-9 bg-gray-50 border-gray-200 focus:bg-white transition-all"
+                                                    />
+                                                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded">
+                                                        {labTest.unit}
+                                                    </span>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="text-right text-sm text-gray-600 py-3.5">
+                                                <span className="font-mono">{labTest.min ?? "0"} - {labTest.max ?? "N/A"}</span>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </div>
                 </div>
 

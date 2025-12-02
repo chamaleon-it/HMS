@@ -21,12 +21,14 @@ import {
     Stethoscope,
 } from "lucide-react";
 import React from "react";
-import { ConsultationType } from "./interface";
+import { Consultations } from "./History";
+
+
 
 interface ConsultationDetailsProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    selectedRow: ConsultationType | null;
+    selectedRow: Consultations | null;
     onClose: () => void;
 }
 

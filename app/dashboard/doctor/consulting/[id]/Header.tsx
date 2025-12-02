@@ -1,21 +1,24 @@
 import React, { Dispatch, SetStateAction } from "react";
 import VitalsCard from "./VitalsCard";
 import { ToggleChip } from "./ToggleChip";
-import { ClipboardList, Megaphone, Stethoscope } from "lucide-react";
+import { ClipboardList, FlaskConical, Megaphone, Stethoscope } from "lucide-react";
 import { AppointmentType } from "./interface";
 import { fAge } from "@/lib/fDateAndTime";
 import { ActionButton } from "@/components/doctor/dashboard/home/PatientCard";
 import toast from "react-hot-toast";
+import useGetLabReport from "./useGetLabReport";
 
 export default function Header({
   activeTab,
   setActiveTab,
   appointment,
 }: {
-  activeTab: "consultation" | "history";
-  setActiveTab: Dispatch<SetStateAction<"consultation" | "history">>;
+  activeTab: "consultation" | "history" | "report";
+  setActiveTab: Dispatch<SetStateAction<"consultation" | "history" | "report">>;
   appointment: AppointmentType;
 }) {
+
+  const { data } = useGetLabReport({ patientId: appointment.patient._id })
   return (
     <div className="flex justify-between mb-4">
       <div>
@@ -62,6 +65,15 @@ export default function Header({
             activeClass="bg-blue-600 text-white"
           >
             History
+          </ToggleChip>
+
+          <ToggleChip
+            active={activeTab === "report"}
+            onClick={() => setActiveTab("report")}
+            icon={<FlaskConical className="h-4 w-4" />}
+            activeClass="bg-blue-600 text-white"
+          >
+            Report <span className="ml-1 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">{data?.length || 0}</span>
           </ToggleChip>
         </div>
       </div>

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
+import Link from "next/link";
 
 const Customer: React.FC = () => {
   const router = useRouter();
@@ -25,7 +26,7 @@ const Customer: React.FC = () => {
   );
   const customer = customerData?.data;
   const [selectedVisit, setSelectedVisit] = useState<Order | null>(null);
-  const handlePrint = () => {};
+  const handlePrint = () => { };
 
   const [openCalander, setOpenCalander] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
@@ -220,11 +221,10 @@ const Customer: React.FC = () => {
                             key={bill._id}
                             type="button"
                             onClick={() => setSelectedVisit(bill)}
-                            className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${
-                              active
-                                ? "bg-slate-900 text-slate-50"
-                                : "hover:bg-slate-50"
-                            }`}
+                            className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
+                              ? "bg-slate-900 text-slate-50"
+                              : "hover:bg-slate-50"
+                              }`}
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span className="font-medium">
@@ -377,12 +377,22 @@ const Customer: React.FC = () => {
                           Use Print bill to generate a hard copy. In production
                           this can open a dedicated A5/A4 receipt template.
                         </div>
-                        <Button
-                          className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                          onClick={handlePrint}
-                        >
-                          Print bill
-                        </Button>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                            onClick={handlePrint}
+                          >
+                            Print bill
+                          </Button>
+                          <Button
+                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                            asChild
+                          >
+                            <Link href={`/dashboard/pharmacy/return/?mrn=${selectedVisit?.mrn}`}>
+                              Return
+                            </Link>
+                          </Button>
+                        </div>
                       </div>
                     </>
                   )}

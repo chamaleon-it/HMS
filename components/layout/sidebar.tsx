@@ -165,9 +165,9 @@ export function Sidebar() {
             link: "/dashboard/lab/test/lab",
           },
           {
-            key: "imagine",
-            label: "Imagine",
-            link: "/dashboard/lab/test/imagine",
+            key: "imaging",
+            label: "Imaging",
+            link: "/dashboard/lab/test/imaging",
           }
         ]
       },

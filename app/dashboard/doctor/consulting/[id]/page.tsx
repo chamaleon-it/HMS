@@ -16,11 +16,12 @@ import useSWR from "swr";
 import PrescriptionCard from "./PrescriptionCard";
 import { AppointmentType, DataType } from "./interface";
 import Test from "./Test";
+import Report from "./Report";
 
 export default function ConsultingMenu() {
   const params = useParams();
   const { id: appointmentId } = params;
-  const [activeTab, setActiveTab] = useState<"consultation" | "history">(
+  const [activeTab, setActiveTab] = useState<"consultation" | "history" | "report">(
     "consultation"
   );
   const { data: appointmentData, isLoading } = useSWR<{
@@ -134,6 +135,10 @@ export default function ConsultingMenu() {
 
           {activeTab === "history" && (
             <History patientId={appointment.patient._id} />
+          )}
+
+          {activeTab === "report" && (
+            <Report patientId={appointment.patient._id} />
           )}
         </div>
       </div>
