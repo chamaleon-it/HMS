@@ -39,7 +39,7 @@ export default function Clinical({ consult }: { consult: ConsultationType[] }) {
               <TableHead className="text-white w-[50px]">SL</TableHead>
               <TableHead className="text-white">Consulted Date</TableHead>
               <TableHead className="text-white">Doctor</TableHead>
-              <TableHead className="text-white">Medicines</TableHead>
+              <TableHead className="text-white">Medicine Dispensed</TableHead>
               <TableHead className="text-white">Investigations</TableHead>
               <TableHead className="text-white text-right">Actions</TableHead>
             </TableRow>

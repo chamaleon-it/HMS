@@ -3,6 +3,7 @@ import { fAge, fDate } from '@/lib/fDateAndTime';
 import React from 'react'
 import ViewResultModal from './ViewResultModal';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
 
 
 interface PropsTypes {
@@ -77,6 +78,7 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                         {headerCell("Reported")}
                         {headerCell("Doctor")}
                         {headerCell("Status")}
+                        {/* {headerCell("Estimated Time")} */}
                         {headerCell("Actions")}
 
                     </tr>
@@ -168,8 +170,17 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                                 <td className="px-3 py-2">
                                     <Chip label={r.status} tone={statusTone(r.status)} />
                                 </td>
+                                {/* <td></td> */}
                                 <td className="px-3 py-2 text-right">
                                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
+                                        {/* <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="bg-white text-gray-600 hover:bg-gray-100"
+                                        >
+
+                                            Sample Collected
+                                        </Button> */}
                                         <ViewResultModal r={r} />
                                     </div>
                                 </td>

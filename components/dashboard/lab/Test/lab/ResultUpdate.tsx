@@ -70,12 +70,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
     })
 
     const updateResult = async () => {
-        for (const item of payload.name) {
-            if (!item.value || item?.value?.toString().trim() === "") {
-                toast.error(`Please provide a report/image for ${item.name}`);
-                return;
-            }
-        }
+
 
         try {
             await toast.promise(api.post("lab/report/result", payload), {

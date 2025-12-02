@@ -445,7 +445,7 @@ export default function Test({
                         mode="single"
                         selected={date}
                         onSelect={setDate}
-                        className="rounded-xl border shadow-sm w-full"
+                        className="rounded-xl border shadow-sm w-full max-w-[450px]"
                       />
                     </div>
 

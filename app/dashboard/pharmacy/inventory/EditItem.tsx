@@ -56,7 +56,7 @@ export function EditItem({
       supplier: item.supplier,
       unitPrice: item.unitPrice,
     });
-  }, [item,reset]);
+  }, [item, reset]);
 
   const values = watch();
 
@@ -80,9 +80,9 @@ export function EditItem({
     setValue("quantity", values.openingStockQuantity);
   }, [values.openingStockQuantity, setValue]);
 
-  const {user} = useAuth()
+  const { user } = useAuth()
 
-    const [openCalander, setOpenCalander] = useState(false)
+  const [openCalander, setOpenCalander] = useState(false)
 
   return (
     <form
@@ -116,7 +116,7 @@ export function EditItem({
 
         <div className="col-span-2">
           <label className="text-[12px] text-gray-600 font-medium">
-            Generic *
+            Generic / Content *
           </label>
           <Input
             placeholder="e.g. Paracetamol / Acetaminophen"
@@ -277,31 +277,31 @@ export function EditItem({
             Expiry Date
           </label>
 
-            <Popover open={openCalander} onOpenChange={setOpenCalander}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            id="date"
-            className="w-full justify-between font-normal"
-          >
-            {values.expiryDate ? fDate(new Date(values.expiryDate)) : "Select date"}
-            <ChevronDownIcon />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
-            captionLayout="dropdown"
-            onSelect={(date) => {
-              if(date){
-                setValue("expiryDate",date.toISOString())
-              }
-              setOpenCalander(false)
-            }}
-          />
-        </PopoverContent>
-      </Popover>
+          <Popover open={openCalander} onOpenChange={setOpenCalander}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                id="date"
+                className="w-full justify-between font-normal"
+              >
+                {values.expiryDate ? fDate(new Date(values.expiryDate)) : "Select date"}
+                <ChevronDownIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
+                captionLayout="dropdown"
+                onSelect={(date) => {
+                  if (date) {
+                    setValue("expiryDate", date.toISOString())
+                  }
+                  setOpenCalander(false)
+                }}
+              />
+            </PopoverContent>
+          </Popover>
 
           {errors.expiryDate && (
             <p className="text-xs text-red-600 my-1">

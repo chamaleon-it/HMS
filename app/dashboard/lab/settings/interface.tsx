@@ -20,6 +20,7 @@ export interface ProfileType {
       min?: number;
       max?: number;
       unit: string;
+      estimatedTime: number;
     }[],
     billing?: {
       prefix: string;

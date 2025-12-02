@@ -41,6 +41,11 @@ function Barcode({ value }: { value: string }) {
 }
 
 function RxQueue() {
+
+
+  const { data } = useSWR<{ data: { pharmacy: { inventory: { allowNegativeStock: boolean } } } }>("/users/profile")
+  const allowNegativeStock = data?.data?.pharmacy?.inventory?.allowNegativeStock
+
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selected, setSelected] = useState<OrderType | null>(null);
@@ -247,6 +252,14 @@ function RxQueue() {
                                 if (it.isPacked) {
                                   toast.error("This item is already packed");
                                   return;
+                                }
+                                if (!allowNegativeStock) {
+                                  if (it.quantity > it.name.quantity) {
+                                    toast.error(
+                                      `Requested quantity ${it.quantity} for ${it.name.name} is not available. Only ${it.name.quantity} are in stock.`
+                                    );
+                                    return;
+                                  }
                                 }
                                 await toast.promise(
                                   api.post("/pharmacy/orders/packed", {

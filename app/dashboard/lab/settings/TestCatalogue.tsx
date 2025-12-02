@@ -76,20 +76,33 @@ export default function TestCatalogue({
     min?: number;
     max?: number;
     unit: string;
+    estimatedTime: number;
   }>({
     code: "",
     name: "",
     type: "",
     panel: "",
     unit: "",
+    estimatedTime: 0,
   });
 
   const addNewTest = async () => {
     try {
-      if (!newTest.code || !newTest.name || !newTest.type || !newTest.unit || !newTest.panel) {
+      if (!newTest.code || !newTest.name || !newTest.type || !newTest.unit || !newTest.panel || !newTest.estimatedTime) {
         toast.error("Please fill all required fields");
         return;
       }
+
+
+
+
+      await toast.promise(api.patch("/users/lab/tests", newTest), {
+        loading: "Adding test...",
+        success: "Test added successfully",
+        error: ({ response }) => response.data.message,
+      });
+
+      profileMutate();
 
       setNewTest({
         code: "",
@@ -99,16 +112,8 @@ export default function TestCatalogue({
         unit: "",
         min: undefined,
         max: undefined,
+        estimatedTime: 0,
       });
-
-
-      await toast.promise(api.patch("/users/lab/tests", newTest), {
-        loading: "Adding test...",
-        success: "Test added successfully",
-        error: "Failed to add test",
-      });
-
-      profileMutate();
 
     } catch (error) {
       console.log(error);
@@ -188,9 +193,21 @@ export default function TestCatalogue({
                   </SelectContent>
                 </Select>
               </div>
-            </div>
 
-            <div className="grid grid-cols-12 gap-4">
+
+              <div className="col-span-3 space-y-1.5">
+                <Label className="text-xs font-medium text-slate-700">Estimated Time (Minutes) *</Label>
+                <Input
+                  placeholder="e.g. 30"
+                  value={newTest.estimatedTime === 0 ? "" : newTest.estimatedTime}
+                  type="number"
+                  onChange={(e) =>
+                    setNewTest((prev) => ({ ...prev, estimatedTime: Number(e.target.value) }))
+                  }
+                  className="h-9 bg-slate-50"
+                />
+              </div>
+
               <div className="col-span-3 space-y-1.5">
                 <Label className="text-xs font-medium text-slate-700">Range Min</Label>
                 <Input
@@ -226,6 +243,10 @@ export default function TestCatalogue({
                   className="h-9 bg-slate-50"
                 />
               </div>
+            </div>
+
+            <div className="grid grid-cols-12 gap-4">
+
               <div className="col-span-3 flex items-end">
                 <Button
                   className="w-full h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
@@ -246,6 +267,7 @@ export default function TestCatalogue({
                     <TableHead className="w-[100px]">Code</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Estimated Time (Minutes)</TableHead>
                     <TableHead>Panel</TableHead>
                     <TableHead>Range</TableHead>
                     <TableHead>Unit</TableHead>
@@ -268,6 +290,7 @@ export default function TestCatalogue({
                             {test.type}
                           </span>
                         </TableCell>
+                        <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : ""}</TableCell>
                         <TableCell>{test.panel}</TableCell>
                         <TableCell className="text-slate-500 text-xs">
                           {test.min} - {test.max}
