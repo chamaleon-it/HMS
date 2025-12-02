@@ -1,7 +1,7 @@
 import { fAge, fDate } from '@/lib/fDateAndTime';
-import { Checkbox } from '@radix-ui/react-checkbox';
 import React from 'react'
 import ViewResultModal from './ViewResultModal';
+import { Checkbox } from '@/components/ui/checkbox';
 
 
 interface PropsTypes {
@@ -92,7 +92,7 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                 <td className="px-3 py-2">
                                     <Checkbox />
                                 </td>
-                                <td className="px-3 py-2 text-sm text-gray-400 font-mono">{String(idx + 1).padStart(2, '0')}</td>
+                                <td className="px-3 py-2 text-sm text-gray-400">{String(idx + 1).padStart(2, '0')}</td>
                                 <td className="px-3 py-2">
                                     <div className="flex flex-col">
                                         <span className="font-semibold text-gray-900 text-sm">

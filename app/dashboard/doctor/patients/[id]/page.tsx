@@ -34,6 +34,9 @@ import { useParams } from "next/navigation";
 import { ConsultationType, PatientType } from "./interface";
 import { cn } from "@/lib/utils";
 import Clinical from "./Clinical";
+import useGetLabReport from "./useGetLabReport";
+import Labs from "./Labs";
+import Imaging from "./Imaging";
 
 // --- Helper small components ---
 function Stat({
@@ -119,6 +122,9 @@ export default function PatientFullDetailPage() {
   const consult = consultingData?.data || [];
 
 
+  const { data: labData } = useGetLabReport({ patientId: patientId as string })
+
+
 
   return (
     <AppShell>
@@ -202,26 +208,11 @@ export default function PatientFullDetailPage() {
                 {tab === "clinical" && (<Clinical consult={consult} />)}
 
                 {tab === "labs" && (
-                  <div className="space-y-3">
-
-                    <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
-                      <h2 className="text-lg font-semibold text-zinc-700 mb-1">
-                        No Results Found
-                      </h2>
-                    </div>
-                  </div>
+                  <Labs labs={labData?.filter((e) => e.name.some((e) => e.type === "Lab"))} />
                 )}
 
                 {tab === "imaging" && (
-                  <div className="space-y-3">
-
-
-                    <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
-                      <h2 className="text-lg font-semibold text-zinc-700 mb-1">
-                        No Results Found
-                      </h2>
-                    </div>
-                  </div>
+                  <Imaging labs={labData?.filter((e) => e.name.some((e) => e.type === "Imaging"))} />
                 )}
 
                 {tab === "meds" && <Med consult={consult} />}
