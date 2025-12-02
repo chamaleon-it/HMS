@@ -10,8 +10,8 @@ const Hero = () => {
 
             {/* Static Background Glows */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl -z-10 pointer-events-none">
-                <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[100px] animate-pulse-slow" />
-                <div className="absolute bottom-[-20%] right-[20%] w-[500px] h-[500px] bg-accent/5 rounded-full blur-[100px] animate-pulse-slow" />
+                <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] bg-[#3B82F6]/10 rounded-full blur-[100px] animate-pulse-slow" />
+                <div className="absolute bottom-[-20%] right-[20%] w-[500px] h-[500px] bg-[#F43F5E]/5 rounded-full blur-[100px] animate-pulse-slow" />
             </div>
 
             <MedicalBackground />
@@ -25,14 +25,14 @@ const Hero = () => {
                         transition={{ duration: 0.5 }}
                         className="flex flex-col items-center"
                     >
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-primary-glow font-medium text-sm mb-8 hover:bg-white/10 transition-colors cursor-default">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-[#F43F5E] font-medium text-sm mb-8 hover:bg-white/10 transition-colors cursor-default">
                             <Sparkles className="w-4 h-4" />
                             <span>Introducing Synapse v2.0</span>
                         </div>
 
                         <h1 className="text-5xl lg:text-7xl font-semibold text-white leading-tight mb-8 tracking-tight">
                             Streamline Operations & <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-glow via-purple-400 to-accent-glow animate-gradient-x">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F43F5E] via-purple-400 to-[#F43F5E] animate-gradient-x">
                                 Improve Patient Care
                             </span>
                         </h1>
@@ -80,7 +80,7 @@ const Hero = () => {
                         className="relative w-full max-w-6xl"
                     >
                         <div className="relative rounded-xl bg-[#0B1121] border border-white/10 shadow-2xl overflow-hidden group animate-float">
-                            <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none" />
+                            <div className="absolute inset-0 bg-gradient-to-b from-[#3B82F6]/5 to-transparent pointer-events-none" />
 
                             {/* Browser Chrome */}
                             <div className="h-10 bg-[#0F172A] border-b border-white/5 flex items-center px-4 gap-2">
@@ -103,7 +103,7 @@ const Hero = () => {
                                 {/* Floating Cards - Subtle Float Animation */}
                                 <div className="absolute top-1/4 left-1/4 p-6 glass rounded-2xl animate-float [animation-delay:1s]">
                                     <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-primary/20 rounded-xl text-primary-glow">
+                                        <div className="p-3 bg-[#3B82F6]/20 rounded-xl text-[#F43F5E]">
                                             <Activity className="w-6 h-6" />
                                         </div>
                                         <div>
@@ -129,7 +129,7 @@ const Hero = () => {
 
                             {/* Data Stream Sidebar */}
                             <div className="absolute right-0 top-10 bottom-0 w-64 bg-black/40 border-l border-white/5 backdrop-blur-md p-4 overflow-hidden hidden lg:block">
-                                <div className="text-xs font-mono text-primary/50 mb-4 border-b border-white/5 pb-2">LIVE VITALS</div>
+                                <div className="text-xs font-mono text-[#3B82F6]/50 mb-4 border-b border-white/5 pb-2">LIVE VITALS</div>
                                 <div className="space-y-4">
                                     {[...Array(8)].map((_, i) => (
                                         <div key={i} className="flex items-center gap-3 opacity-60 animate-pulse" style={{ animationDelay: `${i * 0.5}s`, animationDuration: '3s' }}>
@@ -157,7 +157,7 @@ const Hero = () => {
                         </div>
 
                         {/* Glow Effect behind dashboard */}
-                        <div className="absolute -inset-4 bg-gradient-to-r from-primary to-accent opacity-20 blur-3xl -z-10 rounded-[3rem]" />
+                        <div className="absolute -inset-4 bg-gradient-to-r from-[#3B82F6] to-[F43F5E] opacity-20 blur-3xl -z-10 rounded-[3rem]" />
                     </motion.div>
 
                 </div>

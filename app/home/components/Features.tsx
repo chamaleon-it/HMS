@@ -124,7 +124,7 @@ const Features = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center max-w-3xl mx-auto mb-20">
                     <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md text-white font-medium text-sm mb-8">
-                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                        <span className="w-2 h-2 rounded-full bg-[#3B82F6] animate-pulse" />
                         Features
                     </div>
                     <h2 className="text-4xl lg:text-6xl font-bold text-white mb-6 tracking-tight">

@@ -18,8 +18,8 @@ const Header = () => {
                 <div className="flex justify-between items-center h-20">
                     {/* Logo */}
                     <div className="flex items-center gap-2">
-                        <div className="bg-primary/20 p-2 rounded-lg">
-                            <Activity className="w-6 h-6 text-primary-glow" />
+                        <div className="bg-[#3B82F6]/20 p-2 rounded-lg">
+                            <Activity className="w-6 h-6 text-[#60A5FA]" />
                         </div>
                         <span className="text-2xl font-bold text-white tracking-tight">Synapse</span>
                     </div>
@@ -38,7 +38,7 @@ const Header = () => {
                         <button className="bg-white text-black hover:bg-slate-200 px-5 py-2 rounded-full font-semibold text-sm transition-all">
                             Login
                         </button>
-                        <button className="bg-primary hover:bg-primary-glow text-white px-5 py-2 rounded-full font-semibold text-sm transition-all shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.7)]">
+                        <button className="bg-[#3B82F6] hover:bg-[#60A5FA] text-white px-5 py-2 rounded-full font-semibold text-sm transition-all shadow-[0_0_15px_rgba(59,130,246,0.5)] hover:shadow-[0_0_25px_rgba(59,130,246,0.7)]">
                             Book Demo
                         </button>
                     </nav>
@@ -73,7 +73,7 @@ const Header = () => {
                                     {item.name}
                                 </a>
                             ))}
-                            <button className="bg-primary text-white px-6 py-3 rounded-lg font-medium w-full">
+                            <button className="bg-[#3B82F6] hover:bg-[#60A5FA] text-white px-6 py-3 rounded-lg font-medium w-full">
                                 Start Free Trial
                             </button>
                         </div>

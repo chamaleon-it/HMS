@@ -38,7 +38,7 @@ const Testimonials = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {testimonials.map((item, index) => (
                         <div key={index} className="bg-white/5 border border-white/10 p-8 rounded-2xl relative hover:bg-white/10 transition-colors">
-                            <Quote className="w-10 h-10 text-primary/20 absolute top-6 right-6" />
+                            <Quote className="w-10 h-10 text-[#3B82F6]/20 absolute top-6 right-6" />
 
                             <p className="text-slate-300 text-lg mb-8 leading-relaxed">
                                 &quot;{item.quote}&quot;
@@ -48,7 +48,7 @@ const Testimonials = () => {
                                 <img
                                     src={item.image}
                                     alt={item.author}
-                                    className="w-12 h-12 rounded-full object-cover border-2 border-primary/20"
+                                    className="w-12 h-12 rounded-full object-cover border-2 border-[#3B82F6]/20"
                                 />
                                 <div>
                                     <div className="font-bold text-white">{item.author}</div>

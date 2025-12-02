@@ -22,7 +22,7 @@ const TrustSection = () => {
                 <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
                     {hospitals.map((hospital, index) => (
                         <div key={index} className="flex items-center gap-2 group cursor-default">
-                            <Building2 className="w-6 h-6 text-slate-600 group-hover:text-primary transition-colors" />
+                            <Building2 className="w-6 h-6 text-slate-600 group-hover:text-[#3B82F6] transition-colors" />
                             <span className="text-xl font-bold text-slate-600 group-hover:text-slate-300 transition-colors">
                                 {hospital}
                             </span>
