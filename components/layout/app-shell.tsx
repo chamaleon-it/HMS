@@ -6,6 +6,7 @@ import Header from "./topbar";
 import Footer from "./Footer";
 import { useAuth } from "@/auth/context/auth-context";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -26,7 +27,10 @@ export default function AppShell({ children }: AppShellProps) {
       <div className="min-h-screen flex-1">
         <Header />
         <div className="min-h-[calc(100vh-80px)]">
-        {children}
+          <Suspense>
+
+            {children}
+          </Suspense>
         </div>
         <Footer />
       </div>
