@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DataType } from "./interface";
 import OrderLab from "./OrderLab";
-import { Image as ImageIcon, TestTubeDiagonal, X } from "lucide-react";
+import { Image as ImageIcon, TestTubeDiagonal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useSWR from "swr";
 import { combineDateAndSlot } from "@/lib/fDateAndTime";
@@ -11,6 +11,7 @@ import { Calendar } from "@/components/ui/calendar";
 import configuration from "@/config/configuration";
 import { testPanel } from "@/data/testPanel";
 import { cn } from "@/lib/utils";
+import SelectedTests from "./SelectedTests";
 
 type TabKey = "All" | "Lab" | "Imaging";
 
@@ -337,20 +338,7 @@ export default function Test({
                     />
                   </svg>
                 </div>
-
-                {/* Panels Chips */}
                 <div className="flex flex-wrap gap-1 pr-2 scrollbar-thin scrollbar-thumb-zinc-200">
-                  {/* <button
-                    onClick={() => setSelectedPanel([])}
-                    className={cn(
-                      "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all select-none",
-                      selectedPanel.length === 0
-                        ? "bg-emerald-100 border-emerald-200 text-emerald-800"
-                        : "bg-white border-zinc-200 text-zinc-600 hover:border-emerald-200 hover:text-emerald-700"
-                    )}
-                  >
-                    All Panels
-                  </button> */}
                   {testPanel.map(panel => (
                     <button
                       key={panel}
@@ -425,7 +413,6 @@ export default function Test({
             </section>
 
             <section className="lg:col-span-7 flex flex-col gap-6 h-full">
-              {/* Booking Configuration (External Mode) */}
               {mode === "external" && (
                 <div className="bg-white rounded-2xl border border-zinc-200 p-5 shadow-sm">
                   <div className="flex items-center gap-2 mb-4">
@@ -545,7 +532,6 @@ export default function Test({
                 </div>
               )}
 
-              {/* Selected Tests Summary */}
               <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm flex flex-col h-full overflow-hidden">
                 <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
                   <div className="flex items-center gap-2">
@@ -575,36 +561,16 @@ export default function Test({
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2">
-                      {selectedTests.map((test) => (
-                        <div
-                          key={test._id}
-                          className="group flex items-center justify-between p-3 rounded-xl bg-white border border-zinc-100 shadow-sm hover:border-emerald-200 hover:shadow-md transition-all"
-                        >
-                          <div className="flex items-center gap-3 overflow-hidden">
-                            <div className={cn(
-                              "h-10 w-10 rounded-lg grid place-items-center shrink-0",
-                              test.type === 'Lab' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
-                            )}>
-                              {test.type === 'Lab' ? <TestTubeDiagonal className="w-5 h-5" /> : <ImageIcon className="w-5 h-5" />}
-                            </div>
-                            <div className="flex flex-col min-w-0">
-                              <span className="text-sm font-medium text-zinc-900 truncate">{test.name}</span>
-                              <div className="flex items-center gap-2 text-xs text-zinc-500">
-                                <span className="bg-zinc-100 px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide">{test.code}</span>
-                                <span>•</span>
-                                <span>{test.type}</span>
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => toggleTest(test)}
-                            className="h-8 w-8 grid place-items-center rounded-lg text-zinc-300 hover:text-red-500 hover:bg-red-50 transition-colors opacity-0 group-hover:opacity-100"
-                            title="Remove test"
-                          >
-                            <X className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
+                      {/* {
+                        selectedPanel.map((test) => (
+                          <SelectedTests key={test} test={{ _id: "", name: test, code: test, type: "Lab", unit: "", panel: "", max: undefined, min: undefined }} toggleTest={() => { }} />
+                        ))
+                      } */}
+                      {selectedTests
+                        // .filter(test => !selectedPanel.includes(test.panel)).
+                        .map((test) => (
+                          <SelectedTests key={test._id} test={test} toggleTest={toggleTest} />
+                        ))}
                     </div>
                   )}
                 </div>
