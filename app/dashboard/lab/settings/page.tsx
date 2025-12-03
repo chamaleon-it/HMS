@@ -23,9 +23,6 @@ const LabSettingsPage: React.FC = () => {
   }>("/users/profile");
   const profile = ProfileData?.data;
 
-  useEffect(() => {
-    profileMutate();
-  }, [profileMutate]);
 
   return (
     <AppShell>

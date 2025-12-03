@@ -6,8 +6,9 @@ import { useAuth } from "@/auth/context/auth-context";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { combineToIST, fDate } from "@/lib/fDateAndTime";
-import { ChevronDownIcon, Trash } from "lucide-react";
+import { Calendar as CalendarIcon, ChevronDownIcon, Trash, Zap } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -22,6 +23,12 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
     const [, setOpenCreate] = useState(false);
     const [open, setOpen] = useState(false);
     const [openDate, setOpenDate] = useState(false);
+    const [bookingType, setBookingType] = useState<"Book Now" | "Schedule">("Book Now");
+
+    const tabs = [
+        { key: "Book Now", label: "Book Now", icon: Zap },
+        { key: "Schedule", label: "Schedule", icon: CalendarIcon },
+    ] as const;
     const [payload, setPayload] = useState<{
         patient: string;
         doctor: string;
@@ -79,11 +86,16 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
             toast.error("Please select patient")
             return
         }
-        if (!payload.date) {
+        let submitDate = payload.date;
+        if (bookingType === "Book Now") {
+            submitDate = new Date();
+        }
+
+        if (!submitDate) {
             toast.error("Please select a date")
             return
         }
-        if (payload.date < new Date()) {
+        if (bookingType === "Schedule" && submitDate < new Date()) {
             toast.error("Please select future date")
             return
         }
@@ -93,7 +105,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
         }
 
         try {
-            await toast.promise(api.post("/lab/report", payload), {
+            await toast.promise(api.post("/lab/report", { ...payload, date: submitDate }), {
                 loading: "We are create new lab test order",
                 success: ({ data }) => data.message,
                 error: ({ response }) => response.data.message
@@ -140,73 +152,41 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                         }}
                     />
                     <div className="flex flex-col gap-3">
-                        <Label htmlFor="date" className="px-1">
-                            Select Date
-                        </Label>
-                        <div className="flex gap-2">
-                            <Popover open={openDate} onOpenChange={setOpenDate}>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        id="date"
-                                        className="w-48 justify-between font-normal"
-                                    >
-                                        {payload.date ? fDate(payload.date) : "Select date"}
-                                        <ChevronDownIcon />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-                                    <Calendar
-                                        mode="single"
-                                        selected={payload.date}
-                                        captionLayout="dropdown"
-                                        startMonth={new Date(2025, 0)}
-                                        endMonth={new Date(2027, 0)}
-                                        onSelect={(date) => {
-                                            setPayload((prev) => ({ ...prev, date }));
-                                            setOpenDate(false)
-                                        }}
-                                        disabled={(date) => date < new Date()}
-                                    />
-                                </PopoverContent>
-                            </Popover>
-                            <Input
-                                type="time"
-                                id="time-picker"
-                                step="1800"
-                                defaultValue={`${new Date().getHours()}:${new Date().getMinutes()}`}
-                                className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                                onChange={e => {
-                                    if (payload.date) {
-                                        const newDate = combineToIST(payload.date, e.target.value)
-                                        if (newDate < new Date()) {
-                                            toast.error("Selected time cannot be in the past.");
-                                            return;
+                        <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
+                            {tabs.map(({ key, label, icon: Icon }) => {
+                                const active = bookingType === key;
+                                return (
+                                    <button
+                                        key={key}
+                                        onClick={() => setBookingType(key)}
+                                        className={
+                                            "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
+                                            (active ? "text-white" : "text-gray-700")
                                         }
-                                        setPayload(prev => ({ ...prev, date: newDate }))
-                                    } else {
-                                        toast.error("Select date first")
-                                    }
-                                }}
-                                onKeyDown={(e) => {
-                                    if (/\d/.test(e.key)) {
-                                        e.preventDefault();
-                                    }
-                                    if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-                                        return;
-                                    }
-                                    if (['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
-                                        return;
-                                    }
-                                    e.preventDefault();
-                                }}
-                            />
+                                        type="button"
+                                    >
+                                        {active && (
+                                            <motion.span
+                                                layoutId="tab-indicator"
+                                                className="absolute inset-0 rounded-full"
+                                                style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                                                transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                                            />
+                                        )}
+                                        <span className="relative z-10 flex items-center gap-2">
+                                            <Icon size={16} /> {label}
+                                        </span>
+                                    </button>
+                                );
+                            })}
                         </div>
+
+
                     </div>
                 </div>
 
 
-                <div className="">
+                <div className="flex gap-2 justify-between">
                     <Select onValueChange={v => {
                         const selectedTest = Tests.find(t => t._id === v);
 
@@ -234,6 +214,71 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                             </SelectGroup>
                         </SelectContent>
                     </Select>
+
+                    {bookingType === "Schedule" && (
+                        <>
+
+                            <div className="flex gap-2">
+                                <Popover open={openDate} onOpenChange={setOpenDate}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            id="date"
+                                            className="w-48 justify-between font-normal"
+                                        >
+                                            {payload.date ? fDate(payload.date) : "Select date"}
+                                            <ChevronDownIcon />
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={payload.date}
+                                            captionLayout="dropdown"
+                                            startMonth={new Date(2025, 0)}
+                                            endMonth={new Date(2027, 0)}
+                                            onSelect={(date) => {
+                                                setPayload((prev) => ({ ...prev, date }));
+                                                setOpenDate(false)
+                                            }}
+                                            disabled={(date) => date < new Date()}
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                                <Input
+                                    type="time"
+                                    id="time-picker"
+                                    step="1800"
+                                    defaultValue={`${new Date().getHours()}:${new Date().getMinutes()}`}
+                                    className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                                    onChange={e => {
+                                        if (payload.date) {
+                                            const newDate = combineToIST(payload.date, e.target.value)
+                                            if (newDate < new Date()) {
+                                                toast.error("Selected time cannot be in the past.");
+                                                return;
+                                            }
+                                            setPayload(prev => ({ ...prev, date: newDate }))
+                                        } else {
+                                            toast.error("Select date first")
+                                        }
+                                    }}
+                                    onKeyDown={(e) => {
+                                        if (/\d/.test(e.key)) {
+                                            e.preventDefault();
+                                        }
+                                        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+                                            return;
+                                        }
+                                        if (['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
+                                            return;
+                                        }
+                                        e.preventDefault();
+                                    }}
+                                />
+                            </div>
+                        </>
+                    )}
                 </div>
 
                 <Table>

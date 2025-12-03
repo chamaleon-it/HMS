@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { testPanel } from "@/data/testPanel";
+import TestCatalogueRow from "./TestCatalogueRow";
 
 export default function TestCatalogue({
   profile,
@@ -271,6 +272,7 @@ export default function TestCatalogue({
                     <TableHead>Panel</TableHead>
                     <TableHead>Range</TableHead>
                     <TableHead>Unit</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -282,21 +284,11 @@ export default function TestCatalogue({
                     </TableRow>
                   ) : (
                     tests.map((test, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-medium">{test.code}</TableCell>
-                        <TableCell>{test.name}</TableCell>
-                        <TableCell>
-                          <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
-                            {test.type}
-                          </span>
-                        </TableCell>
-                        <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : ""}</TableCell>
-                        <TableCell>{test.panel}</TableCell>
-                        <TableCell className="text-slate-500 text-xs">
-                          {test.min} - {test.max}
-                        </TableCell>
-                        <TableCell className="text-slate-500">{test.unit}</TableCell>
-                      </TableRow>
+                      <TestCatalogueRow
+                        key={idx}
+                        test={test}
+                        profileMutate={profileMutate}
+                      />
                     ))
                   )}
                 </TableBody>

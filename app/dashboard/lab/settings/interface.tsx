@@ -13,6 +13,7 @@ export interface ProfileType {
       allowEditingPanelComposition: boolean;
     }
     tests: {
+      _id: string;
       code: string;
       name: string;
       type: 'Lab' | 'Imaging' | '';
