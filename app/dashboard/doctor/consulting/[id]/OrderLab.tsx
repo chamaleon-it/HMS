@@ -18,10 +18,12 @@ export default function OrderLab({
       type: "Lab" | "Imaging";
       unit: string;
       _id: string;
+      panel: string;
     }[];
     date: Date;
     lab: string;
     priority: string;
+    panels: string[];
   }[];
   setData: (value: React.SetStateAction<DataType>) => void;
   Labs: {
@@ -57,8 +59,11 @@ export default function OrderLab({
             key={idx}
           >
             <div className="col-span-3">
-              {e.name?.map((e) => (
-                <p key={e._id}>{e.name} ({e.code})</p>
+              {e.panels?.map((p) => (
+                <p key={p}>{p}</p>
+              ))}
+              {e.name?.map((t) => !e.panels.includes(t.panel) && (
+                <p key={t._id}>{t.name} ({t.code})</p>
               ))}
             </div>
             <div className="col-span-2">{Labs.find(l => l._id == e.lab)?.name ?? "Inhouse"}</div>

@@ -4,6 +4,7 @@ import { fDate } from "@/lib/fDateAndTime";
 import React from "react";
 import useSWR from "swr";
 import ConsultationDetails from "./ConsultationDetails";
+import { Badge } from "@/components/ui/badge";
 
 export default function History({ patientId }: { patientId: string }) {
   const {
@@ -32,6 +33,7 @@ export default function History({ patientId }: { patientId: string }) {
             <TableHead className='text-white'>SL</TableHead>
             <TableHead className='text-white'>Date</TableHead>
             <TableHead className='text-white'>Doctor</TableHead>
+            <TableHead className='text-white'>Medicine</TableHead>
             <TableHead className='text-white'>Diagnosis</TableHead>
             <TableHead className='text-white'>Action</TableHead>
 
@@ -47,6 +49,20 @@ export default function History({ patientId }: { patientId: string }) {
                 </TableCell>
                 <TableCell>
                   {consulting.doctor.name}
+                </TableCell>
+
+                <TableCell className="max-w-[300px]">
+                  <div className="flex flex-wrap gap-1">
+                    {consulting.medicines.map((m, i) => (
+                      <Badge
+                        key={m._id ?? i}
+                        variant="secondary"
+                        className="font-normal text-xs whitespace-nowrap"
+                      >
+                        {m.name.name}
+                      </Badge>
+                    ))}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {consulting.consultationNotes.diagnosis}

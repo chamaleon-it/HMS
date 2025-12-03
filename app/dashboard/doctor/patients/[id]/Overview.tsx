@@ -3,8 +3,8 @@ import { Eye } from "lucide-react";
 import React from "react";;
 import { ConsultationType } from "./interface";
 
-export default function Overview({ setTab,consult }: { setTab: (t: string) => void;consult:ConsultationType[] }) {
-  
+export default function Overview({ setTab, consult }: { setTab: (t: string) => void; consult: ConsultationType[] }) {
+
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -31,30 +31,6 @@ export default function Overview({ setTab,consult }: { setTab: (t: string) => vo
           </Button>
         </div>
         <div className="mt-2 space-y-2">
-          {/* {labs.slice(0, 3).map((d, i) => (
-                          <div
-                            key={i}
-                            className="flex items-center justify-between rounded-lg bg-muted/40 p-2"
-                          >
-                            <div className="text-sm">
-                              {d.type}{" "}
-                              <span className="text-xs text-muted-foreground">
-                                · {d.date}
-                              </span>
-                            </div>
-                            <Badge
-                              variant={
-                                d.status === "Normal"
-                                  ? "secondary"
-                                  : d.status === "High"
-                                  ? "destructive"
-                                  : "outline"
-                              }
-                            >
-                              {d.status}
-                            </Badge>
-                          </div>
-                        ))} */}
         </div>
       </div>
 
@@ -66,19 +42,7 @@ export default function Overview({ setTab,consult }: { setTab: (t: string) => vo
           </Button>
         </div>
         <ul className="mt-2 space-y-2 text-sm">
-          {/* {images.slice(0, 2).map((im, i) => (
-                          <li key={i} className="rounded-lg bg-muted/40 p-2">
-                            <div className="flex items-center justify-between">
-                              <span>{im.type}</span>
-                              <span className="text-xs text-muted-foreground">
-                                {im.date}
-                              </span>
-                            </div>
-                            <div className="text-xs text-muted-foreground">
-                              Impression: {im.impression}
-                            </div>
-                          </li>
-                        ))} */}
+
         </ul>
       </div>
 
@@ -93,6 +57,17 @@ export default function Overview({ setTab,consult }: { setTab: (t: string) => vo
           No upcoming appointments.
         </div>
       </div>
+
+      <div className="rounded-xl border p-4 col-span-full">
+        <div className="flex items-center justify-between">
+          <div className="font-medium">Past History</div>
+
+        </div>
+        <div className="mt-2 text-sm text-muted-foreground">
+          {consult[0]?.consultationNotes.pastHistory}
+        </div>
+      </div>
+
     </div>
   );
 }

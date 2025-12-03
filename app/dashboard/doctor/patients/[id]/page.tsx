@@ -63,7 +63,7 @@ export default function PatientFullDetailPage() {
   const ACCENT_CLASS = "bg-[#6E59F9] hover:bg-[#5b46f4]"; // HMS purple
 
   // ---- STATE ----
-  const [tab, setTab] = useState("overview");
+  const [tab, setTab] = useState("clinical");
   const [showPHI, setShowPHI] = useState(true);
   const [maskIDs, setMaskIDs] = useState(false);
 
@@ -143,8 +143,8 @@ export default function PatientFullDetailPage() {
           <div className="mx-auto max-w-[1400px] px-4">
             <Tabs value={tab} onValueChange={setTab} className="w-full">
               <TabsList className="w-full justify-start overflow-x-auto">
-                <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="clinical">Clinical Notes</TabsTrigger>
+                <TabsTrigger value="overview">Overview</TabsTrigger>
                 <TabsTrigger value="labs">Labs</TabsTrigger>
                 <TabsTrigger value="imaging">Imaging</TabsTrigger>
                 <TabsTrigger value="meds">Medications</TabsTrigger>
@@ -201,11 +201,14 @@ export default function PatientFullDetailPage() {
               </CardHeader>
 
               <CardContent>
+
+                {tab === "clinical" && (<Clinical consult={consult} />)}
+
                 {tab === "overview" && (
                   <Overview setTab={setTab} consult={consult} />
                 )}
 
-                {tab === "clinical" && (<Clinical consult={consult} />)}
+
 
                 {tab === "labs" && (
                   <Labs labs={labData?.filter((e) => e.name.some((e) => e.type === "Lab"))} />

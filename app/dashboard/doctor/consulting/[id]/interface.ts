@@ -66,9 +66,11 @@ export interface DataType {
       type: "Lab" | "Imaging";
       unit: string;
       _id: string;
+      panel: string;
     }[];
     date: Date;
     lab: string;
     priority: string;
+    panels: string[];
   }[];
 }

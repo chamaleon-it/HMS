@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { DataType } from "./interface";
 import OrderLab from "./OrderLab";
-import { Image as ImageIcon, TestTubeDiagonal } from "lucide-react";
+import { Image as ImageIcon, Star, TestTubeDiagonal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import useSWR from "swr";
 import { combineDateAndSlot } from "@/lib/fDateAndTime";
@@ -87,11 +87,13 @@ type TestItemProps = {
   test: TestItemType;
   selected: boolean;
   onToggle: (test: TestItemType) => void;
+  type: "Test" | "Panel";
+  setFavourite: React.Dispatch<React.SetStateAction<TestItemType[]>>
 };
 
-const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle }) => (
-  <button
-    onClick={() => onToggle(test)}
+const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle, type, setFavourite }) => (
+  <div
+
     className={cn(
       "w-full flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-all duration-200 group",
       selected
@@ -123,18 +125,36 @@ const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle }) => (
         <span className="text-xs text-zinc-400 capitalize">{test.type}</span>
       </div>
     </div>
+    <div className="flex justify-end items-center gap-5">
 
-    <div className={cn(
-      "h-5 w-5 rounded-full border flex items-center justify-center transition-colors",
-      selected
-        ? "border-emerald-500 bg-emerald-500 text-white"
-        : "border-zinc-300 bg-transparent text-transparent group-hover:border-emerald-400"
-    )}>
-      <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3">
-        <path d="M5 13l4 4L19 7" />
-      </svg>
+      <button
+        onClick={() => onToggle(test)}
+        className={cn(
+          "h-5 w-5 rounded-full border flex items-center justify-center transition-colors cursor-pointer",
+          selected
+            ? "border-emerald-500 bg-emerald-500 text-white"
+            : "border-zinc-300 bg-transparent text-transparent group-hover:border-emerald-400"
+        )}>
+        <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3">
+          <path d="M5 13l4 4L19 7" />
+        </svg>
+      </button>
+
+      {type === "Test" && <button className="cursor-pointer" onClick={() => {
+        setFavourite(prev => {
+          const newFavourite = [...prev]
+          newFavourite.push(test)
+          localStorage.setItem("@favouriteTest", JSON.stringify(newFavourite))
+          return newFavourite
+        })
+      }}>
+        <Star className="w-4 h-4 text-yellow-500" />
+      </button>}
+
+
     </div>
-  </button>
+
+  </div>
 );
 
 
@@ -147,29 +167,18 @@ export default function Test({
 }) {
   const [query, setQuery] = useState<string>("");
   const [tab, setTab] = useState<TabKey>("All");
-
   const [selectedTests, setSelectedTests] = useState<TestItemType[]>([]);
-
   const [date, setDate] = useState<Date>(new Date());
   const [labId, setLabId] = useState<string>(configuration().in_house_lab_id);
   const [slot, setSlot] = useState<string>("");
   const [priority, setPriority] = useState<PriorityId>("Normal");
-
-  const isSelected = (t: TestItemType) =>
-    selectedTests.some((x) => x._id === t._id);
-
-  const toggleTest = (t: TestItemType) => {
-    setSelectedTests((prev) =>
-      isSelected(t) ? prev.filter((x) => x._id !== t._id) : [...prev, t]
-    );
-  };
-
+  const isSelected = (t: TestItemType) => selectedTests.some((x) => x._id === t._id);
+  const toggleTest = (t: TestItemType) => setSelectedTests((prev) => isSelected(t) ? prev.filter((x) => x._id !== t._id) : [...prev, t]);
   const [mode, setMode] = useState<Mode>("inhouse");
+  const [selectedPanel, setSelectedPanel] = useState<string[]>([]);
 
-  const canBook = selectedTests.length > 0 && (mode === "inhouse" || Boolean(date && labId && slot));
-
+  const canBook = selectedTests.length > 0 && (mode === "inhouse" || Boolean(date && labId));
   const [booked, setBooked] = useState(false);
-
   useEffect(() => {
     setBooked(false);
   }, [selectedTests, date, labId, priority, slot]);
@@ -183,6 +192,7 @@ export default function Test({
       date: mode === "inhouse" ? new Date() : datetime,
       lab: labId === "" ? labId : configuration().in_house_lab_id,
       priority,
+      panels: selectedPanel,
     };
     setData((prev) => ({ ...prev, test: [...prev.test, newTest] }));
     setBooked(true);
@@ -217,18 +227,14 @@ export default function Test({
   ];
 
 
-  const [selectedPanel, setSelectedPanel] = useState<string[]>([]);
 
-  // Filter Logic extracted for reuse
+
   const filteredTests = Tests.filter((t) => {
     if (tab === "Imaging") {
       return t.type === "Imaging";
     } else if (tab === "Lab") {
       return t.type === "Lab";
     }
-    // if (selectedPanel) {
-    //   return t.panel === selectedPanel;
-    // }
     return true;
   }).filter((t) => {
     if (!query) {
@@ -240,24 +246,16 @@ export default function Test({
     );
   });
 
-  const allFilteredSelected = filteredTests.length > 0 && filteredTests.every(test => isSelected(test));
 
-  const handleSelectAll = () => {
-    if (allFilteredSelected) {
-      // Deselect all visible
-      const visibleIds = new Set(filteredTests.map(t => t._id));
-      setSelectedTests(prev => prev.filter(t => !visibleIds.has(t._id)));
-    } else {
-      // Select all visible
-      const newSelected = [...selectedTests];
-      filteredTests.forEach(t => {
-        if (!newSelected.some(s => s._id === t._id)) {
-          newSelected.push(t);
-        }
-      });
-      setSelectedTests(newSelected);
+  const [favourite, setFavourite] = useState<TestItemType[]>([]);
+
+  useEffect(() => {
+    const fav = localStorage.getItem("@favouriteTest");
+    if (fav) {
+      setFavourite(JSON.parse(fav));
     }
-  };
+  }, []);
+
 
 
   return (
@@ -326,74 +324,61 @@ export default function Test({
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
                     placeholder="Search by test name or code..."
-                    className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 pl-11 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                    className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                   />
-                  <svg
-                    viewBox="0 0 24 24"
-                    className="absolute left-3.5 top-3.5 h-5 w-5 text-zinc-400"
-                  >
-                    <path
-                      fill="currentColor"
-                      d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79L20 21.5 21.5 20l-6-6Z"
-                    />
-                  </svg>
                 </div>
                 <div className="flex flex-wrap gap-1 pr-2 scrollbar-thin scrollbar-thumb-zinc-200">
-                  {testPanel.map(panel => (
+                  {favourite.map(test => (
                     <button
-                      key={panel}
+                      key={test._id}
                       onClick={() => {
-                        setSelectedPanel(prev => {
-                          const exists = prev.includes(panel);
-
-                          if (exists) {
-                            const updatedPanels = prev.filter(p => p !== panel);
-                            setSelectedTests(prevTests =>
-                              prevTests.filter(t => t.panel !== panel)
-                            );
-                            return updatedPanels;
-                          } else {
-                            const updatedPanels = [...prev, panel];
-                            setSelectedTests(prevTests => {
-                              const merged = [...Tests.filter(t => t.panel === panel), ...prevTests];
-                              const unique = Array.from(new Map(merged.map(item => [item._id, item])).values());
-                              return unique;
-                            });
-
-                            return updatedPanels;
-                          }
-                        });
+                        toggleTest(test)
                       }}
                       className={cn(
                         "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all select-none",
-                        selectedPanel.includes(panel)
+                        selectedTests.some(t => t._id === test._id)
                           ? "bg-emerald-500 border-emerald-600 text-white shadow-sm"
                           : "bg-white border-zinc-200 text-zinc-600 hover:border-emerald-200 hover:text-emerald-700"
                       )}
                     >
-                      {panel}
+                      {test.name}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Test List Header */}
               <div className="flex items-center justify-between px-1">
                 <span className="text-sm font-medium text-zinc-500">
                   {filteredTests.length} tests found
                 </span>
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={handleSelectAll}
-                  className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 h-8"
-                >
-                  {allFilteredSelected ? "Deselect All" : "Select All"}
-                </Button>
+
               </div>
 
-              {/* Test List */}
               <div className="flex-1 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-zinc-200 min-h-0">
+                {
+                  testPanel.filter(e => e !== "Other" && tab === "All" || tab === "Lab" || e.toLowerCase().includes(tab.toLowerCase())).filter(e => query ? e.toLowerCase().includes(query.toLowerCase()) : true).map(e => (<TestItem setFavourite={setFavourite} type="Panel" key={e} test={{ _id: e, name: e, code: "", type: "Lab", unit: "", panel: e, max: undefined, min: undefined }} selected={selectedPanel.includes(e)} onToggle={() => {
+                    setSelectedPanel(prev => {
+                      const exists = prev.includes(e);
+
+                      if (exists) {
+                        const updatedPanels = prev.filter(p => p !== e);
+                        setSelectedTests(prevTests =>
+                          prevTests.filter(t => t.panel !== e)
+                        );
+                        return updatedPanels;
+                      } else {
+                        const updatedPanels = [...prev, e];
+                        setSelectedTests(prevTests => {
+                          const merged = [...Tests.filter(t => t.panel === e), ...prevTests];
+                          const unique = Array.from(new Map(merged.map(item => [item._id, item])).values());
+                          return unique;
+                        });
+
+                        return updatedPanels;
+                      }
+                    })
+                  }} />))
+                }
                 {filteredTests.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-40 text-zinc-400">
                     <TestTubeDiagonal className="w-8 h-8 mb-2 opacity-20" />
@@ -406,6 +391,8 @@ export default function Test({
                       test={t}
                       selected={isSelected(t)}
                       onToggle={toggleTest}
+                      type="Test"
+                      setFavourite={setFavourite}
                     />
                   ))
                 )}
@@ -443,11 +430,7 @@ export default function Test({
                           {Labs.filter((l) => {
                             const labCodes = l.tests.map((t) => t.code);
                             const selectedCode = selectedTests.map((t) => t.code);
-                            if (selectedCode.length === 0) return true; // Show all if none selected, or maybe false? Original logic was false.
-                            // Let's keep original logic: if no tests selected, return false (hide labs?) - actually original logic returned false.
-                            // But if I haven't selected tests, I might want to see labs? 
-                            // Let's stick to original behavior for now to avoid logic bugs.
-                            if (selectedCode.length === 0) return false;
+                            if (selectedCode.length === 0) return true;
                             return selectedCode.every((code) => labCodes.includes(code));
                           }).map((l) => (
                             <button
@@ -470,26 +453,7 @@ export default function Test({
                       <div>
                         <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">Time Slot</label>
                         <div className="grid grid-cols-3 gap-2">
-                          {SLOTS.slice(0, 9).map((s) => ( // Showing fewer slots for cleaner UI or scroll? Let's show all but in a scrollable or grid
-                            <button
-                              key={s}
-                              onClick={() => setSlot(s)}
-                              className={cn(
-                                "rounded-md border px-2 py-1.5 text-xs font-medium transition-all",
-                                slot === s
-                                  ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
-                                  : "border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
-                              )}
-                            >
-                              {s}
-                            </button>
-                          ))}
-                          {/* ... rest of slots if needed, or just map all SLOTS */}
-                        </div>
-
-                        {/* Actually let's just map all SLOTS in a scroll container if too many */}
-                        <div className="grid grid-cols-3 gap-2 max-h-32 overflow-y-auto mt-2">
-                          {SLOTS.slice(9).map(s => (
+                          {SLOTS.map((s) => (
                             <button
                               key={s}
                               onClick={() => setSlot(s)}
@@ -561,13 +525,13 @@ export default function Test({
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2">
-                      {/* {
+                      {
                         selectedPanel.map((test) => (
                           <SelectedTests key={test} test={{ _id: "", name: test, code: test, type: "Lab", unit: "", panel: "", max: undefined, min: undefined }} toggleTest={() => { }} />
                         ))
-                      } */}
+                      }
                       {selectedTests
-                        // .filter(test => !selectedPanel.includes(test.panel)).
+                        .filter(test => !selectedPanel.includes(test.panel))
                         .map((test) => (
                           <SelectedTests key={test._id} test={test} toggleTest={toggleTest} />
                         ))}

@@ -73,7 +73,7 @@ export default function Header({
             icon={<FlaskConical className="h-4 w-4" />}
             activeClass="bg-blue-600 text-white"
           >
-            Report <span className="ml-1 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">{data?.length || 0}</span>
+            Reports <span className="ml-1 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">{data?.length || 0}</span>
           </ToggleChip>
         </div>
       </div>

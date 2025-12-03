@@ -40,7 +40,7 @@ export default function Clinical({ consult }: { consult: ConsultationType[] }) {
               <TableHead className="text-white">Consulted Date</TableHead>
               <TableHead className="text-white">Doctor</TableHead>
               <TableHead className="text-white">Medicine Dispensed</TableHead>
-              <TableHead className="text-white">Investigations</TableHead>
+              <TableHead className="text-white">Diagnosis</TableHead>
               <TableHead className="text-white text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -117,7 +117,7 @@ const Row = React.memo(function Row({
 
       <TableCell className="max-w-[300px]">
         <div className="flex flex-wrap gap-1">
-          {row.test.map((m, i) => m.name.map((e, j) => (<Badge key={i * j} variant="secondary" className="font-normal text-xs whitespace-nowrap">{e.name}</Badge>)))}
+          {row.consultationNotes.diagnosis}
         </div>
       </TableCell>
 

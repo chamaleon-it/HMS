@@ -276,7 +276,7 @@ export default function PrescriptionCard({
                   </button>}
                   <button
                     onClick={() => {
-                      setData(prev => ({ ...prev, medicines: [...prev.medicines, f] }))
+                      setData(prev => ({ ...prev, medicines: [...prev.medicines.filter(m => m.name !== ""), f] }))
                     }}
                     className={cn(
                       "px-3 py-1 rounded-full text-xs border select-none transition-shadow",
