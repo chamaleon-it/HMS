@@ -33,13 +33,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { useSearchParams } from "next/navigation";
+// import { useSearchParams } from "next/navigation";
 
 export default function PharmacyReturnPage() {
 
 
-  const searchParams = useSearchParams();
-  const mrn = searchParams?.get('mrn') ?? '';
+  // const searchParams = useSearchParams();
+  // const mrn = searchParams?.get('mrn') ?? '';
+  const mrn = ""
 
 
 
