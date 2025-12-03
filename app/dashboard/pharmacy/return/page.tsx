@@ -39,7 +39,7 @@ export default function PharmacyReturnPage() {
 
 
   const searchParams = useSearchParams();
-  const mrn = searchParams.get("mrn");
+  const mrn = searchParams?.get('mrn') ?? '';
 
 
 
