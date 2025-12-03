@@ -172,6 +172,12 @@ export function Sidebar() {
         ]
       },
       {
+        key: "patients",
+        label: "Patients",
+        icon: Users2,
+        link: "/dashboard/lab/patients",
+      },
+      {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
