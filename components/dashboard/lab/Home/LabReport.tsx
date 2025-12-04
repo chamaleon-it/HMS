@@ -48,12 +48,14 @@ export default function LabResultsPage() {
         unit: string;
         min?: number;
         max?: number;
+        panel: string
         type: string;
         _id: string;
         value?: string | number
       }[];
       sampleType: string;
-      sampleCollectedAt:Date | null
+      panels: string[]
+      sampleCollectedAt: Date | null
       status: string;
       createdAt: Date;
       updatedAt: Date;

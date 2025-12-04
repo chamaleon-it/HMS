@@ -51,9 +51,11 @@ interface PropsTypes {
             max?: number | undefined;
             type: string;
             _id: string;
-            value?: string | number
+            value?: string | number;
+            panel: string;
         }[];
         sampleType: string;
+        panels: string[]
         sampleCollectedAt: Date | null
         status: string;
         createdAt: Date;
@@ -110,7 +112,14 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 </td>
                                 <td className="px-3 py-2 text-sm text-gray-700">
                                     <div className="flex flex-col gap-2">
-                                        {r.name.map((e) => (
+                                        {
+                                            r?.panels?.map((p) => (
+                                                <div key={p} className="flex items-center gap-1 h-5 font-medium text-sm">
+                                                    {p}
+                                                </div>
+                                            ))
+                                        }
+                                        {r?.name?.map((e) => !r?.panels?.includes(e.panel) && (
                                             <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
                                                 {e.name}
                                             </div>
