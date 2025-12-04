@@ -83,7 +83,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         {headerCell("Doctor")}
                         {headerCell("Status")}
                         {status === "In Progress" && headerCell("Estimated Time")}
-                        {headerCell("Actions")}
+                        {headerCell("Actions", "right")}
 
                     </tr>
                 </thead>
@@ -200,9 +200,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 }
 
 
-function headerCell(label: string) {
+function headerCell(label: string, align: "left" | "center" | "right" = "left") {
     return (
-        <th className="text-left px-3 py-2">
+        <th className={`text-${align} px-3 py-2`}>
             {label}
         </th>
     );

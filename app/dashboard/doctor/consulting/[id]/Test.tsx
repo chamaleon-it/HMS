@@ -9,9 +9,9 @@ import useSWR from "swr";
 import { combineDateAndSlot } from "@/lib/fDateAndTime";
 import { Calendar } from "@/components/ui/calendar";
 import configuration from "@/config/configuration";
-import { testPanel } from "@/data/testPanel";
 import { cn } from "@/lib/utils";
 import SelectedTests from "./SelectedTests";
+import useGetPanels from "@/data/useGetPanels";
 
 type TabKey = "All" | "Lab" | "Imaging";
 
@@ -89,9 +89,10 @@ type TestItemProps = {
   onToggle: (test: TestItemType) => void;
   type: "Test" | "Panel";
   setFavourite: React.Dispatch<React.SetStateAction<TestItemType[]>>
+  favourite: TestItemType[]
 };
 
-const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle, type, setFavourite }) => (
+const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle, type, setFavourite, favourite }) => (
   <div
 
     className={cn(
@@ -142,13 +143,20 @@ const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle, type, set
 
       {type === "Test" && <button className="cursor-pointer" onClick={() => {
         setFavourite(prev => {
+          const exists = prev.find(t => t._id === test._id)
+          if (exists) {
+            const newFavourite = prev.filter(t => t._id !== test._id)
+            localStorage.setItem("@favouriteTest", JSON.stringify(newFavourite))
+            return newFavourite
+          }
+
           const newFavourite = [...prev]
           newFavourite.push(test)
           localStorage.setItem("@favouriteTest", JSON.stringify(newFavourite))
           return newFavourite
         })
       }}>
-        <Star className="w-4 h-4 text-yellow-500" />
+        <Star className="w-4 h-4 text-yellow-500" fill={favourite.find(t => t._id === test._id) ? "#efb100" : "none"} />
       </button>}
 
 
@@ -257,6 +265,7 @@ export default function Test({
   }, []);
 
 
+  const { panels } = useGetPanels();
 
   return (
     <>
@@ -356,7 +365,7 @@ export default function Test({
 
               <div className="flex-1 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-zinc-200 min-h-0">
                 {
-                  testPanel.filter(e => e !== "Other" && tab === "All" || tab === "Lab" || e.toLowerCase().includes(tab.toLowerCase())).filter(e => query ? e.toLowerCase().includes(query.toLowerCase()) : true).map(e => (<TestItem setFavourite={setFavourite} type="Panel" key={e} test={{ _id: e, name: e, code: "", type: "Lab", unit: "", panel: e, max: undefined, min: undefined }} selected={selectedPanel.includes(e)} onToggle={() => {
+                  panels.filter(e => e !== "Other" && tab === "All" || tab === "Lab" || e.toLowerCase().includes(tab.toLowerCase())).filter(e => query ? e.toLowerCase().includes(query.toLowerCase()) : true).map(e => (<TestItem favourite={favourite} setFavourite={setFavourite} type="Panel" key={e} test={{ _id: e, name: e, code: "", type: "Lab", unit: "", panel: e, max: undefined, min: undefined }} selected={selectedPanel.includes(e)} onToggle={() => {
                     setSelectedPanel(prev => {
                       const exists = prev.includes(e);
 
@@ -379,13 +388,8 @@ export default function Test({
                     })
                   }} />))
                 }
-                {filteredTests.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center h-40 text-zinc-400">
-                    <TestTubeDiagonal className="w-8 h-8 mb-2 opacity-20" />
-                    <p className="text-sm">No tests found</p>
-                  </div>
-                ) : (
-                  filteredTests.map((t) => (
+                {
+                  filteredTests.map((t) => !selectedTests.find(test => test._id === t._id) && (
                     <TestItem
                       key={t._id}
                       test={t}
@@ -393,9 +397,10 @@ export default function Test({
                       onToggle={toggleTest}
                       type="Test"
                       setFavourite={setFavourite}
+                      favourite={favourite}
                     />
                   ))
-                )}
+                }
               </div>
             </section>
 
