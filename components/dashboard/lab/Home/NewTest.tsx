@@ -3,7 +3,6 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, Di
 import PatientSelection from "./PatientSelection";
 import { useState } from "react";
 import { useAuth } from "@/auth/context/auth-context";
-import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { combineToIST, fDate } from "@/lib/fDateAndTime";
 import { Calendar as CalendarIcon, ChevronDownIcon, Trash, Zap } from "lucide-react";
@@ -95,10 +94,6 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
             toast.error("Please select a date")
             return
         }
-        if (bookingType === "Schedule" && submitDate < new Date()) {
-            toast.error("Please select future date")
-            return
-        }
         if (payload.name.length === 0) {
             toast.error("Please select at least one date")
             return
@@ -167,7 +162,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                                     >
                                         {active && (
                                             <motion.span
-                                                layoutId="tab-indicator"
+                                                layoutId="tab-indicator-1"
                                                 className="absolute inset-0 rounded-full"
                                                 style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
                                                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
@@ -254,26 +249,10 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                                     onChange={e => {
                                         if (payload.date) {
                                             const newDate = combineToIST(payload.date, e.target.value)
-                                            if (newDate < new Date()) {
-                                                toast.error("Selected time cannot be in the past.");
-                                                return;
-                                            }
                                             setPayload(prev => ({ ...prev, date: newDate }))
                                         } else {
                                             toast.error("Select date first")
                                         }
-                                    }}
-                                    onKeyDown={(e) => {
-                                        if (/\d/.test(e.key)) {
-                                            e.preventDefault();
-                                        }
-                                        if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
-                                            return;
-                                        }
-                                        if (['Backspace', 'Delete', 'Tab', 'Enter'].includes(e.key)) {
-                                            return;
-                                        }
-                                        e.preventDefault();
                                     }}
                                 />
                             </div>

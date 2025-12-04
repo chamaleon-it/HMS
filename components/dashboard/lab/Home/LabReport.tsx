@@ -53,6 +53,7 @@ export default function LabResultsPage() {
         value?: string | number
       }[];
       sampleType: string;
+      sampleCollectedAt:Date | null
       status: string;
       createdAt: Date;
       updatedAt: Date;
@@ -62,8 +63,8 @@ export default function LabResultsPage() {
   const REPORT = data?.data ?? [];
 
   const [status, setStatus] = useState<
-    "All" | "Pending" | "In Progress" | "Completed" | "Flagged"
-  >("All");
+    "Pending" | "In Progress" | "Completed"
+  >("Pending");
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full bg-gradient-to-b from-white to-slate-50 p-6">
@@ -86,7 +87,7 @@ export default function LabResultsPage() {
         </div>
       </div>
 
-      <LabTable REPORT={REPORT} status={status} />
+      <LabTable REPORT={REPORT} status={status} mutate={mutate} />
     </div>
   );
 }

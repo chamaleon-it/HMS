@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDownIcon } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, FlaskConical, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
 import { useParams, useRouter } from "next/navigation";
@@ -282,7 +282,7 @@ const Customer: React.FC = () => {
                     </div>
                   )}
 
-                  {/* {selectedVisit && (
+                  {selectedVisit && (
                     <>
                       <div className="flex-1 overflow-auto">
                         <table className="w-full text-[15px]">
@@ -290,16 +290,13 @@ const Customer: React.FC = () => {
                             <tr>
                               <th className="p-2 text-left font-medium">Sl</th>
                               <th className="p-2 text-left font-medium">
-                                Medicine
+                                Test
                               </th>
                               <th className="p-2 text-right font-medium">
-                                Qty
+                                Value
                               </th>
                               <th className="p-2 text-right font-medium">
-                                MRP
-                              </th>
-                              <th className="p-2 text-right font-medium">
-                                Amount
+                                Reference
                               </th>
                             </tr>
                           </thead>
@@ -307,38 +304,84 @@ const Customer: React.FC = () => {
                             {selectedVisit.name.map((it, i) => {
                               return (
                                 <tr
-                                  key={it.name.}
+                                  key={it.name}
                                   className="border-t align-top hover:bg-slate-50/70 transition-colors"
                                 >
                                   <td className="p-2 align-top text-slate-500">
-                                    {i}
+                                    {i + 1}
                                   </td>
                                   <td className="p-2 align-top">
-                                    <div className="font-medium text-slate-900 leading-snug">
-                                      {it.name.name}
-                                    </div>
-                                    <div className="text-[12px] text-slate-600 leading-snug">
-                                      (Gen: {it.name.generic})
+                                    <div className="flex items-center gap-1">
+                                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                                        {it.type === "Lab" ? (
+                                          <FlaskConical className="h-4 w-4" />
+                                        ) : (
+                                          <Image className="h-4 w-4" />
+                                        )}
+                                      </span>
+
+                                      <div className="">
+
+                                        <div className="font-medium text-slate-900 leading-snug">
+                                          {it.name}
+                                        </div>
+                                        <div className="text-[12px] text-slate-600 leading-snug">
+                                          (Gen: {it.code} - {it.panel})
+                                        </div>
+                                      </div>
                                     </div>
                                   </td>
                                   <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
-                                    {it.quantity}
+                                    {it.type === "Lab" ? (
+                                      <>
+                                        {it.value} {it.unit}
+                                      </>
+                                    ) : (
+                                      <a
+                                        href={it.value?.toString()}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                                      >
+                                        View Result
+                                        <svg
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          className="h-3 w-3 ml-1"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                          stroke="currentColor"
+                                          strokeWidth="2"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                                          />
+                                        </svg>
+                                      </a>
+                                    )}
                                   </td>
-                                  <td className="p-2 align-top text-right text-slate-800">
-                                    {formatINR(it.name.unitPrice)}
-                                  </td>
-                                  <td className="p-2 align-top text-right font-semibold text-slate-900">
-                                    {formatINR(amount)}
+                                  <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
+                                    {it.type === "Lab" && it.min ? (
+                                      <>
+                                        {it.min} {it.unit} - {it.max}{" "}
+                                        {it.unit}
+                                      </>
+                                    ) : (
+                                      <>
+                                        {it.min} - {it.max}
+                                      </>
+                                    )}
                                   </td>
                                 </tr>
                               );
                             })}
 
-                            {selectedVisit.items.length === 0 && (
+                            {selectedVisit.name.length === 0 && (
                               <tr>
                                 <td
                                   className="p-3 text-center text-slate-500"
-                                  colSpan={5}
+                                  colSpan={4}
                                 >
                                   No items.
                                 </td>
@@ -348,17 +391,14 @@ const Customer: React.FC = () => {
                           <tfoot>
                             <tr className="border-t bg-slate-50/80">
                               <td
-                                colSpan={4}
+                                colSpan={3}
                                 className="p-2 text-right text-xs text-slate-600"
                               >
                                 Total
                               </td>
                               <td className="p-2 text-right text-sm font-semibold text-slate-900">
                                 {formatINR(
-                                  selectedVisit.items.reduce(
-                                    (a, b) => a + b.quantity * b.name.unitPrice,
-                                    0
-                                  )
+                                  0
                                 )}
                               </td>
                             </tr>
@@ -366,30 +406,8 @@ const Customer: React.FC = () => {
                         </table>
                       </div>
 
-                      <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
-                        <div className="text-[12px] text-slate-500">
-                          Use Print bill to generate a hard copy. In production
-                          this can open a dedicated A5/A4 receipt template.
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                            onClick={handlePrint}
-                          >
-                            Print bill
-                          </Button>
-                          <Button
-                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                            asChild
-                          >
-                            <Link href={`/dashboard/pharmacy/return/?mrn=${selectedVisit?.mrn}`}>
-                              Return
-                            </Link>
-                          </Button>
-                        </div>
-                      </div>
                     </>
-                  )} */}
+                  )}
                 </div>
               </section>
             </>

@@ -1,12 +1,16 @@
 import { useAuth } from '@/auth/context/auth-context';
-import { fAge, fDate } from '@/lib/fDateAndTime';
+import { fAge, fDateandTime } from '@/lib/fDateAndTime';
 import React from 'react'
 import ViewResultModal from './ViewResultModal';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Button } from '@/components/ui/button';
+import toast from 'react-hot-toast';
+import api from '@/lib/axios';
 
 
 interface PropsTypes {
-    status: string
+    status: "Pending" | "In Progress" | "Completed"
+    mutate: () => void
     REPORT: {
         _id: string;
         patient: {
@@ -50,13 +54,14 @@ interface PropsTypes {
             value?: string | number
         }[];
         sampleType: string;
+        sampleCollectedAt: Date | null
         status: string;
         createdAt: Date;
         updatedAt: Date;
     }[]
 }
 
-export default function LabTable({ REPORT, status }: PropsTypes) {
+export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
     const { user } = useAuth()
     return (
         <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
@@ -71,20 +76,18 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                         {headerCell("No.")}
                         {headerCell("Patient")}
                         {headerCell("Test")}
-                        {headerCell("Value")}
-                        {headerCell("Reference")}
                         {headerCell("Created At")}
-                        {headerCell("Reported")}
+                        {status !== "Pending" && headerCell("Sample Collected")}
                         {headerCell("Doctor")}
                         {headerCell("Status")}
-                        {/* {headerCell("Estimated Time")} */}
+                        {status === "In Progress" && headerCell("Estimated Time")}
                         {headerCell("Actions")}
 
                     </tr>
                 </thead>
                 <tbody>
                     {REPORT.filter(
-                        (r) => status === "All" || r.status === status
+                        (r) => r.status === status
                     ).map((r, idx) => {
                         return (
                             <tr
@@ -115,72 +118,67 @@ export default function LabTable({ REPORT, status }: PropsTypes) {
                                     </div>
                                 </td>
 
-                                <td className="px-3 py-2 text-xs">
-                                    <div className="flex flex-col gap-2">
-                                        {r.name.map(
-                                            (e) =>
-                                            (
-                                                <span
-                                                    key={e._id}
-                                                    className="text-gray-600 font-mono h-5"
-                                                >
-                                                    {e.value ? <>
-                                                        {e.type === "Imaging" ? <a
-                                                            href={e?.value?.toString()}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
-                                                        >
-                                                            View Result
-                                                        </a> : `${e.value} ${e.unit}`}
-                                                    </> : "-"}
-                                                </span>
-                                            )
-                                        )}
-                                    </div>
-                                </td>
-
-                                <td className="px-3 py-2 text-xs">
-                                    <div className="flex flex-col gap-2">
-                                        {r.name.map(
-                                            (e) =>
-                                            (
-                                                <span
-                                                    key={e._id}
-                                                    className="text-gray-600 font-mono h-5"
-                                                >{`${e?.min ?? ""} - ${e?.max ?? ""} ${e?.min ? e.unit : ""}`}</span>
-                                            )
-                                        )}
-                                    </div>
-                                </td>
 
                                 <td className="px-3 py-2 text-sm text-gray-500">
-                                    {fDate(r.createdAt)}
+                                    {fDateandTime(r.createdAt)}
                                 </td>
-                                <td className="px-3 py-2 text-sm text-gray-500">
-                                    {fDate(r.date)}
-                                </td>
+
+                                {status !== "Pending" && <td className="px-3 py-2 text-sm text-gray-500">
+                                    {r.sampleCollectedAt ? fDateandTime(r.sampleCollectedAt) : "-"}
+                                </td>}
+
                                 <td className="px-3 py-2 text-sm text-gray-600">
                                     <div className="flex items-center gap-2">
                                         {r.doctor._id !== user?._id ? <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name}</span> : <span>Direct</span>}
                                     </div>
                                 </td>
 
+
+
+
                                 <td className="px-3 py-2">
                                     <Chip label={r.status} tone={statusTone(r.status)} />
                                 </td>
-                                {/* <td></td> */}
+                                {status === "In Progress" && <td></td>}
                                 <td className="px-3 py-2 text-right">
                                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
-                                        {/* <Button
+                                        {r.status === "Pending" && <Button
                                             variant="outline"
                                             size="sm"
                                             className="bg-white text-gray-600 hover:bg-gray-100"
+                                            onClick={async () => {
+                                                try {
+                                                    await toast.promise(api.post(`lab/report/sample_collected/${r._id}`), {
+                                                        loading: "Processing...",
+                                                        success: "Sample Collected",
+                                                        error: "Failed to collect sample"
+                                                    })
+                                                    mutate()
+                                                } catch (error) {
+                                                    toast.error(`Failed to collect sample : ${error}`)
+                                                }
+                                            }}
                                         >
 
                                             Sample Collected
-                                        </Button> */}
+                                        </Button>}
+
                                         <ViewResultModal r={r} />
+                                        <Button variant={"outline"} size="sm" className="bg-white text-gray-600 hover:bg-gray-100"
+                                            onClick={async () => {
+                                                try {
+                                                    await toast.promise(api.delete(`lab/report/${r._id}`), {
+                                                        loading: "Processing...",
+                                                        success: "Deleted",
+                                                        error: "Failed to delete"
+                                                    })
+                                                    mutate()
+                                                } catch (error) {
+                                                    toast.error(`Failed to delete : ${error}`)
+                                                }
+                                            }}
+
+                                        >Delete</Button>
                                     </div>
                                 </td>
                             </tr>

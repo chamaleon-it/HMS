@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TableCell, TableRow } from '@/components/ui/table'
 import { testPanel } from '@/data/testPanel';
 import api from '@/lib/axios';
-import { Pencil, Trash } from 'lucide-react';
+import { Pencil } from 'lucide-react';
 import React, { useCallback, useState } from 'react'
 import toast from 'react-hot-toast';
 
@@ -64,7 +64,7 @@ export default function TestCatalogueRow({
                 setOpen(false)
                 profileMutate()
             } catch (error) {
-                toast.error("Failed to Update Test")
+                toast.error(`Failed to Update Test : ${error}`)
             }
         },
         [],
@@ -100,7 +100,7 @@ export default function TestCatalogueRow({
                         <DialogHeader>
                             <DialogTitle>Edit Test</DialogTitle>
                             <DialogDescription>
-                                Make changes to the test here. Click save when you're done.
+                                Make changes to the test here. Click save when you&apos;re done.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="grid gap-4 py-4">
