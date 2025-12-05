@@ -2,6 +2,7 @@ import { fAge, fDate } from '@/lib/fDateAndTime';
 import React from 'react'
 import ViewResultModal from './ViewResultModal';
 import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
 
 
 interface PropsTypes {
@@ -116,23 +117,35 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
                                         {r.name.map(
-                                            (e) => (facility === "All" || e.type === facility) && (
-                                                <span
-                                                    key={e._id}
-                                                    className="text-gray-600 font-mono h-5"
-                                                >
-                                                    {e.value ? <>
-                                                        {e.type === "Imaging" ? <a
-                                                            href={e?.value?.toString()}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
-                                                        >
-                                                            View Result
-                                                        </a> : `${e.value} ${e.unit}`}
-                                                    </> : "-"}
-                                                </span>
-                                            )
+                                            (e) => {
+                                                let normal = true
+
+                                                if (e.value && e.min && e.max && e.type == "Lab") {
+                                                    if (Number(e.value) < Number(e.min) || Number(e.value) > Number(e.max)) {
+                                                        normal = false
+                                                    }
+                                                }
+
+                                                return (facility === "All" || e.type === facility) && (
+                                                    <span
+                                                        key={e._id}
+                                                        className={cn("text-gray-600 font-mono h-5",
+                                                            normal ? "" : "text-red-600"
+                                                        )}
+                                                    >
+                                                        {e.value ? <>
+                                                            {e.type === "Imaging" ? <a
+                                                                href={e?.value?.toString()}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                                                            >
+                                                                View Result
+                                                            </a> : `${e.value} ${e.unit}`}
+                                                        </> : "-"}
+                                                    </span>
+                                                )
+                                            }
                                         )}
                                     </div>
                                 </td>

@@ -3,6 +3,7 @@ import { fAge, fDate } from '@/lib/fDateAndTime';
 import React from 'react'
 import ResultUpdate from './ResultUpdate';
 import { Checkbox } from '@/components/ui/checkbox';
+import { cn } from '@/lib/utils';
 
 
 interface PropsTypes {
@@ -118,13 +119,27 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
                                         {r.name.map(
-                                            (e) =>
-                                                e.type === "Lab" && (
-                                                    <span
-                                                        key={e._id}
-                                                        className="text-gray-600 font-mono h-5"
-                                                    >{e?.value ? `${e.value} ${e.unit}` : "-"}</span>
-                                                )
+                                            (e) => {
+                                                if (e.type === "Lab") {
+
+                                                    let normal = true
+
+                                                    if (e.value && e.min && e.max) {
+                                                        if (Number(e.value) < Number(e.min) || Number(e.value) > Number(e.max)) {
+                                                            normal = false
+                                                        }
+                                                    }
+
+                                                    return (
+                                                        <span
+                                                            key={e._id}
+                                                            className={cn("text-gray-600 font-mono h-5",
+                                                                normal ? "" : "text-red-600"
+                                                            )}
+                                                        >{e?.value ? `${e.value} ${e.unit}` : "-"}</span>
+                                                    )
+                                                }
+                                            }
                                         )}
                                     </div>
                                 </td>
