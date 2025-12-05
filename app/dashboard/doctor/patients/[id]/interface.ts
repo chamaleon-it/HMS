@@ -3,7 +3,7 @@ export interface ConsultationType {
   patient: {
     _id: string;
     name: string;
-    mrn:string;
+    mrn: string;
     phoneNumber: string;
     email: string;
     gender: string;
@@ -13,6 +13,8 @@ export interface ConsultationType {
     allergies: string;
     address: string;
     notes: string;
+    remarks: string;
+    remarksDate: Date;
     createdBy: string;
     createdAt: Date;
     updatedAt: Date;
@@ -58,9 +60,9 @@ export interface ConsultationType {
     _id: string;
   };
   medicines: {
-    name:{
-      name:string
-      _id:string;
+    name: {
+      name: string
+      _id: string;
     }
     dosage: string;
     frequency: string;
@@ -72,8 +74,8 @@ export interface ConsultationType {
   followUp: Date;
   test: {
     name: {
-      code:string;
-      name:string;
+      code: string;
+      name: string;
     }[];
     date: Date;
     lab: string;
@@ -107,4 +109,6 @@ export interface PatientType {
   insuranceValidity: Date;
   emergencyContactNumber: string;
   uhid: string;
+  remarks: string;
+  remarksDate: Date;
 }

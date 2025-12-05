@@ -51,6 +51,7 @@ function VisitBadge({ count }: { count: number }) {
 }
 
 export function ActionButton({
+  className = "",
   children,
   variant = "default",
   onClick,
@@ -60,6 +61,7 @@ export function ActionButton({
   variant?: "default" | "outline" | "danger";
   onClick?: () => void;
   ring?: boolean;
+  className?: string;
 }) {
   const base =
     "px-4 py-2 rounded-xl text-sm font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2";
@@ -72,12 +74,9 @@ export function ActionButton({
   };
   return (
     <button
-      className={`${base} ${
-        variants[variant]
-      } flex gap-0.5 items-center justify-center cursor-pointer ${
-        ring &&
+      className={`${base} ${variants[variant]} ${className} flex gap-0.5 items-center justify-center cursor-pointer ${ring &&
         "!bg-green-600 !text-white !ring-2 !ring-green-400 shadow-lg animate-pulse"
-      }`}
+        }`}
       onClick={onClick}
     >
       {children}

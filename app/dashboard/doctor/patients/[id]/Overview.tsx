@@ -1,10 +1,29 @@
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
-import React from "react";;
-import { ConsultationType } from "./interface";
+import React, { useState } from "react";;
+import { ConsultationType, PatientType } from "./interface";
+import { Textarea } from "@/components/ui/textarea";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import { fDateandTime } from "@/lib/fDateAndTime";
 
-export default function Overview({ setTab, consult }: { setTab: (t: string) => void; consult: ConsultationType[] }) {
+export default function Overview({ setTab, consult, patient, mutatePatient }: { setTab: (t: string) => void; consult: ConsultationType[]; patient?: PatientType, mutatePatient: () => void }) {
 
+
+  const [remarks, setRemarks] = useState(patient?.remarks || "")
+
+  const handleSaveRemarks = async () => {
+    try {
+      await toast.promise(api.patch(`/patients/remarks/${consult[0]?.patient._id}`, { remarks }), {
+        loading: "Saving remarks...",
+        success: "Remarks saved successfully",
+        error: "Failed to save remarks"
+      })
+      mutatePatient()
+    } catch (error) {
+      toast.error("Failed to save remarks " + error)
+    }
+  }
 
   return (
     <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
@@ -57,14 +76,24 @@ export default function Overview({ setTab, consult }: { setTab: (t: string) => v
           No upcoming appointments.
         </div>
       </div>
+      <div className="col-span-full">
+        <div className="rounded-xl border p-4 ">
+          <div className="flex items-center justify-between">
+            <div className="font-medium">Past History</div>
 
-      <div className="rounded-xl border p-4 col-span-full">
-        <div className="flex items-center justify-between">
-          <div className="font-medium">Past History</div>
-
+          </div>
+          <div className="mt-2 text-sm text-muted-foreground">
+            {consult[0]?.consultationNotes.pastHistory}
+          </div>
         </div>
-        <div className="mt-2 text-sm text-muted-foreground">
-          {consult[0]?.consultationNotes.pastHistory}
+        <p className="col-span-full text-sm text-muted-foreground text-right mt-0">Last Updated: {fDateandTime(consult[0]?.createdAt)}</p>
+      </div>
+
+      <div className="col-span-full">
+        <Textarea className="h-[150px] w-full rounded-xl border px-2 py-1" placeholder="Remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
+        <p className="col-span-full text-sm text-muted-foreground text-right mt-0">Last Updated: {fDateandTime(patient?.remarksDate)}</p>
+        <div className="flex justify-end">
+          <Button className="mt-2 bg-emerald-600 hover:bg-emerald-600" onClick={handleSaveRemarks}>Save Remarks</Button>
         </div>
       </div>
 

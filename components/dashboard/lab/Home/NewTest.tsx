@@ -12,13 +12,23 @@ import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import useSWR from "swr";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
 import api from "@/lib/axios";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
 
 export default function NewTest({ mutate }: { mutate: () => void }) {
 
     const { user } = useAuth()
 
+    const [openCombobox, setOpenCombobox] = useState(false);
     const [, setOpenCreate] = useState(false);
     const [open, setOpen] = useState(false);
     const [openDate, setOpenDate] = useState(false);
@@ -182,33 +192,57 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
 
 
                 <div className="flex gap-2 justify-between">
-                    <Select onValueChange={v => {
-                        const selectedTest = Tests.find(t => t._id === v);
-
-                        const exist = payload.name.find(n => n._id === v)
-                        if (exist) {
-                            return
-                        }
-
-                        if (selectedTest) {
-                            setPayload(prev => ({
-                                ...prev,
-                                name: prev.name ? [...prev.name, selectedTest] : [selectedTest]
-                            }));
-                        }
-                    }}>
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Select a Test" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectGroup>
-                                <SelectLabel>Test</SelectLabel>
-                                {
-                                    Tests.map(test => <SelectItem value={test._id} key={test._id}>{test.name}</SelectItem>)
-                                }
-                            </SelectGroup>
-                        </SelectContent>
-                    </Select>
+                    <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
+                        <PopoverTrigger asChild>
+                            <Button
+                                variant="outline"
+                                role="combobox"
+                                aria-expanded={openCombobox}
+                                className="w-[300px] justify-between"
+                            >
+                                Select a Test
+                                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                            </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-[300px] p-0">
+                            <Command>
+                                <CommandInput placeholder="Search test..." />
+                                <CommandList className="max-h-[400px]">
+                                    <CommandEmpty>No test found.</CommandEmpty>
+                                    <CommandGroup>
+                                        {Tests.map((test) => (
+                                            <CommandItem
+                                                key={test._id}
+                                                value={test.name}
+                                                onSelect={() => {
+                                                    const exist = payload.name.find((n) => n._id === test._id);
+                                                    if (exist) {
+                                                        setOpenCombobox(false);
+                                                        return;
+                                                    }
+                                                    setPayload((prev) => ({
+                                                        ...prev,
+                                                        name: prev.name ? [...prev.name, test] : [test],
+                                                    }));
+                                                    setOpenCombobox(false);
+                                                }}
+                                            >
+                                                <Check
+                                                    className={cn(
+                                                        "mr-2 h-4 w-4",
+                                                        payload.name.some((n) => n._id === test._id)
+                                                            ? "opacity-100"
+                                                            : "opacity-0"
+                                                    )}
+                                                />
+                                                {test.name}
+                                            </CommandItem>
+                                        ))}
+                                    </CommandGroup>
+                                </CommandList>
+                            </Command>
+                        </PopoverContent>
+                    </Popover>
 
                     {bookingType === "Schedule" && (
                         <>
