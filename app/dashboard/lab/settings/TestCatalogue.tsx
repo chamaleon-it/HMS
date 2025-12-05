@@ -413,7 +413,7 @@ export default function TestCatalogue({
         </Card>
 
         {/* Helper Card */}
-        <Card className="border border-dashed border-slate-200 bg-white/50 shadow-sm rounded-2xl">
+        {/* <Card className="border border-dashed border-slate-200 bg-white/50 shadow-sm rounded-2xl">
           <CardContent className="p-4">
             <h4 className="text-xs font-semibold text-slate-900 mb-1">Quick Tips</h4>
             <ul className="text-[11px] text-slate-500 list-disc pl-4 space-y-1">
@@ -422,7 +422,7 @@ export default function TestCatalogue({
               <li>Tests added here will be available in the &quot;Add Test&quot; dropdown during billing.</li>
             </ul>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
