@@ -200,9 +200,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 }
 
 
-function headerCell(label: string, align?: "left" | "right") {
+function headerCell(label: string, align: "left" | "center" | "right" = "left") {
     return (
-        <th className={`text-${align || "left"} px-3 py-2`}>
+        <th className={`text-${align} px-3 py-2`}>
             {label}
         </th>
     );

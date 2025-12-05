@@ -17,7 +17,7 @@ export default function List({
   activeStatuses: string[];
   date: Date;
 }) {
-  const { data,mutate } = useAppointmentList({ activeStatuses, date });
+  const { data, mutate } = useAppointmentList({ activeStatuses, date });
 
   const [edit, setEdit] = useState<null | {
     _id: string;
@@ -49,11 +49,11 @@ export default function List({
     internalNotes: string | null;
     type: "New" | "Follow up";
     status:
-      | "Upcoming"
-      | "Consulted"
-      | "Observation"
-      // | "Completed"
-      | "Not show";
+    | "Upcoming"
+    | "Consulted"
+    | "Observation"
+    // | "Completed"
+    | "Not show";
     isPaid: boolean;
     createdAt: Date;
     visitCount: number;
@@ -124,28 +124,28 @@ export default function List({
                 <Chip label={row.status} tone={row.status || "gray"} />
               </div>
               <div className="col-span-1 flex items-center justify-start gap-2">
-                 <button
-                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => setEdit(row)}
-                      >
-                        Edit
-                      </button>
+                <button
+                  className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
+                  onClick={() => setEdit(row)}
+                >
+                  Edit
+                </button>
               </div>
             </li>
           ))}
       </ul>
 
-       {edit?._id && <Drawer
-          open={Boolean(edit)}
+      {edit?._id && <Drawer
+        open={Boolean(edit)}
+        onClose={() => setEdit(null)}
+        title="Edit Appointment"
+      >
+        <CreateAppointmentForm
           onClose={() => setEdit(null)}
-          title="Edit Appointment"
-        >
-          <CreateAppointmentForm
-            onClose={() => setEdit(null)}
-            mutate={mutate}
-            appointment={edit}
-          />
-        </Drawer>}
+          mutate={mutate}
+          appointment={edit}
+        />
+      </Drawer>}
     </div>
   );
 }
@@ -153,25 +153,19 @@ export default function List({
 const Chip: React.FC<{
   label: string;
   tone?:
-    | "green"
-    | "gray"
-    | "red"
-    | "blue"
-    | "amber"
-    | "Upcoming"
-    | "Test"
-    | "Observation"
-    | "Admit"
-    | "Consulted"
-    | "Not show";
+  | "green"
+  | "gray"
+  | "red"
+  | "blue"
+  | "amber"
+  | "Upcoming"
+  | "Test"
+  | "Observation"
+  | "Admit"
+  | "Consulted"
+  | "Not show";
 }> = ({ label, tone = "gray" }) => {
   const tones: Record<string, string> = {
-    // green: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    // gray: "bg-slate-100 text-slate-700 ring-slate-200",
-    // red: "bg-rose-50 text-rose-700 ring-rose-200",
-    // blue: "bg-sky-50 text-sky-700 ring-sky-200",
-    // amber: "bg-amber-50 text-amber-700 ring-amber-200",
-
     Upcoming: "bg-slate-100 text-slate-700 ring-slate-700",
     Test: "bg-sky-100  text-sky-700 ring-sky-700",
     Observation: "bg-amber-100  text-amber-700 ring-amber-700",

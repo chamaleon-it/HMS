@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Save, Trash2 } from "lucide-react";
 import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -23,8 +23,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
-import { testPanel } from "@/data/testPanel";
 import TestCatalogueRow from "./TestCatalogueRow";
+import useGetPanels from "@/data/useGetPanels";
 
 export default function TestCatalogue({
   profile,
@@ -122,7 +122,7 @@ export default function TestCatalogue({
     }
   };
 
-
+  const { panels, mutate: panelMutate } = useGetPanels();
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
@@ -185,7 +185,7 @@ export default function TestCatalogue({
                   </SelectTrigger>
                   <SelectContent className="w-full h-72">
                     {
-                      testPanel.map((panel) => (
+                      panels.map((panel) => (
                         <SelectItem key={panel} value={panel}>
                           {panel}
                         </SelectItem>
@@ -299,6 +299,68 @@ export default function TestCatalogue({
       </Card>
 
       <div className="space-y-6">
+
+        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
+          <CardContent className="p-6">
+            <SectionHeader
+              title="Add New Panel"
+              description=""
+            />
+
+            <AddPanelForm />
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>SL</TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead align="right" className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {panels.map((panel, idx) => (
+                  <TableRow>
+                    <TableCell>{idx + 1}</TableCell>
+                    <TableCell>{panel}</TableCell>
+                    <TableCell align="right" className="flex gap-2 justify-end">
+                      <Button
+                        variant="outline"
+                        className="h-9 bg-slate-50"
+                      >
+                        Add Tests
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="h-9 bg-slate-50"
+                        onClick={async () => {
+                          try {
+                            await toast.promise(
+                              api.delete(`/lab/panels/${panel}`),
+                              {
+                                loading: "Deleting...",
+                                success: "Panel deleted successfully",
+                                error: "Failed to delete panel"
+                              }
+                            )
+                            panelMutate()
+                          } catch (error) {
+                            console.log(error)
+                          }
+                        }}
+                      >
+
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+
+        </Card>
+
+
         <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
           <CardContent className="p-6">
             <SectionHeader
@@ -351,7 +413,7 @@ export default function TestCatalogue({
         </Card>
 
         {/* Helper Card */}
-        <Card className="border border-dashed border-slate-200 bg-white/50 shadow-sm rounded-2xl">
+        {/* <Card className="border border-dashed border-slate-200 bg-white/50 shadow-sm rounded-2xl">
           <CardContent className="p-4">
             <h4 className="text-xs font-semibold text-slate-900 mb-1">Quick Tips</h4>
             <ul className="text-[11px] text-slate-500 list-disc pl-4 space-y-1">
@@ -360,7 +422,7 @@ export default function TestCatalogue({
               <li>Tests added here will be available in the &quot;Add Test&quot; dropdown during billing.</li>
             </ul>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );
@@ -373,12 +435,12 @@ const SectionHeader = ({
 }: {
   title: string;
   description: string;
-  emoji: string;
+  emoji?: string;
 }) => (
   <div className="flex items-start gap-3">
-    <div className="mt-1 rounded-2xl bg-cyan-50 p-2 flex items-center justify-center">
+    {emoji && <div className="mt-1 rounded-2xl bg-cyan-50 p-2 flex items-center justify-center">
       <span className="text-lg">{emoji || "🧪"}</span>
-    </div>
+    </div>}
     <div>
       <h3 className="text-base font-semibold tracking-tight text-slate-900">
         {title}
@@ -412,3 +474,42 @@ const FieldRow = ({
     <div className="mt-1 h-px bg-slate-200" />
   </div>
 );
+
+
+
+const AddPanelForm = () => {
+
+  const { mutate } = useGetPanels();
+
+  const [payload, setPayload] = useState({
+    name: "",
+  })
+  const [loading, setLoading] = useState(false)
+
+  const addPanel = async () => {
+    try {
+      setLoading(true)
+      await toast.promise(api.post("/lab/panels", payload), {
+        loading: "Adding panel...",
+        success: "Panel added successfully",
+        error: ({ response }) => response.data.message,
+      })
+      setPayload({
+        name: "",
+      })
+      mutate()
+    } catch (error) {
+      console.log(error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return <div className="col-span-3 space-y-1.5 mt-5">
+    <Label className="text-xs font-medium text-slate-700">Name *</Label>
+    <div className="flex justify-between items-center gap-5">
+      <Input className="h-9 bg-slate-50" placeholder="CBC" value={payload.name} onChange={(e) => setPayload({ ...payload, name: e.target.value })} />
+      <Button className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer" onClick={addPanel} disabled={loading}>{loading ? "Adding" : "Add panel"}</Button>
+    </div>
+  </div>
+}

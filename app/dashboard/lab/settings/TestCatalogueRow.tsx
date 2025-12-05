@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table'
-import { testPanel } from '@/data/testPanel';
+import useGetPanels from '@/data/useGetPanels';
 import api from '@/lib/axios';
 import { Pencil } from 'lucide-react';
 import React, { useCallback, useState } from 'react'
@@ -70,6 +70,7 @@ export default function TestCatalogueRow({
         [],
     )
 
+    const { panels } = useGetPanels();
 
     return (
         <TableRow>
@@ -139,7 +140,7 @@ export default function TestCatalogueRow({
                                         <SelectValue placeholder="Select a panel" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {testPanel.map((panel) => (
+                                        {panels.map((panel) => (
                                             <SelectItem key={panel} value={panel}>
                                                 {panel}
                                             </SelectItem>
