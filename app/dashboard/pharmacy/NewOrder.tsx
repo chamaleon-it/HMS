@@ -54,26 +54,10 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       }
 
       for (const [index, item] of payload.items.entries()) {
-        const { name, dosage, frequency, food, duration, quantity } = item;
+        const { name, quantity } = item;
 
         if (!name?.trim()) {
           toast.error(`Item ${index + 1}: Name is required`);
-          return;
-        }
-        if (!dosage?.trim()) {
-          toast.error(`Item ${index + 1}: Dosage is required`);
-          return;
-        }
-        if (!frequency?.trim()) {
-          toast.error(`Item ${index + 1}: Frequency is required`);
-          return;
-        }
-        if (!food?.trim()) {
-          toast.error(`Item ${index + 1}: Food instruction is required`);
-          return;
-        }
-        if (!duration?.trim()) {
-          toast.error(`Item ${index + 1}: Duration is required`);
           return;
         }
         if (!quantity || quantity <= 0) {
@@ -112,7 +96,9 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         status: "Pending",
       });
     }
-  }, [open,user?._id]);
+  }, [open, user?._id]);
+
+  const [showAllFields, setShowAllFields] = useState(false);
 
   return (
     <>
@@ -125,7 +111,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
             New Order
           </Button>
         </DialogTrigger>
-        <DialogContent className="min-w-7xl">
+        <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-3xl"}>
           <DialogHeader>
             <DialogTitle>Add new order</DialogTitle>
             <DialogDescription>
@@ -142,8 +128,12 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
                 setOpen(false);
               }}
             />
+
+            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setShowAllFields(!showAllFields)}>
+              {showAllFields ? "Hide optional fields" : "Display all fields"}
+            </Button>
           </div>
-          <PrescriptionCard setData={setPayload} data={payload} />
+          <PrescriptionCard setData={setPayload} data={payload} showAllFields={showAllFields} />
 
           <DialogFooter>
             <DialogClose asChild>

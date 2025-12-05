@@ -18,9 +18,11 @@ interface Medicine {
 export default function PrescriptionCard({
   data,
   setData,
+  showAllFields,
 }: {
   data: DataType;
   setData: React.Dispatch<React.SetStateAction<DataType>>;
+  showAllFields: boolean;
 }) {
   const updateField = (
     idx: number,
@@ -62,78 +64,82 @@ export default function PrescriptionCard({
     <div className="">
       <div className="border rounded-xl p-4">
         <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2">
+          <div className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-5"} gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}>
             <div className="col-span-3">Drug</div>
-            <div className="col-span-1">Dosage</div>
-            <div className="col-span-2">Frequency</div>
-            <div className="col-span-2">Food</div>
-            <div className="col-span-2">Duration</div>
+            {showAllFields && (
+              <>
+                <div className="col-span-1">Dosage</div>
+                <div className="col-span-2">Frequency</div>
+                <div className="col-span-2">Food</div>
+                <div className="col-span-2">Duration</div>
+              </>
+            )}
             <div className="col-span-1">Quantity</div>
             <div className="col-span-1 text-right">Actions</div>
           </div>
 
           {data.items.map((m, i) => (
-            <div key={i} className="grid grid-cols-12 gap-2 mt-2 items-start">
+            <div key={i} className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-5"} gap-2 mt-2 items-start`}>
               <div className="col-span-3">
                 <Medicine i={i} m={m} updateField={updateField} />
               </div>
+              {showAllFields && <>
+                <div className="col-span-1">
+                  <LabeledCombobox
+                    options={[
+                      "½ tab",
+                      "1 tab",
+                      "2 tab",
+                      "5 ml",
+                      "10 ml",
+                      "20 ml",
+                    ]}
+                    label="Dosage"
+                    value={m.dosage}
+                    onChange={(e) => updateField(i, "dosage", e)}
+                  />
+                </div>
 
-              <div className="col-span-1">
-                <LabeledCombobox
-                  options={[
-                    "½ tab",
-                    "1 tab",
-                    "2 tab",
-                    "5 ml",
-                    "10 ml",
-                    "20 ml",
-                  ]}
-                  label="Dosage"
-                  value={m.dosage}
-                  onChange={(e) => updateField(i, "dosage", e)}
-                />
-              </div>
+                <div className="col-span-2">
+                  <LabeledCombobox
+                    options={["1-0-1", "1-1-1", "0-1-1", "1-0-0", "0-0-1", "SOS"]}
+                    label="Frequency"
+                    value={m.frequency}
+                    onChange={(e) => updateField(i, "frequency", e)}
+                  />
+                </div>
 
-              <div className="col-span-2">
-                <LabeledCombobox
-                  options={["1-0-1", "1-1-1", "0-1-1", "1-0-0", "0-0-1", "SOS"]}
-                  label="Frequency"
-                  value={m.frequency}
-                  onChange={(e) => updateField(i, "frequency", e)}
-                />
-              </div>
+                <div className="col-span-2">
+                  <LabeledCombobox
+                    options={[
+                      "After food",
+                      "Before food",
+                      "With food",
+                      "Empty stomach",
+                      "Anytime",
+                    ]}
+                    label="Food"
+                    value={m.food}
+                    onChange={(e) => updateField(i, "food", e)}
+                  />
+                </div>
 
-              <div className="col-span-2">
-                <LabeledCombobox
-                  options={[
-                    "After food",
-                    "Before food",
-                    "With food",
-                    "Empty stomach",
-                    "Anytime",
-                  ]}
-                  label="Food"
-                  value={m.food}
-                  onChange={(e) => updateField(i, "food", e)}
-                />
-              </div>
-
-              <div className="col-span-2">
-                <LabeledCombobox
-                  options={[
-                    "3 days",
-                    "5 days",
-                    "7 days",
-                    "10 days",
-                    "14 days",
-                    "28 days",
-                  ]}
-                  label="Duration"
-                  value={m.duration}
-                  onChange={(e) => updateField(i, "duration", e)}
-                />
-              </div>
-
+                <div className="col-span-2">
+                  <LabeledCombobox
+                    options={[
+                      "3 days",
+                      "5 days",
+                      "7 days",
+                      "10 days",
+                      "14 days",
+                      "28 days",
+                    ]}
+                    label="Duration"
+                    value={m.duration}
+                    onChange={(e) => updateField(i, "duration", e)}
+                  />
+                </div>
+              </>}
               <div className="col-span-1">
                 <div className="relative w-full">
                   <input
