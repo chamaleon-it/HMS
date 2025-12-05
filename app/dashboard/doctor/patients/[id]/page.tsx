@@ -108,7 +108,7 @@ export default function PatientFullDetailPage() {
   const params = useParams();
   const { id: patientId } = params;
 
-  const { data: patientData } = useSWR<{
+  const { data: patientData, mutate: mutatePatient } = useSWR<{
     message: string;
     data: PatientType;
   }>(`/patients/single/${patientId}`);
@@ -205,7 +205,7 @@ export default function PatientFullDetailPage() {
                 {tab === "clinical" && (<Clinical consult={consult} />)}
 
                 {tab === "overview" && (
-                  <Overview setTab={setTab} consult={consult} />
+                  <Overview setTab={setTab} consult={consult} patient={patient} mutatePatient={mutatePatient} />
                 )}
 
 

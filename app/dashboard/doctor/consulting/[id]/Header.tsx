@@ -1,12 +1,13 @@
 import React, { Dispatch, SetStateAction } from "react";
 import VitalsCard from "./VitalsCard";
 import { ToggleChip } from "./ToggleChip";
-import { ClipboardList, FlaskConical, Megaphone, Stethoscope } from "lucide-react";
+import { ClipboardList, Eye, FlaskConical, Megaphone, Stethoscope } from "lucide-react";
 import { AppointmentType } from "./interface";
 import { fAge } from "@/lib/fDateAndTime";
 import { ActionButton } from "@/components/doctor/dashboard/home/PatientCard";
 import toast from "react-hot-toast";
 import useGetLabReport from "./useGetLabReport";
+import { Button } from "@/components/ui/button";
 
 export default function Header({
   activeTab,
@@ -40,6 +41,12 @@ export default function Header({
         </div>
       </div>
       <div className="flex gap-2.5 items-center">
+        <Button variant={"link"} className="cursor-pointer" onClick={() => window.open(`/dashboard/doctor/patients/${appointment.patient._id}`, "_blank")}>
+          <>
+            {/* <Eye className="h-4 w-4 mr-2" /> */}
+            Open Patient In New Tab
+          </>
+        </Button>
         <ActionButton
           onClick={() => toast.success("The consultation bell is ringing.")}
         >
@@ -54,7 +61,7 @@ export default function Header({
             active={activeTab === "consultation"}
             onClick={() => setActiveTab("consultation")}
             icon={<Stethoscope className="h-4 w-4" />}
-            activeClass="bg-green-600 text-white"
+            activeClass="bg-emerald-600 text-white"
           >
             Consultation
           </ToggleChip>

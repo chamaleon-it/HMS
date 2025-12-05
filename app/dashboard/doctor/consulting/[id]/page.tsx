@@ -52,10 +52,10 @@ export default function ConsultingMenu() {
     },
     medicines: [
       {
-        dosage: "",
+        dosage: "1 tab",
         name: "",
         duration: "",
-        food: "",
+        food: "After food",
         frequency: "",
         quantity: 0,
         referralName: "",
