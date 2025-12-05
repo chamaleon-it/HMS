@@ -407,27 +407,7 @@ export default function PrescriptionCard({
                     </div>
 
                     <div className="col-span-2">
-                      <div className="relative w-full">
-                        <input
-                          placeholder="0"
-                          onChange={(e) => {
-                            const value = e.target.value;
-                            updateField(
-                              i,
-                              "quantity",
-                              value === "" ? 0 : Number(value)
-                            );
-                          }}
-                          inputMode={"numeric"}
-                          className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
-                          value={m.quantity === 0 ? "" : m.quantity}
-                          onFocus={e => e.target.placeholder = ""}
-                          onBlur={e => e.target.placeholder = "0"}
-                        />
-                        <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
-                          Quantity
-                        </label>
-                      </div>
+                      <QuantityInput updateField={updateField} i={i} m={m} />
                     </div>
 
                     <div className="col-span-2 flex justify-end gap-2">
@@ -777,4 +757,53 @@ export default function PrescriptionCard({
       </CardContent>
     </Card>
   );
+}
+
+
+
+const QuantityInput = ({ updateField, i, m }: { updateField: (idx: number, key: keyof Medicine, val: string | number) => void, i: number, m: Medicine }) => {
+
+
+  const currentOptions = {
+    dosage: ["½ tab", "1 tab", "2 tab"],
+    duration: ["3 days", "5 days", "7 days", "10 days", "14 days", "28 days"],
+    frequency: ["1-0-1", "1-1-1", "0-1-1", "1-0-0", "0-0-1"]
+  }
+
+  useEffect(() => {
+    if (currentOptions.dosage.includes(m.dosage) && currentOptions.frequency.includes(m.frequency)) {
+      const dosage = currentOptions.dosage[0] === m.dosage && 0.5 || currentOptions.dosage[1] === m.dosage && 1 || currentOptions.dosage[2] === m.dosage && 2 || 0
+      const duration = currentOptions.duration[0] === m.duration && 3 || currentOptions.duration[1] === m.duration && 5 || currentOptions.duration[2] === m.duration && 7 || currentOptions.duration[3] === m.duration && 10 || currentOptions.duration[4] === m.duration && 14 || currentOptions.duration[5] === m.duration && 28 || Number(m.duration) || 0
+      const frequency = currentOptions.frequency[0] === m.frequency && 2 || currentOptions.frequency[1] === m.frequency && 3 || currentOptions.frequency[2] === m.frequency && 2 || currentOptions.frequency[3] === m.frequency && 1 || currentOptions.frequency[4] === m.frequency && 1 || 0
+      updateField(i, "quantity", Math.ceil(dosage * duration * frequency))
+    } else {
+      updateField(i, "quantity", 0)
+    }
+
+  }, [m.dosage, m.duration, m.frequency])
+
+
+  return (
+    <div className="relative w-full">
+      <input
+        placeholder="0"
+        onChange={(e) => {
+          const value = e.target.value;
+          updateField(
+            i,
+            "quantity",
+            value === "" ? 0 : Number(value)
+          );
+        }}
+        inputMode={"numeric"}
+        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+        value={m.quantity === 0 ? "" : m.quantity}
+        onFocus={e => e.target.placeholder = ""}
+        onBlur={e => e.target.placeholder = "0"}
+      />
+      <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+        Quantity
+      </label>
+    </div>
+  )
 }
