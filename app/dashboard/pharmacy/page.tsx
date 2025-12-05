@@ -132,6 +132,7 @@ function RxQueue() {
         handleView={handleView}
         orders={orders}
         handleDelete={handleDelete}
+        OrderMutate={OrderMutate}
       />
 
       <Dialog open={open} onOpenChange={setOpen}>

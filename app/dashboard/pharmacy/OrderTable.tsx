@@ -7,21 +7,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React from "react";
+import React, { useState } from "react";
 import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fDateandTime } from "@/lib/fDateAndTime";
+import UpdateMedicines from "./UpdateMedicines";
 
 export default function OrderTable({
   handleView,
   orders,
   handleDelete,
+  OrderMutate,
 }: {
   handleView: (rx: OrderType) => void;
   orders: OrderType[];
   handleDelete: (rx: OrderType) => void;
+  OrderMutate: () => void;
 }) {
+
+
+  const [updateOrder, setUpdateOrder] = useState<OrderType | null>(null)
+  const [openUpdate, setOpenUpdate] = useState(false)
+
   return (
     <div className="rounded-2xl overflow-hidden">
 
@@ -87,6 +95,9 @@ export default function OrderTable({
                 <Button size="sm" variant="outline" onClick={() => handleView(r)} className="cursor-pointer">
                   View
                 </Button>
+                <Button size="sm" variant="outline" onClick={() => { setUpdateOrder(r); setOpenUpdate(true) }} className="cursor-pointer">
+                  Update
+                </Button>
                 <Button
                   size="sm"
                   variant="default"
@@ -100,6 +111,8 @@ export default function OrderTable({
           ))}
         </TableBody>
       </Table>
+
+      {updateOrder && <UpdateMedicines open={openUpdate} setOpen={v => { setOpenUpdate(v); setUpdateOrder(null) }} order={updateOrder} OrderMutate={OrderMutate} />}
     </div>
   );
 }
