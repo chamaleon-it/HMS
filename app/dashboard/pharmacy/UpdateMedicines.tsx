@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { OrderType } from './interface';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { fAge, fDateandTime } from '@/lib/fDateAndTime';
-import PrescriptionCard from './PrescriptionCard';
 import UpdatePrescriptionCard from './UpdatePrescriptionCard';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';

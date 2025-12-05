@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction } from "react";
 import VitalsCard from "./VitalsCard";
 import { ToggleChip } from "./ToggleChip";
-import { ClipboardList, Eye, FlaskConical, Megaphone, Stethoscope } from "lucide-react";
+import { ClipboardList, FlaskConical, Megaphone, Stethoscope } from "lucide-react";
 import { AppointmentType } from "./interface";
 import { fAge } from "@/lib/fDateAndTime";
 import { ActionButton } from "@/components/doctor/dashboard/home/PatientCard";

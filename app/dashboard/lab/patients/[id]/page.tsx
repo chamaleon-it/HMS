@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDownIcon, FlaskConical, Image } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
 import { useParams, useRouter } from "next/navigation";
@@ -316,7 +316,7 @@ const Customer: React.FC = () => {
                                         {it.type === "Lab" ? (
                                           <FlaskConical className="h-4 w-4" />
                                         ) : (
-                                          <Image className="h-4 w-4" />
+                                          <ImageIcon className="h-4 w-4" />
                                         )}
                                       </span>
 

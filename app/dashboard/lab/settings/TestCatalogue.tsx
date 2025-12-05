@@ -319,7 +319,7 @@ export default function TestCatalogue({
               </TableHeader>
               <TableBody>
                 {panels.map((panel, idx) => (
-                  <TableRow>
+                  <TableRow key={idx}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>{panel}</TableCell>
                     <TableCell align="right" className="flex gap-2 justify-end">
