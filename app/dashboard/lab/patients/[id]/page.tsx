@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
 import { useParams, useRouter } from "next/navigation";
@@ -17,6 +17,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import { DataTypes, Datum } from "./interface";
 import useGetPatient from "./useGetPatient";
+import { motion } from "framer-motion";
 
 const Customer: React.FC = () => {
   const router = useRouter();
@@ -31,6 +32,15 @@ const Customer: React.FC = () => {
 
   const [openCalander, setOpenCalander] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
+
+
+  const [type, setType] = useState<"Lab" | "Imaging" | "All">("All");
+
+  const tabs = [
+    { key: "All", label: "All", },
+    { key: "Lab", label: "Lab", icon: FlaskConical },
+    { key: "Imaging", label: "Imaging", icon: ImageIcon },
+  ] as const;
 
   return (
     <AppShell>
@@ -131,65 +141,98 @@ const Customer: React.FC = () => {
                       {reports?.length === 1 ? "" : "s"}
                     </div>
                   </div>
+                  <div className="flex justify-between items-center bg-slate-50 px-2 py-2">
+                    <div className="flex items-center gap-3 text-[12px] text-slate-700">
+                      <span className="font-medium">Filter:</span>
 
-                  <div className="px-4 py-3 bg-slate-50 border-b flex items-center gap-3 text-[12px] text-slate-700">
-                    <span className="font-medium">Filter:</span>
+                      <Popover open={openCalander} onOpenChange={setOpenCalander}>
 
-                    <Popover open={openCalander} onOpenChange={setOpenCalander}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          id="date"
-                          className="w-64 justify-between font-normal"
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            id="date"
+                            className="w-52 justify-between font-normal"
+                          >
+                            {date?.from && date?.to
+                              ? `${fDate(date.from)} to ${fDate(date.to)}`
+                              : "Select date"}
+                            <ChevronDownIcon />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent
+                          className="w-auto overflow-hidden p-0"
+                          align="start"
                         >
-                          {date?.from && date?.to
-                            ? `${fDate(date.from)} to ${fDate(date.to)}`
-                            : "Select date"}
-                          <ChevronDownIcon />
-                        </Button>
-                      </PopoverTrigger>
+                          <Calendar
+                            mode="range"
+                            selected={date}
+                            captionLayout="dropdown"
+                            numberOfMonths={2}
+                            onSelect={(s) => {
+                              setDate(s);
 
-                      <PopoverContent
-                        className="w-auto overflow-hidden p-0"
-                        align="start"
-                      >
-                        <Calendar
-                          mode="range"
-                          selected={date}
-                          captionLayout="dropdown"
-                          numberOfMonths={2}
-                          onSelect={(s) => {
-                            setDate(s);
+                              const { from, to } = s || {};
 
-                            const { from, to } = s || {};
+                              if (
+                                from &&
+                                to &&
+                                from !== to &&
+                                (from !== date?.from || to !== date?.to)
+                              ) {
+                                setOpenCalander(false);
+                              }
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
 
-                            if (
-                              from &&
-                              to &&
-                              from !== to &&
-                              (from !== date?.from || to !== date?.to)
-                            ) {
-                              setOpenCalander(false);
-                            }
+                      {date?.from && date?.to && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-[11px] px-3"
+                          onClick={() => {
+                            setDate({ from: undefined, to: undefined });
                           }}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
 
-                    {date?.from && date?.to && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 text-[11px] px-3"
-                        onClick={() => {
-                          setDate({ from: undefined, to: undefined });
-                        }}
-                      >
-                        Clear
-                      </Button>
-                    )}
+                    <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
+                      {tabs.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
+                        const active = type === key;
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => setType(key)}
+                            className={
+                              "relative flex items-center gap-2 rounded-full px-2 py-1.5 transition will-change-transform cursor-pointer " +
+                              (active ? "text-white" : "text-gray-700")
+                            }
+                            type="button"
+                          >
+                            {active && (
+                              <motion.span
+                                layoutId="tab-indicator-1"
+                                className="absolute inset-0 rounded-full"
+                                style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                                transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                              />
+                            )}
+                            <span className="relative z-10 flex items-center gap-1 text-sm">
+                              {Icon && <Icon size={16} />}
+                              {label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+
                   </div>
-
                   <div className="flex-1 overflow-y-auto divide-y">
                     {reports?.length === 0 && (
                       <div className="p-4 text-xs text-slate-500">
@@ -203,17 +246,20 @@ const Customer: React.FC = () => {
                       </div>
                     )}
 
-                    {reports
-                      ?.filter((o) => {
-                        if (date?.from && date.to) {
-                          const created = new Date(o.createdAt);
-                          const start = new Date(date.from);
-                          const end = new Date(date.to);
-                          end.setHours(23, 59, 59, 999); // include whole end day
-                          return created >= start && created <= end;
-                        }
-                        return true;
-                      })
+                    {reports?.filter(o => {
+
+                      if (type && type !== "All" && !o.name?.some(s => s.type === type)) return false;
+
+                      if (date?.from && date?.to) {
+                        const created = new Date(o.createdAt);
+                        const start = new Date(date.from);
+                        const end = new Date(date.to);
+                        end.setHours(23, 59, 59, 999);
+                        if (created < start || created > end) return false;
+                      }
+
+                      return true;
+                    })
                       .map((bill) => {
                         const active =
                           selectedVisit && selectedVisit._id === bill._id;
@@ -241,8 +287,8 @@ const Customer: React.FC = () => {
                                   active ? "opacity-80" : "text-slate-500"
                                 }
                               >
-                                {bill.name.length} item
-                                {bill.name.length === 1 ? "" : "s"}
+                                {bill.name.filter(o => type === "All" || o.type === type).length} item
+                                {bill.name.filter(o => type === "All" || o.type === type).length === 1 ? "" : "s"}
                               </span>
                             </div>
                           </button>
@@ -255,7 +301,7 @@ const Customer: React.FC = () => {
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit
-                        ? `Bill Details — ${selectedVisit?.name.map(e => e.code).join(", ")}`
+                        ? `Bill Details — ${selectedVisit?.name.filter(o => type === "All" || o.type === type).map(e => e.code).join(", ")}`
                         : "Bill Details"}
                     </div>
                     {selectedVisit && (
@@ -301,7 +347,7 @@ const Customer: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {selectedVisit.name.map((it, i) => {
+                            {selectedVisit.name.filter(o => type === "All" || o.type === type).map((it, i) => {
                               return (
                                 <tr
                                   key={it.name}
@@ -404,6 +450,23 @@ const Customer: React.FC = () => {
                             </tr>
                           </tfoot>
                         </table>
+                      </div>
+
+                      <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
+                        <div className="text-[12px] text-slate-500">
+
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+
+                          >
+                            Print bill
+                          </Button>
+                          <Button className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800">
+                            Refund
+                          </Button>
+                        </div>
                       </div>
 
                     </>
