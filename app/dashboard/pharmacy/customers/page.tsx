@@ -89,11 +89,10 @@ const Customers: React.FC = () => {
                   return (
                     <TableRow
                       key={p.patient._id}
-                      className={`cursor-pointer transition-all duration-150 ease-out ${
-                        idx % 2
-                          ? "bg-slate-50/80 hover:bg-slate-100/90"
-                          : "bg-white hover:bg-slate-50"
-                      } hover:-translate-y-[1px] hover:shadow-sm`}
+                      className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
+                          ? "bg-white hover:bg-white/60"
+                          : "bg-slate-100 hover:bg-slate-100/60"
+                        } hover:-translate-y-[1px] hover:shadow-sm`}
                       onClick={() =>
                         router.push(
                           `/dashboard/pharmacy/customers/${p.patient._id}`

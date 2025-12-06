@@ -94,7 +94,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         return (
                             <tr
                                 key={r._id}
-                                className="group border-b border-gray-100 hover:bg-gray-50/80 transition-colors duration-200 last:border-0"
+                                className={`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${idx % 2 === 0
+                                    ? "bg-white hover:bg-white/60"
+                                    : "bg-slate-100 hover:bg-slate-100/60"
+                                    }`}
                             >
                                 <td className="px-3 py-2">
                                     <Checkbox />

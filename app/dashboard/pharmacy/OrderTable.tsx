@@ -63,8 +63,8 @@ export default function OrderTable({
               key={r._id}
               className={
                 idx % 2 === 0
-                  ? "bg-white hover:bg-slate-50/60"
-                  : "bg-slate-50 hover:bg-slate-100"
+                  ? "bg-white hover:bg-white/60"
+                  : "bg-slate-100 hover:bg-slate-100/60"
               }
             >
               <TableCell>

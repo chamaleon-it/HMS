@@ -88,9 +88,8 @@ export default function InventoryPage() {
     <AppShell>
       <div className="p-5 min-h-[calc(100vh-80px)]">
         <div
-          className={`space-y-6 ${
-            openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
-          }`}
+          className={`space-y-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
+            }`}
         >
           <Header handleAdd={handleAdd} items={items} />
 
@@ -122,16 +121,16 @@ export default function InventoryPage() {
         </div>
 
         <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>
-          <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto p-0 gap-1">
+          <DialogContent className={openView ? "!max-w-3xl w-full" : "!max-w-xl" + " max-h-[90vh] overflow-y-auto p-0 gap-1"}>
             <DialogHeader className="flex justify-between items-center border-b p-4">
               <DialogTitle>
                 {openView
                   ? "View Item"
                   : openEdit
-                  ? "Edit Item"
-                  : openAdd
-                  ? "Add New Item"
-                  : ""}
+                    ? "Edit Item"
+                    : openAdd
+                      ? "Add New Item"
+                      : ""}
               </DialogTitle>
             </DialogHeader>
 

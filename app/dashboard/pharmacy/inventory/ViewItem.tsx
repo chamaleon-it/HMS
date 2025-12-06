@@ -1,12 +1,16 @@
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit } from "lucide-react";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useCallback } from "react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { formatINR } from "@/lib/fNumber";
 
-export function ViewItem({ item,editItem,mutate,onClose }: { item: ItemType,editItem:()=>void,mutate:()=>void,onClose:()=>void }) {
+export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
 
 
   const deleteItem = useCallback(
@@ -21,141 +25,212 @@ export function ViewItem({ item,editItem,mutate,onClose }: { item: ItemType,edit
       }
       onClose()
     },
-    [mutate,onClose]
+    [mutate, onClose]
   );
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-xl p-6 space-y-4 text-sm">
+    <div className="w-full bg-white rounded-2xl shadow-xl p-2 space-y-4 text-sm max-h-[calc(100vh-200px)] overflow-y-auto">
       {/* Header */}
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between border-b pb-4">
         <div>
-          <div className="text-base font-semibold text-gray-900">
-            {item.name}
+          <div className="flex items-center gap-2 mb-1">
+            <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+              {item.name}
+            </h2>
+            <Badge variant={item.status === "Active" ? "default" : "secondary"} className={item.status === "Active" ? "bg-green-100 text-green-700 hover:bg-green-200 border-none" : ""}>
+              {item.status}
+            </Badge>
           </div>
-          <div className="text-xs text-gray-500">(Gen: {item.generic})</div>
-          <div className="text-[11px] text-gray-400">HSN: {item.hsnCode}</div>
+          <div className="flex items-center gap-3 text-sm text-muted-foreground">
+            <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-xs font-medium">Gen: {item.generic}</span>
+            <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-xs font-medium">HSN: {item.hsnCode}</span>
+          </div>
         </div>
-        <Button variant="ghost" className="text-xs text-purple-600">
+        <Button variant="outline" size="sm" className="gap-2 h-8 text-xs border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800">
+          <Printer className="h-3.5 w-3.5" />
           Print Label
         </Button>
       </div>
 
-      {/* Stock / Status */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-lg border p-3 bg-gray-50">
-          <div className="text-[11px] text-gray-500">Current Stock</div>
-          <div className="text-lg font-bold text-gray-900">
-            {item.quantity} units
+      {/* Stock / Status - REPLACED BY NEW SALES CARDS SECTION BELOW, REMOVING OLD STOCK CARDS IF REDUNDANT, BUT USER ASKED FOR ALL UI IMPROVEMENT. LET'S KEEP STOCK BUT MODERNIZE IT OR MERGE WITH DETAILS. Let's make it a compact stat row below header */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="rounded-xl border bg-slate-50/50 p-4">
+          <div className="text-xs font-medium text-slate-500 mb-1">Current Stock</div>
+          <div className="flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-slate-900">{item.quantity}</span>
+            <span className="text-sm font-medium text-slate-500">units</span>
           </div>
         </div>
-        <div className="rounded-lg border p-3 bg-gray-50">
-          <div className="text-[11px] text-gray-500">Status</div>
-          <div
-            className={`inline-flex items-center gap-1 text-[13px] font-medium ${
-              item.status === "Active" ? "text-green-600" : "text-gray-500"
-            }`}
-          >
-            <span
-              className={`h-2 w-2 rounded-full ${
-                item.status === "Active" ? "bg-green-500" : "bg-gray-400"
-              }`}
-            />
-            {item.status}
+        <div className="rounded-xl border bg-slate-50/50 p-4 flex flex-col justify-center">
+          <div className="text-xs font-medium text-slate-500 mb-2">Availability</div>
+          <div className="flex items-center gap-2">
+            <div className={`w-2 h-2 rounded-full ${item.quantity > 0 ? "bg-green-500" : "bg-red-500"}`}></div>
+            <span className="text-sm font-semibold text-slate-700">{item.quantity > 0 ? "In Stock" : "Out of Stock"}</span>
           </div>
         </div>
       </div>
 
       {/* Info grid */}
-      <div className="rounded-lg border p-3">
-        <div className="grid grid-cols-2 gap-y-2 text-[12px] text-gray-600">
-          <div className="font-medium text-gray-800">SKU</div>
-          <div>{item.sku}</div>
+      <div className="grid grid-cols-3 gap-3">
+        <div className="col-span-2 rounded-xl border p-4 space-y-4">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Product Details</h3>
+          <div className="grid grid-cols-2 gap-y-4 gap-x-6">
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Tag className="w-3 h-3" /> SKU
+              </div>
+              <div className="text-sm font-medium text-gray-900">{item.sku}</div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Building2 className="w-3 h-3" /> Supplier
+              </div>
+              <div className="text-sm font-medium text-gray-900">{item.supplier}</div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <CreditCard className="w-3 h-3" /> Unit Price
+              </div>
+              <div className="text-sm font-medium text-gray-900">₹ {item.unitPrice}</div>
+            </div>
+            <div className="space-y-1">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Calendar className="w-3 h-3" /> Expiry
+              </div>
+              <div className="text-sm font-medium text-gray-900">{fDate(item.expiryDate)}</div>
+            </div>
+          </div>
+        </div>
 
-          <div className="font-medium text-gray-800">Category</div>
-          <div>{item.category}</div>
-
-          <div className="font-medium text-gray-800">Supplier</div>
-          <div>{item.supplier}</div>
-
-          <div className="font-medium text-gray-800">Expiry</div>
-          <div>{fDate(item.expiryDate)}</div>
-
-          <div className="font-medium text-gray-800">Unit Price</div>
-          <div>₹ {item.unitPrice}</div>
+        <div className="col-span-1 rounded-xl border bg-slate-50 p-4 flex flex-col items-center justify-center gap-2 text-center">
+          <Barcode className="h-8 w-8 text-slate-400 mb-1" />
+          <div className="text-[10px] text-muted-foreground uppercase font-medium tracking-wider">Scannable ID</div>
+          <div className="w-full h-12 bg-white border rounded p-1 flex items-center justify-center">
+            <div className="w-full h-full bg-[repeating-linear-gradient(90deg,black_0px,black_1px,transparent_1px,transparent_3px)] opacity-80" />
+          </div>
+          <div className="font-mono text-xs font-medium text-slate-700">{item.sku}</div>
         </div>
       </div>
 
-      {/* Barcode mock */}
-      <div className="rounded-lg border p-3 flex flex-col items-center gap-2">
-        <div className="text-[11px] text-gray-500">Barcode / Label</div>
-        <div className="w-40 h-10 bg-[repeating-linear-gradient(90deg,black_0px,black_2px,white_2px,white_4px)] rounded" />
-        <div className="text-[11px] tracking-wider text-gray-700">
-          {item.sku}
-        </div>
-      </div>
+      {/* <div className="grid grid-cols-2 gap-4">
+        <Card className="overflow-hidden border-none shadow-md bg-gradient-to-br from-blue-50 to-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-muted-foreground">Medicine Sales</p>
+              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
+                <ShoppingBag className="h-4 w-4 text-blue-600" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="text-2xl font-bold text-gray-900">₹ 12,450</div>
+              <div className="flex items-center text-xs text-green-600 font-medium">
+                <TrendingUp className="mr-1 h-3 w-3" />
+                +15% from last month
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-      {/* Movement History */}
-      {/* <div className="rounded-lg border p-3">
-        <div className="text-xs font-semibold text-gray-800 mb-2">
-          Stock Movements
-        </div>
-        <div className="space-y-2 text-[12px] text-gray-600">
-          
-          <div className="flex justify-between">
-            <span className="text-green-600 font-medium">+40 received</span>
-            <span className="text-gray-400">28 Oct 2025 • by Admin</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-red-600 font-medium">-3 dispensed</span>
-            <span className="text-gray-400">27 Oct 2025 • Rx #5521</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-red-600 font-medium">
-              -2 wastage (expired)
-            </span>
-            <span className="text-gray-400">10 Oct 2025</span>
-          </div>
-        </div>
+        <Card className="overflow-hidden border-none shadow-md bg-gradient-to-br from-emerald-50 to-white">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-muted-foreground">Medicine Purchase</p>
+              <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                <Package className="h-4 w-4 text-emerald-600" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <div className="text-2xl font-bold text-gray-900">₹ 45,200</div>
+              <div className="flex items-center text-xs text-green-600 font-medium">
+                <TrendingUp className="mr-1 h-3 w-3" />
+                +4% from last month
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div> */}
 
+      <div className="space-y-3">
+        <h3 className="font-semibold text-sm text-gray-900 flex items-center gap-2">
+          <Package className="w-4 h-4 text-gray-500" />
+          Batch History
+        </h3>
+        <div className="border rounded-xl overflow-hidden bg-white shadow-sm">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
+                <TableHead className="w-[120px] h-10 text-xs font-semibold text-gray-600">Date Added</TableHead>
+                <TableHead className="h-10 text-xs font-semibold text-gray-600">Batch No</TableHead>
+                <TableHead className="h-10 text-xs font-semibold text-gray-600">Expiry</TableHead>
+                <TableHead className="h-10 text-xs font-semibold text-gray-600">Supplier</TableHead>
+                <TableHead className="text-right h-10 text-xs font-semibold text-gray-600">Price</TableHead>
+                <TableHead className="text-right h-10 text-xs font-semibold text-gray-600">Qty</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {item?.batches?.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground text-sm">
+                    No batch history found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                item?.batches?.map((batch) => (
+                  <TableRow key={batch._id} className="hover:bg-slate-50 border-b border-slate-100 last:border-0">
+                    <TableCell className="text-xs py-3 font-medium text-slate-700">{fDate(batch.createdAt)}</TableCell>
+                    <TableCell className="font-mono text-xs py-3 text-slate-600 bg-slate-50/50 rounded-sm w-fit px-2">{batch.batchNumber}</TableCell>
+                    <TableCell className="text-xs py-3 text-slate-600">{fDate(batch.expiryDate)}</TableCell>
+                    <TableCell className="text-xs py-3 text-slate-600">{batch.supplier || "-"}</TableCell>
+                    <TableCell className="text-right text-xs py-3 text-slate-900 font-medium">{formatINR(batch.purchasePrice)}</TableCell>
+                    <TableCell className="text-right text-xs py-3 font-medium text-purple-600 bg-purple-50/30">{batch.quantity}</TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
       {/* Actions */}
-      <div className="flex gap-2 pt-2">
-        <Button className="bg-purple-600 text-white flex-1" onClick={()=>editItem()}>Edit Item</Button>
-        
-        
-
-
-         <AlertDialog >
-                        <AlertDialogTrigger asChild>
-                          <Button variant="destructive" className="flex-1">
-          Delete
+      <div className="flex gap-3 pt-4 border-t mt-2">
+        <Button className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
+          <Edit className="w-4 h-4" />
+          Edit Item
         </Button>
-                        </AlertDialogTrigger>
 
-                        <AlertDialogContent  className="!max-w-sm">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              This action cannot be undone. This will
-                              permanently delete the item{" "}
-                              <span className="font-semibold">
-                                {item?.name}
-                              </span>
-                              .
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
+        <AlertDialog >
+          <AlertDialogTrigger asChild>
+            <Button variant="destructive" className="flex-1 bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 shadow-sm gap-2">
+              <Trash2 className="w-4 h-4" />
+              Delete Item
+            </Button>
+          </AlertDialogTrigger>
 
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => deleteItem(item._id)}
-                              className="bg-destructive text-white hover:bg-destructive/90"
-                            >
-                              Delete Item
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
+          <AlertDialogContent className="!max-w-sm rounded-xl">
+            {/* ... existing alert content doesn't need much change save for maybe rounding ... */}
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will
+                permanently delete the item{" "}
+                <span className="font-semibold text-gray-900">
+                  {item?.name}
+                </span>
+                .
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <AlertDialogFooter>
+              <AlertDialogCancel className="rounded-lg">Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={() => deleteItem(item._id)}
+                className="bg-red-600 text-white hover:bg-red-700 rounded-lg"
+              >
+                Delete Item
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );

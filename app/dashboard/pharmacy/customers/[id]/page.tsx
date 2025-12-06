@@ -17,6 +17,8 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import Link from "next/link";
+import { motion } from "framer-motion";
+import { Datum, ReturnType } from "./ReturnType";
 
 const Customer: React.FC = () => {
   const router = useRouter();
@@ -24,12 +26,25 @@ const Customer: React.FC = () => {
   const { data: customerData, error } = useSWR<CustomerType>(
     `/pharmacy/orders/customers/${id}`
   );
+
+  const { data: returnData } = useSWR<ReturnType>(
+    `/pharmacy/return/patient/${id}`
+  );
+
   const customer = customerData?.data;
-  const [selectedVisit, setSelectedVisit] = useState<Order | null>(null);
+  const [selectedVisit, setSelectedVisit] = useState<Order | Datum | null>(null);
   const handlePrint = () => { };
 
   const [openCalander, setOpenCalander] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
+
+  const tabs = [
+    { key: "all", label: "All" },
+    { key: "sale", label: "Sale" },
+    { key: "return", label: "Return" },
+  ];
+
+  const [type, setType] = useState("all");
 
   return (
     <AppShell>
@@ -131,62 +146,95 @@ const Customer: React.FC = () => {
                     </div>
                   </div>
 
-                  <div className="px-4 py-3 bg-slate-50 border-b flex items-center gap-3 text-[12px] text-slate-700">
-                    <span className="font-medium">Filter:</span>
+                  <div className="flex justify-between items-center bg-slate-50 px-2 py-2">
+                    <div className="flex items-center gap-3 text-[12px] text-slate-700">
+                      <span className="font-medium">Filter:</span>
 
-                    <Popover open={openCalander} onOpenChange={setOpenCalander}>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          id="date"
-                          className="w-64 justify-between font-normal"
+                      <Popover open={openCalander} onOpenChange={setOpenCalander}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            id="date"
+                            className="w-64 justify-between font-normal"
+                          >
+                            {date?.from && date?.to
+                              ? `${fDate(date.from)} to ${fDate(date.to)}`
+                              : "Select date"}
+                            <ChevronDownIcon />
+                          </Button>
+                        </PopoverTrigger>
+
+                        <PopoverContent
+                          className="w-auto overflow-hidden p-0"
+                          align="start"
                         >
-                          {date?.from && date?.to
-                            ? `${fDate(date.from)} to ${fDate(date.to)}`
-                            : "Select date"}
-                          <ChevronDownIcon />
-                        </Button>
-                      </PopoverTrigger>
+                          <Calendar
+                            mode="range"
+                            selected={date}
+                            captionLayout="dropdown"
+                            numberOfMonths={2}
+                            onSelect={(s) => {
+                              setDate(s);
 
-                      <PopoverContent
-                        className="w-auto overflow-hidden p-0"
-                        align="start"
-                      >
-                        <Calendar
-                          mode="range"
-                          selected={date}
-                          captionLayout="dropdown"
-                          numberOfMonths={2}
-                          onSelect={(s) => {
-                            setDate(s);
+                              const { from, to } = s || {};
 
-                            const { from, to } = s || {};
+                              if (
+                                from &&
+                                to &&
+                                from !== to &&
+                                (from !== date?.from || to !== date?.to)
+                              ) {
+                                setOpenCalander(false);
+                              }
+                            }}
+                          />
+                        </PopoverContent>
+                      </Popover>
 
-                            if (
-                              from &&
-                              to &&
-                              from !== to &&
-                              (from !== date?.from || to !== date?.to)
-                            ) {
-                              setOpenCalander(false);
-                            }
+                      {date?.from && date?.to && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 text-[11px] px-3"
+                          onClick={() => {
+                            setDate({ from: undefined, to: undefined });
                           }}
-                        />
-                      </PopoverContent>
-                    </Popover>
+                        >
+                          Clear
+                        </Button>
+                      )}
+                    </div>
 
-                    {date?.from && date?.to && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 text-[11px] px-3"
-                        onClick={() => {
-                          setDate({ from: undefined, to: undefined });
-                        }}
-                      >
-                        Clear
-                      </Button>
-                    )}
+                    <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
+                      {tabs.map(({ key, label }: { key: string; label: string }) => {
+                        const active = type === key;
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => setType(key)}
+                            className={
+                              "relative flex items-center gap-2 rounded-full px-2 py-1.5 transition will-change-transform cursor-pointer " +
+                              (active ? "text-white" : "text-gray-700")
+                            }
+                            type="button"
+                          >
+                            {active && (
+                              <motion.span
+                                layoutId="tab-indicator-1"
+                                className="absolute inset-0 rounded-full"
+                                style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                                transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                              />
+                            )}
+                            <span className="relative z-10 flex items-center gap-1 text-sm">
+                              {label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+
                   </div>
 
                   <div className="flex-1 overflow-y-auto divide-y">
@@ -202,13 +250,15 @@ const Customer: React.FC = () => {
                       </div>
                     )}
 
-                    {customer?.orders
+
+
+                    {(type === "sale" || type === "all") && customer?.orders
                       .filter((o) => {
                         if (date?.from && date.to) {
                           const created = new Date(o.createdAt);
                           const start = new Date(date.from);
                           const end = new Date(date.to);
-                          end.setHours(23, 59, 59, 999); // include whole end day
+                          end.setHours(23, 59, 59, 999);
                           return created >= start && created <= end;
                         }
                         return true;
@@ -253,6 +303,50 @@ const Customer: React.FC = () => {
                           </button>
                         );
                       })}
+
+                    {
+                      (type === "return" || type === "all") && returnData?.data.map(e => {
+                        const active =
+                          selectedVisit && selectedVisit._id === e._id;
+                        return (
+                          <button
+                            key={e._id}
+                            type="button"
+                            onClick={() => setSelectedVisit(e)}
+                            className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
+                              ? "bg-slate-900 text-slate-50"
+                              : "hover:bg-slate-50"
+                              }`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="font-medium">
+                                {fDate(e.createdAt)} - Return
+                              </span>
+
+                              <span className="text-xs font-semibold">
+                                {formatINR(
+                                  e.items.reduce(
+                                    (a, b) => a + b.quantity * b.name.unitPrice,
+                                    0
+                                  )
+                                )}
+                              </span>
+                            </div>
+                            <div className="flex items-center justify-between gap-2 text-[12px]">
+                              <span
+                                className={
+                                  active ? "opacity-80" : "text-slate-500"
+                                }
+                              >
+                                {e.items.length} item
+                                {e.items.length === 1 ? "" : "s"}
+                              </span>
+                            </div>
+                          </button>
+                        )
+
+                      })
+                    }
                   </div>
                 </div>
 
@@ -260,7 +354,7 @@ const Customer: React.FC = () => {
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit
-                        ? `Bill Details — ${selectedVisit?.mrn}`
+                        ? `${selectedVisit?.mrn ? "Sale" : "Return"} Details — ${selectedVisit?.mrn || selectedVisit?._id}`
                         : "Bill Details"}
                     </div>
                     {selectedVisit && (
@@ -273,9 +367,9 @@ const Customer: React.FC = () => {
                         </span>
                         <span>
                           RX ID:{" "}
-                          <span className="font-medium text-slate-700">
+                          {/* <span className="font-medium text-slate-700">
                             {selectedVisit.mrn}
-                          </span>
+                          </span> */}
                         </span>
                       </div>
                     )}
@@ -384,14 +478,14 @@ const Customer: React.FC = () => {
                           >
                             Print bill
                           </Button>
-                          <Button
+                          {selectedVisit.mrn && <Button
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
                             asChild
                           >
                             <Link href={`/dashboard/pharmacy/return/?mrn=${selectedVisit?.mrn}`}>
                               Return
                             </Link>
-                          </Button>
+                          </Button>}
                         </div>
                       </div>
                     </>

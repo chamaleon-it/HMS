@@ -83,8 +83,8 @@ const Patients: React.FC = () => {
                                         <TableRow
                                             key={p._id}
                                             className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2
-                                                ? "bg-slate-50/80 hover:bg-slate-100/90"
-                                                : "bg-white hover:bg-slate-50"
+                                                ? "bg-white hover:bg-white/60"
+                                                : "bg-slate-100 hover:bg-slate-100/60"
                                                 } hover:-translate-y-[1px] hover:shadow-sm`}
                                             onClick={() =>
                                                 router.push(

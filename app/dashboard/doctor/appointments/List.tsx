@@ -5,9 +5,6 @@ import useAppointmentList from "./data/useAppointmentList";
 import Drawer from "@/components/ui/drawer";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
 
-const cx = (...cls: (string | false | null | undefined)[]) =>
-  cls.filter(Boolean).join(" ");
-
 export default function List({
   query,
   activeStatuses,
@@ -80,10 +77,13 @@ export default function List({
 
             return name.includes(q) || mrn.includes(q);
           })
-          .map((row) => (
+          .map((row, idx) => (
             <li
               key={row._id}
-              className={cx("px-4 py-3 grid grid-cols-11 items-center")}
+              className={`px-4 py-3 grid grid-cols-11 items-center ${idx % 2 === 0
+                ? "bg-white hover:bg-white/60"
+                : "bg-slate-100 hover:bg-slate-100/60"
+                }`}
             >
               <div className="col-span-2 font-medium">{fTime(row.date)}</div>
 

@@ -13,9 +13,9 @@ interface BillRow {
 
 interface PropsType {
   filter: FilterType;
-   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
+  setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
-    roundOff:boolean;
+    roundOff: boolean;
     mrn: string;
     _id: string;
     createdAt: Date;
@@ -31,10 +31,10 @@ interface PropsType {
     };
   }[];
 }
-export default function AllBill({ billing,filter,setFilter }: PropsType) {
+export default function AllBill({ billing, filter, setFilter }: PropsType) {
   return (
     <div className="space-y-4">
-      <Filters filter={filter} setFilter={setFilter}/>
+      <Filters filter={filter} setFilter={setFilter} />
 
       <div
         className={
@@ -61,10 +61,13 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
               </tr>
             </thead>
             <tbody>
-              {billing.map((b) => (
+              {billing.map((b, idx) => (
                 <tr
                   key={b._id}
-                  className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50"
+                  className={`border-b border-slate-100 last:border-0 ${idx % 2 === 0
+                    ? "bg-white hover:bg-white/60"
+                    : "bg-slate-100 hover:bg-slate-100/60"
+                    }`}
                 >
                   <td className="py-2 px-2">
                     <div className="font-medium">{b.mrn}</div>
@@ -95,9 +98,9 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                   </td>
                   <td className="py-2 pr-2 text-right tabular-nums">
                     {formatINR(
-                      b.items.reduce((a, b) => a + b.total, 0)  - 
+                      b.items.reduce((a, b) => a + b.total, 0) -
                       (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                        (b.insurance + b.cash + b.online)
+                      (b.insurance + b.cash + b.online)
                     )}
                   </td>
                   <td className="py-2 px-2 text-center">
@@ -112,8 +115,8 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                           return total <= paid
                             ? "Paid"
                             : paid === 0
-                            ? "Unpaid"
-                            : "Partial";
+                              ? "Unpaid"
+                              : "Partial";
                         })()}
                       />
                       <Link
@@ -169,8 +172,8 @@ const StatusPill: React.FC<{ s: BillRow["status"] }> = ({ s }) => {
     s === "Paid"
       ? "bg-emerald-50 text-emerald-700 border-emerald-200"
       : s === "Partial"
-      ? "bg-amber-50 text-amber-800 border-amber-200"
-      : "bg-rose-50 text-rose-700 border-rose-200";
+        ? "bg-amber-50 text-amber-800 border-amber-200"
+        : "bg-rose-50 text-rose-700 border-rose-200";
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}

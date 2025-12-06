@@ -28,8 +28,9 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { formatINR } from "@/lib/fNumber";
+import UpdateBatch from "./UpdateBatch";
 
-const getQtyColor = (qty: number,lowStockThreshold:number) => {
+const getQtyColor = (qty: number, lowStockThreshold: number) => {
   if (qty === 0) return "bg-red-100 text-red-600 font-bold";
   if (qty < lowStockThreshold) return "bg-orange-100 text-orange-600 font-bold";
   return "";
@@ -50,7 +51,7 @@ interface Props {
     lowStockThreshold: number;
     expiryAlert: number;
     allowNegativeStock: boolean;
-}
+  }
 }
 
 export default function ItemTable({
@@ -102,7 +103,7 @@ export default function ItemTable({
                 <TableHead className="text-white">Supplier</TableHead>
                 <TableHead className="text-white">Manufacturer</TableHead>
                 <TableHead className="text-white">Status</TableHead>
-                <TableHead className="text-white">Actions</TableHead>
+                <TableHead className="text-white text-right" >Actions</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -110,7 +111,11 @@ export default function ItemTable({
               {items.map((item, i) => (
                 <TableRow
                   key={item._id}
-                  className={i % 2 === 0 ? "bg-gray-50" : "bg-white"}
+                  className={
+                    i % 2 === 0
+                      ? "bg-white hover:bg-white/60"
+                      : "bg-slate-100 hover:bg-slate-100/60"
+                  }
                 >
                   <TableCell>
                     <Checkbox />
@@ -132,7 +137,7 @@ export default function ItemTable({
 
                   <TableCell>{item.sku}</TableCell>
                   <TableCell>{item.category}</TableCell>
-                  <TableCell className={getQtyColor(item.quantity,pharmacyInventory.lowStockThreshold)}>
+                  <TableCell className={getQtyColor(item.quantity, pharmacyInventory.lowStockThreshold)}>
                     {item.quantity}
                   </TableCell>
                   <TableCell>{formatINR(item.purchasePrice)}</TableCell>
@@ -164,6 +169,8 @@ export default function ItemTable({
                       >
                         Edit
                       </Button>
+
+                      <UpdateBatch item={item} mutate={mutate} />
                       <AlertDialog >
                         <AlertDialogTrigger asChild>
                           <Button size="sm" variant="destructive">
@@ -171,7 +178,7 @@ export default function ItemTable({
                           </Button>
                         </AlertDialogTrigger>
 
-                        <AlertDialogContent  className="!max-w-sm">
+                        <AlertDialogContent className="!max-w-sm">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                             <AlertDialogDescription>
@@ -232,19 +239,19 @@ export default function ItemTable({
 const Chip: React.FC<{
   label: string;
   tone?:
-    | "green"
-    | "gray"
-    | "red"
-    | "blue"
-    | "amber"
-    | "Upcoming"
-    | "Test"
-    | "Observation"
-    | "Admit"
-    | "Consulted"
-    | "Not show"
-    | "Active"
-    | "Inactive";
+  | "green"
+  | "gray"
+  | "red"
+  | "blue"
+  | "amber"
+  | "Upcoming"
+  | "Test"
+  | "Observation"
+  | "Admit"
+  | "Consulted"
+  | "Not show"
+  | "Active"
+  | "Inactive";
 }> = ({ label, tone = "gray" }) => {
   const tones: Record<string, string> = {
     Active: "bg-emerald-50 text-emerald-700 ring-emerald-200",

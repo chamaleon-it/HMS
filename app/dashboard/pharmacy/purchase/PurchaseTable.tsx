@@ -15,11 +15,11 @@ import ViewOrders from "./ViewOrders";
 
 
 interface Props {
-    purchase: PurchaseType[],
-    total:number
+  purchase: PurchaseType[],
+  total: number
 }
 
-export default function PurchaseTable({purchase,total}:Props) {
+export default function PurchaseTable({ purchase, total }: Props) {
   return (
     <Card className="rounded-2xl shadow-sm border-border/60">
       <CardHeader className="pb-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -43,7 +43,13 @@ export default function PurchaseTable({purchase,total}:Props) {
             </TableHeader>
             <TableBody>
               {purchase.map((row, i) => (
-                <TableRow key={i}>
+                <TableRow
+                  className={
+                    i % 2 === 0
+                      ? "bg-white hover:bg-white/60"
+                      : "bg-slate-100 hover:bg-slate-100/60"
+                  }
+                  key={i}>
                   <TableCell>{row.mrn}</TableCell>
                   <TableCell>{row.wholesaler.name}</TableCell>
                   <TableCell>{fDateandTime(row.createdAt)}</TableCell>
@@ -57,8 +63,8 @@ export default function PurchaseTable({purchase,total}:Props) {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
-                    <ViewOrders row={row}/>
-                    
+                    <ViewOrders row={row} />
+
                   </TableCell>
                 </TableRow>
               ))}

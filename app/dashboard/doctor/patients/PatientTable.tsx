@@ -54,11 +54,11 @@ export default function PatientTable({
 }: {
   tableMutate: () => void;
   data:
-    | {
-        message: string;
-        data: Data[];
-      }
-    | undefined;
+  | {
+    message: string;
+    data: Data[];
+  }
+  | undefined;
 }) {
   const [history, setHistory] = useState<Data | null>(null);
   const [share, setShare] = useState<Data | null>(null);
@@ -172,7 +172,10 @@ export default function PatientTable({
               return (
                 <tr
                   key={r._id}
-                  className="border-t border-gray-100 hover:bg-gray-50/60"
+                  className={`border-t border-gray-100 ${idx % 2 === 0
+                    ? "bg-white hover:bg-white/60"
+                    : "bg-slate-100 hover:bg-slate-100/60"
+                    }`}
                 >
                   <td align="center">
                     <Checkbox
@@ -231,10 +234,10 @@ export default function PatientTable({
                                 condition?.toLowerCase().includes("fever")
                                   ? "amber"
                                   : condition
-                                      ?.toLowerCase()
-                                      .includes("diabetes")
-                                  ? "amber"
-                                  : "gray"
+                                    ?.toLowerCase()
+                                    .includes("diabetes")
+                                    ? "amber"
+                                    : "gray"
                               }
                             />
                           ))}
@@ -362,11 +365,10 @@ export function Segmented<T extends string>({
           <button
             key={o.value}
             onClick={() => onChange(o.value)}
-            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${
-              active
-                ? "bg-white ring-gray-300 shadow-sm text-gray-900"
-                : "bg-transparent ring-transparent text-gray-600 hover:text-gray-900"
-            } cursor-pointer`}
+            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${active
+              ? "bg-white ring-gray-300 shadow-sm text-gray-900"
+              : "bg-transparent ring-transparent text-gray-600 hover:text-gray-900"
+              } cursor-pointer`}
           >
             {o.label}
           </button>
@@ -470,11 +472,10 @@ export function FilterSelect<T extends string>({
                       onChange(o.value);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
-                      active
-                        ? "bg-gray-100 text-gray-900"
-                        : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${active
+                      ? "bg-gray-100 text-gray-900"
+                      : "hover:bg-gray-50 text-gray-700"
+                      }`}
                   >
                     <span className="truncate">{o.label}</span>
                     {active && <span>✓</span>}

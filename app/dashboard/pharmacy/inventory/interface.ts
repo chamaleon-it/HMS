@@ -1,3 +1,13 @@
+export interface BatchType {
+  _id: string;
+  batchNumber: string;
+  expiryDate: Date;
+  quantity: number;
+  purchasePrice: number;
+  supplier: string;
+  createdAt: Date;
+}
+
 export interface ItemType {
   _id: string;
   name: string;
@@ -16,6 +26,7 @@ export interface ItemType {
   status: string;
   createdAt: Date;
   updatedAt: Date;
+  batches: BatchType[];
 }
 
 export interface FilterType {
