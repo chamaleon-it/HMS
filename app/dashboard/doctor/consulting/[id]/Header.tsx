@@ -1,7 +1,7 @@
 import React, { Dispatch, SetStateAction } from "react";
 import VitalsCard from "./VitalsCard";
 import { ToggleChip } from "./ToggleChip";
-import { ClipboardList, FlaskConical, Megaphone, Stethoscope } from "lucide-react";
+import { ArrowRight, ClipboardList, FlaskConical, Megaphone, Stethoscope } from "lucide-react";
 import { AppointmentType } from "./interface";
 import { fAge } from "@/lib/fDateAndTime";
 import { ActionButton } from "@/components/doctor/dashboard/home/PatientCard";
@@ -44,7 +44,7 @@ export default function Header({
         <Button variant={"link"} className="cursor-pointer" onClick={() => window.open(`/dashboard/doctor/patients/${appointment.patient._id}`, "_blank")}>
           <>
             {/* <Eye className="h-4 w-4 mr-2" /> */}
-            Open Patient In New Tab
+            Open Patient In New Tab<ArrowRight className="h-4 w-4" strokeWidth={2} />
           </>
         </Button>
         <ActionButton

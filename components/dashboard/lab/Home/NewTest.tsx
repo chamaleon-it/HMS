@@ -205,7 +205,15 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-[300px] p-0">
-                            <Command>
+                            <Command
+                                filter={(value, search) => {
+                                    const v = value.toLowerCase()
+                                    const s = search.toLowerCase()
+
+                                    // match only if name starts with the search
+                                    return v.startsWith(s) ? 1 : 0
+                                }}
+                            >
                                 <CommandInput placeholder="Search test..." />
                                 <CommandList className="max-h-[400px]">
                                     <CommandEmpty>No test found.</CommandEmpty>

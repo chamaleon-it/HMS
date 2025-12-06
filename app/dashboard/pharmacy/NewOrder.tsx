@@ -29,10 +29,10 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     doctor: user?._id ?? "",
     items: [
       {
-        dosage: "",
+        dosage: "1 tab",
         name: "",
         duration: "",
-        food: "",
+        food: "After food",
         frequency: "",
         quantity: 0,
       },
