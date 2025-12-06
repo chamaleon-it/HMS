@@ -79,19 +79,23 @@ export default function Overview({ setTab, consult, patient, mutatePatient }: { 
       <div className="col-span-full">
         <div className="rounded-xl border p-4 ">
           <div className="flex items-center justify-between">
-            <div className="font-medium">Past History</div>
+            <div className="font-medium flex gap-1 items-center">Past History <p className="col-span-full text-xs text-muted-foreground text-right mt-0">(Last Updated: {fDateandTime(consult[0]?.createdAt)})</p></div>
 
           </div>
           <div className="mt-2 text-sm text-muted-foreground">
             {consult[0]?.consultationNotes.pastHistory}
           </div>
         </div>
-        <p className="col-span-full text-sm text-muted-foreground text-right mt-0">Last Updated: {fDateandTime(consult[0]?.createdAt)}</p>
+
       </div>
 
-      <div className="col-span-full">
+      <div className="col-span-full rounded-xl border p-4">
+
+        <div className="flex items-center justify-between mb-2">
+          <div className="font-medium flex gap-1 items-center">Remarks <p className="col-span-full text-xs text-muted-foreground text-right mt-0">(Last Updated: {fDateandTime(patient?.remarksDate)})</p></div>
+
+        </div>
         <Textarea className="h-[150px] w-full rounded-xl border px-2 py-1" placeholder="Remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
-        <p className="col-span-full text-sm text-muted-foreground text-right mt-0">Last Updated: {fDateandTime(patient?.remarksDate)}</p>
         <div className="flex justify-end">
           <Button className="mt-2 bg-emerald-600 hover:bg-emerald-600" onClick={handleSaveRemarks}>Save Remarks</Button>
         </div>
