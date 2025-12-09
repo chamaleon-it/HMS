@@ -20,6 +20,12 @@ export default function TestCatalogueRow({
         type: "Lab" | "Imaging";
         min?: number;
         max?: number;
+        womenMin?: number;
+        womenMax?: number;
+        childMin?: number;
+        childMax?: number;
+        nbMin?: number;
+        nbMax?: number;
         unit?: string;
         estimatedTime?: number;
         panels: { name: string }[]
@@ -36,6 +42,12 @@ export default function TestCatalogueRow({
         panel: test.panels,
         min: test.min,
         max: test.max,
+        womenMin: test.womenMin,
+        womenMax: test.womenMax,
+        childMin: test.childMin,
+        childMax: test.childMax,
+        nbMin: test.nbMin,
+        nbMax: test.nbMax,
         unit: test.unit,
         estimatedTime: test.estimatedTime,
         _id: test._id,
@@ -49,6 +61,12 @@ export default function TestCatalogueRow({
             type: "" | "Lab" | "Imaging";
             min?: number;
             max?: number;
+            womenMin?: number;
+            womenMax?: number;
+            childMin?: number;
+            childMax?: number;
+            nbMin?: number;
+            nbMax?: number;
             unit?: string;
             estimatedTime?: number;
         }) => {
@@ -140,6 +158,42 @@ export default function TestCatalogueRow({
                                     Max Value
                                 </Label>
                                 <Input id="max" type="number" defaultValue={test.max} className="col-span-4" onChange={(e) => setPayload({ ...payload, max: Number(e.target.value) })} />
+                            </div>
+                            <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="womenMin" className="text-right col-span-2">
+                                    Women Min
+                                </Label>
+                                <Input id="womenMin" type="number" defaultValue={test.womenMin} className="col-span-4" onChange={(e) => setPayload({ ...payload, womenMin: Number(e.target.value) })} />
+                            </div>
+                            <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="womenMax" className="text-right col-span-2">
+                                    Women Max
+                                </Label>
+                                <Input id="womenMax" type="number" defaultValue={test.womenMax} className="col-span-4" onChange={(e) => setPayload({ ...payload, womenMax: Number(e.target.value) })} />
+                            </div>
+                            <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="childMin" className="text-right col-span-2">
+                                    Child Min
+                                </Label>
+                                <Input id="childMin" type="number" defaultValue={test.childMin} className="col-span-4" onChange={(e) => setPayload({ ...payload, childMin: Number(e.target.value) })} />
+                            </div>
+                            <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="childMax" className="text-right col-span-2">
+                                    Child Max
+                                </Label>
+                                <Input id="childMax" type="number" defaultValue={test.childMax} className="col-span-4" onChange={(e) => setPayload({ ...payload, childMax: Number(e.target.value) })} />
+                            </div>
+                            <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="nbMin" className="text-right col-span-2">
+                                    Newborn Min
+                                </Label>
+                                <Input id="nbMin" type="number" defaultValue={test.nbMin} className="col-span-4" onChange={(e) => setPayload({ ...payload, nbMin: Number(e.target.value) })} />
+                            </div>
+                            <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="nbMax" className="text-right col-span-2">
+                                    Newborn Max
+                                </Label>
+                                <Input id="nbMax" type="number" defaultValue={test.nbMax} className="col-span-4" onChange={(e) => setPayload({ ...payload, nbMax: Number(e.target.value) })} />
                             </div>
                             <div className="grid grid-cols-6 items-center gap-4">
                                 <Label htmlFor="unit" className="text-right col-span-2">

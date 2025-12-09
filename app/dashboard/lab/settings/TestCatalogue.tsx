@@ -81,6 +81,12 @@ export default function TestCatalogue({
     type: "Lab" | "Imaging" | "";
     min?: number;
     max?: number;
+    womenMin?: number;
+    womenMax?: number;
+    childMin?: number;
+    childMax?: number;
+    nbMin?: number;
+    nbMax?: number;
     unit?: string;
     estimatedTime?: number;
   }>({
@@ -126,6 +132,12 @@ export default function TestCatalogue({
       type: "Lab" | "Imaging";
       min?: number;
       max?: number;
+      womenMin?: number;
+      womenMax?: number;
+      childMin?: number;
+      childMax?: number;
+      nbMin?: number;
+      nbMax?: number;
       unit?: string;
       estimatedTime?: number;
       panels: {
@@ -202,6 +214,18 @@ export default function TestCatalogue({
               </div>
 
               <div className="col-span-3 space-y-1.5">
+                <Label className="text-xs font-medium text-slate-700">Unit</Label>
+                <Input
+                  placeholder="e.g. mg/dL"
+                  value={newTest.unit}
+                  onChange={(e) =>
+                    setNewTest((prev) => ({ ...prev, unit: e.target.value }))
+                  }
+                  className="h-9 bg-slate-50"
+                />
+              </div>
+
+              <div className="col-span-3 space-y-1.5">
                 <Label className="text-xs font-medium text-slate-700">Range Min</Label>
                 <Input
                   type="number"
@@ -213,6 +237,7 @@ export default function TestCatalogue({
                   className="h-9 bg-slate-50"
                 />
               </div>
+
               <div className="col-span-3 space-y-1.5">
                 <Label className="text-xs font-medium text-slate-700">Range Max</Label>
                 <Input
@@ -225,13 +250,55 @@ export default function TestCatalogue({
                   className="h-9 bg-slate-50"
                 />
               </div>
+
+            </div>
+
+            <div className="grid grid-cols-12 gap-4">
               <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Unit</Label>
+                <Label className="text-xs font-medium text-slate-700">Women Range Min</Label>
                 <Input
-                  placeholder="e.g. mg/dL"
-                  value={newTest.unit}
+                  type="number"
+                  placeholder="0"
+                  value={newTest.womenMin ?? ""}
                   onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, unit: e.target.value }))
+                    setNewTest((prev) => ({ ...prev, womenMin: Number(e.target.value) }))
+                  }
+                  className="h-9 bg-slate-50"
+                />
+              </div>
+              <div className="col-span-3 space-y-1.5">
+                <Label className="text-xs font-medium text-slate-700">Women Range Max</Label>
+                <Input
+                  type="number"
+                  placeholder="100"
+                  value={newTest.womenMax ?? ""}
+                  onChange={(e) =>
+                    setNewTest((prev) => ({ ...prev, womenMax: Number(e.target.value) }))
+                  }
+                  className="h-9 bg-slate-50"
+                />
+              </div>
+
+              <div className="col-span-3 space-y-1.5">
+                <Label className="text-xs font-medium text-slate-700">Child Range Min</Label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={newTest.childMin ?? ""}
+                  onChange={(e) =>
+                    setNewTest((prev) => ({ ...prev, childMin: Number(e.target.value) }))
+                  }
+                  className="h-9 bg-slate-50"
+                />
+              </div>
+              <div className="col-span-3 space-y-1.5">
+                <Label className="text-xs font-medium text-slate-700">Child Range Max</Label>
+                <Input
+                  type="number"
+                  placeholder="100"
+                  value={newTest.childMax ?? ""}
+                  onChange={(e) =>
+                    setNewTest((prev) => ({ ...prev, childMax: Number(e.target.value) }))
                   }
                   className="h-9 bg-slate-50"
                 />
@@ -239,14 +306,41 @@ export default function TestCatalogue({
             </div>
 
             <div className="grid grid-cols-12 gap-4">
+              <div className="col-span-3 space-y-1.5">
+                <Label className="text-xs font-medium text-slate-700">Newborn Range Min</Label>
+                <Input
+                  type="number"
+                  placeholder="0"
+                  value={newTest.nbMin ?? ""}
+                  onChange={(e) =>
+                    setNewTest((prev) => ({ ...prev, nbMin: Number(e.target.value) }))
+                  }
+                  className="h-9 bg-slate-50"
+                />
+              </div>
+              <div className="col-span-3 space-y-1.5">
+                <Label className="text-xs font-medium text-slate-700">Newborn Range Max</Label>
+                <Input
+                  type="number"
+                  placeholder="100"
+                  value={newTest.nbMax ?? ""}
+                  onChange={(e) =>
+                    setNewTest((prev) => ({ ...prev, nbMax: Number(e.target.value) }))
+                  }
+                  className="h-9 bg-slate-50"
+                />
+              </div>
 
-              <div className="col-span-3 flex items-end">
-                <Button
-                  className="w-full h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
-                  onClick={addNewTest}
-                >
-                  Add Test
-                </Button>
+              <div className="grid grid-cols-12 gap-4 col-span-full">
+
+                <div className="col-span-full flex justify-end items-end w-full">
+                  <Button
+                    className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
+                    onClick={addNewTest}
+                  >
+                    Add Test
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
