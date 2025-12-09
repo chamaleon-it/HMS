@@ -4,7 +4,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table'
-import useGetPanels from '@/data/useGetPanels';
 import api from '@/lib/axios';
 import { Pencil } from 'lucide-react';
 import React, { useCallback, useState } from 'react'
@@ -12,20 +11,20 @@ import toast from 'react-hot-toast';
 
 export default function TestCatalogueRow({
     test,
-    profileMutate,
+    testMutate,
 }: {
-    profileMutate: () => void,
     test: {
-        _id: string;
+        _id: string
         code: string;
         name: string;
-        type: "" | "Lab" | "Imaging";
-        panel: string;
-        min?: number | undefined;
-        max?: number | undefined;
-        unit: string;
-        estimatedTime: number;
+        type: "Lab" | "Imaging";
+        min?: number;
+        max?: number;
+        unit?: string;
+        estimatedTime?: number;
+        panels: []
     };
+    testMutate: () => void
 }) {
 
 
@@ -34,7 +33,7 @@ export default function TestCatalogueRow({
         code: test.code,
         name: test.name,
         type: test.type,
-        panel: test.panel,
+        panel: test.panels,
         min: test.min,
         max: test.max,
         unit: test.unit,
@@ -48,21 +47,19 @@ export default function TestCatalogueRow({
             code: string;
             name: string;
             type: "" | "Lab" | "Imaging";
-            panel: string;
-            min: number | undefined;
-            max: number | undefined;
-            unit: string;
-            estimatedTime: number;
-            _id: string;
+            min?: number;
+            max?: number;
+            unit?: string;
+            estimatedTime?: number;
         }) => {
             try {
-                await toast.promise(api.patch("/users/lab/edit_test", data), {
+                await toast.promise(api.patch(`/lab/panels/test/${payload._id}`, data), {
                     loading: "Updating Test",
                     success: "Test Updated Successfully",
                     error: "Failed to Update Test"
                 })
                 setOpen(false)
-                profileMutate()
+                testMutate()
             } catch (error) {
                 toast.error(`Failed to Update Test : ${error}`)
             }
@@ -70,7 +67,7 @@ export default function TestCatalogueRow({
         [],
     )
 
-    const { panels } = useGetPanels();
+
 
     return (
         <TableRow>
@@ -82,7 +79,7 @@ export default function TestCatalogueRow({
                 </span>
             </TableCell>
             <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : ""}</TableCell>
-            <TableCell>{test.panel}</TableCell>
+            <TableCell>{test.panels}</TableCell>
             <TableCell className="text-slate-500 text-xs">
                 {test.min} - {test.max}
             </TableCell>
@@ -131,23 +128,7 @@ export default function TestCatalogueRow({
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="grid grid-cols-6 items-center gap-4">
-                                <Label htmlFor="panel" className="text-right col-span-2">
-                                    Panel
-                                </Label>
-                                <Select defaultValue={test.panel} onValueChange={(value: string) => setPayload({ ...payload, panel: value })}>
-                                    <SelectTrigger id="panel" className="col-span-4 w-full">
-                                        <SelectValue placeholder="Select a panel" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {panels.map((panel) => (
-                                            <SelectItem key={panel} value={panel}>
-                                                {panel}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
+
                             <div className="grid grid-cols-6 items-center gap-4">
                                 <Label htmlFor="min" className="text-right col-span-2">
                                     Min Value

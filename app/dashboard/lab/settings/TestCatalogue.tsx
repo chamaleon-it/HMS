@@ -25,6 +25,7 @@ import {
 import { Label } from "@/components/ui/label";
 import TestCatalogueRow from "./TestCatalogueRow";
 import useGetPanels from "@/data/useGetPanels";
+import useSWR from "swr";
 
 export default function TestCatalogue({
   profile,
@@ -38,7 +39,7 @@ export default function TestCatalogue({
     allowEditingPanelComposition: false,
   });
 
-  const [tests, setTests] = useState<ProfileType["lab"]["tests"]>([]);
+
 
   useEffect(() => {
     setPayload((prev) => ({
@@ -48,7 +49,6 @@ export default function TestCatalogue({
       allowEditingPanelComposition:
         profile?.lab?.catalogue?.allowEditingPanelComposition ?? false,
     }));
-    setTests(profile?.lab?.tests ?? []);
   }, [profile]);
 
   const [loading, setLoading] = useState(false);
@@ -73,56 +73,60 @@ export default function TestCatalogue({
     code: string;
     name: string;
     type: "Lab" | "Imaging" | "";
-    panel: string;
     min?: number;
     max?: number;
-    unit: string;
-    estimatedTime: number;
+    unit?: string;
+    estimatedTime?: number;
   }>({
     code: "",
     name: "",
     type: "",
-    panel: "",
-    unit: "",
-    estimatedTime: 0,
   });
 
   const addNewTest = async () => {
     try {
-      if (!newTest.code || !newTest.name || !newTest.type || !newTest.unit || !newTest.panel || !newTest.estimatedTime) {
+      if (!newTest.code || !newTest.name || !newTest.type) {
         toast.error("Please fill all required fields");
         return;
       }
-
-
-
-
-      await toast.promise(api.patch("/users/lab/tests", newTest), {
+      await toast.promise(api.post("/lab/panels/create_test", newTest), {
         loading: "Adding test...",
         success: "Test added successfully",
         error: ({ response }) => response.data.message,
       });
 
-      profileMutate();
+      testMutate();
 
       setNewTest({
         code: "",
         name: "",
         type: "",
-        panel: "",
-        unit: "",
-        min: undefined,
-        max: undefined,
-        estimatedTime: 0,
       });
 
     } catch (error) {
       console.log(error);
-      setTests(profile?.lab?.tests ?? []);
     }
   };
 
   const { panels, mutate: panelMutate } = useGetPanels();
+
+
+  const { data, mutate: testMutate } = useSWR<{
+    message: string;
+    data: {
+      _id: string
+      code: string;
+      name: string;
+      type: "Lab" | "Imaging";
+      min?: number;
+      max?: number;
+      unit?: string;
+      estimatedTime?: number;
+      panels: []
+    }[]
+  }>("/lab/panels/tests");
+
+  const tests = data?.data ?? [];
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
@@ -158,7 +162,7 @@ export default function TestCatalogue({
                   className="h-9 bg-slate-50"
                 />
               </div>
-              <div className="col-span-2 space-y-1.5">
+              <div className="col-span-4 space-y-1.5">
                 <Label className="text-xs font-medium text-slate-700">Type *</Label>
                 <Select
                   value={newTest.type}
@@ -174,30 +178,10 @@ export default function TestCatalogue({
                 </Select>
               </div>
 
-              <div className="col-span-2 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Panel *</Label>
-                <Select
-                  value={newTest.panel}
-                  onValueChange={(val: string) => setNewTest(prev => ({ ...prev, panel: val }))}
-                >
-                  <SelectTrigger className="h-9 bg-slate-50 w-full">
-                    <SelectValue placeholder="Select panel" />
-                  </SelectTrigger>
-                  <SelectContent className="w-full h-72">
-                    {
-                      panels.map((panel) => (
-                        <SelectItem key={panel} value={panel}>
-                          {panel}
-                        </SelectItem>
-                      ))
-                    }
-                  </SelectContent>
-                </Select>
-              </div>
 
 
               <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Estimated Time (Minutes) *</Label>
+                <Label className="text-xs font-medium text-slate-700">Estimated Time (Minutes)</Label>
                 <Input
                   placeholder="e.g. 30"
                   value={newTest.estimatedTime === 0 ? "" : newTest.estimatedTime}
@@ -234,7 +218,7 @@ export default function TestCatalogue({
                 />
               </div>
               <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Unit *</Label>
+                <Label className="text-xs font-medium text-slate-700">Unit</Label>
                 <Input
                   placeholder="e.g. mg/dL"
                   value={newTest.unit}
@@ -269,7 +253,7 @@ export default function TestCatalogue({
                     <TableHead>Name</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Estimated Time (Minutes)</TableHead>
-                    <TableHead>Panel</TableHead>
+                    <TableHead>Panels</TableHead>
                     <TableHead>Range</TableHead>
                     <TableHead>Unit</TableHead>
                     <TableHead>Actions</TableHead>
@@ -287,7 +271,7 @@ export default function TestCatalogue({
                       <TestCatalogueRow
                         key={idx}
                         test={test}
-                        profileMutate={profileMutate}
+                        testMutate={testMutate}
                       />
                     ))
                   )}
@@ -328,28 +312,6 @@ export default function TestCatalogue({
                         className="h-9 bg-slate-50"
                       >
                         Add Tests
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="h-9 bg-slate-50"
-                        onClick={async () => {
-                          try {
-                            await toast.promise(
-                              api.delete(`/lab/panels/${panel}`),
-                              {
-                                loading: "Deleting...",
-                                success: "Panel deleted successfully",
-                                error: "Failed to delete panel"
-                              }
-                            )
-                            panelMutate()
-                          } catch (error) {
-                            console.log(error)
-                          }
-                        }}
-                      >
-
-                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
