@@ -39,15 +39,30 @@ interface PropsTypes {
         };
         date: Date;
         priority: string;
-        name: {
-            code: string;
-            name: string;
-            unit: string;
-            min?: number | undefined;
-            max?: number | undefined;
-            type: string;
-            _id: string;
+        test: {
+            name: {
+                code: string;
+                name: string;
+                type: string;
+                unit?: string;
+                min?: number;
+                max?: number;
+                womenMin?: number;
+                womenMax?: number;
+                childMin?: number;
+                childMax?: number;
+                nbMin?: number;
+                nbMax?: number;
+                _id: string;
+                panels: {
+                    _id: string;
+                    name: string;
+                    status: string;
+                    user: string;
+                }[]
+            }
             value?: string | number
+            _id: string;
         }[];
         sampleType: string;
         status: string;
@@ -83,7 +98,7 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                 <tbody>
                     {REPORT.filter(
                         (r) => status === "All" || r.status === status
-                            && (facility === "All" || r.name.some((e) => e.type === facility))
+                            && (facility === "All" || r.test.some((e) => e.name.type === facility))
                     ).map((r, idx) => {
                         return (
                             <tr
@@ -109,9 +124,9 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                 </td>
                                 <td className="px-3 py-2 text-sm text-gray-700">
                                     <div className="flex flex-col gap-2">
-                                        {r.name.map((e) => (facility === "All" || e.type === facility) && (
+                                        {r.test.map((e) => (facility === "All" || e.name.type === facility) && (
                                             <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
-                                                {e.name}
+                                                {e.name.name}
                                             </div>
                                         ))}
                                     </div>
@@ -119,17 +134,17 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
 
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
-                                        {r.name.map(
+                                        {r.test.map(
                                             (e) => {
                                                 let normal = true
 
-                                                if (e.value && e.min && e.max && e.type == "Lab") {
-                                                    if (Number(e.value) < Number(e.min) || Number(e.value) > Number(e.max)) {
+                                                if (e.value && e.name.min && e.name.max && e.name.type == "Lab") {
+                                                    if (Number(e.value) < Number(e.name.min) || Number(e.value) > Number(e.name.max)) {
                                                         normal = false
                                                     }
                                                 }
 
-                                                return (facility === "All" || e.type === facility) && (
+                                                return (facility === "All" || e.name.type === facility) && (
                                                     <span
                                                         key={e._id}
                                                         className={cn("text-gray-600 font-mono h-5",
@@ -137,14 +152,14 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                                         )}
                                                     >
                                                         {e.value ? <>
-                                                            {e.type === "Imaging" ? <a
+                                                            {e.name.type === "Imaging" ? <a
                                                                 href={e?.value?.toString()}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
                                                                 className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                                                             >
                                                                 View Result
-                                                            </a> : `${e.value} ${e.unit}`}
+                                                            </a> : `${e.value} ${e.name.unit}`}
                                                         </> : "-"}
                                                     </span>
                                                 )
@@ -155,12 +170,12 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
 
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
-                                        {r.name.map(
-                                            (e) => (facility === "All" || e.type === facility) && (
+                                        {r.test.map(
+                                            (e) => (facility === "All" || e.name.type === facility) && (
                                                 <span
                                                     key={e._id}
                                                     className="text-gray-600 font-mono h-5"
-                                                >{`${e?.min ?? ""} - ${e?.max ?? ""} ${e?.min ? e.unit : ""}`}</span>
+                                                >{`${e?.name?.min ?? ""} - ${e?.name?.max ?? ""} ${e?.name?.min ? e.name.unit : ""}`}</span>
                                             )
                                         )}
                                     </div>

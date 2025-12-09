@@ -210,15 +210,30 @@ export default function LabResultsPage() {
       };
       date: Date;
       priority: string;
-      name: {
-        code: string;
-        name: string;
-        unit: string;
-        min?: number;
-        max?: number;
-        type: string;
+      test: {
+        name: {
+          code: string;
+          name: string;
+          type: string;
+          unit?: string;
+          min?: number;
+          max?: number;
+          womenMin?: number;
+          womenMax?: number;
+          childMin?: number;
+          childMax?: number;
+          nbMin?: number;
+          nbMax?: number;
+          _id: string;
+          panels: {
+            _id: string;
+            name: string;
+            status: string;
+            user: string;
+          }[]
+        }
+        value?: string | number
         _id: string;
-        value?: string | number;
       }[];
       sampleType: string;
       status: string;
@@ -266,13 +281,13 @@ export default function LabResultsPage() {
         <StatCard
           icon={<span className="text-xl">🏥</span>}
           label="Lab"
-          value={REPORT.reduce((acc, r) => acc + (r.name.filter((e) => e.type === "Lab").length ?? 0), 0)}
+          value={REPORT.reduce((acc, r) => acc + (r.test.filter((e) => e.name.type === "Lab").length ?? 0), 0)}
           tone="bg-slate-100"
         />
         <StatCard
           icon={<span className="text-xl">🩻</span>}
           label="Imaging"
-          value={REPORT.reduce((acc, r) => acc + (r.name.filter((e) => e.type === "Imaging").length ?? 0), 0)}
+          value={REPORT.reduce((acc, r) => acc + (r.test.filter((e) => e.name.type === "Imaging").length ?? 0), 0)}
           tone="bg-slate-100"
         />
         <StatCard
@@ -414,7 +429,7 @@ export default function LabResultsPage() {
         REPORT.filter((r) => {
           const patientMatch = r.patient.name.toLowerCase().includes(filter.patient.toLowerCase())
           const statusMatch = filter.status === "All" || r.status === filter.status
-          const facilityMatch = filter.facility === "All" || r.name.some((e) => e.type === filter.facility)
+          const facilityMatch = filter.facility === "All" || r.test.some((e) => e.name.type === filter.facility)
           const dateMatch = filter.date === "All time" || r.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
           return patientMatch && statusMatch && facilityMatch && dateMatch
         })} status={filter.status} facility={filter.facility} />

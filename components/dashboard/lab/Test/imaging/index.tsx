@@ -47,15 +47,30 @@ export default function Imagine() {
       };
       date: Date;
       priority: string;
-      name: {
-        code: string;
-        name: string;
-        unit: string;
-        min?: number;
-        max?: number;
-        type: string;
+      test: {
+        name: {
+          code: string;
+          name: string;
+          type: string;
+          unit?: string;
+          min?: number;
+          max?: number;
+          womenMin?: number;
+          womenMax?: number;
+          childMin?: number;
+          childMax?: number;
+          nbMin?: number;
+          nbMax?: number;
+          _id: string;
+          panels: {
+            _id: string;
+            name: string;
+            status: string;
+            user: string;
+          }[]
+        }
+        value?: string | number
         _id: string;
-        value?: string | number;
       }[];
       sampleType: string;
       status: string;
@@ -104,7 +119,7 @@ export default function Imagine() {
         <StatCard
           icon={<span className="text-xl">🩻</span>}
           label="Imaging"
-          value={REPORT.reduce((acc, r) => acc + (r.name.filter((e) => e.type === "Imaging").length ?? 0), 0)}
+          value={REPORT.reduce((acc, r) => acc + (r.test.filter((e) => e.name.type === "Imaging").length ?? 0), 0)}
           tone="bg-slate-100"
         />
         <StatCard

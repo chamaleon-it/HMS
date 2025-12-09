@@ -58,16 +58,7 @@ export interface DataType {
   advice: null | string;
   followUp: null | Date;
   test: {
-    name: {
-      code: string;
-      max?: number;
-      min?: number;
-      name: string;
-      type: "Lab" | "Imaging";
-      unit: string;
-      _id: string;
-      panel: string;
-    }[];
+    name: string[];
     date: Date;
     lab: string;
     priority: string;

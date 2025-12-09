@@ -43,16 +43,30 @@ interface PropsTypes {
         };
         date: Date;
         priority: string;
-        name: {
-            code: string;
-            name: string;
-            unit: string;
-            min?: number | undefined;
-            max?: number | undefined;
-            type: string;
+        test: {
+            name: {
+                code: string;
+                name: string;
+                type: string;
+                unit?: string;
+                min?: number;
+                max?: number;
+                womenMin?: number;
+                womenMax?: number;
+                childMin?: number;
+                childMax?: number;
+                nbMin?: number;
+                nbMax?: number;
+                _id: string;
+                panels: {
+                    _id: string;
+                    name: string;
+                    status: string;
+                    user: string;
+                }[]
+            }
+            value?: string | number
             _id: string;
-            value?: string | number;
-            panel: string;
         }[];
         sampleType: string;
         panels: string[]
@@ -122,9 +136,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                                 </div>
                                             ))
                                         }
-                                        {r?.name?.map((e) => !r?.panels?.includes(e.panel) && (
+                                        {r?.test?.map((e) => (
                                             <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
-                                                {e.name}
+                                                {e.name.name}
                                             </div>
                                         ))}
                                     </div>

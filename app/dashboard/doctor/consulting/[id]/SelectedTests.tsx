@@ -1,20 +1,11 @@
+import { TestItemType } from '@/data/useGetTest';
 import { cn } from '@/lib/utils'
 import { ImageIcon, TestTubeDiagonal, X } from 'lucide-react'
 import React from 'react'
 
-interface Test {
-    code: string;
-    max?: number;
-    min?: number;
-    name: string;
-    type: "Lab" | "Imaging";
-    unit: string;
-    _id: string;
-    panel: string;
-}
 
 
-export default function SelectedTests({ test, toggleTest }: { test: Test, toggleTest: (test: Test) => void }) {
+export default function SelectedTests({ test, toggleTest }: { test: TestItemType, toggleTest: (test: TestItemType) => void }) {
     return (
         <div
 

@@ -12,19 +12,10 @@ import configuration from "@/config/configuration";
 import { cn } from "@/lib/utils";
 import SelectedTests from "./SelectedTests";
 import useGetPanels from "@/data/useGetPanels";
+import useGetTest, { TestItemType } from "@/data/useGetTest";
 
 type TabKey = "All" | "Lab" | "Imaging";
 
-type TestItemType = {
-  code: string;
-  max?: number;
-  min?: number;
-  name: string;
-  type: "Lab" | "Imaging";
-  unit: string;
-  _id: string;
-  panel: string;
-};
 
 type PriorityId = "High" | "Normal" | "Stat";
 
@@ -196,7 +187,7 @@ export default function Test({
 
     const datetime = combineDateAndSlot(date, slot);
     const newTest = {
-      name: selectedTests,
+      name: selectedTests.map(e => e._id),
       date: mode === "inhouse" ? new Date() : datetime,
       lab: labId === "" ? labId : configuration().in_house_lab_id,
       priority,
@@ -228,31 +219,11 @@ export default function Test({
 
   const Labs = LabData?.data ?? [];
 
-  const Tests = [
-    ...new Map(
-      (Labs.map((e) => e.tests).flat() ?? []).map((t) => [t.code, t])
-    ).values(),
-  ];
 
 
 
 
-  const filteredTests = Tests.filter((t) => {
-    if (tab === "Imaging") {
-      return t.type === "Imaging";
-    } else if (tab === "Lab") {
-      return t.type === "Lab";
-    }
-    return true;
-  }).filter((t) => {
-    if (!query) {
-      return true;
-    }
-    return (
-      t.code.toLowerCase().includes(query.toLowerCase()) ||
-      t.name.toLowerCase().includes(query.toLowerCase())
-    );
-  });
+
 
 
   const [favourite, setFavourite] = useState<TestItemType[]>([]);
@@ -266,6 +237,8 @@ export default function Test({
 
 
   const { panels } = useGetPanels();
+
+  const { tests } = useGetTest();
 
   return (
     <>
@@ -336,60 +309,31 @@ export default function Test({
                     className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                   />
                 </div>
-                <div className="flex flex-wrap gap-1 pr-2 scrollbar-thin scrollbar-thumb-zinc-200">
-                  {favourite.map(test => (
-                    <button
-                      key={test._id}
-                      onClick={() => {
-                        toggleTest(test)
-                      }}
-                      className={cn(
-                        "px-3 py-1.5 rounded-lg text-xs font-medium border transition-all select-none",
-                        selectedTests.some(t => t._id === test._id)
-                          ? "bg-emerald-500 border-emerald-600 text-white shadow-sm"
-                          : "bg-white border-zinc-200 text-zinc-600 hover:border-emerald-200 hover:text-emerald-700"
-                      )}
-                    >
-                      {test.name}
-                    </button>
-                  ))}
-                </div>
               </div>
 
               <div className="flex items-center justify-between px-1">
                 <span className="text-sm font-medium text-zinc-500">
-                  {filteredTests.length} tests found
+                  {tests.filter(test => (tab === "All" || test.type === tab) && !selectedTests.find(t => t._id === test._id) && test.name.toLowerCase().includes(query.toLowerCase())).length} tests found tests found
                 </span>
 
               </div>
 
               <div className="flex-1 overflow-y-auto pr-2 space-y-2 scrollbar-thin scrollbar-thumb-zinc-200 min-h-0">
                 {
-                  panels.filter(e => e !== "Other" && tab === "All" || tab === "Lab" || e.toLowerCase().includes(tab.toLowerCase())).filter(e => query ? e.toLowerCase().includes(query.toLowerCase()) : true).map(e => (<TestItem favourite={favourite} setFavourite={setFavourite} type="Panel" key={e} test={{ _id: e, name: e, code: "", type: "Lab", unit: "", panel: e, max: undefined, min: undefined }} selected={selectedPanel.includes(e)} onToggle={() => {
-                    setSelectedPanel(prev => {
-                      const exists = prev.includes(e);
-
-                      if (exists) {
-                        const updatedPanels = prev.filter(p => p !== e);
-                        setSelectedTests(prevTests =>
-                          prevTests.filter(t => t.panel !== e)
-                        );
-                        return updatedPanels;
-                      } else {
-                        const updatedPanels = [...prev, e];
-                        setSelectedTests(prevTests => {
-                          const merged = [...Tests.filter(t => t.panel === e), ...prevTests];
-                          const unique = Array.from(new Map(merged.map(item => [item._id, item])).values());
-                          return unique;
-                        });
-
-                        return updatedPanels;
-                      }
-                    })
-                  }} />))
+                  favourite?.filter(test => (tab === "All" || test.type === tab) && !selectedTests.find(t => t._id === test._id) && test.name.toLowerCase().startsWith(query.toLowerCase())).map(test => (
+                    <TestItem
+                      key={test._id}
+                      test={test}
+                      selected={isSelected(test)}
+                      onToggle={toggleTest}
+                      type="Test"
+                      setFavourite={setFavourite}
+                      favourite={favourite}
+                    />
+                  ))
                 }
                 {
-                  filteredTests.map((t) => !selectedTests.find(test => test._id === t._id) && (
+                  tests?.filter(test => (tab === "All" || test.type === tab) && test.name.toLowerCase().startsWith(query.toLowerCase()) && !favourite?.find(f => f._id === test._id)).map((t) => !selectedTests.find(test => test._id === t._id) && (
                     <TestItem
                       key={t._id}
                       test={t}
@@ -432,12 +376,7 @@ export default function Test({
                       <div>
                         <label className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mb-2 block">Lab Center</label>
                         <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
-                          {Labs.filter((l) => {
-                            const labCodes = l.tests.map((t) => t.code);
-                            const selectedCode = selectedTests.map((t) => t.code);
-                            if (selectedCode.length === 0) return true;
-                            return selectedCode.every((code) => labCodes.includes(code));
-                          }).map((l) => (
+                          {Labs.map((l) => (
                             <button
                               key={l._id}
                               onClick={() => setLabId(l._id)}
@@ -451,7 +390,6 @@ export default function Test({
                               {l.name}
                             </button>
                           ))}
-                          {selectedTests.length === 0 && <p className="text-sm text-zinc-400 italic">Select tests to see available labs</p>}
                         </div>
                       </div>
 
@@ -530,13 +468,7 @@ export default function Test({
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2">
-                      {
-                        selectedPanel.map((test) => (
-                          <SelectedTests key={test} test={{ _id: "", name: test, code: test, type: "Lab", unit: "", panel: "", max: undefined, min: undefined }} toggleTest={() => { }} />
-                        ))
-                      }
                       {selectedTests
-                        .filter(test => !selectedPanel.includes(test.panel))
                         .map((test) => (
                           <SelectedTests key={test._id} test={test} toggleTest={toggleTest} />
                         ))}

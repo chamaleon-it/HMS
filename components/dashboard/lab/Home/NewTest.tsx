@@ -23,6 +23,7 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command";
+import useGetTest from "@/data/useGetTest";
 
 export default function NewTest({ mutate }: { mutate: () => void }) {
 
@@ -42,15 +43,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
         patient: string;
         doctor: string;
         lab: string;
-        name: {
-            code: string;
-            name: string;
-            type: 'Lab' | 'Imaging';
-            unit: string;
-            _id: string;
-            max?: number;
-            min?: number;
-        }[];
+        test: { name: string }[];
         date: Date | undefined;
         priority: string;
         sampleType: string;
@@ -60,7 +53,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
         patient: "",
         doctor: user?._id ?? "",
         lab: user?._id ?? "",
-        name: [],
+        test: [],
         date: new Date(),
         priority: "Normal",
         sampleType: "Other",
@@ -69,25 +62,9 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
 
 
 
-    const { data: LabData } = useSWR<{
-        message: string;
-        data: {
-            _id: string;
-            name: string;
-            tests: {
-                code: string;
-                name: string;
-                type: "Lab" | "Imaging";
-                min?: number;
-                max?: number;
-                unit: string;
-                _id: string;
-            }[];
-        }[];
-    }>("/users/lab");
+    const { tests } = useGetTest()
 
-    const Labs = LabData?.data.find(l => l._id === user?._id);
-    const Tests = Labs?.tests ?? [];
+    const Tests = tests;
 
 
     const handleSubmit = async () => {
@@ -104,7 +81,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
             toast.error("Please select a date")
             return
         }
-        if (payload.name.length === 0) {
+        if (payload.test.length === 0) {
             toast.error("Please select at least one date")
             return
         }
@@ -121,7 +98,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                 patient: "",
                 doctor: user?._id ?? "",
                 lab: user?._id ?? "",
-                name: [],
+                test: [],
                 date: new Date(),
                 priority: "Normal",
                 sampleType: "Other",
@@ -223,14 +200,14 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                                                 key={test._id}
                                                 value={test.name}
                                                 onSelect={() => {
-                                                    const exist = payload.name.find((n) => n._id === test._id);
+                                                    const exist = payload.test.find((n) => n.name === test._id);
                                                     if (exist) {
                                                         setOpenCombobox(false);
                                                         return;
                                                     }
                                                     setPayload((prev) => ({
                                                         ...prev,
-                                                        name: prev.name ? [...prev.name, test] : [test],
+                                                        test: prev.test ? [...prev.test, { name: test._id }] : [{ name: test._id }],
                                                     }));
                                                     setOpenCombobox(false);
                                                 }}
@@ -238,7 +215,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                                                 <Check
                                                     className={cn(
                                                         "mr-2 h-4 w-4",
-                                                        payload.name.some((n) => n._id === test._id)
+                                                        payload.test.some((n) => n.name === test.name)
                                                             ? "opacity-100"
                                                             : "opacity-0"
                                                     )}
@@ -315,17 +292,17 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                     </TableHeader>
                     <TableBody>
                         {
-                            payload.name.map((t, idx) => <TableRow key={t._id}>
+                            payload.test.map((t, idx) => <TableRow key={t.name}>
                                 <TableCell>{idx + 1}</TableCell>
-                                <TableCell>{t.name}</TableCell>
-                                <TableCell>{t?.min}</TableCell>
-                                <TableCell>{t?.max}</TableCell>
-                                <TableCell>{t?.unit}</TableCell>
+                                <TableCell>{tests.find(test => test._id === t.name)?.name}</TableCell>
+                                <TableCell>{tests.find(test => test._id === t.name)?.min}</TableCell>
+                                <TableCell>{tests.find(test => test._id === t.name)?.max}</TableCell>
+                                <TableCell>{tests.find(test => test._id === t.name)?.unit}</TableCell>
                                 <TableCell>
                                     <Button variant={"ghost"} className="cursor-pointer" onClick={() => {
                                         setPayload(prev => ({
-                                            ...prev, name:
-                                                prev.name.filter(n => n._id !== t._id)
+                                            ...prev, test:
+                                                prev.test.filter(n => n.name !== t.name)
                                         }))
                                     }}>
                                         <Trash className="h-2 w-2 text-red-500" size={"sm"} />

@@ -78,6 +78,10 @@ export default function ConsultingMenu() {
     }
   }, [appointment]);
 
+
+
+  console.log(data)
+
   if (isLoading) {
     return (
       <AppShell>

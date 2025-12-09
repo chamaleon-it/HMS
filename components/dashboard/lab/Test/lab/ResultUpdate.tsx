@@ -42,15 +42,30 @@ interface Props {
         };
         date: Date;
         priority: string;
-        name: {
-            code: string;
-            name: string;
-            unit: string;
-            min?: number | undefined;
-            max?: number | undefined;
-            type: string;
+        test: {
+            name: {
+                code: string;
+                name: string;
+                type: string;
+                unit?: string;
+                min?: number;
+                max?: number;
+                womenMin?: number;
+                womenMax?: number;
+                childMin?: number;
+                childMax?: number;
+                nbMin?: number;
+                nbMax?: number;
+                _id: string;
+                panels: {
+                    _id: string;
+                    name: string;
+                    status: string;
+                    user: string;
+                }[]
+            }
+            value?: string | number
             _id: string;
-            value?: string | number;
         }[];
         sampleType: string;
         status: string;
@@ -66,7 +81,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
     const [payload, setPayload] = useState({
         _id: r._id,
-        name: r.name.filter((item) => item.type === "Lab").map((item) => ({ _id: item._id, value: item.value && item?.value?.toString(), name: item.name })),
+        test: r.test.filter((item) => item.name.type === "Lab").map((item) => ({ _id: item._id, value: item.value && item?.value?.toString(), name: item.name })),
     })
 
     const updateResult = async () => {
@@ -125,33 +140,33 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {r.name.filter(item => item.type === "Lab").map((labTest) => (
+                                    {r.test.filter(item => item.name.type === "Lab").map((labTest) => (
                                         <TableRow key={labTest._id} className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none">
                                             <TableCell className="pl-6 py-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className="p-2 bg-white border border-gray-100 text-blue-600 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all">
                                                         <Beaker className="w-4 h-4" />
                                                     </div>
-                                                    <span className="font-medium text-gray-900">{labTest.name}</span>
+                                                    <span className="font-medium text-gray-900">{labTest.name.name}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4">
                                                 <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-mono text-gray-500">
-                                                    {labTest.code}
+                                                    {labTest.name.code}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4">
                                                 <div className="relative max-w-[240px]">
                                                     <Input
-                                                        value={payload.name.find((item) => item._id === labTest._id)?.value}
-                                                        onChange={(e) => setPayload({ ...payload, name: payload.name.map((item) => item._id === labTest._id ? { ...item, value: e.target.value } : item) })}
+                                                        value={payload.test.find((item) => item._id === labTest._id)?.value}
+                                                        onChange={(e) => setPayload({ ...payload, test: payload.test.map((item) => item._id === labTest._id ? { ...item, value: e.target.value } : item) })}
                                                         type="text"
                                                         placeholder="Enter result"
                                                         className="pl-3 pr-12 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
                                                     />
                                                     <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
                                                         <span className="text-xs font-medium text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                                                            {labTest.unit}
+                                                            {labTest.name.unit}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -159,7 +174,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                             <TableCell className="pr-6 py-4 text-right">
                                                 <div className="flex flex-col items-end gap-0.5">
                                                     <span className="text-sm font-medium text-gray-700">
-                                                        {labTest.min ?? "0"} - {labTest.max ?? "N/A"}
+                                                        {labTest.name.min ?? "0"} - {labTest.name.unit ? labTest.name.unit : ""} {labTest.name.max ?? "N/A"}
                                                     </span>
                                                     <span className="text-[10px] text-gray-400 uppercase tracking-wide">Normal Range</span>
                                                 </div>

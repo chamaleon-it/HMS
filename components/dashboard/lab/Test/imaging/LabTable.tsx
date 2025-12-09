@@ -40,15 +40,30 @@ interface PropsTypes {
         };
         date: Date;
         priority: string;
-        name: {
-            code: string;
-            name: string;
-            unit: string;
-            min?: number | undefined;
-            max?: number | undefined;
-            type: string;
-            _id: string;
+        test: {
+            name: {
+                code: string;
+                name: string;
+                type: string;
+                unit?: string;
+                min?: number;
+                max?: number;
+                womenMin?: number;
+                womenMax?: number;
+                childMin?: number;
+                childMax?: number;
+                nbMin?: number;
+                nbMax?: number;
+                _id: string;
+                panels: {
+                    _id: string;
+                    name: string;
+                    status: string;
+                    user: string;
+                }[]
+            }
             value?: string | number
+            _id: string;
         }[];
         sampleType: string;
         status: string;
@@ -87,7 +102,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     {REPORT.filter(
                         (r) => status === "All" || r.status === status
                     ).map((r, idx) => {
-                        return r.name.some((e) => e.type === "Imaging") && (
+                        return r.test.some((e) => e.name.type === "Imaging") && (
                             <tr
                                 key={r._id}
                                 className={cn(`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${idx % 2 === 0
@@ -111,9 +126,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 </td>
                                 <td className="px-3 py-2 text-sm text-gray-700">
                                     <div className="flex flex-col gap-2">
-                                        {r.name.map((e) => e.type === "Imaging" && (
+                                        {r.test.map((e) => e.name.type === "Imaging" && (
                                             <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
-                                                {e.name}
+                                                {e.name.name}
                                             </div>
                                         ))}
                                     </div>
@@ -121,9 +136,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
-                                        {r.name.map(
+                                        {r.test.map(
                                             (e) =>
-                                                e.type === "Imaging" && (
+                                                e.name.type === "Imaging" && (
                                                     <div key={e._id} className="h-5 flex items-center">
                                                         {e.value ? (
                                                             <a
@@ -145,13 +160,13 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
-                                        {r.name.map(
+                                        {r.test.map(
                                             (e) =>
-                                                e.type === "Imaging" && (
+                                                e.name.type === "Imaging" && (
                                                     <span
                                                         key={e._id}
                                                         className="text-gray-600 font-mono h-5"
-                                                    >{`${e?.min ?? ""} - ${e?.max ?? ""} ${e?.min ? e.unit : ""}`}</span>
+                                                    >{`${e?.name?.min ?? ""} - ${e?.name?.max ?? ""} ${e?.name?.min ? e.name.unit : ""}`}</span>
                                                 )
                                         )}
                                     </div>

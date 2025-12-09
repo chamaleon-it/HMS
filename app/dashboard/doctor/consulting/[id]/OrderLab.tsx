@@ -3,6 +3,7 @@ import { Trash } from "lucide-react";
 import React from "react";
 import { DataType } from "./interface";
 import { fDate, fTime } from "@/lib/fDateAndTime";
+import useGetTest from "@/data/useGetTest";
 
 export default function OrderLab({
   booked,
@@ -10,16 +11,7 @@ export default function OrderLab({
   Labs
 }: {
   booked: {
-    name: {
-      code: string;
-      max?: number;
-      min?: number;
-      name: string;
-      type: "Lab" | "Imaging";
-      unit: string;
-      _id: string;
-      panel: string;
-    }[];
+    name: string[];
     date: Date;
     lab: string;
     priority: string;
@@ -39,7 +31,12 @@ export default function OrderLab({
       _id: string;
     }[];
   }[]
+
+
 }) {
+
+  const { tests } = useGetTest();
+
   return (
     <div className="border rounded-xl p-4">
       {/* Dynamic rows */}
@@ -59,12 +56,11 @@ export default function OrderLab({
             key={idx}
           >
             <div className="col-span-3">
-              {e.panels?.map((p) => (
-                <p key={p}>{p}</p>
-              ))}
-              {e.name?.map((t) => !e.panels.includes(t.panel) && (
-                <p key={t._id}>{t.name} ({t.code})</p>
-              ))}
+              {
+                e.name.map((t, idx) => (
+                  <p key={idx}>{tests.find(test => test._id == t)?.name}</p>
+                ))
+              }
             </div>
             <div className="col-span-2">{Labs.find(l => l._id == e.lab)?.name ?? "Inhouse"}</div>
             <div className="col-span-2">{fDate(e.date)}</div>

@@ -99,7 +99,13 @@ export default function TestCatalogueRow({
             <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : ""}</TableCell>
             <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
             <TableCell className="text-slate-500 text-xs">
-                {test.min} - {test.max}
+                Normal :{test.min} - {test.max}
+                <br />
+                Women : {test.womenMin} - {test.womenMax}
+                <br />
+                Child : {test.childMin} - {test.childMax}
+                <br />
+                NB : {test.nbMin} - {test.nbMax}
             </TableCell>
             <TableCell className="text-slate-500">{test.unit}</TableCell>
             <TableCell>

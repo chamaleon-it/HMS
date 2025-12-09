@@ -1,7 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { fAge, fDate } from '@/lib/fDateAndTime';
 import { Activity, Clock, FileText, FlaskConical, User } from 'lucide-react';
-import React from 'react';
 
 interface Props {
     r: {
@@ -36,15 +35,24 @@ interface Props {
         };
         date: Date;
         priority: string;
-        name: {
-            code: string;
-            name: string;
-            unit: string;
-            min?: number | undefined;
-            max?: number | undefined;
-            type: string;
-            _id: string;
+        test: {
+            name: {
+                code: string;
+                name: string;
+                type: string;
+                unit?: string;
+                min?: number;
+                max?: number;
+                womenMin?: number;
+                womenMax?: number;
+                childMin?: number;
+                childMax?: number;
+                nbMin?: number;
+                nbMax?: number;
+                _id: string;
+            }
             value?: string | number
+            _id: string;
         }[];
         sampleType: string;
         status: string;
@@ -114,18 +122,18 @@ export default function ViewResultModal({ r }: Props) {
 
                 <div className="p-6 bg-gray-50/30 max-h-[60vh] overflow-y-auto">
                     <div className="grid grid-cols-2 gap-4">
-                        {r.name.map((test) => (
+                        {r.test.map((test) => (
                             <div key={test._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg transition-colors ${test.type === 'Lab' ? 'bg-indigo-50 text-indigo-600' : 'bg-purple-50 text-purple-600'}`}>
-                                            {test.type === 'Lab' ? <FlaskConical className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
+                                        <div className={`p-2 rounded-lg transition-colors ${test.name.type === 'Lab' ? 'bg-indigo-50 text-indigo-600' : 'bg-purple-50 text-purple-600'}`}>
+                                            {test.name.type === 'Lab' ? <FlaskConical className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
                                         </div>
                                         <div>
-                                            <h4 className="font-semibold text-gray-900 text-sm">{test.name}</h4>
+                                            <h4 className="font-semibold text-gray-900 text-sm">{test.name.name}</h4>
                                             <div className="flex items-center gap-2 mt-0.5">
-                                                <span className="text-xs text-gray-400 font-mono">{test.code}</span>
-                                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium border border-gray-200">{test.type}</span>
+                                                <span className="text-xs text-gray-400 font-mono">{test.name.code}</span>
+                                                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-500 font-medium border border-gray-200">{test.name.type}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -136,10 +144,10 @@ export default function ViewResultModal({ r }: Props) {
                                         <div className="flex items-center justify-between">
                                             <div>
                                                 <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 mb-1">Result</p>
-                                                {test.type === 'Lab' ? (
+                                                {test.name.type === 'Lab' ? (
                                                     <div className="flex items-baseline gap-1">
                                                         <span className="text-lg font-bold text-gray-900">{test.value || "-"}</span>
-                                                        <span className="text-xs font-medium text-gray-500">{test.unit}</span>
+                                                        <span className="text-xs font-medium text-gray-500">{test.name.unit}</span>
                                                     </div>
                                                 ) : (
                                                     <div>
@@ -159,10 +167,10 @@ export default function ViewResultModal({ r }: Props) {
                                                     </div>
                                                 )}
                                             </div>
-                                            {test.type === 'Lab' && (
+                                            {test.name.type === 'Lab' && (
                                                 <div className="text-right">
                                                     <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 mb-1">Reference Range</p>
-                                                    <p className="text-sm font-mono text-gray-600">{test.min ?? "0"} - {test.max ?? "N/A"}</p>
+                                                    <p className="text-sm font-mono text-gray-600">{test.name.min ?? "0"} - {test.name.max ?? "N/A"}</p>
                                                 </div>
                                             )}
                                         </div>
