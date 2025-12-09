@@ -22,7 +22,7 @@ export default function TestCatalogueRow({
         max?: number;
         unit?: string;
         estimatedTime?: number;
-        panels: []
+        panels: { name: string }[]
     };
     testMutate: () => void
 }) {
@@ -79,7 +79,7 @@ export default function TestCatalogueRow({
                 </span>
             </TableCell>
             <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : ""}</TableCell>
-            <TableCell>{test.panels}</TableCell>
+            <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
             <TableCell className="text-slate-500 text-xs">
                 {test.min} - {test.max}
             </TableCell>

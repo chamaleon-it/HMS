@@ -26,6 +26,9 @@ import { Label } from "@/components/ui/label";
 import TestCatalogueRow from "./TestCatalogueRow";
 import useGetPanels from "@/data/useGetPanels";
 import useSWR from "swr";
+import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
+import RemoveTestsFromPanelDialog from "./RemoveTestsFromPanelDialog";
+
 
 export default function TestCatalogue({
   profile,
@@ -52,6 +55,9 @@ export default function TestCatalogue({
   }, [profile]);
 
   const [loading, setLoading] = useState(false);
+  const [activePanel, setActivePanel] = useState<string | null>(null);
+  const [isAddTestsDialogOpen, setIsAddTestsDialogOpen] = useState(false);
+  const [isRemoveTestsDialogOpen, setIsRemoveTestsDialogOpen] = useState(false);
 
   const updateCatalogueSettings = async () => {
     try {
@@ -122,7 +128,9 @@ export default function TestCatalogue({
       max?: number;
       unit?: string;
       estimatedTime?: number;
-      panels: []
+      panels: {
+        name: string
+      }[]
     }[]
   }>("/lab/panels/tests");
 
@@ -262,7 +270,7 @@ export default function TestCatalogue({
                 <TableBody>
                   {tests.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={6} className="text-center py-8 text-slate-500 text-xs">
+                      <TableCell colSpan={8} className="text-center py-8 text-slate-500 text-xs">
                         No tests configured yet. Add one above.
                       </TableCell>
                     </TableRow>
@@ -291,7 +299,7 @@ export default function TestCatalogue({
               description=""
             />
 
-            <AddPanelForm />
+            <AddPanelForm onSuccess={() => panelMutate()} />
 
             <Table>
               <TableHeader>
@@ -302,6 +310,7 @@ export default function TestCatalogue({
                 </TableRow>
               </TableHeader>
               <TableBody>
+
                 {panels.map((panel, idx) => (
                   <TableRow key={idx}>
                     <TableCell>{idx + 1}</TableCell>
@@ -310,8 +319,23 @@ export default function TestCatalogue({
                       <Button
                         variant="outline"
                         className="h-9 bg-slate-50"
+                        onClick={() => {
+                          setActivePanel(panel);
+                          setIsAddTestsDialogOpen(true);
+                        }}
                       >
                         Add Tests
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        className="h-9 bg-slate-50"
+                        onClick={() => {
+                          setActivePanel(panel);
+                          setIsRemoveTestsDialogOpen(true);
+                        }}
+                      >
+                        Remove Tests
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -386,6 +410,28 @@ export default function TestCatalogue({
           </CardContent>
         </Card> */}
       </div>
+
+      <AddTestsToPanelDialog
+        panelName={activePanel || ""}
+        allTests={tests}
+        open={isAddTestsDialogOpen}
+        onOpenChange={setIsAddTestsDialogOpen}
+        onSuccess={() => {
+          panelMutate();
+          testMutate();
+        }}
+      />
+
+      <RemoveTestsFromPanelDialog
+        panelName={activePanel || ""}
+        allTests={tests}
+        open={isRemoveTestsDialogOpen}
+        onOpenChange={setIsRemoveTestsDialogOpen}
+        onSuccess={() => {
+          panelMutate();
+          testMutate();
+        }}
+      />
     </div>
   );
 }
@@ -439,9 +485,8 @@ const FieldRow = ({
 
 
 
-const AddPanelForm = () => {
+const AddPanelForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
-  const { mutate } = useGetPanels();
 
   const [payload, setPayload] = useState({
     name: "",
@@ -459,7 +504,7 @@ const AddPanelForm = () => {
       setPayload({
         name: "",
       })
-      mutate()
+      onSuccess()
     } catch (error) {
       console.log(error)
     } finally {
