@@ -452,7 +452,10 @@ export default function Test({
                   </div>
                   {selectedTests.length > 0 && (
                     <button
-                      onClick={() => setSelectedTests([])}
+                      onClick={() => {
+                        setSelectedTests([])
+                        setSelectedPanel([])
+                      }}
                       className="text-xs text-red-500 hover:text-red-600 font-medium hover:underline"
                     >
                       Clear all
@@ -471,10 +474,11 @@ export default function Test({
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2">
-                      {selectedTests.filter(t => !t.panels?.map(p => selectedPanel.includes(p.name)))
+                      {selectedTests.filter(test => !test.panels?.map(p => selectedPanel.includes(p.name)).includes(true))
                         .map((test) => (
                           <SelectedTests key={test._id} test={test} toggleTest={toggleTest} />
                         ))}
+
                       {
                         selectedPanel.map(panel => (
                           <SelectedTests key={panel} test={{ _id: panel, name: panel, code: panel, type: "Panel" }} toggleTest={() => {
