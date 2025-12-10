@@ -79,8 +79,8 @@ type TestItemProps = {
   selected: boolean;
   onToggle: (test: TestItemType) => void;
   type: "Test" | "Panel";
-  setFavourite: React.Dispatch<React.SetStateAction<TestItemType[]>>
-  favourite: TestItemType[]
+  setFavourite?: React.Dispatch<React.SetStateAction<TestItemType[]>>
+  favourite?: TestItemType[]
 };
 
 const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle, type, setFavourite, favourite }) => (
@@ -101,11 +101,14 @@ const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle, type, set
         )}>
           {test.name}
         </span>
-        {test.type === "Lab" ? (
-          <TestTubeDiagonal className={cn("w-3.5 h-3.5", selected ? "text-emerald-600" : "text-zinc-400")} />
-        ) : (
-          <ImageIcon className={cn("w-3.5 h-3.5", selected ? "text-emerald-600" : "text-zinc-400")} />
-        )}
+        {
+          test.type === "Lab" && <TestTubeDiagonal className={cn("w-3.5 h-3.5", selected ? "text-emerald-600" : "text-zinc-400")} />
+        }
+        {
+          test.type === "Imaging" && <ImageIcon className={cn("w-3.5 h-3.5", selected ? "text-emerald-600" : "text-zinc-400")} />
+        }
+
+
       </div>
       <div className="flex items-center gap-2">
         <span className={cn(
@@ -133,7 +136,7 @@ const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle, type, set
       </button>
 
       {type === "Test" && <button className="cursor-pointer" onClick={() => {
-        setFavourite(prev => {
+        setFavourite?.(prev => {
           const exists = prev.find(t => t._id === test._id)
           if (exists) {
             const newFavourite = prev.filter(t => t._id !== test._id)
@@ -147,10 +150,8 @@ const TestItem: React.FC<TestItemProps> = ({ test, selected, onToggle, type, set
           return newFavourite
         })
       }}>
-        <Star className="w-4 h-4 text-yellow-500" fill={favourite.find(t => t._id === test._id) ? "#efb100" : "none"} />
+        <Star className="w-4 h-4 text-yellow-500" fill={favourite?.find(t => t._id === test._id) ? "#efb100" : "none"} />
       </button>}
-
-
     </div>
 
   </div>
@@ -204,27 +205,10 @@ export default function Test({
     data: {
       _id: string;
       name: string;
-      tests: {
-        code: string;
-        name: string;
-        type: "Lab" | "Imaging";
-        panel: string;
-        min?: number;
-        max?: number;
-        unit: string;
-        _id: string;
-      }[];
     }[];
   }>("/users/lab");
 
   const Labs = LabData?.data ?? [];
-
-
-
-
-
-
-
 
   const [favourite, setFavourite] = useState<TestItemType[]>([]);
 
@@ -237,9 +221,7 @@ export default function Test({
 
 
   const { panels } = useGetPanels();
-
   const { tests } = useGetTest();
-
   return (
     <>
       <div className="">
@@ -332,6 +314,27 @@ export default function Test({
                     />
                   ))
                 }
+                {
+                  panels?.filter(panel => !selectedPanel.includes(panel) && panel.toLowerCase().startsWith(query.toLowerCase())).map(panel => (
+                    <TestItem
+                      key={panel}
+                      selected={selectedPanel.includes(panel)}
+                      type="Panel"
+                      test={{ _id: panel, name: panel, code: panel, type: "Panel" }}
+                      onToggle={t => {
+                        setSelectedPanel(prev => [...prev, t.code])
+                        const panelTest = tests.filter(t => t.panels?.find(p => p.name === panel))
+                        panelTest.forEach(test => {
+                          toggleTest(test)
+                        })
+                      }}
+
+
+
+                    />
+                  ))
+                }
+
                 {
                   tests?.filter(test => (tab === "All" || test.type === tab) && test.name.toLowerCase().startsWith(query.toLowerCase()) && !favourite?.find(f => f._id === test._id)).map((t) => !selectedTests.find(test => test._id === t._id) && (
                     <TestItem
@@ -468,10 +471,18 @@ export default function Test({
                     </div>
                   ) : (
                     <div className="grid grid-cols-1 gap-2">
-                      {selectedTests
+                      {selectedTests.filter(t => !t.panels?.map(p => selectedPanel.includes(p.name)))
                         .map((test) => (
                           <SelectedTests key={test._id} test={test} toggleTest={toggleTest} />
                         ))}
+                      {
+                        selectedPanel.map(panel => (
+                          <SelectedTests key={panel} test={{ _id: panel, name: panel, code: panel, type: "Panel" }} toggleTest={() => {
+                            tests.filter(test => test.panels?.map(p => p.name.includes(panel)).includes(true)).map(test => toggleTest(test))
+                            setSelectedPanel(prev => prev.filter(panel => panel !== panel))
+                          }} />
+                        ))
+                      }
                     </div>
                   )}
                 </div>
@@ -503,7 +514,7 @@ export default function Test({
           </div>
         )}
       </div>
-      {show && <OrderLab booked={data.test} setData={setData} Labs={Labs} />}
+      {show && <OrderLab booked={data.test} setData={setData} Labs={Labs} panels={selectedPanel} />}
     </>
   );
 }

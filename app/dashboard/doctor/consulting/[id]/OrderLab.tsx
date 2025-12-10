@@ -8,7 +8,8 @@ import useGetTest from "@/data/useGetTest";
 export default function OrderLab({
   booked,
   setData,
-  Labs
+  Labs,
+  panels
 }: {
   booked: {
     name: string[];
@@ -21,17 +22,8 @@ export default function OrderLab({
   Labs: {
     _id: string;
     name: string;
-    tests: {
-      code: string;
-      name: string;
-      type: "Lab" | "Imaging";
-      min?: number;
-      max?: number;
-      unit: string;
-      _id: string;
-    }[];
   }[]
-
+  panels: string[]
 
 }) {
 
@@ -57,7 +49,13 @@ export default function OrderLab({
           >
             <div className="col-span-3">
               {
-                e.name.map((t, idx) => (
+                e.panels?.map((p, idx) => (
+                  <p key={idx}>{p}</p>
+                ))
+              }
+
+              {
+                !e.panels.find(p => e.panels.includes(p)) && e.name.map((t, idx) => (
                   <p key={idx}>{tests.find(test => test._id == t)?.name}</p>
                 ))
               }

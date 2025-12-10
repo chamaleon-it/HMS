@@ -42,16 +42,30 @@ export default function LabResultsPage() {
       };
       date: Date;
       priority: string;
-      name: {
-        code: string;
-        name: string;
-        unit: string;
-        min?: number;
-        max?: number;
-        panel: string
-        type: string;
-        _id: string;
+      test: {
+        name: {
+          code: string;
+          name: string;
+          type: string;
+          unit?: string;
+          min?: number;
+          max?: number;
+          womenMin?: number;
+          womenMax?: number;
+          childMin?: number;
+          childMax?: number;
+          nbMin?: number;
+          nbMax?: number;
+          _id: string;
+          panels: {
+            _id: string;
+            name: string;
+            status: string;
+            user: string;
+          }[]
+        }
         value?: string | number
+        _id: string;
       }[];
       sampleType: string;
       panels: string[]

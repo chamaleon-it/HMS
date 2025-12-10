@@ -14,12 +14,12 @@ export interface TestItemType {
     _id: string;
     code: string;
     name: string;
-    type: "Lab" | "Imaging";
-    estimatedTime: number;
-    min: number;
-    max: number;
-    unit: string;
-    panels: {
+    type?: "Lab" | "Imaging" | "Panel";
+    estimatedTime?: number;
+    min?: number;
+    max?: number;
+    unit?: string;
+    panels?: {
         name: string;
         _id: string;
     }[];

@@ -136,7 +136,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                                 </div>
                                             ))
                                         }
-                                        {r?.test?.map((e) => (
+                                        {r?.test?.filter(t => !t.name.panels.map(p => r.panels.includes(p.name)).includes(true)).map((e) => (
                                             <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
                                                 {e.name.name}
                                             </div>
