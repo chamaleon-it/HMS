@@ -1,11 +1,12 @@
 import { useAuth } from '@/auth/context/auth-context';
-import { fAge, fDateandTime } from '@/lib/fDateAndTime';
+import { fAge, fDateandTime, fTime } from '@/lib/fDateAndTime';
 import React from 'react'
 import ViewResultModal from './ViewResultModal';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import toast from 'react-hot-toast';
 import api from '@/lib/axios';
+import { Bell, Clock } from 'lucide-react';
 
 
 interface PropsTypes {
@@ -49,6 +50,7 @@ interface PropsTypes {
                 name: string;
                 type: string;
                 unit?: string;
+                estimatedTime?: number;
                 min?: number;
                 max?: number;
                 womenMin?: number;
@@ -105,6 +107,14 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     {REPORT.filter(
                         (r) => r.status === status
                     ).map((r, idx) => {
+
+                        const maxEstimatedTime = Math.max(
+                            ...r.test
+                                .map(t => t.name?.estimatedTime)
+                                .filter(time => typeof time === "number")
+                        );
+
+
                         return (
                             <tr
                                 key={r._id}
@@ -165,7 +175,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 <td className="px-3 py-2">
                                     <Chip label={r.status} tone={statusTone(r.status)} />
                                 </td>
-                                {status === "In Progress" && <td></td>}
+                                {status === "In Progress" && <td>{r.sampleCollectedAt ? <Countdown targetDate={new Date(new Date(r.sampleCollectedAt).getTime() + maxEstimatedTime * 60000)} /> : "-"}</td>}
                                 <td className="px-3 py-2 text-right">
                                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
                                         {r.status === "Pending" && <Button
@@ -256,5 +266,71 @@ const Chip: React.FC<{
             <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === 'gray' ? 'bg-slate-400' : tone === 'green' ? 'bg-emerald-500' : tone === 'amber' ? 'bg-amber-500' : tone === 'blue' ? 'bg-sky-500' : 'bg-rose-500'}`}></span>
             {label}
         </span>
+    );
+};
+
+const Countdown = ({ targetDate }: { targetDate: Date }) => {
+    const [timeLeft, setTimeLeft] = React.useState<string>("-");
+    const [statusColor, setStatusColor] = React.useState<"red" | "amber" | "slate">("slate");
+
+    React.useEffect(() => {
+        const updateTimer = () => {
+            const now = new Date().getTime();
+            const distance = new Date(targetDate).getTime() - now;
+
+            if (distance < 0) {
+                setTimeLeft("00:00:00");
+                setStatusColor("red");
+                return;
+            }
+
+            const fiveMinutes = 5 * 60 * 1000;
+            const tenMinutes = 10 * 60 * 1000;
+
+            if (distance < fiveMinutes) {
+                setStatusColor("red");
+            } else if (distance < tenMinutes) {
+                setStatusColor("amber");
+            } else {
+                setStatusColor("slate");
+            }
+
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            setTimeLeft(
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+            );
+        };
+
+        updateTimer();
+        const interval = setInterval(updateTimer, 1000);
+
+        return () => clearInterval(interval);
+    }, [targetDate]);
+
+    const colors = {
+        red: "bg-rose-50 text-rose-700 ring-rose-200 shadow-sm",
+        amber: "bg-amber-50 text-amber-700 ring-amber-200 shadow-sm",
+        slate: "bg-slate-50 text-slate-600 ring-slate-200 shadow-sm",
+    };
+
+    if (timeLeft === "00:00:00") {
+        return (
+            <div className="flex items-center justify-center w-full">
+                <span className="relative flex h-6 w-6">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                    <Bell className="relative inline-flex rounded-full h-6 w-6 text-rose-600" />
+                </span>
+            </div>
+        );
+    }
+
+    return (
+        <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ring-1 ring-inset ${colors[statusColor]} transition-all duration-300 font-mono tabular-nums min-w-[90px] justify-center`}>
+            <Clock className={`h-3.5 w-3.5 ${statusColor === 'red' ? 'animate-pulse' : ''}`} />
+            <span className="tracking-tight">{timeLeft}</span>
+        </div>
     );
 };
