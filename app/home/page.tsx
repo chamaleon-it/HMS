@@ -13,7 +13,7 @@ import PainPoints from './components/PainPoints';
 import Integrations from './components/Integrations';
 import FAQ from './components/FAQ';
 import OfflineMode from './components/OfflineMode';
-import './index.css';
+// import './index.css';
 
 function App() {
 
