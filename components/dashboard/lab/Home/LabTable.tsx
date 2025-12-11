@@ -106,7 +106,18 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                 <tbody>
                     {REPORT.filter(
                         (r) => r.status === status
-                    ).map((r, idx) => {
+                    ).sort((a, b) => {
+                        if (status !== "In Progress") return 0;
+                        const getTargetTime = (item: typeof a) => {
+                            if (!item.sampleCollectedAt) return Infinity;
+                            const times = item.test
+                                .map(t => t.name?.estimatedTime)
+                                .filter((time): time is number => typeof time === "number");
+                            const maxTime = times.length > 0 ? Math.max(...times) : 0;
+                            return new Date(item.sampleCollectedAt).getTime() + maxTime * 60000;
+                        };
+                        return getTargetTime(a) - getTargetTime(b);
+                    }).map((r, idx) => {
 
                         const maxEstimatedTime = Math.max(
                             ...r.test
