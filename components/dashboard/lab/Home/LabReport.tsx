@@ -50,6 +50,7 @@ export default function LabResultsPage() {
           unit?: string;
           min?: number;
           max?: number;
+          estimatedTime?: number;
           womenMin?: number;
           womenMax?: number;
           childMin?: number;
@@ -77,6 +78,8 @@ export default function LabResultsPage() {
   }>("/lab/report");
 
   const REPORT = data?.data ?? [];
+
+  console.log(REPORT)
 
   const [status, setStatus] = useState<
     "Pending" | "In Progress" | "Completed"
