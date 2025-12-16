@@ -13,11 +13,17 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 
-export default function ActionButton({ data }: { data: DataType }) {
+export default function ActionButton({ data,testIsOK }: { data: DataType ,testIsOK:boolean}) {
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const router = useRouter();
 
   const consulting = async (status: string) => {
+
+    if(!testIsOK){
+      toast.error("Please confirm the test before proceeding.")
+      return
+    }
+
     try {
       if (alreadySubmitted) {
         toast.error("This consultation has already been recorded.");
