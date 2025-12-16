@@ -19,7 +19,7 @@ import api from "@/lib/axios";
 import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 
-export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
+export default function NewOrder() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [openCreate, setOpenCreate] = useState(false);
@@ -71,7 +71,6 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         error: ({ response }) => response.data.message,
       });
       setOpen(false);
-      OrderMutate();
     } catch (error) {
       console.log(error);
     }

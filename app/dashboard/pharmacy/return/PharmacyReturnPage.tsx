@@ -226,7 +226,8 @@ export default function PharmacyReturnPage() {
                         min={0}
                         max={it.quantity}
                         className="h-8 w-14 text-center rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-                        value={it.return}
+                        value={it.return === 0 ? "" : it.return}
+
                         onChange={(e) => {
                           const value = Number(e.target.value);
                           if (value > it.quantity) {

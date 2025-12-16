@@ -258,6 +258,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             </PopoverTrigger>
             <PopoverContent className="w-auto overflow-hidden p-0" align="start">
               <Calendar
+                disabled={{ before: new Date() }}
                 mode="single"
                 selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
                 captionLayout="dropdown"

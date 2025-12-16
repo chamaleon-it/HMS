@@ -120,25 +120,25 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
               const maxEstimatedTime = Math.max(
                 ...r.test
                   .map((t) => t.name?.estimatedTime)
-                  .filter((time) => typeof time === "number"),0
+                  .filter((time) => typeof time === "number"), 0
               );
 
-              const expired =status === "In Progress" ? ( r.sampleCollectedAt
+              const expired = status === "In Progress" ? (r.sampleCollectedAt
                 ? Date.now() >=
-                  new Date(r.sampleCollectedAt).getTime() +
-                    maxEstimatedTime * 60_000
+                new Date(r.sampleCollectedAt).getTime() +
+                maxEstimatedTime * 60_000
                 : false) : false;
 
-              
-              
+
+
               return (
                 <tr
                   key={r._id}
-                  className={`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${ !expired ?
+                  className={`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${!expired ?
                     idx % 2 === 0
                       ? "bg-white hover:bg-white/60"
                       : "bg-slate-100 hover:bg-slate-100/60" : "bg-orange-200/70 hover:bg-orange-200/70"
-                  } 
+                    } 
 
                      `}
                 >
@@ -225,10 +225,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         <Countdown
                           targetDate={
                             maxEstimatedTime ?
-                            new Date(
-                              new Date(r.sampleCollectedAt).getTime() +
+                              new Date(
+                                new Date(r.sampleCollectedAt).getTime() +
                                 maxEstimatedTime * 60000
-                            ) : undefined
+                              ) : undefined
                           }
                         />
                       ) : (
@@ -238,7 +238,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   )}
                   <td className="px-3 py-2 text-right">
                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
-                        {r.status === "In Progress" && expired && <ResultUpdate mutate={mutate} r={r}/>}
+                      {r.status === "In Progress" && expired && <ResultUpdate mutate={mutate} r={r} />}
                       {r.status === "Pending" && (
                         <Button
                           variant="outline"
@@ -268,7 +268,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         </Button>
                       )}
 
-                      <ViewResultModal r={r} />
+                      {r.status !== "Pending" && <ViewResultModal r={r} />}
                       <Button
                         variant={"outline"}
                         size="sm"
@@ -313,10 +313,10 @@ const statusTone = (s: string): "green" | "gray" | "red" | "blue" | "amber" =>
   s === "Completed"
     ? "green"
     : s === "Pending"
-    ? "gray"
-    : s === "In Progress"
-    ? "amber"
-    : "red";
+      ? "gray"
+      : s === "In Progress"
+        ? "amber"
+        : "red";
 
 // ----- Small UI helpers -----
 const Chip: React.FC<{
@@ -335,17 +335,16 @@ const Chip: React.FC<{
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${tones[tone]}`}
     >
       <span
-        className={`mr-1.5 h-1.5 w-1.5 rounded-full ${
-          tone === "gray"
+        className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === "gray"
             ? "bg-slate-400"
             : tone === "green"
-            ? "bg-emerald-500"
-            : tone === "amber"
-            ? "bg-amber-500"
-            : tone === "blue"
-            ? "bg-sky-500"
-            : "bg-rose-500"
-        }`}
+              ? "bg-emerald-500"
+              : tone === "amber"
+                ? "bg-amber-500"
+                : tone === "blue"
+                  ? "bg-sky-500"
+                  : "bg-rose-500"
+          }`}
       ></span>
       {label}
     </span>
@@ -361,47 +360,47 @@ const Countdown = ({ targetDate }: { targetDate?: Date }) => {
   >("slate");
 
   React.useEffect(() => {
-      if(targetDate){
-    const updateTimer = () => {
-      const now = new Date().getTime();
-      const distance = new Date(targetDate).getTime() - now;
+    if (targetDate) {
+      const updateTimer = () => {
+        const now = new Date().getTime();
+        const distance = new Date(targetDate).getTime() - now;
 
-      if (distance < 0) {
-        setTimeLeft("00:00:00");
-        setStatusColor("red");
-        return;
-      }
+        if (distance < 0) {
+          setTimeLeft("00:00:00");
+          setStatusColor("red");
+          return;
+        }
 
-      const fiveMinutes = 5 * 60 * 1000;
-      const tenMinutes = 10 * 60 * 1000;
+        const fiveMinutes = 5 * 60 * 1000;
+        const tenMinutes = 10 * 60 * 1000;
 
-      if (distance < fiveMinutes) {
-        setStatusColor("red");
-      } else if (distance < tenMinutes) {
-        setStatusColor("amber");
-      } else {
-        setStatusColor("slate");
-      }
+        if (distance < fiveMinutes) {
+          setStatusColor("red");
+        } else if (distance < tenMinutes) {
+          setStatusColor("amber");
+        } else {
+          setStatusColor("slate");
+        }
 
-      const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-      );
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        const hours = Math.floor(
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      setTimeLeft(
-        `${hours.toString().padStart(2, "0")}:${minutes
-          .toString()
-          .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
-      );
-      
-    };
+        setTimeLeft(
+          `${hours.toString().padStart(2, "0")}:${minutes
+            .toString()
+            .padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`
+        );
 
-    updateTimer();
-    const interval = setInterval(updateTimer, 1000);
+      };
 
-    return () => clearInterval(interval);
-}
+      updateTimer();
+      const interval = setInterval(updateTimer, 1000);
+
+      return () => clearInterval(interval);
+    }
   }, [targetDate]);
 
   const colors = {
@@ -423,9 +422,8 @@ const Countdown = ({ targetDate }: { targetDate?: Date }) => {
       className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ring-1 ring-inset ${colors[statusColor]} transition-all duration-300 font-mono tabular-nums min-w-[90px] justify-center`}
     >
       <Clock
-        className={`h-3.5 w-3.5 ${
-          statusColor === "red" ? "animate-pulse" : ""
-        }`}
+        className={`h-3.5 w-3.5 ${statusColor === "red" ? "animate-pulse" : ""
+          }`}
       />
       <span className="tracking-tight">{timeLeft}</span>
     </div>

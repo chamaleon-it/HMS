@@ -128,6 +128,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
                                         <Calendar
+                                            disabled={{ before: new Date() }}
                                             mode="single"
                                             selected={expiryDate}
                                             onSelect={(date) => {
