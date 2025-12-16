@@ -21,6 +21,7 @@ import Report from "./Report";
 export default function ConsultingMenu() {
   const params = useParams();
   const { id: appointmentId } = params;
+    const [testIsOK, setTestIsOK] = useState(false)
   const [activeTab, setActiveTab] = useState<"consultation" | "history" | "report">(
     "consultation"
   );
@@ -93,6 +94,8 @@ export default function ConsultingMenu() {
     redirect("/dashboard/doctor/appointments");
   }
 
+
+
   return (
     <AppShell>
       <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-slate-50">
@@ -101,6 +104,8 @@ export default function ConsultingMenu() {
             activeTab={activeTab}
             setActiveTab={setActiveTab}
             appointment={appointment}
+            data={data}
+            setData={setData}
           />
           {appointment.patient.allergies && (
             <AllergyAlert allergies={appointment.patient.allergies} />
@@ -121,7 +126,7 @@ export default function ConsultingMenu() {
                 />
 
                 {/* <LabAndTest data={data} setData={setData} /> */}
-                <Test data={data} setData={setData} />
+                <Test data={data} setData={setData} setTestIsOK={setTestIsOK}/>
 
                 <Advice data={data} setData={setData} />
                 <FollowUpTime
@@ -129,7 +134,7 @@ export default function ConsultingMenu() {
                   doctor={appointment.doctor}
                   patient={appointment.patient._id}
                 />
-                <ActionButton data={data} />
+                <ActionButton data={data} testIsOK={testIsOK}/>
               </Card>
             </div>
           )}
