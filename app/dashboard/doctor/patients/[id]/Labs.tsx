@@ -30,7 +30,7 @@ export default function Labs({ labs }: { labs?: LabsDataTypes[] }) {
                                     <TableCell>
                                         <div className="flex flex-col gap-2">
 
-                                            {lab.name.map((e) => e.type === "Lab" && (
+                                            {lab?.name?.map((e) => e.type === "Lab" && (
                                                 <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
                                                     {e.name}
                                                 </div>
@@ -40,7 +40,7 @@ export default function Labs({ labs }: { labs?: LabsDataTypes[] }) {
                                     <TableCell>
                                         <div className="flex flex-col gap-2">
 
-                                            {lab.name.map(
+                                            {lab?.name?.map(
                                                 (e) => e.type === "Lab" && (
                                                     <span
                                                         key={e._id}
@@ -58,7 +58,7 @@ export default function Labs({ labs }: { labs?: LabsDataTypes[] }) {
                                     <TableCell>
                                         <div className="flex flex-col gap-2">
 
-                                            {lab.name.map(
+                                            {lab?.name?.map(
                                                 (e) => e.type === "Lab" && (
                                                     <span
                                                         key={e._id}

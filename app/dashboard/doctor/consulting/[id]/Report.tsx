@@ -36,7 +36,7 @@ export default function Report({ patientId }: { patientId: string }) {
                                     <TableCell>
                                         <div className="flex flex-col gap-2">
 
-                                            {lab.name.map((e) => (
+                                            {lab?.name?.map((e) => (
                                                 <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
                                                     {e.name}
                                                 </div>
@@ -46,7 +46,7 @@ export default function Report({ patientId }: { patientId: string }) {
                                     <TableCell>
                                         <div className="flex flex-col gap-2">
 
-                                            {lab.name.map(
+                                            {lab?.name?.map(
                                                 (e) => (
                                                     <span
                                                         key={e._id}
@@ -71,7 +71,7 @@ export default function Report({ patientId }: { patientId: string }) {
                                     <TableCell>
                                         <div className="flex flex-col gap-2">
 
-                                            {lab.name.map(
+                                            {lab?.name?.map(
                                                 (e) => (
                                                     <span
                                                         key={e._id}
