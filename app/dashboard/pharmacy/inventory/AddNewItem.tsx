@@ -258,6 +258,8 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             </PopoverTrigger>
             <PopoverContent className="w-auto overflow-hidden p-0" align="start">
               <Calendar
+              startMonth={new Date(2025,0)}
+              endMonth={new Date(2030,0)}
                 mode="single"
                 selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
                 captionLayout="dropdown"
