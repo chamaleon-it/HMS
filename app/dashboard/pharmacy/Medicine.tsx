@@ -11,9 +11,10 @@ interface Medicine {
   duration: string;
   quantity: number;
   availableQuantity: number;
+  unitPrice:number;
 }
 
-type Item = { _id: string; name: string; generic: string; quantity: number };
+type Item = { _id: string; name: string; generic: string; quantity: number,unitPrice:number };
 type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
 
@@ -98,6 +99,7 @@ export default function MedicineField({
     // store only id in your form
     updateField(i, "name", item._id);
     updateField(i, "availableQuantity", item.quantity);
+    updateField(i, "unitPrice", item.unitPrice);
     // remember the label locally
     setSelected({ id: item._id, name: item.name });
     // clear query and close
@@ -148,6 +150,9 @@ export default function MedicineField({
               onClick={() => {
                 // clear selected id from form & UI
                 updateField(i, "name", "");
+                updateField(i,"availableQuantity",0)
+                updateField(i,"quantity",0)
+                updateField(i,"unitPrice",0)
                 setSelected(null);
                 setQuery("");
                 setFilter((f) => ({ ...f, q: "", page: 1 }));

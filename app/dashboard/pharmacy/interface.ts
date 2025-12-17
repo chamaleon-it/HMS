@@ -86,6 +86,7 @@ export interface DataType {
         duration: string;
         quantity: number;
         availableQuantity:number
+        unitPrice:number;
     }[];
     priority: string;
     status: string;
