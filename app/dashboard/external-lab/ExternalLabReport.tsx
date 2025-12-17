@@ -1,0 +1,102 @@
+"use client";
+
+import React, { useState } from "react";
+import useSWR from "swr";
+// Importing from the existing lab dashboard components to maintain consistency and reuse
+import LabStatus from "@/components/dashboard/lab/Home/LabStatus";
+import NewTest from "@/components/dashboard/lab/Home/NewTest";
+import LabTable from "@/components/dashboard/lab/Home/LabTable";
+
+export default function ExternalLabReport() {
+
+    const { data, mutate } = useSWR<{
+        message: string;
+        data: {
+            _id: string;
+            patient: {
+                _id: string;
+                name: string;
+                phoneNumber: string;
+                email: string;
+                gender: string;
+                dateOfBirth: Date;
+                conditions: string[];
+                blood: string;
+                allergies: string;
+                address: string;
+                notes: string;
+                createdBy: string;
+                status: string;
+                mrn: string;
+                createdAt: Date;
+                updatedAt: Date;
+            };
+            doctor: {
+                _id: string;
+                name: string;
+                specialization: null | string;
+            };
+            lab: {
+                _id: string;
+                name: string;
+                specialization: null | string;
+            };
+            date: Date;
+            priority: string;
+            test: {
+                name: {
+                    code: string;
+                    name: string;
+                    type: string;
+                    unit?: string;
+                    min?: number;
+                    max?: number;
+                    estimatedTime?: number;
+                    womenMin?: number;
+                    womenMax?: number;
+                    childMin?: number;
+                    childMax?: number;
+                    nbMin?: number;
+                    nbMax?: number;
+                    _id: string;
+                    panels: {
+                        _id: string;
+                        name: string;
+                        status: string;
+                        user: string;
+                    }[]
+                }
+                value?: string | number
+                _id: string;
+            }[];
+            sampleType: string;
+            panels: string[]
+            sampleCollectedAt: Date | null
+            status: string;
+            createdAt: Date;
+            updatedAt: Date;
+        }[];
+    }>("/lab/report");
+
+    const REPORT = data?.data ?? [];
+
+    const [status, setStatus] = useState<
+        "Pending" | "In Progress" | "Completed"
+    >("Pending");
+
+    return (
+        <div className="min-h-[calc(100vh-80px)] w-full bg-linear-to-b from-white to-slate-50 p-6">
+            {/* Header */}
+            {/* Header Controls */}
+            <div className="flex items-center justify-end mb-6">
+                <div className="flex gap-3 items-center">
+                    <LabStatus currenctStatus={status} setCurrenctStatus={setStatus} />
+                    {/* Keeping NewTest for consistency as planned, though external labs might mostly process existing requests */}
+                    <NewTest mutate={mutate} />
+                </div>
+            </div>
+
+            <LabTable REPORT={REPORT} status={status} mutate={mutate} />
+        </div>
+    );
+}

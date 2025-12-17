@@ -4,6 +4,19 @@ import { DataType } from "./interface";
 import Medicine from "./Medicine";
 import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
+import toast from "react-hot-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { formatINR } from "@/lib/fNumber";
 
 // ------------------ Types ------------------
 interface Medicine {
@@ -13,6 +26,8 @@ interface Medicine {
   food: string;
   duration: string;
   quantity: number;
+  availableQuantity: number;
+  unitPrice: number;
 }
 
 export default function PrescriptionCard({
@@ -47,6 +62,8 @@ export default function PrescriptionCard({
           food: "After food",
           frequency: "",
           quantity: 0,
+          availableQuantity: 0,
+          unitPrice: 0,
         },
       ],
     }));
@@ -64,84 +81,146 @@ export default function PrescriptionCard({
     <div className="">
       <div className="border rounded-xl p-4">
         <div className="flex flex-col gap-3">
-          <div className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-5"} gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}>
+          <div
+            className={`grid ${
+              showAllFields ? "grid-cols-12" : "grid-cols-7"
+            } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
+          >
             <div className="col-span-3">Drug</div>
             {showAllFields && (
               <>
                 <div className="col-span-1">Dosage</div>
-                <div className="col-span-2">Frequency</div>
+                <div className="col-span-1">Frequency</div>
                 <div className="col-span-2">Food</div>
-                <div className="col-span-2">Duration</div>
+                <div className="col-span-1">Duration</div>
               </>
             )}
             <div className="col-span-1">Quantity</div>
+            <div className="col-span-1">Unit Price</div>
+            <div className="col-span-1">Total Price</div>
             <div className="col-span-1 text-right">Actions</div>
           </div>
 
           {data.items.map((m, i) => (
-            <div key={i} className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-5"} gap-2 mt-2 items-start`}>
+            <div
+              key={i}
+              className={`grid ${
+                showAllFields ? "grid-cols-12" : "grid-cols-7"
+              } gap-2 mt-2 items-start`}
+            >
               <div className="col-span-3">
                 <Medicine i={i} m={m} updateField={updateField} />
               </div>
-              {showAllFields && <>
-                <div className="col-span-1">
-                  <LabeledCombobox
-                    options={[
-                      "½ tab",
-                      "1 tab",
-                      "2 tab",
-                      "5 ml",
-                      "10 ml",
-                      "20 ml",
-                    ]}
-                    label="Dosage"
-                    value={m.dosage}
-                    onChange={(e) => updateField(i, "dosage", e)}
-                  />
-                </div>
+              {showAllFields && (
+                <>
+                  <div className="col-span-1">
+                    <LabeledCombobox
+                      options={[
+                        "½ tab",
+                        "1 tab",
+                        "2 tab",
+                        "5 ml",
+                        "10 ml",
+                        "20 ml",
+                      ]}
+                      label="Dosage"
+                      value={m.dosage}
+                      onChange={(e) => updateField(i, "dosage", e)}
+                    />
+                  </div>
 
-                <div className="col-span-2">
-                  <LabeledCombobox
-                    options={["1-0-1", "1-1-1", "0-1-1", "1-0-0", "0-0-1", "SOS"]}
-                    label="Frequency"
-                    value={m.frequency}
-                    onChange={(e) => updateField(i, "frequency", e)}
-                  />
-                </div>
+                  <div className="col-span-1">
+                    <LabeledCombobox
+                      options={[
+                        "1-0-1",
+                        "1-1-1",
+                        "0-1-1",
+                        "1-0-0",
+                        "0-0-1",
+                        "SOS",
+                      ]}
+                      label="Frequency"
+                      value={m.frequency}
+                      onChange={(e) => updateField(i, "frequency", e)}
+                    />
+                  </div>
 
-                <div className="col-span-2">
-                  <LabeledCombobox
-                    options={[
-                      "After food",
-                      "Before food",
-                      "With food",
-                      "Empty stomach",
-                      "Anytime",
-                    ]}
-                    label="Food"
-                    value={m.food}
-                    onChange={(e) => updateField(i, "food", e)}
-                  />
-                </div>
+                  <div className="col-span-2">
+                    <LabeledCombobox
+                      options={[
+                        "After food",
+                        "Before food",
+                        "With food",
+                        "Empty stomach",
+                        "Anytime",
+                      ]}
+                      label="Food"
+                      value={m.food}
+                      onChange={(e) => updateField(i, "food", e)}
+                    />
+                  </div>
 
-                <div className="col-span-2">
-                  <LabeledCombobox
-                    options={[
-                      "3 days",
-                      "5 days",
-                      "7 days",
-                      "10 days",
-                      "14 days",
-                      "28 days",
-                    ]}
-                    label="Duration"
-                    value={m.duration}
-                    onChange={(e) => updateField(i, "duration", e)}
-                  />
-                </div>
-              </>}
+                  <div className="col-span-1">
+                    <LabeledCombobox
+                      options={[
+                        "3 days",
+                        "5 days",
+                        "7 days",
+                        "10 days",
+                        "14 days",
+                        "28 days",
+                      ]}
+                      label="Duration"
+                      value={m.duration}
+                      onChange={(e) => updateField(i, "duration", e)}
+                    />
+                  </div>
+                </>
+              )}
               <div className="col-span-1">
                 <QuantityInput updateField={updateField} i={i} m={m} />
+              </div>
+
+              <div className="col-span-1">
+                <div className="relative w-full">
+                  <input
+                    placeholder="0"
+                    disabled
+                    inputMode={"numeric"}
+                    className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+                    value={m.unitPrice === 0 ? "" : m.unitPrice}
+                    onFocus={(e) => (e.target.placeholder = "")}
+                    onBlur={(e) => {
+                      e.target.placeholder = "0";
+                    }}
+                  />
+                  <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+                    Unit Price
+                  </label>
+                </div>
+              </div>
+
+              <div className="col-span-1">
+                <div className="relative w-full">
+                  <input
+                    placeholder="0"
+                    disabled
+                    inputMode={"numeric"}
+                    className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+                    value={
+                      m.unitPrice * m.quantity === 0
+                        ? ""
+                        : m.unitPrice * m.quantity
+                    }
+                    onFocus={(e) => (e.target.placeholder = "")}
+                    onBlur={(e) => {
+                      e.target.placeholder = "0";
+                    }}
+                  />
+                  <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+                    Total
+                  </label>
+                </div>
               </div>
 
               <div className="col-span-1 flex justify-end gap-2">
@@ -164,59 +243,139 @@ export default function PrescriptionCard({
             + Add Medicine
           </Button>
         </div>
+        <div
+          className={`grid ${
+            showAllFields ? "grid-cols-12" : "grid-cols-7"
+          } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
+        >
+          <div
+            className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
+          ></div>
+          <div className="text-right">Sub Total</div>
+          <div className="text-right">{formatINR(data.items.reduce((a,b)=>a+b.quantity*b.unitPrice,0))}</div>
+        </div>
+
+        <div
+          className={`grid ${
+            showAllFields ? "grid-cols-12" : "grid-cols-7"
+          } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
+        >
+          <div
+            className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
+          ></div>
+          <div className="text-right font-bold">Grand Total</div>
+          <div className="text-right font-bold">{formatINR(data.items.reduce((a,b)=>a+b.quantity*b.unitPrice,0))}</div>
+        </div>
+
       </div>
     </div>
   );
 }
 
-
-const QuantityInput = ({ updateField, i, m }: { updateField: (idx: number, key: keyof Medicine, val: string | number) => void, i: number, m: Medicine }) => {
-
-
+const QuantityInput = ({
+  updateField,
+  i,
+  m,
+}: {
+  updateField: (idx: number, key: keyof Medicine, val: string | number) => void;
+  i: number;
+  m: Medicine;
+}) => {
   const currentOptions = {
     dosage: ["½ tab", "1 tab", "2 tab"],
     duration: ["3 days", "5 days", "7 days", "10 days", "14 days", "28 days"],
-    frequency: ["1-0-1", "1-1-1", "0-1-1", "1-0-0", "0-0-1"]
-  }
+    frequency: ["1-0-1", "1-1-1", "0-1-1", "1-0-0", "0-0-1"],
+  };
 
   useEffect(() => {
-    if (currentOptions.dosage.includes(m.dosage) && currentOptions.frequency.includes(m.frequency)) {
-      const dosage = currentOptions.dosage[0] === m.dosage && 0.5 || currentOptions.dosage[1] === m.dosage && 1 || currentOptions.dosage[2] === m.dosage && 2 || 0
-      const duration = currentOptions.duration[0] === m.duration && 3 || currentOptions.duration[1] === m.duration && 5 || currentOptions.duration[2] === m.duration && 7 || currentOptions.duration[3] === m.duration && 10 || currentOptions.duration[4] === m.duration && 14 || currentOptions.duration[5] === m.duration && 28 || Number(m.duration) || 0
-      const frequency = currentOptions.frequency[0] === m.frequency && 2 || currentOptions.frequency[1] === m.frequency && 3 || currentOptions.frequency[2] === m.frequency && 2 || currentOptions.frequency[3] === m.frequency && 1 || currentOptions.frequency[4] === m.frequency && 1 || 0
-      updateField(i, "quantity", Math.ceil(dosage * duration * frequency))
+    if (
+      currentOptions.dosage.includes(m.dosage) &&
+      currentOptions.frequency.includes(m.frequency)
+    ) {
+      const dosage =
+        (currentOptions.dosage[0] === m.dosage && 0.5) ||
+        (currentOptions.dosage[1] === m.dosage && 1) ||
+        (currentOptions.dosage[2] === m.dosage && 2) ||
+        0;
+      const duration =
+        (currentOptions.duration[0] === m.duration && 3) ||
+        (currentOptions.duration[1] === m.duration && 5) ||
+        (currentOptions.duration[2] === m.duration && 7) ||
+        (currentOptions.duration[3] === m.duration && 10) ||
+        (currentOptions.duration[4] === m.duration && 14) ||
+        (currentOptions.duration[5] === m.duration && 28) ||
+        Number(m.duration) ||
+        0;
+      const frequency =
+        (currentOptions.frequency[0] === m.frequency && 2) ||
+        (currentOptions.frequency[1] === m.frequency && 3) ||
+        (currentOptions.frequency[2] === m.frequency && 2) ||
+        (currentOptions.frequency[3] === m.frequency && 1) ||
+        (currentOptions.frequency[4] === m.frequency && 1) ||
+        0;
+      updateField(i, "quantity", Math.ceil(dosage * duration * frequency));
     } else {
-      updateField(i, "quantity", 0)
+      updateField(i, "quantity", 0);
     }
+  }, [m.dosage, m.duration, m.frequency]);
 
-  }, [m.dosage, m.duration, m.frequency])
-
+  const [openWarning, setOpenWarning] = useState(false);
 
   return (
-    <div className="relative w-full">
-      <input
-        placeholder="0"
-        onChange={(e) => {
-          const value = e.target.value;
-          updateField(
-            i,
-            "quantity",
-            value === "" ? 0 : Number(value)
-          );
-        }}
-        inputMode={"numeric"}
-        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
-        value={m.quantity === 0 ? "" : m.quantity}
-        onFocus={e => e.target.placeholder = ""}
-        onBlur={e => e.target.placeholder = "0"}
-      />
-      <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
-        Quantity
-      </label>
-    </div>
-  )
-}
-
+    <>
+      <div className="relative w-full">
+        <input
+          placeholder="0"
+          onChange={(e) => {
+            const value = Number(e.target.value);
+            updateField(i, "quantity", value ?? 0);
+          }}
+          inputMode={"numeric"}
+          className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+          value={m.quantity === 0 ? "" : m.quantity}
+          onFocus={(e) => (e.target.placeholder = "")}
+          onBlur={(e) => {
+            e.target.placeholder = "0";
+            const value = Number(e.target.value);
+            if (value > m.availableQuantity) {
+              setOpenWarning(true);
+            }
+          }}
+        />
+        <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+          Quantity
+        </label>
+      </div>
+      <AlertDialog open={openWarning} onOpenChange={setOpenWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Available quantity: {m.availableQuantity} <br />
+              Entered quantity: {m.quantity}
+              <br />
+              <br />
+              <span className="text-destructive">
+                The quantity you entered exceeds the available stock.
+              </span>{" "}
+              Do you want to continue anyway?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                updateField(i, "quantity", 0);
+              }}
+            >
+              No
+            </AlertDialogCancel>
+            <AlertDialogAction>Yes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+};
 
 type LabeledComboboxProps = {
   label: string;

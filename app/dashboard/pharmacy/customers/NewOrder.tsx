@@ -19,7 +19,7 @@ import api from "@/lib/axios";
 import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 
-export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
+export default function NewOrder() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [openCreate, setOpenCreate] = useState(false);
@@ -35,8 +35,6 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         food: "After food",
         frequency: "",
         quantity: 0,
-        availableQuantity:0,
-        unitPrice:0
       },
     ],
     priority: "Normal",
@@ -73,7 +71,6 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         error: ({ response }) => response.data.message,
       });
       setOpen(false);
-      OrderMutate();
     } catch (error) {
       console.log(error);
     }
@@ -92,8 +89,6 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
             food: "",
             frequency: "",
             quantity: 0,
-            availableQuantity:0,
-            unitPrice:0
           },
         ],
         priority: "Normal",
@@ -117,7 +112,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
             New Order
           </Button>
         </DialogTrigger>
-        <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-4xl"}>
+        <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-3xl"}>
           <DialogHeader>
             <DialogTitle>Add new order</DialogTitle>
             <DialogDescription>
