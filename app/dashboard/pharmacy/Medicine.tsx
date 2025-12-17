@@ -10,6 +10,7 @@ interface Medicine {
   food: string;
   duration: string;
   quantity: number;
+  availableQuantity: number;
 }
 
 type Item = { _id: string; name: string; generic: string; quantity: number };
@@ -31,7 +32,7 @@ export default function MedicineField({
   i,
 }: {
   m: Medicine;
-  updateField: (idx: number, key: keyof Medicine, val: string) => void;
+  updateField: (idx: number, key: keyof Medicine, val: string | number) => void;
   i: number;
 }) {
   // what the user is typing
@@ -93,8 +94,10 @@ export default function MedicineField({
   const items = data?.data ?? [];
 
   const handleSelect = (item: Item) => {
+    console.log(item);
     // store only id in your form
     updateField(i, "name", item._id);
+    updateField(i, "availableQuantity", item.quantity);
     // remember the label locally
     setSelected({ id: item._id, name: item.name });
     // clear query and close
