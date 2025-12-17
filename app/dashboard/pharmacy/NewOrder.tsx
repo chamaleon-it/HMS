@@ -35,6 +35,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         food: "After food",
         frequency: "",
         quantity: 0,
+        availableQuantity:0
       },
     ],
     priority: "Normal",
@@ -90,6 +91,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
             food: "",
             frequency: "",
             quantity: 0,
+            availableQuantity:0
           },
         ],
         priority: "Normal",

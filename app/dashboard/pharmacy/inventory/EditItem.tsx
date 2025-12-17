@@ -290,10 +290,12 @@ export function EditItem({
             </PopoverTrigger>
             <PopoverContent className="w-auto overflow-hidden p-0" align="start">
               <Calendar
+               startMonth={new Date(2025,0)}
+              endMonth={new Date(2030,0)}
+              captionLayout="dropdown"
                 disabled={{ before: new Date() }}
                 mode="single"
                 selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
-                captionLayout="dropdown"
                 onSelect={(date) => {
                   if (date) {
                     setValue("expiryDate", date.toISOString())

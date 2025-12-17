@@ -142,7 +142,7 @@ export default function ItemTable({
                   </TableCell>
                   <TableCell>{formatINR(item.purchasePrice)}</TableCell>
                   <TableCell>{formatINR(item.unitPrice)}</TableCell>
-                  <TableCell>{formatINR(item.quantity * item.unitPrice)}</TableCell>
+                  <TableCell>{item?.batches?.length ?formatINR(item?.batches?.reduce((a,b)=>a+(b.purchasePrice*b.quantity),0)) : formatINR(item.quantity * item.purchasePrice)}</TableCell>
                   <TableCell>{fDate(item.expiryDate)}</TableCell>
                   <TableCell>{item.supplier}</TableCell>
                   <TableCell>{item.manufacturer}</TableCell>

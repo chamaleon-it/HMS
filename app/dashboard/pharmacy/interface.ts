@@ -85,6 +85,7 @@ export interface DataType {
         food: string;
         duration: string;
         quantity: number;
+        availableQuantity:number
     }[];
     priority: string;
     status: string;

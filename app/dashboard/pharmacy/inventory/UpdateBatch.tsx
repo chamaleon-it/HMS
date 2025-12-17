@@ -128,6 +128,9 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
                                         <Calendar
+                                        startMonth={new Date(2025,0)}
+              endMonth={new Date(2030,0)}
+              captionLayout="dropdown"
                                             disabled={{ before: new Date() }}
                                             mode="single"
                                             selected={expiryDate}
