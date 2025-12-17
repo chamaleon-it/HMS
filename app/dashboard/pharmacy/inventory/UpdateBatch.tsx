@@ -131,6 +131,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         startMonth={new Date(2025,0)}
               endMonth={new Date(2030,0)}
               captionLayout="dropdown"
+                                            disabled={{ before: new Date() }}
                                             mode="single"
                                             selected={expiryDate}
                                             onSelect={(date) => {

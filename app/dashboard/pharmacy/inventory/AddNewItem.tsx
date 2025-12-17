@@ -260,6 +260,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
               <Calendar
               startMonth={new Date(2025,0)}
               endMonth={new Date(2030,0)}
+                disabled={{ before: new Date() }}
                 mode="single"
                 selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
                 captionLayout="dropdown"

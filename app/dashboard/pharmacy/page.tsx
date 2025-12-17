@@ -112,7 +112,9 @@ function RxQueue() {
           <p className="text-slate-600 text-sm">Live prescriptions</p>
         </div>
         <div className="flex gap-5 items-center">
+
           <NewOrder OrderMutate={OrderMutate} />
+
           <Tabs
             defaultValue="all"
             className="w-auto"
