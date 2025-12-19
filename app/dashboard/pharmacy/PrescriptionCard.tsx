@@ -317,8 +317,8 @@ export default function PrescriptionCard({
           <div
             className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
           ></div>
-          <div className="text-right font-bold">Grand Total</div>
-          <div className="text-right font-bold">{formatINR(subTotal - data.discount)}</div>
+          <div className="text-right font-bold text-[13px]">Grand Total</div>
+          <div className="text-right font-bold text-[13px]">{formatINR(subTotal - data.discount)}</div>
         </div>
 
       </div>

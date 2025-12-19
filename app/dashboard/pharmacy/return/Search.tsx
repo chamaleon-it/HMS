@@ -5,6 +5,7 @@ import { formatINR } from "@/lib/fNumber";
 import React from "react";
 import { OrderType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
+import { Search as SearchIcon, User, Stethoscope, CreditCard, ReceiptIndianRupee, Download } from "lucide-react";
 
 interface Props {
   filter: {
@@ -33,7 +34,7 @@ export default function Search({
       <Card className="xl:col-span-1 shadow-sm border-slate-200">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-medium text-slate-700 flex items-center gap-2">
-            <span>Find Bill / Patient</span>
+            <span>Find Bill</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="flex flex-col gap-3">
@@ -52,10 +53,11 @@ export default function Search({
               </span>
             </div>
             <Button
-              className="h-9 rounded-lg bg-slate-900 text-white hover:bg-slate-800 px-3 text-xs font-medium"
+              className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-4 text-xs font-medium shadow-[0_8px_20px_rgba(16,185,129,0.3)] flex items-center gap-2 transition-all active:scale-95"
               onClick={fetchOrder}
             >
-              Load
+              <Download className="w-3.5 h-3.5" />
+              Load Order
             </Button>
           </div>
           {Boolean(order) && (
@@ -81,8 +83,10 @@ export default function Search({
       <Card className="xl:col-span-2 shadow-sm border-slate-200">
         <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-4 p-4 text-[11px] text-slate-600">
           <div className="flex flex-col">
-            <span className="uppercase tracking-wide">Patient</span>
-            <span className="text-slate-900 font-medium text-sm leading-tight">
+            <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500">
+              <User className="w-3 h-3 text-blue-500" /> Patient
+            </span>
+            <span className="text-blue-700 font-semibold text-sm leading-tight mt-1">
               {order?.patient.name}
             </span>
             <span className="text-[10px] text-slate-400">
@@ -90,8 +94,10 @@ export default function Search({
             </span>
           </div>
           <div className="flex flex-col">
-            <span className="uppercase tracking-wide">Doctor</span>
-            <span className="text-slate-900 font-medium text-sm leading-tight">
+            <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500">
+              <Stethoscope className="w-3 h-3 text-purple-500" /> Doctor
+            </span>
+            <span className="text-slate-900 font-medium text-sm leading-tight mt-1">
               Dr. {order?.doctor.name}
             </span>
             <span className="text-[10px] text-slate-400">
@@ -99,15 +105,19 @@ export default function Search({
             </span>
           </div>
           <div className="flex flex-col">
-            <span className="uppercase tracking-wide">Payment Mode</span>
-            <span className="text-slate-900 font-medium text-sm leading-tight">
+            <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500">
+              <CreditCard className="w-3 h-3 text-orange-500" /> Payment
+            </span>
+            <span className="text-slate-900 font-medium text-sm leading-tight mt-1">
               UPI
             </span>
-            <span className="text-[10px] text-slate-400">Txn: TXN284712</span>
+
           </div>
           <div className="flex flex-col">
-            <span className="uppercase tracking-wide">Invoice Total</span>
-            <span className="text-slate-900 font-semibold text-base leading-tight">
+            <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500">
+              <ReceiptIndianRupee className="w-3 h-3 text-emerald-500" /> Total
+            </span>
+            <span className="text-emerald-700 font-bold text-lg leading-tight mt-1">
               {formatINR(
                 order?.items.reduce((a, b) => a + b.name.unitPrice * b.quantity, 0) ?? 0
               )}

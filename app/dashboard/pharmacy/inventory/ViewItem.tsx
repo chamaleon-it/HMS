@@ -4,7 +4,7 @@ import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -27,6 +27,22 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     },
     [mutate, onClose]
   );
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 5;
+  const sortedBatches = item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+  const totalPages = Math.ceil(sortedBatches.length / ITEMS_PER_PAGE);
+  const paginatedBatches = sortedBatches.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  const handleNextPage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+  };
+
+  const handlePrevPage = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (currentPage > 1) setCurrentPage(prev => prev - 1);
+  };
 
   return (
     <div className="w-full bg-white rounded-2xl shadow-xl p-2 space-y-4 text-sm max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -168,14 +184,14 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </TableRow>
             </TableHeader>
             <TableBody>
-              {item?.batches?.length === 0 ? (
+              {paginatedBatches.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-8 text-muted-foreground text-sm">
                     No batch history found.
                   </TableCell>
                 </TableRow>
               ) : (
-                item?.batches?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map((batch) => (
+                paginatedBatches.map((batch) => (
                   <TableRow key={batch._id} className="hover:bg-slate-50 border-b border-slate-100 last:border-0">
                     <TableCell className="text-xs py-3 font-medium text-slate-700">{fDate(batch.createdAt)}</TableCell>
                     <TableCell className="font-mono text-xs py-3 text-slate-600 bg-slate-50/50 rounded-sm w-fit px-2">{batch.batchNumber}</TableCell>
@@ -189,6 +205,40 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             </TableBody>
           </Table>
         </div>
+        {sortedBatches.length > ITEMS_PER_PAGE && (
+          <div className="flex items-center justify-end space-x-2 py-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrevPage}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant={currentPage === page ? "default" : "outline"}
+                size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage(page);
+                }}
+                className="w-8 h-8 p-0"
+              >
+                {page}
+              </Button>
+            ))}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleNextPage}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Actions */}

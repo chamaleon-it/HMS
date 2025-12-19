@@ -34,6 +34,14 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useSearchParams } from "next/navigation";
+import { Trash, CreditCard, User, MessageSquareText } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function PharmacyReturnPage() {
 
@@ -149,7 +157,7 @@ export default function PharmacyReturnPage() {
 
   return (
     <AppShell>
-      <div className="p-5 flex flex-col gap-6 text-sm min-h-[calc(100vh-80px)]">
+      <div className="p-6 flex flex-col gap-6 text-sm min-h-[calc(100vh-80px)] bg-slate-50/50">
         <Header />
 
         <Search
@@ -160,7 +168,7 @@ export default function PharmacyReturnPage() {
         />
 
         {/* RETURNED ITEMS TABLE */}
-        <section className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <section className="rounded-xl border border-slate-200 bg-white shadow-md overflow-hidden">
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
             <div className="text-sm font-medium text-slate-700">
               Items to Return
@@ -173,18 +181,18 @@ export default function PharmacyReturnPage() {
           <div className="overflow-x-auto">
             <Table className="min-w-full text-xs">
               <TableHeader>
-                <TableRow className="bg-white [&>th]:h-9 [&>th]:text-[11px] [&>th]:font-medium [&>th]:text-slate-500 [&>th]:uppercase [&>th]:tracking-wide">
-                  <TableHead className="w-[32px] text-center">#</TableHead>
-                  <TableHead>Medicine / Gen</TableHead>
-                  <TableHead>HSN</TableHead>
-                  <TableHead>Batch</TableHead>
-                  <TableHead>Expiry</TableHead>
-                  <TableHead className="text-center">Qty Sold</TableHead>
-                  <TableHead className="text-center">Qty Return</TableHead>
-                  <TableHead className="text-right">Rate</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead>Reason</TableHead>
-                  <TableHead>Action</TableHead>
+                <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
+                  <TableHead className="w-[32px] text-center text-white">#</TableHead>
+                  <TableHead className="text-white">Medicine / Gen</TableHead>
+                  <TableHead className="text-white">HSN</TableHead>
+                  <TableHead className="text-white">Batch</TableHead>
+                  <TableHead className="text-white">Expiry</TableHead>
+                  <TableHead className="text-center text-white">Qty Sold</TableHead>
+                  <TableHead className="text-center text-white">Qty Return</TableHead>
+                  <TableHead className="text-right text-white">Rate</TableHead>
+                  <TableHead className="text-right text-white">Amount</TableHead>
+                  <TableHead className="text-white">Reason</TableHead>
+                  <TableHead className="text-white">Action</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -283,10 +291,15 @@ export default function PharmacyReturnPage() {
                           }}
                           className="appearance-none h-8 rounded-lg border border-slate-300 bg-white pr-7 pl-2 text-[11px] leading-none text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                         >
+                          <option>Doctor Changed Rx</option>
                           <option>Expired</option>
-                          <option>Damaged</option>
-                          <option>Wrong item</option>
+                          <option>Near Expiry</option>
+                          <option>Quality Issue</option>
+                          <option>Wrong Item</option>
+                          <option>Adverse Reaction</option>
+                          <option>Not Required</option>
                           <option>Other</option>
+                          <option>Damaged</option>
                         </select>
                         <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
                           ▾
@@ -310,6 +323,7 @@ export default function PharmacyReturnPage() {
                           );
                         }}
                       >
+                        <Trash className="w-3.5 h-3.5 mr-2" />
                         Remove
                       </Button>
                     </TableCell>
@@ -356,64 +370,67 @@ export default function PharmacyReturnPage() {
         {/* REFUND ACTIONS CARD */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* LEFT: REFUND OPTIONS */}
-          <Card className="shadow-sm border-slate-200">
-            <CardHeader className="pb-2">
+          <Card className="shadow-md border-slate-200">
+            <CardHeader className="">
               <CardTitle className="text-sm font-medium text-slate-700">
                 Refund Options
               </CardTitle>
             </CardHeader>
-            <CardContent className="grid grid-cols-2 gap-4 text-[11px] text-slate-700">
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase tracking-wide text-slate-500">
-                  Refund Mode
-                </span>
-                <div className="relative inline-block">
-                  <select
+            <CardContent className="grid grid-cols-1 gap-5 text-sm">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
+                    <CreditCard className="w-3.5 h-3.5 text-slate-400" />
+                    Refund Mode
+                  </span>
+                  <Select
                     value={state.refundMode}
-                    onChange={(e) =>
+                    onValueChange={(val) =>
                       setState((prev) => ({
                         ...prev,
-                        refundMode: e.target.value,
+                        refundMode: val,
                       }))
                     }
-                    className="appearance-none h-9 w-full rounded-lg border border-slate-300 bg-white pr-8 pl-3 text-[12px] leading-none text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                   >
-                    <option>Cash</option>
-                    <option>UPI</option>
-                    <option>Adjust in Next Bill</option>
-                  </select>
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
-                    ▾
-                  </span>
+                    <SelectTrigger className="h-9 text-xs rounded-lg border-slate-200">
+                      <SelectValue placeholder="Select Mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Cash">Cash</SelectItem>
+                      <SelectItem value="UPI">UPI</SelectItem>
+                      <SelectItem value="Adjust in Next Bill">Adjust in Next Bill</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-              </div>
 
-              <div className="flex flex-col gap-1">
-                <span className="text-[10px] uppercase tracking-wide text-slate-500">
-                  Returned By
-                </span>
-                <div className="relative inline-block">
-                  <select
+                <div className="flex flex-col gap-2">
+                  <span className="text-[11px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
+                    <User className="w-3.5 h-3.5 text-slate-400" />
+                    Returned By
+                  </span>
+                  <Select
                     value={state.returnedBy}
-                    onChange={(e) =>
+                    onValueChange={(val) =>
                       setState((prev) => ({
                         ...prev,
-                        returnedBy: e.target.value,
+                        returnedBy: val,
                       }))
                     }
-                    className="appearance-none h-9 w-full rounded-lg border border-slate-300 bg-white pr-8 pl-3 text-[12px] leading-none text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                   >
-                    <option>Patient</option>
-                    <option>Staff</option>
-                  </select>
-                  <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
-                    ▾
-                  </span>
+                    <SelectTrigger className="h-9 text-xs rounded-lg border-slate-200">
+                      <SelectValue placeholder="Select Staff" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Patient">Patient</SelectItem>
+                      <SelectItem value="Staff">Staff</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
-              <div className="flex flex-col gap-1 col-span-2">
-                <span className="text-[10px] uppercase tracking-wide text-slate-500">
+              <div className="flex flex-col gap-2">
+                <span className="text-[11px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
+                  <MessageSquareText className="w-3.5 h-3.5 text-slate-400" />
                   Remarks
                 </span>
                 <Input
@@ -421,15 +438,15 @@ export default function PharmacyReturnPage() {
                   onChange={(e) =>
                     setState((prev) => ({ ...prev, remarks: e.target.value }))
                   }
-                  placeholder="example: Returned sealed strip, verified"
-                  className="h-9 rounded-lg border-slate-300 text-[12px] focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                  placeholder="e.g. Returned sealed strip, verified by pharmacist"
+                  className="h-9 rounded-lg border-slate-200 text-xs focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
                 />
               </div>
             </CardContent>
           </Card>
 
           {/* RIGHT: STATUS + ACTIONS */}
-          <Card className="shadow-sm border-slate-200 flex flex-col">
+          <Card className="shadow-md border-slate-200 flex flex-col">
             <CardContent className="p-4 flex flex-col justify-between flex-1">
               <div className="flex items-start justify-between">
                 <div className="flex flex-col text-[11px] text-slate-600">
@@ -454,16 +471,9 @@ export default function PharmacyReturnPage() {
               </div>
 
               <div className="flex flex-col gap-2 mt-6 text-right">
-                <div className="text-[10px] text-slate-500">
-                  Preview before confirm
-                </div>
+
                 <div className="flex justify-end gap-2 flex-wrap">
-                  <Button
-                    variant="outline"
-                    className="h-9 rounded-lg border-slate-300 text-[12px] font-medium px-3"
-                  >
-                    Preview Credit Note
-                  </Button>
+
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]">

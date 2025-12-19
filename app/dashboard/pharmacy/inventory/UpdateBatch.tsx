@@ -51,6 +51,7 @@ interface Props {
 export default function UpdateBatch({ item, mutate }: Props) {
     const [open, setOpen] = useState(false);
     const [openCalander, setOpenCalander] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
 
     const {
         register,
@@ -85,6 +86,21 @@ export default function UpdateBatch({ item, mutate }: Props) {
             toast.error("Failed to add batch");
         }
     });
+
+    const ITEMS_PER_PAGE = 5;
+    const sortedBatches = item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+    const totalPages = Math.ceil(sortedBatches.length / ITEMS_PER_PAGE);
+    const paginatedBatches = sortedBatches.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+    const handleNextPage = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
+    };
+
+    const handlePrevPage = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (currentPage > 1) setCurrentPage(prev => prev - 1);
+    };
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -202,14 +218,14 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {item?.batches?.length === 0 ? (
+                                    {paginatedBatches.length === 0 ? (
                                         <TableRow>
                                             <TableCell colSpan={6} className="text-center py-6 text-muted-foreground text-sm">
                                                 No batch history found.
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        item?.batches?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())?.map((batch) => (
+                                        paginatedBatches.map((batch) => (
                                             <TableRow key={batch._id}>
                                                 <TableCell className="text-xs">{fDate(batch.createdAt)}</TableCell>
                                                 <TableCell className="font-medium text-xs">{batch.batchNumber}</TableCell>
@@ -223,6 +239,40 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                 </TableBody>
                             </Table>
                         </div>
+                        {sortedBatches.length > ITEMS_PER_PAGE && (
+                            <div className="flex items-center justify-end space-x-2 py-4">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handlePrevPage}
+                                    disabled={currentPage === 1}
+                                >
+                                    Previous
+                                </Button>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                    <Button
+                                        key={page}
+                                        variant={currentPage === page ? "default" : "outline"}
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setCurrentPage(page);
+                                        }}
+                                        className="w-8 h-8 p-0"
+                                    >
+                                        {page}
+                                    </Button>
+                                ))}
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={handleNextPage}
+                                    disabled={currentPage === totalPages}
+                                >
+                                    Next
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
 

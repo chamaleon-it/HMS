@@ -183,7 +183,7 @@ export default function UpdatePrescriptionCard({
               placeholder="0"
             />
           </div>
-          <div className="flex justify-between text-base font-semibold text-slate-800 border-t pt-2">
+          <div className="flex justify-between text-md font-semibold text-slate-800 border-t pt-2">
             <span>Grand Total</span>
             <span>{formatINR(subTotal - (data.discount || 0))}</span>
           </div>

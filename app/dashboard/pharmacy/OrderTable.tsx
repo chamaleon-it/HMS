@@ -12,7 +12,7 @@ import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import { Printer, Trash } from "lucide-react";
+import { CheckCircle, Eye, Printer, Trash, View } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,6 +23,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
 export default function OrderTable({
   handleView,
@@ -101,11 +103,13 @@ export default function OrderTable({
               <TableCell>{fDateandTime(r?.createdAt)}</TableCell>
               <TableCell className="text-right space-x-2">
                 <Button
+
                   size="sm"
                   variant="outline"
                   onClick={() => handleView(r)}
-                  className="cursor-pointer"
+                  className="gap-2 h-8 text-xs"
                 >
+                  <Eye className="h-4 w-4" />
                   View
                 </Button>
 
@@ -113,10 +117,34 @@ export default function OrderTable({
                   size="sm"
                   variant="outline"
                   onClick={() => handleDelete(r)}
-                  className=" font-bold cursor-pointer"
+                  className="gap-2 h-8 text-xs"
                 >
                   <Trash className="h-4 w-4 text-red-400" />
                 </Button>
+                {
+                  r?.status === "Ready" && (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-2 h-8 text-xs"
+                      onClick={async () => {
+                        await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
+                          loading: "Completing...",
+                          success: (data) => {
+                            OrderMutate();
+                            return data.data.message;
+                          },
+                          error: ({ response: { data } }) => {
+                            return data.message;
+                          }
+                        })
+                      }}
+                    >
+                      <CheckCircle className="h-4 w-4" />
+                      Complete
+                    </Button>
+                  )
+                }
 
                 <Button
                   variant="outline"
@@ -174,6 +202,7 @@ function StatusBadge({ status }: { status: string }) {
     Filling: "bg-blue-100 text-blue-700",
     "Clinical Check": "bg-amber-100 text-amber-700",
     Ready: "bg-emerald-100 text-emerald-700",
+    Completed: "bg-emerald-100 text-emerald-700",
   };
   return (
     <Badge className={map[status] || "bg-slate-100 text-slate-700"}>

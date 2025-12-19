@@ -83,8 +83,8 @@ export default function ItemTable({
   return (
     <Card className="p-0 overflow-hidden">
       <CardContent className="p-0 m-0">
-        <div className="overflow-x-auto">
-          <Table>
+        <div className="overflow-x-auto w-full max-w-[85vw] md:max-w-[calc(100vw-280px)]">
+          <Table className="whitespace-nowrap">
             <TableHeader>
               <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
                 <TableHead className="text-white">
@@ -142,7 +142,7 @@ export default function ItemTable({
                   </TableCell>
                   <TableCell>{formatINR(item.purchasePrice)}</TableCell>
                   <TableCell>{formatINR(item.unitPrice)}</TableCell>
-                  <TableCell>{item?.batches?.length ?formatINR(item?.batches?.reduce((a,b)=>a+(b.purchasePrice*b.quantity),0)) : formatINR(item.quantity * item.purchasePrice)}</TableCell>
+                  <TableCell>{item?.batches?.length ? formatINR(item?.batches?.reduce((a, b) => a + (b.purchasePrice * b.quantity), 0)) : formatINR(item.quantity * item.purchasePrice)}</TableCell>
                   <TableCell>{fDate(item.expiryDate)}</TableCell>
                   <TableCell>{item.supplier}</TableCell>
                   <TableCell>{item.manufacturer}</TableCell>
