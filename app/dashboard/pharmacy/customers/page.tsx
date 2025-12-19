@@ -109,9 +109,9 @@ const Customers: React.FC = () => {
                     if (filter.query) {
                       const q = filter.query.toLowerCase();
                       const match =
-                        p.patient.name.toLowerCase().startsWith(q) ||
-                        p.patient.phoneNumber.includes(q) ||
-                        p.patient.mrn.includes(q);
+                        (p.patient.name?.toLowerCase() || "").startsWith(q) ||
+                        (p.patient.phoneNumber || "").includes(q) ||
+                        (p.patient.mrn || "").includes(q);
 
                       if (!match) return false;
                     }
@@ -182,10 +182,16 @@ const Customers: React.FC = () => {
                         <TableCell className="py-3 align-middle font-medium">
                           <div className="flex flex-col gap-0.5">
                             <span className="text-[15px] text-slate-900">
-                              {p.patient.name}
+                              <HighlightText
+                                text={p.patient.name}
+                                highlight={filter.query || ""}
+                              />
                             </span>
                             <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
-                              {p.patient.address}
+                              <HighlightText
+                                text={p.patient.address}
+                                highlight={filter.query || ""}
+                              />
                             </span>
                             <div className="flex flex-wrap gap-1 mt-0.5">
                               {!hasHistory && (
@@ -202,13 +208,19 @@ const Customers: React.FC = () => {
                           </div>
                         </TableCell>
                         <TableCell className="py-3 align-middle text-slate-700">
-                          {p.patient.mrn}
+                          <HighlightText
+                            text={p.patient.mrn}
+                            highlight={filter.query || ""}
+                          />
                         </TableCell>
                         <TableCell className="py-3 align-middle text-slate-700">
                           {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
                         </TableCell>
                         <TableCell className="py-3 align-middle text-slate-700">
-                          {p.patient.phoneNumber}
+                          <HighlightText
+                            text={p.patient.phoneNumber}
+                            highlight={filter.query || ""}
+                          />
                         </TableCell>
                         <TableCell className="py-3 align-middle text-right text-slate-900">
                           {p.visits}
@@ -239,6 +251,29 @@ const Customers: React.FC = () => {
         </main>
       </div>
     </AppShell>
+  );
+};
+
+
+const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+  if (!text) return null;
+  if (!highlight || !highlight.trim()) {
+    return <span>{text}</span>;
+  }
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <span key={i} className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5">
+            {part}
+          </span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
   );
 };
 

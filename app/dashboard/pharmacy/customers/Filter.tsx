@@ -48,11 +48,11 @@ export default function Filter({
       <div className="flex flex-col md:flex-row gap-3 md:items-center">
         <div className="flex-1">
           <input
-            value={filter.query}
+            value={filter?.query || ""}
             onChange={(e) =>
               setFilter((prev) => ({ ...prev, query: e.target.value }))
             }
-            placeholder="Search by name, ID, phone, condition…"
+            placeholder="Search by name, ID, phone"
             className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
           />
         </div>

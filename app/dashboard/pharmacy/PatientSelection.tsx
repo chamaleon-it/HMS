@@ -225,6 +225,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
                     p={p}
                     isActive={activeIdx === idx}
                     isSelected={selected?._id === p._id}
+                    searchQuery={debounced}
                   />
                 </li>
               ))}
@@ -267,11 +268,33 @@ const safeAge = (dob?: string | Date) => {
   }
 };
 
+const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+  if (!highlight.trim()) {
+    return <span>{text}</span>;
+  }
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <span key={i} className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5">
+            {part}
+          </span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
+  );
+};
+
 const PatientCard: React.FC<{
   p: Patient;
   isActive: boolean;
   isSelected: boolean;
-}> = ({ p, isActive, isSelected }) => {
+  searchQuery?: string;
+}> = ({ p, isActive, isSelected, searchQuery = "" }) => {
   const hue = hashHue(p._id ?? p.name ?? p.mrn ?? "hue");
   const ringGradient = `bg-[conic-gradient(from_180deg,oklch(0.92_0.04_${hue})_0%,oklch(0.94_0.05_${(hue + 40) % 360
     })_50%,oklch(0.92_0.04_${(hue + 80) % 360})_100%)]`;
@@ -333,11 +356,11 @@ const PatientCard: React.FC<{
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <p className="truncate font-semibold text-zinc-900 dark:text-zinc-100">
-                  {p.name}
+                  <HighlightText text={p.name} highlight={searchQuery} />
                 </p>
                 {p.mrn ? (
                   <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-400">
-                    ({p.mrn})
+                    (<HighlightText text={p.mrn} highlight={searchQuery} />)
                   </span>
                 ) : null}
               </div>
@@ -370,7 +393,9 @@ const PatientCard: React.FC<{
                 aria-label={`Call ${p.name}`}
               >
                 <Phone className="h-3.5 w-3.5" />
-                <span className="tabular-nums">{p.phoneNumber}</span>
+                <span className="tabular-nums">
+                  <HighlightText text={p.phoneNumber} highlight={searchQuery} />
+                </span>
               </a>
             ) : null}
           </div>
@@ -379,7 +404,9 @@ const PatientCard: React.FC<{
           {p.address ? (
             <div className="mt-2 flex items-start gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <p className="line-clamp-1">{p.address}</p>
+              <p className="line-clamp-1">
+                <HighlightText text={p.address} highlight={searchQuery} />
+              </p>
             </div>
           ) : null}
         </div>
