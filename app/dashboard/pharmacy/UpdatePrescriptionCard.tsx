@@ -56,6 +56,9 @@ export default function UpdatePrescriptionCard({
     }));
   };
 
+  const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * (b.name.unitPrice || 0), 0);
+
+
   return (
     <div className="rounded-lg border">
       <div className="overflow-hidden rounded-t-lg">
@@ -142,8 +145,49 @@ export default function UpdatePrescriptionCard({
           </tbody>
         </table>
       </div>
-      <div className="p-4 border-t bg-slate-50 rounded-b-lg">
+      <div className="p-4 border-t bg-slate-50 flex flex-col gap-3 rounded-b-lg">
         <UpdateMedicine addMedicineRow={addMedicineRow} />
+
+        <div className="flex flex-col gap-2 mt-2 w-full max-w-xs ml-auto border-t pt-2">
+          <div className="flex justify-between text-sm text-slate-600">
+            <span>Sub Total</span>
+            <span>{formatINR(subTotal)}</span>
+          </div>
+          <div className="flex justify-between items-center text-sm text-slate-600">
+            <span>Discount %</span>
+            <input
+              type="number"
+              min="0"
+              className="w-24 text-right bg-white border border-slate-200 rounded px-2 py-1 text-sm outline-none focus:border-emerald-500"
+              placeholder="0"
+              onChange={(e) => {
+                const pct = parseFloat(e.target.value) || 0;
+                const amt = (pct / 100) * subTotal;
+                setData(prev => ({ ...prev, discount: amt }));
+              }}
+              value={
+                subTotal && data.discount
+                  ? (data.discount / subTotal) * 100
+                  : ""
+              }
+            />
+          </div>
+          <div className="flex justify-between items-center text-sm text-slate-600">
+            <span>Discount ₹</span>
+            <input
+              type="number"
+              min="0"
+              value={data.discount || ""}
+              onChange={(e) => setData(prev => ({ ...prev, discount: Number(e.target.value) || 0 }))}
+              className="w-24 text-right bg-white border border-slate-200 rounded px-2 py-1 text-sm outline-none focus:border-emerald-500"
+              placeholder="0"
+            />
+          </div>
+          <div className="flex justify-between text-base font-semibold text-slate-800 border-t pt-2">
+            <span>Grand Total</span>
+            <span>{formatINR(subTotal - (data.discount || 0))}</span>
+          </div>
+        </div>
       </div>
     </div>
   );

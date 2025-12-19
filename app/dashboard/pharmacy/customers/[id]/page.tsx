@@ -285,7 +285,7 @@ const Customer: React.FC = () => {
                                   bill.items.reduce(
                                     (a, b) => a + b.quantity * b.name.unitPrice,
                                     0
-                                  )
+                                  ) - (bill?.discount || 0)
                                 )}
                               </span>
                             </div>
@@ -411,7 +411,7 @@ const Customer: React.FC = () => {
                                   className="border-t align-top hover:bg-slate-50/70 transition-colors"
                                 >
                                   <td className="p-2 align-top text-slate-500">
-                                    {i}
+                                    {i + 1}
                                   </td>
                                   <td className="p-2 align-top">
                                     <div className="font-medium text-slate-900 leading-snug">
@@ -446,6 +446,40 @@ const Customer: React.FC = () => {
                             )}
                           </tbody>
                           <tfoot>
+
+                            <tr className="border-t bg-slate-50/80">
+                              <td
+                                colSpan={4}
+                                className="p-2 text-right text-xs text-slate-600"
+                              >
+                                Sub Total
+                              </td>
+                              <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                {formatINR(
+                                  selectedVisit.items.reduce(
+                                    (a, b) => a + b.quantity * b.name.unitPrice,
+                                    0
+                                  )
+                                )}
+                              </td>
+                            </tr>
+                            <tr className="border-t bg-slate-50/80">
+                              <td
+                                colSpan={4}
+                                className="p-2 text-right text-xs text-slate-600"
+                              >
+                                Discount
+                              </td>
+                              <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                {formatINR(
+                                  selectedVisit?.discount || 0
+
+                                )}
+                              </td>
+                            </tr>
+
+
+
                             <tr className="border-t bg-slate-50/80">
                               <td
                                 colSpan={4}
@@ -458,7 +492,7 @@ const Customer: React.FC = () => {
                                   selectedVisit.items.reduce(
                                     (a, b) => a + b.quantity * b.name.unitPrice,
                                     0
-                                  )
+                                  ) - (selectedVisit?.discount || 0)
                                 )}
                               </td>
                             </tr>
