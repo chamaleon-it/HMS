@@ -238,115 +238,130 @@ const Customer: React.FC = () => {
                   </div>
 
                   <div className="flex-1 overflow-y-auto divide-y">
-                    {customer?.totalVisit === 0 && (
-                      <div className="p-4 text-xs text-slate-500">
-                        No purchase history for this patient.
-                      </div>
-                    )}
 
-                    {customer?.orders.length === 0 && (
-                      <div className="p-4 text-xs text-slate-500">
-                        No bills in this date range.
-                      </div>
-                    )}
+                    {(() => {
+                      // 1. Combine Data
+                      let combined = [];
+                      if (returnData?.data) {
+                        combined.push(
+                          ...returnData.data.map((r) => ({ ...r, type: "return" }))
+                        );
+                      }
+                      if (customer?.orders) {
+                        combined.push(
+                          ...customer.orders.map((o) => ({ ...o, type: "sale" }))
+                        );
+                      }
 
+                      // 2. Filter by Tab Type (sale, return, all)
+                      if (type !== "all") {
+                        combined = combined.filter((item) => item.type === type);
+                      }
 
-
-                    {(type === "sale" || type === "all") && customer?.orders
-                      .filter((o) => {
-                        if (date?.from && date.to) {
-                          const created = new Date(o.createdAt);
-                          const start = new Date(date.from);
-                          const end = new Date(date.to);
-                          end.setHours(23, 59, 59, 999);
+                      // 3. Filter by Date Range
+                      if (date?.from && date?.to) {
+                        const start = new Date(date.from);
+                        const end = new Date(date.to);
+                        end.setHours(23, 59, 59, 999);
+                        combined = combined.filter((item) => {
+                          if (!item.createdAt) return false;
+                          const created = new Date(item.createdAt);
                           return created >= start && created <= end;
+                        });
+                      }
+
+                      // 4. Sort by Date Descending
+                      combined.sort(
+                        (a, b) => {
+                          const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                          const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                          return dateB - dateA;
                         }
-                        return true;
-                      })
-                      .map((bill) => {
-                        const active =
-                          selectedVisit && selectedVisit._id === bill._id;
+                      );
+
+                      // 5. Render
+                      return combined.map((item: any) => {
+                        const active = selectedVisit && selectedVisit._id === item._id;
+                        const isReturn = item.type === "return";
+
                         return (
                           <button
-                            key={bill._id}
+                            key={item._id}
                             type="button"
-                            onClick={() => setSelectedVisit(bill)}
+                            onClick={() => setSelectedVisit(item)}
                             className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
                               ? "bg-slate-900 text-slate-50"
                               : "hover:bg-slate-50"
                               }`}
                           >
                             <div className="flex items-center justify-between gap-2">
-                              <span className="font-medium">
-                                {fDate(bill.createdAt)} • {bill.mrn}
-                              </span>
-                              <span className="text-xs font-semibold">
-                                {formatINR(
-                                  bill.items.reduce(
-                                    (a, b) => a + b.quantity * b.name.unitPrice,
-                                    0
-                                  )
-                                )}
-                              </span>
+                              {isReturn ? (
+                                // Return Item Header
+                                <>
+                                  <span className="font-medium">
+                                    {fDate(item.createdAt)} - Return
+                                  </span>
+                                  <span className="text-xs font-semibold">
+                                    {formatINR(
+                                      item.items.reduce(
+                                        (a: number, b: any) =>
+                                          a + b.quantity * b.name.unitPrice,
+                                        0
+                                      )
+                                    )}
+                                  </span>
+                                </>
+                              ) : (
+                                // Sale Item Header
+                                <>
+                                  <span className="font-medium">
+                                    {fDate(item.createdAt)} • {item.mrn}
+                                  </span>
+                                  <span className="text-xs font-semibold">
+                                    {formatINR(
+                                      item.items.reduce(
+                                        (a: number, b: any) =>
+                                          a + b.quantity * b.name.unitPrice,
+                                        0
+                                      ) - (item?.discount || 0)
+                                    )}
+                                  </span>
+                                </>
+                              )}
                             </div>
+
                             <div className="flex items-center justify-between gap-2 text-[12px]">
-                              <span className="opacity-80">RX: {bill.mrn}</span>
-                              <span
-                                className={
-                                  active ? "opacity-80" : "text-slate-500"
-                                }
-                              >
-                                {bill.items.length} item
-                                {bill.items.length === 1 ? "" : "s"}
-                              </span>
+                              {isReturn ? (
+                                // Return Item Subtext
+                                <span
+                                  className={
+                                    active ? "opacity-80" : "text-slate-500"
+                                  }
+                                >
+                                  {item.items.length} item
+                                  {item.items.length === 1 ? "" : "s"}
+                                </span>
+                              ) : (
+                                // Sale Item Subtext
+                                <>
+                                  <span className="opacity-80">RX: {item.mrn}</span>
+                                  <span
+                                    className={
+                                      active ? "opacity-80" : "text-slate-500"
+                                    }
+                                  >
+                                    {item.items.length} item
+                                    {item.items.length === 1 ? "" : "s"}
+                                  </span>
+                                </>
+                              )}
                             </div>
                           </button>
                         );
-                      })}
+                      });
+                    })()}
 
-                    {
-                      (type === "return" || type === "all") && returnData?.data.map(e => {
-                        const active =
-                          selectedVisit && selectedVisit._id === e._id;
-                        return (
-                          <button
-                            key={e._id}
-                            type="button"
-                            onClick={() => setSelectedVisit(e)}
-                            className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
-                              ? "bg-slate-900 text-slate-50"
-                              : "hover:bg-slate-50"
-                              }`}
-                          >
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="font-medium">
-                                {fDate(e.createdAt)} - Return
-                              </span>
 
-                              <span className="text-xs font-semibold">
-                                {formatINR(
-                                  e.items.reduce(
-                                    (a, b) => a + b.quantity * b.name.unitPrice,
-                                    0
-                                  )
-                                )}
-                              </span>
-                            </div>
-                            <div className="flex items-center justify-between gap-2 text-[12px]">
-                              <span
-                                className={
-                                  active ? "opacity-80" : "text-slate-500"
-                                }
-                              >
-                                {e.items.length} item
-                                {e.items.length === 1 ? "" : "s"}
-                              </span>
-                            </div>
-                          </button>
-                        )
-
-                      })
-                    }
                   </div>
                 </div>
 
@@ -411,7 +426,7 @@ const Customer: React.FC = () => {
                                   className="border-t align-top hover:bg-slate-50/70 transition-colors"
                                 >
                                   <td className="p-2 align-top text-slate-500">
-                                    {i}
+                                    {i + 1}
                                   </td>
                                   <td className="p-2 align-top">
                                     <div className="font-medium text-slate-900 leading-snug">
@@ -446,6 +461,40 @@ const Customer: React.FC = () => {
                             )}
                           </tbody>
                           <tfoot>
+
+                            <tr className="border-t bg-slate-50/80">
+                              <td
+                                colSpan={4}
+                                className="p-2 text-right text-xs text-slate-600"
+                              >
+                                Sub Total
+                              </td>
+                              <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                {formatINR(
+                                  selectedVisit.items.reduce(
+                                    (a, b) => a + b.quantity * b.name.unitPrice,
+                                    0
+                                  )
+                                )}
+                              </td>
+                            </tr>
+                            <tr className="border-t bg-slate-50/80">
+                              <td
+                                colSpan={4}
+                                className="p-2 text-right text-xs text-slate-600"
+                              >
+                                Discount
+                              </td>
+                              <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                {formatINR(
+                                  selectedVisit?.discount || 0
+
+                                )}
+                              </td>
+                            </tr>
+
+
+
                             <tr className="border-t bg-slate-50/80">
                               <td
                                 colSpan={4}
@@ -458,7 +507,7 @@ const Customer: React.FC = () => {
                                   selectedVisit.items.reduce(
                                     (a, b) => a + b.quantity * b.name.unitPrice,
                                     0
-                                  )
+                                  ) - (selectedVisit?.discount || 0)
                                 )}
                               </td>
                             </tr>

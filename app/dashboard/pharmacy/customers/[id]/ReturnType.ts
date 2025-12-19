@@ -15,6 +15,7 @@ export interface Datum {
     __v?: number;
     createdAt?: Date;
     updatedAt?: Date;
+    discount?: number
 }
 
 export interface Item {

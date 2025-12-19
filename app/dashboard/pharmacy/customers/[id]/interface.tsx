@@ -20,6 +20,7 @@ export interface Order {
   items: Item[];
   priority: string;
   status: string;
+  discount?: number
   assignedTo: null;
   createdAt: Date;
   updatedAt: Date;

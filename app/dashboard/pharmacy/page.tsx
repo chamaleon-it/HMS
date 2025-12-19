@@ -1,23 +1,17 @@
 "use client";
 
-import React, { useState } from "react";
+import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AppShell from "@/components/layout/app-shell";
 import OrderTable from "./OrderTable";
 import { OrderType } from "./interface";
 import useSWR from "swr";
-import { fAge, fDate, fDateandTime } from "@/lib/fDateAndTime";
 import DeleteOrder from "./DeleteOrder";
-import toast from "react-hot-toast";
-import api from "@/lib/axios";
 import NewOrder from "./NewOrder";
-
 import ViewOrder from "./ViewOrder";
+import PharmacyStatus from "./PharmacyStatus";
 
 function RxQueue() {
-
 
   const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -33,15 +27,15 @@ function RxQueue() {
     setDeleteOpen(true);
   };
 
-  const [filter, setFilter] = useState({
-    q: "all",
+  const [filter, setFilter] = useState<{ q: "Pending" | "Filling" | "Ready" | "Completed" }>({
+    q: "Pending",
   });
 
   const params = new URLSearchParams();
 
-  if (filter.q !== "all") {
-    params.set("q", filter.q);
-  }
+
+  params.set("q", filter.q);
+
 
   const { data: ordersData, mutate: OrderMutate } = useSWR<{
     message: string;
@@ -60,20 +54,11 @@ function RxQueue() {
         </div>
         <div className="flex gap-5 items-center">
 
+
           <NewOrder OrderMutate={OrderMutate} />
 
-          <Tabs
-            defaultValue="all"
-            className="w-auto"
-            value={filter.q}
-            onValueChange={(v) => setFilter((prev) => ({ ...prev, q: v }))}
-          >
-            <TabsList>
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="stat">STAT</TabsTrigger>
-              <TabsTrigger value="ready">Ready</TabsTrigger>
-            </TabsList>
-          </Tabs>
+          <PharmacyStatus currenctStatus={filter.q} setCurrenctStatus={(status) => setFilter((prev) => ({ ...prev, q: status }))} />
+
         </div>
       </div>
 

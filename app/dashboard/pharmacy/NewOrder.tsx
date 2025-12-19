@@ -35,10 +35,11 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         food: "After food",
         frequency: "",
         quantity: 0,
-        availableQuantity:0,
-        unitPrice:0
+        availableQuantity: 0,
+        unitPrice: 0
       },
     ],
+    discount: 0,
     priority: "Normal",
     status: "Pending",
   });
@@ -92,10 +93,11 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
             food: "",
             frequency: "",
             quantity: 0,
-            availableQuantity:0,
-            unitPrice:0
+            availableQuantity: 0,
+            unitPrice: 0
           },
         ],
+        discount: 0,
         priority: "Normal",
         status: "Pending",
       });
