@@ -128,9 +128,9 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0" align="start">
                                         <Calendar
-                                        startMonth={new Date(2025,0)}
-              endMonth={new Date(2030,0)}
-              captionLayout="dropdown"
+                                            startMonth={new Date(2025, 0)}
+                                            endMonth={new Date(2030, 0)}
+                                            captionLayout="dropdown"
                                             disabled={{ before: new Date() }}
                                             mode="single"
                                             selected={expiryDate}
@@ -209,7 +209,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        item?.batches?.map((batch) => (
+                                        item?.batches?.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())?.map((batch) => (
                                             <TableRow key={batch._id}>
                                                 <TableCell className="text-xs">{fDate(batch.createdAt)}</TableCell>
                                                 <TableCell className="font-medium text-xs">{batch.batchNumber}</TableCell>

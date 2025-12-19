@@ -16,6 +16,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { formatINR } from "@/lib/fNumber";
 
 // ------------------ Types ------------------
 interface Medicine {
@@ -26,6 +27,7 @@ interface Medicine {
   duration: string;
   quantity: number;
   availableQuantity: number;
+  unitPrice: number;
 }
 
 export default function PrescriptionCard({
@@ -61,6 +63,7 @@ export default function PrescriptionCard({
           frequency: "",
           quantity: 0,
           availableQuantity: 0,
+          unitPrice: 0,
         },
       ],
     }));
@@ -69,39 +72,40 @@ export default function PrescriptionCard({
   const removeMedicineRow = (idx: number) => {
     setData((prev) => ({
       ...prev,
-      items:
-        prev.items.length === 1 ? [] : prev.items.filter((_, i) => i !== idx),
+      items: prev.items.filter((_, i) => i !== idx),
     }));
   };
+
+  const subTotal = data.items.reduce((a, b) => a + b.quantity * b.unitPrice, 0);
 
   return (
     <div className="">
       <div className="border rounded-xl p-4">
         <div className="flex flex-col gap-3">
           <div
-            className={`grid ${
-              showAllFields ? "grid-cols-12" : "grid-cols-5"
-            } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
+            className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+              } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
           >
             <div className="col-span-3">Drug</div>
             {showAllFields && (
               <>
                 <div className="col-span-1">Dosage</div>
-                <div className="col-span-2">Frequency</div>
+                <div className="col-span-1">Frequency</div>
                 <div className="col-span-2">Food</div>
-                <div className="col-span-2">Duration</div>
+                <div className="col-span-1">Duration</div>
               </>
             )}
             <div className="col-span-1">Quantity</div>
+            <div className="col-span-1">Unit Price</div>
+            <div className="col-span-1">Total Price</div>
             <div className="col-span-1 text-right">Actions</div>
           </div>
 
           {data.items.map((m, i) => (
             <div
               key={i}
-              className={`grid ${
-                showAllFields ? "grid-cols-12" : "grid-cols-5"
-              } gap-2 mt-2 items-start`}
+              className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+                } gap-2 mt-2 items-start`}
             >
               <div className="col-span-3">
                 <Medicine i={i} m={m} updateField={updateField} />
@@ -124,7 +128,7 @@ export default function PrescriptionCard({
                     />
                   </div>
 
-                  <div className="col-span-2">
+                  <div className="col-span-1">
                     <LabeledCombobox
                       options={[
                         "1-0-1",
@@ -155,7 +159,7 @@ export default function PrescriptionCard({
                     />
                   </div>
 
-                  <div className="col-span-2">
+                  <div className="col-span-1">
                     <LabeledCombobox
                       options={[
                         "3 days",
@@ -174,6 +178,48 @@ export default function PrescriptionCard({
               )}
               <div className="col-span-1">
                 <QuantityInput updateField={updateField} i={i} m={m} />
+              </div>
+
+              <div className="col-span-1">
+                <div className="relative w-full">
+                  <input
+                    placeholder="0"
+                    disabled
+                    inputMode={"numeric"}
+                    className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+                    value={m.unitPrice === 0 ? "" : m.unitPrice}
+                    onFocus={(e) => (e.target.placeholder = "")}
+                    onBlur={(e) => {
+                      e.target.placeholder = "0";
+                    }}
+                  />
+                  <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+                    Unit Price
+                  </label>
+                </div>
+              </div>
+
+              <div className="col-span-1">
+                <div className="relative w-full">
+                  <input
+                    placeholder="0"
+                    disabled
+                    inputMode={"numeric"}
+                    className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+                    value={
+                      m.unitPrice * m.quantity === 0
+                        ? ""
+                        : m.unitPrice * m.quantity
+                    }
+                    onFocus={(e) => (e.target.placeholder = "")}
+                    onBlur={(e) => {
+                      e.target.placeholder = "0";
+                    }}
+                  />
+                  <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+                    Total
+                  </label>
+                </div>
               </div>
 
               <div className="col-span-1 flex justify-end gap-2">
@@ -196,6 +242,85 @@ export default function PrescriptionCard({
             + Add Medicine
           </Button>
         </div>
+
+        <div
+          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+            } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
+        >
+          <div
+            className={`${showAllFields ? "col-span-8" : "col-span-3"}`}
+          ></div>
+          <div className="text-right flex items-center justify-end h-full">
+            <p className="h-min">
+              Discount %
+            </p>
+          </div>
+          <div className="relative w-full">
+            <input
+              placeholder="0"
+              type="number"
+              inputMode={"numeric"}
+              className={`peer w-full rounded-md border border-slate-200 bg-white px-3 h-8 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+              onChange={(e) => {
+                const pct = parseFloat(e.target.value) || 0;
+                const amt = (pct / 100) * subTotal;
+                setData({ ...data, discount: amt });
+              }}
+              value={
+                subTotal && data.discount
+                  ? (data.discount / subTotal) * 100
+                  : ""
+              }
+              onFocus={(e) => (e.target.placeholder = "")}
+              onBlur={(e) => {
+                e.target.placeholder = "0";
+              }}
+            />
+          </div>
+
+          <div className="text-right flex items-center justify-end h-full">
+            <p className="h-min">
+              Discount ₹
+            </p>
+          </div>
+          <div className="relative w-full">
+            <input
+              placeholder="0"
+              type="number"
+              inputMode={"numeric"}
+              className={`peer w-full rounded-md border border-slate-200 bg-white px-3 h-8 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+              onChange={(e) => setData({ ...data, discount: Number(e.target.value) })}
+              value={data.discount === 0 ? "" : data.discount}
+              onFocus={(e) => (e.target.placeholder = "")}
+              onBlur={(e) => {
+                e.target.placeholder = "0";
+              }}
+            />
+          </div>
+        </div>
+
+        <div
+          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+            } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
+        >
+          <div
+            className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
+          ></div>
+          <div className="text-right">Sub Total</div>
+          <div className="text-right">{formatINR(subTotal)}</div>
+        </div>
+
+        <div
+          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+            } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
+        >
+          <div
+            className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
+          ></div>
+          <div className="text-right font-bold">Grand Total</div>
+          <div className="text-right font-bold">{formatINR(subTotal - data.discount)}</div>
+        </div>
+
       </div>
     </div>
   );
@@ -284,8 +409,10 @@ const QuantityInput = ({
               Entered quantity: {m.quantity}
               <br />
               <br />
-              <span className="text-destructive">The quantity you entered exceeds the available stock.</span> Do you want
-              to continue anyway?
+              <span className="text-destructive">
+                The quantity you entered exceeds the available stock.
+              </span>{" "}
+              Do you want to continue anyway?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

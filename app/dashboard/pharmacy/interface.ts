@@ -6,6 +6,7 @@ export interface OrderType {
     items: Item[];
     priority: string;
     status: string;
+    discount: number;
     assignedTo: null;
     createdAt?: Date;
     updatedAt?: Date;
@@ -85,8 +86,10 @@ export interface DataType {
         food: string;
         duration: string;
         quantity: number;
-        availableQuantity:number
+        availableQuantity: number
+        unitPrice: number;
     }[];
+    discount: number;
     priority: string;
     status: string;
 }

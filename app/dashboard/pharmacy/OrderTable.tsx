@@ -12,7 +12,17 @@ import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import UpdateMedicines from "./UpdateMedicines";
+import { Printer, Trash } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function OrderTable({
   handleView,
@@ -25,14 +35,9 @@ export default function OrderTable({
   handleDelete: (rx: OrderType) => void;
   OrderMutate: () => void;
 }) {
-
-
-  const [updateOrder, setUpdateOrder] = useState<OrderType | null>(null)
-  const [openUpdate, setOpenUpdate] = useState(false)
-
+  const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
   return (
     <div className="rounded-2xl overflow-hidden">
-
       <Table>
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
           <TableRow className="bg-slate-700 hover:bg-slate-700">
@@ -73,7 +78,10 @@ export default function OrderTable({
 
               <TableCell>{idx + 1}</TableCell>
               <TableCell className="font-medium">{r?.mrn}</TableCell>
-              <TableCell>{r?.patient?.name} <br /> <span className="text-xs">({r?.patient?.mrn})</span></TableCell>
+              <TableCell>
+                {r?.patient?.name} <br />{" "}
+                <span className="text-xs">({r?.patient?.mrn})</span>
+              </TableCell>
               <TableCell>{r?.items?.length}</TableCell>
               <TableCell>
                 <PriorityBadge priority={r?.priority} />
@@ -92,19 +100,32 @@ export default function OrderTable({
               </TableCell>
               <TableCell>{fDateandTime(r?.createdAt)}</TableCell>
               <TableCell className="text-right space-x-2">
-                <Button size="sm" variant="outline" onClick={() => handleView(r)} className="cursor-pointer">
-                  View
-                </Button>
-                <Button size="sm" variant="outline" onClick={() => { setUpdateOrder(r); setOpenUpdate(true) }} className="cursor-pointer">
-                  Update
-                </Button>
                 <Button
                   size="sm"
-                  variant="default"
-                  onClick={() => handleDelete(r)}
-                  className="bg-red-600 hover:bg-red-600 font-bold cursor-pointer"
+                  variant="outline"
+                  onClick={() => handleView(r)}
+                  className="cursor-pointer"
                 >
-                  Delete
+                  View
+                </Button>
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => handleDelete(r)}
+                  className=" font-bold cursor-pointer"
+                >
+                  <Trash className="h-4 w-4 text-red-400" />
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 h-8 text-xs"
+                  onClick={() => setPrintOrder(r)}
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                  Print
                 </Button>
               </TableCell>
             </TableRow>
@@ -112,7 +133,25 @@ export default function OrderTable({
         </TableBody>
       </Table>
 
-      {updateOrder && <UpdateMedicines open={openUpdate} setOpen={v => { setOpenUpdate(v); setUpdateOrder(null) }} order={updateOrder} OrderMutate={OrderMutate} />}
+      <AlertDialog open={!!printOrder} onOpenChange={(open) => !open && setPrintOrder(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Print Order {printOrder?.mrn}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you absolutely sure you want to print this order details?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              window.print?.();
+              setPrintOrder(null);
+            }}>
+              Print
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

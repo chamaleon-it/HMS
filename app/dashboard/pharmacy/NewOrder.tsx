@@ -35,9 +35,11 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         food: "After food",
         frequency: "",
         quantity: 0,
-        availableQuantity:0
+        availableQuantity: 0,
+        unitPrice: 0
       },
     ],
+    discount: 0,
     priority: "Normal",
     status: "Pending",
   });
@@ -91,9 +93,11 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
             food: "",
             frequency: "",
             quantity: 0,
-            availableQuantity:0
+            availableQuantity: 0,
+            unitPrice: 0
           },
         ],
+        discount: 0,
         priority: "Normal",
         status: "Pending",
       });
@@ -115,7 +119,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
             New Order
           </Button>
         </DialogTrigger>
-        <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-3xl"}>
+        <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-4xl"}>
           <DialogHeader>
             <DialogTitle>Add new order</DialogTitle>
             <DialogDescription>
