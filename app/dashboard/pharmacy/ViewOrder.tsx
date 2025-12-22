@@ -23,6 +23,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import UpdatePrescriptionCard from "./UpdatePrescriptionCard";
 import useSWR from "swr";
+import Link from "next/link";
 
 interface Props {
     open: boolean;
@@ -280,9 +281,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate }: Props) 
                         </Button>
                         <Button
                             variant="outline"
-                            onClick={() => setOpenPrintConfirm(true)}
+                            asChild
                         >
-                            Print
+                            <Link href={`/dashboard/pharmacy/billing?mrn=${localOrder.mrn}`}>
+                                Print
+                            </Link>
                         </Button>
                         <Button
                             className="bg-indigo-600 hover:bg-indigo-700 text-white"

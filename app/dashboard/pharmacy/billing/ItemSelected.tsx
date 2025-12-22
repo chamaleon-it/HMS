@@ -73,7 +73,7 @@ export default function ItemSelected({
         >
           <Search className="h-4 w-4" />
         </span>
-        Quick Add
+        Add Item
       </div>
       <div className="flex items-center gap-2">
         <div className="relative w-full">
