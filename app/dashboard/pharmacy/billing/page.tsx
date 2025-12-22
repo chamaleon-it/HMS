@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import AllBill from "./AllBill";
 import CreateBill from "./CreateBill";
@@ -84,7 +84,12 @@ export default function BillingPage() {
     prefix: "INV"
   }
 
-  console.log(data);
+
+
+  useEffect(() => {
+    window.location.hash.includes("new") && setTab("new")
+  }, [])
+
 
   return (
     <AppShell>

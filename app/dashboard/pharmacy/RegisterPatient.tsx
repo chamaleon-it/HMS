@@ -29,6 +29,10 @@ import toast from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/auth/context/auth-context";
 import Address from "./Address";
+import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
+import ExistingPatientCard from "./ExistingPatientCard";
+import { useDebounce } from "@/hooks/useDebounce";
+
 
 export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: string) => void }) {
   const { user } = useAuth();
@@ -76,6 +80,28 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
     if (name) setValue("name", name);
   }, [name, setValue]);
 
+
+  const debouncedName = useDebounce(values.name, 500);
+  const debouncedPhone = useDebounce(values.phoneNumber, 500);
+  const debouncedEmail = useDebounce(values.email, 500);
+
+  const isExist = usePatientAlreadyExist({
+    name: debouncedName,
+    phoneNumber: debouncedPhone,
+    email: debouncedEmail,
+  });
+  const alreadyExistPatient = isExist?.data?.patient;
+
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    setDismissed(false);
+  }, [alreadyExistPatient]);
+
+
+
+
+
   return (
     <form className="space-y-5" onSubmit={createEditPatient}>
       <section className="space-y-3">
@@ -84,24 +110,37 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
           <h3 className="font-medium">Customer</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="grid gap-2">
-            <Label>Name *</Label>
-            <Input placeholder="Enter patient name" {...register("name")} />
-            {errors.name && (
-              <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
-            )}
-          </div>
-          <div className="grid gap-2">
-            <Label>Phone </Label>
-            <Input
-              placeholder="+91"
-              {...register("phoneNumber")}
-              value={values.phoneNumber}
-            />
-            {errors.phoneNumber && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.phoneNumber.message}
-              </p>
+          {/* Name & Phone Wrapper for full-width dropdown */}
+          <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 relative">
+            <div className="grid gap-2">
+              <Label>Name *</Label>
+              <Input placeholder="Enter patient name" {...register("name")} />
+              {errors.name && (
+                <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Phone </Label>
+              <Input
+                placeholder="+91"
+                {...register("phoneNumber")}
+                value={values.phoneNumber}
+              />
+              {errors.phoneNumber && (
+                <p className="text-red-500 text-xs my-1">
+                  {errors.phoneNumber.message}
+                </p>
+              )}
+            </div>
+
+            {/* Existing Patient Card */}
+            {isExist?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && (
+              <ExistingPatientCard
+                patient={alreadyExistPatient}
+                onSelect={onClose}
+                onDismiss={() => setDismissed(true)}
+              />
             )}
           </div>
 

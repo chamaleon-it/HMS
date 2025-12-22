@@ -17,7 +17,7 @@ import {
   UserPlus,
   Wallet2,
 } from "lucide-react";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR, getDecimal } from "@/lib/fNumber";
@@ -239,6 +239,60 @@ export default function CreateBill({
       console.log(error);
     }
   }, [payload, billingMutate, defaultPayload]);
+
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderMrn = urlParams.get("mrn");
+
+    if (!orderMrn) return;
+
+    api
+      .get<{ data: { items: any[], discount: number } }>(`/pharmacy/orders/single?q=${orderMrn}`)
+      .then(({ data }) => {
+
+        const itemsFromApi: {
+          name: string;
+          quantity: number;
+          unitPrice: number;
+          discount: number;
+          gst: number;
+          total: number;
+        }[] = data.data.items.map(item => ({
+          name: item.name.name,
+          quantity: item.quantity,
+          unitPrice: item.name.unitPrice,
+          discount: 0,
+          gst: 5,
+          total: (item.quantity * item.name.unitPrice) * 105 / 100,
+        }));
+
+        // 🔹 Remove duplicates by `name`
+        const uniqueItems = Array.from(
+          new Map<string, {
+            name: string;
+            quantity: number;
+            unitPrice: number;
+            discount: number;
+            gst: number;
+            total: number;
+          }>(
+            itemsFromApi.map(item => [item.name, item])
+          ).values()
+        );
+
+        setPayload((prev) => ({
+          ...prev,
+          items: uniqueItems,
+          discount: data.data.discount,
+          cash: 0,
+          insurance: 0,
+          online: 0,
+        }));
+      });
+  }, []);
+
+
 
   return (
     <div className="space-y-4">
