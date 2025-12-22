@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import AllBill from "./AllBill";
 import CreateBill from "./CreateBill";
@@ -12,7 +12,7 @@ export interface FilterType {
   q: null | string;
   status: string;
   method: string;
-  date:undefined | Date
+  date: undefined | Date
 }
 
 export default function BillingPage() {
@@ -21,7 +21,7 @@ export default function BillingPage() {
     q: null,
     status: "",
     method: "",
-    date:undefined
+    date: undefined
   });
 
   const params = new URLSearchParams();
@@ -37,20 +37,21 @@ export default function BillingPage() {
   if (filter.method !== "all") {
     params.set("method", filter.method);
   }
-  if(filter.date){
-    params.set("date",filter.date.toISOString())
+  if (filter.date) {
+    params.set("date", filter.date.toISOString())
   }
 
   const { data: billingData, mutate: billingMutate } = useSWR<{
     message: string;
     data: {
-      roundOff:boolean;
+      roundOff: boolean;
       _id: string;
       mrn: string;
       createdAt: Date;
       cash: number;
       online: number;
       insurance: number;
+      discount: number;
       items: {
         total: number;
       }[];
@@ -63,27 +64,32 @@ export default function BillingPage() {
 
   const billing = billingData?.data ?? [];
 
-  const {data} = useSWR<{
-    message:string,
-    data:{
-pharmacy:{
-  billing:{
-    autoPrintAfterSave:boolean,
-    defaultGst?:number | undefined,
-    roundOff:boolean,
-    prefix:string
-  }
-}
+  const { data } = useSWR<{
+    message: string,
+    data: {
+      pharmacy: {
+        billing: {
+          autoPrintAfterSave: boolean,
+          defaultGst?: number | undefined,
+          roundOff: boolean,
+          prefix: string
+        }
+      }
     }
   }>("/users/profile")
 
   const pharmacyBilling = data?.data.pharmacy.billing ?? {
-    autoPrintAfterSave:false,
-    roundOff:false,
-    prefix:"INV"
+    autoPrintAfterSave: false,
+    roundOff: false,
+    prefix: "INV"
   }
 
-  console.log(data);
+
+
+  useEffect(() => {
+    window.location.hash.includes("new") && setTab("new")
+  }, [])
+
 
   return (
     <AppShell>
@@ -121,7 +127,7 @@ pharmacy:{
               />
             </TabsContent>
             <TabsContent value="new">
-              <CreateBill billingMutate={billingMutate} pharmacyBilling={pharmacyBilling}/>
+              <CreateBill billingMutate={billingMutate} pharmacyBilling={pharmacyBilling} />
             </TabsContent>
           </Tabs>
         </div>

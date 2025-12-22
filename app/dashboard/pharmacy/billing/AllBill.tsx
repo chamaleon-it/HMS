@@ -22,6 +22,7 @@ interface PropsType {
     cash: number;
     online: number;
     insurance: number;
+    discount: number;
     items: {
       total: number;
     }[];
@@ -55,6 +56,7 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                 <th className="py-2 text-right">Items</th>
                 <th className="py-2 text-right">Total</th>
                 <th className="py-2 text-right">Round off</th>
+                <th className="py-2 text-right">Discount</th>
                 <th className="py-2 text-right">Paid</th>
                 <th className="py-2 text-right">Due</th>
                 <th className="py-2 text-center ">Status</th>
@@ -94,13 +96,16 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                     {(b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0)}
                   </td>
                   <td className="py-2 pr-2 text-right tabular-nums">
+                    {formatINR(b.discount)}
+                  </td>
+                  <td className="py-2 pr-2 text-right tabular-nums">
                     {formatINR(b.insurance + b.cash + b.online)}
                   </td>
                   <td className="py-2 pr-2 text-right tabular-nums">
                     {formatINR(
                       b.items.reduce((a, b) => a + b.total, 0) -
                       (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                      (b.insurance + b.cash + b.online)
+                      (b.insurance + b.cash + b.online + (b.discount ?? 0))
                     )}
                   </td>
                   <td className="py-2 px-2 text-center">

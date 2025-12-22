@@ -44,6 +44,7 @@ export default function InvoiceView() {
       cash: number;
       online: number;
       insurance: number;
+      discount: number;
       mrn: string;
       createdAt: Date;
       updatedAt: Date;
@@ -74,11 +75,11 @@ export default function InvoiceView() {
               <p>
                 {billing?.createdAt
                   ? fDate(
-                      new Date(
-                        new Date(billing.createdAt).getTime() +
-                          10 * 24 * 60 * 60 * 1000
-                      )
+                    new Date(
+                      new Date(billing.createdAt).getTime() +
+                      10 * 24 * 60 * 60 * 1000
                     )
+                  )
                   : ""}
               </p>
             </div>
@@ -222,17 +223,26 @@ export default function InvoiceView() {
                 )}
               </span>
             </div>
+
+            <div className="flex justify-between py-1">
+              <span>Discount</span>{" "}
+              <span>
+                {formatINR(
+                  billing?.discount ?? 0
+                )}
+              </span>
+            </div>
             <div className="flex justify-between py-1">
               <span>Round off</span>{" "}
               <span>
                 {formatINR(
                   billing?.roundOff
                     ? getDecimal(
-                        billing?.items?.reduce(
-                          (acc, { total }) => acc + total,
-                          0
-                        )
+                      billing?.items?.reduce(
+                        (acc, { total }) => acc + total,
+                        0
                       )
+                    )
                     : 0
                 )}
               </span>
@@ -243,11 +253,11 @@ export default function InvoiceView() {
                 {formatINR(
                   (billing?.items?.reduce((s, { total }) => s + total, 0) ??
                     0) -
-                    getDecimal(
-                      billing?.items?.reduce((s, { total }) => s + total, 0) ??
-                        0
-                    )
-                )}
+                  getDecimal(
+                    (billing?.items?.reduce((s, { total }) => s + total, 0)) ??
+                    0
+                  )
+                  - (billing?.discount ?? 0))}
               </span>
             </div>
             <div className="flex justify-between py-1 text-sm text-green-700">
@@ -255,8 +265,8 @@ export default function InvoiceView() {
               <span>
                 {formatINR(
                   (billing?.cash ?? 0) +
-                    (billing?.online ?? 0) +
-                    (billing?.insurance ?? 0)
+                  (billing?.online ?? 0) +
+                  (billing?.insurance ?? 0)
                 )}
               </span>
             </div>
@@ -266,16 +276,17 @@ export default function InvoiceView() {
                 {formatINR(
                   (billing?.items?.reduce((acc, { total }) => acc + total, 0) ??
                     0) -
-                    ((billing?.cash ?? 0) +
-                      (billing?.online ?? 0) +
-                      (billing?.insurance ?? 0))
+                  ((billing?.cash ?? 0) +
+                    (billing?.online ?? 0) +
+                    (billing?.insurance ?? 0))
 
-                      -
+                  -
 
-                       getDecimal(
-                      billing?.items?.reduce((s, { total }) => s + total, 0) ??
-                        0
-                    )
+                  getDecimal(
+                    billing?.items?.reduce((s, { total }) => s + total, 0) ??
+                    0
+                  )
+                  - (billing?.discount ?? 0)
                 )}
               </span>
             </div>

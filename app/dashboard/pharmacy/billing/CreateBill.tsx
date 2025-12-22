@@ -1,4 +1,5 @@
 import {
+  BadgePercent,
   Banknote,
   Building2,
   CalendarDays,
@@ -16,7 +17,7 @@ import {
   UserPlus,
   Wallet2,
 } from "lucide-react";
-import React, { useCallback, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR, getDecimal } from "@/lib/fNumber";
@@ -25,6 +26,8 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import PatientSelection from "./PatientSelection";
 import ItemSelected from "./ItemSelected";
+import usePrint from "./usePrint";
+import PrintReceipt from "./PrintReceipt";
 
 const theme = {
   from: "#4f46e5",
@@ -44,20 +47,23 @@ export default function CreateBill({
     defaultGst?: number | undefined;
     roundOff: boolean;
     prefix: string;
-}
+  }
 }) {
 
 
   const defaultPayload = useMemo(() => ({
-  patient: "",
-  items: [],
-  cash: 0,
-  insurance: 0,
-  online: 0,
-  roundOff:pharmacyBilling.roundOff
-}), [pharmacyBilling.roundOff])
+    patient: "",
+    doctor: "",
+    department: "",
+    items: [],
+    cash: 0,
+    insurance: 0,
+    online: 0,
+    discount: 0,
+    roundOff: pharmacyBilling.roundOff
+  }), [pharmacyBilling.roundOff])
 
- 
+
 
   const router = useRouter();
 
@@ -65,8 +71,10 @@ export default function CreateBill({
   const [expanded, setExpanded] = React.useState<Record<string, boolean>>({});
   const itemRef = useRef<null | HTMLInputElement>(null);
   const [payload, setPayload] = useState<{
-    roundOff:boolean,
+    roundOff: boolean,
     patient: string;
+    doctor: string;
+    department: string;
     items: {
       name: string;
       quantity: number;
@@ -78,12 +86,15 @@ export default function CreateBill({
     cash: number;
     online: number;
     insurance: number;
+    discount: number;
     payer?: string;
     policyNo?: string;
     tpa?: string;
     preAuthNo?: string;
     note?: string;
   }>(defaultPayload);
+
+  const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
   const registerPatient = useCallback(async () => {
     router.push("/dashboard/doctor/patients#register");
@@ -100,7 +111,7 @@ export default function CreateBill({
               {
                 name: i,
                 discount: 0,
-                gst:pharmacyBilling.defaultGst ?? 0,
+                gst: pharmacyBilling.defaultGst ?? 0,
                 quantity: 0,
                 total: 0,
                 unitPrice: 0,
@@ -136,7 +147,7 @@ export default function CreateBill({
         itemRef.current?.focus();
       }
     },
-    [item, payload.items,pharmacyBilling.defaultGst]
+    [item, payload.items, pharmacyBilling.defaultGst]
   );
 
   const removeItem = useCallback(
@@ -235,7 +246,79 @@ export default function CreateBill({
     } catch (error) {
       console.log(error);
     }
-  }, [payload, billingMutate,defaultPayload]);
+  }, [payload, billingMutate, defaultPayload]);
+
+
+  const [orderPatient, setOrderPatient] = useState<{ _id: string, mrn: string, name: string } | undefined>(undefined)
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderMrn = urlParams.get("mrn");
+
+    if (!orderMrn) return;
+
+    api
+      .get<{
+        data: {
+          items: any[], discount: number, patient: { _id: string, mrn: string, name: string }, doctor: {
+            _id: string,
+            name: string,
+            specialization: string,
+          }
+        }
+      }>(`/pharmacy/orders/single?q=${orderMrn}`)
+      .then(({ data }) => {
+
+        const itemsFromApi: {
+          name: string;
+          quantity: number;
+          unitPrice: number;
+          discount: number;
+          gst: number;
+          total: number;
+        }[] = data.data.items.map(item => ({
+          name: item.name.name,
+          quantity: item.quantity,
+          unitPrice: item.name.unitPrice,
+          discount: 0,
+          gst: 0,
+          total: item.quantity * item.name.unitPrice,
+        }));
+
+        // 🔹 Remove duplicates by `name`
+        const uniqueItems = Array.from(
+          new Map<string, {
+            name: string;
+            quantity: number;
+            unitPrice: number;
+            discount: number;
+            gst: number;
+            total: number;
+          }>(
+            itemsFromApi.map(item => [item.name, { ...item }])
+          ).values()
+        );
+
+        setPayload((prev) => ({
+          ...prev,
+          items: uniqueItems,
+          discount: (data.data.discount ?? 0),
+          cash: 0,
+          insurance: 0,
+          online: 0,
+          patient: data.data.patient._id || "",
+          doctor: data.data.doctor.name || "",
+          department: data.data.doctor.specialization || "",
+        }));
+        setOrderPatient(data.data.patient)
+        setSelectedPatient(data.data.patient)
+      });
+  }, []);
+
+
+  const { onClick } = usePrint()
+
+
 
   return (
     <div className="space-y-4">
@@ -244,8 +327,8 @@ export default function CreateBill({
           "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900 relative z-10"
         }
       >
-        <div className="mb-4 grid grid-cols-12 gap-4">
-          <div className="col-span-12 md:col-span-4">
+        <div className="mb-4 flex justify-between items-center">
+          <div className="w-2/5">
             <div className="text-sm font-medium mb-2 flex items-center gap-2">
               <span
                 className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
@@ -259,6 +342,8 @@ export default function CreateBill({
             </div>
             <div className="flex items-center justify-between gap-5">
               <PatientSelection
+                orderPatient={orderPatient}
+                onSelectPatient={(p) => setSelectedPatient(p)}
                 value={payload.patient}
                 setValue={(value) =>
                   setPayload((prev) => ({ ...prev, patient: value }))
@@ -274,7 +359,7 @@ export default function CreateBill({
               </button>
             </div>
           </div>
-          <div className="col-span-12 md:col-span-4">
+          <div className="">
             <div className="text-sm font-medium mb-2 flex items-center gap-2">
               <span
                 className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
@@ -294,19 +379,52 @@ export default function CreateBill({
                   {fDate(new Date())}
                 </div>
               </div>
+              <div className="flex gap-3">
+                <div className="flex-1">
+                  <div className="text-xs text-slate-500">Doctor Name</div>
+                  <input
+                    type="text"
+                    placeholder="Referrer / Doctor"
+                    value={payload.doctor}
+                    onChange={(e) => setPayload(prev => ({ ...prev, doctor: e.target.value }))}
+                    className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+                  />
+                </div>
+                <div className="flex-1">
+                  <div className="text-xs text-slate-500">Department</div>
+                  <input
+                    type="text"
+                    placeholder="e.g. Cardiology"
+                    value={payload.department}
+                    onChange={(e) => setPayload(prev => ({ ...prev, department: e.target.value }))}
+                    className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+                  />
+                </div>
+              </div>
             </div>
           </div>
-          <ItemSelected
+          {/* <ItemSelected
             addItem={addItem}
             item={item}
             itemRef={itemRef}
             setItem={setItem}
-          />
+          /> */}
         </div>
       </div>
 
       <div className="grid grid-cols-12 gap-4 relative z-0">
+
         <div className="col-span-12 space-y-4 lg:col-span-8">
+
+          <div className="col-span-12 lg:col-span-8">
+            <ItemSelected
+              addItem={addItem}
+              item={item}
+              itemRef={itemRef}
+              setItem={setItem}
+            />
+          </div>
+
           <div
             className={
               "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
@@ -356,14 +474,16 @@ export default function CreateBill({
                             className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50"
                           >
                             <td className="py-2 pr-2">
-                              <input
-                                value={it.name}
-                                readOnly
-                                disabled
-                                className={
-                                  "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                                }
-                              />
+                              <div className="space-y-1">
+                                <input
+                                  value={it.name}
+                                  readOnly
+                                  disabled
+                                  className={
+                                    "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+                                  }
+                                />
+                              </div>
                             </td>
                             <td className="py-2 pr-2 text-right">
                               <input
@@ -375,8 +495,8 @@ export default function CreateBill({
                                     : it.quantity.toString()
                                 }
                                 placeholder="0"
-                                onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                                onFocus={e => e.target.placeholder = ""}
+                                onBlur={e => e.target.placeholder = "0"}
                                 onChange={(e) =>
                                   updateQty(it.name, Number(e.target.value))
                                 }
@@ -396,8 +516,8 @@ export default function CreateBill({
                                     : it.unitPrice.toString()
                                 }
                                 placeholder="0"
-                                onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                                onFocus={e => e.target.placeholder = ""}
+                                onBlur={e => e.target.placeholder = "0"}
                                 onChange={(e) =>
                                   updatePrice(it.name, Number(e.target.value))
                                 }
@@ -414,8 +534,8 @@ export default function CreateBill({
                                 max={28}
                                 value={it.gst === 0 ? "" : it.gst.toString()}
                                 placeholder="0"
-                                onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                                onFocus={e => e.target.placeholder = ""}
+                                onBlur={e => e.target.placeholder = "0"}
                                 onChange={(e) =>
                                   updateGST(it.name, Number(e.target.value))
                                 }
@@ -439,9 +559,8 @@ export default function CreateBill({
                                 className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
                               >
                                 <ChevronDown
-                                  className={`h-4 w-4 transition ${
-                                    isOpen ? "rotate-180" : "rotate-0"
-                                  }`}
+                                  className={`h-4 w-4 transition ${isOpen ? "rotate-180" : "rotate-0"
+                                    }`}
                                 />
                               </button>
                               <button
@@ -556,7 +675,6 @@ export default function CreateBill({
                   key: "insurance",
                   label: "Insurance",
                   icon: Building2,
-
                   tint: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
                 },
               ].map(({ key, label, icon: Icon, tint }) => (
@@ -572,14 +690,14 @@ export default function CreateBill({
                         type="number"
                         min={0}
                         placeholder="0"
-                        onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                        onFocus={e => e.target.placeholder = ""}
+                        onBlur={e => e.target.placeholder = "0"}
                         value={
                           payload[key as "cash" | "online" | "insurance"] === 0
                             ? ""
                             : payload[
-                                key as "cash" | "online" | "insurance"
-                              ].toString()
+                              key as "cash" | "online" | "insurance"
+                            ].toString()
                         }
                         onChange={(e) =>
                           setPayload((prev) => ({
@@ -598,6 +716,38 @@ export default function CreateBill({
                   </div>
                 </div>
               ))}
+
+              <div className="col-span-12 md:col-span-4">
+                <div className={`rounded-xl border px-3 py-3 bg-red-50 text-red-700 border-red-200`}>
+                  <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
+                    <BadgePercent className="h-4 w-4" />
+                    Discount
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <IndianRupee className="h-4 w-4" />
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      onFocus={e => e.target.placeholder = ""}
+                      onBlur={e => e.target.placeholder = "0"}
+                      value={payload.discount === 0 ? "" : payload.discount}
+                      onChange={(e) =>
+                        setPayload((prev) => ({
+                          ...prev,
+                          discount: Number(
+                            e.target.value
+                          ),
+                        }))
+                      }
+                      className={
+                        "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50" +
+                        " text-right"
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
 
               <div className="col-span-12 h-px bg-slate-200" />
               <div className="col-span-12 md:col-span-3">
@@ -720,7 +870,7 @@ export default function CreateBill({
                 <span className="text-slate-500">Discount</span>
                 <span className="font-medium tabular-nums">
                   -
-                  {formatINR(payload.items.reduce((a, b) => a + b.discount, 0))}
+                  {formatINR(payload.items.reduce((a, b) => a + b.discount, 0) + payload.discount)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -737,7 +887,7 @@ export default function CreateBill({
                 </span>
               </div>
 
-                <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between">
                 <span className="text-slate-500">Round off</span>
                 <span className="font-medium tabular-nums">
                   {formatINR(pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)}
@@ -749,8 +899,9 @@ export default function CreateBill({
                 <span className="tabular-nums">
                   {formatINR(
                     payload.items.reduce((a, b) => a + b.total, 0)
-                    -(pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)
-                    )}
+                    - (pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)
+                    - (payload.discount)
+                  )}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -764,7 +915,7 @@ export default function CreateBill({
                 <span className="font-semibold tabular-nums">
                   {formatINR(
                     payload.items.reduce((a, b) => a + b.total, 0) - (pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                      (payload.cash + payload.online + payload.insurance)
+                    (payload.cash + payload.online + payload.insurance + payload.discount)
                   )}
                 </span>
               </div>
@@ -782,7 +933,7 @@ export default function CreateBill({
                 <Share2 className="mr-2 inline h-4 w-4" />
                 Share Link
               </button>
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900" onClick={onClick}>
                 <Printer className="mr-2 inline h-4 w-4" />
                 Print
               </button>
@@ -798,6 +949,21 @@ export default function CreateBill({
           </motion.div>
         </div>
       </div>
+
+      {/* Printable Receipt Component */}
+      <PrintReceipt
+        payload={payload}
+        patient={selectedPatient}
+        invoiceDetails={{
+          prefix: pharmacyBilling.prefix,
+          roundOffAmount: pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0,
+          subtotal: payload.items.reduce((a, b) => a + b.quantity * b.unitPrice, 0),
+          totalGst: payload.items.reduce((a, b) => a + ((b.quantity * b.unitPrice - b.discount) * b.gst / 100), 0),
+          grandTotal: payload.items.reduce((a, b) => a + b.total, 0)
+            - (pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)
+            - (payload.discount)
+        }}
+      />
     </div>
   );
 }

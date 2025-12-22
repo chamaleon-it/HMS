@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import Link from "next/link";
 
 export default function OrderTable({
   handleView,
@@ -150,10 +151,12 @@ export default function OrderTable({
                   variant="outline"
                   size="sm"
                   className="gap-2 h-8 text-xs"
-                  onClick={() => setPrintOrder(r)}
+                  asChild
                 >
-                  <Printer className="h-3.5 w-3.5" />
-                  Print
+                  <Link href={`/dashboard/pharmacy/billing?mrn=${r?.mrn}#new`}>
+                    <Printer className="h-3.5 w-3.5" />
+                    Print
+                  </Link>
                 </Button>
               </TableCell>
             </TableRow>

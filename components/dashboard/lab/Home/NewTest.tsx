@@ -38,26 +38,19 @@ import {
 } from "@/components/ui/table";
 import useSWR from "swr";
 import api from "@/lib/axios";
-import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+
 import useGetTest from "@/data/useGetTest";
 import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 import useGetPanels from "@/data/useGetPanels";
+import LabeledCombobox from "./LabeledCombobox";
 
 export default function NewTest({ mutate }: { mutate: () => void }) {
   const { user } = useAuth();
   const { panels } = useGetPanels();
 
-  const [openCombobox, setOpenCombobox] = useState(false);
+
   const [openCreate, setOpenCreate] = useState(false);
   const [open, setOpen] = useState(false);
   const [openDate, setOpenDate] = useState(false);
@@ -205,129 +198,63 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
           </div>
         </div>
 
-        <div className="flex gap-2 justify-between">
-          <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                role="combobox"
-                aria-expanded={openCombobox}
-                className="w-[300px] justify-between"
-              >
-                Select a Test
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-[300px] p-0">
-              <Command
-                filter={(value, search) => {
-                  const v = value.toLowerCase();
-                  const s = search.toLowerCase();
+        <div className="flex gap-2 justify-between w-full">
+          <div className="w-[300px]">
+            <LabeledCombobox
+              label="Select a Test"
+              value=""
+              onChange={(val) => {
+                if (!val) return;
 
-                  // match only if name starts with the search
-                  return v.startsWith(s) ? 1 : 0;
-                }}
-              >
-                <CommandInput placeholder="Search test..." />
-                <CommandList className="max-h-[400px]">
-                  <CommandEmpty>No test found.</CommandEmpty>
-                  <CommandGroup>
-                    {panels.map((panel) => (
-                      <CommandItem
-                        key={panel}
-                        value={panel}
-                        onSelect={() => {
-                          setPayload((prev) => {
-                            const panelExists = prev.panels.includes(panel);
+                // Check if it's a panel
+                const isPanel = panels.includes(val);
+                if (isPanel) {
+                  setPayload((prev) => {
+                    const panelExists = prev.panels.includes(val);
+                    if (panelExists) return prev; // Should not happen if filtered, but safe guard
 
-                            // 🔴 REMOVE panel + related tests
-                            if (panelExists) {
-                              return {
-                                ...prev,
-                                panels: prev.panels.filter((p) => p !== panel),
-                                test: prev.test.filter(
-                                  (t) =>
-                                    !tests
-                                      .find((ts) => ts._id === t.name)
-                                      ?.panels?.some((p) => p.name === panel)
-                                ),
-                              };
-                            }
+                    const newTests = tests
+                      .filter((t) => t.panels?.some((p) => p.name === val))
+                      .map((t) => ({ name: t._id }));
 
-                            const newTests = tests
-                              .filter((t) =>
-                                t.panels?.some((p) => p.name === panel)
-                              )
-                              .map((t) => ({ name: t._id }));
-
-                            return {
-                              ...prev,
-                              panels: [...prev.panels, panel],
-                              test: [
-                                ...prev.test,
-                                ...newTests.filter(
-                                  (nt) =>
-                                    !prev.test.some((pt) => pt.name === nt.name)
-                                ),
-                              ],
-                            };
-                          });
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            payload.panels.includes(panel)
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {panel}
-                      </CommandItem>
-                    ))}
-
-                    {Tests.filter(
-                      (test) =>
-                        !test.panels?.find((p) =>
-                          payload.panels.includes(p.name)
-                        )
-                    ).map((test) => (
-                      <CommandItem
-                        key={test._id}
-                        value={test.name}
-                        onSelect={() => {
-                          const exist = payload.test.find(
-                            (n) => n.name === test._id
-                          );
-                          if (exist) {
-                            setOpenCombobox(false);
-                            return;
-                          }
-                          setPayload((prev) => ({
-                            ...prev,
-                            test: prev.test
-                              ? [...prev.test, { name: test._id }]
-                              : [{ name: test._id }],
-                          }));
-                          setOpenCombobox(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            "mr-2 h-4 w-4",
-                            payload.test.some((n) => n.name === test.name)
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
-                        {test.name}
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
-            </PopoverContent>
-          </Popover>
+                    return {
+                      ...prev,
+                      panels: [...prev.panels, val],
+                      test: [
+                        ...prev.test,
+                        ...newTests.filter(
+                          (nt) => !prev.test.some((pt) => pt.name === nt.name)
+                        ),
+                      ],
+                    };
+                  });
+                } else {
+                  // Must be a test
+                  const testObj = tests.find((t) => t.name === val);
+                  if (testObj) {
+                    setPayload((prev) => {
+                      const exist = prev.test.find((n) => n.name === testObj._id);
+                      if (exist) return prev;
+                      return {
+                        ...prev,
+                        test: [...prev.test, { name: testObj._id }],
+                      };
+                    });
+                  }
+                }
+              }}
+              options={[
+                ...panels.filter((p) => !payload.panels.includes(p)),
+                ...tests
+                  .filter(
+                    (t) =>
+                      !t.panels?.find((p) => payload.panels.includes(p.name)) &&
+                      !payload.test.some((pt) => pt.name === t._id)
+                  )
+                  .map((t) => t.name),
+              ]}
+            />
+          </div>
 
           {bookingType === "Schedule" && (
             <>
@@ -435,10 +362,10 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                 </TableCell>
               </TableRow>
             ))}
-            {payload.test.filter(t=>{
-                const found = tests.find((test) => test._id === t.name)
-                const panelExist = found?.panels?.find(p=>payload.panels.includes(p.name))
-                return !panelExist
+            {payload.test.filter(t => {
+              const found = tests.find((test) => test._id === t.name)
+              const panelExist = found?.panels?.find(p => payload.panels.includes(p.name))
+              return !panelExist
             }).map((t, idx) => (
               <TableRow key={t.name}>
                 <TableCell>{idx + 1}</TableCell>
