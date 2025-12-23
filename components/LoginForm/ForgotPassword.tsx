@@ -30,8 +30,7 @@ export default function ForgotPassword({
           error: ({ response }) => response.data.message,
         }
       );
-      
-      console.log(forgotPasswordData);
+
 
       setView("sent");
     } catch (error) {
@@ -54,9 +53,8 @@ export default function ForgotPassword({
             Email
           </label>
           <div
-            className={`flex items-center rounded-lg bg-white border ${
-              errors.email ? "border-red-400" : "border-slate-300"
-            } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+            className={`flex items-center rounded-lg bg-white border ${errors.email ? "border-red-400" : "border-slate-300"
+              } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
           >
             <Mail className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
             <input
@@ -99,9 +97,8 @@ export default function ForgotPassword({
             {isSubmitting ? "Sending..." : "Send reset link"}
           </span>
           <svg
-            className={`h-4 w-4 transition-transform ${
-              isSubmitting ? "animate-pulse" : "group-hover:translate-x-1"
-            }`}
+            className={`h-4 w-4 transition-transform ${isSubmitting ? "animate-pulse" : "group-hover:translate-x-1"
+              }`}
             viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"

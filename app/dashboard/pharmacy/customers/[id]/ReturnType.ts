@@ -22,6 +22,7 @@ export interface Item {
     name: Name;
     quantity: number;
     reason: string;
+    unitPrice: number;
     _id: string;
 }
 

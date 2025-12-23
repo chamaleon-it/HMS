@@ -10,7 +10,6 @@ interface PrintReceiptProps {
             quantity: number;
             unitPrice: number;
             gst: number;
-            discount: number;
             total: number;
         }[];
         cash: number;

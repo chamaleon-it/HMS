@@ -360,8 +360,8 @@ export default function CreateBill({
                                     : it.quantity.toString()
                                 }
                                 placeholder="0"
-                                onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                                onFocus={e => e.target.placeholder = ""}
+                                onBlur={e => e.target.placeholder = "0"}
                                 onChange={(e) =>
                                   updateQty(it.name, Number(e.target.value))
                                 }
@@ -381,8 +381,8 @@ export default function CreateBill({
                                     : it.unitPrice.toString()
                                 }
                                 placeholder="0"
-                                onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                                onFocus={e => e.target.placeholder = ""}
+                                onBlur={e => e.target.placeholder = "0"}
                                 onChange={(e) =>
                                   updatePrice(it.name, Number(e.target.value))
                                 }
@@ -399,8 +399,8 @@ export default function CreateBill({
                                 max={28}
                                 value={it.gst === 0 ? "" : it.gst.toString()}
                                 placeholder="0"
-                                onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                                onFocus={e => e.target.placeholder = ""}
+                                onBlur={e => e.target.placeholder = "0"}
                                 onChange={(e) =>
                                   updateGST(it.name, Number(e.target.value))
                                 }
@@ -424,9 +424,8 @@ export default function CreateBill({
                                 className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
                               >
                                 <ChevronDown
-                                  className={`h-4 w-4 transition ${
-                                    isOpen ? "rotate-180" : "rotate-0"
-                                  }`}
+                                  className={`h-4 w-4 transition ${isOpen ? "rotate-180" : "rotate-0"
+                                    }`}
                                 />
                               </button>
                               <button
@@ -557,14 +556,14 @@ export default function CreateBill({
                         type="number"
                         min={0}
                         placeholder="0"
-                        onFocus={e=>e.target.placeholder = ""}
-                                onBlur={e=>e.target.placeholder="0"}
+                        onFocus={e => e.target.placeholder = ""}
+                        onBlur={e => e.target.placeholder = "0"}
                         value={
                           payload[key as "cash" | "online" | "insurance"] === 0
                             ? ""
                             : payload[
-                                key as "cash" | "online" | "insurance"
-                              ].toString()
+                              key as "cash" | "online" | "insurance"
+                            ].toString()
                         }
                         onChange={(e) =>
                           setPayload((prev) => ({
@@ -739,7 +738,7 @@ export default function CreateBill({
                 <span className="font-semibold tabular-nums">
                   {formatINR(
                     payload.items.reduce((a, b) => a + b.total, 0) -
-                      (payload.cash + payload.online + payload.insurance)
+                    (payload.cash + payload.online + payload.insurance)
                   )}
                 </span>
               </div>

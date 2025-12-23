@@ -9,6 +9,7 @@ import {
   FilePlus2,
   FileText,
   IndianRupee,
+  Percent,
   Plus,
   Printer,
   Share2,
@@ -17,6 +18,17 @@ import {
   UserPlus,
   Wallet2,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fDate } from "@/lib/fDateAndTime";
@@ -80,7 +92,6 @@ export default function CreateBill({
       quantity: number;
       unitPrice: number;
       gst: number;
-      discount: number;
       total: number;
     }[];
     cash: number;
@@ -110,7 +121,6 @@ export default function CreateBill({
               ...prev.items,
               {
                 name: i,
-                discount: 0,
                 gst: pharmacyBilling.defaultGst ?? 0,
                 quantity: 0,
                 total: 0,
@@ -129,7 +139,6 @@ export default function CreateBill({
               ...prev.items,
               {
                 name: item,
-                discount: 0,
                 gst: pharmacyBilling.defaultGst ?? 0,
                 quantity: 0,
                 total: 0,
@@ -177,16 +186,13 @@ export default function CreateBill({
             "unitPrice" in patch ? patch.unitPrice ?? 0 : it.unitPrice ?? 0;
           const quantity =
             "quantity" in patch ? patch.quantity ?? 0 : it.quantity ?? 0;
-          const discount =
-            "discount" in patch ? patch.discount ?? 0 : it.discount ?? 0;
           const gst = "gst" in patch ? patch.gst ?? 0 : it.gst ?? 0;
-          const total = calcTotal(unitPrice, quantity, discount, gst);
+          const total = calcTotal(unitPrice, quantity, gst);
           return {
             ...it,
             ...patch,
             unitPrice,
             quantity,
-            discount,
             gst,
             total,
           };
@@ -241,6 +247,7 @@ export default function CreateBill({
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
+      onClick()
       setPayload(defaultPayload);
       billingMutate();
     } catch (error) {
@@ -550,20 +557,6 @@ export default function CreateBill({
                             </td>
                             <td className="py-2 text-center">
                               <button
-                                onClick={() =>
-                                  setExpanded((s) => ({
-                                    ...s,
-                                    [it.name]: !isOpen,
-                                  }))
-                                }
-                                className="rounded-md p-2 hover:bg-slate-100 dark:hover:bg-slate-800"
-                              >
-                                <ChevronDown
-                                  className={`h-4 w-4 transition ${isOpen ? "rotate-180" : "rotate-0"
-                                    }`}
-                                />
-                              </button>
-                              <button
                                 onClick={() => removeItem(it.name)}
                                 className="ml-1 rounded-md p-2 hover:bg-rose-50 text-rose-600"
                               >
@@ -571,46 +564,6 @@ export default function CreateBill({
                               </button>
                             </td>
                           </motion.tr>
-                          <AnimatePresence>
-                            {isOpen && (
-                              <motion.tr
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                              >
-                                <td
-                                  colSpan={6}
-                                  className="bg-slate-50/50 px-2 py-3 text-xs dark:bg-slate-800/40"
-                                >
-                                  <div className="grid grid-cols-12 gap-3">
-                                    <div className="col-span-12 md:col-span-3">
-                                      <label className="mb-1 block text-[11px] text-slate-500">
-                                        Discount
-                                      </label>
-                                      <div className="flex items-center gap-2">
-                                        <IndianRupee className="h-4 w-4 text-slate-500" />
-                                        <input
-                                          type="number"
-                                          min={0}
-                                          value={it.discount || 0}
-                                          onChange={(e) =>
-                                            updateDiscount(
-                                              it.name,
-                                              Number(e.target.value)
-                                            )
-                                          }
-                                          className={
-                                            "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50" +
-                                            " text-right"
-                                          }
-                                        />
-                                      </div>
-                                    </div>
-                                  </div>
-                                </td>
-                              </motion.tr>
-                            )}
-                          </AnimatePresence>
                         </React.Fragment>
                       );
                     })}
@@ -721,7 +674,7 @@ export default function CreateBill({
                 <div className={`rounded-xl border px-3 py-3 bg-red-50 text-red-700 border-red-200`}>
                   <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
                     <BadgePercent className="h-4 w-4" />
-                    Discount
+                    Discount (₹)
                   </div>
                   <div className="flex items-center gap-2">
                     <IndianRupee className="h-4 w-4" />
@@ -738,6 +691,38 @@ export default function CreateBill({
                           discount: Number(
                             e.target.value
                           ),
+                        }))
+                      }
+                      className={
+                        "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50" +
+                        " text-right"
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="col-span-12 md:col-span-4">
+                <div className={`rounded-xl border px-3 py-3 bg-red-50 text-red-700 border-red-200`}>
+                  <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
+                    <BadgePercent className="h-4 w-4" />
+                    Discount (%)
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Percent className="h-4 w-4" />
+                    <input
+                      type="number"
+                      min={0}
+                      placeholder="0"
+                      onFocus={e => e.target.placeholder = ""}
+                      onBlur={e => e.target.placeholder = "0"}
+                      value={(payload.discount / (payload.items.reduce((a, b) => a + b.total, 0)) * 100) || ""}
+                      onChange={(e) =>
+                        setPayload((prev) => ({
+                          ...prev,
+                          discount: Number(
+                            e.target.value
+                          ) * (payload.items.reduce((a, b) => a + b.total, 0)) / 100,
                         }))
                       }
                       className={
@@ -870,7 +855,7 @@ export default function CreateBill({
                 <span className="text-slate-500">Discount</span>
                 <span className="font-medium tabular-nums">
                   -
-                  {formatINR(payload.items.reduce((a, b) => a + b.discount, 0) + payload.discount)}
+                  {formatINR(payload.discount)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -880,7 +865,7 @@ export default function CreateBill({
                     payload.items.reduce(
                       (a, b) =>
                         a +
-                        ((b.quantity * b.unitPrice - b.discount) * b.gst) / 100,
+                        ((b.quantity * b.unitPrice) * b.gst) / 100,
                       0
                     )
                   )}
@@ -922,13 +907,32 @@ export default function CreateBill({
             </div>
 
             <div className="mt-3 grid grid-cols-3 gap-2">
-              <PrimaryButton
-                className="col-span-full cursor-pointer"
-                onClick={generateBill}
-              >
-                <FilePlus2 className="mr-2 inline h-4 w-4" />
-                Generate
-              </PrimaryButton>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <PrimaryButton className="col-span-full cursor-pointer">
+                    <FilePlus2 className="mr-2 inline h-4 w-4" />
+                    Generate
+                  </PrimaryButton>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="max-w-md!">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This process will be
+                      recorded in the database and a bill will be generated.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={generateBill}
+                      className="bg-indigo-600 hover:bg-indigo-700"
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
                 <Share2 className="mr-2 inline h-4 w-4" />
                 Share Link
@@ -958,7 +962,7 @@ export default function CreateBill({
           prefix: pharmacyBilling.prefix,
           roundOffAmount: pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0,
           subtotal: payload.items.reduce((a, b) => a + b.quantity * b.unitPrice, 0),
-          totalGst: payload.items.reduce((a, b) => a + ((b.quantity * b.unitPrice - b.discount) * b.gst / 100), 0),
+          totalGst: payload.items.reduce((a, b) => a + ((b.quantity * b.unitPrice) * b.gst / 100), 0),
           grandTotal: payload.items.reduce((a, b) => a + b.total, 0)
             - (pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)
             - (payload.discount)
@@ -985,12 +989,9 @@ const PrimaryButton: React.FC<
 const calcTotal = (
   unitPrice: number = 0,
   quantity: number = 0,
-  discountPct: number = 0,
   gstPct: number = 0
 ) => {
   const base = unitPrice * quantity;
-  const discountAmount = discountPct;
-  const taxable = base - discountAmount;
-  const gstAmount = taxable * (gstPct / 100);
-  return Math.round((taxable + gstAmount) * 100) / 100;
+  const gstAmount = base * (gstPct / 100);
+  return Math.round((base + gstAmount) * 100) / 100;
 };

@@ -207,7 +207,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                 if (!val) return;
 
                 // Check if it's a panel
-                const isPanel = panels.includes(val);
+                const isPanel = panels.find((p) => p.name === val);
                 if (isPanel) {
                   setPayload((prev) => {
                     const panelExists = prev.panels.includes(val);
@@ -244,7 +244,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                 }
               }}
               options={[
-                ...panels.filter((p) => !payload.panels.includes(p)),
+                ...panels.filter((p) => !payload.panels.includes(p.name)).map(e => e.name),
                 ...tests
                   .filter(
                     (t) =>

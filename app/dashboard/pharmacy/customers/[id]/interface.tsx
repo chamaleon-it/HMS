@@ -34,6 +34,7 @@ export interface Item {
   duration: string;
   quantity: number;
   isPacked: boolean;
+  unitPrice?: number;
 }
 
 export interface Name {

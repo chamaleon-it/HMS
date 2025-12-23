@@ -78,8 +78,8 @@ export default function PharmacyReturnPage() {
 
       params.set("q", (filter.q ?? mrn) ?? "");
 
-      const { data } = await api.get(`/pharmacy/orders/single?${params}`);
-      setOrder(data.data);
+      const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
+      setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
       setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
     } catch (error) {
       console.log(error);
@@ -120,6 +120,12 @@ export default function PharmacyReturnPage() {
       return;
     }
 
+    const hasInvalidUnitPrice = items.some((it) => (it.unitPrice || 0) <= 0);
+    if (hasInvalidUnitPrice) {
+      toast.error("Please enter unit price for all items");
+      return;
+    }
+
     try {
       const payload: {
         patient: string;
@@ -142,6 +148,7 @@ export default function PharmacyReturnPage() {
           name: it.name._id,
           quantity: it.return || 0,
           reason: it.reason,
+          unitPrice: it.unitPrice ?? it.name.unitPrice,
         })),
       };
       await toast.promise(api.post("pharmacy/return", payload), {
@@ -191,8 +198,8 @@ export default function PharmacyReturnPage() {
                   <TableHead className="text-center text-white">Qty Return</TableHead>
                   <TableHead className="text-right text-white">Rate</TableHead>
                   <TableHead className="text-right text-white">Amount</TableHead>
-                  <TableHead className="text-white">Reason</TableHead>
-                  <TableHead className="text-white">Action</TableHead>
+                  <TableHead className="text-white text-right">Reason</TableHead>
+                  <TableHead className="text-white text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
 
@@ -260,15 +267,38 @@ export default function PharmacyReturnPage() {
                       />
                     </TableCell>
 
-                    <TableCell className="text-right tabular-nums text-slate-700 font-medium">
-                      {formatINR(it.name.unitPrice)}
+                    <TableCell className="text-right">
+                      <Input
+                        type="number"
+                        min={0}
+                        className="h-8 w-20 text-right rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 ml-auto"
+                        value={it.unitPrice || ""}
+                        onChange={(e) => {
+                          const value = Number(e.target.value);
+                          setOrder((prev) =>
+                            prev
+                              ? {
+                                ...prev,
+                                items: prev.items.map((item) =>
+                                  item.name._id === it.name._id
+                                    ? {
+                                      ...item,
+                                      unitPrice: value,
+                                    }
+                                    : item
+                                ),
+                              }
+                              : null
+                          );
+                        }}
+                      />
                     </TableCell>
 
                     <TableCell className="text-right tabular-nums font-semibold text-slate-900">
-                      {formatINR(it.name.unitPrice * (it.return ?? 0))}
+                      {formatINR((it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0))}
                     </TableCell>
 
-                    <TableCell className="align-top">
+                    <TableCell className="align-top text-right">
                       <div className="relative inline-block text-[11px]">
                         <select
                           value={it.reason}
@@ -306,7 +336,7 @@ export default function PharmacyReturnPage() {
                         </span>
                       </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">
                       <Button
                         size={"sm"}
                         className="bg-red-600 hover:bg-red-700 transform duration-200"
@@ -340,7 +370,7 @@ export default function PharmacyReturnPage() {
                 <span className="font-medium text-slate-700">
                   {formatINR(
                     order?.items.reduce(
-                      (a, b) => a + b.name.unitPrice * (b.return ?? 0),
+                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0),
                       0
                     ) ?? 0
                   )}
@@ -357,7 +387,7 @@ export default function PharmacyReturnPage() {
                 <span>
                   {formatINR(
                     order?.items.reduce(
-                      (a, b) => a + b.name.unitPrice * (b.return ?? 0),
+                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0),
                       0
                     ) ?? 0
                   )}

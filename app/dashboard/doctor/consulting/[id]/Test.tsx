@@ -466,25 +466,25 @@ export default function Test({
                 {panels
                   ?.filter(
                     (panel) =>
-                      !selectedPanel.includes(panel) &&
-                      panel.toLowerCase().startsWith(query.toLowerCase()) &&
-                      !favouritePanels.includes(panel)
+                      !selectedPanel.includes(panel.name) &&
+                      panel.name.toLowerCase().startsWith(query.toLowerCase()) &&
+                      !favouritePanels.includes(panel.name)
                   )
                   .map((panel) => (
                     <TestItem
-                      key={panel}
-                      selected={selectedPanel.includes(panel)}
+                      key={panel.name}
+                      selected={selectedPanel.includes(panel.name)}
                       type="Panel"
                       test={{
-                        _id: panel,
-                        name: panel,
-                        code: panel,
+                        _id: panel.name,
+                        name: panel.name,
+                        code: panel.name,
                         type: "Panel",
                       }}
                       onToggle={(t) => {
                         setSelectedPanel((prev) => [...prev, t.code]);
                         const panelTest = tests.filter((t) =>
-                          t.panels?.find((p) => p.name === panel)
+                          t.panels?.find((p) => p.name === panel.name)
                         );
                         panelTest.forEach((test) => {
                           toggleTest(test);

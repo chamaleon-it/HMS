@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Save, Trash2 } from "lucide-react";
+import { Save } from "lucide-react";
 import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -28,6 +28,7 @@ import useGetPanels from "@/data/useGetPanels";
 import useSWR from "swr";
 import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
 import RemoveTestsFromPanelDialog from "./RemoveTestsFromPanelDialog";
+import { formatINR } from "@/lib/fNumber";
 
 
 export default function TestCatalogue({
@@ -78,6 +79,7 @@ export default function TestCatalogue({
   const [newTest, setNewTest] = useState<{
     code: string;
     name: string;
+    price: number;
     type: "Lab" | "Imaging" | "";
     min?: number;
     max?: number;
@@ -92,12 +94,13 @@ export default function TestCatalogue({
   }>({
     code: "",
     name: "",
+    price: 0,
     type: "",
   });
 
   const addNewTest = async () => {
     try {
-      if (!newTest.code || !newTest.name || !newTest.type) {
+      if (!newTest.code || !newTest.name || !newTest.type || !newTest.price) {
         toast.error("Please fill all required fields");
         return;
       }
@@ -112,6 +115,7 @@ export default function TestCatalogue({
       setNewTest({
         code: "",
         name: "",
+        price: 0,
         type: "",
       });
 
@@ -126,10 +130,11 @@ export default function TestCatalogue({
   const { data, mutate: testMutate } = useSWR<{
     message: string;
     data: {
-      _id: string
+      _id: string;
       code: string;
       name: string;
       type: "Lab" | "Imaging";
+      price: number;
       min?: number;
       max?: number;
       womenMin?: number;
@@ -141,7 +146,7 @@ export default function TestCatalogue({
       unit?: string;
       estimatedTime?: number;
       panels: {
-        name: string
+        name: string;
       }[]
     }[]
   }>("/lab/panels/tests");
@@ -171,7 +176,7 @@ export default function TestCatalogue({
                   className="h-9 bg-slate-50"
                 />
               </div>
-              <div className="col-span-5 space-y-1.5">
+              <div className="col-span-4 space-y-1.5">
                 <Label className="text-xs font-medium text-slate-700">Test Name *</Label>
                 <Input
                   placeholder="e.g. Complete Blood Count"
@@ -182,7 +187,23 @@ export default function TestCatalogue({
                   className="h-9 bg-slate-50"
                 />
               </div>
-              <div className="col-span-4 space-y-1.5">
+
+
+              <div className="col-span-3 space-y-1.5">
+                <Label className="text-xs font-medium text-slate-700">Price *</Label>
+                <Input
+                  placeholder="e.g. 100"
+                  value={newTest.price || ""}
+                  onFocus={(e) => e.target.placeholder = ""}
+                  onBlur={(e) => e.target.placeholder = "e.g. 100"}
+                  onChange={(e) =>
+                    setNewTest((prev) => ({ ...prev, price: Number(e.target.value) }))
+                  }
+                  className="h-9 bg-slate-50"
+                />
+              </div>
+
+              <div className="col-span-2 space-y-1.5">
                 <Label className="text-xs font-medium text-slate-700">Type *</Label>
                 <Select
                   value={newTest.type}
@@ -200,11 +221,12 @@ export default function TestCatalogue({
 
 
 
+
               <div className="col-span-3 space-y-1.5">
                 <Label className="text-xs font-medium text-slate-700">Estimated Time (Minutes)</Label>
                 <Input
                   placeholder="e.g. 30"
-                  value={newTest.estimatedTime === 0 ? "" : newTest.estimatedTime}
+                  value={newTest.estimatedTime || ""}
                   type="number"
                   onChange={(e) =>
                     setNewTest((prev) => ({ ...prev, estimatedTime: Number(e.target.value) }))
@@ -230,7 +252,7 @@ export default function TestCatalogue({
                 <Input
                   type="number"
                   placeholder="0"
-                  value={newTest.min ?? ""}
+                  value={newTest.min || ""}
                   onChange={(e) =>
                     setNewTest((prev) => ({ ...prev, min: Number(e.target.value) }))
                   }
@@ -243,7 +265,7 @@ export default function TestCatalogue({
                 <Input
                   type="number"
                   placeholder="100"
-                  value={newTest.max ?? ""}
+                  value={newTest.max || ""}
                   onChange={(e) =>
                     setNewTest((prev) => ({ ...prev, max: Number(e.target.value) }))
                   }
@@ -259,7 +281,7 @@ export default function TestCatalogue({
                 <Input
                   type="number"
                   placeholder="0"
-                  value={newTest.womenMin ?? ""}
+                  value={newTest.womenMin || ""}
                   onChange={(e) =>
                     setNewTest((prev) => ({ ...prev, womenMin: Number(e.target.value) }))
                   }
@@ -271,7 +293,7 @@ export default function TestCatalogue({
                 <Input
                   type="number"
                   placeholder="100"
-                  value={newTest.womenMax ?? ""}
+                  value={newTest.womenMax || ""}
                   onChange={(e) =>
                     setNewTest((prev) => ({ ...prev, womenMax: Number(e.target.value) }))
                   }
@@ -284,7 +306,7 @@ export default function TestCatalogue({
                 <Input
                   type="number"
                   placeholder="0"
-                  value={newTest.childMin ?? ""}
+                  value={newTest.childMin || ""}
                   onChange={(e) =>
                     setNewTest((prev) => ({ ...prev, childMin: Number(e.target.value) }))
                   }
@@ -296,7 +318,7 @@ export default function TestCatalogue({
                 <Input
                   type="number"
                   placeholder="100"
-                  value={newTest.childMax ?? ""}
+                  value={newTest.childMax || ""}
                   onChange={(e) =>
                     setNewTest((prev) => ({ ...prev, childMax: Number(e.target.value) }))
                   }
@@ -311,7 +333,7 @@ export default function TestCatalogue({
                 <Input
                   type="number"
                   placeholder="0"
-                  value={newTest.nbMin ?? ""}
+                  value={newTest.nbMin || ""}
                   onChange={(e) =>
                     setNewTest((prev) => ({ ...prev, nbMin: Number(e.target.value) }))
                   }
@@ -323,7 +345,7 @@ export default function TestCatalogue({
                 <Input
                   type="number"
                   placeholder="100"
-                  value={newTest.nbMax ?? ""}
+                  value={newTest.nbMax || ""}
                   onChange={(e) =>
                     setNewTest((prev) => ({ ...prev, nbMax: Number(e.target.value) }))
                   }
@@ -354,6 +376,7 @@ export default function TestCatalogue({
                     <TableHead className="w-[100px]">Code</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Price</TableHead>
                     <TableHead>Estimated Time (Minutes)</TableHead>
                     <TableHead>Panels</TableHead>
                     <TableHead>Range</TableHead>
@@ -400,6 +423,7 @@ export default function TestCatalogue({
                 <TableRow>
                   <TableHead>SL</TableHead>
                   <TableHead>Name</TableHead>
+                  <TableHead>Price</TableHead>
                   <TableHead align="right" className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
@@ -408,13 +432,14 @@ export default function TestCatalogue({
                 {panels.map((panel, idx) => (
                   <TableRow key={idx}>
                     <TableCell>{idx + 1}</TableCell>
-                    <TableCell>{panel}</TableCell>
+                    <TableCell>{panel.name}</TableCell>
+                    <TableCell>{formatINR(panel.price)}</TableCell>
                     <TableCell align="right" className="flex gap-2 justify-end">
                       <Button
                         variant="outline"
                         className="h-9 bg-slate-50"
                         onClick={() => {
-                          setActivePanel(panel);
+                          setActivePanel(panel.name);
                           setIsAddTestsDialogOpen(true);
                         }}
                       >
@@ -425,7 +450,7 @@ export default function TestCatalogue({
                         variant="outline"
                         className="h-9 bg-slate-50"
                         onClick={() => {
-                          setActivePanel(panel);
+                          setActivePanel(panel.name);
                           setIsRemoveTestsDialogOpen(true);
                         }}
                       >
@@ -584,6 +609,7 @@ const AddPanelForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const [payload, setPayload] = useState({
     name: "",
+    price: 0,
   })
   const [loading, setLoading] = useState(false)
 
@@ -597,6 +623,7 @@ const AddPanelForm = ({ onSuccess }: { onSuccess: () => void }) => {
       })
       setPayload({
         name: "",
+        price: 0,
       })
       onSuccess()
     } catch (error) {
@@ -607,10 +634,19 @@ const AddPanelForm = ({ onSuccess }: { onSuccess: () => void }) => {
   }
 
   return <div className="col-span-3 space-y-1.5 mt-5">
-    <Label className="text-xs font-medium text-slate-700">Name *</Label>
     <div className="flex justify-between items-center gap-5">
-      <Input className="h-9 bg-slate-50" placeholder="CBC" value={payload.name} onChange={(e) => setPayload({ ...payload, name: e.target.value })} />
-      <Button className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer" onClick={addPanel} disabled={loading}>{loading ? "Adding" : "Add panel"}</Button>
+      <div className="">
+        <Label className="text-xs font-medium text-slate-700">Name *</Label>
+        <Input className="h-9 bg-slate-50" placeholder="CBC" value={payload.name} onChange={(e) => setPayload({ ...payload, name: e.target.value })} />
+      </div>
+      <div className="">
+        <Label className="text-xs font-medium text-slate-700">Price *</Label>
+        <Input type="number" className="h-9 bg-slate-50" placeholder="Price" value={payload.price || ""} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} />
+      </div>
+      <div className="">
+        <Label className="text-xs font-medium text-slate-700 invisible">Button</Label>
+        <Button className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer" onClick={addPanel} disabled={loading}>{loading ? "Adding" : "Add panel"}</Button>
+      </div>
     </div>
   </div>
 }

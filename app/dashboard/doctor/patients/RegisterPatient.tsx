@@ -187,7 +187,6 @@ export function RegisterPatient({
         if (round) return false;
 
         const tm = toMinutes(time);
-        console.log(tm);
         if (isNextDayToday && tm < cutoffMins) return false;
 
         const slotDate = combineToIST(nextDate, time);

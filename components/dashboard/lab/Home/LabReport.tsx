@@ -79,7 +79,6 @@ export default function LabResultsPage() {
 
   const REPORT = data?.data ?? [];
 
-  console.log(REPORT)
 
   const [status, setStatus] = useState<
     "Pending" | "In Progress" | "Completed"
