@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table'
 import api from '@/lib/axios';
+import { formatINR } from '@/lib/fNumber';
 import { Pencil } from 'lucide-react';
 import React, { useCallback, useState } from 'react'
 import toast from 'react-hot-toast';
@@ -17,6 +18,7 @@ export default function TestCatalogueRow({
         _id: string
         code: string;
         name: string;
+        price: number;
         type: "Lab" | "Imaging";
         min?: number;
         max?: number;
@@ -39,6 +41,7 @@ export default function TestCatalogueRow({
         code: test.code,
         name: test.name,
         type: test.type,
+        price: test.price,
         panel: test.panels,
         min: test.min,
         max: test.max,
@@ -58,6 +61,7 @@ export default function TestCatalogueRow({
         async (data: {
             code: string;
             name: string;
+            price: number;
             type: "" | "Lab" | "Imaging";
             min?: number;
             max?: number;
@@ -96,6 +100,7 @@ export default function TestCatalogueRow({
                     {test.type}
                 </span>
             </TableCell>
+            <TableCell>{formatINR(test.price)}</TableCell>
             <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : ""}</TableCell>
             <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
             <TableCell className="text-slate-500 text-xs">
@@ -151,6 +156,12 @@ export default function TestCatalogueRow({
                                         <SelectItem value="Imaging">Imaging</SelectItem>
                                     </SelectContent>
                                 </Select>
+                            </div>
+                            <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="price" className="text-right col-span-2">
+                                    Price
+                                </Label>
+                                <Input id="price" type="number" defaultValue={test.price} className="col-span-4" onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} />
                             </div>
 
                             <div className="grid grid-cols-6 items-center gap-4">
