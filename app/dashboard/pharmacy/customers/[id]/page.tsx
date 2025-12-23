@@ -305,7 +305,7 @@ const Customer: React.FC = () => {
                                     {formatINR(
                                       item.items.reduce(
                                         (a: number, b: any) =>
-                                          a + b.quantity * b.name.unitPrice,
+                                          a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
                                         0
                                       )
                                     )}
@@ -419,7 +419,7 @@ const Customer: React.FC = () => {
                           </thead>
                           <tbody>
                             {selectedVisit.items.map((it, i) => {
-                              const amount = it.quantity * it.name.unitPrice;
+                              const amount = it.quantity * (it?.unitPrice ?? it.name?.unitPrice);
                               return (
                                 <tr
                                   key={it.name.name}
@@ -440,7 +440,7 @@ const Customer: React.FC = () => {
                                     {it.quantity}
                                   </td>
                                   <td className="p-2 align-top text-right text-slate-800">
-                                    {formatINR(it.name.unitPrice)}
+                                    {formatINR(it.unitPrice ?? it.name.unitPrice)}
                                   </td>
                                   <td className="p-2 align-top text-right font-semibold text-slate-900">
                                     {formatINR(amount)}
@@ -472,7 +472,7 @@ const Customer: React.FC = () => {
                               <td className="p-2 text-right text-sm font-semibold text-slate-900">
                                 {formatINR(
                                   selectedVisit.items.reduce(
-                                    (a, b) => a + b.quantity * b.name.unitPrice,
+                                    (a, b) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
                                     0
                                   )
                                 )}
@@ -505,7 +505,7 @@ const Customer: React.FC = () => {
                               <td className="p-2 text-right text-sm font-semibold text-slate-900">
                                 {formatINR(
                                   selectedVisit.items.reduce(
-                                    (a, b) => a + b.quantity * b.name.unitPrice,
+                                    (a, b) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
                                     0
                                   ) - (selectedVisit?.discount || 0)
                                 )}
