@@ -17,6 +17,17 @@ import {
   UserPlus,
   Wallet2,
 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { fDate } from "@/lib/fDateAndTime";
@@ -241,6 +252,7 @@ export default function CreateBill({
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
+      onClick()
       setPayload(defaultPayload);
       billingMutate();
     } catch (error) {
@@ -922,13 +934,32 @@ export default function CreateBill({
             </div>
 
             <div className="mt-3 grid grid-cols-3 gap-2">
-              <PrimaryButton
-                className="col-span-full cursor-pointer"
-                onClick={generateBill}
-              >
-                <FilePlus2 className="mr-2 inline h-4 w-4" />
-                Generate
-              </PrimaryButton>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <PrimaryButton className="col-span-full cursor-pointer">
+                    <FilePlus2 className="mr-2 inline h-4 w-4" />
+                    Generate
+                  </PrimaryButton>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="max-w-md!">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This process will be
+                      recorded in the database and a bill will be generated.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={generateBill}
+                      className="bg-indigo-600 hover:bg-indigo-700"
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
               <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
                 <Share2 className="mr-2 inline h-4 w-4" />
                 Share Link

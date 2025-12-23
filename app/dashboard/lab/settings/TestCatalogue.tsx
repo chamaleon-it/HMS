@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Save, Trash2 } from "lucide-react";
+import { Save } from "lucide-react";
 import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -130,7 +130,7 @@ export default function TestCatalogue({
   const { data, mutate: testMutate } = useSWR<{
     message: string;
     data: {
-      _id: string
+      _id: string;
       code: string;
       name: string;
       type: "Lab" | "Imaging";
@@ -146,7 +146,7 @@ export default function TestCatalogue({
       unit?: string;
       estimatedTime?: number;
       panels: {
-        name: string
+        name: string;
       }[]
     }[]
   }>("/lab/panels/tests");

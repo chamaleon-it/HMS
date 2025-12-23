@@ -52,7 +52,6 @@ const Customers: React.FC = () => {
     dateRange: { from: undefined, to: undefined },
   });
 
-  console.log(filter)
 
   return (
     <AppShell>

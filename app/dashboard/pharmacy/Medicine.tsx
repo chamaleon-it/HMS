@@ -11,10 +11,10 @@ interface Medicine {
   duration: string;
   quantity: number;
   availableQuantity: number;
-  unitPrice:number;
+  unitPrice: number;
 }
 
-type Item = { _id: string; name: string; generic: string; quantity: number,unitPrice:number };
+type Item = { _id: string; name: string; generic: string; quantity: number, unitPrice: number };
 type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
 
@@ -95,7 +95,6 @@ export default function MedicineField({
   const items = data?.data ?? [];
 
   const handleSelect = (item: Item) => {
-    console.log(item);
     // store only id in your form
     updateField(i, "name", item._id);
     updateField(i, "availableQuantity", item.quantity);
@@ -150,9 +149,9 @@ export default function MedicineField({
               onClick={() => {
                 // clear selected id from form & UI
                 updateField(i, "name", "");
-                updateField(i,"availableQuantity",0)
-                updateField(i,"quantity",0)
-                updateField(i,"unitPrice",0)
+                updateField(i, "availableQuantity", 0)
+                updateField(i, "quantity", 0)
+                updateField(i, "unitPrice", 0)
                 setSelected(null);
                 setQuery("");
                 setFilter((f) => ({ ...f, q: "", page: 1 }));
@@ -183,9 +182,8 @@ export default function MedicineField({
                   onMouseEnter={() => setActiveIdx(idx)}
                   onMouseDown={(e) => e.preventDefault()}
                   onClick={() => handleSelect(it)}
-                  className={`cursor-pointer px-3 py-2 text-sm ${
-                    idx === activeIdx ? "bg-emerald-50" : "hover:bg-slate-50"
-                  }`}
+                  className={`cursor-pointer px-3 py-2 text-sm ${idx === activeIdx ? "bg-emerald-50" : "hover:bg-slate-50"
+                    }`}
                 >
                   <div className="flex justify-between items-center">
                     <div className="">
@@ -253,9 +251,8 @@ function LabeledInput({
         placeholder=" "
         type={type}
         inputMode={inputMode ?? (type === "number" ? "numeric" : undefined)}
-        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${
-          hasRight ? "pr-24" : unit ? "pr-12" : ""
-        }`}
+        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${hasRight ? "pr-24" : unit ? "pr-12" : ""
+          }`}
       />
       <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
         {label}
