@@ -909,7 +909,7 @@ export default function CreateBill({
             <div className="mt-3 grid grid-cols-3 gap-2">
               {/* <AlertDialog>
                 <AlertDialogTrigger asChild> */}
-              <PrimaryButton className="col-span-full cursor-pointer" onClick={generateBill}>
+              <PrimaryButton className="col-span-full cursor-pointer" onClick={onClick}>
                 <FilePlus2 className="mr-2 inline h-4 w-4" />
                 Generate
               </PrimaryButton>
