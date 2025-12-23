@@ -907,13 +907,13 @@ export default function CreateBill({
             </div>
 
             <div className="mt-3 grid grid-cols-3 gap-2">
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <PrimaryButton className="col-span-full cursor-pointer">
-                    <FilePlus2 className="mr-2 inline h-4 w-4" />
-                    Generate
-                  </PrimaryButton>
-                </AlertDialogTrigger>
+              {/* <AlertDialog>
+                <AlertDialogTrigger asChild> */}
+              <PrimaryButton className="col-span-full cursor-pointer" onClick={generateBill}>
+                <FilePlus2 className="mr-2 inline h-4 w-4" />
+                Generate
+              </PrimaryButton>
+              {/* </AlertDialogTrigger>
                 <AlertDialogContent className="max-w-md!">
                   <AlertDialogHeader>
                     <AlertDialogTitle>Are you sure?</AlertDialogTitle>
@@ -932,7 +932,7 @@ export default function CreateBill({
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog> */}
               <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
                 <Share2 className="mr-2 inline h-4 w-4" />
                 Share Link
