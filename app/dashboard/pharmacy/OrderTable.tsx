@@ -26,6 +26,7 @@ import {
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import Link from "next/link";
+import PrintPrescription from "./billing/PrintPrescription";
 
 export default function OrderTable({
   handleView,
@@ -39,6 +40,15 @@ export default function OrderTable({
   OrderMutate: () => void;
 }) {
   const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
+
+  const handlePrint = (order: OrderType) => {
+    setPrintOrder(order);
+    setTimeout(() => {
+      window.print();
+      setPrintOrder(null);
+    }, 100);
+  };
+
   return (
     <div className="rounded-2xl overflow-hidden">
       <Table>
@@ -151,38 +161,32 @@ export default function OrderTable({
                   variant="outline"
                   size="sm"
                   className="gap-2 h-8 text-xs"
+                  onClick={() => handlePrint(r)}
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                  Print Prescription
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 h-8 text-xs"
                   asChild
                 >
                   <Link href={`/dashboard/pharmacy/billing?mrn=${r?.mrn}#new`}>
                     <Printer className="h-3.5 w-3.5" />
-                    Print
+                    Print Bill
                   </Link>
                 </Button>
+
+
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
 
-      <AlertDialog open={!!printOrder} onOpenChange={(open) => !open && setPrintOrder(null)}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Print Order {printOrder?.mrn}?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Are you absolutely sure you want to print this order details?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
-              window.print?.();
-              setPrintOrder(null);
-            }}>
-              Print
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {printOrder && <PrintPrescription order={printOrder} />}
     </div>
   );
 }
