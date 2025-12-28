@@ -367,6 +367,10 @@ const QuantityInput = ({
         (currentOptions.frequency[3] === m.frequency && 1) ||
         (currentOptions.frequency[4] === m.frequency && 1) ||
         0;
+      if (dosage * duration * frequency > m.availableQuantity) {
+        setOpenWarning(true)
+
+      }
       updateField(i, "quantity", Math.ceil(dosage * duration * frequency));
     } else {
       updateField(i, "quantity", 0);
