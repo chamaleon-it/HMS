@@ -268,7 +268,7 @@ export default function PrescriptionCard({
               }}
               value={
                 subTotal && data.discount
-                  ? (data.discount / subTotal) * 100
+                  ? parseFloat(((data.discount / subTotal) * 100).toFixed(2))
                   : ""
               }
               onFocus={(e) => (e.target.placeholder = "")}
@@ -290,7 +290,7 @@ export default function PrescriptionCard({
               inputMode={"numeric"}
               className={`peer w-full rounded-md border border-slate-200 bg-white px-3 h-8 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
               onChange={(e) => setData({ ...data, discount: Number(e.target.value) })}
-              value={data.discount === 0 ? "" : data.discount}
+              value={data.discount === 0 ? "" : parseFloat(data.discount.toFixed(2))}
               onFocus={(e) => (e.target.placeholder = "")}
               onBlur={(e) => {
                 e.target.placeholder = "0";

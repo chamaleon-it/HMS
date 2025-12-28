@@ -684,7 +684,7 @@ export default function CreateBill({
                       placeholder="0"
                       onFocus={e => e.target.placeholder = ""}
                       onBlur={e => e.target.placeholder = "0"}
-                      value={payload.discount === 0 ? "" : payload.discount}
+                      value={payload.discount === 0 ? "" : parseFloat(payload.discount.toFixed(2))}
                       onChange={(e) =>
                         setPayload((prev) => ({
                           ...prev,
@@ -716,7 +716,7 @@ export default function CreateBill({
                       placeholder="0"
                       onFocus={e => e.target.placeholder = ""}
                       onBlur={e => e.target.placeholder = "0"}
-                      value={(payload.discount / (payload.items.reduce((a, b) => a + b.total, 0)) * 100) || ""}
+                      value={parseFloat(((payload.discount / (payload.items.reduce((a, b) => a + b.total, 0)) * 100)).toFixed(2)) || ""}
                       onChange={(e) =>
                         setPayload((prev) => ({
                           ...prev,
