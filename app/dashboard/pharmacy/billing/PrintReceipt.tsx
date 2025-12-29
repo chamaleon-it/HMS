@@ -193,7 +193,7 @@ export default function PrintReceipt({
                                 </tr>
                             ))}
                             {/* Empty rows to push totals down */}
-                            {Array.from({ length: Math.max(0, 5 - payload.items.length) }).map((_, i) => (
+                            {Array.from({ length: Math.max(0, 4 - payload.items.length) }).map((_, i) => (
                                 <tr key={`empty-${i}`} className="h-8">
                                     <td className="border border-slate-200"></td>
                                     <td className="border border-slate-200"></td>
