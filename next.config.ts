@@ -4,11 +4,19 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-         protocol: "https",
+        protocol: "https",
         hostname: "i.pravatar.cc"
       }
     ],
   },
 };
 
-export default nextConfig;
+const withPWA = require("@ducanh2912/next-pwa").default({
+  dest: "public",
+  cacheOnFrontEndNav: true,
+  aggressiveFrontEndNavCaching: true,
+  reloadOnOnline: true,
+  swcMinify: true,
+});
+
+export default withPWA(nextConfig);
