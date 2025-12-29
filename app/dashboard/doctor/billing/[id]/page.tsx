@@ -252,14 +252,14 @@ export default function InvoiceView() {
             </p>
             <div className="h-10 mt-4 border-b border-gray-400 w-48"></div>
           </div>
-          <div className="text-right">
+          {/* <div className="text-right">
             <Button variant="outline" size="sm" className="mr-2">
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>
             <Button variant="outline" size="sm">
               <Download className="w-4 h-4 mr-1" /> PDF
             </Button>
-          </div>
+          </div> */}
         </div>
         <Separator /> {/* Footer */}
         <div className="relative text-center text-xs text-gray-500 py-6 bg-gradient-to-r from-gray-50 to-gray-100">

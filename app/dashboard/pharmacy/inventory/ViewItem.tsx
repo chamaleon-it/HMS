@@ -62,10 +62,10 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-xs font-medium">HSN: {item.hsnCode}</span>
           </div>
         </div>
-        <Button variant="outline" size="sm" className="gap-2 h-8 text-xs border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800">
+        {/* <Button variant="outline" size="sm" className="gap-2 h-8 text-xs border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800">
           <Printer className="h-3.5 w-3.5" />
           Print Label
-        </Button>
+        </Button> */}
       </div>
 
       {/* Stock / Status - REPLACED BY NEW SALES CARDS SECTION BELOW, REMOVING OLD STOCK CARDS IF REDUNDANT, BUT USER ASKED FOR ALL UI IMPROVEMENT. LET'S KEEP STOCK BUT MODERNIZE IT OR MERGE WITH DETAILS. Let's make it a compact stat row below header */}
