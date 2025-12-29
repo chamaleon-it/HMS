@@ -525,6 +525,33 @@ const Customer: React.FC = () => {
                           this can open a dedicated A5/A4 receipt template.
                         </div>
                         <div className="flex items-center gap-2">
+
+
+                          {selectedVisit?.mrn && <Button
+                            disabled={repeatLoading}
+                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                            onClick={async () => {
+                              try {
+                                setRepeatLoading(true)
+                                await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
+                                  loading: "Loading...",
+                                  success: "Repeat Prescription",
+                                  error: "Something went wrong"
+                                })
+                                const updatedData = await mutate()
+                                setSelectedVisit(updatedData?.data?.orders[0] ?? null)
+                              } catch (error) {
+                                console.log(error)
+                              } finally {
+                                setRepeatLoading(false)
+                              }
+
+                            }}
+                          >
+                            {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Repeat Prescription
+                          </Button>}
+
                           <Button
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
                             onClick={handlePrint}
@@ -541,29 +568,7 @@ const Customer: React.FC = () => {
                                   Return
                                 </Link>
                               </Button>
-                              <Button
-                                disabled={repeatLoading}
-                                className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                                onClick={async () => {
-                                  try {
-                                    setRepeatLoading(true)
-                                    await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
-                                      loading: "Loading...",
-                                      success: "Repeat Prescription",
-                                      error: "Something went wrong"
-                                    })
-                                    mutate()
-                                  } catch (error) {
-                                    console.log(error)
-                                  } finally {
-                                    setRepeatLoading(false)
-                                  }
 
-                                }}
-                              >
-                                {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Repeat Prescription
-                              </Button>
                             </>
                           }
                         </div>
