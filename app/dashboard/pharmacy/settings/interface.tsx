@@ -13,6 +13,7 @@ export interface ProfileType {
       defaultGst: number;
       roundOff: boolean;
       autoPrintAfterSave: boolean;
+      autoGenerateBill: boolean;
     };
     inventory?: {
       lowStockThreshold: number;

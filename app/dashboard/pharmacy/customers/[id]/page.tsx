@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDownIcon } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
 import { useParams, useRouter } from "next/navigation";
@@ -19,11 +19,13 @@ import { DateRange } from "react-day-picker";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { Datum, ReturnType } from "./ReturnType";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
 const Customer: React.FC = () => {
   const router = useRouter();
   const { id } = useParams();
-  const { data: customerData, error } = useSWR<CustomerType>(
+  const { data: customerData, error, mutate } = useSWR<CustomerType>(
     `/pharmacy/orders/customers/${id}`
   );
 
@@ -45,6 +47,8 @@ const Customer: React.FC = () => {
   ];
 
   const [type, setType] = useState("all");
+
+  const [repeatLoading, setRepeatLoading] = useState(false)
 
   return (
     <AppShell>
@@ -527,14 +531,41 @@ const Customer: React.FC = () => {
                           >
                             Print bill
                           </Button>
-                          {selectedVisit.mrn && <Button
-                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                            asChild
-                          >
-                            <Link href={`/dashboard/pharmacy/return/?mrn=${selectedVisit?.mrn}`}>
-                              Return
-                            </Link>
-                          </Button>}
+                          {selectedVisit.mrn &&
+                            <>
+                              <Button
+                                className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                                asChild
+                              >
+                                <Link href={`/dashboard/pharmacy/return/?mrn=${selectedVisit?.mrn}`}>
+                                  Return
+                                </Link>
+                              </Button>
+                              <Button
+                                disabled={repeatLoading}
+                                className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                                onClick={async () => {
+                                  try {
+                                    setRepeatLoading(true)
+                                    await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
+                                      loading: "Loading...",
+                                      success: "Repeat Prescription",
+                                      error: "Something went wrong"
+                                    })
+                                    mutate()
+                                  } catch (error) {
+                                    console.log(error)
+                                  } finally {
+                                    setRepeatLoading(false)
+                                  }
+
+                                }}
+                              >
+                                {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                Repeat Prescription
+                              </Button>
+                            </>
+                          }
                         </div>
                       </div>
                     </>
