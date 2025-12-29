@@ -111,7 +111,7 @@ export default function BillingPage() {
             onValueChange={(e) => setTab(e as "all" | "new")}
             value={tab}
           >
-            <TabsList className="mb-4">
+            <TabsList className="mb-4 print:hidden">
               <TabsTrigger value="all" className="cursor-pointer">
                 All Bills
               </TabsTrigger>

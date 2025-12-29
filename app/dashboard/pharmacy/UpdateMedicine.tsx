@@ -224,9 +224,14 @@ function LabeledInput({
   onKeyDown,
 }: LabeledInputProps) {
   const hasRight = Boolean(right);
+  const newMedicineInput = useRef<HTMLInputElement | null>(null)
+  useEffect(() => {
+    newMedicineInput.current?.focus()
+  }, [])
   return (
     <div className="relative w-full">
       <input
+        ref={newMedicineInput}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}

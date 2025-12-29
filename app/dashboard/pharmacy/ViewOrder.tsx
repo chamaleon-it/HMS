@@ -247,7 +247,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="w-[98vw]! max-w-7xl! h-[90vh] flex flex-col">
+            <DialogContent className="w-[98vw]! max-w-7xl! h-[90vh] flex flex-col print:hidden">
                 <DialogHeader>
                     <DialogTitle className="text-xl flex items-center justify-between pr-8">
                         <span>Order — {localOrder.mrn}</span>

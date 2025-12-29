@@ -169,7 +169,7 @@ export default function OrderTable({
 
   return (
     <div className="rounded-2xl overflow-hidden">
-      <Table>
+      <Table className="print:hidden">
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
           <TableRow className="bg-slate-700 hover:bg-slate-700">
             <TableHead className="text-white font-semibold">

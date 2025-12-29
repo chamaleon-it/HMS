@@ -41,7 +41,7 @@ function RxQueue() {
   return (
     <div>
       {/* Queue header row */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2 print:hidden">
         <div>
           <h2 className="text-lg font-semibold">RX Queue</h2>
           <p className="text-slate-600 text-sm">Live prescriptions</p>
