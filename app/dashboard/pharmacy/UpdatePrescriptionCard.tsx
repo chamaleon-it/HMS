@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import { Item, OrderType } from "./interface";
 import Medicine from "./Medicine";
@@ -7,6 +7,16 @@ import { Trash } from "lucide-react";
 import UpdateMedicine from "./UpdateMedicine";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 // ------------------ Types ------------------
 interface Medicine {
@@ -101,19 +111,7 @@ export default function UpdatePrescriptionCard({
                   {m.name.quantity}
                 </td>
                 <td className="p-4 align-middle">
-                  <div className="flex justify-end">
-                    <input
-                      placeholder="0"
-                      type="number"
-                      min="0"
-                      onChange={(e) =>
-                        updateField(i, "quantity", parseInt(e.target.value) ?? 0)
-                      }
-                      inputMode="numeric"
-                      className="w-20 text-right bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
-                      value={m.quantity ? (m?.quantity === 0 ? "" : m?.quantity) : ""}
-                    />
-                  </div>
+                  <QuantityInput i={i} m={m} updateField={updateField} />
                 </td>
                 <td className="p-4 align-middle text-right text-sm font-medium text-slate-600 whitespace-nowrap">
                   {formatINR(m.name.unitPrice)}
@@ -192,3 +190,66 @@ export default function UpdatePrescriptionCard({
     </div>
   );
 }
+
+const QuantityInput = ({
+  updateField,
+  i,
+  m,
+}: {
+  updateField: (idx: number, key: any, val: string | number) => void;
+  i: number;
+  m: Item;
+}) => {
+  const [openWarning, setOpenWarning] = useState(false);
+
+  return (
+    <>
+      <div className="flex justify-end">
+        <input
+          placeholder="0"
+          type="number"
+          min="0"
+          onChange={(e) =>
+            updateField(i, "quantity", parseInt(e.target.value) || 0)
+          }
+          onBlur={(e) => {
+            const value = parseInt(e.target.value) || 0;
+            if (value > m.name.quantity) {
+              setOpenWarning(true);
+            }
+          }}
+          inputMode="numeric"
+          className="w-20 text-right bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
+          value={m.quantity ? (m?.quantity === 0 ? "" : m?.quantity) : ""}
+        />
+      </div>
+      <AlertDialog open={openWarning} onOpenChange={setOpenWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Available quantity: {m.name.quantity} <br />
+              Entered quantity: {m.quantity}
+              <br />
+              <br />
+              <span className="text-destructive">
+                The quantity you entered exceeds the available stock.
+              </span>{" "}
+              Do you want to continue anyway?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => {
+                updateField(i, "quantity", 0);
+              }}
+            >
+              No
+            </AlertDialogCancel>
+            <AlertDialogAction>Yes</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+};
