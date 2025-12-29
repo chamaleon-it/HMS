@@ -167,7 +167,7 @@ export default function UpdatePrescriptionCard({
               }}
               value={
                 subTotal && data.discount
-                  ? (data.discount / subTotal) * 100
+                  ? parseFloat(((data.discount / subTotal) * 100).toFixed(2))
                   : ""
               }
             />
@@ -177,7 +177,7 @@ export default function UpdatePrescriptionCard({
             <input
               type="number"
               min="0"
-              value={data.discount || ""}
+              value={data.discount ? parseFloat(data.discount.toFixed(2)) : ""}
               onChange={(e) => setData(prev => ({ ...prev, discount: Number(e.target.value) || 0 }))}
               className="w-24 text-right bg-white border border-slate-200 rounded px-2 py-1 text-sm outline-none focus:border-emerald-500"
               placeholder="0"
