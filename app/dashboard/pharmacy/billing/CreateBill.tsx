@@ -461,7 +461,7 @@ export default function CreateBill({
                   <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
                     <th className="py-2 text-left">Item</th>
                     <th className="py-2 text-right">Qty</th>
-                    <th className="py-2 text-right">Unit</th>
+                    <th className="py-2 text-right">Unit Price</th>
                     <th className="py-2 text-right">GST%</th>
                     <th className="py-2 text-right">Amount</th>
                     <th className="py-2 text-center">• • •</th>

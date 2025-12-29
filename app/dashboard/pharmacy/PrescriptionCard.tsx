@@ -389,7 +389,7 @@ const QuantityInput = ({
             updateField(i, "quantity", value ?? 0);
           }}
           inputMode={"numeric"}
-          className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+          className={`peer w-full rounded-xl border border-slate-200 bg-transparent px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 relative z-20`}
           value={m.quantity === 0 ? "" : m.quantity}
           onFocus={(e) => (e.target.placeholder = "")}
           onBlur={(e) => {
@@ -400,7 +400,7 @@ const QuantityInput = ({
             }
           }}
         />
-        <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+        <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600 z-10">
           Quantity
         </label>
       </div>
