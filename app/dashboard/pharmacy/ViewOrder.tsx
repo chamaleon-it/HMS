@@ -30,6 +30,8 @@ interface Props {
     setOpen: (open: boolean) => void;
     order: OrderType | null;
     OrderMutate: () => void;
+    autoGenerateBill: boolean;
+    handlePrintBill: (mrn: string) => void;
 }
 
 function Barcode({ value }: { value: string }) {
@@ -98,8 +100,7 @@ function OrderHeader({ order }: { order: OrderType }) {
     );
 }
 
-export default function ViewOrder({ open, setOpen, order, OrderMutate }: Props) {
-    const [activeTab, setActiveTab] = useState("packing");
+export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGenerateBill, handlePrintBill }: Props) {
     const [localOrder, setLocalOrder] = useState<OrderType | null>(order);
     const [updatePayload, setUpdatePayload] = useState<OrderType | null>(order);
     const [openPrintConfirm, setOpenPrintConfirm] = useState(false);
@@ -246,7 +247,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate }: Props) 
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="w-[98vw]! max-w-7xl! h-[90vh] flex flex-col">
+            <DialogContent className="w-[98vw]! max-w-7xl! h-[90vh] flex flex-col print:hidden">
                 <DialogHeader>
                     <DialogTitle className="text-xl flex items-center justify-between pr-8">
                         <span>Order — {localOrder.mrn}</span>
@@ -279,14 +280,24 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate }: Props) 
                         >
                             Mark all packed
                         </Button>
-                        <Button
-                            variant="outline"
-                            asChild
-                        >
-                            <Link href={`/dashboard/pharmacy/billing?mrn=${localOrder.mrn}`}>
-                                Print
-                            </Link>
-                        </Button>
+                        {
+                            autoGenerateBill ?
+                                <Button
+                                    variant="outline"
+                                    onClick={() => handlePrintBill(localOrder.mrn)}
+                                >
+                                    Print
+                                </Button>
+                                : <Button
+                                    variant="outline"
+                                    asChild
+                                >
+                                    <Link href={`/dashboard/pharmacy/billing?mrn=${localOrder.mrn}#new`}>
+                                        Print
+                                    </Link>
+                                </Button>
+                        }
+
                         <Button
                             className="bg-indigo-600 hover:bg-indigo-700 text-white"
                             onClick={handleUpdate}

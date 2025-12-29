@@ -8,19 +8,13 @@ import { OrderType } from "./interface";
 import useSWR from "swr";
 import DeleteOrder from "./DeleteOrder";
 import NewOrder from "./NewOrder";
-import ViewOrder from "./ViewOrder";
 import PharmacyStatus from "./PharmacyStatus";
 
 function RxQueue() {
 
-  const [open, setOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selected, setSelected] = useState<OrderType | null>(null);
 
-  const handleView = (rx: OrderType) => {
-    setSelected(rx);
-    setOpen(true);
-  };
 
   const handleDelete = (rx: OrderType) => {
     setSelected(rx);
@@ -47,7 +41,7 @@ function RxQueue() {
   return (
     <div>
       {/* Queue header row */}
-      <div className="flex items-center justify-between mb-2">
+      <div className="flex items-center justify-between mb-2 print:hidden">
         <div>
           <h2 className="text-lg font-semibold">RX Queue</h2>
           <p className="text-slate-600 text-sm">Live prescriptions</p>
@@ -63,18 +57,11 @@ function RxQueue() {
       </div>
 
       <OrderTable
-        handleView={handleView}
         orders={orders}
         handleDelete={handleDelete}
         OrderMutate={OrderMutate}
       />
 
-      <ViewOrder
-        open={open}
-        setOpen={setOpen}
-        order={selected}
-        OrderMutate={OrderMutate}
-      />
 
       <DeleteOrder
         open={deleteOpen}

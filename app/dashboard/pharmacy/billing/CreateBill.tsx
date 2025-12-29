@@ -419,7 +419,7 @@ export default function CreateBill({
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-4 relative z-0">
+      <div className="grid grid-cols-12 gap-4 relative z-0 print:hidden">
 
         <div className="col-span-12 space-y-4 lg:col-span-8">
 

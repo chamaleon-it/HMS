@@ -34,7 +34,7 @@ interface PropsType {
 }
 export default function AllBill({ billing, filter, setFilter }: PropsType) {
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 print:hidden">
       <Filters filter={filter} setFilter={setFilter} />
 
       <div

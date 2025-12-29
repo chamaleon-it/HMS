@@ -21,6 +21,9 @@ import { motion } from "framer-motion";
 import { Datum, ReturnType } from "./ReturnType";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import { OrderType } from "../../interface";
+import PrintPrescription from "../../billing/PrintPrescription";
+import PrintReceipt from "../../PrintReceipt";
 
 const Customer: React.FC = () => {
   const router = useRouter();
@@ -35,7 +38,7 @@ const Customer: React.FC = () => {
 
   const customer = customerData?.data;
   const [selectedVisit, setSelectedVisit] = useState<Order | Datum | null>(null);
-  const handlePrint = () => { };
+
 
   const [openCalander, setOpenCalander] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
@@ -49,6 +52,112 @@ const Customer: React.FC = () => {
   const [type, setType] = useState("all");
 
   const [repeatLoading, setRepeatLoading] = useState(false)
+
+  const { data: profile } = useSWR<{ data: { pharmacy: { billing: { autoGenerateBill: boolean, prefix: string } } }, message: string }>("/users/profile")
+  const autoGenerateBill = profile?.data.pharmacy.billing.autoGenerateBill ?? false
+  const prefix = profile?.data.pharmacy.billing.prefix ?? "INV"
+
+  const [printBill, setPrintBill] = useState<null | any>(null)
+  const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
+
+  const handlePrintPrescription = async (order: { mrn?: string }) => {
+    if (!order?.mrn) return;
+    // We need to fetch full order details because selectedVisit might not have everything
+    try {
+      const params = new URLSearchParams()
+      params.set("q", order.mrn)
+      const { data } = await api.get<{ data: OrderType, message: string }>(`/pharmacy/orders/single?${params}`)
+      setPrintOrder(data.data);
+      setTimeout(() => {
+        window.print();
+        setPrintOrder(null);
+      }, 100);
+    } catch (error) {
+      toast.error("Failed to fetch order details for printing");
+    }
+  };
+
+  const handlePrintBill = async (mrn: string) => {
+    try {
+      const params = new URLSearchParams()
+      params.set("q", mrn)
+      const { data } = await api.get<{
+        data: {
+          assignedTo: string,
+          createdAt: Date,
+          discount: number,
+          doctor: {
+            name: string;
+            phoneNumber: string;
+            specialization: string;
+            _id: string
+          },
+          items: {
+            dosage: string;
+            duration: string;
+            food: string;
+            frequency: string;
+            isPacked: string;
+            quantity: number;
+            name: {
+              name: string;
+              unitPrice: number;
+              _is: string
+            },
+          }[];
+          mrn: string;
+          patient: {
+            name: string;
+            mrn?: string;
+            phoneNumber?: string;
+            gender?: string;
+            dateOfBirth: string | Date;
+            address?: string;
+            _id: string
+          }
+          priority: string;
+          status: string;
+          updatedAt: string;
+          _id: string
+        }, message: string
+      }>(`/pharmacy/orders/single?${params}`,)
+
+      setPrintBill({
+        patient: data.data.patient,
+        payload: {
+          items: data.data.items.map(e => ({
+            gst: 0,
+            name: e.name.name,
+            quantity: e.quantity,
+            unitPrice: e.name.unitPrice,
+            total: e.quantity * e.name.unitPrice
+          })),
+          cash: 0,
+          discount: data.data.discount,
+          insurance: 0,
+          online: 0,
+          patient: data.data.patient._id,
+          department: data.data.doctor.specialization,
+          doctor: data.data.doctor.name,
+          note: "",
+        },
+        invoiceDetails: {
+          totalGst: 0,
+          prefix,
+          roundOffAmount: 0,
+          subtotal: data.data.items.reduce((a, b) => a + (b.quantity * b.name.unitPrice), 0),
+          grandTotal: data.data.items.reduce((a, b) => a + (b.quantity * b.name.unitPrice), 0) - data.data.discount
+        }
+      });
+
+      setTimeout(() => {
+        window.print();
+        setPrintBill(null);
+      }, 100);
+    } catch (error) {
+      toast.error("Failed to fetch bill details for printing");
+    }
+  }
 
   return (
     <AppShell>
@@ -525,12 +634,47 @@ const Customer: React.FC = () => {
                           this can open a dedicated A5/A4 receipt template.
                         </div>
                         <div className="flex items-center gap-2">
+
+
+                          {selectedVisit?.mrn && <Button
+                            disabled={repeatLoading}
+                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                            onClick={async () => {
+                              try {
+                                setRepeatLoading(true)
+                                await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
+                                  loading: "Loading...",
+                                  success: "Repeat Prescription",
+                                  error: "Something went wrong"
+                                })
+                                const updatedData = await mutate()
+                                setSelectedVisit(updatedData?.data?.orders[0] ?? null)
+                              } catch (error) {
+                                console.log(error)
+                              } finally {
+                                setRepeatLoading(false)
+                              }
+
+                            }}
+                          >
+                            {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Repeat Prescription
+                          </Button>}
+
                           <Button
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                            onClick={handlePrint}
+                            onClick={() => selectedVisit?.mrn && handlePrintBill(selectedVisit.mrn)}
                           >
                             Print bill
                           </Button>
+                          {
+                            selectedVisit?.mrn && <Button
+                              className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                              onClick={() => handlePrintPrescription(selectedVisit)}
+                            >
+                              Print Prescription
+                            </Button>
+                          }
                           {selectedVisit.mrn &&
                             <>
                               <Button
@@ -541,29 +685,7 @@ const Customer: React.FC = () => {
                                   Return
                                 </Link>
                               </Button>
-                              <Button
-                                disabled={repeatLoading}
-                                className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                                onClick={async () => {
-                                  try {
-                                    setRepeatLoading(true)
-                                    await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
-                                      loading: "Loading...",
-                                      success: "Repeat Prescription",
-                                      error: "Something went wrong"
-                                    })
-                                    mutate()
-                                  } catch (error) {
-                                    console.log(error)
-                                  } finally {
-                                    setRepeatLoading(false)
-                                  }
 
-                                }}
-                              >
-                                {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                Repeat Prescription
-                              </Button>
                             </>
                           }
                         </div>
@@ -576,6 +698,8 @@ const Customer: React.FC = () => {
           )}
         </main>
       </div>
+      {printOrder && <PrintPrescription order={printOrder} />}
+      {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} />}
     </AppShell>
   );
 };

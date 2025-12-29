@@ -29,14 +29,13 @@ import Link from "next/link";
 import PrintPrescription from "./billing/PrintPrescription";
 import PrintReceipt from "./PrintReceipt";
 import useSWR from "swr";
+import ViewOrder from "./ViewOrder";
 
 export default function OrderTable({
-  handleView,
   orders,
   handleDelete,
   OrderMutate,
 }: {
-  handleView: (rx: OrderType) => void;
   orders: OrderType[];
   handleDelete: (rx: OrderType) => void;
   OrderMutate: () => void;
@@ -137,7 +136,6 @@ export default function OrderTable({
 
       }, message: string
     }>(`/pharmacy/orders/single?${params}`,)
-    console.log(data.data)
     setPrintBill({
       patient: data.data.patient, payload: {
         items: data.data.items.map(e => ({ gst: 0, name: e.name.name, quantity: e.quantity, unitPrice: e.name.unitPrice, total: e.quantity * e.name.unitPrice })),
@@ -165,12 +163,13 @@ export default function OrderTable({
     }, 100);
   }
 
-
+  const [open, setOpen] = useState(false);
+  const [selected, setSelected] = useState<OrderType | null>(null);
 
 
   return (
     <div className="rounded-2xl overflow-hidden">
-      <Table>
+      <Table className="print:hidden">
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
           <TableRow className="bg-slate-700 hover:bg-slate-700">
             <TableHead className="text-white font-semibold">
@@ -236,7 +235,10 @@ export default function OrderTable({
 
                   size="sm"
                   variant="outline"
-                  onClick={() => handleView(r)}
+                  onClick={() => {
+                    setSelected(r);
+                    setOpen(true);
+                  }}
                   className="gap-2 h-8 text-xs"
                 >
                   <Eye className="h-4 w-4" />
@@ -316,6 +318,16 @@ export default function OrderTable({
       </Table>
 
       {printOrder && <PrintPrescription order={printOrder} />}
+
+      <ViewOrder
+        open={open}
+        setOpen={setOpen}
+        order={selected}
+        OrderMutate={OrderMutate}
+        autoGenerateBill={autoGenerateBill}
+        handlePrintBill={handlePrintBill}
+      />
+
       {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} />}
     </div>
   );
