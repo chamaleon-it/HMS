@@ -34,6 +34,7 @@ export default function Billing({
     defaultGst: 5,
     roundOff: false,
     autoPrintAfterSave: false,
+    autoGenerateBill: false,
   });
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function Billing({
       roundOff: profile?.pharmacy?.billing?.roundOff ?? false,
       autoPrintAfterSave:
         profile?.pharmacy?.billing?.autoPrintAfterSave ?? false,
+      autoGenerateBill: profile?.pharmacy?.billing?.autoGenerateBill ?? false,
     }));
   }, [profile]);
 
@@ -160,6 +162,22 @@ export default function Billing({
                 checked={payload.autoPrintAfterSave}
                 onCheckedChange={(v) =>
                   setPayload((prev) => ({ ...prev, autoPrintAfterSave: v }))
+                }
+              />
+            </div>
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-900">
+                  Auto generate Bill
+                </p>
+                <p className="text-xs text-slate-500">
+                  Opens print dialog when bill is saved.
+                </p>
+              </div>
+              <Switch
+                checked={payload.autoGenerateBill}
+                onCheckedChange={(v) =>
+                  setPayload((prev) => ({ ...prev, autoGenerateBill: v }))
                 }
               />
             </div>
