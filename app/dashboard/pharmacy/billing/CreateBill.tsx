@@ -40,6 +40,13 @@ import PatientSelection from "./PatientSelection";
 import ItemSelected from "./ItemSelected";
 import usePrint from "./usePrint";
 import PrintReceipt from "./PrintReceipt";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { RegisterPatient } from "../RegisterPatient";
 
 const theme = {
   from: "#4f46e5",
@@ -107,9 +114,14 @@ export default function CreateBill({
 
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
 
+
+
+  // ... inside component ...
+  const [openCreate, setOpenCreate] = useState(false);
+  // registerPatient callback is no longer needed but kept if referenced elsewhere, otherwise remove logic inside.
   const registerPatient = useCallback(async () => {
-    router.push("/dashboard/doctor/patients#register");
-  }, [router]);
+    setOpenCreate(true)
+  }, []);
 
   const addItem = useCallback(
     (i?: string) => {
@@ -225,13 +237,6 @@ export default function CreateBill({
     [updateItem]
   );
 
-  const updateDiscount = useCallback(
-    (itemName: string, discount: number) => {
-      updateItem(itemName, { discount });
-    },
-    [updateItem]
-  );
-
   const generateBill = useCallback(async () => {
     if (!payload.patient) {
       toast.error("Please select patient.");
@@ -323,7 +328,7 @@ export default function CreateBill({
   }, []);
 
 
-  const { onClick } = usePrint()
+  const { onClick, downloadPdf } = usePrint()
 
 
 
@@ -347,77 +352,106 @@ export default function CreateBill({
               </span>
               Patient
             </div>
-            <div className="flex items-center justify-between gap-5">
-              <PatientSelection
-                orderPatient={orderPatient}
-                onSelectPatient={(p) => setSelectedPatient(p)}
-                value={payload.patient}
-                setValue={(value) =>
-                  setPayload((prev) => ({ ...prev, patient: value }))
-                }
-              />
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <PatientSelection
+                  orderPatient={orderPatient}
+                  onSelectPatient={(p) => setSelectedPatient(p)}
+                  value={payload.patient}
+                  setValue={(value) =>
+                    setPayload((prev) => ({ ...prev, patient: value }))
+                  }
+                />
+              </div>
+
 
               <button
                 className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 shrink-0"
-                onClick={registerPatient}
+                onClick={() => setOpenCreate(true)}
               >
                 <UserPlus className="mr-2 inline h-4 w-4" />
                 New
               </button>
             </div>
           </div>
-          <div className="">
-            <div className="text-sm font-medium mb-2 flex items-center gap-2">
-              <span
-                className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-                }}
-              >
-                <FileText className="h-4 w-4" />
-              </span>
-              Invoice
-            </div>
-            <div className="grid grid-cols-2 gap-3 text-sm">
-              <div>
-                <div className="text-xs text-slate-500">Date</div>
-                <div className="flex items-center gap-1 font-medium">
-                  <CalendarDays className="h-4 w-4" />
-                  {fDate(new Date())}
-                </div>
+
+          <Sheet open={openCreate} onOpenChange={setOpenCreate}>
+            <SheetContent className="w-full !max-w-lg overflow-y-auto [&>button]:hidden">
+              <SheetHeader className="flex-row items-center justify-between border-b pb-4">
+                <SheetTitle>Customer Register</SheetTitle>
+                <button
+                  className="text-sm font-medium text-slate-500 hover:text-slate-700"
+                  onClick={() => setOpenCreate(false)}
+                >
+                  Close
+                </button>
+              </SheetHeader>
+              <div className="p-3">
+                <RegisterPatient
+                  onClose={(id?: string, name?: string) => {
+                    setOpenCreate(false);
+                    if (id) {
+                      setPayload((prev) => ({ ...prev, patient: id }));
+                      setSelectedPatient({ _id: id, name: name || "", mrn: "" });
+                    }
+                  }}
+                />
               </div>
-              <div className="flex gap-3">
-                <div className="flex-1">
-                  <div className="text-xs text-slate-500">Doctor Name</div>
-                  <input
-                    type="text"
-                    placeholder="Referrer / Doctor"
-                    value={payload.doctor}
-                    onChange={(e) => setPayload(prev => ({ ...prev, doctor: e.target.value }))}
-                    className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  />
-                </div>
-                <div className="flex-1">
-                  <div className="text-xs text-slate-500">Department</div>
-                  <input
-                    type="text"
-                    placeholder="e.g. Cardiology"
-                    value={payload.department}
-                    onChange={(e) => setPayload(prev => ({ ...prev, department: e.target.value }))}
-                    className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                  />
-                </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+        <div className="">
+          <div className="text-sm font-medium mb-2 flex items-center gap-2">
+            <span
+              className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
+              style={{
+                backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
+              }}
+            >
+              <FileText className="h-4 w-4" />
+            </span>
+            Invoice
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div>
+              <div className="text-xs text-slate-500">Date</div>
+              <div className="flex items-center gap-1 font-medium">
+                <CalendarDays className="h-4 w-4" />
+                {fDate(new Date())}
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <div className="flex-1">
+                <div className="text-xs text-slate-500">Doctor Name</div>
+                <input
+                  type="text"
+                  placeholder="Referrer / Doctor"
+                  value={payload.doctor}
+                  onChange={(e) => setPayload(prev => ({ ...prev, doctor: e.target.value }))}
+                  className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+                />
+              </div>
+              <div className="flex-1">
+                <div className="text-xs text-slate-500">Department</div>
+                <input
+                  type="text"
+                  placeholder="e.g. Cardiology"
+                  value={payload.department}
+                  onChange={(e) => setPayload(prev => ({ ...prev, department: e.target.value }))}
+                  className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+                />
               </div>
             </div>
           </div>
-          {/* <ItemSelected
+        </div>
+        {/* <ItemSelected
             addItem={addItem}
             item={item}
             itemRef={itemRef}
             setItem={setItem}
           /> */}
-        </div>
       </div>
+
 
       <div className="grid grid-cols-12 gap-4 relative z-0 print:hidden">
 
@@ -461,7 +495,7 @@ export default function CreateBill({
                   <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
                     <th className="py-2 text-left">Item</th>
                     <th className="py-2 text-right">Qty</th>
-                    <th className="py-2 text-right">Unit</th>
+                    <th className="py-2 text-right">Unit Price</th>
                     <th className="py-2 text-right">GST%</th>
                     <th className="py-2 text-right">Amount</th>
                     <th className="py-2 text-center">• • •</th>
@@ -906,10 +940,13 @@ export default function CreateBill({
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="mt-3 grid grid-cols-2 gap-2">
               {/* <AlertDialog>
                 <AlertDialogTrigger asChild> */}
-              <PrimaryButton className="col-span-full cursor-pointer" onClick={onClick}>
+              <PrimaryButton className="col-span-full cursor-pointer" onClick={() => {
+                generateBill();
+                onClick();
+              }}>
                 <FilePlus2 className="mr-2 inline h-4 w-4" />
                 Generate
               </PrimaryButton>
@@ -933,15 +970,15 @@ export default function CreateBill({
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog> */}
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-                <Share2 className="mr-2 inline h-4 w-4" />
-                Share Link
-              </button>
+
               <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900" onClick={onClick}>
                 <Printer className="mr-2 inline h-4 w-4" />
                 Print
               </button>
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+              <button
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
+                onClick={downloadPdf}
+              >
                 <Download className="mr-2 inline h-4 w-4" />
                 PDF
               </button>
@@ -968,7 +1005,7 @@ export default function CreateBill({
             - (payload.discount)
         }}
       />
-    </div>
+    </div >
   );
 }
 

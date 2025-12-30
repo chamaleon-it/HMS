@@ -21,6 +21,21 @@ import configuration from "@/config/configuration";
 export default function DoctorProfile() {
   const { user, logout } = useAuth();
 
+  const [isNetworkLost, setIsNetworkLost] = React.useState(false);
+
+  React.useEffect(() => {
+    const handleOnline = () => setIsNetworkLost(false);
+    const handleOffline = () => setIsNetworkLost(true);
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
+
   return (
     <div className="">
       <DropdownMenu>
@@ -42,7 +57,9 @@ export default function DoctorProfile() {
                 </AvatarFallback>
               </Avatar>
               <span
-                className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full ring-2 ring-white bg-emerald-500`}
+                className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full ring-2 ring-white 
+    ${isNetworkLost ? 'bg-orange-500' : 'bg-emerald-500'}
+  `}
               />
             </span>
             <span className="text-left">
@@ -92,7 +109,7 @@ export default function DoctorProfile() {
           <DropdownMenuGroup>
             <DropdownMenuItem className="px-3" asChild>
               <Link
-                href={`/dashboard/${user?.role==="Doctor" && "doctor" || user?.role==="Pharmacy" && "pharmacy" || user?.role==="Pharmacy Wholesaler" && "pharmacy-wholesaler" || user?.role==="Lab" && "lab" || "doctor" }/settings`}
+                href={`/dashboard/${user?.role === "Doctor" && "doctor" || user?.role === "Pharmacy" && "pharmacy" || user?.role === "Pharmacy Wholesaler" && "pharmacy-wholesaler" || user?.role === "Lab" && "lab" || "doctor"}/settings`}
                 className="flex items-center gap-1"
               >
                 <Settings className="mr-2 h-4 w-4" /> Settings

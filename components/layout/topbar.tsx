@@ -57,13 +57,13 @@ export default function Header() {
                 <Plus className="h-4 w-4" /> New Appointment
               </button>
             )}
-            <button
+            {/* <button
               className="relative rounded-xl border border-slate-200 bg-white/90 p-2 shadow-sm transition hover:bg-slate-50 cursor-pointer"
               aria-label="Notifications"
             >
               <Bell className="h-5 w-5 text-slate-600" />
               <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-rose-500" />
-            </button>
+            </button> */}
 
             <DoctorProfile />
           </div>

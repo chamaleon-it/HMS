@@ -54,6 +54,9 @@ export default function BillingPage() {
       discount: number;
       items: {
         total: number;
+        quantity: number;
+        unitPrice: number;
+        gst: number;
       }[];
       patient: {
         name: string;
@@ -124,6 +127,7 @@ export default function BillingPage() {
                 billing={billing}
                 filter={filter}
                 setFilter={setFilter}
+                billingMutate={billingMutate}
               />
             </TabsContent>
             <TabsContent value="new">
