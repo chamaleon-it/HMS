@@ -192,7 +192,7 @@ export function Sidebar() {
   return (
     <aside
       className={
-        "sticky top-0 h-screen transition-all duration-300 flex flex-col border-r border-slate-200/80 " +
+        "sticky top-0 h-screen transition-all duration-300 flex flex-col border-r border-slate-200/80 shrink-0 " +
         (collapsed ? "w-20" : "w-72")
       }
       style={{

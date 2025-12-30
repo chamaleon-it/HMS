@@ -225,13 +225,6 @@ export default function CreateBill({
     [updateItem]
   );
 
-  const updateDiscount = useCallback(
-    (itemName: string, discount: number) => {
-      updateItem(itemName, { discount });
-    },
-    [updateItem]
-  );
-
   const generateBill = useCallback(async () => {
     if (!payload.patient) {
       toast.error("Please select patient.");
@@ -909,7 +902,10 @@ export default function CreateBill({
             <div className="mt-3 grid grid-cols-2 gap-2">
               {/* <AlertDialog>
                 <AlertDialogTrigger asChild> */}
-              <PrimaryButton className="col-span-full cursor-pointer" onClick={onClick}>
+              <PrimaryButton className="col-span-full cursor-pointer" onClick={() => {
+                generateBill();
+                onClick();
+              }}>
                 <FilePlus2 className="mr-2 inline h-4 w-4" />
                 Generate
               </PrimaryButton>

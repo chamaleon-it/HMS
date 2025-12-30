@@ -86,7 +86,7 @@ export default function InventoryPage() {
 
   return (
     <AppShell>
-      <div className="p-5 min-h-[calc(100vh-80px)] w-full max-w-[100vw] overflow-x-hidden">
+      <div className="p-5 min-h-[calc(100vh-80px)] w-full overflow-x-hidden">
         <div
           className={`space-y-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
             }`}
