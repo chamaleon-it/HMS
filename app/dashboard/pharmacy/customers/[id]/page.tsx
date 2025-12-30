@@ -661,12 +661,12 @@ const Customer: React.FC = () => {
                             Repeat Prescription
                           </Button>}
 
-                          <Button
+                          {selectedVisit?.mrn && <Button
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                            onClick={() => selectedVisit?.mrn && handlePrintBill(selectedVisit.mrn)}
+                            onClick={() => selectedVisit.mrn && handlePrintBill(selectedVisit.mrn)}
                           >
                             Print bill
-                          </Button>
+                          </Button>}
                           {
                             selectedVisit?.mrn && <Button
                               className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
