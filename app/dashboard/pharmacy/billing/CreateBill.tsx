@@ -323,7 +323,7 @@ export default function CreateBill({
   }, []);
 
 
-  const { onClick } = usePrint()
+  const { onClick, downloadPdf } = usePrint()
 
 
 
@@ -906,7 +906,7 @@ export default function CreateBill({
               </div>
             </div>
 
-            <div className="mt-3 grid grid-cols-3 gap-2">
+            <div className="mt-3 grid grid-cols-2 gap-2">
               {/* <AlertDialog>
                 <AlertDialogTrigger asChild> */}
               <PrimaryButton className="col-span-full cursor-pointer" onClick={onClick}>
@@ -933,15 +933,15 @@ export default function CreateBill({
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog> */}
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-                <Share2 className="mr-2 inline h-4 w-4" />
-                Share Link
-              </button>
+
               <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900" onClick={onClick}>
                 <Printer className="mr-2 inline h-4 w-4" />
                 Print
               </button>
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
+              <button
+                className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
+                onClick={downloadPdf}
+              >
                 <Download className="mr-2 inline h-4 w-4" />
                 PDF
               </button>
