@@ -628,15 +628,14 @@ const Customer: React.FC = () => {
                         </table>
                       </div>
 
-                      <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
+                      {selectedVisit?.mrn && <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
                         <div className="text-[12px] text-slate-500">
-                          Use Print bill to generate a hard copy. In production
-                          this can open a dedicated A5/A4 receipt template.
+                          Use Print bill to generate a hard copy.
                         </div>
                         <div className="flex items-center gap-2">
 
 
-                          {selectedVisit?.mrn && <Button
+                          <Button
                             disabled={repeatLoading}
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
                             onClick={async () => {
@@ -659,37 +658,34 @@ const Customer: React.FC = () => {
                           >
                             {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Repeat Prescription
-                          </Button>}
+                          </Button>
 
-                          {selectedVisit?.mrn && <Button
+                          <Button
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
                             onClick={() => selectedVisit.mrn && handlePrintBill(selectedVisit.mrn)}
                           >
                             Print bill
-                          </Button>}
-                          {
-                            selectedVisit?.mrn && <Button
-                              className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                              onClick={() => handlePrintPrescription(selectedVisit)}
-                            >
-                              Print Prescription
-                            </Button>
-                          }
-                          {selectedVisit.mrn &&
-                            <>
-                              <Button
-                                className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                                asChild
-                              >
-                                <Link href={`/dashboard/pharmacy/return/?mrn=${selectedVisit?.mrn}`}>
-                                  Return
-                                </Link>
-                              </Button>
+                          </Button>
+                          <Button
+                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                            onClick={() => handlePrintPrescription(selectedVisit)}
+                          >
+                            Print Prescription
+                          </Button>
 
-                            </>
-                          }
+                          <Button
+                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                            asChild
+                          >
+                            <Link href={`/dashboard/pharmacy/return/?mrn=${selectedVisit?.mrn}`}>
+                              Return
+                            </Link>
+                          </Button>
+
+
+
                         </div>
-                      </div>
+                      </div>}
                     </>
                   )}
                 </div>
