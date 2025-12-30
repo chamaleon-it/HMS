@@ -53,6 +53,7 @@ export default function BillingPage() {
       insurance: number;
       discount: number;
       items: {
+        name: string;
         total: number;
         quantity: number;
         unitPrice: number;
@@ -106,7 +107,7 @@ export default function BillingPage() {
         }
       >
         <div className="">
-          <Header setTab={setTab} />
+          <Header setTab={setTab} filter={filter} setFilter={setFilter} />
 
           <Tabs
             defaultValue="all"

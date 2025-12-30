@@ -1,11 +1,15 @@
 import { FilePlus2, FileText, RefreshCcw, Wallet2 } from 'lucide-react';
 import React from 'react'
+import { FilterType } from './page';
+import BillingStatusFilter from './BillingStatusFilter';
 
 interface PropsType {
-  setTab: (v: "new") => void
+  setTab: (v: "new") => void;
+  filter: FilterType;
+  setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 }
 
-export default function Header({ setTab }: PropsType) {
+export default function Header({ setTab, filter, setFilter }: PropsType) {
   return (
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3 print:hidden">
       <div>
@@ -14,7 +18,11 @@ export default function Header({ setTab }: PropsType) {
           Search, filter & review billing history
         </p>
       </div>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-4">
+        <BillingStatusFilter
+          currentStatus={filter.status || "all"}
+          setStatus={(status) => setFilter((prev) => ({ ...prev, status }))}
+        />
         <PrimaryButton onClick={() => setTab("new")}>
           <FilePlus2 className="mr-2 inline h-4 w-4" /> New Invoice
         </PrimaryButton>

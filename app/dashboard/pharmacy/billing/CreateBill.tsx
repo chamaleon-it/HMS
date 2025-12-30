@@ -252,7 +252,7 @@ export default function CreateBill({
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
-      onClick()
+      onClick();
       setPayload(defaultPayload);
       billingMutate();
     } catch (error) {
@@ -944,8 +944,16 @@ export default function CreateBill({
               {/* <AlertDialog>
                 <AlertDialogTrigger asChild> */}
               <PrimaryButton className="col-span-full cursor-pointer" onClick={() => {
+                if (!payload.patient) {
+                  toast.error("Please select patient.");
+                  return;
+                }
+                if (payload.items.length === 0) {
+                  toast.error("Please add atleast one item.");
+                  return;
+                }
                 generateBill();
-                onClick();
+
               }}>
                 <FilePlus2 className="mr-2 inline h-4 w-4" />
                 Generate
@@ -971,13 +979,35 @@ export default function CreateBill({
                 </AlertDialogContent>
               </AlertDialog> */}
 
-              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900" onClick={onClick}>
+              <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900" onClick={
+                () => {
+                  if (!payload.patient) {
+                    toast.error("Please select patient.");
+                    return;
+                  }
+                  if (payload.items.length === 0) {
+                    toast.error("Please add atleast one item.");
+                    return;
+                  }
+                  onClick();
+                }
+              }>
                 <Printer className="mr-2 inline h-4 w-4" />
                 Print
               </button>
               <button
                 className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
-                onClick={downloadPdf}
+                onClick={() => {
+                  if (!payload.patient) {
+                    toast.error("Please select patient.");
+                    return;
+                  }
+                  if (payload.items.length === 0) {
+                    toast.error("Please add atleast one item.");
+                    return;
+                  }
+                  downloadPdf()
+                }}
               >
                 <Download className="mr-2 inline h-4 w-4" />
                 PDF

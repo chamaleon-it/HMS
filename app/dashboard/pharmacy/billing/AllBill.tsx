@@ -1,4 +1,4 @@
-import { Eye, Printer } from "lucide-react";
+import { Eye, Printer, Search } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import Filters from "./Filter";
@@ -88,105 +88,119 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                 </tr>
               </thead>
               <tbody>
-                {billing.map((b, idx) => (
-                  <tr
-                    key={b._id}
-                    className={`border-b border-slate-100 last:border-0 ${idx % 2 === 0
-                      ? "bg-white hover:bg-white/60"
-                      : "bg-slate-100 hover:bg-slate-100/60"
-                      }`}
-                  >
-                    <td className="py-2 px-2">
-                      <div className="font-medium">{b.mrn}</div>
-                      <div className="text-[11px] text-slate-500 space-x-1">
-                        {Boolean(b.cash) && <MethodPill m="cash" />}
-                        {Boolean(b.online) && <MethodPill m="online" />}
-                        {Boolean(b.insurance) && <MethodPill m="insurance" />}
-                      </div>
-                    </td>
-                    <td className="py-2 pr-2">{fDateandTime(b.createdAt)}</td>
-                    <td className="py-2 pr-2">
-                      <div className="font-medium truncate">{b.patient.name}</div>
-                      <div className="text-[11px] text-slate-500">
-                        {b.patient.mrn}
-                      </div>
-                    </td>
-                    <td className="py-2 pr-2 text-right tabular-nums">
-                      {b.items.length}
-                    </td>
-                    <td className="py-2 pr-2 text-right tabular-nums">
-                      {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
-                    </td>
-                    <td className="py-2 pr-2 text-right tabular-nums">
-                      {(b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0)}
-                    </td>
-                    <td className="py-2 pr-2 text-right tabular-nums">
-                      {formatINR(b.discount)}
-                    </td>
-                    <td className="py-2 pr-2 text-right tabular-nums">
-                      {formatINR(b.insurance + b.cash + b.online)}
-                    </td>
-                    <td className="py-2 pr-2 text-right tabular-nums">
-                      {formatINR(
-                        b.items.reduce((a, b) => a + b.total, 0) -
-                        (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                        (b.insurance + b.cash + b.online + (b.discount ?? 0))
-                      )}
-                    </td>
-                    <td className="py-2 px-2 text-center">
-                      <StatusPill
-                        s={(() => {
-                          const total = b.items.reduce(
-                            (sum, i) => sum + i.total,
-                            0
-                          ) - (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
-                          const paid = b.cash + b.online + b.insurance + (b.discount ?? 0);
-                          return total <= paid
-                            ? "Paid"
-                            : paid === 0
-                              ? "Unpaid"
-                              : "Partial";
-                        })()}
-                      />
-                    </td>
-                    <td className="">
-                      <div className="flex justify-start items-center gap-2">
-                        <Button variant={"outline"} size={"sm"} asChild>
-                          <Link
-                            href={`/dashboard/pharmacy/billing/${b._id}`}
-                          >
-                            <Eye className=" h-3.5 w-3.5" /> View
-                          </Link>
-                        </Button>
-
-                        <Button variant={"outline"} size={"sm"} onClick={() => handlePrint(b)} className="gap-2">
-                          <Printer className="h-4 w-4" /> Print Bill
-                        </Button>
-                        {b.items.reduce(
-                          (sum, i) => sum + i.total,
-                          0
-                        ) > b.cash + b.online + b.insurance + (b.discount ?? 0) + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) && <Button
-                          variant={"outline"}
-                          size={"sm"}
-                          className="bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white"
-                          onClick={async () => {
-                            const due = b.items.reduce((a, b) => a + b.total, 0) -
-                              (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                              (b.insurance + b.cash + b.online + (b.discount ?? 0))
-                            await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
-                              loading: "Marking as paid",
-                              success: "Marked as paid",
-                              error: "Failed to mark as paid"
-                            })
-                            billingMutate()
-                          }}
-                        >
-                            Mark as Paid
-                          </Button>}
+                {billing.length === 0 ? (
+                  <tr>
+                    <td colSpan={11} className="py-20 text-center">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
+                          <Search className="h-6 w-6 text-slate-300" />
+                        </div>
+                        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No bills found</p>
+                        <p className="text-xs text-slate-400">Try adjusting your filters or search terms</p>
                       </div>
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  billing.map((b, idx) => (
+                    <tr
+                      key={b._id}
+                      className={`border-b border-slate-100 last:border-0 ${idx % 2 === 0
+                        ? "bg-white hover:bg-white/60"
+                        : "bg-slate-100 hover:bg-slate-100/60"
+                        }`}
+                    >
+                      <td className="py-2 px-2">
+                        <div className="font-medium">{b.mrn}</div>
+                        <div className="text-[11px] text-slate-500 space-x-1">
+                          {Boolean(b.cash) && <MethodPill m="cash" />}
+                          {Boolean(b.online) && <MethodPill m="online" />}
+                          {Boolean(b.insurance) && <MethodPill m="insurance" />}
+                        </div>
+                      </td>
+                      <td className="py-2 pr-2">{fDateandTime(b.createdAt)}</td>
+                      <td className="py-2 pr-2">
+                        <div className="font-medium truncate">{b.patient.name}</div>
+                        <div className="text-[11px] text-slate-500">
+                          {b.patient.mrn}
+                        </div>
+                      </td>
+                      <td className="py-2 pr-2 text-right tabular-nums">
+                        {b.items.length}
+                      </td>
+                      <td className="py-2 pr-2 text-right tabular-nums">
+                        {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
+                      </td>
+                      <td className="py-2 pr-2 text-right tabular-nums">
+                        {(b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0)}
+                      </td>
+                      <td className="py-2 pr-2 text-right tabular-nums">
+                        {formatINR(b.discount)}
+                      </td>
+                      <td className="py-2 pr-2 text-right tabular-nums">
+                        {formatINR(b.insurance + b.cash + b.online)}
+                      </td>
+                      <td className="py-2 pr-2 text-right tabular-nums">
+                        {formatINR(
+                          b.items.reduce((a, b) => a + b.total, 0) -
+                          (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
+                          (b.insurance + b.cash + b.online + (b.discount ?? 0))
+                        )}
+                      </td>
+                      <td className="py-2 px-2 text-center">
+                        <StatusPill
+                          s={(() => {
+                            const total = b.items.reduce(
+                              (sum, i) => sum + i.total,
+                              0
+                            ) - (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
+                            const paid = b.cash + b.online + b.insurance + (b.discount ?? 0);
+                            return total <= paid
+                              ? "Paid"
+                              : paid === 0
+                                ? "Unpaid"
+                                : "Partial";
+                          })()}
+                        />
+                      </td>
+                      <td className="">
+                        <div className="flex justify-start items-center gap-2">
+                          <Button variant={"outline"} size={"sm"} asChild>
+                            <Link
+                              href={`/dashboard/pharmacy/billing/${b._id}`}
+                            >
+                              <Eye className=" h-3.5 w-3.5" /> View
+                            </Link>
+                          </Button>
+
+                          <Button variant={"outline"} size={"sm"} onClick={() => handlePrint(b)} className="gap-2">
+                            <Printer className="h-4 w-4" /> Print Bill
+                          </Button>
+                          {b.items.reduce(
+                            (sum, i) => sum + i.total,
+                            0
+                          ) > b.cash + b.online + b.insurance + (b.discount ?? 0) + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) && <Button
+                            variant={"outline"}
+                            size={"sm"}
+                            className="bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white"
+                            onClick={async () => {
+                              const due = b.items.reduce((a, b) => a + b.total, 0) -
+                                (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
+                                (b.insurance + b.cash + b.online + (b.discount ?? 0))
+                              await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
+                                loading: "Marking as paid",
+                                success: "Marked as paid",
+                                error: "Failed to mark as paid"
+                              })
+                              billingMutate()
+                            }}
+                          >
+                              Mark as Paid
+                            </Button>}
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
