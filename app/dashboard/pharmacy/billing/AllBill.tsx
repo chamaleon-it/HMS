@@ -5,6 +5,7 @@ import Filters from "./Filter";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { FilterType } from "./page";
+import { Button } from "@/components/ui/button";
 
 interface BillRow {
   status: "Paid" | "Partial" | "Unpaid";
@@ -12,6 +13,7 @@ interface BillRow {
 }
 
 interface PropsType {
+  billingMutate: () => void;
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
@@ -25,6 +27,9 @@ interface PropsType {
     discount: number;
     items: {
       total: number;
+      quantity: number;
+      unitPrice: number;
+      gst: number;
     }[];
     patient: {
       name: string;
@@ -32,7 +37,13 @@ interface PropsType {
     };
   }[];
 }
-export default function AllBill({ billing, filter, setFilter }: PropsType) {
+import AddPaymentDialog from "./AddPaymentDialog";
+
+export default function AllBill({ billing, filter, setFilter, billingMutate }: PropsType) {
+  const [selectedBill, setSelectedBill] = React.useState<PropsType["billing"][number] | null>(null);
+  const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
+
+
   return (
     <div className="space-y-4 print:hidden">
       <Filters filter={filter} setFilter={setFilter} />
@@ -47,8 +58,8 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
           <div className="text-xs text-slate-500">{billing.length} results</div>
         </div>
         <div className="overflow-x-auto rounded-xl ">
-          <table className="w-full table-fixed text-sm">
-            <thead className="sticky top-0 z-10 bg-slate-700 backdrop-blur">
+          <table className="w-full  text-sm">
+            <thead className=" bg-slate-700 backdrop-blur">
               <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-white ">
                 <th className="py-2 text-left pl-2">Invoice</th>
                 <th className="py-2 text-left">Date</th>
@@ -60,6 +71,7 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                 <th className="py-2 text-right">Paid</th>
                 <th className="py-2 text-right">Due</th>
                 <th className="py-2 text-center ">Status</th>
+                <th className="py-2 text-center ">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -109,27 +121,43 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                     )}
                   </td>
                   <td className="py-2 px-2 text-center">
-                    <div className="flex justify-between items-center gap-5">
-                      <StatusPill
-                        s={(() => {
-                          const total = b.items.reduce(
-                            (sum, i) => sum + i.total,
-                            0
-                          );
-                          const paid = b.cash + b.online + b.insurance + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
-                          return total <= paid
-                            ? "Paid"
-                            : paid === 0
-                              ? "Unpaid"
-                              : "Partial";
-                        })()}
-                      />
-                      <Link
-                        href={`/dashboard/pharmacy/billing/${b._id}`}
-                        className="ml-2 inline-flex items-center rounded-md border border-slate-200 bg-white px-2 py-1 text-xs hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+                    <StatusPill
+                      s={(() => {
+                        const total = b.items.reduce(
+                          (sum, i) => sum + i.total,
+                          0
+                        ) - (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
+                        const paid = b.cash + b.online + b.insurance + (b.discount ?? 0);
+                        return total <= paid
+                          ? "Paid"
+                          : paid === 0
+                            ? "Unpaid"
+                            : "Partial";
+                      })()}
+                    />
+                  </td>
+                  <td className="">
+                    <div className="flex justify-start items-center gap-2">
+                      <Button variant={"outline"} size={"sm"} asChild>
+                        <Link
+                          href={`/dashboard/pharmacy/billing/${b._id}`}
+                        >
+                          <Eye className=" h-3.5 w-3.5" /> View
+                        </Link>
+                      </Button>
+                      {b.items.reduce(
+                        (sum, i) => sum + i.total,
+                        0
+                      ) > b.cash + b.online + b.insurance + (b.discount ?? 0) + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) && <Button
+                        variant={"outline"}
+                        size={"sm"}
+                        onClick={() => {
+                          setSelectedBill(b);
+                          setIsPaymentOpen(true);
+                        }}
                       >
-                        <Eye className="mr-1 h-3.5 w-3.5" /> View
-                      </Link>
+                          Add Payment
+                        </Button>}
                     </div>
                   </td>
                 </tr>
@@ -152,6 +180,12 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
           </div>
         </div>
       </div>
+      <AddPaymentDialog
+        open={isPaymentOpen}
+        setOpen={setIsPaymentOpen}
+        bill={selectedBill as any} // temporary cast until types align perfectly
+        billingMutate={billingMutate}
+      />
     </div>
   );
 }
