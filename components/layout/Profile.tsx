@@ -118,7 +118,7 @@ export default function DoctorProfile() {
             <DropdownMenuItem className="px-3" asChild>
               <Button
                 variant={"ghost"}
-                className="flex gap-2 items-center  w-full text-left justify-start py-5"
+                className="flex gap-2 items-center  w-full text-left justify-start py-5 group"
               >
                 <RefreshCw className="h-4 w-4 mr-2" />
                 Sync</Button>
