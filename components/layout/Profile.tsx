@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Settings } from "lucide-react";
+import { LogOut, RefreshCw, Settings } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/auth/context/auth-context";
 import configuration from "@/config/configuration";
@@ -114,6 +114,14 @@ export default function DoctorProfile() {
               >
                 <Settings className="mr-2 h-4 w-4" /> Settings
               </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem className="px-3" asChild>
+              <Button
+                variant={"ghost"}
+                className="flex gap-2 items-center  w-full text-left justify-start py-5"
+              >
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Sync</Button>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
