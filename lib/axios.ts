@@ -5,6 +5,8 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from "axios";
 import { parseCookies, setCookie, destroyCookie } from "nookies";
 import type { GetServerSidePropsContext } from "next";
 import configuration from "@/config/configuration";
+import { syncService } from "./sync.service";
+import { toast } from "react-hot-toast";
 
 const ACCESS_COOKIE = "accessToken";
 const REFRESH_COOKIE = "refreshToken";
@@ -65,7 +67,7 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
 
   const api = axios.create({
     baseURL,
-    withCredentials: true, 
+    withCredentials: true,
   });
 
   /** Attach Authorization header from cookie before each request */
@@ -79,12 +81,69 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
 
   /** Handle 401s: refresh tokens once, queue pending requests, then retry */
   api.interceptors.response.use(
-    (res) => res,
+    async (res) => {
+      // Cache successful GET requests
+      if (res.config.method === "get" && res.data && res.data.data) {
+        const url = new URL(res.config.url || "", res.config.baseURL).pathname;
+        const collection = url.split("/")[1];
+        if (collection && ["patients", "billing", "pharmacy", "appointments", "lab"].includes(collection)) {
+          const data = Array.isArray(res.data.data) ? res.data.data : [res.data.data];
+          await syncService.bulkUpdate(collection, data);
+        }
+      }
+      return res;
+    },
     async (error: AxiosError) => {
       const original = error.config as AxiosRequestConfig & { _retry?: boolean };
 
-      // If no response (network) or already retried -> reject
-      if (!error.response || original?._retry) {
+      // Handle Network Errors (Offline)
+      if (!error.response) {
+        // Fallback for GET requests
+        if (original.method === "get") {
+          const url = new URL(original.url || "", original.baseURL).pathname;
+          const collection = url.split("/")[1];
+          if (collection && ["patients", "billing", "pharmacy", "appointments", "lab"].includes(collection)) {
+            try {
+              const localData = await syncService.getAll(collection);
+              return {
+                data: { data: localData, message: "Loaded from offline cache" },
+                status: 200,
+                statusText: "OK",
+                headers: {},
+                config: original,
+              };
+            } catch (e) {
+              console.error("Local cache fetch failed:", e);
+            }
+          }
+        }
+
+        // Queue for Mutations
+        if (["post", "put", "delete", "patch"].includes(original.method || "")) {
+          const url = new URL(original.url || "", original.baseURL).pathname;
+          if (url === "/sync") return Promise.reject(error); // Don't queue sync itself
+
+          const collection = url.split("/")[1] || "general";
+          await syncService.queueAction({
+            method: (original.method?.toUpperCase() as any) || "POST",
+            url: original.url || "",
+            body: original.data,
+            module: collection,
+          });
+          toast.success("Saved offline. Will sync when online.");
+          return {
+            data: { message: "Saved offline", data: original.data },
+            status: 200,
+            statusText: "OK",
+            headers: {},
+            config: original,
+          };
+        }
+        return Promise.reject(error);
+      }
+
+      // If already retried -> reject
+      if (original?._retry) {
         return Promise.reject(error);
       }
 
@@ -102,7 +161,7 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
           enqueueRefresh((newAccess) => {
             if (!newAccess) return reject(error);
             original.headers = original.headers ?? {};
-            (original.headers ).Authorization = `Bearer ${newAccess}`;
+            (original.headers).Authorization = `Bearer ${newAccess}`;
             resolve(api(original));
           });
         });
@@ -162,7 +221,7 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
 }
 
 const api = createApi({
-    baseURL:configuration().backendUrl
+  baseURL: configuration().backendUrl
 })
 
 export default api
