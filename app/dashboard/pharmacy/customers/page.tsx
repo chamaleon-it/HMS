@@ -259,8 +259,8 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
   if (!highlight || !highlight.trim()) {
     return <span>{text}</span>;
   }
-  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
-  const parts = text.split(regex);
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi") || "";
+  const parts = (text && regex) ? text?.split(regex) : [];
   return (
     <span>
       {parts.map((part, i) =>

@@ -210,8 +210,10 @@ export default function OrderTable({
               <TableCell>{idx + 1}</TableCell>
               <TableCell className="font-medium">{r?.mrn}</TableCell>
               <TableCell>
-                {r?.patient?.name} <br />{" "}
-                <span className="text-xs">({r?.patient?.mrn})</span>
+                {r?.patient?.name || "Unknown Patient"} <br />{" "}
+                <span className="text-xs">
+                  ({r?.patient?.mrn || "No MRN"})
+                </span>
               </TableCell>
               <TableCell>{r?.items?.length}</TableCell>
               <TableCell>

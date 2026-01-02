@@ -30,7 +30,9 @@ export default function SearchBar() {
       updatedAt: Date;
       _id: string;
     }[];
-  }>(q ? `/patients?query=${q}` : null);
+  }>(q ? `/patients?query=${q}` : null, {
+    keepPreviousData: true,
+  });
 
 
   const generateLink = (id: string) => {
@@ -231,8 +233,8 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
   if (!highlight.trim()) {
     return <span>{text}</span>;
   }
-  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
-  const parts = text.split(regex);
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi") || "";
+  const parts = (text && regex) ? text?.split(regex) : [];
   return (
     <span>
       {parts.map((part, i) =>

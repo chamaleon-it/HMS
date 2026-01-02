@@ -75,7 +75,10 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
 
   const { data, isLoading } = useSWR<{ data: Patient[] }>(
     // Only hit API when user typed enough or when they focus & have something
-    debounced.length >= MIN_QUERY_LEN ? listUrl : null
+    debounced.length >= MIN_QUERY_LEN ? listUrl : null,
+    {
+      keepPreviousData: true,
+    }
   );
   const patients = data?.data ?? [];
 
@@ -206,6 +209,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
               className="py-1"
             >
               {patients.map((p, idx) => (
+                p.name && p.mrn && p._id &&
                 <li
                   key={p._id}
                   role="option"
@@ -272,8 +276,8 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
   if (!highlight.trim()) {
     return <span>{text}</span>;
   }
-  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
-  const parts = text.split(regex);
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi") || "";
+  const parts = (text && regex) ? text?.split(regex) : [];
   return (
     <span>
       {parts.map((part, i) =>
@@ -295,9 +299,12 @@ const PatientCard: React.FC<{
   isSelected: boolean;
   searchQuery?: string;
 }> = ({ p, isActive, isSelected, searchQuery = "" }) => {
+
   const hue = hashHue(p._id ?? p.name ?? p.mrn ?? "hue");
   const ringGradient = `bg-[conic-gradient(from_180deg,oklch(0.92_0.04_${hue})_0%,oklch(0.94_0.05_${(hue + 40) % 360
     })_50%,oklch(0.92_0.04_${(hue + 80) % 360})_100%)]`;
+
+  if (!p._id || !p.name || !p.mrn) return null;
 
   return (
     <div

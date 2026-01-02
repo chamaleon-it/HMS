@@ -34,7 +34,9 @@ function RxQueue() {
   const { data: ordersData, mutate: OrderMutate } = useSWR<{
     message: string;
     data: OrderType[];
-  }>(`/pharmacy/orders?${params.toString()}`);
+  }>(`/pharmacy/orders?${params.toString()}`, {
+    keepPreviousData: true,
+  });
 
   const orders = ordersData?.data ?? [];
 
