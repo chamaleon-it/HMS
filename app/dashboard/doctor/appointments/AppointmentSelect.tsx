@@ -85,7 +85,7 @@ function Select<T extends string>({
             />
           )}
           <ul role="listbox" className="grid gap-1">
-            {visible.map((o) => {
+            {visible?.map((o) => {
               const active = o.value === value;
               return (
                 <li key={String(o.value)}>
@@ -94,11 +94,10 @@ function Select<T extends string>({
                       onChange(o.value);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
-                      active
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${active
                         ? "bg-gray-100 text-gray-900"
                         : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                      }`}
                   >
                     <span className="truncate">{o.label}</span>
                     {active && <span>✓</span>}

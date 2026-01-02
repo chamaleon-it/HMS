@@ -41,7 +41,7 @@ const FAQ = () => {
                 </div>
 
                 <div className="space-y-4">
-                    {faqs.map((faq, index) => (
+                    {faqs?.map((faq, index) => (
                         <div key={index} className="border border-white/10 rounded-2xl bg-white/5 overflow-hidden">
                             <button
                                 onClick={() => setOpenIndex(openIndex === index ? -1 : index)}

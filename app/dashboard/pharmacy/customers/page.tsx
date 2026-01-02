@@ -108,21 +108,21 @@ const Customers: React.FC = () => {
                     if (filter.query) {
                       const q = filter.query.toLowerCase();
                       const match =
-                        (p.patient.name?.toLowerCase() || "").startsWith(q) ||
-                        (p.patient.phoneNumber || "").includes(q) ||
-                        (p.patient.mrn || "").includes(q);
+                        (p.patient?.name?.toLowerCase() || "").startsWith(q) ||
+                        (p.patient?.phoneNumber || "").includes(q) ||
+                        (p.patient?.mrn || "").includes(q);
 
                       if (!match) return false;
                     }
 
                     // Gender filter
                     if (filter.gender) {
-                      if (p.patient.gender !== filter.gender) return false;
+                      if (p.patient?.gender !== filter.gender) return false;
                     }
 
                     // Age filter
                     if (filter.age) {
-                      const age = fAge(p.patient.dateOfBirth);
+                      const age = fAge(p.patient?.dateOfBirth);
                       if (age < filter.age[0] || age > filter.age[1]) return false;
                     }
 
@@ -158,20 +158,20 @@ const Customers: React.FC = () => {
 
                     return true; // ✅ must return true if all filters pass
                   })
-                  .map((p, idx) => {
+                  ?.map((p, idx) => {
                     const hasHistory = p.visits > 0;
                     const isRepeat = p.visits > 1;
 
                     return (
                       <TableRow
-                        key={p.patient._id}
+                        key={p?.patient?._id}
                         className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
                           ? "bg-white hover:bg-white/60"
                           : "bg-slate-100 hover:bg-slate-100/60"
                           } hover:-translate-y-[1px] hover:shadow-sm`}
                         onClick={() =>
                           router.push(
-                            `/dashboard/pharmacy/customers/${p.patient._id}`
+                            `/dashboard/pharmacy/customers/${p?.patient?._id}`
                           )
                         }
                       >
@@ -182,13 +182,13 @@ const Customers: React.FC = () => {
                           <div className="flex flex-col gap-0.5">
                             <span className="text-[15px] text-slate-900">
                               <HighlightText
-                                text={p.patient.name}
+                                text={p.patient?.name}
                                 highlight={filter.query || ""}
                               />
                             </span>
                             <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
                               <HighlightText
-                                text={p.patient.address}
+                                text={p.patient?.address}
                                 highlight={filter.query || ""}
                               />
                             </span>
@@ -208,16 +208,16 @@ const Customers: React.FC = () => {
                         </TableCell>
                         <TableCell className="py-3 align-middle text-slate-700">
                           <HighlightText
-                            text={p.patient.mrn}
+                            text={p.patient?.mrn}
                             highlight={filter.query || ""}
                           />
                         </TableCell>
                         <TableCell className="py-3 align-middle text-slate-700">
-                          {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
+                          {fAge(p.patient?.dateOfBirth)} / {p.patient?.gender}
                         </TableCell>
                         <TableCell className="py-3 align-middle text-slate-700">
                           <HighlightText
-                            text={p.patient.phoneNumber}
+                            text={p.patient?.phoneNumber}
                             highlight={filter.query || ""}
                           />
                         </TableCell>
@@ -263,7 +263,7 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
   const parts = (text && regex) ? text?.split(regex) : [];
   return (
     <span>
-      {parts.map((part, i) =>
+      {parts?.map((part, i) =>
         regex.test(part) ? (
           <span key={i} className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5">
             {part}

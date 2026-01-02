@@ -85,7 +85,7 @@ export default function Appointment({
                 a.status === "consulted" && "line-through"
               )}
             >
-              {a.patient.name} <span>{a.patient.mrn}</span>
+              {a.patient?.name} <span>{a.patient?.mrn}</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="shrink-0 text-sm text-gray-500">
@@ -152,10 +152,9 @@ export default function Appointment({
               setRing(true);
             }}
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm cursor-pointer
-              ${
-                ring
-                  ? "bg-white text-black hover:bg-white hover:text-black"
-                  : "bg-[black] text-white hover:bg-[black] hover:text-white"
+              ${ring
+                ? "bg-white text-black hover:bg-white hover:text-black"
+                : "bg-[black] text-white hover:bg-[black] hover:text-white"
               }
               `}
           >

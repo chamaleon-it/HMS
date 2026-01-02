@@ -192,7 +192,7 @@ export default function CreateBill({
       }>
     ) => {
       setPayload((prev) => {
-        const items = prev.items.map((it) => {
+        const items = prev.items?.map((it) => {
           if (it.name !== itemName) return it;
           const unitPrice =
             "unitPrice" in patch ? patch.unitPrice ?? 0 : it.unitPrice ?? 0;
@@ -288,7 +288,7 @@ export default function CreateBill({
           discount: number;
           gst: number;
           total: number;
-        }[] = data.data.items.map(item => ({
+        }[] = data.data.items?.map(item => ({
           name: item.name.name,
           quantity: item.quantity,
           unitPrice: item.name.unitPrice,
@@ -307,7 +307,7 @@ export default function CreateBill({
             gst: number;
             total: number;
           }>(
-            itemsFromApi.map(item => [item.name, { ...item }])
+            itemsFromApi?.map(item => [item.name, { ...item }])
           ).values()
         );
 
@@ -318,7 +318,7 @@ export default function CreateBill({
           cash: 0,
           insurance: 0,
           online: 0,
-          patient: data.data.patient._id || "",
+          patient: data.data?.patient?._id || "",
           doctor: data.data.doctor.name || "",
           department: data.data.doctor.specialization || "",
         }));
@@ -503,7 +503,7 @@ export default function CreateBill({
                 </thead>
                 <tbody>
                   <AnimatePresence initial={false}>
-                    {payload.items.map((it) => {
+                    {payload.items?.map((it) => {
                       const isOpen = !!expanded[it.name];
                       return (
                         <React.Fragment key={it.name}>
@@ -664,7 +664,7 @@ export default function CreateBill({
                   icon: Building2,
                   tint: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
                 },
-              ].map(({ key, label, icon: Icon, tint }) => (
+              ]?.map(({ key, label, icon: Icon, tint }) => (
                 <div key={key} className="col-span-12 md:col-span-4">
                   <div className={`rounded-xl border px-3 py-3 ${tint}`}>
                     <div className="mb-1 flex items-center gap-2 text-sm font-semibold">

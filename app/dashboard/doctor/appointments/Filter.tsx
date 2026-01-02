@@ -85,7 +85,7 @@ export default function Filter({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {STATUSES.map((s) => {
+            {STATUSES?.map((s) => {
               const active = activeStatuses.includes(s);
               return (
                 <button

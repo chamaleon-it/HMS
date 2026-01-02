@@ -81,12 +81,12 @@ export function RegisterPatient({
   useEffect(() => {
     if (patient) {
       reset({
-        address: patient.address,
+        address: patient?.address,
         allergies: patient.allergies,
         blood: patient.blood,
         conditions: patient.conditions,
-        dateOfBirth: patient.dateOfBirth
-          ? new Date(patient.dateOfBirth).toISOString()
+        dateOfBirth: patient?.dateOfBirth
+          ? new Date(patient?.dateOfBirth).toISOString()
           : undefined,
         doctor: patient.doctor?._id,
         email: patient.email,
@@ -94,14 +94,14 @@ export function RegisterPatient({
           /\s+/g,
           ""
         ),
-        gender: patient.gender,
+        gender: patient?.gender,
         insurance: patient.insurance,
         insuranceValidity: patient.insuranceValidity
           ? new Date(patient.insuranceValidity).toISOString()
           : undefined,
-        name: patient.name,
+        name: patient?.name,
         notes: patient.notes,
-        phoneNumber: patient.phoneNumber.replace(/\s+/g, ""),
+        phoneNumber: patient?.phoneNumber.replace(/\s+/g, ""),
         uhid: patient.uhid,
       });
     }
@@ -170,7 +170,7 @@ export function RegisterPatient({
         : -1;
 
       const bookedSet = new Set(
-        (alreadyBooked ?? []).map((d) => new Date(d).getTime())
+        (alreadyBooked ?? [])?.map((d) => new Date(d).getTime())
       );
 
       const times = generateTimeSlots(
@@ -302,7 +302,7 @@ export function RegisterPatient({
               onChange={(v) => setValue("doctor", v)}
               placeholder="Choose doctor"
               options={
-                data?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
+                data?.data?.map((s) => ({ label: s.name, value: s._id })) ?? []
               }
             />
             {errors.doctor && (
@@ -324,7 +324,7 @@ export function RegisterPatient({
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other", "Prefer not to say"].map((v) => (
+                {["Male", "Female", "Other", "Prefer not to say"]?.map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>
@@ -395,7 +395,7 @@ export function RegisterPatient({
                 <SelectValue placeholder="Choose Blood Group" />
               </SelectTrigger>
               <SelectContent>
-                {BLOOD_GROUPS.map((v) => (
+                {BLOOD_GROUPS?.map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>
@@ -588,7 +588,7 @@ export default function MultiConditionSelect({
                 </span>
               ) : (
                 <div className="flex gap-2 flex-wrap items-center">
-                  {selected.map((s) => (
+                  {selected?.map((s) => (
                     <span
                       key={s}
                       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border bg-white"
@@ -628,7 +628,7 @@ export default function MultiConditionSelect({
           </div>
 
           <div className="grid gap-2 max-h-56 overflow-auto">
-            {values.map((v) => (
+            {values?.map((v) => (
               <label
                 key={v}
                 className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-50 cursor-pointer"

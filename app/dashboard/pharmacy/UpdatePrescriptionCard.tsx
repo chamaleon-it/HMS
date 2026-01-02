@@ -44,7 +44,7 @@ export default function UpdatePrescriptionCard({
   ) => {
     setData((prev) => ({
       ...prev,
-      items: prev.items.map((m, i) => (i === idx ? { ...m, [key]: val } : m)),
+      items: prev.items?.map((m, i) => (i === idx ? { ...m, [key]: val } : m)),
     }));
   };
 

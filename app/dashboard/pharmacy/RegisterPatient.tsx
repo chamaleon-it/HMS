@@ -156,7 +156,7 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other", "Prefer not to say"].map((v) => (
+                {["Male", "Female", "Other", "Prefer not to say"]?.map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>
@@ -283,7 +283,7 @@ export default function MultiConditionSelect({
                 </span>
               ) : (
                 <div className="flex gap-2 flex-wrap items-center">
-                  {selected.map((s) => (
+                  {selected?.map((s) => (
                     <span
                       key={s}
                       className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs border bg-white"
@@ -323,7 +323,7 @@ export default function MultiConditionSelect({
           </div>
 
           <div className="grid gap-2 max-h-56 overflow-auto">
-            {values.map((v) => (
+            {values?.map((v) => (
               <label
                 key={v}
                 className="flex items-center gap-2 p-2 rounded-md hover:bg-slate-50 cursor-pointer"

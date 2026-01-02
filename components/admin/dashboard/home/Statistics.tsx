@@ -38,7 +38,7 @@ export default function Statistics() {
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-            {stats.map((stat, i) => (
+            {stats?.map((stat, i) => (
                 <motion.div
                     key={i}
                     initial={{ opacity: 0, y: 10 }}

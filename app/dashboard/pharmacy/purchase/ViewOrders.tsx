@@ -1,11 +1,11 @@
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Eye} from "lucide-react";
+import { Eye } from "lucide-react";
 
 // shadcn table + checkbox
 import {
@@ -78,7 +78,7 @@ export default function PurchasePackingView({ row }: { row: PurchaseType }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {row.items.map((it, idx) => {
+            {row.items?.map((it, idx) => {
               return (
                 <TableRow key={it._id}>
                   <TableCell>{idx + 1}</TableCell>

@@ -225,7 +225,7 @@ export function Sidebar() {
 
       {/* Nav list */}
       <nav className="mt-4 px-3 space-y-1 overflow-y-auto">
-        {items.map((it) => (
+        {items?.map((it) => (
           <NavItem
             key={it.key}
             active={pathname === it.link}
@@ -402,7 +402,7 @@ function NavItem({
 
       {hasChildren && isSubMenuOpen && !collapsed && (
         <div className="ml-8 mt-1 space-y-1">
-          {childrens.map((child) => (
+          {childrens?.map((child) => (
             <Link
               key={child.key}
               href={child.link}

@@ -117,34 +117,34 @@ export default function PrintReceipt({
                     <div className="grid grid-cols-4 gap-y-3 gap-x-8">
                         <div className="col-span-2">
                             <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">Patient Name</p>
-                            <p className="text-[13px] font-black text-slate-900 uppercase leading-none tracking-tight">{patient.name}</p>
+                            <p className="text-[13px] font-black text-slate-900 uppercase leading-none tracking-tight">{patient?.name}</p>
                         </div>
                         <div>
                             <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">MRN Number</p>
-                            <p className="text-[11px] font-black text-slate-900">{patient.mrn || "—"}</p>
+                            <p className="text-[11px] font-black text-slate-900">{patient?.mrn || "—"}</p>
                         </div>
                         <div>
                             <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">Patient ID</p>
-                            <p className="text-[11px] font-black text-slate-900">{patient.mrn?.replace("MRN", "PID") || "—"}</p>
+                            <p className="text-[11px] font-black text-slate-900">{patient?.mrn?.replace("MRN", "PID") || "—"}</p>
                         </div>
 
                         <div>
                             <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">Age / Gender</p>
-                            <p className="text-[11px] font-bold text-slate-800">{patient.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / {patient.gender || "—"}</p>
+                            <p className="text-[11px] font-bold text-slate-800">{patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient?.dateOfBirth).getFullYear()}Y` : "—"} / {patient?.gender || "—"}</p>
                         </div>
                         <div>
                             <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">Phone</p>
-                            <p className="text-[11px] font-bold text-slate-800">{patient.phoneNumber || "—"}</p>
+                            <p className="text-[11px] font-bold text-slate-800">{patient?.phoneNumber || "—"}</p>
                         </div>
                         <div className="col-span-2">
                             <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">Payment Mode</p>
                             <p className="text-[11px] font-black text-emerald-700 uppercase tracking-widest">{paymentMethod}</p>
                         </div>
 
-                        {patient.address && (
+                        {patient?.address && (
                             <div className="col-span-4 mt-0.5">
                                 <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">Address</p>
-                                <p className="text-[10px] font-medium text-slate-600 italic leading-tight">{patient.address}</p>
+                                <p className="text-[10px] font-medium text-slate-600 italic leading-tight">{patient?.address}</p>
                             </div>
                         )}
 
@@ -175,7 +175,7 @@ export default function PrintReceipt({
                             </tr>
                         </thead>
                         <tbody>
-                            {payload.items.map((item, index) => (
+                            {payload.items?.map((item, index) => (
                                 <tr key={index} className="h-8">
                                     <td className="border border-slate-300 py-1 px-2 text-[10px] text-center font-bold text-slate-400">{index + 1}</td>
                                     <td className="border border-slate-300 py-1 px-3 text-[11px] font-black uppercase text-slate-900 leading-tight">
@@ -193,7 +193,7 @@ export default function PrintReceipt({
                                 </tr>
                             ))}
                             {/* Empty rows to push totals down */}
-                            {Array.from({ length: Math.max(0, 5 - payload.items.length) }).map((_, i) => (
+                            {Array.from({ length: Math.max(0, 5 - payload.items.length) })?.map((_, i) => (
                                 <tr key={`empty-${i}`} className="h-8">
                                     <td className="border border-slate-200"></td>
                                     <td className="border border-slate-200"></td>

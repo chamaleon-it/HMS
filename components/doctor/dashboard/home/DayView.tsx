@@ -45,7 +45,7 @@ export default function DailyViewTimeline({
   selectedDate: Date | undefined;
 }) {
   const day = selectedDate ? new Date(selectedDate) : new Date();
-  
+
 
   const { data: appointmentData, mutate } = useAppointmentList({ date: day });
   const appointment = useMemo(
@@ -61,7 +61,7 @@ export default function DailyViewTimeline({
     return () => clearInterval(id);
   }, []);
 
-  
+
 
   const [currenctStatus, setCurrenctStatus] = useState<
     "Upcoming" | "Consulted" | "Observation" | "Not show"
@@ -168,7 +168,7 @@ export default function DailyViewTimeline({
         >
           {/* if no appointments → show default timeline like before */}
           {!hasAppointments &&
-            visibleSlots.map((m) => {
+            visibleSlots?.map((m) => {
               const labelBold = m % 60 === 0;
               const isNowHere =
                 isToday && floorToStep(nowMin, STEP) === floorToStep(m, STEP);
@@ -183,11 +183,10 @@ export default function DailyViewTimeline({
                 >
                   <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
                     <span
-                      className={`text-[11px] select-none ${
-                        labelBold
+                      className={`text-[11px] select-none ${labelBold
                           ? "font-semibold text-gray-900"
                           : "text-gray-500"
-                      }`}
+                        }`}
                     >
                       {fromMinutes(m)}
                     </span>
@@ -209,7 +208,7 @@ export default function DailyViewTimeline({
             })}
 
           {hasAppointments &&
-            visibleSlots.map((m, idx) => {
+            visibleSlots?.map((m, idx) => {
               const items = apptsBySlot.get(m) ?? [];
               const prev = idx === 0 ? null : visibleSlots[idx - 1];
               const labelBold = m % 60 === 0;
@@ -226,18 +225,17 @@ export default function DailyViewTimeline({
                   >
                     <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
                       <span
-                        className={`text-[11px] select-none rounded-full border px-2 py-0.5 ${
-                          labelBold
+                        className={`text-[11px] select-none rounded-full border px-2 py-0.5 ${labelBold
                             ? "font-semibold border-gray-300 text-gray-800 bg-white"
                             : "font-medium border-gray-200 text-gray-500 bg-white"
-                        }`}
+                          }`}
                       >
                         {fromMinutes(m)}
                       </span>
                     </div>
 
                     <div className="relative flex flex-col gap-2 px-2 py-2">
-                      {items.map((a) => (
+                      {items?.map((a) => (
                         <div key={a._id} className="pl-4">
                           <PatientCard
                             a={a as AppointmentType}

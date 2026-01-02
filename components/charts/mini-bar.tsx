@@ -2,7 +2,7 @@
 
 import { Bar, BarChart, ResponsiveContainer } from "recharts"
 
-const data = Array.from({ length: 12 }).map((_, i) => ({ x: i, y: Math.round(10 + Math.random() * 20) }))
+const data = Array.from({ length: 12 })?.map((_, i) => ({ x: i, y: Math.round(10 + Math.random() * 20) }))
 
 export function MiniBar() {
   return (

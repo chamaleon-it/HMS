@@ -27,7 +27,7 @@ export default function BillingStatusFilter({
 
     return (
         <div className="relative inline-flex items-center gap-1 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 dark:bg-slate-800/50 dark:border-slate-700">
-            {tabs.map(({ key, label, icon: Icon, color }) => {
+            {tabs?.map(({ key, label, icon: Icon, color }) => {
                 const active = currentStatus === key;
                 return (
                     <button

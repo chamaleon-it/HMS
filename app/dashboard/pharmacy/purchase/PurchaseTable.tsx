@@ -42,7 +42,7 @@ export default function PurchaseTable({ purchase, total }: Props) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {purchase.map((row, i) => (
+              {purchase?.map((row, i) => (
                 <TableRow
                   className={
                     i % 2 === 0
@@ -51,7 +51,7 @@ export default function PurchaseTable({ purchase, total }: Props) {
                   }
                   key={i}>
                   <TableCell>{row.mrn}</TableCell>
-                  <TableCell>{row.wholesaler.name}</TableCell>
+                  <TableCell>{row.wholesaler?.name}</TableCell>
                   <TableCell>{fDateandTime(row.createdAt)}</TableCell>
                   <TableCell>{fDate(row.expectedDelivery)}</TableCell>
                   <TableCell className="text-center">

@@ -238,7 +238,7 @@ export default function ConsultationDetails({
                             <CardContent className="flex-1">
                                 {selectedRow.medicines && selectedRow.medicines.length > 0 ? (
                                     <div className="space-y-3">
-                                        {selectedRow.medicines.map((m, i) => (
+                                        {selectedRow.medicines?.map((m, i) => (
                                             <div
                                                 key={m._id ?? i}
                                                 className="flex flex-col sm:flex-row sm:items-start justify-between p-3 bg-muted/30 rounded-lg border border-transparent hover:border-muted-300 transition-colors"
@@ -278,7 +278,7 @@ export default function ConsultationDetails({
                                 <CardContent>
                                     {selectedRow.test && selectedRow.test.length > 0 ? (
                                         <ul className="space-y-3">
-                                            {selectedRow.test.map((t, i) => (
+                                            {selectedRow.test?.map((t, i) => (
                                                 <li
                                                     key={i}
                                                     className="flex items-start gap-3 p-3 rounded-lg bg-muted/30"

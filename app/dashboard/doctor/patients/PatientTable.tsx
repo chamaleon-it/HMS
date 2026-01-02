@@ -148,7 +148,7 @@ export default function PatientTable({
                   checked={selectedIds.length === data?.data.length}
                   onCheckedChange={(checked: boolean) =>
                     checked
-                      ? setSelectedIds(data?.data.map((e) => e._id) ?? [])
+                      ? setSelectedIds(data?.data?.map((e) => e._id) ?? [])
                       : setSelectedIds([])
                   }
                 />
@@ -167,7 +167,7 @@ export default function PatientTable({
             </tr>
           </thead>
           <tbody>
-            {data?.data.map((r, idx) => {
+            {data?.data?.map((r, idx) => {
               const serial = (0 - 1) * 0 + idx + 1; // serial number after filters & sort
               return (
                 <tr
@@ -226,7 +226,7 @@ export default function PatientTable({
                       {r?.conditions &&
                         r.conditions
                           .slice(0, 3)
-                          .map((condition) => (
+                          ?.map((condition) => (
                             <Chip
                               key={condition}
                               label={condition}
@@ -359,7 +359,7 @@ export function Segmented<T extends string>({
     <div
       className={`grid grid-cols-${options.length} gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto`}
     >
-      {options.map((o) => {
+      {options?.map((o) => {
         const active = value === o.value;
         return (
           <button
@@ -463,7 +463,7 @@ export function FilterSelect<T extends string>({
             />
           )}
           <ul role="listbox" className="grid gap-1">
-            {visible.map((o) => {
+            {visible?.map((o) => {
               const active = o.value === value;
               return (
                 <li key={String(o.value)}>

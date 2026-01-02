@@ -98,7 +98,7 @@ export default function ConsultationNotes({
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-2 mb-4">
-          {values.presentHistory.map((c) => (
+          {values.presentHistory?.map((c) => (
             <OptionButton
               key={c}
               value={c}
@@ -180,7 +180,7 @@ export default function ConsultationNotes({
           />
           <div className="flex gap-5 items-center">
             <div className="flex flex-wrap gap-2  items-center">
-              {values.pastHistory.map((c) => (
+              {values.pastHistory?.map((c) => (
                 <OptionButton
                   key={c}
                   value={c}
@@ -268,7 +268,7 @@ export default function ConsultationNotes({
           />
 
           <div className="flex flex-wrap gap-2  items-center">
-            {values.diagnosis.map((c) => (
+            {values.diagnosis?.map((c) => (
               <OptionButton
                 key={c}
                 value={c}

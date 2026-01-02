@@ -57,7 +57,7 @@ export default function MonthlyCalender({
     }[];
   }>(`/appointments/calender-monthly?date=${selectedDate.toString()}`);
 
-  
+
 
   const firstDayOFTheMonth = new Date(
     new Date(selectedDate).getFullYear(),
@@ -75,7 +75,7 @@ export default function MonthlyCalender({
           <h3 className="font-semibold">Monthly Bookings</h3>
         </div>
         <div className="hidden md:flex items-center gap-4 text-xs text-gray-600">
-          {Object.entries(colorMap).map(([key, v]) => (
+          {Object.entries(colorMap)?.map(([key, v]) => (
             <div key={key} className="flex items-center gap-1">
               <span className={`w-2.5 h-2.5 rounded-full ${v.dot}`}></span>
               <span>{v.label}</span>
@@ -90,20 +90,19 @@ export default function MonthlyCalender({
         </div>
       </div>
       <div className="grid grid-cols-7 gap-2">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((e) => (
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]?.map((e) => (
           <p key={e} className="text-center p-2.5 border rounded-lg">
             {e}
           </p>
         ))}
         {Array(firstDayOFTheMonth)
           .fill(0)
-          .map((_, idx) => (
+          ?.map((_, idx) => (
             <div key={idx}></div>
           ))}
-        {[...Array(31)].map((_, i) => {
-          const date = `${selectedDate.getFullYear()}-${
-            selectedDate.getMonth() + 1
-          }-${String(i + 1).padStart(2, "0")}`;
+        {[...Array(31)]?.map((_, i) => {
+          const date = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1
+            }-${String(i + 1).padStart(2, "0")}`;
           const events = data?.data.filter((b) => b.date === date) || [];
 
           return (
@@ -123,7 +122,7 @@ export default function MonthlyCalender({
                   No bookings
                 </div>
               )}
-              {events.map((ev, j) => {
+              {events?.map((ev, j) => {
                 return (
                   <div
                     key={j}

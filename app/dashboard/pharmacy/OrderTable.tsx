@@ -138,12 +138,12 @@ export default function OrderTable({
     }>(`/pharmacy/orders/single?${params}`,)
     setPrintBill({
       patient: data.data.patient, payload: {
-        items: data.data.items.map(e => ({ gst: 0, name: e.name.name, quantity: e.quantity, unitPrice: e.name.unitPrice, total: e.quantity * e.name.unitPrice })),
+        items: data.data.items?.map(e => ({ gst: 0, name: e.name.name, quantity: e.quantity, unitPrice: e.name.unitPrice, total: e.quantity * e.name.unitPrice })),
         cash: 0,
         discount: data.data.discount,
         insurance: 0,
         online: 0,
-        patient: data.data.patient._id,
+        patient: data.data?.patient?._id,
         department: data.data.doctor.specialization,
         doctor: data.data.doctor.name,
         note: "",

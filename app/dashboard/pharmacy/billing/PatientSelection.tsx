@@ -42,7 +42,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, value, orderPatient, onSe
   const [input, setInput] = useState("");
   useEffect(() => {
     if (orderPatient) {
-      setInput(orderPatient.name + " - " + "(" + orderPatient.mrn + ")");
+      setInput(orderPatient?.name + " - " + "(" + orderPatient.mrn + ")");
     }
   }, [orderPatient]);
   const [open, setOpen] = useState(false);
@@ -270,7 +270,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, value, orderPatient, onSe
               aria-label="Patients"
               className="py-1 relative max-h-72 overflow-auto"
             >
-              {patients.map((p, idx) => (
+              {patients?.map((p, idx) => (
                 <li
                   key={p._id}
                   role="option"

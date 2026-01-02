@@ -22,7 +22,7 @@ export function Donut() {
             stroke="#fff"
             strokeWidth={2}
           >
-            {data.map((e) => (
+            {data?.map((e) => (
               <Cell key={e.name} fill={e.color} />
             ))}
           </Pie>

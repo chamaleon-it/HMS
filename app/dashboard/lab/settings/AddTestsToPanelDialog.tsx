@@ -48,7 +48,7 @@ export default function AddTestsToPanelDialog({
         if (open) {
             const initialSelected = allTests
                 .filter((test) => test.panels?.some(panel => panel.name === panelName))
-                .map((test) => test._id);
+                ?.map((test) => test._id);
             setSelectedTestIds(initialSelected);
             setSearchQuery("");
         }
@@ -121,7 +121,7 @@ export default function AddTestsToPanelDialog({
                                     No tests found.
                                 </p>
                             ) : (
-                                filteredTests.map((test) => (
+                                filteredTests?.map((test) => (
                                     <div
                                         key={test._id}
                                         className="flex items-center space-x-2 border-b last:border-0 pb-2 last:pb-0"

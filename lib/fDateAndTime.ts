@@ -28,7 +28,7 @@ export function fDateandTime(date?: string | Date): string {
 }
 
 export function to12h(time24: string) {
-  const [h, m] = time24.split(":").map(Number);
+  const [h, m] = time24.split(":")?.map(Number);
   const suffix = h >= 12 ? "PM" : "AM";
   const hour12 = h % 12 === 0 ? 12 : h % 12;
   return `${hour12}:${m.toString().padStart(2, "0")} ${suffix}`;
@@ -69,8 +69,8 @@ export function generateTimeSlots(
   intervalMinutes: number
 ) {
   const times: string[] = [];
-  const [startH, startM] = start.split(":").map(Number);
-  const [endH, endM] = end.split(":").map(Number);
+  const [startH, startM] = start.split(":")?.map(Number);
+  const [endH, endM] = end.split(":")?.map(Number);
   const current = new Date();
   current.setHours(startH, startM, 0, 0);
   const endDate = new Date();
@@ -85,14 +85,14 @@ export function generateTimeSlots(
 }
 
 export function combineToIST(date: Date, time: string) {
-  const [h, m] = time.split(":").map(Number);
+  const [h, m] = time.split(":")?.map(Number);
   const istDate = new Date(date);
   istDate.setHours(h, m, 0, 0);
   return istDate;
 }
 
 export const toMinutes = (t: string) => {
-  const [h, m] = t.split(":").map(Number);
+  const [h, m] = t.split(":")?.map(Number);
   return h * 60 + m;
 };
 
@@ -118,7 +118,7 @@ export const dayNameToIndex: Record<string, number> = {
 export function combineDateAndSlot(date: Date, slot: string) {
   // slot like "09:30 AM"
   const [time, meridian] = slot.split(" ");
-  let  hours = Number(time.split(":")[0]);
+  let hours = Number(time.split(":")[0]);
 
   const minutes = Number(time.split(":")[1]);
 

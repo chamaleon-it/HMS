@@ -30,7 +30,7 @@ export default function Visit() {
           </div>
         )}
 
-        {consult.map((v, i) => (
+        {consult?.map((v, i) => (
           <div key={i} className="grid grid-cols-12 px-3 py-3 border-t text-sm">
             <div className="col-span-4">{fDate(v.createdAt)}</div>
             <div className="col-span-5">{v.consultationNotes.diagnosis}</div>

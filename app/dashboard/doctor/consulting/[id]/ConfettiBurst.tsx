@@ -8,7 +8,7 @@ export function ConfettiBurst({
   show: boolean;
   onDone?: () => void;
 }) {
-  const pieces = new Array(22).fill(0).map((_, i) => i);
+  const pieces = new Array(22).fill(0)?.map((_, i) => i);
   return (
     <AnimatePresence>
       {show && (
@@ -19,7 +19,7 @@ export function ConfettiBurst({
           exit={{ opacity: 0 }}
           onAnimationComplete={() => onDone && onDone()}
         >
-          {pieces.map((i) => {
+          {pieces?.map((i) => {
             const left = Math.random() * 100; // vw
             const delay = Math.random() * 0.15;
             const rotate = Math.random() * 360;

@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { SmallVerticalBars } from "./charts/small-vertical-bars"
 
 export function RightRail() {
-  
+
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] overflow-auto pb-6 lg:block">
       {/* Server Status */}
@@ -47,7 +47,7 @@ export function RightRail() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-3">
-            {["Tony", "Karen", "Jordan", "Jack", "Naslia", "Johnny"].map((n) => (
+            {["Tony", "Karen", "Jordan", "Jack", "Naslia", "Johnny"]?.map((n) => (
               <div key={n} className="flex flex-col items-center gap-1">
                 <div className="relative">
                   <Avatar className="h-10 w-10">
@@ -77,7 +77,7 @@ export function RightRail() {
             { name: "Tony Soap", preview: "Consectetur adipiscing elit...", color: "bg-amber-200" },
             { name: "Jordan Rico", preview: "Sed do eiusmod tempor...", color: "bg-sky-200" },
             { name: "Nadia Aja", preview: "Incididunt ut labore...", color: "bg-slate-200" },
-          ].map((m) => (
+          ]?.map((m) => (
             <div key={m.name} className="flex items-start gap-3">
               <div className={`h-9 w-9 rounded-md ${m.color}`} />
               <div className="min-w-0">
@@ -105,7 +105,7 @@ export function RightRail() {
               { t: "New Email Register", time: "2 Hour Ago", tone: "bg-amber-500" },
               { t: "Transaction Assets", time: "2 Hour Ago", tone: "bg-violet-500" },
               { t: "New Email Register", time: "2 Hour Ago", tone: "bg-amber-500" },
-            ].map((a, i) => (
+            ]?.map((a, i) => (
               <li key={i} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <span className={`inline-block h-3 w-3 rounded-full ${a.tone}`} />

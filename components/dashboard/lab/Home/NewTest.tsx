@@ -162,7 +162,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
           />
           <div className="flex flex-col gap-3">
             <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-              {tabs.map(({ key, label, icon: Icon }) => {
+              {tabs?.map(({ key, label, icon: Icon }) => {
                 const active = bookingType === key;
                 return (
                   <button
@@ -215,7 +215,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
 
                     const newTests = tests
                       .filter((t) => t.panels?.some((p) => p.name === val))
-                      .map((t) => ({ name: t._id }));
+                      ?.map((t) => ({ name: t._id }));
 
                     return {
                       ...prev,
@@ -244,14 +244,14 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                 }
               }}
               options={[
-                ...panels.filter((p) => !payload.panels.includes(p.name)).map(e => e.name),
+                ...panels.filter((p) => !payload.panels.includes(p.name))?.map(e => e.name),
                 ...tests
                   .filter(
                     (t) =>
                       !t.panels?.find((p) => payload.panels.includes(p.name)) &&
                       !payload.test.some((pt) => pt.name === t._id)
                   )
-                  .map((t) => t.name),
+                  ?.map((t) => t.name),
               ]}
             />
           </div>
@@ -323,7 +323,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {payload.panels.map((t, idx) => (
+            {payload.panels?.map((t, idx) => (
               <TableRow key={t}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{t}</TableCell>
@@ -344,7 +344,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
                             .filter((test) =>
                               test.panels?.some((panel) => panel.name === t)
                             )
-                            .map((test) => test._id)
+                            ?.map((test) => test._id)
                         );
 
                         return {
@@ -366,7 +366,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
               const found = tests.find((test) => test._id === t.name)
               const panelExist = found?.panels?.find(p => payload.panels.includes(p.name))
               return !panelExist
-            }).map((t, idx) => (
+            })?.map((t, idx) => (
               <TableRow key={t.name}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>

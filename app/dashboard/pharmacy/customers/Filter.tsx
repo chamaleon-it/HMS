@@ -89,7 +89,7 @@ export default function Filter({
               { label: "Female", value: "Female", icon: "♀" },
               { label: "Male", value: "Male", icon: "♂" },
               { label: "Others", value: "Other", icon: "⚧" },
-            ].map((opt) => {
+            ]?.map((opt) => {
               const active = filter.gender === opt.value;
               const activeClass =
                 opt.value === "Female"
@@ -299,7 +299,7 @@ function Segmented({
 }) {
   return (
     <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
-      {options.map((o) => {
+      {options?.map((o) => {
         const active = value === o.value;
         return (
           <button
@@ -403,7 +403,7 @@ function FilterSelect({
             />
           )}
           <ul role="listbox" className="grid gap-1">
-            {visible.map((o) => {
+            {visible?.map((o) => {
               const active = o.value === value;
               return (
                 <li key={String(o.value)}>

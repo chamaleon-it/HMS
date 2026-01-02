@@ -28,7 +28,7 @@ export default function PharmacyStatus({
 
   return (
     <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-      {tabs.map(({ key, icon: Icon }) => {
+      {tabs?.map(({ key, icon: Icon }) => {
         const active = currenctStatus === key;
         return (
           <button

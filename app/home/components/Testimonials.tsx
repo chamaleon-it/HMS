@@ -36,7 +36,7 @@ const Testimonials = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {testimonials.map((item, index) => (
+                    {testimonials?.map((item, index) => (
                         <div key={index} className="bg-white/5 border border-white/10 p-8 rounded-2xl relative hover:bg-white/10 transition-colors">
                             <Quote className="w-10 h-10 text-[#3B82F6]/20 absolute top-6 right-6" />
 

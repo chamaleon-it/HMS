@@ -102,7 +102,7 @@ export default function TestCatalogueRow({
             </TableCell>
             <TableCell>{formatINR(test.price)}</TableCell>
             <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : ""}</TableCell>
-            <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
+            <TableCell>{test.panels?.map((panel) => panel.name).join(", ")}</TableCell>
             <TableCell className="text-slate-500 text-xs">
                 Normal :{test.min} - {test.max}
                 <br />

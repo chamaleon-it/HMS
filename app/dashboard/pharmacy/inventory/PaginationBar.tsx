@@ -59,7 +59,7 @@ export function PaginationBar({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {pageSizeOptions.map((opt) => (
+              {pageSizeOptions?.map((opt) => (
                 <SelectItem key={opt} value={String(opt)}>
                   {opt}
                 </SelectItem>
@@ -96,7 +96,7 @@ export function PaginationBar({
             </>
           )}
 
-          {pages.map((p) => (
+          {pages?.map((p) => (
             <PaginationItem key={p}>
               <PaginationLink isActive={p === page} onClick={() => goTo(p)}>
                 {p}
@@ -122,7 +122,7 @@ export function PaginationBar({
               aria-disabled={page >= totalPages || disabled}
               className={cn(
                 (page >= totalPages || disabled) &&
-                  "pointer-events-none opacity-50"
+                "pointer-events-none opacity-50"
               )}
               onClick={() => goTo(page + 1)}
             />

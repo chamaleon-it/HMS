@@ -94,7 +94,7 @@ export default function Appointments({
   ) =>
     setAvail((a) => ({
       ...a,
-      rounds: a.rounds.map((it) => (it.id === id ? { ...it, ...patch } : it)),
+      rounds: a.rounds?.map((it) => (it.id === id ? { ...it, ...patch } : it)),
     }));
   const removeRound = (id: number) =>
     setAvail((a) => ({ ...a, rounds: a.rounds.filter((it) => it.id !== id) }));
@@ -111,8 +111,8 @@ export default function Appointments({
                 {avail.startDate && avail.endDate
                   ? `${fDate(avail.startDate)} → ${fDate(avail.endDate)}`
                   : avail.startDate
-                  ? `${fDate(avail.startDate)}`
-                  : "Select dates"}
+                    ? `${fDate(avail.startDate)}`
+                    : "Select dates"}
               </span>
               <CalendarIcon className="h-4 w-4 opacity-60" />
             </Button>
@@ -146,7 +146,7 @@ export default function Appointments({
       <div className="grid gap-2 ">
         <span className="text-[12px] text-slate-600">Days</span>
         <div className="flex flex-wrap gap-3">
-          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+          {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]?.map((d) => (
             <label
               key={d}
               htmlFor={`day-${d}`}
@@ -200,7 +200,7 @@ export default function Appointments({
           </Button>
         </div>
         <div className="grid gap-2">
-          {avail.rounds.map((it) => (
+          {avail.rounds?.map((it) => (
             <div key={it.id} className="grid grid-cols-12 gap-2 items-center">
               <Input
                 value={it.label}
@@ -273,7 +273,7 @@ function ComboTime({
           <CommandInput placeholder="Type or pick time…" />
           <CommandEmpty>No times</CommandEmpty>
           <CommandGroup className="h-96 overflow-scroll">
-            {TIME_OPTIONS.map((t) => (
+            {TIME_OPTIONS?.map((t) => (
               <CommandItem
                 key={t}
                 value={t}

@@ -392,7 +392,7 @@ export default function TestCatalogue({
                       </TableCell>
                     </TableRow>
                   ) : (
-                    tests.map((test, idx) => (
+                    tests?.map((test, idx) => (
                       <TestCatalogueRow
                         key={idx}
                         test={test}
@@ -429,7 +429,7 @@ export default function TestCatalogue({
               </TableHeader>
               <TableBody>
 
-                {panels.map((panel, idx) => (
+                {panels?.map((panel, idx) => (
                   <TableRow key={idx}>
                     <TableCell>{idx + 1}</TableCell>
                     <TableCell>{panel.name}</TableCell>

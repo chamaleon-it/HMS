@@ -132,7 +132,7 @@ export function PatientCard({
           <div className="space-y-1">
             <div className="flex items-center gap-2 flex-wrap">
               <h4 className="text-gray-900 font-semibold leading-tight">
-                {a.patient.name} <br /> <span className="text-xs text-gray-600 font-medium">({a.patient.mrn})</span>
+                {a.patient?.name} <br /> <span className="text-xs text-gray-600 font-medium">({a.patient?.mrn})</span>
               </h4>
               <VisitBadge count={a.visitCount} />
             </div>

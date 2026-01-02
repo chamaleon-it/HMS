@@ -205,7 +205,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
               aria-label="Patients"
               className="py-1"
             >
-              {patients.map((p, idx) => (
+              {patients?.map((p, idx) => (
                 <li
                   key={p._id}
                   role="option"

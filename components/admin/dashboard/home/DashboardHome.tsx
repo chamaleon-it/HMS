@@ -28,7 +28,7 @@ export default function AdminDashboardHome() {
                     <CardContent>
                         <ScrollArea className="h-[300px]">
                             <div className="space-y-4">
-                                {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
+                                {[1, 2, 3, 4, 5, 6, 7, 8]?.map((i) => (
                                     <div
                                         key={i}
                                         className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"

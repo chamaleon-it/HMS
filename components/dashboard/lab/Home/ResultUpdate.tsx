@@ -96,7 +96,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
   const [payload, setPayload] = useState({
     _id: r._id,
     test: r.test
-      .map((item) => ({
+      ?.map((item) => ({
         _id: item._id,
         value: item.value && item?.value?.toString(),
         name: item.name,
@@ -139,7 +139,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
               <DialogDescription className="text-sm text-gray-500 mt-0.5">
                 Enter the results for the lab tests performed for{" "}
                 <span className="font-medium text-gray-700">
-                  {r.patient.name}
+                  {r.patient?.name}
                 </span>
                 .
               </DialogDescription>
@@ -200,7 +200,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                               onChange={(e) =>
                                 setPayload({
                                   ...payload,
-                                  test: payload.test.map((item) =>
+                                  test: payload.test?.map((item) =>
                                     item._id === labTest._id
                                       ? { ...item, value: e.target.value }
                                       : item
@@ -231,7 +231,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                     configuration().backendUrl + data.data.url;
                                   setPayload({
                                     ...payload,
-                                    test: payload.test.map((item) =>
+                                    test: payload.test?.map((item) =>
                                       item._id === labTest._id
                                         ? { ...item, value: url }
                                         : item

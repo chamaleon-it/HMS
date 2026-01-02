@@ -42,16 +42,16 @@ export default function InsuranceSelection({
 }: {
   setValue: UseFormSetValue<FormType>;
   errors: FieldErrors<FormType>;
-  values:FormType
+  values: FormType
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    
-  setQuery(values.insurance || "")
+
+    setQuery(values.insurance || "")
   }, [values.insurance])
-  
+
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Case-insensitive filtering; de-dup if needed
@@ -146,7 +146,7 @@ export default function InsuranceSelection({
               </CommandEmpty>
 
               <CommandGroup heading="Suggestions">
-                {options.map((company) => (
+                {options?.map((company) => (
                   <CommandItem
                     key={company}
                     value={company}

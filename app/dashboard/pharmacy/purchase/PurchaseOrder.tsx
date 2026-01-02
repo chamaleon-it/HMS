@@ -27,7 +27,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
 import { fDate } from "@/lib/fDateAndTime";
-import { ArrowLeft, ChevronDownIcon,  Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import useSWR from "swr";
@@ -159,7 +159,7 @@ function PurchaseOrder({
       .replace(/\s+/g, " ")
       .replace(/[^A-Za-z0-9\s\-\(\),.\/+]/g, "")
       .split(" ")
-      .map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w))
+      ?.map((w) => (w ? w[0].toUpperCase() + w.slice(1).toLowerCase() : w))
       .join(" ");
 
     if (!formated) {
@@ -193,7 +193,7 @@ function PurchaseOrder({
   ) => {
     setState((prev) => ({
       ...prev,
-      items: prev.items.map((item) => {
+      items: prev.items?.map((item) => {
         if (item.name !== name) return item;
 
         switch (key) {
@@ -435,7 +435,7 @@ function PurchaseOrder({
               </TableHeader>
 
               <TableBody>
-                {state.items.map((row, idx) => {
+                {state?.items?.map((row, idx) => {
                   return (
                     <TableRow key={idx}>
                       <TableCell className="">

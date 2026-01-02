@@ -89,7 +89,7 @@ const MedicalBackground = () => {
             </div>
 
             {/* Floating Particles (Cells/Molecules) */}
-            {[...Array(5)].map((_, i) => (
+            {[...Array(5)]?.map((_, i) => (
                 <motion.div
                     key={i}
                     className="absolute rounded-full border border-white/5 bg-white/1 backdrop-blur-sm"

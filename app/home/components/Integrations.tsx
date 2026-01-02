@@ -25,7 +25,7 @@ const Integrations = () => {
                             Synapse isn&apos;t an island. It sits at the center of your hospital&apos;s ecosystem, connecting seamlessly with your existing hardware and software.
                         </p>
                         <ul className="space-y-4">
-                            {["Zero-setup machine integration", "Real-time financial posting", "Automated patient communication"].map((item, i) => (
+                            {["Zero-setup machine integration", "Real-time financial posting", "Automated patient communication"]?.map((item, i) => (
                                 <li key={i} className="flex items-center gap-3 text-slate-300">
                                     <div className="w-6 h-6 rounded-full bg-[#3B82F6]/20 flex items-center justify-center">
                                         <div className="w-2 h-2 rounded-full bg-[#3B82F6]" />
@@ -37,7 +37,7 @@ const Integrations = () => {
                     </div>
 
                     <div className="lg:w-1/2 grid grid-cols-2 sm:grid-cols-3 gap-4">
-                        {integrations.map((item, index) => (
+                        {integrations?.map((item, index) => (
                             <div key={index} className="bg-white/5 border border-white/10 p-6 rounded-xl flex flex-col items-center text-center hover:bg-white/10 transition-all hover:-translate-y-1">
                                 <div className="bg-black/50 p-3 rounded-lg mb-4 text-[#60A5FA]">
                                     <item.icon className="w-6 h-6" />

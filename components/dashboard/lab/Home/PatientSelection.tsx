@@ -24,8 +24,8 @@ type Patient = {
 };
 
 interface Props {
-  setValue: (id:string)=>void;
-  register:()=>void
+  setValue: (id: string) => void;
+  register: () => void
 }
 
 const MIN_QUERY_LEN = 2;
@@ -79,7 +79,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
   const patients = data?.data ?? [];
 
 
-  
+
 
   const handleSelect = useCallback(
     (p: Patient) => {
@@ -116,7 +116,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
     setValue("");
   };
 
-  
+
 
   return (
     <div ref={rootRef} className="relative w-full max-w-[500px]">
@@ -176,7 +176,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
                   No results found for “{input}”
                 </div>
                 <button
-                  onClick={()=>{
+                  onClick={() => {
                     register?.()
                   }}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
@@ -196,7 +196,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
               aria-label="Patients"
               className="py-1"
             >
-              {patients.map((p, idx) => (
+              {patients?.map((p, idx) => (
                 <li
                   key={p._id}
                   role="option"
@@ -209,7 +209,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
                     "transition-all duration-150 hover:shadow-sm",
                     activeIdx === idx && "ring-1 ring-primary/40",
                     selected?._id === p._id &&
-                      "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
+                    "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
                   )}
                 >
                   <PatientCard
@@ -264,9 +264,8 @@ const PatientCard: React.FC<{
   isSelected: boolean;
 }> = ({ p, isActive, isSelected }) => {
   const hue = hashHue(p._id ?? p.name ?? p.mrn ?? "hue");
-  const ringGradient = `bg-[conic-gradient(from_180deg,oklch(0.92_0.04_${hue})_0%,oklch(0.94_0.05_${
-    (hue + 40) % 360
-  })_50%,oklch(0.92_0.04_${(hue + 80) % 360})_100%)]`;
+  const ringGradient = `bg-[conic-gradient(from_180deg,oklch(0.92_0.04_${hue})_0%,oklch(0.94_0.05_${(hue + 40) % 360
+    })_50%,oklch(0.92_0.04_${(hue + 80) % 360})_100%)]`;
 
   return (
     <div
@@ -308,9 +307,8 @@ const PatientCard: React.FC<{
                 "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
               )}
               style={{
-                background: `linear-gradient(180deg, oklch(0.98 0 ${hue}) 0%, oklch(0.97 0 ${
-                  (hue + 30) % 360
-                }) 100%)`,
+                background: `linear-gradient(180deg, oklch(0.98 0 ${hue}) 0%, oklch(0.97 0 ${(hue + 30) % 360
+                  }) 100%)`,
               }}
               aria-hidden
             >

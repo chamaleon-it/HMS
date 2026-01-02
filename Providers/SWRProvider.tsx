@@ -3,11 +3,6 @@
 import api from "@/lib/axios";
 import React from "react";
 import { SWRConfig } from "swr";
-import PouchDB from "pouchdb-browser";
-import PouchDBFind from "pouchdb-find";
-
-// Initialize PouchDB with find plugin
-PouchDB.plugin(PouchDBFind);
 
 // Cache version for schema compatibility
 const CACHE_VERSION = "v1";
@@ -35,7 +30,12 @@ function pouchDBProvider() {
     return map;
   }
 
-  let db: PouchDB.Database | null = null;
+  // Initialize PouchDB with find plugin dynamically on client side
+  const PouchDB = require("pouchdb-browser").default || require("pouchdb-browser");
+  const PouchDBFind = require("pouchdb-find").default || require("pouchdb-find");
+  PouchDB.plugin(PouchDBFind);
+
+  let db: any = null;
   let isInitialized = false;
 
   // Initialize PouchDB
@@ -45,24 +45,24 @@ function pouchDBProvider() {
 
       // Check version
       try {
-        const versionDoc = await db.get<VersionDocument>("__version__");
+        const versionDoc = await db.get("__version__");
         if (versionDoc.version !== CACHE_VERSION) {
           // Version mismatch - destroy and recreate
           await db.destroy();
           db = new PouchDB(DB_NAME);
-          await db.put<VersionDocument>({ _id: "__version__", version: CACHE_VERSION });
+          await db.put({ _id: "__version__", version: CACHE_VERSION });
         }
       } catch (err) {
         // Version doc doesn't exist - create it
-        await db.put<VersionDocument>({ _id: "__version__", version: CACHE_VERSION });
+        await db.put({ _id: "__version__", version: CACHE_VERSION });
       }
 
       // Load all cache entries into Map
-      const result = await db.allDocs<CacheDocument>({ include_docs: true });
-      result.rows.forEach((row) => {
+      const result = await db.allDocs({ include_docs: true });
+      result.rows.forEach((row: any) => {
         if (row.id !== "__version__" && row.doc) {
           try {
-            map.set(row.id, (row.doc as CacheDocument).data);
+            map.set(row.id, row.doc.data);
           } catch (error) {
             console.error("Failed to load cache entry:", row.id, error);
           }
@@ -90,7 +90,7 @@ function pouchDBProvider() {
       for (const [key, value] of entries) {
         try {
           // Try to get existing doc to preserve _rev
-          const existingDoc = await db.get<CacheDocument>(key).catch(() => null);
+          const existingDoc = await db.get(key).catch(() => null);
 
           bulkDocs.push({
             _id: key,
@@ -121,11 +121,9 @@ function pouchDBProvider() {
   }, 30000);
 
   // Cleanup on unmount
-  if (typeof window !== "undefined") {
-    window.addEventListener("unload", () => {
-      clearInterval(saveInterval);
-    });
-  }
+  window.addEventListener("unload", () => {
+    clearInterval(saveInterval);
+  });
 
   return map;
 }

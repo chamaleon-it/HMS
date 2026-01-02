@@ -73,11 +73,11 @@ export default function InvoiceView() {
               <p>
                 {billing?.createdAt
                   ? fDate(
-                      new Date(
-                        new Date(billing.createdAt).getTime() +
-                          10 * 24 * 60 * 60 * 1000
-                      )
+                    new Date(
+                      new Date(billing.createdAt).getTime() +
+                      10 * 24 * 60 * 60 * 1000
                     )
+                  )
                   : ""}
               </p>
             </div>
@@ -131,16 +131,16 @@ export default function InvoiceView() {
               <p className="mt-1">Pothukallu, Nilambur, Kerala</p>
               <p>+91 98765 43210</p>
               <p className="mt-1">Booking No: BK2025-00921</p>
-             
+
             </div>
           </div>
           <div className="p-8">
             <h3 className="text-sm text-gray-500 mb-2">Patient Details</h3>
             <div className="text-sm text-gray-700">
               <p className="font-semibold text-gray-800">
-                {billing?.patient.name}
+                {billing?.patient?.name}
               </p>
-              <p>{billing?.patient.phoneNumber}</p>{" "}
+              <p>{billing?.patient?.phoneNumber}</p>{" "}
               <p className="mt-1">Patient ID: PT-002134</p>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function InvoiceView() {
               </tr>
             </thead>
             <tbody>
-              {billing?.items.map((item) => {
+              {billing?.items?.map((item) => {
                 return (
                   <tr className="border-b hover:bg-gray-50 transition" key={item.name}>
                     <td className="p-4">{item.name}</td>
@@ -224,7 +224,7 @@ export default function InvoiceView() {
                 {formatINR(
                   billing?.items?.reduce(
                     (acc, { total }) =>
-                      acc +total,
+                      acc + total,
                     0
                   ) ?? 0
                 )}
@@ -235,12 +235,12 @@ export default function InvoiceView() {
             </div>
             <div className="flex justify-between py-1 text-sm text-red-600">
               <span>Due</span> <span>{formatINR(
-                  (billing?.items?.reduce(
-                    (acc, { total }) =>
-                      acc +total,
-                    0
-                  ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
-                )}</span>
+                (billing?.items?.reduce(
+                  (acc, { total }) =>
+                    acc + total,
+                  0
+                ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
+              )}</span>
             </div>
           </div>
         </div>

@@ -46,7 +46,7 @@ export default function ScheduleTabsPreview({
     admit: 0,
   };
 
-  
+
 
   const tabs = useMemo(
     () => [
@@ -66,7 +66,7 @@ export default function ScheduleTabsPreview({
 
   return (
     <div className="mb-4 relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-      {tabs.map(({ key, label, icon: Icon }) => {
+      {tabs?.map(({ key, label, icon: Icon }) => {
         const active = currenctStatus === key;
         return (
           <button

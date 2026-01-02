@@ -208,7 +208,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
               aria-label="Patients"
               className="py-1"
             >
-              {patients.map((p, idx) => (
+              {patients?.map((p, idx) => (
                 p.name && p.mrn && p._id &&
                 <li
                   key={p._id}
@@ -280,7 +280,7 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
   const parts = (text && regex) ? text?.split(regex) : [];
   return (
     <span>
-      {parts.map((part, i) =>
+      {parts?.map((part, i) =>
         regex.test(part) ? (
           <span key={i} className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5">
             {part}

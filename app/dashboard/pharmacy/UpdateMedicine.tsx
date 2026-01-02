@@ -156,7 +156,7 @@ export default function UpdateMedicine({
             <div className="p-3 text-sm text-slate-500">No medicines found</div>
           ) : (
             <ul role="listbox" className="divide-y divide-slate-100">
-              {items.map((it, idx) => (
+              {items?.map((it, idx) => (
                 <li
                   key={it._id}
                   role="option"

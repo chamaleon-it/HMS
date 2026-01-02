@@ -28,22 +28,22 @@ export default function Header({
   data: DataType;
   setData: Dispatch<SetStateAction<DataType>>
 }) {
-  const { data } = useGetLabReport({ patientId: appointment.patient._id });
+  const { data } = useGetLabReport({ patientId: appointment?.patient?._id });
 
-const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   return (
     <div className="flex justify-between mb-4">
       <div>
         <h2 className="font-semibold">
-          {appointment.patient.name} &nbsp;
+          {appointment.patient?.name} &nbsp;
           <span className="text-slate-400">
-            (ID: {appointment.patient.mrn})
+            (ID: {appointment.patient?.mrn})
           </span>
         </h2>
         <div className="flex items-center gap-5">
           <p className="text-xs text-slate-500">
             Age {fAge(appointment?.patient?.dateOfBirth)},{" "}
-            {appointment.patient.gender}{" "}
+            {appointment.patient?.gender}{" "}
             {!!appointment.patient.allergies && (
               <>Allergies: {appointment.patient.allergies}</>
             )}
@@ -57,7 +57,7 @@ const fileInputRef = useRef<HTMLInputElement>(null);
           className="cursor-pointer"
           onClick={() =>
             window.open(
-              `/dashboard/doctor/patients/${appointment.patient._id}`,
+              `/dashboard/doctor/patients/${appointment?.patient?._id}`,
               "_blank"
             )
           }
@@ -77,7 +77,7 @@ const fileInputRef = useRef<HTMLInputElement>(null);
           </>
         </ActionButton>
 
-          <Button
+        <Button
           variant={"outline"}
           size={"sm"}
           onClick={() => {
@@ -93,7 +93,7 @@ const fileInputRef = useRef<HTMLInputElement>(null);
             const url = URL.createObjectURL(blob);
             const a = document.createElement("a");
             a.href = url;
-            a.download ="consultation-" + fDateandTime(new Date()) + ".json"; // file name
+            a.download = "consultation-" + fDateandTime(new Date()) + ".json"; // file name
             a.click();
 
             URL.revokeObjectURL(url);
@@ -101,37 +101,37 @@ const fileInputRef = useRef<HTMLInputElement>(null);
         >
           Export
         </Button>
-       <Button
-  variant="outline"
-  size="sm"
-  onClick={() => fileInputRef.current?.click()}
->
-  Import
-</Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          Import
+        </Button>
 
-<input
-  ref={fileInputRef}
-  type="file"
-  accept="application/json"
-  hidden
-  onChange={(e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json"
+          hidden
+          onChange={(e) => {
+            const file = e.target.files?.[0];
+            if (!file) return;
 
-    const reader = new FileReader();
+            const reader = new FileReader();
 
-    reader.onload = (event) => {
-      try {
-        const json = JSON.parse(event.target?.result as string);
-        setData(json); // 👈 update your state
-      } catch (err) {
-        alert("Invalid JSON file");
-      }
-    };
+            reader.onload = (event) => {
+              try {
+                const json = JSON.parse(event.target?.result as string);
+                setData(json); // 👈 update your state
+              } catch (err) {
+                alert("Invalid JSON file");
+              }
+            };
 
-    reader.readAsText(file);
-  }}
-/>
+            reader.readAsText(file);
+          }}
+        />
 
         <div className="inline-flex rounded-2xl bg-slate-100 p-1 shadow-inner">
           <ToggleChip
@@ -163,7 +163,7 @@ const fileInputRef = useRef<HTMLInputElement>(null);
             </span>
           </ToggleChip>
         </div>
-      
+
       </div>
     </div>
   );

@@ -61,7 +61,7 @@ export default function DashboardRightRail() {
           <button className="text-xs text-muted-foreground hover:text-foreground">View All</button>
         </header>
         <div className="grid grid-cols-4 gap-3">
-          {contacts.map((c) => (
+          {contacts?.map((c) => (
             <div key={c.id} className="flex flex-col items-center gap-1">
               <Image src="/diverse-avatars.png" alt={c.name} width={40} height={40} className="rounded-md" />
               <span className="text-[10px] text-muted-foreground">{c.name}</span>
@@ -76,7 +76,7 @@ export default function DashboardRightRail() {
           <button className="text-xs text-muted-foreground hover:text-foreground">View All</button>
         </header>
         <ul className="space-y-3">
-          {messages.map((m) => (
+          {messages?.map((m) => (
             <li key={m.id} className="flex items-start gap-3">
               <div className="h-8 w-8 rounded-md bg-violet-200" />
               <div className="min-w-0">
@@ -93,7 +93,7 @@ export default function DashboardRightRail() {
           <h3 className="font-semibold">Recent Activity</h3>
         </header>
         <div className="space-y-3">
-          {activities.map((a) => (
+          {activities?.map((a) => (
             <div key={a.id} className="flex items-center justify-between rounded-lg border p-3">
               <div className="flex items-center gap-3">
                 <span className={`h-2.5 w-2.5 rounded-full ${a.color}`} />

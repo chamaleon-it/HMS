@@ -98,7 +98,7 @@ export default function PatientFullDetailPage() {
     if (val.includes(" "))
       return val
         .split(" ")
-        .map((chunk, i) => (i === 0 ? chunk[0] + "***" : "***"))
+        ?.map((chunk, i) => (i === 0 ? chunk[0] + "***" : "***"))
         .join(" ");
     return val[0] + "***";
   };
@@ -229,7 +229,7 @@ export default function PatientFullDetailPage() {
                       "Consent Form",
                       "Discharge Summary",
                       "Insurance Card",
-                    ].map((d, i) => (
+                    ]?.map((d, i) => (
                       <div key={i} className="rounded-xl border p-4">
                         <div className="flex items-center justify-between">
                           <div className="font-medium flex items-center gap-2">

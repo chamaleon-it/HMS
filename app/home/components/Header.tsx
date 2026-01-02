@@ -26,7 +26,7 @@ const Header = () => {
 
                     {/* Desktop Navigation */}
                     <nav className="hidden md:flex items-center gap-8">
-                        {navItems.map((item) => (
+                        {navItems?.map((item) => (
                             <a
                                 key={item.name}
                                 href={item.href}
@@ -63,7 +63,7 @@ const Header = () => {
                         className="md:hidden bg-black border-b border-white/10 overflow-hidden"
                     >
                         <div className="container mx-auto px-4 py-4 flex flex-col gap-4">
-                            {navItems.map((item) => (
+                            {navItems?.map((item) => (
                                 <a
                                     key={item.name}
                                     href={item.href}

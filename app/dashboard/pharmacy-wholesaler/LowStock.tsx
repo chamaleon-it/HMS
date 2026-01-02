@@ -50,7 +50,7 @@ export default function LowStock() {
           </TableHeader>
 
           <TableBody>
-            {[].map((row: Record<string, string | number>, i) => (
+            {[]?.map((row: Record<string, string | number>, i) => (
               <TableRow key={i} className="border-zinc-100 hover:bg-zinc-50/50">
                 <TableCell className="py-3 align-top text-zinc-800 font-medium">
                   <div className="leading-tight">

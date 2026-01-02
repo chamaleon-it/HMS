@@ -143,7 +143,7 @@ export default function PatientSnapshot({
           {!!patient?.conditions.length && (
             <LabeledRow label="Conditions">
               <div className="flex flex-wrap gap-2">
-                {patient?.conditions.map((condition) => (
+                {patient?.conditions?.map((condition) => (
                   <Badge key={condition} variant="outline">
                     {condition}
                   </Badge>
@@ -196,7 +196,7 @@ export default function PatientSnapshot({
                 icon: <Wallet className="h-3.5 w-3.5" />,
                 color: "bg-emerald-500/10 text-emerald-600",
               },
-            ].map(
+            ]?.map(
               (f) =>
                 f.view && (
                   <span
@@ -212,14 +212,14 @@ export default function PatientSnapshot({
         </CardContent>
       </Card>
 
-     {Boolean(consult[0]?.medicines.length) && <Card>
+      {Boolean(consult[0]?.medicines.length) && <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2">
             <Pill className="h-5 w-5" /> Last Prescribed Medicine
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-0 space-y-2">
-          {consult[0]?.medicines.map((m, i) => (
+          {consult[0]?.medicines?.map((m, i) => (
             <div
               key={i}
               className="flex items-start justify-between rounded-lg border p-3"

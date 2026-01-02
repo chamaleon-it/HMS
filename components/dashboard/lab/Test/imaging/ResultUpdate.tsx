@@ -79,7 +79,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
     const [payload, setPayload] = useState({
         _id: r._id,
-        test: r.test.filter((item) => item.name.type === "Imaging").map((item) => ({ _id: item._id, value: item?.value?.toString(), name: item.name })),
+        test: r.test.filter((item) => item.name.type === "Imaging")?.map((item) => ({ _id: item._id, value: item?.value?.toString(), name: item.name })),
     })
 
     const [open, setOpen] = useState(false)
@@ -125,7 +125,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                         <div>
                             <DialogTitle className="text-lg font-semibold text-gray-900">Update Imaging Results</DialogTitle>
                             <DialogDescription className="text-sm text-gray-500 mt-0.5">
-                                Upload the imaging reports and files for <span className="font-medium text-gray-700">{r.patient.name}</span>.
+                                Upload the imaging reports and files for <span className="font-medium text-gray-700">{r.patient?.name}</span>.
                             </DialogDescription>
                         </div>
                     </div>
@@ -133,7 +133,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
                 <div className="p-6 bg-gray-50/30 max-h-[60vh] overflow-y-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {r.test.filter(item => item.name.type === "Imaging").map((test) => (
+                        {r.test.filter(item => item.name.type === "Imaging")?.map((test) => (
                             <div key={test._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-purple-200 transition-all duration-200 group">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-3">
@@ -173,7 +173,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                                         const url = configuration().backendUrl + data.data.url;
                                                         setPayload((prev) => ({
                                                             ...prev,
-                                                            test: prev.test.map((item) => item._id === test._id ? { ...item, value: url } : item),
+                                                            test: prev.test?.map((item) => item._id === test._id ? { ...item, value: url } : item),
                                                         }))
 
                                                     }

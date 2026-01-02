@@ -2,7 +2,7 @@
 
 import { Line, LineChart, ResponsiveContainer } from "recharts"
 
-const data = Array.from({ length: 14 }).map((_, i) => ({ x: i, y: Math.round(20 + Math.sin(i) * 10 + i * 1.2) }))
+const data = Array.from({ length: 14 })?.map((_, i) => ({ x: i, y: Math.round(20 + Math.sin(i) * 10 + i * 1.2) }))
 
 export function MiniLine() {
   return (

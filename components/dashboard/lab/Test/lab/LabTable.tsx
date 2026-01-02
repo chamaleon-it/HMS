@@ -101,7 +101,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                 <tbody>
                     {REPORT.filter(
                         (r) => status === "All" || r.status === status
-                    ).map((r, idx) => {
+                    )?.map((r, idx) => {
                         return r.test.some((e) => e.name.type === "Lab") && (
                             <tr
                                 key={r._id}
@@ -117,16 +117,16 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 <td className="px-3 py-2">
                                     <div className="flex flex-col">
                                         <span className="font-semibold text-gray-900 text-sm">
-                                            {r.patient.name}
+                                            {r.patient?.name}
                                         </span>
                                         <span className="text-xs text-gray-500 mt-0.5">
-                                            <span className="font-medium text-gray-600">{r.patient.mrn}</span> • {fAge(r.patient.dateOfBirth)} yrs • {r.patient.gender}
+                                            <span className="font-medium text-gray-600">{r.patient?.mrn}</span> • {fAge(r.patient?.dateOfBirth)} yrs • {r.patient?.gender}
                                         </span>
                                     </div>
                                 </td>
                                 <td className="px-3 py-2 text-sm text-gray-700">
                                     <div className="flex flex-col gap-2">
-                                        {r.test.map((e) => e.name.type === "Lab" && (
+                                        {r.test?.map((e) => e.name.type === "Lab" && (
                                             <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
                                                 {e.name.name}
                                             </div>
@@ -136,7 +136,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
-                                        {r.test.map(
+                                        {r.test?.map(
                                             (e) => {
                                                 if (e.name.type === "Lab") {
 
@@ -164,7 +164,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col gap-2">
-                                        {r.test.map(
+                                        {r.test?.map(
                                             (e) =>
                                                 e.name.type === "Lab" && (
                                                     <span

@@ -87,10 +87,10 @@ export default function Search({
               <User className="w-3 h-3 text-blue-500" /> Patient
             </span>
             <span className="text-blue-700 font-semibold text-sm leading-tight mt-1">
-              {order?.patient.name}
+              {order?.patient?.name}
             </span>
             <span className="text-[10px] text-slate-400">
-              PID: {order?.patient.mrn}
+              PID: {order?.patient?.mrn}
             </span>
           </div>
           <div className="flex flex-col">

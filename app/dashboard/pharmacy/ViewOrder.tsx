@@ -35,14 +35,14 @@ interface Props {
 }
 
 function Barcode({ value }: { value: string }) {
-    const bars = Array.from(value || "").map(
+    const bars = Array.from(value || "")?.map(
         (ch, i) => ((ch.charCodeAt(0) + i) % 7) + 2
     );
     const totalW = bars.reduce((a, b) => a + b + 1, 0);
     let x = 0;
     return (
         <svg width={totalW} height={48} className="bg-white">
-            {bars.map((w, i) => {
+            {bars?.map((w, i) => {
                 const rect = (
                     <rect key={i} x={x} y={0} width={w} height={48} fill="#000" />
                 );
@@ -146,7 +146,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                 const updated = prev
                     ? {
                         ...prev,
-                        items: prev.items.map((it) => ({ ...it, isPacked: true })),
+                        items: prev.items?.map((it) => ({ ...it, isPacked: true })),
                     }
                     : null;
                 setUpdatePayload(updated);
@@ -175,7 +175,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
         const payload = {
             ...updatePayload,
-            patient: localOrder.patient._id,
+            patient: localOrder?.patient?._id,
             doctor: localOrder.doctor._id,
         };
         try {
@@ -227,7 +227,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                 prev
                     ? {
                         ...prev,
-                        items: prev.items.map((i) =>
+                        items: prev.items?.map((i) =>
                             i.name._id === it.name._id
                                 ? { ...i, isPacked: true }
                                 : i

@@ -202,7 +202,7 @@ const Customer: React.FC = () => {
                     </div>
 
                     <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-                      {tabs.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
+                      {tabs?.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
                         const active = type === key;
                         return (
                           <button
@@ -260,7 +260,7 @@ const Customer: React.FC = () => {
 
                       return true;
                     })
-                      .map((bill) => {
+                      ?.map((bill) => {
                         const active =
                           selectedVisit && selectedVisit._id === bill._id;
                         return (
@@ -301,7 +301,7 @@ const Customer: React.FC = () => {
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit
-                        ? `Bill Details — ${selectedVisit?.name.filter(o => type === "All" || o.type === type).map(e => e.code).join(", ")}`
+                        ? `Bill Details — ${selectedVisit?.name.filter(o => type === "All" || o.type === type)?.map(e => e.code).join(", ")}`
                         : "Bill Details"}
                     </div>
                     {selectedVisit && (
@@ -347,7 +347,7 @@ const Customer: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {selectedVisit.name.filter(o => type === "All" || o.type === type).map((it, i) => {
+                            {selectedVisit.name.filter(o => type === "All" || o.type === type)?.map((it, i) => {
                               return (
                                 <tr
                                   key={it.name}

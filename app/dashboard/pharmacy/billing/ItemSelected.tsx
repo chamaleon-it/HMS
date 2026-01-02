@@ -97,7 +97,7 @@ export default function ItemSelected({
           />
           {billingItems.length > 0 && (
             <div className="absolute w-full p-2 rounded-md bg-white border top-11 flex flex-col gap-1.5 !z-50 shadow-sm">
-              {billingItems.map((i) => (
+              {billingItems?.map((i) => (
                 <div
                   key={i}
                   className="flex items-center justify-between gap-2 px-2 py-1 rounded hover:bg-slate-50 cursor-default"

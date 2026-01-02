@@ -21,7 +21,7 @@ import Report from "./Report";
 export default function ConsultingMenu() {
   const params = useParams();
   const { id: appointmentId } = params;
-    const [testIsOK, setTestIsOK] = useState(false)
+  const [testIsOK, setTestIsOK] = useState(false)
   const [activeTab, setActiveTab] = useState<"consultation" | "history" | "report">(
     "consultation"
   );
@@ -70,11 +70,11 @@ export default function ConsultingMenu() {
   const appointment = appointmentData?.data;
 
   useEffect(() => {
-    if (appointment?._id && appointment.patient._id) {
+    if (appointment?._id && appointment?.patient?._id) {
       setData((prev) => ({
         ...prev,
         appointment: appointment._id,
-        patient: appointment.patient._id,
+        patient: appointment?.patient?._id,
       }));
     }
   }, [appointment]);
@@ -114,7 +114,7 @@ export default function ConsultingMenu() {
             <div className="mt-4">
               <Card className="p-6">
                 <ConsultationAndExaminationNotes
-                  patientId={appointment.patient._id}
+                  patientId={appointment?.patient?._id}
                   data={data}
                   setData={setData}
                 />
@@ -126,25 +126,25 @@ export default function ConsultingMenu() {
                 />
 
                 {/* <LabAndTest data={data} setData={setData} /> */}
-                <Test data={data} setData={setData} setTestIsOK={setTestIsOK}/>
+                <Test data={data} setData={setData} setTestIsOK={setTestIsOK} />
 
                 <Advice data={data} setData={setData} />
                 <FollowUpTime
                   setData={setData}
                   doctor={appointment.doctor}
-                  patient={appointment.patient._id}
+                  patient={appointment?.patient?._id}
                 />
-                <ActionButton data={data} testIsOK={testIsOK}/>
+                <ActionButton data={data} testIsOK={testIsOK} />
               </Card>
             </div>
           )}
 
           {activeTab === "history" && (
-            <History patientId={appointment.patient._id} />
+            <History patientId={appointment?.patient?._id} />
           )}
 
           {activeTab === "report" && (
-            <Report patientId={appointment.patient._id} />
+            <Report patientId={appointment?.patient?._id} />
           )}
         </div>
       </div>

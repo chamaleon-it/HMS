@@ -56,7 +56,7 @@ export default function LabeledCombobox({
 
       {open && options.length > 0 && (
         <div className="absolute left-0 right-0  z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1">
-          {options.map((opt: string) => (
+          {options?.map((opt: string) => (
             <button
               key={opt}
               type="button"

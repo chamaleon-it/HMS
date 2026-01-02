@@ -131,7 +131,7 @@ export default function AddPaymentDialog({
                                         icon: Building2,
                                         tint: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
                                     },
-                                ].map(({ key, label, icon: Icon, tint }) => (
+                                ]?.map(({ key, label, icon: Icon, tint }) => (
                                     <div key={key} className="col-span-12 md:col-span-6">
                                         <div className={`rounded-xl border px-3 py-3 ${tint}`}>
                                             <div className="mb-1 flex items-center gap-2 text-sm font-semibold">

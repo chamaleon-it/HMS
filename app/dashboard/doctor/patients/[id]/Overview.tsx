@@ -14,7 +14,7 @@ export default function Overview({ setTab, consult, patient, mutatePatient }: { 
 
   const handleSaveRemarks = async () => {
     try {
-      await toast.promise(api.patch(`/patients/remarks/${consult[0]?.patient._id}`, { remarks }), {
+      await toast.promise(api.patch(`/patients/remarks/${consult[0]?.patient?._id}`, { remarks }), {
         loading: "Saving remarks...",
         success: "Remarks saved successfully",
         error: "Failed to save remarks"

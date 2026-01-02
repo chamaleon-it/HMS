@@ -225,7 +225,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                             </TableCell>
                                         </TableRow>
                                     ) : (
-                                        paginatedBatches.map((batch) => (
+                                        paginatedBatches?.map((batch) => (
                                             <TableRow key={batch._id}>
                                                 <TableCell className="text-xs">{fDate(batch.createdAt)}</TableCell>
                                                 <TableCell className="font-medium text-xs">{batch.batchNumber}</TableCell>
@@ -249,7 +249,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                 >
                                     Previous
                                 </Button>
-                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                {Array.from({ length: totalPages }, (_, i) => i + 1)?.map((page) => (
                                     <Button
                                         key={page}
                                         variant={currentPage === page ? "default" : "outline"}

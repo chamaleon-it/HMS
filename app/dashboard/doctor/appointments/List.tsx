@@ -77,7 +77,7 @@ export default function List({
 
             return name.includes(q) || mrn.includes(q);
           })
-          .map((row, idx) => (
+          ?.map((row, idx) => (
             <li
               key={row._id}
               className={`px-4 py-3 grid grid-cols-11 items-center ${idx % 2 === 0
@@ -88,16 +88,16 @@ export default function List({
               <div className="col-span-2 font-medium">{fTime(row.date)}</div>
 
               <div className="col-span-3 flex items-center gap-3 min-w-0">
-                <Initials text={row.patient.name} />
+                <Initials text={row.patient?.name} />
                 <div className="min-w-0">
                   <div className="truncate text-sm font-medium">
-                    {row.patient.name}{" "}
+                    {row.patient?.name}{" "}
                     <span className="text-xs text-gray-400 font-normal">
-                      ({row.patient.mrn})
+                      ({row.patient?.mrn})
                     </span>
                   </div>
                   <div className="text-xs text-zinc-500 truncate">
-                    {row.patient.phoneNumber}
+                    {row.patient?.phoneNumber}
                   </div>
                 </div>
               </div>
@@ -185,7 +185,7 @@ const Chip: React.FC<{
 function Initials({ text }: { text: string }) {
   const initials = text
     .split(" ")
-    .map((s) => s[0])
+    ?.map((s) => s[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();

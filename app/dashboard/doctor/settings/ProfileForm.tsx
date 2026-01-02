@@ -215,9 +215,9 @@ export default function ProfileForm() {
                       >
                         <CommandInput placeholder="Search specialties…" />
                         <CommandEmpty>No match found.</CommandEmpty>
-                        {SPECIALTIES.map((grp) => (
+                        {SPECIALTIES?.map((grp) => (
                           <CommandGroup key={grp.group} heading={grp.group}>
-                            {grp.items.map((item) => (
+                            {grp.items?.map((item) => (
                               <CommandItem
                                 key={item}
                                 value={item}

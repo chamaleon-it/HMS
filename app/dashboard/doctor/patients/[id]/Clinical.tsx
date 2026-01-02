@@ -46,7 +46,7 @@ export default function Clinical({ consult }: { consult: ConsultationType[] }) {
           </TableHeader>
 
           <TableBody>
-            {consult.map((row, idx) => (
+            {consult?.map((row, idx) => (
               <Row
                 key={row._id ?? idx}
                 row={row}
@@ -103,7 +103,7 @@ const Row = React.memo(function Row({
 
       <TableCell className="max-w-[300px]">
         <div className="flex flex-wrap gap-1">
-          {row.medicines.map((m, i) => (
+          {row.medicines?.map((m, i) => (
             <Badge
               key={m._id ?? i}
               variant="secondary"

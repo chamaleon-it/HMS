@@ -61,7 +61,7 @@ export default function InvoiceTable({ purchase }: PropType) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {purchase.map((row, i) => (
+            {purchase?.map((row, i) => (
               <TableRow key={i} className="border-zinc-100 hover:bg-zinc-50/50">
                 <TableCell className="py-3 align-top text-zinc-800 font-medium">
                   {row.mrn}
@@ -80,7 +80,7 @@ export default function InvoiceTable({ purchase }: PropType) {
                   {fDate(
                     new Date(
                       new Date(row.createdAt).getTime() +
-                        10 * 24 * 60 * 60 * 1000
+                      10 * 24 * 60 * 60 * 1000
                     )
                   )}
                 </TableCell>

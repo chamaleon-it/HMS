@@ -31,7 +31,7 @@ export default function PrescriptionCard({
   ) => {
     setData((prev) => ({
       ...prev,
-      items: prev.items.map((m, i) => (i === idx ? { ...m, [key]: val } : m)),
+      items: prev.items?.map((m, i) => (i === idx ? { ...m, [key]: val } : m)),
     }));
   };
 
@@ -78,7 +78,7 @@ export default function PrescriptionCard({
             <div className="col-span-1 text-right">Actions</div>
           </div>
 
-          {data.items.map((m, i) => (
+          {data.items?.map((m, i) => (
             <div key={i} className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-5"} gap-2 mt-2 items-start`}>
               <div className="col-span-3">
                 <Medicine i={i} m={m} updateField={updateField} />
@@ -274,7 +274,7 @@ function LabeledCombobox({
 
       {open && options.length > 0 && (
         <div className="absolute left-0 right-0  z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1">
-          {options.map((opt: string) => (
+          {options?.map((opt: string) => (
             <button
               key={opt}
               type="button"

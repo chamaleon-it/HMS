@@ -49,7 +49,7 @@ class SyncService {
         const db = await this.getDb<T>(collection);
         if (!db) return [];
         const result = await db.allDocs({ include_docs: true });
-        return result.rows.map((row: any) => row.doc as T);
+        return result.rows?.map((row: any) => row.doc as T);
     }
 
     async put<T extends {} = any>(collection: string, doc: T & { _id: string }): Promise<void> {
@@ -83,7 +83,7 @@ class SyncService {
         if (!db) return [];
         const result = await db.allDocs({ include_docs: true });
         return result.rows
-            .map((row: any) => row.doc as PendingAction)
+            ?.map((row: any) => row.doc as PendingAction)
             .sort((a: any, b: any) => a.timestamp - b.timestamp);
     }
 
@@ -98,9 +98,9 @@ class SyncService {
         const db = await this.getDb<T>(collection);
         if (!db) return;
         const existing = await db.allDocs({ include_docs: false });
-        const revMap = new Map(existing.rows.map((row: any) => [row.id, row.value.rev]));
+        const revMap = new Map(existing.rows?.map((row: any) => [row.id, row.value.rev]));
 
-        const bulkDocs = docs.map((doc: any) => {
+        const bulkDocs = docs?.map((doc: any) => {
             const _id = doc._id || doc.id;
             if (!_id) return doc;
             const _rev = revMap.get(_id);
@@ -121,7 +121,7 @@ class SyncService {
         const db = await this.getDb(collection);
         if (!db) return;
         const result = await db.allDocs();
-        const deletions = result.rows.map((row: any) => ({
+        const deletions = result.rows?.map((row: any) => ({
             _id: row.id,
             _rev: row.value.rev,
             _deleted: true

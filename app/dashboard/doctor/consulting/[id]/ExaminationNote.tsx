@@ -86,7 +86,7 @@ function safeWrite<T>(key: string, val: T) {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(key, JSON.stringify(val));
-  } catch {}
+  } catch { }
 }
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -157,9 +157,8 @@ export default function ExaminationNote({
           <div className="flex items-center gap-3">
             {/* °C Label */}
             <span
-              className={`text-sm transition-colors ${
-                !isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
-              }`}
+              className={`text-sm transition-colors ${!isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
+                }`}
             >
               °C
             </span>
@@ -199,9 +198,8 @@ export default function ExaminationNote({
 
             {/* °F Label */}
             <span
-              className={`text-sm transition-colors ${
-                isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
-              }`}
+              className={`text-sm transition-colors ${isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
+                }`}
             >
               °F
             </span>
@@ -259,14 +257,14 @@ export default function ExaminationNote({
 
     const storedTemplates = safeRead<Template[]>(LS_KEYS.templates, []);
     const cleanedTemplates = Array.isArray(storedTemplates)
-      ? storedTemplates.map((t) => ({
-          ...t,
-          order: Array.isArray(t.order) ? t.order.filter(isFieldKey) : [],
-          enabled: Array.isArray(t.enabled)
-            ? t.enabled.filter(isFieldKey).filter((k) => EXTRA_KEYS.includes(k))
-            : [],
-          values: t.values, // keep if present
-        }))
+      ? storedTemplates?.map((t) => ({
+        ...t,
+        order: Array.isArray(t.order) ? t.order.filter(isFieldKey) : [],
+        enabled: Array.isArray(t.enabled)
+          ? t.enabled.filter(isFieldKey).filter((k) => EXTRA_KEYS.includes(k))
+          : [],
+        values: t.values, // keep if present
+      }))
       : [];
     setTemplates(cleanedTemplates);
 
@@ -397,7 +395,7 @@ export default function ExaminationNote({
 
         <div className="flex items-center gap-2 relative w-full justify-between">
           <div className="hidden md:flex flex-wrap gap-2">
-            {["RS", "CVS", "P/A", "CNS", "L/E"].map((raw) => {
+            {["RS", "CVS", "P/A", "CNS", "L/E"]?.map((raw) => {
               const key =
                 (raw === "P/A" && ("PA" as FieldKey)) ||
                 (raw === "L/E" && ("LE" as FieldKey)) ||
@@ -407,11 +405,10 @@ export default function ExaminationNote({
                 <button
                   key={raw}
                   onClick={() => toggleSection(key)}
-                  className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${
-                    active
+                  className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${active
                       ? "bg-emerald-50 border-emerald-300 text-emerald-700"
                       : "bg-white"
-                  }`}
+                    }`}
                 >
                   {raw}
                 </button>
@@ -487,15 +484,14 @@ export default function ExaminationNote({
                                 .toLowerCase()
                                 .includes(menuQuery.toLowerCase())
                           )
-                          .map((t) => (
+                          ?.map((t) => (
                             <button
                               key={t.id}
                               onClick={() => applyTemplate(t.id)}
-                              className={`group w-full text-left px-4 py-3 hover:bg-emerald-50 transition ${
-                                selectedTemplateId === t.id
+                              className={`group w-full text-left px-4 py-3 hover:bg-emerald-50 transition ${selectedTemplateId === t.id
                                   ? "bg-emerald-50/60"
                                   : "bg-white"
-                              }`}
+                                }`}
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -518,7 +514,7 @@ export default function ExaminationNote({
                                 </span>
                               </div>
                               <div className="mt-2 flex flex-wrap gap-1">
-                                {t.order.slice(0, 5).map((fid) => (
+                                {t.order.slice(0, 5)?.map((fid) => (
                                   <span
                                     key={fid}
                                     className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border"
@@ -526,8 +522,8 @@ export default function ExaminationNote({
                                     {fid === "PA"
                                       ? "P/A"
                                       : fid === "LE"
-                                      ? "L/E"
-                                      : fid}
+                                        ? "L/E"
+                                        : fid}
                                   </span>
                                 ))}
                                 {t.order.length > 5 && (
@@ -565,7 +561,7 @@ export default function ExaminationNote({
 
       <CardContent>
         <div className="md:hidden mb-3 flex flex-wrap gap-2">
-          {["RS", "CVS", "P/A", "CNS", "L/E"].map((raw) => {
+          {["RS", "CVS", "P/A", "CNS", "L/E"]?.map((raw) => {
             const key =
               (raw === "P/A" && ("PA" as FieldKey)) ||
               (raw === "L/E" && ("LE" as FieldKey)) ||
@@ -575,11 +571,10 @@ export default function ExaminationNote({
               <button
                 key={raw}
                 onClick={() => toggleSection(key)}
-                className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${
-                  active
+                className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${active
                     ? "bg-emerald-50 border-emerald-300 text-emerald-700"
                     : "bg-white"
-                }`}
+                  }`}
               >
                 {raw}
               </button>
@@ -590,7 +585,7 @@ export default function ExaminationNote({
         <DndContext sensors={sensors} onDragEnd={onDragEnd}>
           <SortableContext items={visibleItems} strategy={rectSortingStrategy}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4 items-start">
-              {visibleItems.map((key) => {
+              {visibleItems?.map((key) => {
                 const meta = ALL_FIELDS[key];
                 if (meta.type === "input") {
                   return (
@@ -760,7 +755,7 @@ export default function ExaminationNote({
                 <p className="text-slate-600">No templates yet.</p>
               ) : (
                 <ul className="space-y-3">
-                  {templates.map((t) => (
+                  {templates?.map((t) => (
                     <li
                       key={t.id}
                       className="rounded-2xl border p-3 hover:shadow-md transition"
@@ -792,7 +787,7 @@ export default function ExaminationNote({
                         </div>
                       </div>
                       <div className="mt-2 flex flex-wrap gap-1">
-                        {t.order.map((fid) => (
+                        {t.order?.map((fid) => (
                           <span
                             key={fid}
                             className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 border"
@@ -922,9 +917,8 @@ function LabeledInput({
         placeholder=" "
         type={type}
         inputMode={type === "number" ? "numeric" : undefined}
-        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${
-          hasRight ? "pr-24" : unit ? "pr-12" : ""
-        }`}
+        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${hasRight ? "pr-24" : unit ? "pr-12" : ""
+          }`}
       />
       <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
         {label}

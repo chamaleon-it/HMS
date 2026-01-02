@@ -83,19 +83,19 @@ export default function Filter({
               "Critical",
               "Discharged",
               "Deleted",
-            ].map((s) => ({
+            ]?.map((s) => ({
               label:
                 s === "Active"
                   ? "🟢 Active"
                   : s === "Inactive"
-                  ? "⚪ Inactive"
-                  : s === "Critical"
-                  ? "🔴 Critical"
-                  : s === "Discharged"
-                  ? "🔵 Discharged"
-                  : s === "Deleted"
-                  ? "🔴 Deleted"
-                  : "All statuses",
+                    ? "⚪ Inactive"
+                    : s === "Critical"
+                      ? "🔴 Critical"
+                      : s === "Discharged"
+                        ? "🔵 Discharged"
+                        : s === "Deleted"
+                          ? "🔴 Deleted"
+                          : "All statuses",
               value: s,
             }))}
           />
@@ -110,24 +110,24 @@ export default function Filter({
               { label: "Female", value: "Female", icon: "♀" },
               { label: "Male", value: "Male", icon: "♂" },
               { label: "Others", value: "Other", icon: "⚧" },
-            ].map((opt) => {
+            ]?.map((opt) => {
               const active = filter.gender === opt.value;
               const activeClass =
                 opt.value === "Female"
                   ? "bg-rose-600 text-white ring-rose-600"
                   : opt.value === "Male"
-                  ? "bg-sky-600 text-white ring-sky-600"
-                  : opt.value === "Other"
-                  ? "bg-violet-600 text-white ring-violet-600"
-                  : "bg-white text-gray-900 ring-gray-300";
+                    ? "bg-sky-600 text-white ring-sky-600"
+                    : opt.value === "Other"
+                      ? "bg-violet-600 text-white ring-violet-600"
+                      : "bg-white text-gray-900 ring-gray-300";
               const idleClass =
                 opt.value === "Female"
                   ? "text-rose-600 ring-transparent hover:bg-rose-50"
                   : opt.value === "Male"
-                  ? "text-sky-600 ring-transparent hover:bg-sky-50"
-                  : opt.value === "Other"
-                  ? "text-violet-600 ring-transparent hover:bg-violet-50"
-                  : "text-gray-600 ring-transparent hover:bg-gray-50";
+                    ? "text-sky-600 ring-transparent hover:bg-sky-50"
+                    : opt.value === "Other"
+                      ? "text-violet-600 ring-transparent hover:bg-violet-50"
+                      : "text-gray-600 ring-transparent hover:bg-gray-50";
               return (
                 <button
                   key={opt.label}
@@ -136,9 +136,8 @@ export default function Filter({
                   }
                   aria-pressed={active}
                   aria-label={`Gender: ${opt.label}`}
-                  className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 cursor-pointer ${
-                    active ? activeClass : idleClass
-                  }`}
+                  className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 cursor-pointer ${active ? activeClass : idleClass
+                    }`}
                 >
                   {opt.value !== undefined && (
                     <span aria-hidden>{opt.icon}</span>
@@ -175,7 +174,7 @@ export default function Filter({
           <div className="flex items-center gap-2">
             <input
               type="number"
-              value={filter.age[0] ===0 ? "" : filter.age[0]}
+              value={filter.age[0] === 0 ? "" : filter.age[0]}
               placeholder="0"
               onFocus={(e) => (e.target.placeholder = "")}
               onBlur={(e) => (e.target.placeholder = "0")}
@@ -255,7 +254,7 @@ export default function Filter({
       <div className="mt-4">
         <div className="text-sm text-gray-600 mb-1">Conditions</div>
         <div className="flex flex-wrap gap-2">
-          {CONDITIONS.slice(0, 10).map((c) => {
+          {CONDITIONS.slice(0, 10)?.map((c) => {
             const active = filter.conditions.includes(c);
             return (
               <button
@@ -268,11 +267,10 @@ export default function Filter({
                       : [...prev.conditions, c],
                   }));
                 }}
-                className={`px-3 py-1 rounded-full text-sm ring-1 transition ${
-                  active
-                    ? "bg-black text-white ring-black"
-                    : "bg-white text-gray-700 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                }`}
+                className={`px-3 py-1 rounded-full text-sm ring-1 transition ${active
+                  ? "bg-black text-white ring-black"
+                  : "bg-white text-gray-700 ring-gray-200 hover:bg-gray-50 cursor-pointer"
+                  }`}
               >
                 {active ? "✓ " : ""}
                 {c}
@@ -383,17 +381,16 @@ function Segmented({
 }) {
   return (
     <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
-      {options.map((o) => {
+      {options?.map((o) => {
         const active = value === o.value;
         return (
           <button
             key={o.label}
             onClick={() => onChange(o.value)}
-            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${
-              active
-                ? "bg-white ring-gray-300 shadow-sm text-gray-900"
-                : "bg-transparent ring-transparent text-gray-600 hover:text-gray-900"
-            } cursor-pointer`}
+            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${active
+              ? "bg-white ring-gray-300 shadow-sm text-gray-900"
+              : "bg-transparent ring-transparent text-gray-600 hover:text-gray-900"
+              } cursor-pointer`}
           >
             {o.label}
           </button>
@@ -488,7 +485,7 @@ function FilterSelect({
             />
           )}
           <ul role="listbox" className="grid gap-1">
-            {visible.map((o) => {
+            {visible?.map((o) => {
               const active = o.value === value;
               return (
                 <li key={String(o.value)}>
@@ -497,11 +494,10 @@ function FilterSelect({
                       onChange(o.value as string);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
-                      active
-                        ? "bg-gray-100 text-gray-900"
-                        : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${active
+                      ? "bg-gray-100 text-gray-900"
+                      : "hover:bg-gray-50 text-gray-700"
+                      }`}
                   >
                     <span className="truncate">{o.label}</span>
                     {active && <span>✓</span>}

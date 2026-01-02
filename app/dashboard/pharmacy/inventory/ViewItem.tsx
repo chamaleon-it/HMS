@@ -191,7 +191,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedBatches.map((batch) => (
+                paginatedBatches?.map((batch) => (
                   <TableRow key={batch._id} className="hover:bg-slate-50 border-b border-slate-100 last:border-0">
                     <TableCell className="text-xs py-3 font-medium text-slate-700">{fDate(batch.createdAt)}</TableCell>
                     <TableCell className="font-mono text-xs py-3 text-slate-600 bg-slate-50/50 rounded-sm w-fit px-2">{batch.batchNumber}</TableCell>
@@ -215,7 +215,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             >
               Previous
             </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            {Array.from({ length: totalPages }, (_, i) => i + 1)?.map((page) => (
               <Button
                 key={page}
                 variant={currentPage === page ? "default" : "outline"}

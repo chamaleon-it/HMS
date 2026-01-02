@@ -53,11 +53,11 @@ export function CreateAppointmentForm({
     internalNotes: string | null;
     type: "New" | "Follow up";
     status:
-      | "Upcoming"
-      | "Consulted"
-      | "Observation"
-      // | "Completed"
-      | "Not show";
+    | "Upcoming"
+    | "Consulted"
+    | "Observation"
+    // | "Completed"
+    | "Not show";
     isPaid: boolean;
     createdAt: Date;
     visitCount: number;
@@ -70,8 +70,8 @@ export function CreateAppointmentForm({
       email: string;
     }[];
     message: string;
-  }>("/users/doctors",{
-    revalidateIfStale:false
+  }>("/users/doctors", {
+    revalidateIfStale: false
   });
 
   const {
@@ -99,11 +99,11 @@ export function CreateAppointmentForm({
         isPaid: appointment.isPaid ? "true" : "false",
         method: appointment.method,
         notes: appointment.notes || undefined,
-        patient: appointment.patient._id,
+        patient: appointment?.patient?._id,
         type: appointment.type,
       });
     }
-  }, [appointment,reset]);
+  }, [appointment, reset]);
 
   const values = watch();
 
@@ -175,7 +175,7 @@ export function CreateAppointmentForm({
               onChange={(v) => setValue("doctor", v)}
               placeholder="Choose doctor"
               options={
-                data?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
+                data?.data?.map((s) => ({ label: s.name, value: s._id })) ?? []
               }
             />
             {errors.doctor && (
@@ -190,7 +190,7 @@ export function CreateAppointmentForm({
               value={values.method}
               onChange={(v) => setValue("method", v)}
               placeholder="In-clinic / Video / Phone"
-              options={METHODS.map((s) => ({ label: s, value: s })) ?? []}
+              options={METHODS?.map((s) => ({ label: s, value: s })) ?? []}
             />
             {errors.method && (
               <p className="text-red-500 text-xs mt-1.5">
@@ -243,7 +243,7 @@ export function CreateAppointmentForm({
                 onChange={(v) => setValue("type", v)}
                 placeholder="Appointment Type"
                 options={
-                  ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
+                  ["New", "Follow up"]?.map((s) => ({ label: s, value: s })) ??
                   []
                 }
               />

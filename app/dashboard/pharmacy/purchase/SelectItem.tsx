@@ -133,16 +133,15 @@ export default function SelectMedicine({
       {open && (
         <div className="absolute z-50 mt-2 w-full sm:w-[320px] max-h-60 overflow-auto rounded-xl border bg-white shadow-lg">
           {items.length > 0 ? (
-            items.map((it, idx) => (
+            items?.map((it, idx) => (
               <button
                 key={it.sku ?? it.name + idx}
                 type="button"
                 onMouseEnter={() => setHighlight(idx)}
                 onMouseLeave={() => setHighlight(-1)}
                 onClick={() => onClickItem(idx)}
-                className={`w-full text-left px-3 py-2 hover:bg-gray-100 flex justify-between ${
-                  highlight === idx ? "bg-gray-100" : ""
-                }`}
+                className={`w-full text-left px-3 py-2 hover:bg-gray-100 flex justify-between ${highlight === idx ? "bg-gray-100" : ""
+                  }`}
               >
                 <div className="truncate">
                   <div className="font-medium text-sm">{it.name}</div>
@@ -163,9 +162,8 @@ export default function SelectMedicine({
               onMouseEnter={() => setHighlight(items.length)}
               onMouseLeave={() => setHighlight(-1)}
               onClick={() => onClickItem(items.length)}
-              className={`w-full text-left px-3 py-2 hover:bg-gray-100 ${
-                highlight === items.length ? "bg-gray-100" : ""
-              }`}
+              className={`w-full text-left px-3 py-2 hover:bg-gray-100 ${highlight === items.length ? "bg-gray-100" : ""
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />

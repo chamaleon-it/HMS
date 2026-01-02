@@ -107,7 +107,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
               const getTargetTime = (item: typeof a) => {
                 if (!item.sampleCollectedAt) return Infinity;
                 const times = item.test
-                  .map((t) => t.name?.estimatedTime)
+                  ?.map((t) => t.name?.estimatedTime)
                   .filter((time): time is number => typeof time === "number");
                 const maxTime = times.length > 0 ? Math.max(...times) : 0;
                 return (
@@ -116,10 +116,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
               };
               return getTargetTime(a) - getTargetTime(b);
             })
-            .map((r, idx) => {
+            ?.map((r, idx) => {
               const maxEstimatedTime = Math.max(
                 ...r.test
-                  .map((t) => t.name?.estimatedTime)
+                  ?.map((t) => t.name?.estimatedTime)
                   .filter((time) => typeof time === "number"), 0
               );
 
@@ -151,13 +151,13 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   <td className="px-3 py-2">
                     <div className="flex flex-col">
                       <span className="font-semibold text-gray-900 text-sm">
-                        {r.patient.name}
+                        {r.patient?.name}
                       </span>
                       <span className="text-xs text-gray-500 mt-0.5">
                         <span className="font-medium text-gray-600">
-                          {r.patient.mrn}
+                          {r.patient?.mrn}
                         </span>{" "}
-                        • {fAge(r.patient.dateOfBirth)} yrs • {r.patient.gender}
+                        • {fAge(r.patient?.dateOfBirth)} yrs • {r.patient?.gender}
                       </span>
                     </div>
                   </td>
@@ -175,10 +175,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         ?.filter(
                           (t) =>
                             !t.name.panels
-                              .map((p) => r.panels.includes(p.name))
+                              ?.map((p) => r.panels.includes(p.name))
                               .includes(true)
                         )
-                        .map((e) => (
+                        ?.map((e) => (
                           <div
                             key={e._id}
                             className="flex items-center gap-1 h-5 font-medium text-sm"
@@ -336,14 +336,14 @@ const Chip: React.FC<{
     >
       <span
         className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === "gray"
-            ? "bg-slate-400"
-            : tone === "green"
-              ? "bg-emerald-500"
-              : tone === "amber"
-                ? "bg-amber-500"
-                : tone === "blue"
-                  ? "bg-sky-500"
-                  : "bg-rose-500"
+          ? "bg-slate-400"
+          : tone === "green"
+            ? "bg-emerald-500"
+            : tone === "amber"
+              ? "bg-amber-500"
+              : tone === "blue"
+                ? "bg-sky-500"
+                : "bg-rose-500"
           }`}
       ></span>
       {label}

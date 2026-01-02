@@ -125,7 +125,7 @@ export default function RemoveTestsFromPanelDialog({
                                     {panelTests.length === 0 ? "No tests in this panel." : "No matching tests found."}
                                 </p>
                             ) : (
-                                filteredTests.map((test) => (
+                                filteredTests?.map((test) => (
                                     <div
                                         key={test._id}
                                         className="flex items-center space-x-2 border-b last:border-0 pb-2 last:pb-0"

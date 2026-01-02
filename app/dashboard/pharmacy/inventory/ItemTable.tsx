@@ -108,7 +108,7 @@ export default function ItemTable({
             </TableHeader>
 
             <TableBody>
-              {items.map((item, i) => (
+              {items?.map((item, i) => (
                 <TableRow
                   key={item._id}
                   className={

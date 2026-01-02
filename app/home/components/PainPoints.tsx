@@ -37,7 +37,7 @@ const PainPoints = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    {pains.map((pain, index) => (
+                    {pains?.map((pain, index) => (
                         <div key={index} className="bg-white/5 border border-red-500/20 p-8 rounded-2xl hover:bg-red-500/5 transition-colors group">
                             <div className="bg-red-500/10 w-14 h-14 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                 <pain.icon className={`w-7 h-7 ${pain.color}`} />

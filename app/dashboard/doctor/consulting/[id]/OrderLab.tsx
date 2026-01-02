@@ -42,7 +42,7 @@ export default function OrderLab({
           <div className="col-span-2 text-right">Actions</div>
         </div>
 
-        {booked.map((e, idx) => (
+        {booked?.map((e, idx) => (
           <div
             className="grid grid-cols-12 gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2"
             key={idx}
@@ -55,7 +55,7 @@ export default function OrderLab({
               }
 
               {
-                !e.panels.find(p => e.panels.includes(p)) && e.name.map((t, idx) => (
+                !e.panels.find(p => e.panels.includes(p)) && e.name?.map((t, idx) => (
                   <p key={idx}>{tests.find(test => test._id == t)?.name}</p>
                 ))
               }

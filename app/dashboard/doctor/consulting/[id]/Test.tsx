@@ -54,7 +54,7 @@ type ModeToggleProps = {
 
 const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onChange }) => (
   <div className="inline-flex rounded-full border border-zinc-200 bg-white p-1 shadow-sm">
-    {(["inhouse", "external"] as const).map((m) => (
+    {(["inhouse", "external"] as const)?.map((m) => (
       <button
         key={m}
         onClick={() => onChange(m)}
@@ -272,7 +272,7 @@ export default function Test({
 
     const datetime = combineDateAndSlot(date, slot);
     const newTest = {
-      name: selectedTests.map((e) => e._id),
+      name: selectedTests?.map((e) => e._id),
       date: mode === "inhouse" ? new Date() : datetime,
       lab: labId === "" ? labId : configuration().in_house_lab_id,
       priority,
@@ -374,7 +374,7 @@ export default function Test({
                       { key: "Lab", label: "Laboratory" },
                       { key: "Imaging", label: "Imaging" },
                     ] as const
-                  ).map((t) => (
+                  )?.map((t) => (
                     <button
                       key={t.key}
                       onClick={() => setTab(t.key)}
@@ -421,7 +421,7 @@ export default function Test({
                       !selectedPanel.includes(panel) &&
                       panel.toLowerCase().startsWith(query.toLowerCase())
                   )
-                  .map((panel) => (
+                  ?.map((panel) => (
                     <TestItem
                       key={panel}
                       selected={selectedPanel.includes(panel)}
@@ -452,7 +452,7 @@ export default function Test({
                       !selectedTests.find((t) => t._id === test._id) &&
                       test.name.toLowerCase().startsWith(query.toLowerCase())
                   )
-                  .map((test) => (
+                  ?.map((test) => (
                     <TestItem
                       key={test._id}
                       test={test}
@@ -470,7 +470,7 @@ export default function Test({
                       panel.name.toLowerCase().startsWith(query.toLowerCase()) &&
                       !favouritePanels.includes(panel.name)
                   )
-                  .map((panel) => (
+                  ?.map((panel) => (
                     <TestItem
                       key={panel.name}
                       selected={selectedPanel.includes(panel.name)}
@@ -502,7 +502,7 @@ export default function Test({
                       test.name.toLowerCase().startsWith(query.toLowerCase()) &&
                       !favourite?.find((f) => f._id === test._id)
                   )
-                  .map(
+                  ?.map(
                     (t) =>
                       !selectedTests.find((test) => test._id === t._id) && (
                         <TestItem
@@ -559,7 +559,7 @@ export default function Test({
                           Lab Center
                         </label>
                         <div className="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
-                          {Labs.map((l) => (
+                          {Labs?.map((l) => (
                             <button
                               key={l._id}
                               onClick={() => setLabId(l._id)}
@@ -581,7 +581,7 @@ export default function Test({
                           Time Slot
                         </label>
                         <div className="grid grid-cols-3 gap-2">
-                          {SLOTS.map((s) => (
+                          {SLOTS?.map((s) => (
                             <button
                               key={s}
                               onClick={() => setSlot(s)}
@@ -603,7 +603,7 @@ export default function Test({
                           Priority
                         </label>
                         <div className="flex gap-2">
-                          {PRIORITIES.map((p) => (
+                          {PRIORITIES?.map((p) => (
                             <button
                               key={p.id}
                               onClick={() => setPriority(p.id)}
@@ -671,7 +671,7 @@ export default function Test({
                               ?.map((p) => selectedPanel.includes(p.name))
                               .includes(true)
                         )
-                        .map((test) => (
+                        ?.map((test) => (
                           <SelectedTests
                             key={test._id}
                             test={test}
@@ -679,7 +679,7 @@ export default function Test({
                           />
                         ))}
 
-                      {selectedPanel.map((panel) => (
+                      {selectedPanel?.map((panel) => (
                         <SelectedTests
                           key={panel}
                           test={{
@@ -695,7 +695,7 @@ export default function Test({
                                   ?.map((p) => p.name.includes(panel))
                                   .includes(true)
                               )
-                              .map((test) => toggleTest(test));
+                              ?.map((test) => toggleTest(test));
                             setSelectedPanel((prev) =>
                               prev.filter((panel) => panel !== panel)
                             );

@@ -168,7 +168,7 @@ export default function InvoiceView() {
                   Patient Name
                 </p>
                 <p className="text-[13px] font-black text-slate-900 uppercase leading-none tracking-tight">
-                  {billing.patient.name}
+                  {billing.patient?.name}
                 </p>
               </div>
               <div>
@@ -176,7 +176,7 @@ export default function InvoiceView() {
                   MRN Number
                 </p>
                 <p className="text-[11px] font-black text-slate-900">
-                  {billing.patient.mrn || "—"}
+                  {billing.patient?.mrn || "—"}
                 </p>
               </div>
               <div>
@@ -184,7 +184,7 @@ export default function InvoiceView() {
                   Patient ID
                 </p>
                 <p className="text-[11px] font-black text-slate-900">
-                  {billing.patient.mrn?.replace("MRN", "PID") || "—"}
+                  {billing.patient?.mrn?.replace("MRN", "PID") || "—"}
                 </p>
               </div>
 
@@ -193,12 +193,12 @@ export default function InvoiceView() {
                   Age / Gender
                 </p>
                 <p className="text-[11px] font-bold text-slate-800">
-                  {billing.patient.dateOfBirth
+                  {billing.patient?.dateOfBirth
                     ? `${new Date().getFullYear() -
-                    new Date(billing.patient.dateOfBirth).getFullYear()
+                    new Date(billing.patient?.dateOfBirth).getFullYear()
                     }Y`
                     : "—"}{" "}
-                  / {billing.patient.gender || "—"}
+                  / {billing.patient?.gender || "—"}
                 </p>
               </div>
               <div>
@@ -206,7 +206,7 @@ export default function InvoiceView() {
                   Phone
                 </p>
                 <p className="text-[11px] font-bold text-slate-800">
-                  {billing.patient.phoneNumber || "—"}
+                  {billing.patient?.phoneNumber || "—"}
                 </p>
               </div>
               <div className="col-span-2">
@@ -218,13 +218,13 @@ export default function InvoiceView() {
                 </p>
               </div>
 
-              {billing.patient.address && (
+              {billing.patient?.address && (
                 <div className="col-span-4 mt-0.5">
                   <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">
                     Address
                   </p>
                   <p className="text-[10px] font-medium text-slate-600 italic leading-tight">
-                    {billing.patient.address}
+                    {billing.patient?.address}
                   </p>
                 </div>
               )}
@@ -282,7 +282,7 @@ export default function InvoiceView() {
                 </tr>
               </thead>
               <tbody>
-                {billing.items.map((item, index) => (
+                {billing.items?.map((item, index) => (
                   <tr key={index} className="h-8">
                     <td className="border border-slate-300 py-1 px-2 text-[10px] text-center font-bold text-slate-400">
                       {index + 1}
@@ -316,7 +316,7 @@ export default function InvoiceView() {
                 {/* Empty rows to push totals down */}
                 {Array.from({
                   length: Math.max(0, 5 - billing.items.length),
-                }).map((_, i) => (
+                })?.map((_, i) => (
                   <tr key={`empty-${i}`} className="h-8">
                     <td className="border border-slate-200"></td>
                     <td className="border border-slate-200"></td>

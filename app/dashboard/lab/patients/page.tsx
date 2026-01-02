@@ -75,7 +75,7 @@ const Patients: React.FC = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody className="text-[15px]">
-                                {patients.map((p, idx) => {
+                                {patients?.map((p, idx) => {
                                     const hasHistory = p.visits > 0;
                                     const isRepeat = p.visits > 1;
 

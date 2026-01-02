@@ -81,7 +81,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
     const [payload, setPayload] = useState({
         _id: r._id,
-        test: r.test.filter((item) => item.name.type === "Lab").map((item) => ({ _id: item._id, value: item.value && item?.value?.toString(), name: item.name })),
+        test: r.test.filter((item) => item.name.type === "Lab")?.map((item) => ({ _id: item._id, value: item.value && item?.value?.toString(), name: item.name })),
     })
 
     const updateResult = async () => {
@@ -121,7 +121,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                         <div>
                             <DialogTitle className="text-lg font-semibold text-gray-900">Update Lab Results</DialogTitle>
                             <DialogDescription className="text-sm text-gray-500 mt-0.5">
-                                Enter the results for the lab tests performed for <span className="font-medium text-gray-700">{r.patient.name}</span>.
+                                Enter the results for the lab tests performed for <span className="font-medium text-gray-700">{r.patient?.name}</span>.
                             </DialogDescription>
                         </div>
                     </div>
@@ -140,7 +140,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {r.test.filter(item => item.name.type === "Lab").map((labTest) => (
+                                    {r.test.filter(item => item.name.type === "Lab")?.map((labTest) => (
                                         <TableRow key={labTest._id} className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none">
                                             <TableCell className="pl-6 py-4">
                                                 <div className="flex items-center gap-3">
@@ -159,7 +159,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                                 <div className="relative max-w-[240px]">
                                                     <Input
                                                         value={payload.test.find((item) => item._id === labTest._id)?.value}
-                                                        onChange={(e) => setPayload({ ...payload, test: payload.test.map((item) => item._id === labTest._id ? { ...item, value: e.target.value } : item) })}
+                                                        onChange={(e) => setPayload({ ...payload, test: payload.test?.map((item) => item._id === labTest._id ? { ...item, value: e.target.value } : item) })}
                                                         type="text"
                                                         placeholder="Enter result"
                                                         className="pl-3 pr-12 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"

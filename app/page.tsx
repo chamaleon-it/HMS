@@ -109,7 +109,7 @@ export default function LoginPage() {
                 { label: "ISO 27001", icon: Shield },
                 { label: "ABDM-ready", icon: Shield },
                 { label: "Proudly made in India", icon: IndiaFlagIcon },
-              ].map(({ label, icon: Icon }, idx) => (
+              ]?.map(({ label, icon: Icon }, idx) => (
                 <div
                   key={label}
                   style={{ animationDelay: `${0.05 * (idx + 1)}s` }}
@@ -236,7 +236,7 @@ function IndiaFlagIcon({ className = "h-5 w-5" }) {
         >
           <circle r="2.6" />
           {/* 24 spokes */}
-          {Array.from({ length: 24 }).map((_, i) => (
+          {Array.from({ length: 24 })?.map((_, i) => (
             <line
               key={i}
               x1="0"

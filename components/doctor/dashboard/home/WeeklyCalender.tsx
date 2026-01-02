@@ -101,7 +101,7 @@ export default function WeeklyCalender({
     const ws = startOfWeekSunday(selectedDate);
     const we = endOfWeekSunday(selectedDate);
     const normalized = weekItems
-      .map((it) => {
+      ?.map((it) => {
         const start = new Date(it.date);
         const end = it.endDate
           ? new Date(it.endDate)
@@ -143,7 +143,7 @@ export default function WeeklyCalender({
         {/* Header row */}
         <div className="grid grid-cols-[64px_repeat(7,1fr)] text-xs text-gray-500 px-2">
           <div></div>
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((d, i) => (
+          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]?.map((d, i) => (
             <div key={i} className="text-center font-medium">
               {d}
             </div>
@@ -154,7 +154,7 @@ export default function WeeklyCalender({
         <div className="grid grid-cols-[64px_repeat(7,1fr)]">
           {/* Time labels */}
           <div className="flex flex-col">
-            {[...Array(ROWS)].map((_, i) =>
+            {[...Array(ROWS)]?.map((_, i) =>
               i % 4 === 0 ? (
                 <div
                   key={i}
@@ -174,9 +174,9 @@ export default function WeeklyCalender({
           </div>
 
           {/* Days columns */}
-          {[...Array(7)].map((_, col) => (
+          {[...Array(7)]?.map((_, col) => (
             <div key={col} className="border-l border-gray-200">
-              {[...Array(ROWS)].map((_, i) => (
+              {[...Array(ROWS)]?.map((_, i) => (
                 <div
                   key={i}
                   className={
@@ -199,13 +199,13 @@ export default function WeeklyCalender({
           }}
         >
           <div></div>
-          {[...Array(7)].map((_, colIdx) => {
+          {[...Array(7)]?.map((_, colIdx) => {
             const dayEvents = eventsInWeek.filter(
               (e) => dayToCol(e.start) === colIdx
             );
             return (
               <div key={colIdx} className="relative">
-                {dayEvents.map((e, i) => {
+                {dayEvents?.map((e, i) => {
                   const { clampedStart, heightMin } = clampTopAndHeight(
                     e.start,
                     e.end
@@ -244,11 +244,10 @@ export default function WeeklyCalender({
                     >
                       <div className="flex items-center gap-2 mb-0.5">
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            (isConsulted && consultedStyles.dot) ||
+                          className={`w-1.5 h-1.5 rounded-full ${(isConsulted && consultedStyles.dot) ||
                             (isNotShow && "bg-red-500") ||
                             typeStyles.dot
-                          }`}
+                            }`}
                         />
                         <span className="font-medium truncate">
                           {e.patient?.name ?? "—"}

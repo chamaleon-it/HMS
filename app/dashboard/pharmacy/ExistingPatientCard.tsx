@@ -26,7 +26,7 @@ export default function ExistingPatientCard({
     return (
         <div
             className="absolute top-[calc(100%+4px)] left-0 w-full z-50 p-3 border rounded-xl shadow-xl bg-white cursor-pointer hover:border-indigo-300 transition-colors group"
-            onClick={() => onSelect(patient._id, patient.name)}
+            onClick={() => onSelect(patient._id, patient?.name)}
         >
             <div
                 onClick={(e) => {
@@ -47,9 +47,9 @@ export default function ExistingPatientCard({
             <div className="flex items-start justify-between gap-3 pt-2">
                 <div className="flex gap-3 items-center">
                     <div className="h-10 w-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600 font-semibold text-sm">
-                        {patient.name
+                        {patient?.name
                             .split(" ")
-                            .map((n) => n[0])
+                            ?.map((n) => n[0])
                             .join("")
                             .substring(0, 2)
                             .toUpperCase()}
@@ -57,18 +57,18 @@ export default function ExistingPatientCard({
                     <div>
                         <div className="flex items-center gap-2">
                             <h4 className="font-semibold text-slate-900 text-sm">
-                                {patient.name}
+                                {patient?.name}
                             </h4>
                             <span className="text-xs text-slate-500 font-medium">
-                                ({patient.mrn})
+                                ({patient?.mrn})
                             </span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-medium">
-                                {fAge(new Date(patient.dateOfBirth))}
+                                {fAge(new Date(patient?.dateOfBirth))}
                             </span>
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-pink-50 text-pink-700 text-[10px] font-medium">
-                                {patient.gender}
+                                {patient?.gender}
                             </span>
                         </div>
                     </div>
@@ -77,7 +77,7 @@ export default function ExistingPatientCard({
                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-slate-50">
                     <Phone className="h-3 w-3 text-slate-500" />
                     <span className="text-xs font-medium text-slate-700">
-                        {patient.phoneNumber}
+                        {patient?.phoneNumber}
                     </span>
                 </div>
             </div>
@@ -86,7 +86,7 @@ export default function ExistingPatientCard({
                 <div className="flex items-center gap-1.5 text-slate-500">
                     <MapPin className="h-3 w-3" />
                     <span className="text-xs truncate max-w-[200px]">
-                        {patient.address || "No address provided"}
+                        {patient?.address || "No address provided"}
                     </span>
                 </div>
                 <MousePointerClick className="h-4 w-4 text-slate-400 group-hover:text-indigo-500 transition-colors" />

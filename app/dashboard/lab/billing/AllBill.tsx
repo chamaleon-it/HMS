@@ -59,7 +59,7 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
               </tr>
             </thead>
             <tbody>
-              {billing.map((b, idx) => (
+              {billing?.map((b, idx) => (
                 <tr
                   key={b._id}
                   className={`border-b border-slate-100 last:border-0 ${idx % 2 === 0
@@ -77,9 +77,9 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                   </td>
                   <td className="py-2 pr-2">{fDateandTime(b.createdAt)}</td>
                   <td className="py-2 pr-2">
-                    <div className="font-medium truncate">{b.patient.name}</div>
+                    <div className="font-medium truncate">{b.patient?.name}</div>
                     <div className="text-[11px] text-slate-500">
-                      {b.patient.mrn}
+                      {b.patient?.mrn}
                     </div>
                   </td>
                   <td className="py-2 pr-2 text-right tabular-nums">

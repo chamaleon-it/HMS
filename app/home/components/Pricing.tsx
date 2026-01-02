@@ -67,7 +67,7 @@ const Pricing = () => {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto">
-                    {plans.map((plan, index) => (
+                    {plans?.map((plan, index) => (
                         <div
                             key={index}
                             className={`relative rounded-2xl p-8 border transition-all duration-300 hover:-translate-y-2 ${plan.popular
@@ -94,7 +94,7 @@ const Pricing = () => {
                             </div>
 
                             <ul className="space-y-4 mb-8">
-                                {plan.features.map((feature, i) => (
+                                {plan.features?.map((feature, i) => (
                                     <li key={i} className="flex items-start gap-3 text-sm text-slate-300">
                                         <Check className="w-5 h-5 text-secondary-glow shrink-0" />
                                         <span>{feature}</span>

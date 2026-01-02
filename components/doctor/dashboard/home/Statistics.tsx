@@ -52,7 +52,7 @@ export default function Statistics() {
     female: 0,
   };
 
-  
+
 
   return (
     <div className="grid grid-cols-4 gap-4 p-6">
@@ -83,7 +83,7 @@ export default function Statistics() {
           icon: Users,
           color: "text-yellow-600",
         },
-      ].map((stat, i) => (
+      ]?.map((stat, i) => (
         <motion.div
           key={i}
           initial={{ opacity: 0, y: 10 }}

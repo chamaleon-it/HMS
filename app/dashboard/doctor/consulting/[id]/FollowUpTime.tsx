@@ -78,7 +78,7 @@ export default function FollowUpTimePro({
       ? endOfDay(new Date(availability.endDate))
       : undefined;
     const allowedIdx = (availability.days ?? [])
-      .map((d) => dayNameToIndex[d])
+      ?.map((d) => dayNameToIndex[d])
       .filter((i) => i !== undefined) as number[];
 
     const pickNextAllowed = (seed: Date) => {
@@ -118,7 +118,7 @@ export default function FollowUpTimePro({
     doctor && bookedParams ? `/appointments/booked_slot?${bookedParams}` : null
   );
   const bookedSlot: number[] = useMemo(
-    () => (bookedRes?.data ?? []).map((d) => new Date(d).getTime()),
+    () => (bookedRes?.data ?? [])?.map((d) => new Date(d).getTime()),
     [bookedRes?.data]
   );
 
@@ -134,7 +134,7 @@ export default function FollowUpTimePro({
       matchers.push({ after: endOfDay(new Date(availability.endDate)) });
     if (availability.days?.length) {
       const allowedIndices = availability.days
-        .map((d) => dayNameToIndex[d])
+        ?.map((d) => dayNameToIndex[d])
         .filter((i) => i !== undefined) as number[];
       matchers.push((date: Date) => !allowedIndices.includes(date.getDay()));
     }
@@ -207,7 +207,7 @@ export default function FollowUpTimePro({
     bookedMutate();
   };
 
-  
+
 
   if (!showFollowUp) {
     return (
@@ -250,7 +250,7 @@ export default function FollowUpTimePro({
         <Card className="p-3 sm:col-span-2">
           <div className="text-xs text-slate-500 mb-2">Follow-up Time</div>
           <div className="grid grid-cols-2 gap-2 max-h-56 overflow-auto pr-1">
-            {timeSlots.map((time) => {
+            {timeSlots?.map((time) => {
               const round = getRoundForTime(time, availability?.rounds);
               const isDisabledByRound = !!round;
 
@@ -273,18 +273,18 @@ export default function FollowUpTimePro({
               const reason = isDisabledByRound
                 ? round?.label ?? "Unavailable"
                 : isBooked
-                ? "Already booked"
-                : isPastTime
-                ? "Past time"
-                : undefined;
+                  ? "Already booked"
+                  : isPastTime
+                    ? "Past time"
+                    : undefined;
 
               const disabledClasses = isDisabledByRound
                 ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300 cursor-not-allowed"
                 : isBooked
-                ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
-                : isPastTime
-                ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
-                : "";
+                  ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
+                  : isPastTime
+                    ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
+                    : "";
 
               return (
                 <div key={time} className="w-full">

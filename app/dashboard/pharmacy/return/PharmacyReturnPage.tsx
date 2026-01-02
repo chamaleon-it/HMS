@@ -79,7 +79,7 @@ export default function PharmacyReturnPage() {
       params.set("q", (filter.q ?? mrn) ?? "");
 
       const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
-      setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
+      setOrder({ ...data.data, items: data.data.items?.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
       setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
     } catch (error) {
       console.log(error);
@@ -139,12 +139,12 @@ export default function PharmacyReturnPage() {
           reason: string;
         }[];
       } = {
-        patient: order?.patient._id,
+        patient: order?.patient?._id,
         order: order?._id,
         refundMode: state.refundMode,
         returnedBy: state.returnedBy,
         remarks: state.remarks,
-        items: order?.items.map((it) => ({
+        items: order?.items?.map((it) => ({
           name: it.name._id,
           quantity: it.return || 0,
           reason: it.reason,
@@ -204,7 +204,7 @@ export default function PharmacyReturnPage() {
               </TableHeader>
 
               <TableBody className="[&>tr:nth-child(even)]:bg-slate-50/40">
-                {order?.items.map((it, i) => (
+                {order?.items?.map((it, i) => (
                   <TableRow key={it.name._id} className="text-[11px]">
                     <TableCell className="text-center align-top text-slate-500">
                       {i + 1}
@@ -252,7 +252,7 @@ export default function PharmacyReturnPage() {
                             prev
                               ? {
                                 ...prev,
-                                items: prev.items.map((item) =>
+                                items: prev.items?.map((item) =>
                                   item.name._id === it.name._id
                                     ? {
                                       ...item,
@@ -279,7 +279,7 @@ export default function PharmacyReturnPage() {
                             prev
                               ? {
                                 ...prev,
-                                items: prev.items.map((item) =>
+                                items: prev.items?.map((item) =>
                                   item.name._id === it.name._id
                                     ? {
                                       ...item,
@@ -307,7 +307,7 @@ export default function PharmacyReturnPage() {
                               prev
                                 ? {
                                   ...prev,
-                                  items: prev.items.map((item) =>
+                                  items: prev.items?.map((item) =>
                                     item.name._id === it.name._id
                                       ? {
                                         ...item,

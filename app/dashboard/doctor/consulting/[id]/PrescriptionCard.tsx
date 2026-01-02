@@ -116,7 +116,7 @@ export default function PrescriptionCard({
 
   // ------------------ Handlers ------------------
   const applyTemplate = (fav: FavoriteTemplate) => {
-    const copy = fav.medicines.map((m) => ({ ...m }));
+    const copy = fav.medicines?.map((m) => ({ ...m }));
 
     setData((prev) => {
       if (appendMode) {
@@ -174,7 +174,7 @@ export default function PrescriptionCard({
   ) => {
     setData((prev) => ({
       ...prev,
-      medicines: prev.medicines.map((m, i) =>
+      medicines: prev.medicines?.map((m, i) =>
         i === idx ? { ...m, [key]: val } : m
       ),
     }));
@@ -192,7 +192,7 @@ export default function PrescriptionCard({
     );
     if (!cleaned.length) return;
     const nextId = favorites.length
-      ? Math.max(...favorites.map((f) => f.id)) + 1
+      ? Math.max(...favorites?.map((f) => f.id)) + 1
       : 1;
     setFavorites((prev) => [
       ...prev,
@@ -215,13 +215,13 @@ export default function PrescriptionCard({
     if (!t) return;
     setEditTemplateId(id);
     setEditName(t.name);
-    setEditMeds(t.medicines.map((m) => ({ ...m })));
+    setEditMeds(t.medicines?.map((m) => ({ ...m })));
     setEditModalOpen(true);
   };
 
   const updateEditField = (idx: number, key: keyof Medicine, val: string) =>
     setEditMeds((prev) =>
-      prev.map((m, i) => (i === idx ? { ...m, [key]: val } : m))
+      prev?.map((m, i) => (i === idx ? { ...m, [key]: val } : m))
     );
   const addEditRow = () => setEditMeds((prev) => [...prev]);
   const removeEditRow = (idx: number) =>
@@ -233,7 +233,7 @@ export default function PrescriptionCard({
       Object.values(m).some((v) => (v || "").trim() !== "")
     );
     setFavorites((prev) =>
-      prev.map((f) =>
+      prev?.map((f) =>
         f.id === editTemplateId
           ? { ...f, name: editName.trim() || f.name, medicines: cleaned }
           : f
@@ -260,7 +260,7 @@ export default function PrescriptionCard({
             </div>
             <div className="flex gap-2.5 mb-3">
 
-              {favoritesPills.map(f =>
+              {favoritesPills?.map(f =>
                 <div className="relative" key={f.referralName}>
                   {editFPill && <button
                     className={cn(
@@ -327,7 +327,7 @@ export default function PrescriptionCard({
                 </div>
 
                 {/* Rows */}
-                {data.medicines.map((m, i) => (
+                {data.medicines?.map((m, i) => (
                   <div
                     key={i}
                     className="grid grid-cols-12 gap-2 mt-2 items-start"
@@ -455,7 +455,7 @@ export default function PrescriptionCard({
               className="border rounded-md p-2 text-sm w-full my-3"
             />
             <div className="flex gap-3 overflow-x-auto pb-2">
-              {filteredFavorites.map((fav) => (
+              {filteredFavorites?.map((fav) => (
                 <Card
                   key={fav.id}
                   className="min-w-[280px] rounded-xl shadow-sm border"
@@ -468,7 +468,7 @@ export default function PrescriptionCard({
                       {fav.name}
                     </div>
                     <div className="flex flex-col gap-1 text-xs mb-3 max-h-24 overflow-y-auto pr-1">
-                      {fav.medicines.map((med, idx) => (
+                      {fav.medicines?.map((med, idx) => (
                         <div key={idx} className="flex flex-wrap gap-1">
                           <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
                             {med.referralName}
@@ -537,7 +537,7 @@ export default function PrescriptionCard({
                   className="border rounded-md p-2 text-sm w-full mb-3"
                 />
                 <div className="flex flex-col gap-3">
-                  {filteredFavorites.map((fav) => (
+                  {filteredFavorites?.map((fav) => (
                     <Card key={fav.id} className="rounded-lg border shadow-sm">
                       <CardContent className="p-3">
                         <div className="flex items-center justify-between mb-2">
@@ -565,7 +565,7 @@ export default function PrescriptionCard({
                           </div>
                         </div>
                         <div className="flex flex-col gap-1 text-xs mb-3 max-h-24 overflow-y-auto pr-1">
-                          {fav.medicines.map((med, idx) => (
+                          {fav.medicines?.map((med, idx) => (
                             <div key={idx} className="flex flex-wrap gap-1">
                               <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
                                 {med.name}
@@ -674,7 +674,7 @@ export default function PrescriptionCard({
                   className="border rounded-md p-2 text-sm w-full mt-1 mb-4"
                 />
                 <div className="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
-                  {editMeds.map((m, idx) => (
+                  {editMeds?.map((m, idx) => (
                     <div
                       key={idx}
                       className="grid grid-cols-12 gap-2 items-center"

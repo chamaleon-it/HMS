@@ -89,7 +89,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
 
                     <div className="col-span-6 flex items-baseline gap-2">
                         <span className="text-[11px] font-bold uppercase w-24">Age/Gender</span>
-                        <span className="font-medium">: {patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / {patient?.gender || "—"}</span>
+                        <span className="font-medium">: {patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient?.dateOfBirth).getFullYear()}Y` : "—"} / {patient?.gender || "—"}</span>
                     </div>
                     <div className="col-span-6 flex items-baseline gap-2">
                         <span className="text-[11px] font-bold uppercase w-40">Department</span>
@@ -123,7 +123,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                             </tr>
                         </thead>
                         <tbody>
-                            {order.items.map((item, index) => (
+                            {order.items?.map((item, index) => (
                                 <tr key={index} className="border-b border-slate-200 align-top">
                                     <td className="py-3 text-[11px]">{index + 1}.</td>
                                     <td className="py-3 pr-2">

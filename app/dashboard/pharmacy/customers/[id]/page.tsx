@@ -125,7 +125,7 @@ const Customer: React.FC = () => {
       setPrintBill({
         patient: data.data.patient,
         payload: {
-          items: data.data.items.map(e => ({
+          items: data.data.items?.map(e => ({
             gst: 0,
             name: e.name.name,
             quantity: e.quantity,
@@ -136,7 +136,7 @@ const Customer: React.FC = () => {
           discount: data.data.discount,
           insurance: 0,
           online: 0,
-          patient: data.data.patient._id,
+          patient: data.data?.patient?._id,
           department: data.data.doctor.specialization,
           doctor: data.data.doctor.name,
           note: "",
@@ -319,7 +319,7 @@ const Customer: React.FC = () => {
                     </div>
 
                     <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-                      {tabs.map(({ key, label }: { key: string; label: string }) => {
+                      {tabs?.map(({ key, label }: { key: string; label: string }) => {
                         const active = type === key;
                         return (
                           <button
@@ -357,12 +357,12 @@ const Customer: React.FC = () => {
                       let combined = [];
                       if (returnData?.data) {
                         combined.push(
-                          ...returnData.data.map((r) => ({ ...r, type: "return" }))
+                          ...returnData.data?.map((r) => ({ ...r, type: "return" }))
                         );
                       }
                       if (customer?.orders) {
                         combined.push(
-                          ...customer.orders.map((o) => ({ ...o, type: "sale" }))
+                          ...customer.orders?.map((o) => ({ ...o, type: "sale" }))
                         );
                       }
 
@@ -393,7 +393,7 @@ const Customer: React.FC = () => {
                       );
 
                       // 5. Render
-                      return combined.map((item: any) => {
+                      return combined?.map((item: any) => {
                         const active = selectedVisit && selectedVisit._id === item._id;
                         const isReturn = item.type === "return";
 
@@ -531,7 +531,7 @@ const Customer: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {selectedVisit.items.map((it, i) => {
+                            {selectedVisit.items?.map((it, i) => {
                               const amount = it.quantity * (it?.unitPrice ?? it.name?.unitPrice);
                               return (
                                 <tr

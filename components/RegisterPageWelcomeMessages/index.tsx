@@ -2,47 +2,47 @@ import { Lock, Shield } from 'lucide-react';
 import React, { useMemo } from 'react'
 
 export default function RegisterPageWelcomeMessages() {
-    const selectedQuote = useMemo(
-        () => quotes[Math.floor(Math.random() * quotes.length)],
-        []
-      );
+  const selectedQuote = useMemo(
+    () => quotes[Math.floor(Math.random() * quotes.length)],
+    []
+  );
 
   return (
     <section className="block animate-fade-up-delay-1 text-white">
-            <h1 className="text-5xl font-semibold leading-tight">
-              Welcome to HMS
-            </h1>
-            <p className="mt-4 text-slate-200/90 max-w-xl text-lg">
-              Sign up to manage appointments, billing, labs and reports from one
-              clean dashboard.
-            </p>
+      <h1 className="text-5xl font-semibold leading-tight">
+        Welcome to HMS
+      </h1>
+      <p className="mt-4 text-slate-200/90 max-w-xl text-lg">
+        Sign up to manage appointments, billing, labs and reports from one
+        clean dashboard.
+      </p>
 
-            {/* Trust chips */}
-            <div className="mt-6 grid grid-cols-3 gap-5">
-              {USPs.map(({ label, icon: Icon }, idx) => (
-                <div
-                  key={label}
-                  style={{ animationDelay: `${0.05 * (idx + 1)}s` }}
-                  className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-slate-100 text-sm"
-                >
-                  <Icon className="h-5 w-5 text-white" />
-                  <span dangerouslySetInnerHTML={{ __html: label }} />
-                </div>
-              ))}
-            </div>
+      {/* Trust chips */}
+      <div className="mt-6 grid grid-cols-3 gap-5">
+        {USPs?.map(({ label, icon: Icon }, idx) => (
+          <div
+            key={label}
+            style={{ animationDelay: `${0.05 * (idx + 1)}s` }}
+            className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-slate-100 text-sm"
+          >
+            <Icon className="h-5 w-5 text-white" />
+            <span dangerouslySetInnerHTML={{ __html: label }} />
+          </div>
+        ))}
+      </div>
 
-            {/* Medical quote (rotates per refresh) */}
-            <div className="mt-6 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm animate-fade-up">
-              <blockquote className="rounded-[12px] bg-white/10 p-5 text-slate-100 shadow-sm">
-                <p className="italic text-sm">
-                  &ldquo;{selectedQuote.text}&rdquo;
-                </p>
-                <footer className="mt-2 text-xs text-slate-300">
-                  &mdash; {selectedQuote.author}
-                </footer>
-              </blockquote>
-            </div>
-          </section>
+      {/* Medical quote (rotates per refresh) */}
+      <div className="mt-6 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm animate-fade-up">
+        <blockquote className="rounded-[12px] bg-white/10 p-5 text-slate-100 shadow-sm">
+          <p className="italic text-sm">
+            &ldquo;{selectedQuote.text}&rdquo;
+          </p>
+          <footer className="mt-2 text-xs text-slate-300">
+            &mdash; {selectedQuote.author}
+          </footer>
+        </blockquote>
+      </div>
+    </section>
   )
 }
 
@@ -111,7 +111,7 @@ function IndiaFlagIcon({ className = "h-5 w-5" }) {
         >
           <circle r="2.6" />
           {/* 24 spokes */}
-          {Array.from({ length: 24 }).map((_, i) => (
+          {Array.from({ length: 24 })?.map((_, i) => (
             <line
               key={i}
               x1="0"

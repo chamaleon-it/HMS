@@ -168,7 +168,7 @@ export default function Lab() {
                   "Completed",
                   "Flagged",
                 ] as const
-              ).map((s) => ({
+              )?.map((s) => ({
                 label:
                   s === "Pending"
                     ? "⏳ Pending"
@@ -225,7 +225,7 @@ export default function Lab() {
       {/* Table */}
       <LabTable
         REPORT={REPORT.filter((r) => {
-          const patientMatch = r.patient.name.toLowerCase().includes(filter.patient.toLowerCase())
+          const patientMatch = r.patient?.name.toLowerCase().includes(filter.patient.toLowerCase())
           const statusMatch = filter.status === "All" || r.status === filter.status
           const dateMatch = filter.date === "All time" || r.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
           return patientMatch && statusMatch && dateMatch
@@ -269,7 +269,7 @@ function Segmented<T extends string>({
 }) {
   return (
     <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
-      {options.map((o) => {
+      {options?.map((o) => {
         const active = value === o.value;
         return (
           <button
@@ -374,7 +374,7 @@ function FilterSelect<T extends string>({
             />
           )}
           <ul role="listbox" className="grid gap-1">
-            {visible.map((o) => {
+            {visible?.map((o) => {
               const active = o.value === value;
               return (
                 <li key={String(o.value)}>

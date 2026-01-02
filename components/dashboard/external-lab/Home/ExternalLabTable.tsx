@@ -50,7 +50,7 @@ export default function ExternalLabTable({ data, mode }: Props) {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {data.map((row, idx) => (
+                    {data?.map((row, idx) => (
                         <TableRow key={row.id} className="group border-b border-gray-100 transition-colors duration-200 last:border-0 hover:bg-slate-50/50">
                             <TableCell className="px-3 py-2 text-sm text-gray-500">
                                 {String(idx + 1).padStart(2, "0")}

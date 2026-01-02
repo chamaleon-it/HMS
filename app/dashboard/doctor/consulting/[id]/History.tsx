@@ -53,7 +53,7 @@ export default function History({ patientId }: { patientId: string }) {
 
                 <TableCell className="max-w-[300px]">
                   <div className="flex flex-wrap gap-1">
-                    {consulting.medicines.map((m, i) => (
+                    {consulting.medicines?.map((m, i) => (
                       <Badge
                         key={m._id ?? i}
                         variant="secondary"

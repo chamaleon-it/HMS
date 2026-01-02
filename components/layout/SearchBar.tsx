@@ -61,7 +61,7 @@ export default function SearchBar() {
         </kbd>
         {Boolean(data?.data.length) && (
           <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5">
-            {data?.data.map((p) => (
+            {data?.data?.map((p) => (
               <Link href={generateLink(p._id)} className="block" key={p._id}>
                 <PatientCard p={p} searchQuery={q ?? ""} />
               </Link>
@@ -237,7 +237,7 @@ const HighlightText = ({ text, highlight }: { text: string; highlight: string })
   const parts = (text && regex) ? text?.split(regex) : [];
   return (
     <span>
-      {parts.map((part, i) =>
+      {parts?.map((part, i) =>
         regex.test(part) ? (
           <span key={i} className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5">
             {part}
