@@ -68,6 +68,11 @@ class SyncService {
     }
 
     async queueAction(action: Omit<PendingAction, '_id' | 'timestamp'>): Promise<void> {
+        // Exclude login requests from being queued
+        if (action.url.includes('/auth/login') && action.method === 'POST') {
+            return;
+        }
+
         const db = await this.getPendingDb();
         if (!db) return;
         const id = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;

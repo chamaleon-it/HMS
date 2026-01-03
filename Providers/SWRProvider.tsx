@@ -8,12 +8,6 @@ import { SWRConfig } from "swr";
 const CACHE_VERSION = "v1";
 const DB_NAME = "swr-cache";
 
-// Type definitions for PouchDB documents
-interface VersionDocument {
-  _id: string;
-  _rev?: string;
-  version: string;
-}
 
 interface CacheDocument {
   _id: string;
@@ -21,16 +15,14 @@ interface CacheDocument {
   data: any;
 }
 
-// Create PouchDB-based cache provider for offline support
 function pouchDBProvider() {
-  // Initialize cache Map
+
   const map = new Map();
 
   if (typeof window === "undefined") {
     return map;
   }
 
-  // Initialize PouchDB with find plugin dynamically on client side
   const PouchDB = require("pouchdb-browser").default || require("pouchdb-browser");
   const PouchDBFind = require("pouchdb-find").default || require("pouchdb-find");
   PouchDB.plugin(PouchDBFind);
@@ -38,26 +30,20 @@ function pouchDBProvider() {
   let db: any = null;
   let isInitialized = false;
 
-  // Initialize PouchDB
   const initDB = async () => {
     try {
       db = new PouchDB(DB_NAME);
-
-      // Check version
       try {
         const versionDoc = await db.get("__version__");
         if (versionDoc.version !== CACHE_VERSION) {
-          // Version mismatch - destroy and recreate
           await db.destroy();
           db = new PouchDB(DB_NAME);
           await db.put({ _id: "__version__", version: CACHE_VERSION });
         }
       } catch (err) {
-        // Version doc doesn't exist - create it
         await db.put({ _id: "__version__", version: CACHE_VERSION });
       }
 
-      // Load all cache entries into Map
       const result = await db.allDocs({ include_docs: true });
       result.rows.forEach((row: any) => {
         if (row.id !== "__version__" && row.doc) {
@@ -76,10 +62,7 @@ function pouchDBProvider() {
     }
   };
 
-  // Initialize DB immediately
   initDB();
-
-  // Save cache to PouchDB periodically and on unload
   const saveCache = async () => {
     if (!db || !isInitialized) return;
 
@@ -89,7 +72,6 @@ function pouchDBProvider() {
 
       for (const [key, value] of entries) {
         try {
-          // Try to get existing doc to preserve _rev
           const existingDoc = await db.get(key).catch(() => null);
 
           bulkDocs.push({
@@ -110,17 +92,13 @@ function pouchDBProvider() {
     }
   };
 
-  // Save on page unload
   window.addEventListener("beforeunload", () => {
     saveCache();
   });
 
-  // Periodic save every 30 seconds
   const saveInterval = setInterval(() => {
     saveCache();
   }, 30000);
-
-  // Cleanup on unmount
   window.addEventListener("unload", () => {
     clearInterval(saveInterval);
   });
@@ -147,7 +125,7 @@ export default function SWRProvider({
         revalidateOnFocus: true,
         revalidateOnReconnect: true,
         revalidateIfStale: true,
-        refreshInterval: 0, // set >0 if you need periodic refresh
+        refreshInterval: 0,
         suspense: false,
         onError: (err) => {
           console.error("SWR error:", err.message);
