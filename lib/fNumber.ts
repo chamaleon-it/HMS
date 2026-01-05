@@ -5,7 +5,7 @@ export const formatINR = (n: number) =>
     minimumFractionDigits: 2,
   }).format(n || 0);
 
-  export function getDecimal(num:number) {
+export function getDecimal(num: number) {
   const parts = num.toString().split(".");
   return parts[1] ? Number("0." + parts[1]) : 0;
 }
