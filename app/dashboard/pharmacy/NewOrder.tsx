@@ -76,7 +76,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       setOpen(false);
       OrderMutate();
     } catch (error) {
-      console.log(error);
+      // Handle error
     }
   };
 

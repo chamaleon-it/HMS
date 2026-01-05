@@ -45,17 +45,10 @@ export default function DoctorProfile() {
             className="h-12 rounded-xl gap-3 pl-2 pr-3 border border-slate-200 hover:border-slate-300"
           >
             <span className="relative inline-flex">
-              <Avatar className="h-9 w-9 ring-1 ring-slate-100">
-                {user?.profilePic && (
-                  <AvatarImage
-                    src={configuration().backendUrl + user?.profilePic}
-                    alt={user?.name}
-                  />
-                )}
-                <AvatarFallback>
-                  {user?.name.slice(0, 2).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
+              <div className="h-10 w-10 rounded-xl grid place-items-center">
+                {/* {user?.name.slice(0, 1).toUpperCase()} */}
+                <img src="/logo.png" alt="" className="h-10 w-10" />
+              </div>
               <span
                 className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full ring-2 ring-white 
     ${isNetworkLost ? 'bg-orange-500' : 'bg-emerald-500'}
@@ -67,7 +60,7 @@ export default function DoctorProfile() {
                 {user?.role === "Doctor" && "Dr."} {user?.name}
               </span>
               <span className="block text-xs text-slate-500 -mt-0.5">
-                {user?.specialization}
+                {user?.specialization ?? user?.role}
               </span>
             </span>
           </Button>

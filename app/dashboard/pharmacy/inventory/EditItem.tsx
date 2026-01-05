@@ -82,7 +82,7 @@ export function EditItem({
 
   const { user } = useAuth()
 
-  const [openCalander, setOpenCalander] = useState(false)
+  const [openCalendar, setOpenCalendar] = useState(false)
 
   return (
     <form
@@ -277,7 +277,7 @@ export function EditItem({
             Expiry Date
           </label>
 
-          <Popover open={openCalander} onOpenChange={setOpenCalander}>
+          <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -300,7 +300,7 @@ export function EditItem({
                   if (date) {
                     setValue("expiryDate", date.toISOString())
                   }
-                  setOpenCalander(false)
+                  setOpenCalendar(false)
                 }}
               />
             </PopoverContent>
@@ -337,16 +337,10 @@ export function EditItem({
         </div>
       </div>
 
-      <div className="rounded-lg border bg-gray-50 p-3 text-[12px] leading-relaxed text-gray-600">
-        <div className="font-medium text-gray-800 text-[12px] mb-1">
-          Stock Note
-        </div>
-        Batch #A551 • Received 28 Oct 2025 • +40 units from {item.supplier} at ₹
-        2.30 each
-      </div>
+
 
       <div className="flex gap-2">
-        <Button className="bg-purple-600 text-white flex-1" type="submit">
+        <Button className="bg-indigo-600 text-white flex-1" type="submit">
           Save Changes
         </Button>
         <Button

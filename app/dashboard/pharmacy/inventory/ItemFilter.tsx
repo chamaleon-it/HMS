@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import React, { Dispatch, SetStateAction } from "react";
+import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { FilterType } from "./interface";
 
 interface Props {
@@ -16,20 +16,28 @@ interface Props {
 }
 
 export default function ItemFilter({ filter, setFilter }: Props) {
+  const [search, setSearch] = useState(filter.q || "");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setFilter((prev) => ({ ...prev, q: search, page: 1 }));
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [search, setFilter]);
+
   return (
     <Card>
       <CardContent className="p-4 grid grid-cols-1 md:grid-cols-4 gap-4">
         <Input
           placeholder="Search by Item Name, SKU, or Barcode"
-          onChange={(e) =>
-            setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
-          }
-          value={filter.q}
+          onChange={(e) => setSearch(e.target.value)}
+          value={search}
         />
 
         <Select
           onValueChange={(v) =>
-            setFilter((prev) => ({ ...prev, category: v==="all"? undefined : v, page: 1 }))
+            setFilter((prev) => ({ ...prev, category: v === "all" ? undefined : v, page: 1 }))
           }
         >
           <SelectTrigger>
@@ -45,7 +53,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
 
         <Select
           onValueChange={(v) =>
-            setFilter((prev) => ({ ...prev, stock: v==="all"? undefined : v, page: 1 }))
+            setFilter((prev) => ({ ...prev, stock: v === "all" ? undefined : v, page: 1 }))
           }
         >
           <SelectTrigger>

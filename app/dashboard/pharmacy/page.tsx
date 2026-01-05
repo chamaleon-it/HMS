@@ -9,6 +9,7 @@ import useSWR from "swr";
 import DeleteOrder from "./DeleteOrder";
 import NewOrder from "./NewOrder";
 import PharmacyStatus from "./PharmacyStatus";
+import { TableSkeleton } from "./components/PharmacySkeleton";
 
 function RxQueue() {
 
@@ -31,7 +32,7 @@ function RxQueue() {
   params.set("q", filter.q);
 
 
-  const { data: ordersData, mutate: OrderMutate } = useSWR<{
+  const { data: ordersData, mutate: OrderMutate, isLoading } = useSWR<{
     message: string;
     data: OrderType[];
   }>(`/pharmacy/orders?${params.toString()}`);
@@ -56,11 +57,15 @@ function RxQueue() {
         </div>
       </div>
 
-      <OrderTable
-        orders={orders}
-        handleDelete={handleDelete}
-        OrderMutate={OrderMutate}
-      />
+      {isLoading ? (
+        <TableSkeleton rows={8} columns={10} />
+      ) : (
+        <OrderTable
+          orders={orders}
+          handleDelete={handleDelete}
+          OrderMutate={OrderMutate}
+        />
+      )}
 
 
       <DeleteOrder
