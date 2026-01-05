@@ -9,6 +9,10 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 
 export default function InvoiceView() {
   const { id } = useParams();
@@ -92,8 +96,8 @@ export default function InvoiceView() {
 
   return (
     <AppShell>
-      <div className="flex flex-col items-center p-8 bg-gray-100 min-h-screen overflow-auto gap-4">
-        <div className="w-full flex justify-start">
+      <div className="flex flex-col items-center p-8 bg-slate-100 min-h-screen overflow-auto gap-6 print:p-0 print:bg-white">
+        <div className="w-full  flex justify-between items-center print:hidden">
           <Link
             href="/dashboard/pharmacy/billing"
             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-colors shadow-sm text-xs font-bold"
@@ -102,327 +106,146 @@ export default function InvoiceView() {
             Back to bills
           </Link>
         </div>
-        {/* Receipt Container - Adapted from PrintReceipt.tsx */}
-        <div className="bg-white text-black font-sans leading-relaxed shadow-lg w-full p-[1.5cm] flex flex-col text-[10.5px]">
-          {/* Formal Header */}
-          <div className="flex justify-between items-start mb-6 border-b-2 border-slate-900 pb-4">
-            <HospitalName />
-            <div className="text-right border-l-2 pl-6 border-slate-200">
-              <h2 className="text-lg font-black text-slate-900 uppercase mb-1 tracking-tighter">
-                CASH RECEIPT
-              </h2>
-              <div className="text-[10px] font-bold text-slate-700 space-y-0.5">
-                <p>
-                  Invoice No:{" "}
-                  <span className="text-black font-black">
-                    {billing.mrn}
-                  </span>
-                </p>
-                <p>
-                  Date:{" "}
-                  {billing.createdAt
-                    ? fDateandTime(billing.createdAt).split(",")[0]
-                    : "—"}
-                </p>
-                <p>
-                  Time:{" "}
-                  {billing.createdAt
-                    ? fDateandTime(billing.createdAt).split(",")[1]
-                    : "—"}
-                </p>
-              </div>
-            </div>
-          </div>
 
-          {/* Patient Information Section */}
-          <div className="mb-6 bg-slate-50 p-4 border border-slate-200">
-            <h3 className="text-[9.5px] font-black uppercase text-slate-500 mb-3 border-b border-slate-200 pb-1 flex justify-between">
-              <span>Patient & Billing Information</span>
-              <span className="text-slate-900">
-                Bill Type: {paymentMethod} / OP Pharmacy
-              </span>
-            </h3>
-            <div className="grid grid-cols-4 gap-y-3 gap-x-8">
-              <div className="col-span-2">
-                <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">
-                  Patient Name
-                </p>
-                <p className="text-[13px] font-black text-slate-900 uppercase leading-none tracking-tight">
-                  {billing.patient.name}
-                </p>
-              </div>
-              <div>
-                <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">
-                  MRN Number
-                </p>
-                <p className="text-[11px] font-black text-slate-900">
-                  {billing.patient.mrn || "—"}
-                </p>
-              </div>
-              <div>
-                <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">
-                  Patient ID
-                </p>
-                <p className="text-[11px] font-black text-slate-900">
-                  {billing.patient.mrn?.replace("MRN", "PID") || "—"}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">
-                  Age / Gender
-                </p>
-                <p className="text-[11px] font-bold text-slate-800">
-                  {billing.patient.dateOfBirth
-                    ? `${new Date().getFullYear() -
-                    new Date(billing.patient.dateOfBirth).getFullYear()
-                    }Y`
-                    : "—"}{" "}
-                  / {billing.patient.gender || "—"}
-                </p>
-              </div>
-              <div>
-                <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">
-                  Phone
-                </p>
-                <p className="text-[11px] font-bold text-slate-800">
-                  {billing.patient.phoneNumber || "—"}
-                </p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">
-                  Payment Mode
-                </p>
-                <p className="text-[11px] font-black text-emerald-700 uppercase tracking-widest">
-                  {paymentMethod}
-                </p>
-              </div>
-
-              {billing.patient.address && (
-                <div className="col-span-4 mt-0.5">
-                  <p className="text-[8.5px] text-slate-500 font-bold uppercase mb-0.5">
-                    Address
-                  </p>
-                  <p className="text-[10px] font-medium text-slate-600 italic leading-tight">
-                    {billing.patient.address}
+        {/* Receipt Container */}
+        <div className="bg-white text-slate-900 font-sans leading-relaxed shadow-xl w-full flex flex-col overflow-hidden rounded-xl print:shadow-none print:rounded-none">
+          {/* HEADER */}
+          <div className="bg-linear-to-r from-indigo-700 to-cyan-600 text-white px-10 py-8">
+            <div className="flex justify-between items-start">
+              <HospitalName />
+              <div className="text-right space-y-2">
+                <Badge className="bg-white text-slate-900 border-none px-3 py-1 font-bold text-xs">CASH RECEIPT</Badge>
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium">Invoice No: <span className="font-bold">{billing.mrn}</span></p>
+                  <p className="text-[11px] opacity-80">
+                    {billing.createdAt ? fDateandTime(billing.createdAt) : "—"}
                   </p>
                 </div>
-              )}
-
-              <div className="col-span-4 mt-2 pt-2 border-t border-slate-200 flex items-center gap-2">
-                <span className="text-[9px] font-black uppercase text-slate-400">
-                  Prescribed By:
-                </span>
-                <span className="text-[11px] font-black text-slate-800 uppercase">
-                  Dr. {billing.doctor || "—"}
-                </span>
-                <span className="text-slate-300 mx-1">|</span>
-                <span className="text-[9px] font-black uppercase text-slate-400">
-                  Dept:
-                </span>
-                <span className="text-[11px] font-black text-slate-800 uppercase">
-                  {billing.department || "—"}
-                </span>
               </div>
             </div>
           </div>
 
-          {/* Items Table */}
-          <div className="flex-1 overflow-visible">
-            <table className="w-full border-collapse border border-slate-900 overflow-visible">
-              <thead className="bg-slate-900 text-white">
-                <tr>
-                  <th className="border border-slate-900 py-2 px-2 text-left text-[9.5px] uppercase font-black">
-                    Sl
-                  </th>
-                  <th className="border border-slate-900 py-2 px-3 text-left text-[9.5px] uppercase font-black w-1/3">
-                    Description
-                  </th>
-                  <th className="border border-slate-900 py-2 px-2 text-center text-[9.5px] uppercase font-black">
-                    Batch
-                  </th>
-                  <th className="border border-slate-900 py-2 px-2 text-center text-[9.5px] uppercase font-black">
-                    Exp
-                  </th>
-                  <th className="border border-slate-900 py-2 px-2 text-center text-[9.5px] uppercase font-black">
-                    HSN
-                  </th>
-                  <th className="border border-slate-900 py-2 px-2 text-right text-[9.5px] uppercase font-black">
-                    Qty
-                  </th>
-                  <th className="border border-slate-900 py-2 px-3 text-right text-[9.5px] uppercase font-black">
-                    Rate
-                  </th>
-                  <th className="border border-slate-900 py-2 px-2 text-right text-[9.5px] uppercase font-black">
-                    GST
-                  </th>
-                  <th className="border border-slate-900 py-2 px-3 text-right text-[9.5px] uppercase font-black">
-                    Amount
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {billing.items.map((item, index) => (
-                  <tr key={index} className="h-8">
-                    <td className="border border-slate-300 py-1 px-2 text-[10px] text-center font-bold text-slate-400">
-                      {index + 1}
-                    </td>
-                    <td className="border border-slate-300 py-1 px-3 text-[11px] font-black uppercase text-slate-900 leading-tight">
-                      {item.name}
-                    </td>
-                    <td className="border border-slate-300 py-1 px-2 text-[10px] text-center font-bold text-slate-600">
-                      B-7721
-                    </td>
-                    <td className="border border-slate-300 py-1 px-2 text-[10px] text-center font-bold text-slate-600">
-                      12/26
-                    </td>
-                    <td className="border border-slate-300 py-1 px-2 text-[9px] text-slate-500 text-center uppercase">
-                      3004
-                    </td>
-                    <td className="border border-slate-300 py-1 px-2 text-[11px] text-right font-black tabular-nums">
-                      {item.quantity}
-                    </td>
-                    <td className="border border-slate-300 py-1 px-3 text-[11px] text-right tabular-nums font-bold italic">
-                      {formatINR(item.unitPrice)}
-                    </td>
-                    <td className="border border-slate-300 py-1 px-2 text-[10px] text-slate-600 text-right tabular-nums font-bold">
-                      {item.gst}%
-                    </td>
-                    <td className="border border-slate-300 py-1 px-3 text-[11px] font-black text-right tabular-nums text-slate-900">
-                      {formatINR(item.total)}
-                    </td>
+          {/* BODY */}
+          <div className="p-10 flex-1 flex flex-col gap-6 text-[13px]">
+            {/* PATIENT STRIP - 4 COL COMPACT */}
+            <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
+              <Compact label="Patient" value={billing.patient.name} />
+              <Compact label="PID" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
+              <Compact label="Age/G" value={`${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient.gender || "—"}`} />
+              <Compact label="Phone" value={billing.patient.phoneNumber || "—"} />
+              <Compact label="Doctor" value={billing.doctor || "—"} />
+              <Compact label="Dept" value={billing.department || "—"} />
+              <Compact label="Pay" value={paymentMethod} />
+              <Compact label="Bill" value="OP Pharmacy" />
+            </div>
+
+            {/* MEDICINES TABLE */}
+            <div className="border border-slate-200 rounded-lg overflow-hidden flex-1 box-border">
+              <table className="w-full border-collapse">
+                <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 border-b border-slate-200">
+                  <tr>
+                    <th className="px-3 py-3 text-center w-10">SL</th>
+                    <th className="px-3 py-3 text-left">Medicine Description</th>
+                    <th className="px-3 py-3 text-center w-20">Qty</th>
+                    <th className="px-3 py-3 text-right w-24">Unit Price</th>
+                    <th className="px-3 py-3 text-right w-20">GST</th>
+                    <th className="px-3 py-3 text-right w-28">Amount</th>
                   </tr>
-                ))}
-                {/* Empty rows to push totals down */}
-                {Array.from({
-                  length: Math.max(0, 5 - billing.items.length),
-                }).map((_, i) => (
-                  <tr key={`empty-${i}`} className="h-8">
-                    <td className="border border-slate-200"></td>
-                    <td className="border border-slate-200"></td>
-                    <td className="border border-slate-200"></td>
-                    <td className="border border-slate-200"></td>
-                    <td className="border border-slate-200"></td>
-                    <td className="border border-slate-200"></td>
-                    <td className="border border-slate-200"></td>
-                    <td className="border border-slate-200"></td>
-                    <td className="border border-slate-200"></td>
-                  </tr>
-                ))}
-              </tbody>
-              <tfoot>
-                <tr className="bg-slate-50 font-black">
-                  <td
-                    colSpan={8}
-                    className="border border-slate-900 py-2.5 px-4 text-right text-[11px] uppercase tracking-widest text-slate-600"
-                  >
-                    Invoice Total (Inclusive of all taxes)
-                  </td>
-                  <td className="border border-slate-900 py-2.5 px-4 text-right text-[13px] tabular-nums font-black underline decoration-2 underline-offset-2">
-                    {formatINR(grandTotal)}
-                  </td>
-                </tr>
-              </tfoot>
-            </table>
-          </div>
-
-          {/* Calculation & Terms */}
-          <div className="mt-6 flex justify-between items-start gap-12 border-t border-slate-100 pt-6">
-            <div className="flex-1">
-              <div className="text-[10px] uppercase font-black text-slate-900 mb-2 border-b-2 border-slate-900 inline-block">
-                Terms & Conditions
-              </div>
-              <ul className="text-[9.5px] text-slate-700 space-y-1 font-medium list-disc ml-4">
-                <li>
-                  Invoice once generated cannot be cancelled or modified.
-                </li>
-                <li className="font-bold text-slate-900">
-                  Please check the medicines before leaving the pharmacy
-                  (Return within 24H with original invoice & intact strip).
-                </li>
-                <li>Refrigerated items will not be accepted for return.</li>
-              </ul>
-              {billing.note && (
-                <div className="mt-4 p-3 border border-slate-200 bg-slate-50 text-left">
-                  <p className="text-[8.5px] font-black text-slate-400 uppercase leading-none mb-1">
-                    Pharmacist Note
-                  </p>
-                  <p className="text-xs text-slate-800 italic font-bold">
-                    "{billing.note}"
-                  </p>
-                </div>
-              )}
+                </thead>
+                <tbody>
+                  {billing.items.map((item, index) => (
+                    <tr key={index} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                      <td className="px-3 py-2.5 text-center font-medium text-slate-400 text-xs">{index + 1}</td>
+                      <td className="px-3 py-2.5">
+                        <p className="font-bold text-slate-900 uppercase text-[12px]">{item.name}</p>
+                        <p className="text-[10px] text-slate-500 font-medium tracking-tight">B‑7721 · 12/26 · HSN 3004</p>
+                      </td>
+                      <td className="px-3 py-2.5 text-center font-bold text-slate-700">{item.quantity}</td>
+                      <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(item.unitPrice)}</td>
+                      <td className="px-3 py-2.5 text-right font-medium text-slate-500">{item.gst}%</td>
+                      <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            <div className="w-72 border-2 border-slate-900 p-4 bg-slate-50">
-              <div className="space-y-2 border-b border-slate-200 pb-3 mb-3">
-                <div className="flex justify-between text-[11px] font-bold text-slate-600 uppercase">
-                  <span>Gross Amount</span>
-                  <span className="text-slate-900 tabular-nums">
-                    {formatINR(subtotal)}
-                  </span>
-                </div>
-                <div className="flex justify-between text-[11px] font-bold text-slate-600 uppercase">
-                  <span>CGST/SGST Total</span>
-                  <span className="text-slate-900 tabular-nums">
-                    {formatINR(totalGst)}
-                  </span>
-                </div>
-                {billing.discount > 0 && (
-                  <div className="flex justify-between text-[11px] font-black text-rose-600 uppercase">
-                    <span>Discount (Billing level)</span>
-                    <span className="tabular-nums">
-                      - {formatINR(billing.discount)}
-                    </span>
+            {/* TOTALS AND T&C */}
+            <div className="flex justify-end gap-10 items-start">
+              {/* T&C - Right side next to totals */}
+              <div className="flex-1 max-w-[400px] text-left">
+                <h4 className="text-[11px] font-bold uppercase text-slate-900 mb-2">Terms & Conditions</h4>
+                <ul className="text-[10px] text-slate-600 space-y-1 font-medium italic">
+                  <li>Invoice once generated cannot be cancelled.</li>
+                  <li className="text-slate-900 font-bold not-italic">Check medicines before leaving (Returns within 24H with original invoice).</li>
+                  <li>Refrigerated items will not be accepted for return.</li>
+                </ul>
+                {billing.note && (
+                  <div className="mt-4 text-xs text-slate-500">
+                    <span className="font-bold uppercase text-[9px]">Note:</span> {billing.note}
                   </div>
                 )}
               </div>
-              <div className="flex justify-between items-center text-black font-black">
-                <span className="text-[13px] font-black uppercase">
-                  Net Payable
-                </span>
-                <span className="text-[16px] font-black tabular-nums border-b-4 border-double border-slate-900 leading-none">
-                  {formatINR(grandTotal - (billing.discount || 0))}
-                </span>
+
+              <div className="w-[320px] border border-slate-200 rounded-lg p-5 space-y-2 bg-slate-50">
+                <Line label="Gross Amount" value={formatINR(subtotal)} />
+                <Line label="CGST/SGST Total" value={formatINR(totalGst)} />
+                {billing.discount > 0 && (
+                  <Line label="Discount (Billing level)" value={`-${formatINR(billing.discount)}`} />
+                )}
+                <Separator className="bg-slate-200" />
+                <Line label="NET PAYABLE" value={formatINR(grandTotal - (billing.discount || 0))} bold large />
+              </div>
+            </div>
+
+            {/* SIGNATURES */}
+            <div className="mt-10 grid grid-cols-3 gap-12 text-xs h-32">
+              <div className="border-t border-slate-300 pt-4 text-center">
+                <p className="font-bold text-slate-900 uppercase tracking-wider">Receiver’s Signature</p>
+              </div>
+              <div className="border-t border-slate-300 pt-4 text-center">
+                <p className="font-bold text-slate-900 uppercase tracking-wider">Authorised Pharmacist</p>
+                <p className="text-[9px] text-slate-400 mt-1">Reg No: PH/2045/BNG</p>
+              </div>
+              <div className="border-t border-slate-300 pt-4 text-center">
+                <p className="font-bold text-slate-900 uppercase tracking-wider">Hospital Seal</p>
               </div>
             </div>
           </div>
 
-          {/* Signatures */}
-          <div className="mt-6 flex justify-between items-end h-24">
-            <div className="text-left text-[10px] font-black uppercase border-b border-slate-200 pb-1">
-              Seal Area
-            </div>
-            <div className="text-center">
-              <div className="w-40 border-b border-slate-400 mb-2" />
-              <p className="text-[9.5px] font-bold text-slate-500 uppercase">
-                Receiver's Sign
+          {/* FOOTER */}
+          <div className="bg-[#0a0f1c] px-10 py-6 text-[10px] text-slate-400 flex justify-between items-center">
+            <div className="space-y-1 text-left">
+              <p className="text-slate-300 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
+              <p className="text-slate-500">
+                For Appointments / Booking: <span className="text-slate-400 font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
               </p>
             </div>
-            <div className="text-center">
-              <p className="text-[8px] font-bold text-slate-400 italic mb-4">
-                Digitally verified by pharmacist-on-duty
-              </p>
-              <div className="w-48 border-b-2 border-slate-900 mb-2" />
-              <p className="text-[10px] font-black uppercase text-slate-900 tracking-tight leading-none">
-                Authorized Pharmacist
-              </p>
-              <p className="text-[8px] font-bold text-slate-400 mt-1 uppercase">
-                (Reg No: PH/2045/BNG)
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-auto pt-6 text-center border-t border-slate-200 flex flex-col gap-1 items-center">
-            <p className="text-[10px] font-black text-slate-900 uppercase tracking-widest leading-none">
-              Computer Generated Invoice – No Signature Required
-            </p>
-            <p className="text-[9px] font-bold text-slate-400 tracking-[0.3em] uppercase underline decoration-slate-200 underline-offset-4 mt-1">
-              Valid legal document generated by Synapse HMS.
+            <p className="text-slate-500">
+              Powered by <span className="font-bold text-slate-300 tracking-tight uppercase">Synapse IT Services LLP</span>
             </p>
           </div>
         </div>
       </div>
+      <Watermark />
     </AppShell>
+  );
+}
+
+function Compact({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex gap-2 min-h-6 items-start">
+      <span className="text-slate-400 font-medium uppercase text-[10px] min-w-[50px] mt-0.5">{label}:</span>
+      <span className="font-bold text-slate-900 line-clamp-2 leading-tight">{value}</span>
+    </div>
+  );
+}
+
+function Line({ label, value, bold, large }: { label: string; value: string; bold?: boolean; large?: boolean }) {
+  return (
+    <div className={`flex justify-between items-center ${large ? "text-base mt-2" : "text-[12px]"}`}>
+      <span className={bold ? "font-bold text-slate-900" : "text-slate-500 font-medium"}>{label}</span>
+      <span className={bold ? "font-black text-slate-900 text-lg" : "font-bold text-slate-800"}>{value}</span>
+    </div>
   );
 }
