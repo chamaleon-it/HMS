@@ -171,7 +171,7 @@ export default function Billing({
                   Auto generate Bill
                 </p>
                 <p className="text-xs text-slate-500">
-                  Opens print dialog when bill is saved.
+                  Automatically generates invoice IDs and sequences.
                 </p>
               </div>
               <Switch

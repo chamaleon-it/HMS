@@ -91,7 +91,6 @@ export default function PharmacyReturnPage() {
       setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
       setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
     } catch (error) {
-      console.log(error);
       toast.error("Failed to fetch order");
     } finally {
       setFetching(false);
@@ -172,7 +171,7 @@ export default function PharmacyReturnPage() {
       });
       setOrder(null);
     } catch (error) {
-      console.log(error);
+      // Handle error
     } finally {
       setReturning(false);
     }
@@ -243,7 +242,7 @@ export default function PharmacyReturnPage() {
                       </TableCell>
 
                       <TableCell className="align-top text-slate-600">
-                        {"B1234"}
+                        {"N/A"}
                       </TableCell>
 
                       <TableCell className="align-top text-slate-600">

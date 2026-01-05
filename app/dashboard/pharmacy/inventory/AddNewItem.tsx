@@ -53,7 +53,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
     setValue("quantity", values.openingStockQuantity);
   }, [values.openingStockQuantity, setValue]);
 
-  const [openCalander, setOpenCalander] = useState(false)
+  const [openCalendar, setOpenCalendar] = useState(false)
 
   return (
     <form
@@ -245,7 +245,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             Expiry Date
           </label>
 
-          <Popover open={openCalander} onOpenChange={setOpenCalander}>
+          <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
@@ -258,8 +258,8 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             </PopoverTrigger>
             <PopoverContent className="w-auto overflow-hidden p-0" align="start">
               <Calendar
-              startMonth={new Date(2025,0)}
-              endMonth={new Date(2030,0)}
+                startMonth={new Date(2025, 0)}
+                endMonth={new Date(2030, 0)}
                 disabled={{ before: new Date() }}
                 mode="single"
                 selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
@@ -267,8 +267,8 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
                 onSelect={(date) => {
                   if (date) {
                     setValue("expiryDate", date.toISOString())
+                    setOpenCalendar(false)
                   }
-                  setOpenCalander(false)
                 }}
               />
             </PopoverContent>
@@ -313,7 +313,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
       </div>
 
       <div className="flex gap-2">
-        <Button className="bg-purple-600 text-white flex-1" type="submit">
+        <Button className="bg-indigo-600 text-white flex-1" type="submit">
           Save Item
         </Button>
         <Button

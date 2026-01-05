@@ -241,7 +241,7 @@ export default function CreateBill({
       setPayload(defaultPayload);
       billingMutate();
     } catch (error) {
-      console.log(error);
+      // Handle error
     }
   }, [payload, billingMutate, defaultPayload]);
 

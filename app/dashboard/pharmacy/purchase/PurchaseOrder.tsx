@@ -216,7 +216,7 @@ function PurchaseOrder({
     }));
   };
 
-  const [openCalander, setOpenCalander] = useState(false);
+  const [openCalendar, setOpenCalendar] = useState(false);
 
   return (
     <div className="flex flex-col gap-6   p-5 ">
@@ -329,7 +329,7 @@ function PurchaseOrder({
                   Expected delivery <span className="text-red-500">*</span>
                 </Label>
 
-                <Popover open={openCalander} onOpenChange={setOpenCalander}>
+                <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
                   <PopoverTrigger asChild className="mt-2">
                     <Button
                       variant="outline"
@@ -361,7 +361,7 @@ function PurchaseOrder({
                             expectedDelivery: date?.toISOString(),
                           }));
                         }
-                        setOpenCalander(false);
+                        setOpenCalendar(false);
                       }}
                     />
                   </PopoverContent>
