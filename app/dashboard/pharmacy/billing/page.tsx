@@ -7,6 +7,7 @@ import CreateBill from "./CreateBill";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "./Header";
 import useSWR from "swr";
+import { BillingFormSkeleton, TableSkeleton } from "../components/PharmacySkeleton";
 
 export interface FilterType {
   q: null | string;
@@ -41,7 +42,7 @@ export default function BillingPage() {
     params.set("date", filter.date.toISOString())
   }
 
-  const { data: billingData, mutate: billingMutate } = useSWR<{
+  const { data: billingData, mutate: billingMutate, isLoading: isLoadingBilling } = useSWR<{
     message: string;
     data: {
       roundOff: boolean;
@@ -68,7 +69,7 @@ export default function BillingPage() {
 
   const billing = billingData?.data ?? [];
 
-  const { data } = useSWR<{
+  const { data, isLoading: isLoadingProfile } = useSWR<{
     message: string,
     data: {
       pharmacy: {
@@ -124,15 +125,23 @@ export default function BillingPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="all">
-              <AllBill
-                billing={billing}
-                filter={filter}
-                setFilter={setFilter}
-                billingMutate={billingMutate}
-              />
+              {isLoadingBilling ? (
+                <TableSkeleton rows={10} columns={6} />
+              ) : (
+                <AllBill
+                  billing={billing}
+                  filter={filter}
+                  setFilter={setFilter}
+                  billingMutate={billingMutate}
+                />
+              )}
             </TabsContent>
             <TabsContent value="new">
-              <CreateBill billingMutate={billingMutate} pharmacyBilling={pharmacyBilling} />
+              {isLoadingProfile ? (
+                <BillingFormSkeleton />
+              ) : (
+                <CreateBill billingMutate={billingMutate} pharmacyBilling={pharmacyBilling} />
+              )}
             </TabsContent>
           </Tabs>
         </div>

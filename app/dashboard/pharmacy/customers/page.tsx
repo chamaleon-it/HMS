@@ -17,11 +17,12 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import Filter, { FilterType } from "./Filter";
 import NewOrder from "./NewOrder";
+import { TableSkeleton } from "../components/PharmacySkeleton";
 
 const Customers: React.FC = () => {
   const router = useRouter();
 
-  const { data: customersData } = useSWR<{
+  const { data: customersData, isLoading } = useSWR<{
     message: string;
     data: {
       totalSpend: number;
@@ -63,7 +64,7 @@ const Customers: React.FC = () => {
                 Customers
               </h1>
               <p className="text-sm text-slate-500 mt-1">
-                Click a row to open full pharmacy history for that patient.
+                Click a row to open full pharmacy history for that customer.
               </p>
             </div>
             <div className="flex gap-3 items-center">
@@ -71,7 +72,7 @@ const Customers: React.FC = () => {
               <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
                 Showing <span className="font-semibold">{customers.length}</span>{" "}
                 of <span className="font-semibold">{customers.length}</span>{" "}
-                patients
+                customers
               </div>
               <NewOrder />
             </div>
@@ -79,174 +80,178 @@ const Customers: React.FC = () => {
 
           <Filter filter={filter} setFilter={setFilter} />
 
-          <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
-            <Table>
-              <TableHeader className="">
-                <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
-                  <TableHead className="text-white py-3">Sl</TableHead>
-                  <TableHead className="text-white py-3">Customers</TableHead>
-                  <TableHead className="text-white py-3">PID</TableHead>
-                  <TableHead className="text-white py-3">
-                    Age / Gender
-                  </TableHead>
-                  <TableHead className="text-white py-3">Phone</TableHead>
-                  <TableHead className="text-white py-3 text-right">
-                    Visits
-                  </TableHead>
-                  <TableHead className="text-white py-3 text-right">
-                    Last Purchase
-                  </TableHead>
-                  <TableHead className="text-white py-3 text-right">
-                    Total Spend
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="text-[15px]">
-                {customers
-                  .filter((p) => {
-                    // Query filter
-                    if (filter.query) {
-                      const q = filter.query.toLowerCase();
-                      const match =
-                        (p.patient.name?.toLowerCase() || "").startsWith(q) ||
-                        (p.patient.phoneNumber || "").includes(q) ||
-                        (p.patient.mrn || "").includes(q);
-
-                      if (!match) return false;
-                    }
-
-                    // Gender filter
-                    if (filter.gender) {
-                      if (p.patient.gender !== filter.gender) return false;
-                    }
-
-                    // Age filter
-                    if (filter.age) {
-                      const age = fAge(p.patient.dateOfBirth);
-                      if (age < filter.age[0] || age > filter.age[1]) return false;
-                    }
-
-                    // Doctor filter
-                    if (filter.doctor) {
-                      if (p.patient.doctor !== filter.doctor) return false;
-                    }
-
-                    // Last visit filter
-                    if (filter.lastVisit && p.lastPurchase) {
-                      const lastPurchaseDate = new Date(p.lastPurchase);
-
-                      // Custom range
-                      if (
-                        filter.lastVisit === "Custom" &&
-                        filter.dateRange?.from &&
-                        filter.dateRange?.to
-                      ) {
-                        const from = new Date(filter.dateRange.from);
-                        const to = new Date(filter.dateRange.to);
-
-                        if (lastPurchaseDate < from || lastPurchaseDate > to) return false;
-                      }
-
-                      // Last N days
-                      if (typeof filter.lastVisit === "number") {
-                        const cutoff = new Date();
-                        cutoff.setDate(cutoff.getDate() - filter.lastVisit);
-
-                        if (lastPurchaseDate < cutoff) return false;
-                      }
-                    }
-
-                    return true; // ✅ must return true if all filters pass
-                  })
-                  .map((p, idx) => {
-                    const hasHistory = p.visits > 0;
-                    const isRepeat = p.visits > 1;
-
-                    return (
-                      <TableRow
-                        key={p.patient._id}
-                        className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
-                          ? "bg-white hover:bg-white/60"
-                          : "bg-slate-100 hover:bg-slate-100/60"
-                          } hover:-translate-y-[1px] hover:shadow-sm`}
-                        onClick={() =>
-                          router.push(
-                            `/dashboard/pharmacy/customers/${p.patient._id}`
-                          )
-                        }
-                      >
-                        <TableCell className="py-3 align-middle text-slate-500">
-                          {idx + 1}
-                        </TableCell>
-                        <TableCell className="py-3 align-middle font-medium">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-[15px] text-slate-900">
-                              <HighlightText
-                                text={p.patient.name}
-                                highlight={filter.query || ""}
-                              />
-                            </span>
-                            <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
-                              <HighlightText
-                                text={p.patient.address}
-                                highlight={filter.query || ""}
-                              />
-                            </span>
-                            <div className="flex flex-wrap gap-1 mt-0.5">
-                              {!hasHistory && (
-                                <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-medium">
-                                  New
-                                </Badge>
-                              )}
-                              {isRepeat && (
-                                <Badge className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-medium">
-                                  Repeat
-                                </Badge>
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-slate-700">
-                          <HighlightText
-                            text={p.patient.mrn}
-                            highlight={filter.query || ""}
-                          />
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-slate-700">
-                          {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-slate-700">
-                          <HighlightText
-                            text={p.patient.phoneNumber}
-                            highlight={filter.query || ""}
-                          />
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-right text-slate-900">
-                          {p.visits}
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-right text-slate-700">
-                          {fDate(p.lastPurchase)}
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-right font-semibold text-slate-900">
-                          {formatINR(p.totalSpend)}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-
-                {customers.length === 0 && (
-                  <TableRow>
-                    <TableCell
-                      colSpan={8}
-                      className="text-center text-slate-500 py-6"
-                    >
-                      No patients found.
-                    </TableCell>
+          {isLoading ? (
+            <TableSkeleton rows={10} columns={8} />
+          ) : (
+            <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
+              <Table>
+                <TableHeader className="">
+                  <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
+                    <TableHead className="text-white py-3">Sl</TableHead>
+                    <TableHead className="text-white py-3">Customers</TableHead>
+                    <TableHead className="text-white py-3">PID</TableHead>
+                    <TableHead className="text-white py-3">
+                      Age / Gender
+                    </TableHead>
+                    <TableHead className="text-white py-3">Phone</TableHead>
+                    <TableHead className="text-white py-3 text-right">
+                      Visits
+                    </TableHead>
+                    <TableHead className="text-white py-3 text-right">
+                      Last Purchase
+                    </TableHead>
+                    <TableHead className="text-white py-3 text-right">
+                      Total Spend
+                    </TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                </TableHeader>
+                <TableBody className="text-[15px]">
+                  {customers
+                    .filter((p) => {
+                      // Query filter
+                      if (filter.query) {
+                        const q = filter.query.toLowerCase();
+                        const match =
+                          (p.patient.name?.toLowerCase() || "").startsWith(q) ||
+                          (p.patient.phoneNumber || "").includes(q) ||
+                          (p.patient.mrn || "").includes(q);
+
+                        if (!match) return false;
+                      }
+
+                      // Gender filter
+                      if (filter.gender) {
+                        if (p.patient.gender !== filter.gender) return false;
+                      }
+
+                      // Age filter
+                      if (filter.age) {
+                        const age = fAge(p.patient.dateOfBirth);
+                        if (age < filter.age[0] || age > filter.age[1]) return false;
+                      }
+
+                      // Doctor filter
+                      if (filter.doctor) {
+                        if (p.patient.doctor !== filter.doctor) return false;
+                      }
+
+                      // Last visit filter
+                      if (filter.lastVisit && p.lastPurchase) {
+                        const lastPurchaseDate = new Date(p.lastPurchase);
+
+                        // Custom range
+                        if (
+                          filter.lastVisit === "Custom" &&
+                          filter.dateRange?.from &&
+                          filter.dateRange?.to
+                        ) {
+                          const from = new Date(filter.dateRange.from);
+                          const to = new Date(filter.dateRange.to);
+
+                          if (lastPurchaseDate < from || lastPurchaseDate > to) return false;
+                        }
+
+                        // Last N days
+                        if (typeof filter.lastVisit === "number") {
+                          const cutoff = new Date();
+                          cutoff.setDate(cutoff.getDate() - filter.lastVisit);
+
+                          if (lastPurchaseDate < cutoff) return false;
+                        }
+                      }
+
+                      return true; // ✅ must return true if all filters pass
+                    })
+                    .map((p, idx) => {
+                      const hasHistory = p.visits > 0;
+                      const isRepeat = p.visits > 1;
+
+                      return (
+                        <TableRow
+                          key={p.patient._id}
+                          className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
+                            ? "bg-white hover:bg-white/60"
+                            : "bg-slate-100 hover:bg-slate-100/60"
+                            } hover:-translate-y-px hover:shadow-sm`}
+                          onClick={() =>
+                            router.push(
+                              `/dashboard/pharmacy/customers/${p.patient._id}`
+                            )
+                          }
+                        >
+                          <TableCell className="py-3 align-middle text-slate-500">
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell className="py-3 align-middle font-medium">
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-[15px] text-slate-900">
+                                <HighlightText
+                                  text={p.patient.name}
+                                  highlight={filter.query || ""}
+                                />
+                              </span>
+                              <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
+                                <HighlightText
+                                  text={p.patient.address}
+                                  highlight={filter.query || ""}
+                                />
+                              </span>
+                              <div className="flex flex-wrap gap-1 mt-0.5">
+                                {!hasHistory && (
+                                  <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-medium">
+                                    New
+                                  </Badge>
+                                )}
+                                {isRepeat && (
+                                  <Badge className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-medium">
+                                    Repeat
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-slate-700">
+                            <HighlightText
+                              text={p.patient.mrn}
+                              highlight={filter.query || ""}
+                            />
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-slate-700">
+                            {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-slate-700">
+                            <HighlightText
+                              text={p.patient.phoneNumber}
+                              highlight={filter.query || ""}
+                            />
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-right text-slate-900">
+                            {p.visits}
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-right text-slate-700">
+                            {fDate(p.lastPurchase)}
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-right font-semibold text-slate-900">
+                            {formatINR(p.totalSpend)}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+
+                  {customers.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={8}
+                        className="text-center text-slate-500 py-6"
+                      >
+                        No patients found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </main>
       </div>
     </AppShell>

@@ -50,7 +50,7 @@ const Customer: React.FC = () => {
   const [selectedVisit, setSelectedVisit] = useState<Order | Datum | null>(null);
 
 
-  const [openCalander, setOpenCalander] = useState(false);
+  const [openCalendar, setOpenCalendar] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
 
   const tabs = [
@@ -62,11 +62,14 @@ const Customer: React.FC = () => {
   const [type, setType] = useState("all");
 
   const [repeatLoading, setRepeatLoading] = useState(false)
+  const [printingBill, setPrintingBill] = useState(false)
+  const [printingPrescription, setPrintingPrescription] = useState(false)
   const [showRepeatConfirm, setShowRepeatConfirm] = useState(false)
 
-  const { data: profile } = useSWR<{ data: { pharmacy: { billing: { autoGenerateBill: boolean, prefix: string } } }, message: string }>("/users/profile")
+  const { data: profile } = useSWR<{ data: { pharmacy: { billing: { autoGenerateBill: boolean, prefix: string, defaultGst?: number } } }, message: string }>("/users/profile")
   const autoGenerateBill = profile?.data.pharmacy.billing.autoGenerateBill ?? false
   const prefix = profile?.data.pharmacy.billing.prefix ?? "INV"
+  const defaultGst = profile?.data.pharmacy.billing.defaultGst ?? 0
 
   const [printBill, setPrintBill] = useState<null | any>(null)
   const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
@@ -75,6 +78,7 @@ const Customer: React.FC = () => {
     if (!order?.mrn) return;
     // We need to fetch full order details because selectedVisit might not have everything
     try {
+      setPrintingPrescription(true);
       const params = new URLSearchParams()
       params.set("q", order.mrn)
       const { data } = await api.get<{ data: OrderType, message: string }>(`/pharmacy/orders/single?${params}`)
@@ -82,14 +86,17 @@ const Customer: React.FC = () => {
       setTimeout(() => {
         window.print();
         setPrintOrder(null);
-      }, 100);
+      }, 800);
     } catch (error) {
       toast.error("Failed to fetch order details for printing");
+    } finally {
+      setPrintingPrescription(false);
     }
   };
 
   const handlePrintBill = async (mrn: string) => {
     try {
+      setPrintingBill(true);
       const params = new URLSearchParams()
       params.set("q", mrn)
       const { data } = await api.get<{
@@ -113,7 +120,7 @@ const Customer: React.FC = () => {
             name: {
               name: string;
               unitPrice: number;
-              _is: string
+              _id: string
             },
           }[];
           mrn: string;
@@ -133,18 +140,32 @@ const Customer: React.FC = () => {
         }, message: string
       }>(`/pharmacy/orders/single?${params}`,)
 
+      const items = data.data.items.map(e => {
+        const unitPrice = e.name.unitPrice || 0;
+        const quantity = e.quantity || 0;
+        const itemGst = defaultGst;
+        const basePrice = unitPrice * quantity;
+        const gstAmount = basePrice * (itemGst / 100);
+        return {
+          gst: itemGst,
+          name: e.name.name,
+          quantity,
+          unitPrice,
+          total: Math.round((basePrice + gstAmount) * 100) / 100,
+        };
+      });
+
+      const subtotal = items.reduce((a, b) => a + b.unitPrice * b.quantity, 0);
+      const totalGst = items.reduce((a, b) => a + b.unitPrice * b.quantity * (b.gst / 100), 0);
+      const discount = data.data.discount || 0;
+      const grandTotal = subtotal + totalGst - discount;
+
       setPrintBill({
         patient: data.data.patient,
         payload: {
-          items: data.data.items.map(e => ({
-            gst: 0,
-            name: e.name.name,
-            quantity: e.quantity,
-            unitPrice: e.name.unitPrice,
-            total: e.quantity * e.name.unitPrice
-          })),
+          items,
           cash: 0,
-          discount: data.data.discount,
+          discount,
           insurance: 0,
           online: 0,
           patient: data.data.patient._id,
@@ -153,26 +174,28 @@ const Customer: React.FC = () => {
           note: "",
         },
         invoiceDetails: {
-          totalGst: 0,
+          totalGst,
           prefix,
           roundOffAmount: 0,
-          subtotal: data.data.items.reduce((a, b) => a + (b.quantity * b.name.unitPrice), 0),
-          grandTotal: data.data.items.reduce((a, b) => a + (b.quantity * b.name.unitPrice), 0) - data.data.discount
+          subtotal,
+          grandTotal
         }
       });
 
       setTimeout(() => {
         window.print();
         setPrintBill(null);
-      }, 100);
+      }, 800);
     } catch (error) {
       toast.error("Failed to fetch bill details for printing");
+    } finally {
+      setPrintingBill(false);
     }
   }
 
   return (
     <AppShell>
-      <div className="bg-slate-50 p-5">
+      <div className="bg-slate-50 p-5 print:hidden">
         <main className="space-y-6">
           <div className="mb-2">
             <Button
@@ -220,7 +243,7 @@ const Customer: React.FC = () => {
               </div>
 
               <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
                     Total Spend
                   </div>
@@ -228,7 +251,7 @@ const Customer: React.FC = () => {
                     {formatINR(customer?.totalSpend ?? 0)}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
                     Total Visits
                   </div>
@@ -236,7 +259,7 @@ const Customer: React.FC = () => {
                     {customer?.totalVisit}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-violet-700 uppercase tracking-wide">
                     Last Purchase
                   </div>
@@ -244,7 +267,7 @@ const Customer: React.FC = () => {
                     {fDate(customer?.lastPurchase)}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
                     Avg Spend
                   </div>
@@ -274,7 +297,7 @@ const Customer: React.FC = () => {
                     <div className="flex items-center gap-3 text-[12px] text-slate-700">
                       <span className="font-medium">Filter:</span>
 
-                      <Popover open={openCalander} onOpenChange={setOpenCalander}>
+                      <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
                         <PopoverTrigger asChild>
                           <Button
                             variant="outline"
@@ -308,7 +331,7 @@ const Customer: React.FC = () => {
                                 from !== to &&
                                 (from !== date?.from || to !== date?.to)
                               ) {
-                                setOpenCalander(false);
+                                setOpenCalendar(false);
                               }
                             }}
                           />
@@ -504,12 +527,12 @@ const Customer: React.FC = () => {
                             {fDate(selectedVisit.createdAt)}
                           </span>
                         </span>
-                        <span>
+                        {selectedVisit?.mrn && <span>
                           RX ID:{" "}
-                          {/* <span className="font-medium text-slate-700">
+                          <span className="font-medium text-slate-700">
                             {selectedVisit.mrn}
-                          </span> */}
-                        </span>
+                          </span>
+                        </span>}
                       </div>
                     )}
                   </div>
@@ -677,7 +700,7 @@ const Customer: React.FC = () => {
                                       const updatedData = await mutate()
                                       setSelectedVisit(updatedData?.data?.orders[0] ?? null)
                                     } catch (error) {
-                                      console.log(error)
+                                      // Handle error
                                     } finally {
                                       setRepeatLoading(false)
                                     }
@@ -691,15 +714,17 @@ const Customer: React.FC = () => {
 
                           <Button
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                            disabled={printingBill}
                             onClick={() => selectedVisit.mrn && handlePrintBill(selectedVisit.mrn)}
                           >
-                            Print bill
+                            {printingBill ? "Printing..." : "Print bill"}
                           </Button>
                           <Button
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                            disabled={printingPrescription}
                             onClick={() => handlePrintPrescription(selectedVisit)}
                           >
-                            Print Prescription
+                            {printingPrescription ? "Printing..." : "Print Prescription"}
                           </Button>
 
                           <Button

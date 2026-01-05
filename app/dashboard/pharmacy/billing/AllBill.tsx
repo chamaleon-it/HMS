@@ -207,7 +207,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
 
           <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
             <div>
-              Showing {Math.min(10, billing.length)} of {billing.length}
+              {/* Showing {Math.min(10, billing.length)} of {billing.length} */}
             </div>
             <div className="flex items-center gap-2">
               <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">

@@ -16,9 +16,10 @@ import PurchaseTable from "./PurchaseTable";
 import useSWR from "swr";
 import { useAuth } from "@/auth/context/auth-context";
 import { PurchaseDataType } from "./interface";
+import { TableSkeleton } from "../components/PharmacySkeleton";
 
 export default function PurchaseOrdersListPage() {
-  
+
 
   const [showCreate, setShowCreate] = useState(false);
 
@@ -42,7 +43,7 @@ export default function PurchaseOrdersListPage() {
     param.set("mrn", filter.mrn);
   }
 
-  const { data: PurchaseData, mutate } = useSWR<PurchaseDataType>(
+  const { data: PurchaseData, mutate, isLoading } = useSWR<PurchaseDataType>(
     `/pharmacy/purchase?${param.toString()}`
   );
 
@@ -59,7 +60,7 @@ export default function PurchaseOrdersListPage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-6 p-5 min-h-[calc(100vh-80px)]">
-        <header className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 bg-gradient-to-br from-background via-background to-muted/40 border rounded-2xl p-4 lg:p-5 shadow-sm">
+        <header className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 bg-linear-to-br from-background via-background to-muted/40 border rounded-2xl p-4 lg:p-5 shadow-sm">
           <div>
             <h1 className="text-xl font-semibold tracking-tight">
               Purchase Orders
@@ -97,13 +98,17 @@ export default function PurchaseOrdersListPage() {
               </div>
             </div>
 
-           
-           
+
+
           </CardContent>
         </Card>
 
         {/* TABLE OF ORDERS */}
-        <PurchaseTable purchase={purchase} total={PurchaseData?.total ?? 0} />
+        {isLoading ? (
+          <TableSkeleton rows={8} columns={6} />
+        ) : (
+          <PurchaseTable purchase={purchase} total={PurchaseData?.total ?? 0} />
+        )}
       </div>
     </AppShell>
   );

@@ -67,7 +67,7 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
       reset();
       onClose(patient.data._id, patient.data.name);
     } catch (error) {
-      console.log(error);
+      // Handle error
     }
   });
 

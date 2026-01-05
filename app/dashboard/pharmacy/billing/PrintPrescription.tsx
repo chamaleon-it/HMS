@@ -14,12 +14,12 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
     const doctor = order.doctor;
 
     return (
-        <div className="print-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-visible">
+        <div className="print-prescription hidden print:block bg-white text-slate-900 font-sans leading-relaxed overflow-visible">
             <style dangerouslySetInnerHTML={{
                 __html: `
         @media print {
           @page {
-            margin: 0.5cm;
+            margin: 0;
             size: A4;
           }
           body { 
@@ -29,7 +29,6 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            font-family: 'Inter', 'Roboto', 'Arial', sans-serif !important;
           }
           .print-prescription { 
             visibility: visible !important;
@@ -46,124 +45,111 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
         }
       `}} />
 
-            <div className="max-w-[21cm] mx-auto min-h-screen p-8 flex flex-col text-[12px] text-slate-900">
-                {/* Header */}
-                <div className="flex justify-between items-start mb-6 border-b-2 border-slate-900 pb-4">
-                    <HospitalName />
-                    <div className="text-right border-l-2 pl-6 border-slate-200">
-
-                        <div className="text-[10px] font-bold text-slate-700 space-y-0.5">
-                            <p>Date: {fDateandTime(new Date()).split(",")[0]}</p>
-                            <p>Time: {fDateandTime(new Date()).split(",")[1]}</p>
+            <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col">
+                {/* HEADER */}
+                <div className="bg-black text-white px-10 py-8">
+                    <div className="flex justify-between items-start">
+                        <HospitalName />
+                        <div className="text-right space-y-2">
+                            <span className="inline-block bg-white text-slate-900 text-[10px] px-3 py-1 rounded-full font-black tracking-widest uppercase">
+                                PRESCRIPTION
+                            </span>
+                            <div className="space-y-0.5">
+                                <p className="text-sm font-bold">{fDateandTime(new Date()).split(",")[0]}</p>
+                                <p className="text-[10px] opacity-80 tracking-widest">DRUG ADVICE PAGE</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                {/* Patient & Prescription Details */}
-                <div className="grid grid-cols-12 gap-y-2 mb-4 border-b border-slate-300 pb-4">
-                    <div className="col-span-6 flex items-baseline gap-2">
-                        <span className="text-[11px] font-bold uppercase w-24">Patient ID</span>
-                        <span className="font-bold">: {order.mrn}</span>
-
-                    </div>
-                    <div className="col-span-6 flex items-baseline gap-2">
-                        <span className="text-[11px] font-bold uppercase w-40">Prescribed Date & Time</span>
-                        <span className="font-medium">: {fDateandTime(order.createdAt).split(",")[0]} {fDateandTime(order.createdAt).split(",")[1]}</span>
-                    </div>
-
-                    <div className="col-span-12 flex items-baseline gap-2">
-                        <span className="text-[11px] font-bold uppercase w-24">Patient Name</span>
-                        <span className="font-bold">: {patient?.name}</span>
-                    </div>
-
-                    <div className="col-span-6 flex items-baseline gap-2">
-                        <span className="text-[11px] font-bold uppercase w-24">Age/Gender</span>
-                        <span className="font-medium">: {patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / {patient?.gender || "—"}</span>
-                    </div>
-                    <div className="col-span-6 flex items-baseline gap-2">
-                        <span className="text-[11px] font-bold uppercase w-40">Department</span>
-                        <span className="font-medium">: General Op</span>
+                {/* BODY */}
+                <div className="p-10 flex-1 flex flex-col gap-6 text-[13px]">
+                    {/* PATIENT STRIP */}
+                    <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
+                        <Info label="Patient" value={patient?.name || "—"} />
+                        <Info label="Age / G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / ${patient?.gender || "—"}`} />
+                        <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
+                        <Info label="Date" value={fDateandTime(order.createdAt).split(",")[0]} />
+                        <div className="col-span-2">
+                            <Info label="Doctor" value={`DR. ${doctor?.name || "—"}`} />
+                        </div>
+                        <div className="col-span-2 text-right">
+                            <Info label="Dept" value={doctor?.specialization || "ENT"} />
+                        </div>
                     </div>
 
-                    <div className="col-span-12 flex items-baseline gap-2">
-                        <span className="text-[11px] font-bold uppercase w-24">Doctor</span>
-                        <span className="font-medium">: Dr. {doctor?.name || "—"}</span>
-                    </div>
-
-                </div>
-
-                {/* Medicines Section */}
-                <div className="flex-1">
-                    <div className="flex justify-between items-baseline mb-2">
-                        <h3 className="text-sm font-bold border-b-2 border-slate-900 pb-0.5">Medicines Issued</h3>
-                        <span className="text-[11px] font-bold">Issue No: PHR/{order._id.slice(-3)}</span>
-                    </div>
-
-                    <table className="w-full text-left border-collapse border-b border-slate-900">
-                        <thead className="border-y border-slate-900">
-                            <tr>
-                                <th className="py-2 text-[10px] font-black uppercase w-8">Sl</th>
-                                <th className="py-2 text-[10px] font-black uppercase">Drug & Strength</th>
-                                <th className="py-2 text-[10px] font-black uppercase text-center">Dosage</th>
-                                <th className="py-2 text-[10px] font-black uppercase text-center">Frequency</th>
-                                <th className="py-2 text-[10px] font-black uppercase text-center">Duration</th>
-                                <th className="py-2 text-[10px] font-black uppercase">Instruction</th>
-                                <th className="py-2 text-[10px] font-black uppercase text-right">Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {order.items.map((item, index) => (
-                                <tr key={index} className="border-b border-slate-200 align-top">
-                                    <td className="py-3 text-[11px]">{index + 1}.</td>
-                                    <td className="py-3 pr-2">
-                                        <div className="text-xs font-bold leading-tight uppercase underline underline-offset-2 decoration-slate-400">
-                                            {item.name.name}
-                                        </div>
-                                    </td>
-                                    <td className="py-3 text-center text-[11px] font-medium whitespace-nowrap">{item.dosage || "—"}</td>
-                                    <td className="py-3 text-center text-[10px] font-medium">
-                                        {item.frequency || "—"}<br />
-
-                                    </td>
-                                    <td className="py-3 text-center text-[11px] font-medium whitespace-nowrap">
-                                        {item.duration || "—"}<br />
-                                    </td>
-                                    <td className="py-3 text-[10px] font-medium text-slate-600">
-                                        {item.food || "—"}
-                                    </td>
-                                    <td className="py-3 text-right text-[11px] font-bold whitespace-nowrap">
-                                        {item.quantity} Nos
-                                    </td>
+                    {/* MEDICINES */}
+                    <div className="border border-slate-200 rounded-lg overflow-hidden flex-1 box-border">
+                        <table className="w-full border-collapse">
+                            <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 border-b border-slate-200 uppercase tracking-wider">
+                                <tr>
+                                    <th className="px-3 py-3 text-center w-10">SL</th>
+                                    <th className="px-3 py-3 text-left">Medicine / Strength</th>
+                                    <th className="px-3 py-3 text-center">Dosage</th>
+                                    <th className="px-3 py-3 text-center">Duration</th>
+                                    <th className="px-3 py-3 text-left">Instructions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                {order.items.map((m, i) => (
+                                    <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                                        <td className="px-3 py-3 text-center font-bold text-slate-400 text-xs">{i + 1}</td>
+                                        <td className="px-3 py-3">
+                                            <p className="font-black text-slate-900 text-[12px]">{m.name.name}</p>
+                                            <p className="text-[10px] text-slate-500 font-medium tracking-tight mt-0.5">(GEN: {m.name.generic || "—"})</p>
+                                        </td>
+                                        <td className="px-3 py-3 text-center font-bold text-slate-700">{m.dosage || "—"}</td>
+                                        <td className="px-3 py-3 text-center font-bold text-slate-700">{m.duration || "—"}</td>
+                                        <td className="px-3 py-3 text-xs font-semibold text-slate-600 italic">
+                                            {m.food || "—"}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
 
-                    <div className="mt-6">
-                        <div className="text-[10px] font-bold uppercase mb-4 text-slate-400">Additional Information</div>
-                        <div className="min-h-[100px] border border-slate-100 bg-slate-50/30 rounded p-4">
-                            {/* Space for notes or additional info */}
+                    {/* ADDITIONAL INFORMATION */}
+                    <div className="border-2 border-slate-900 rounded-lg p-5 bg-slate-50">
+                        <p className="font-black text-[10px] uppercase tracking-widest text-slate-400 mb-2">Additional Advice</p>
+                        <p className="text-slate-700 leading-relaxed font-bold italic text-[11px]">
+                            {"Patient is advised to follow the prescribed medication schedule strictly. Any adverse reactions or lack of improvement should be reported immediately. This prescription is based on current clinical assessment."}
+                        </p>
+                    </div>
+
+                    {/* SIGNATURE */}
+                    <div className="mt-10 flex justify-end">
+                        <div className="text-center w-64">
+                            <div className="border-b-2 border-slate-900 mb-2 w-full"></div>
+                            <p className="font-black text-slate-900 uppercase tracking-tight leading-none tracking-tighter">DR. {doctor?.name || "—"}</p>
+                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{doctor?.specialization || "SPECIALIST"}</p>
                         </div>
                     </div>
                 </div>
 
-                {/* Footer Signatures */}
-                <div className="mt-auto pt-12">
-                    <div className="flex justify-between items-end">
-                        <div className="text-center w-48">
-                            <div className="h-0.5 bg-slate-900/50 w-full mb-2"></div>
-                            <p className="text-[10px] font-bold uppercase text-slate-500">Dispensed By</p>
-                        </div>
-                        <div className="text-center w-64">
-                            <p className="text-[8px] italic text-slate-400 mb-2">System generated on {fDateandTime(new Date())}</p>
-                            <div className="h-1 bg-slate-900 w-full mb-2"></div>
-                            <p className="text-[11px] font-black uppercase tracking-tighter">Authorized Pharmacist</p>
-                            <p className="text-[8px] font-bold text-slate-500 uppercase mt-0.5 underline decoration-slate-200 underline-offset-2">Synapse Hospital</p>
-                        </div>
+                {/* FOOTER */}
+                <div className="bg-black px-10 py-6 text-[10px] text-slate-400 flex justify-between items-center normal-case">
+                    <div className="space-y-1">
+                        <p className="text-slate-300 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
+                        <p className="text-slate-500">
+                            For Appointments / Booking: <span className="text-slate-400 font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
+                        </p>
                     </div>
+                    <p className="text-slate-500">
+                        Powered by <span className="font-bold text-slate-300 tracking-tight uppercase">Synapse IT Services LLP</span>
+                    </p>
                 </div>
             </div>
             <Watermark />
+        </div>
+    );
+}
+
+function Info({ label, value }: { label: string; value: string }) {
+    return (
+        <div className="flex gap-2 min-h-6 items-start">
+            <span className="text-slate-400 font-medium uppercase text-[10px] min-w-[50px] mt-0.5">{label}:</span>
+            <span className="font-bold text-slate-900 line-clamp-2 leading-tight uppercase">{value}</span>
         </div>
     );
 }

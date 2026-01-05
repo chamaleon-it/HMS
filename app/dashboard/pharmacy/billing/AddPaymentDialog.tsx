@@ -8,6 +8,7 @@ import {
     Wallet2,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import { useBillCalculations } from "./hooks/useBillCalculations";
 import {
     Dialog,
     DialogContent,
@@ -68,23 +69,23 @@ export default function AddPaymentDialog({
 
     if (!bill) return null;
 
-    const totalAmount = bill.items.reduce((a, b) => a + b.total, 0);
-
-    // Calculate subtotal and GST
-    const subTotal = bill.items.reduce((a, b) => a + (b.quantity * b.unitPrice), 0);
-    const totalGst = bill.items.reduce(
-        (a, b) => a + ((b.quantity * b.unitPrice) * b.gst) / 100,
-        0
-    );
-
-    const roundOffAmount = bill.roundOff ? getDecimal(totalAmount) : 0;
-
-    // Logic from CreateBill:
-    // Total = Total Items Amount - RoundOff - Discount
-    const finalTotal = totalAmount - roundOffAmount - payment.discount;
-
-    const totalPaid = payment.cash + payment.online + payment.insurance;
-    const dueAmount = finalTotal - totalPaid;
+    const {
+        subtotal,
+        totalGst,
+        roundOffAmount,
+        finalTotal,
+        totalPaid,
+        dueAmount
+    } = useBillCalculations({
+        items: bill.items,
+        discount: payment.discount,
+        roundOff: bill.roundOff,
+        payments: {
+            cash: payment.cash,
+            online: payment.online,
+            insurance: payment.insurance
+        }
+    });
 
     const handleSubmit = async () => {
         await toast.promise(api.patch(`/billing/add_payment/${bill._id}`, payment), {
@@ -186,7 +187,7 @@ export default function AddPaymentDialog({
                                 <div className="flex items-center justify-between">
                                     <span className="text-slate-500">Subtotal</span>
                                     <span className="font-medium tabular-nums">
-                                        {formatINR(subTotal)}
+                                        {formatINR(subtotal)}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between">

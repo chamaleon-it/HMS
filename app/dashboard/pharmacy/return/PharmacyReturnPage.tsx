@@ -19,9 +19,12 @@ import Header from "./Header";
 import { formatINR } from "@/lib/fNumber";
 import Search from "./Search";
 import toast from "react-hot-toast";
+import Link from "next/link";
+import useSWR from "swr";
 import api from "@/lib/axios";
 import { fDate, fTime } from "@/lib/fDateAndTime";
 import { useAuth } from "@/auth/context/auth-context";
+import { TableSkeleton } from "../components/PharmacySkeleton";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -59,7 +62,12 @@ export default function PharmacyReturnPage() {
     q: null,
   });
 
+  const { data: profile } = useSWR<{ data: { pharmacy: { billing: { defaultGst?: number } } } }>("/users/profile");
+  const defaultGst = profile?.data.pharmacy.billing.defaultGst ?? 0;
+
   const [order, setOrder] = useState<null | OrderType>(null);
+  const [fetching, setFetching] = useState(false);
+  const [returning, setReturning] = useState(false);
 
 
 
@@ -67,6 +75,7 @@ export default function PharmacyReturnPage() {
 
   const fetchOrder = async () => {
     try {
+      setFetching(true);
 
 
       if (!mrn && !filter.q) {
@@ -82,7 +91,9 @@ export default function PharmacyReturnPage() {
       setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
       setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to fetch order");
+    } finally {
+      setFetching(false);
     }
   };
 
@@ -127,6 +138,7 @@ export default function PharmacyReturnPage() {
     }
 
     try {
+      setReturning(true);
       const payload: {
         patient: string;
         order: string;
@@ -137,6 +149,7 @@ export default function PharmacyReturnPage() {
           name: string;
           quantity: number;
           reason: string;
+          unitPrice: number;
         }[];
       } = {
         patient: order?.patient._id,
@@ -154,11 +167,13 @@ export default function PharmacyReturnPage() {
       await toast.promise(api.post("pharmacy/return", payload), {
         loading: "Returning...!",
         success: ({ data }) => data.message,
-        error: ({ respose }) => respose.data.message,
+        error: ({ response }) => response.data.message,
       });
       setOrder(null);
     } catch (error) {
-      console.log(error);
+      // Handle error
+    } finally {
+      setReturning(false);
     }
   };
 
@@ -185,124 +200,72 @@ export default function PharmacyReturnPage() {
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <Table className="min-w-full text-xs">
-              <TableHeader>
-                <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
-                  <TableHead className="w-[32px] text-center text-white">#</TableHead>
-                  <TableHead className="text-white">Medicine / Gen</TableHead>
-                  <TableHead className="text-white">HSN</TableHead>
-                  <TableHead className="text-white">Batch</TableHead>
-                  <TableHead className="text-white">Expiry</TableHead>
-                  <TableHead className="text-center text-white">Qty Sold</TableHead>
-                  <TableHead className="text-center text-white">Qty Return</TableHead>
-                  <TableHead className="text-right text-white">Rate</TableHead>
-                  <TableHead className="text-right text-white">Amount</TableHead>
-                  <TableHead className="text-white text-right">Reason</TableHead>
-                  <TableHead className="text-white text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
+          {fetching ? (
+            <TableSkeleton rows={5} columns={11} />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table className="min-w-full text-xs">
+                <TableHeader>
+                  <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
+                    <TableHead className="w-[32px] text-center text-white">#</TableHead>
+                    <TableHead className="text-white">Medicine / Gen</TableHead>
+                    <TableHead className="text-white">HSN</TableHead>
+                    <TableHead className="text-white">Batch</TableHead>
+                    <TableHead className="text-white">Expiry</TableHead>
+                    <TableHead className="text-center text-white">Qty Sold</TableHead>
+                    <TableHead className="text-center text-white">Qty Return</TableHead>
+                    <TableHead className="text-right text-white">Rate</TableHead>
+                    <TableHead className="text-right text-white">Amount</TableHead>
+                    <TableHead className="text-white text-right">Reason</TableHead>
+                    <TableHead className="text-white text-right">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
 
-              <TableBody className="[&>tr:nth-child(even)]:bg-slate-50/40">
-                {order?.items.map((it, i) => (
-                  <TableRow key={it.name._id} className="text-[11px]">
-                    <TableCell className="text-center align-top text-slate-500">
-                      {i + 1}
-                    </TableCell>
+                <TableBody className="[&>tr:nth-child(even)]:bg-slate-50/40">
+                  {order?.items.map((it, i) => (
+                    <TableRow key={it.name._id} className="text-[11px]">
+                      <TableCell className="text-center align-top text-slate-500">
+                        {i + 1}
+                      </TableCell>
 
-                    <TableCell className="align-top">
-                      <div className="text-slate-900 font-medium text-[12px] leading-tight">
-                        {it.name.name}
-                      </div>
-                      <div className="text-[10px] text-slate-500 leading-tight">
-                        (Gen: {it.name.generic})
-                      </div>
-                    </TableCell>
+                      <TableCell className="align-top">
+                        <div className="text-slate-900 font-medium text-[12px] leading-tight">
+                          {it.name.name}
+                        </div>
+                        <div className="text-[10px] text-slate-500 leading-tight">
+                          (Gen: {it.name.generic})
+                        </div>
+                      </TableCell>
 
-                    <TableCell className="align-top text-slate-600">
-                      {it.name.hsnCode}
-                    </TableCell>
+                      <TableCell className="align-top text-slate-600">
+                        {it.name.hsnCode}
+                      </TableCell>
 
-                    <TableCell className="align-top text-slate-600">
-                      {"B1234"}
-                    </TableCell>
+                      <TableCell className="align-top text-slate-600">
+                        {"N/A"}
+                      </TableCell>
 
-                    <TableCell className="align-top text-slate-600">
-                      {fDate(it.name.expiryDate)}
-                    </TableCell>
+                      <TableCell className="align-top text-slate-600">
+                        {fDate(it.name.expiryDate)}
+                      </TableCell>
 
-                    <TableCell className="text-center font-medium text-slate-700">
-                      {it.quantity}
-                    </TableCell>
+                      <TableCell className="text-center font-medium text-slate-700">
+                        {it.quantity}
+                      </TableCell>
 
-                    <TableCell className="text-center">
-                      <Input
-                        type="number"
-                        min={0}
-                        max={it.quantity}
-                        className="h-8 w-14 text-center rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-                        value={it.return === 0 ? "" : it.return}
+                      <TableCell className="text-center">
+                        <Input
+                          type="number"
+                          min={0}
+                          max={it.quantity}
+                          className="h-8 w-14 text-center rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                          value={it.return === 0 ? "" : it.return}
 
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-                          if (value > it.quantity) {
-                            return;
-                          }
-                          setOrder((prev) =>
-                            prev
-                              ? {
-                                ...prev,
-                                items: prev.items.map((item) =>
-                                  item.name._id === it.name._id
-                                    ? {
-                                      ...item,
-                                      return: value || 0,
-                                    }
-                                    : item
-                                ),
-                              }
-                              : null
-                          );
-                        }}
-                      />
-                    </TableCell>
-
-                    <TableCell className="text-right">
-                      <Input
-                        type="number"
-                        min={0}
-                        className="h-8 w-20 text-right rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 ml-auto"
-                        value={it.unitPrice || ""}
-                        onChange={(e) => {
-                          const value = Number(e.target.value);
-                          setOrder((prev) =>
-                            prev
-                              ? {
-                                ...prev,
-                                items: prev.items.map((item) =>
-                                  item.name._id === it.name._id
-                                    ? {
-                                      ...item,
-                                      unitPrice: value,
-                                    }
-                                    : item
-                                ),
-                              }
-                              : null
-                          );
-                        }}
-                      />
-                    </TableCell>
-
-                    <TableCell className="text-right tabular-nums font-semibold text-slate-900">
-                      {formatINR((it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0))}
-                    </TableCell>
-
-                    <TableCell className="align-top text-right">
-                      <div className="relative inline-block text-[11px]">
-                        <select
-                          value={it.reason}
                           onChange={(e) => {
+                            const value = Number(e.target.value);
+                            if (value > it.quantity) {
+                              return;
+                            }
                             setOrder((prev) =>
                               prev
                                 ? {
@@ -311,7 +274,7 @@ export default function PharmacyReturnPage() {
                                     item.name._id === it.name._id
                                       ? {
                                         ...item,
-                                        reason: e.target.value,
+                                        return: value || 0,
                                       }
                                       : item
                                   ),
@@ -319,49 +282,105 @@ export default function PharmacyReturnPage() {
                                 : null
                             );
                           }}
-                          className="appearance-none h-8 rounded-lg border border-slate-300 bg-white pr-7 pl-2 text-[11px] leading-none text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                        />
+                      </TableCell>
+
+                      <TableCell className="text-right">
+                        <Input
+                          type="number"
+                          min={0}
+                          className="h-8 w-20 text-right rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 ml-auto"
+                          value={it.unitPrice || ""}
+                          onChange={(e) => {
+                            const value = Number(e.target.value);
+                            setOrder((prev) =>
+                              prev
+                                ? {
+                                  ...prev,
+                                  items: prev.items.map((item) =>
+                                    item.name._id === it.name._id
+                                      ? {
+                                        ...item,
+                                        unitPrice: value,
+                                      }
+                                      : item
+                                  ),
+                                }
+                                : null
+                            );
+                          }}
+                        />
+                      </TableCell>
+
+                      <TableCell className="text-right tabular-nums font-semibold text-slate-900">
+                        {formatINR(((it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0)) * (1 + defaultGst / 100))}
+                      </TableCell>
+
+                      <TableCell className="align-top text-right">
+                        <div className="relative inline-block text-[11px]">
+                          <select
+                            value={it.reason}
+                            onChange={(e) => {
+                              setOrder((prev) =>
+                                prev
+                                  ? {
+                                    ...prev,
+                                    items: prev.items.map((item) =>
+                                      item.name._id === it.name._id
+                                        ? {
+                                          ...item,
+                                          reason: e.target.value,
+                                        }
+                                        : item
+                                    ),
+                                  }
+                                  : null
+                              );
+                            }}
+                            className="appearance-none h-8 rounded-lg border border-slate-300 bg-white pr-7 pl-2 text-[11px] leading-none text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                          >
+                            <option>Doctor Changed Rx</option>
+                            <option>Expired</option>
+                            <option>Near Expiry</option>
+                            <option>Quality Issue</option>
+                            <option>Wrong Item</option>
+                            <option>Adverse Reaction</option>
+                            <option>Not Required</option>
+                            <option>Other</option>
+                            <option>Damaged</option>
+                          </select>
+                          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+                            ▾
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          size={"sm"}
+                          className="bg-red-600 hover:bg-red-700 transform duration-200"
+                          onClick={() => {
+                            setOrder((prev) =>
+                              prev
+                                ? {
+                                  ...prev,
+                                  items: prev.items.filter(
+                                    (e) => e.name._id !== it.name._id
+                                  ),
+                                }
+                                : null
+                            );
+                          }}
                         >
-                          <option>Doctor Changed Rx</option>
-                          <option>Expired</option>
-                          <option>Near Expiry</option>
-                          <option>Quality Issue</option>
-                          <option>Wrong Item</option>
-                          <option>Adverse Reaction</option>
-                          <option>Not Required</option>
-                          <option>Other</option>
-                          <option>Damaged</option>
-                        </select>
-                        <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
-                          ▾
-                        </span>
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button
-                        size={"sm"}
-                        className="bg-red-600 hover:bg-red-700 transform duration-200"
-                        onClick={() => {
-                          setOrder((prev) =>
-                            prev
-                              ? {
-                                ...prev,
-                                items: prev.items.filter(
-                                  (e) => e.name._id !== it.name._id
-                                ),
-                              }
-                              : null
-                          );
-                        }}
-                      >
-                        <Trash className="w-3.5 h-3.5 mr-2" />
-                        Remove
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+                          <Trash className="w-3.5 h-3.5 mr-2" />
+                          Remove
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
 
           <div className="flex justify-end border-t border-slate-100 bg-slate-50/50 px-4 py-3">
             <div className="text-right text-xs">
@@ -379,15 +398,20 @@ export default function PharmacyReturnPage() {
               <div className="flex justify-between gap-6 text-[11px]">
                 <span className="text-slate-500">GST Adjust</span>
                 <span className="text-slate-700 font-medium">
-                  {formatINR(0)}
+                  {formatINR(
+                    order?.items.reduce(
+                      (acc, it) => acc + (it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0) * (defaultGst / 100),
+                      0
+                    ) || 0
+                  )}
                 </span>
               </div>
-              <div className="flex justify-between gap-6 text-sm font-semibold text-slate-900">
+              <div className="flex justify-between gap-6 text-sm font-semibold text-slate-900 border-t border-slate-100 pt-1 mt-1">
                 <span>Total Refund</span>
                 <span>
                   {formatINR(
                     order?.items.reduce(
-                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0),
+                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0) * (1 + defaultGst / 100),
                       0
                     ) ?? 0
                   )}
@@ -506,8 +530,8 @@ export default function PharmacyReturnPage() {
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]">
-                        Confirm & Refund
+                      <Button disabled={returning} className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]">
+                        {returning ? "Returning..." : "Confirm & Refund"}
                       </Button>
                     </AlertDialogTrigger>
 
