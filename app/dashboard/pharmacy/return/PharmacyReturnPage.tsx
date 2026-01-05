@@ -19,6 +19,8 @@ import Header from "./Header";
 import { formatINR } from "@/lib/fNumber";
 import Search from "./Search";
 import toast from "react-hot-toast";
+import Link from "next/link";
+import useSWR from "swr";
 import api from "@/lib/axios";
 import { fDate, fTime } from "@/lib/fDateAndTime";
 import { useAuth } from "@/auth/context/auth-context";
@@ -60,8 +62,12 @@ export default function PharmacyReturnPage() {
     q: null,
   });
 
+  const { data: profile } = useSWR<{ data: { pharmacy: { billing: { defaultGst?: number } } } }>("/users/profile");
+  const defaultGst = profile?.data.pharmacy.billing.defaultGst ?? 0;
+
   const [order, setOrder] = useState<null | OrderType>(null);
   const [fetching, setFetching] = useState(false);
+  const [returning, setReturning] = useState(false);
 
 
 
@@ -133,6 +139,7 @@ export default function PharmacyReturnPage() {
     }
 
     try {
+      setReturning(true);
       const payload: {
         patient: string;
         order: string;
@@ -143,6 +150,7 @@ export default function PharmacyReturnPage() {
           name: string;
           quantity: number;
           reason: string;
+          unitPrice: number;
         }[];
       } = {
         patient: order?.patient._id,
@@ -160,11 +168,13 @@ export default function PharmacyReturnPage() {
       await toast.promise(api.post("pharmacy/return", payload), {
         loading: "Returning...!",
         success: ({ data }) => data.message,
-        error: ({ respose }) => respose.data.message,
+        error: ({ response }) => response.data.message,
       });
       setOrder(null);
     } catch (error) {
       console.log(error);
+    } finally {
+      setReturning(false);
     }
   };
 
@@ -304,7 +314,7 @@ export default function PharmacyReturnPage() {
                       </TableCell>
 
                       <TableCell className="text-right tabular-nums font-semibold text-slate-900">
-                        {formatINR((it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0))}
+                        {formatINR(((it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0)) * (1 + defaultGst / 100))}
                       </TableCell>
 
                       <TableCell className="align-top text-right">
@@ -389,15 +399,20 @@ export default function PharmacyReturnPage() {
               <div className="flex justify-between gap-6 text-[11px]">
                 <span className="text-slate-500">GST Adjust</span>
                 <span className="text-slate-700 font-medium">
-                  {formatINR(0)}
+                  {formatINR(
+                    order?.items.reduce(
+                      (acc, it) => acc + (it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0) * (defaultGst / 100),
+                      0
+                    ) || 0
+                  )}
                 </span>
               </div>
-              <div className="flex justify-between gap-6 text-sm font-semibold text-slate-900">
+              <div className="flex justify-between gap-6 text-sm font-semibold text-slate-900 border-t border-slate-100 pt-1 mt-1">
                 <span>Total Refund</span>
                 <span>
                   {formatINR(
                     order?.items.reduce(
-                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0),
+                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0) * (1 + defaultGst / 100),
                       0
                     ) ?? 0
                   )}
@@ -516,8 +531,8 @@ export default function PharmacyReturnPage() {
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]">
-                        Confirm & Refund
+                      <Button disabled={returning} className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]">
+                        {returning ? "Returning..." : "Confirm & Refund"}
                       </Button>
                     </AlertDialogTrigger>
 

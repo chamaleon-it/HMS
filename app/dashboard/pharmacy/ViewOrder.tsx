@@ -31,8 +31,8 @@ interface Props {
     order: OrderType | null;
     OrderMutate: () => void;
     autoGenerateBill: boolean;
-    handlePrintBill: (mrn: string) => void;
-    isLoadingBill?: boolean;
+    handlePrintBill: (order: OrderType) => void;
+    printingOrderId?: string | null;
 }
 
 function Barcode({ value }: { value: string }) {
@@ -101,10 +101,12 @@ function OrderHeader({ order }: { order: OrderType }) {
     );
 }
 
-export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGenerateBill, handlePrintBill, isLoadingBill }: Props) {
+export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGenerateBill, handlePrintBill, printingOrderId }: Props) {
     const [localOrder, setLocalOrder] = useState<OrderType | null>(order);
     const [updatePayload, setUpdatePayload] = useState<OrderType | null>(order);
     const [openPrintConfirm, setOpenPrintConfirm] = useState(false);
+    const [markingAllPacked, setMarkingAllPacked] = useState(false);
+    const [updatingOrder, setUpdatingOrder] = useState(false);
 
     const { data } = useSWR<{ data: { pharmacy: { inventory: { allowNegativeStock: boolean } } } }>("/users/profile")
     const allowNegativeStock = data?.data?.pharmacy?.inventory?.allowNegativeStock
@@ -133,6 +135,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             return;
         }
         try {
+            setMarkingAllPacked(true);
             await toast.promise(
                 api.post("/pharmacy/orders/mark_all_as_packed", {
                     order: localOrder._id,
@@ -156,6 +159,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             OrderMutate();
         } catch (error) {
             console.log(error);
+        } finally {
+            setMarkingAllPacked(false);
         }
     };
 
@@ -180,6 +185,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             doctor: localOrder.doctor._id,
         };
         try {
+            setUpdatingOrder(true);
             const res = await toast.promise(api.patch(`pharmacy/orders/update`, payload), {
                 loading: "Updating...",
                 success: "Updated successfully",
@@ -189,6 +195,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             OrderMutate();
         } catch (error) {
             toast.error("Failed to update: " + error);
+        } finally {
+            setUpdatingOrder(false);
         }
     };
 
@@ -276,19 +284,20 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
                     <div className="flex items-center gap-2">
                         <Button
+                            disabled={markingAllPacked}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white"
                             onClick={markAllPacked}
                         >
-                            Mark all packed
+                            {markingAllPacked ? "Marking..." : "Mark all packed"}
                         </Button>
                         {
                             autoGenerateBill ?
                                 <Button
                                     variant="outline"
-                                    disabled={isLoadingBill}
-                                    onClick={() => handlePrintBill(localOrder.mrn)}
+                                    disabled={!!printingOrderId}
+                                    onClick={() => handlePrintBill(localOrder)}
                                 >
-                                    {isLoadingBill ? "Printing..." : "Print"}
+                                    {printingOrderId === localOrder._id ? "Printing..." : "Print"}
                                 </Button>
                                 : <Button
                                     variant="outline"
@@ -301,10 +310,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         }
 
                         <Button
+                            disabled={updatingOrder}
                             className="bg-indigo-600 hover:bg-indigo-700 text-white"
                             onClick={handleUpdate}
                         >
-                            Update Order
+                            {updatingOrder ? "Updating..." : "Update Order"}
                         </Button>
                     </div>
                 </div>
