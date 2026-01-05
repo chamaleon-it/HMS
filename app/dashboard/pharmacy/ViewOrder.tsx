@@ -32,6 +32,7 @@ interface Props {
     OrderMutate: () => void;
     autoGenerateBill: boolean;
     handlePrintBill: (mrn: string) => void;
+    isLoadingBill?: boolean;
 }
 
 function Barcode({ value }: { value: string }) {
@@ -100,7 +101,7 @@ function OrderHeader({ order }: { order: OrderType }) {
     );
 }
 
-export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGenerateBill, handlePrintBill }: Props) {
+export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGenerateBill, handlePrintBill, isLoadingBill }: Props) {
     const [localOrder, setLocalOrder] = useState<OrderType | null>(order);
     const [updatePayload, setUpdatePayload] = useState<OrderType | null>(order);
     const [openPrintConfirm, setOpenPrintConfirm] = useState(false);
@@ -284,9 +285,10 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                             autoGenerateBill ?
                                 <Button
                                     variant="outline"
+                                    disabled={isLoadingBill}
                                     onClick={() => handlePrintBill(localOrder.mrn)}
                                 >
-                                    Print
+                                    {isLoadingBill ? "Printing..." : "Print"}
                                 </Button>
                                 : <Button
                                     variant="outline"

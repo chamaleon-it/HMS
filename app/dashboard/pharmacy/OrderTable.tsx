@@ -81,6 +81,7 @@ export default function OrderTable({
     };
   }>(null)
   const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
+  const [loadingBill, setLoadingBill] = useState(false);
 
   const handlePrint = (order: OrderType) => {
     setPrintOrder(order);
@@ -91,76 +92,84 @@ export default function OrderTable({
   };
 
   const handlePrintBill = async (mrn: string,) => {
-    const params = new URLSearchParams()
-    params.set("q", mrn)
-    const { data } = await api.get<{
-      data: {
-        assignedTo: string,
-        createdAt: Date,
-        discount: number,
-        doctor: {
-          name: string;
-          phoneNumber: string;
-          specialization: string;
-          _id: string
-        },
-        items: {
-          dosage: string;
-          duration: string;
-          food: string;
-          frequency: string;
-          isPacked: string;
-          quantity: number;
-          name: {
+    setLoadingBill(true);
+    try {
+      const params = new URLSearchParams()
+      params.set("q", mrn)
+      const { data } = await api.get<{
+        data: {
+          assignedTo: string,
+          createdAt: Date,
+          discount: number,
+          doctor: {
             name: string;
-            unitPrice: number;
-            _is: string
-
+            phoneNumber: string;
+            specialization: string;
+            _id: string
           },
-        }[];
-        mrn: string;
-        patient: {
-          name: string;
-          mrn?: string;
-          phoneNumber?: string;
-          gender?: string;
-          dateOfBirth?: string | Date;
-          address?: string;
+          items: {
+            dosage: string;
+            duration: string;
+            food: string;
+            frequency: string;
+            isPacked: string;
+            quantity: number;
+            name: {
+              name: string;
+              unitPrice: number;
+              _is: string
+
+            },
+          }[];
+          mrn: string;
+          patient: {
+            name: string;
+            mrn?: string;
+            phoneNumber?: string;
+            gender?: string;
+            dateOfBirth?: string | Date;
+            address?: string;
+            _id: string
+          }
+          priority: string;
+          status: string;
+          updatedAt: string;
           _id: string
+
+
+        }, message: string
+      }>(`/pharmacy/orders/single?${params}`,)
+      setPrintBill({
+        patient: data.data.patient, payload: {
+          items: data.data.items.map(e => ({ gst: 0, name: e.name.name, quantity: e.quantity, unitPrice: e.name.unitPrice, total: e.quantity * e.name.unitPrice })),
+          cash: 0,
+          discount: data.data.discount,
+          insurance: 0,
+          online: 0,
+          patient: data.data.patient._id,
+          department: data.data.doctor.specialization,
+          doctor: data.data.doctor.name,
+          note: "",
+
+        },
+        invoiceDetails: {
+          totalGst: 0,
+          prefix,
+          roundOffAmount: 0,
+          subtotal: data.data.items.reduce((a, b) => a + (b.quantity * b.name.unitPrice), 0),
+          grandTotal: data.data.items.reduce((a, b) => a + (b.quantity * b.name.unitPrice), 0) - data.data.discount
         }
-        priority: string;
-        status: string;
-        updatedAt: string;
-        _id: string
-
-
-      }, message: string
-    }>(`/pharmacy/orders/single?${params}`,)
-    setPrintBill({
-      patient: data.data.patient, payload: {
-        items: data.data.items.map(e => ({ gst: 0, name: e.name.name, quantity: e.quantity, unitPrice: e.name.unitPrice, total: e.quantity * e.name.unitPrice })),
-        cash: 0,
-        discount: data.data.discount,
-        insurance: 0,
-        online: 0,
-        patient: data.data.patient._id,
-        department: data.data.doctor.specialization,
-        doctor: data.data.doctor.name,
-        note: "",
-
-      },
-      invoiceDetails: {
-        totalGst: 0,
-        prefix,
-        roundOffAmount: 0,
-        subtotal: data.data.items.reduce((a, b) => a + (b.quantity * b.name.unitPrice), 0),
-        grandTotal: data.data.items.reduce((a, b) => a + (b.quantity * b.name.unitPrice), 0) - data.data.discount
-      }
-    });
-    setTimeout(() => {
-      window.print();
-      setPrintBill(null);
-    }, 100);
+      });
+      setTimeout(() => {
+        window.print();
+        setPrintBill(null);
+      }, 100);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to fetch bill details");
+    } finally {
+      setLoadingBill(false);
+    }
   }
 
   const [open, setOpen] = useState(false);
@@ -291,12 +300,13 @@ export default function OrderTable({
                 {autoGenerateBill ? <Button
                   variant="outline"
                   size="sm"
+                  disabled={loadingBill}
                   className="gap-2 h-8 text-xs"
                   onClick={() => { handlePrintBill(r.mrn) }}
                 >
 
                   <Printer className="h-3.5 w-3.5" />
-                  Print Bill
+                  {loadingBill ? "Printing..." : "Print Bill"}
 
                 </Button> : <Button
                   variant="outline"
@@ -326,6 +336,7 @@ export default function OrderTable({
         OrderMutate={OrderMutate}
         autoGenerateBill={autoGenerateBill}
         handlePrintBill={handlePrintBill}
+        isLoadingBill={loadingBill}
       />
 
       {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} />}

@@ -40,6 +40,7 @@ import PatientSelection from "./PatientSelection";
 import ItemSelected from "./ItemSelected";
 import usePrint from "./usePrint";
 import PrintReceipt from "./PrintReceipt";
+import { useBillCalculations } from "./hooks/useBillCalculations";
 import {
   Sheet,
   SheetContent,
@@ -328,15 +329,32 @@ export default function CreateBill({
   }, []);
 
 
+
   const { onClick, downloadPdf } = usePrint()
 
-
+  const {
+    subtotal,
+    totalGst,
+    roundOffAmount,
+    finalTotal,
+    totalPaid,
+    dueAmount
+  } = useBillCalculations({
+    items: payload.items,
+    discount: payload.discount,
+    roundOff: pharmacyBilling.roundOff,
+    payments: {
+      cash: payload.cash,
+      online: payload.online,
+      insurance: payload.insurance
+    }
+  });
 
   return (
     <div className="space-y-4">
       <div
         className={
-          "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900 relative z-10"
+          "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900 relative z-10"
         }
       >
         <div className="mb-4 flex justify-between items-center">
@@ -376,7 +394,7 @@ export default function CreateBill({
           </div>
 
           <Sheet open={openCreate} onOpenChange={setOpenCreate}>
-            <SheetContent className="w-full !max-w-lg overflow-y-auto [&>button]:hidden">
+            <SheetContent className="w-full max-w-lg! overflow-y-auto [&>button]:hidden">
               <SheetHeader className="flex-row items-center justify-between border-b pb-4">
                 <SheetTitle>Customer Register</SheetTitle>
                 <button
@@ -468,7 +486,7 @@ export default function CreateBill({
 
           <div
             className={
-              "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
+              "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900"
             }
           >
             <div className="mb-3 flex items-center justify-between">
@@ -635,7 +653,7 @@ export default function CreateBill({
 
           <div
             className={
-              "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
+              "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900"
             }
           >
             <div className="mb-2 flex items-center gap-2 text-sm font-medium">
@@ -838,7 +856,7 @@ export default function CreateBill({
 
           <div
             className={
-              "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
+              "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900"
             }
           >
             <div className="mb-2 flex items-center gap-2 text-sm font-medium">
@@ -862,7 +880,7 @@ export default function CreateBill({
         <div className="col-span-12 lg:col-span-4">
           <motion.div
             className={
-              "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900" +
+              "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900" +
               " sticky top-4"
             }
             initial={{ opacity: 0, y: 8 }}
@@ -877,12 +895,7 @@ export default function CreateBill({
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">Subtotal</span>
                 <span className="font-medium tabular-nums">
-                  {formatINR(
-                    payload.items.reduce(
-                      (a, b) => a + b.quantity * b.unitPrice,
-                      0
-                    )
-                  )}
+                  {formatINR(subtotal)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
@@ -895,47 +908,33 @@ export default function CreateBill({
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">GST</span>
                 <span className="font-medium tabular-nums">
-                  {formatINR(
-                    payload.items.reduce(
-                      (a, b) =>
-                        a +
-                        ((b.quantity * b.unitPrice) * b.gst) / 100,
-                      0
-                    )
-                  )}
+                  {formatINR(totalGst)}
                 </span>
               </div>
 
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">Round off</span>
                 <span className="font-medium tabular-nums">
-                  {formatINR(pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)}
+                  {formatINR(roundOffAmount)}
                 </span>
               </div>
               <div className="my-2 h-px bg-slate-200" />
               <div className="flex items-center justify-between text-base font-semibold">
                 <span>Total</span>
                 <span className="tabular-nums">
-                  {formatINR(
-                    payload.items.reduce((a, b) => a + b.total, 0)
-                    - (pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)
-                    - (payload.discount)
-                  )}
+                  {formatINR(finalTotal)}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">Paid</span>
                 <span className="font-medium tabular-nums">
-                  {formatINR(payload.cash + payload.online + payload.insurance)}
+                  {formatINR(totalPaid)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-rose-600 dark:text-rose-400">
                 <span className="font-semibold">Due</span>
                 <span className="font-semibold tabular-nums">
-                  {formatINR(
-                    payload.items.reduce((a, b) => a + b.total, 0) - (pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                    (payload.cash + payload.online + payload.insurance + payload.discount)
-                  )}
+                  {formatINR(dueAmount)}
                 </span>
               </div>
             </div>
@@ -1027,12 +1026,10 @@ export default function CreateBill({
         patient={selectedPatient}
         invoiceDetails={{
           prefix: pharmacyBilling.prefix,
-          roundOffAmount: pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0,
-          subtotal: payload.items.reduce((a, b) => a + b.quantity * b.unitPrice, 0),
-          totalGst: payload.items.reduce((a, b) => a + ((b.quantity * b.unitPrice) * b.gst / 100), 0),
-          grandTotal: payload.items.reduce((a, b) => a + b.total, 0)
-            - (pharmacyBilling.roundOff ? getDecimal(payload.items.reduce((a, b) => a + b.total, 0)) : 0)
-            - (payload.discount)
+          roundOffAmount: roundOffAmount,
+          subtotal: subtotal,
+          totalGst: totalGst,
+          grandTotal: finalTotal
         }}
       />
     </div >

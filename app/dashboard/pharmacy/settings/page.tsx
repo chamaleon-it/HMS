@@ -13,11 +13,13 @@ import { Badge } from "@/components/ui/badge";
 import TopSummary from "./TopSummary";
 import useSWR from "swr";
 import { ProfileType } from "./interface";
+import { TableSkeleton } from "../components/PharmacySkeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PharmacySettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
 
-  const { data: ProfileData, mutate: profileMutate } = useSWR<{
+  const { data: ProfileData, mutate: profileMutate, isLoading } = useSWR<{
     message: string;
     data: ProfileType;
   }>("/users/profile");
@@ -84,20 +86,29 @@ const PharmacySettingsPage: React.FC = () => {
         </TabsList>
       </Tabs>
       <div className="flex flex-col gap-6 p-5 w-full bg-slate-50 text-slate-900">
-        <TopSummary profile={profile} />
-        {activeSection === "general" && (
-          <General profile={profile} profileMutate={profileMutate} />
+        {isLoading ? (
+          <>
+            <div className="h-32 w-full rounded-2xl bg-white animate-pulse" />
+            <TableSkeleton rows={8} columns={4} />
+          </>
+        ) : (
+          <>
+            <TopSummary profile={profile} />
+            {activeSection === "general" && (
+              <General profile={profile} profileMutate={profileMutate} />
+            )}
+            {activeSection === "billing" && (
+              <Billing profileMutate={profileMutate} profile={profile} />
+            )}
+            {activeSection === "inventory" && (
+              <Inventory profileMutate={profileMutate} profile={profile} />
+            )}
+            {activeSection === "notifications" && (
+              <Notifications profileMutate={profileMutate} profile={profile} />
+            )}
+            {activeSection === "security" && <Security />}
+          </>
         )}
-        {activeSection === "billing" && (
-          <Billing profileMutate={profileMutate} profile={profile} />
-        )}
-        {activeSection === "inventory" && (
-          <Inventory profileMutate={profileMutate} profile={profile} />
-        )}
-        {activeSection === "notifications" && (
-          <Notifications profileMutate={profileMutate} profile={profile} />
-        )}
-        {activeSection === "security" && <Security />}
       </div>
     </AppShell>
   );

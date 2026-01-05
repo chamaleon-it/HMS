@@ -27,25 +27,26 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
 import { fDate } from "@/lib/fDateAndTime";
-import { ArrowLeft, ChevronDownIcon,  Trash2 } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, Trash2 } from "lucide-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import useSWR from "swr";
 import SelectMedicine from "./SelectItem";
 
 interface State {
-  wholesaler: null | string;
-  contactPerson: null | string;
-  phoneNumber: null | string;
-  deliveryAddress: null | string;
-  expectedDelivery: null | string;
-  paymentTerms: null | string;
+  wholesaler: string;
+  contactPerson: string;
+  phoneNumber: string;
+  deliveryAddress: string;
+  expectedDelivery: string;
+  paymentTerms: string;
   items: {
     name: string;
     quantity: number;
     notes?: string;
+    unitPrice?: number;
   }[];
-  instructions?: null | string;
+  instructions?: string;
   partialDelivery: boolean;
   urgent: boolean;
 }
@@ -58,17 +59,19 @@ function PurchaseOrder({
   mutate: () => void;
 }) {
   const [state, setState] = useState<State>({
-    wholesaler: null,
-    contactPerson: null,
-    phoneNumber: null,
-    deliveryAddress: null,
-    expectedDelivery: null,
-    paymentTerms: null,
+    wholesaler: "",
+    contactPerson: "",
+    phoneNumber: "",
+    deliveryAddress: "",
+    expectedDelivery: "",
+    paymentTerms: "",
     items: [],
-    instructions: null,
+    instructions: "",
     partialDelivery: false,
     urgent: false,
   });
+
+  const [loading, setLoading] = useState(false);
 
   const { data: wholesalerData } = useSWR<{
     message: string;
@@ -126,20 +129,21 @@ function PurchaseOrder({
     }
 
     try {
+      setLoading(true);
       await toast.promise(api.post("/pharmacy/purchase", state), {
         loading: "Purchase order is creating.",
         error: ({ response }) => response.data.message,
         success: ({ data }) => data.message,
       });
       setState({
-        wholesaler: null,
-        contactPerson: null,
-        phoneNumber: null,
-        deliveryAddress: null,
-        expectedDelivery: null,
-        paymentTerms: null,
+        wholesaler: "",
+        contactPerson: "",
+        phoneNumber: "",
+        deliveryAddress: "",
+        expectedDelivery: "",
+        paymentTerms: "",
         items: [],
-        instructions: null,
+        instructions: "",
         partialDelivery: false,
         urgent: false,
       });
@@ -147,6 +151,8 @@ function PurchaseOrder({
       onBack();
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -215,7 +221,7 @@ function PurchaseOrder({
   return (
     <div className="flex flex-col gap-6   p-5 ">
       {/* HEADER WITH BACK */}
-      <header className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 bg-gradient-to-br from-background via-background to-muted/40 border rounded-2xl p-4 lg:p-5 shadow-sm">
+      <header className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 bg-linear-to-br from-background via-background to-muted/40 border rounded-2xl p-4 lg:p-5 shadow-sm">
         <div className="flex flex-col gap-3 w-full">
           <div className="flex items-center gap-3 flex-wrap">
             <Button
@@ -559,8 +565,8 @@ function PurchaseOrder({
               >
                 Cancel
               </Button>
-              <Button className="rounded-xl h-9 px-4" onClick={sendOrders}>
-                Send Purchase Order
+              <Button className="rounded-xl h-9 px-4" onClick={sendOrders} disabled={loading}>
+                {loading ? "Sending..." : "Send Purchase Order"}
               </Button>
             </div>
           </div>
