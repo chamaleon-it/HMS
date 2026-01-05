@@ -259,8 +259,9 @@ export function Sidebar() {
       {/* Account card */}
       <div className="mt-auto p-4">
         <div className="rounded-2xl border border-slate-200 bg-white p-3 shadow-sm flex items-center gap-3">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-indigo-400 to-fuchsia-400 grid place-items-center text-white font-medium">
-            {user?.name.slice(0, 1).toUpperCase()}
+          <div className="h-12 w-12 rounded-xl grid place-items-center">
+            {/* {user?.name.slice(0, 1).toUpperCase()} */}
+            <img src="/logo.png" alt="" className="h-12 w-12" />
           </div>
           {!collapsed && (
             <div className="leading-tight">

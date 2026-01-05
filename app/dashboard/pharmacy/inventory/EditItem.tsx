@@ -337,13 +337,7 @@ export function EditItem({
         </div>
       </div>
 
-      <div className="rounded-lg border bg-gray-50 p-3 text-[12px] leading-relaxed text-gray-600">
-        <div className="font-medium text-gray-800 text-[12px] mb-1">
-          Stock Note
-        </div>
-        Batch #A551 • Received 28 Oct 2025 • +40 units from {item.supplier} at ₹
-        2.30 each
-      </div>
+
 
       <div className="flex gap-2">
         <Button className="bg-indigo-600 text-white flex-1" type="submit">

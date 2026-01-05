@@ -112,9 +112,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                 </button>
             </div>
 
-            <p className="mt-2 text-[11px] text-slate-500">
-                Per-line discount → GST. Supports split payments & insurance.
-            </p>
+
         </motion.div>
     );
 };

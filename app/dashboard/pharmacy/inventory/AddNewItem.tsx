@@ -304,13 +304,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      <div className="rounded-lg border bg-gray-50 p-3 text-[12px] leading-relaxed text-gray-600">
-        <div className="font-medium text-gray-800 text-[12px] mb-1">
-          Initial Stock Batch
-        </div>
-        Add where you got this first stock, batch number, notes etc so audit is
-        clean.
-      </div>
+
 
       <div className="flex gap-2">
         <Button className="bg-indigo-600 text-white flex-1" type="submit">

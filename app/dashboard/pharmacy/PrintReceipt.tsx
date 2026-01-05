@@ -179,7 +179,6 @@ export default function PrintReceipt({
                         </div>
                         <div className="border-t border-slate-300 pt-4 text-center">
                             <p className="font-bold text-slate-900 uppercase tracking-wider">Authorised Pharmacist</p>
-                            <p className="text-[9px] text-slate-400 mt-1">Reg No: PH/2045/BNG</p>
                         </div>
                         <div className="border-t border-slate-300 pt-4 text-center h-24">
                             <p className="font-bold text-slate-900 uppercase tracking-wider">Hospital Seal</p>

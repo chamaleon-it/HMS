@@ -229,9 +229,9 @@ export default function OrderTable({
             <TableHead className="text-white font-semibold">Items</TableHead>
             <TableHead className="text-white font-semibold">Priority</TableHead>
             <TableHead className="text-white font-semibold">Status</TableHead>
-            <TableHead className="text-left text-white font-semibold">
+            {/* <TableHead className="text-left text-white font-semibold">
               Assigned To
-            </TableHead>
+            </TableHead> */}
 
             <TableHead className="text-left text-white font-semibold">
               Created At
@@ -268,7 +268,7 @@ export default function OrderTable({
               <TableCell>
                 <StatusBadge status={r?.status} />
               </TableCell>
-              <TableCell className="text-left">
+              {/* <TableCell className="text-left">
                 {r?.assignedTo ? (
                   <Badge className={"bg-emerald-100 text-emerald-700"}>
                     {r?.assignedTo}
@@ -276,7 +276,7 @@ export default function OrderTable({
                 ) : (
                   <span className="text-slate-500">Unassigned</span>
                 )}
-              </TableCell>
+              </TableCell> */}
               <TableCell>{fDateandTime(r?.createdAt)}</TableCell>
               <TableCell className="text-right space-x-2">
                 <Button
