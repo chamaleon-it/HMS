@@ -243,7 +243,7 @@ const Customer: React.FC = () => {
               </div>
 
               <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
                     Total Spend
                   </div>
@@ -251,7 +251,7 @@ const Customer: React.FC = () => {
                     {formatINR(customer?.totalSpend ?? 0)}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
                     Total Visits
                   </div>
@@ -259,7 +259,7 @@ const Customer: React.FC = () => {
                     {customer?.totalVisit}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-violet-700 uppercase tracking-wide">
                     Last Purchase
                   </div>
@@ -267,7 +267,7 @@ const Customer: React.FC = () => {
                     {fDate(customer?.lastPurchase)}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
                     Avg Spend
                   </div>
