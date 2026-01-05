@@ -64,7 +64,7 @@ const Customers: React.FC = () => {
                 Customers
               </h1>
               <p className="text-sm text-slate-500 mt-1">
-                Click a row to open full pharmacy history for that patient.
+                Click a row to open full pharmacy history for that customer.
               </p>
             </div>
             <div className="flex gap-3 items-center">
@@ -72,7 +72,7 @@ const Customers: React.FC = () => {
               <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
                 Showing <span className="font-semibold">{customers.length}</span>{" "}
                 of <span className="font-semibold">{customers.length}</span>{" "}
-                patients
+                customers
               </div>
               <NewOrder />
             </div>

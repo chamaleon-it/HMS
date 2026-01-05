@@ -114,7 +114,7 @@ export default function InventoryPage() {
           )}
 
           {/* Footer */}
-          <div className="flex justify-between text-sm text-gray-600">
+          {/* <div className="flex justify-between text-sm text-gray-600">
             <p>Total Items: {items.length}</p>
             <p>
               Total Value:{" "}
@@ -122,7 +122,7 @@ export default function InventoryPage() {
                 items?.reduce((a, b) => a + b.unitPrice * b.quantity, 0)
               )}
             </p>
-          </div>
+          </div> */}
         </div>
 
         <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>

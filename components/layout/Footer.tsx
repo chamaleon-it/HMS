@@ -13,21 +13,21 @@ export default function Footer() {
         {/* Left */}
         <div className="flex items-center gap-2">
           <Heart className="h-5 w-5 text-rose-300 animate-pulse" />
-          <span className="font-medium">Made with care for healthcare ©️ {new Date().getFullYear()}</span>
+          <span className="font-medium">Made with care for healthcare &copy; {new Date().getFullYear()}</span>
         </div>
 
         {/* Center links */}
         <div className="flex items-center gap-6">
-          <a href="#" className="hover:text-yellow-200 transition-colors">Privacy</a>
+          {/* <a href="#" className="hover:text-yellow-200 transition-colors">Privacy</a>
           <a href="#" className="hover:text-lime-200 transition-colors">Terms</a>
-          <a href="#" className="hover:text-cyan-200 transition-colors">Support</a>
+          <a href="#" className="hover:text-cyan-200 transition-colors">Support</a> */}
         </div>
 
         {/* Right social icons */}
         <div className="flex items-center gap-4">
-          <a href="#" className="rounded-full p-2 hover:bg-white/20 transition"><Github className="h-5 w-5"/></a>
+          {/* <a href="#" className="rounded-full p-2 hover:bg-white/20 transition"><Github className="h-5 w-5"/></a>
           <a href="#" className="rounded-full p-2 hover:bg-white/20 transition"><Twitter className="h-5 w-5 text-sky-300"/></a>
-          <a href="#" className="rounded-full p-2 hover:bg-white/20 transition"><Linkedin className="h-5 w-5 text-blue-200"/></a>
+          <a href="#" className="rounded-full p-2 hover:bg-white/20 transition"><Linkedin className="h-5 w-5 text-blue-200"/></a> */}
         </div>
       </div>
     </footer>
