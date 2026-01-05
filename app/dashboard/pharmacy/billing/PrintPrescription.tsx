@@ -1,5 +1,6 @@
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { OrderType } from "../interface";
+import Watermark from "@/components/print/Watermark";
 
 interface PrintPrescriptionProps {
     order: OrderType | null;
@@ -174,6 +175,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                     </div>
                 </div>
             </div>
+            <Watermark />
         </div>
     );
 }

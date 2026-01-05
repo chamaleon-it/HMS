@@ -24,6 +24,16 @@ import api from "@/lib/axios";
 import { OrderType } from "../../interface";
 import PrintPrescription from "../../billing/PrintPrescription";
 import PrintReceipt from "../../PrintReceipt";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const Customer: React.FC = () => {
   const router = useRouter();
@@ -52,6 +62,7 @@ const Customer: React.FC = () => {
   const [type, setType] = useState("all");
 
   const [repeatLoading, setRepeatLoading] = useState(false)
+  const [showRepeatConfirm, setShowRepeatConfirm] = useState(false)
 
   const { data: profile } = useSWR<{ data: { pharmacy: { billing: { autoGenerateBill: boolean, prefix: string } } }, message: string }>("/users/profile")
   const autoGenerateBill = profile?.data.pharmacy.billing.autoGenerateBill ?? false
@@ -635,30 +646,48 @@ const Customer: React.FC = () => {
                         <div className="flex items-center gap-2">
 
 
-                          <Button
-                            disabled={repeatLoading}
-                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
-                            onClick={async () => {
-                              try {
-                                setRepeatLoading(true)
-                                await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
-                                  loading: "Loading...",
-                                  success: "Repeat Prescription",
-                                  error: "Something went wrong"
-                                })
-                                const updatedData = await mutate()
-                                setSelectedVisit(updatedData?.data?.orders[0] ?? null)
-                              } catch (error) {
-                                console.log(error)
-                              } finally {
-                                setRepeatLoading(false)
-                              }
-
-                            }}
-                          >
-                            {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                            Repeat Prescription
-                          </Button>
+                          <AlertDialog open={showRepeatConfirm} onOpenChange={setShowRepeatConfirm}>
+                            <Button
+                              disabled={repeatLoading}
+                              className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                              onClick={() => setShowRepeatConfirm(true)}
+                            >
+                              {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                              Repeat Prescription
+                            </Button>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Repeat Prescription?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to repeat this prescription? This will create a new order with the same items.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  className="bg-slate-900 text-white hover:bg-slate-800"
+                                  onClick={async () => {
+                                    try {
+                                      setRepeatLoading(true)
+                                      await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
+                                        loading: "Loading...",
+                                        success: "Repeat Prescription",
+                                        error: "Something went wrong"
+                                      })
+                                      const updatedData = await mutate()
+                                      setSelectedVisit(updatedData?.data?.orders[0] ?? null)
+                                    } catch (error) {
+                                      console.log(error)
+                                    } finally {
+                                      setRepeatLoading(false)
+                                    }
+                                  }}
+                                >
+                                  Confirm
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
 
                           <Button
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
