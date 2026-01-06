@@ -6,7 +6,7 @@ export default function HospitalName() {
     return (
         <div className="flex gap-5 items-center">
             <div className="size-[100px] flex items-center justify-center text-white text-2xl font-black relative">
-                <Image src={"/print/logo.png"} alt="Logo" width={100} height={100} className='w-full h-full' loading='eager' fetchPriority='high' priority />
+                <Image src={"/print/logo-white.png"} alt="Logo" width={100} height={100} className='w-full h-full' loading='eager' fetchPriority='high' priority />
 
             </div>
             <div>
