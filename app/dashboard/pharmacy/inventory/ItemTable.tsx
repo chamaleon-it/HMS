@@ -83,7 +83,7 @@ export default function ItemTable({
   return (
     <Card className="p-0 overflow-hidden">
       <CardContent className="p-0 m-0">
-        <div className="overflow-x-auto w-full max-w-[85vw] md:max-w-[calc(100vw-280px)]">
+        <div className="overflow-x-auto w-full">
           <Table className="whitespace-nowrap">
             <TableHeader>
               <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
@@ -178,7 +178,7 @@ export default function ItemTable({
                           </Button>
                         </AlertDialogTrigger>
 
-                        <AlertDialogContent className="!max-w-sm">
+                        <AlertDialogContent className="max-w-sm!">
                           <AlertDialogHeader>
                             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                             <AlertDialogDescription>

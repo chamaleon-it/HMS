@@ -23,7 +23,7 @@ export default function AppShell({ children }: AppShellProps) {
   return (
     <div className="flex">
       <Sidebar />
-      <div className="min-h-screen flex-1">
+      <div className="min-h-screen flex-1 min-w-0">
         <Header />
         <div className="min-h-[calc(100vh-80px)]">
           {children}
