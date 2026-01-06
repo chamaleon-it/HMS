@@ -5,7 +5,7 @@ export default function HospitalName() {
     return (
         <div className="flex gap-3 items-center">
             <div className="h-full flex justify-center items-center">
-                <img src={"/print/logo-white.png"} alt="Logo" width={100} height={100} className='w-[100px] h-[100px] mt-3' />
+                <img src={"/print/logo-white.png"} alt="Logo" width={100} height={100} className='w-[75px] h-[75px]' />
             </div>
             <div className="flex flex-col gap-0.5">
                 <h1 className="text-xl font-bold tracking-tight">Mark Hospital</h1>
