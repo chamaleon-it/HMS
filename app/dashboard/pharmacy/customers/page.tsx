@@ -181,7 +181,7 @@ const Customers: React.FC = () => {
                         </TableCell>
                         <TableCell className="py-3 align-middle text-slate-700">
                           <HighlightText
-                            text={p.patient.phoneNumber}
+                            text={p.patient.phoneNumber.length < 5 ? "-" : p.patient.phoneNumber}
                             highlight={filter.query || ""}
                           />
                         </TableCell>
