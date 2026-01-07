@@ -7,12 +7,14 @@ import CreateBill from "./CreateBill";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "./Header";
 import useSWR from "swr";
+import { Receipt, PlusCircle } from "lucide-react";
+import { motion } from "framer-motion";
 
 export interface FilterType {
   q: null | string;
   status: string;
   method: string;
-  date:undefined | Date
+  date: undefined | Date
 }
 
 export default function BillingPage() {
@@ -21,7 +23,7 @@ export default function BillingPage() {
     q: null,
     status: "",
     method: "",
-    date:undefined
+    date: undefined
   });
 
   const params = new URLSearchParams();
@@ -37,8 +39,8 @@ export default function BillingPage() {
   if (filter.method !== "all") {
     params.set("method", filter.method);
   }
-  if(filter.date){
-    params.set("date",filter.date.toISOString())
+  if (filter.date) {
+    params.set("date", filter.date.toISOString())
   }
 
   const { data: billingData, mutate: billingMutate } = useSWR<{
@@ -66,12 +68,6 @@ export default function BillingPage() {
     <AppShell>
       <div
         className="min-h-[calc(100vh-80px)] w-full p-5 text-slate-900 dark:text-slate-100"
-        style={
-          {
-            background:
-              "radial-gradient(110% 80% at 0% 0%, rgba(79,70,229,0.08), transparent 60%), radial-gradient(110% 80% at 100% 100%, rgba(236,72,153,0.08), transparent 60%), linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.88))",
-          } as React.CSSProperties
-        }
       >
         <div className="">
           <Header setTab={setTab} />
@@ -82,14 +78,37 @@ export default function BillingPage() {
             onValueChange={(e) => setTab(e as "all" | "new")}
             value={tab}
           >
-            <TabsList className="mb-4">
-              <TabsTrigger value="all" className="cursor-pointer">
-                All Bills
-              </TabsTrigger>
-              <TabsTrigger value="new" className="cursor-pointer">
-                Create Bill
-              </TabsTrigger>
-            </TabsList>
+            <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 mb-6 print:hidden">
+              {[
+                { key: "all", label: "All Bills", icon: Receipt },
+                { key: "new", label: "Create Bill", icon: PlusCircle },
+              ].map(({ key, label, icon: Icon }) => {
+                const active = tab === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setTab(key as "all" | "new")}
+                    className={
+                      "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
+                      (active ? "text-white" : "text-gray-700")
+                    }
+                    type="button"
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="wholesaler-billing-tab-indicator"
+                        className="absolute inset-0 rounded-full"
+                        style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                        transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center gap-2">
+                      <Icon size={16} /> {label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
             <TabsContent value="all">
               <AllBill
                 billing={billing}

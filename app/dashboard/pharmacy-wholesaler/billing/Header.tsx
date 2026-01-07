@@ -2,23 +2,23 @@ import { FilePlus2, FileText, RefreshCcw, Wallet2 } from 'lucide-react';
 import React from 'react'
 
 interface PropsType {
-    setTab : (v:"new")=>void
+  setTab: (v: "new") => void
 }
 
-export default function Header({setTab}:PropsType) {
+export default function Header({ setTab }: PropsType) {
   return (
     <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight">Billing</h1>
-              <p className="text-sm text-gray-500">
-                Search, filter & review billing history
-              </p>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <PrimaryButton onClick={() => setTab("new")}>
-                <FilePlus2 className="mr-2 inline h-4 w-4" /> New Invoice
-              </PrimaryButton>
-              {/* <button className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:brightness-110">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight">Billing</h1>
+        <p className="text-sm text-gray-500">
+          Search, filter & review billing history
+        </p>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <PrimaryButton onClick={() => setTab("new")}>
+          <FilePlus2 className="mr-2 inline h-4 w-4" /> New Invoice
+        </PrimaryButton>
+        {/* <button className="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:brightness-110">
                 <Wallet2 className="mr-2 inline h-4 w-4" /> Collect Payment
               </button>
               <button className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-300">
@@ -27,8 +27,8 @@ export default function Header({setTab}:PropsType) {
               <button className="rounded-lg border border-rose-300 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-800 hover:bg-rose-100 dark:border-rose-400/40 dark:bg-rose-400/10 dark:text-rose-300">
                 <FileText className="mr-2 inline h-4 w-4" /> Reports
               </button> */}
-            </div>
-          </div>
+      </div>
+    </div>
   )
 }
 

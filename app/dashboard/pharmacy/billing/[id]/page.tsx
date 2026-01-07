@@ -5,14 +5,13 @@ import HospitalName from "@/components/print/HospitalName";
 import Watermark from "@/components/print/Watermark";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
-import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
-import { Printer } from "lucide-react";
+import { Printer, ArrowLeft } from "lucide-react";
+import PharmacyHeader from "../../components/PharmacyHeader";
 
 export default function InvoiceView() {
   const { id } = useParams();
@@ -97,7 +96,10 @@ export default function InvoiceView() {
   return (
     <AppShell>
       <div className="flex flex-col items-center p-8 bg-slate-100 min-h-screen overflow-auto gap-6 print:p-0 print:bg-white">
-        <div className="w-full  flex justify-between items-center print:hidden">
+        <PharmacyHeader
+          title="Invoice Details"
+          subtitle={`Viewing invoice ${billing.mrn}`}
+        >
           <Link
             href="/dashboard/pharmacy/billing"
             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-colors shadow-sm text-xs font-bold"
@@ -105,7 +107,7 @@ export default function InvoiceView() {
             <ArrowLeft className="h-4 w-4" />
             Back to bills
           </Link>
-        </div>
+        </PharmacyHeader>
 
         {/* Receipt Container */}
         <div className="bg-white text-slate-900 font-sans leading-relaxed shadow-xl w-full flex flex-col overflow-hidden rounded-xl print:shadow-none print:rounded-none">

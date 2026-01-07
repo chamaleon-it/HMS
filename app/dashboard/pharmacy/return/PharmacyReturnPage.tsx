@@ -179,7 +179,7 @@ export default function PharmacyReturnPage() {
 
   return (
     <AppShell>
-      <div className="p-6 flex flex-col gap-6 text-sm min-h-[calc(100vh-80px)] bg-slate-50/50">
+      <div className="p-5 flex flex-col gap-6 text-sm min-h-[calc(100vh-80px)]">
         <Header />
 
         <Search

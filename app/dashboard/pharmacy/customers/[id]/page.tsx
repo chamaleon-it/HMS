@@ -24,6 +24,7 @@ import api from "@/lib/axios";
 import { OrderType } from "../../interface";
 import PrintPrescription from "../../billing/PrintPrescription";
 import PrintReceipt from "../../PrintReceipt";
+import PharmacyHeader from "../../components/PharmacyHeader";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -197,7 +198,10 @@ const Customer: React.FC = () => {
     <AppShell>
       <div className="bg-slate-50 p-5 print:hidden">
         <main className="space-y-6">
-          <div className="mb-2">
+          <PharmacyHeader
+            title="Customer Profile"
+            subtitle={`Viewing profile for ${customer?.patient?.name || 'Customer'}`}
+          >
             <Button
               variant="outline"
               size="sm"
@@ -207,7 +211,7 @@ const Customer: React.FC = () => {
               <ArrowLeft className="w-4 h-4" />
               Back to customers
             </Button>
-          </div>
+          </PharmacyHeader>
           {error && <EmptyPurchases />}
           {!error && (
             <>

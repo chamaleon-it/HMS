@@ -17,6 +17,7 @@ import useSWR from "swr";
 import { useAuth } from "@/auth/context/auth-context";
 import { PurchaseDataType } from "./interface";
 import { TableSkeleton } from "../components/PharmacySkeleton";
+import PharmacyHeader from "../components/PharmacyHeader";
 
 export default function PurchaseOrdersListPage() {
 
@@ -60,22 +61,17 @@ export default function PurchaseOrdersListPage() {
   return (
     <AppShell>
       <div className="flex flex-col gap-6 p-5 min-h-[calc(100vh-80px)]">
-        <header className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 bg-linear-to-br from-background via-background to-muted/40 border rounded-2xl p-4 lg:p-5 shadow-sm">
-          <div>
-            <h1 className="text-xl font-semibold tracking-tight">
-              Purchase Orders
-            </h1>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Track, manage, and create purchase orders to wholesalers.
-            </p>
-          </div>
+        <PharmacyHeader
+          title="Purchase Orders"
+          subtitle="Track, manage, and create purchase orders to wholesalers"
+        >
           <Button
             onClick={() => setShowCreate(true)}
             className="rounded-xl h-9 px-3 gap-2"
           >
             <Plus className="h-4 w-4" /> Create Purchase Order
           </Button>
-        </header>
+        </PharmacyHeader>
 
         {/* FILTER BAR */}
         <Card className="rounded-2xl shadow-sm border-border/60">

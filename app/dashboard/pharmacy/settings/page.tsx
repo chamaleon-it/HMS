@@ -15,6 +15,7 @@ import useSWR from "swr";
 import { ProfileType } from "./interface";
 import { TableSkeleton } from "../components/PharmacySkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
+import PharmacyHeader from "../components/PharmacyHeader";
 
 const PharmacySettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
@@ -27,23 +28,12 @@ const PharmacySettingsPage: React.FC = () => {
 
   return (
     <AppShell>
-      <div className="bg-white/70 backdrop-blur border-b ">
-        <div className="p-5 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <Shield className="h-5 w-5" />
-            <div>
-              <h1 className="text-xl font-semibold">Settings</h1>
-              <p className="text-xs text-muted-foreground">
-                Manage your profile, specialization, and security
-              </p>
-            </div>
-          </div>
-          {/* <div className="hidden md:flex items-center gap-2">
-            <Badge className="bg-emerald-600 text-white">Mark Hospital</Badge>
-            <Badge variant="secondary">HIPAA-ready</Badge>
-            <Badge variant="outline">ISO 27001-minded</Badge>
-          </div> */}
-        </div>
+      <div className="px-5 pt-5">
+
+        <PharmacyHeader
+          title="Settings"
+          subtitle="Manage your profile, specialization, and security"
+        />
       </div>
       <Tabs
         value={activeSection}

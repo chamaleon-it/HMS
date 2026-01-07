@@ -18,11 +18,12 @@ import useSWR from "swr";
 import Filter, { FilterType } from "./Filter";
 import NewOrder from "./NewOrder";
 import { TableSkeleton } from "../components/PharmacySkeleton";
+import PharmacyHeader from "../components/PharmacyHeader";
 
 const Customers: React.FC = () => {
   const router = useRouter();
 
-  const { data: customersData, isLoading } = useSWR<{
+  const { data: customersData, isLoading, mutate } = useSWR<{
     message: string;
     data: {
       totalSpend: number;
@@ -56,27 +57,19 @@ const Customers: React.FC = () => {
 
   return (
     <AppShell>
-      <div className="bg-slate-50 p-5 min-h-[calc(100vh-80px)]">
+      <div className="p-5 min-h-[calc(100vh-80px)]">
         <main className="space-y-6">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-                Customers
-              </h1>
-              <p className="text-sm text-slate-500 mt-1">
-                Click a row to open full pharmacy history for that customer.
-              </p>
+          <PharmacyHeader
+            title="Customers"
+            subtitle="Click a row to open full pharmacy history for that customer"
+          >
+            <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
+              Showing <span className="font-semibold">{customers.length}</span>{" "}
+              of <span className="font-semibold">{customers.length}</span>{" "}
+              customers
             </div>
-            <div className="flex gap-3 items-center">
-
-              <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
-                Showing <span className="font-semibold">{customers.length}</span>{" "}
-                of <span className="font-semibold">{customers.length}</span>{" "}
-                customers
-              </div>
-              <NewOrder />
-            </div>
-          </div>
+            <NewOrder mutate={mutate} />
+          </PharmacyHeader>
 
           <Filter filter={filter} setFilter={setFilter} />
 
