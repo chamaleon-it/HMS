@@ -80,7 +80,7 @@ const Customers: React.FC = () => {
               <Table>
                 <TableHeader className="bg-slate-700 hover:bg-slate-700">
                   <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 px-4 pl-4">Sl</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 px-4 pl-4">Sl No</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Customers</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">PID</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">
