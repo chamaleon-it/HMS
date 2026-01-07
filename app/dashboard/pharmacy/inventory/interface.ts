@@ -36,4 +36,5 @@ export interface FilterType {
   expiry?: number | undefined;
   page: number;
   limit: number;
+  lowStockThreshold?: number;
 }

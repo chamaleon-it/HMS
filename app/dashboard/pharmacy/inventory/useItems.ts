@@ -10,6 +10,7 @@ export default function useItems({ filter }: { filter: FilterType }) {
   if (filter.category) params.set("category", filter.category);
   if (filter.stock) params.set("stock", filter.stock);
   if (filter.expiry) params.set("expiry", String(filter.expiry));
+  if (filter.lowStockThreshold) params.set("lowStockThreshold", String(filter.lowStockThreshold));
 
   const { data, mutate, isLoading, isValidating, error } = useSWR<{
     message: string;
@@ -17,6 +18,7 @@ export default function useItems({ filter }: { filter: FilterType }) {
     total: number;
     page: number;
     limit: number;
+    lowStockCount: number
   }>(`/pharmacy/items?${params.toString()}`);
 
   return {
@@ -24,6 +26,7 @@ export default function useItems({ filter }: { filter: FilterType }) {
     total: data?.total ?? 0,
     page: data?.page ?? filter.page ?? 1,
     limit: data?.limit ?? filter.limit ?? 10,
+    lowStockCount: data?.lowStockCount,
     mutate,
     isLoading,
     isValidating,
