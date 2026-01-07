@@ -1,14 +1,14 @@
 "use client";
-
 import React, { useState } from "react";
-import { Shield } from "lucide-react";
+
+import { Shield, User, Receipt, Boxes, Bell } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import General from "./General";
 import Billing from "./Billing";
 import Inventory from "./Inventory";
 import Notifications from "./Notifications";
 import Security from "./Security";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
 import TopSummary from "./TopSummary";
 import useSWR from "swr";
@@ -35,46 +35,42 @@ const PharmacySettingsPage: React.FC = () => {
           subtitle="Manage your profile, specialization, and security"
         />
       </div>
-      <Tabs
-        value={activeSection}
-        onValueChange={setActiveSection}
-        className="p-5"
-      >
-        <TabsList className="grid grid-cols-5 w-full bg-white rounded-xl p-1 shadow-sm border h-12 items-stretch">
-          <TabsTrigger
-            value="general"
-            className="gap-2 rounded-lg flex items-center justify-center h-10 w-full text-slate-700 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:ring-1 data-[state=active]:ring-slate-200 hover:bg-slate-50 transition"
-          >
-            General
-          </TabsTrigger>
-          <TabsTrigger
-            value="billing"
-            className="gap-2 rounded-lg flex items-center justify-center h-10 w-full text-slate-700 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:ring-1 data-[state=active]:ring-slate-200 hover:bg-slate-50 transition"
-          >
-            Billing
-          </TabsTrigger>
-          <TabsTrigger
-            value="inventory"
-            className="gap-2 rounded-lg flex items-center justify-center h-10 w-full text-slate-700 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:ring-1 data-[state=active]:ring-slate-200 hover:bg-slate-50 transition"
-          >
-            Inventory
-          </TabsTrigger>
-
-          <TabsTrigger
-            value="notifications"
-            className="gap-2 rounded-lg flex items-center justify-center h-10 w-full text-slate-700 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:ring-1 data-[state=active]:ring-slate-200 hover:bg-slate-50 transition"
-          >
-            Notifications
-          </TabsTrigger>
-
-          <TabsTrigger
-            value="security"
-            className="gap-2 rounded-lg flex items-center justify-center h-10 w-full text-slate-700 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:ring-1 data-[state=active]:ring-slate-200 hover:bg-slate-50 transition"
-          >
-            Security
-          </TabsTrigger>
-        </TabsList>
-      </Tabs>
+      <div className="px-5 pt-5">
+        <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-100 rounded-full p-1 shadow-sm w-full">
+          {[
+            { key: "general", label: "General", icon: User },
+            { key: "billing", label: "Billing", icon: Receipt },
+            { key: "inventory", label: "Inventory", icon: Boxes },
+            { key: "notifications", label: "Notifications", icon: Bell },
+            { key: "security", label: "Security", icon: Shield },
+          ].map(({ key, label, icon: Icon }) => {
+            const active = activeSection === key;
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveSection(key)}
+                className={
+                  "relative  gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer w-1/5 text-center flex justify-center items-center " +
+                  (active ? "text-white" : "text-slate-600 hover:text-slate-900")
+                }
+                type="button"
+              >
+                {active && (
+                  <motion.span
+                    layoutId="settings-tab-indicator"
+                    className="absolute inset-0 rounded-full"
+                    style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-2 font-medium">
+                  <Icon size={16} /> {label}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
       <div className="flex flex-col gap-6 p-5 w-full text-slate-900">
         {isLoading ? (
           <>

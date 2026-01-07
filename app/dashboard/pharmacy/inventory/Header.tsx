@@ -90,15 +90,12 @@ export default function Header({ handleAdd, items, lowStockCount }: Props) {
       <Button variant="outline" onClick={exportCsv} disabled={downloadingCsv}>
         {downloadingCsv ? `Exporting (${downloadProgress}%)` : "Export CSV"}
       </Button>
-      <LowStockButton items={items} lowStockThreshold={lowStockCount} />
+      <LowStockButton lowStockThreshold={lowStockCount} />
     </PharmacyHeader>
   );
 }
 
-function LowStockButton({ items, lowStockThreshold }: { items?: ItemType[]; lowStockThreshold?: number }) {
-  const lowCount = items?.filter(
-    (it) => it.quantity === 0 || it.quantity < (lowStockThreshold ?? 20)
-  ).length;
+function LowStockButton({ lowStockThreshold }: { lowStockThreshold?: number }) {
   return (
     <Button variant="destructive" className="relative">
       Low Stock Alert
