@@ -216,27 +216,23 @@ export default function OrderTable({
 
 
   return (
-    <div className="rounded-2xl overflow-hidden">
+    <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
       <Table className="print:hidden">
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
-          <TableRow className="bg-slate-700 hover:bg-slate-700">
-            <TableHead className="text-white font-semibold">
+          <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">
               <Checkbox />
             </TableHead>
-            <TableHead className="text-white font-semibold">Sl No</TableHead>
-            <TableHead className="text-white font-semibold">RX ID</TableHead>
-            <TableHead className="text-white font-semibold">Patient</TableHead>
-            <TableHead className="text-white font-semibold">Items</TableHead>
-            <TableHead className="text-white font-semibold">Priority</TableHead>
-            <TableHead className="text-white font-semibold">Status</TableHead>
-            {/* <TableHead className="text-left text-white font-semibold">
-              Assigned To
-            </TableHead> */}
-
-            <TableHead className="text-left text-white font-semibold">
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Sl No</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">RX ID</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Patient</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Items</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Priority</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Status</TableHead>
+            <TableHead className="text-left text-white font-bold text-[11px] uppercase tracking-wider py-4">
               Created At
             </TableHead>
-            <TableHead className="text-right text-white font-semibold">
+            <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">
               Actions
             </TableHead>
           </TableRow>
@@ -251,36 +247,26 @@ export default function OrderTable({
                   : "bg-slate-100 hover:bg-slate-100/60"
               }
             >
-              <TableCell>
+              <TableCell className="py-3 pl-4">
                 <Checkbox />
               </TableCell>
 
-              <TableCell>{idx + 1}</TableCell>
-              <TableCell className="font-medium">{r?.mrn}</TableCell>
-              <TableCell>
-                {r?.patient?.name} <br />{" "}
-                <span className="text-xs">({r?.patient?.mrn})</span>
+              <TableCell className="py-3">{idx + 1}</TableCell>
+              <TableCell className="py-3 font-medium text-slate-900">{r?.mrn}</TableCell>
+              <TableCell className="py-3">
+                <div className="font-medium text-slate-900">{r?.patient?.name}</div>
+                <div className="text-[11px] text-slate-500">({r?.patient?.mrn})</div>
               </TableCell>
-              <TableCell>{r?.items?.length}</TableCell>
-              <TableCell>
+              <TableCell className="py-3 text-center">{r?.items?.length}</TableCell>
+              <TableCell className="py-3 text-center">
                 <PriorityBadge priority={r?.priority} />
               </TableCell>
-              <TableCell>
+              <TableCell className="py-3 text-center">
                 <StatusBadge status={r?.status} />
               </TableCell>
-              {/* <TableCell className="text-left">
-                {r?.assignedTo ? (
-                  <Badge className={"bg-emerald-100 text-emerald-700"}>
-                    {r?.assignedTo}
-                  </Badge>
-                ) : (
-                  <span className="text-slate-500">Unassigned</span>
-                )}
-              </TableCell> */}
-              <TableCell>{fDateandTime(r?.createdAt)}</TableCell>
-              <TableCell className="text-right space-x-2">
+              <TableCell className="py-3">{fDateandTime(r?.createdAt)}</TableCell>
+              <TableCell className="py-3 text-right space-x-2 pr-4">
                 <Button
-
                   size="sm"
                   variant="outline"
                   onClick={() => {
@@ -343,10 +329,8 @@ export default function OrderTable({
                   className="gap-2 h-8 text-xs"
                   onClick={() => { handlePrintBill(r) }}
                 >
-
                   <Printer className="h-3.5 w-3.5" />
                   {printingOrderId === r._id ? "Printing..." : "Print Bill"}
-
                 </Button> : <Button
                   variant="outline"
                   size="sm"
@@ -358,8 +342,6 @@ export default function OrderTable({
                     Print Bill
                   </Link>
                 </Button>}
-
-
               </TableCell>
             </TableRow>
           ))}

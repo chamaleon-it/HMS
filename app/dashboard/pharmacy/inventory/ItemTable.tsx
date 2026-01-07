@@ -81,29 +81,29 @@ export default function ItemTable({
   );
 
   return (
-    <Card className="p-0 overflow-hidden">
-      <CardContent className="p-0 m-0">
+    <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
+      <div className="p-0 m-0">
         <div className="overflow-x-auto w-full">
           <Table className="whitespace-nowrap">
-            <TableHeader>
-              <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
-                <TableHead className="text-white">
+            <TableHeader className="bg-slate-700 hover:bg-slate-700">
+              <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">
                   <Checkbox />
                 </TableHead>
-                <TableHead className="text-white">Sl. No</TableHead>
-                <TableHead className="text-white">Item Name</TableHead>
-                <TableHead className="text-white">Generic / HSN</TableHead>
-                <TableHead className="text-white">SKU / Barcode</TableHead>
-                <TableHead className="text-white">Category</TableHead>
-                <TableHead className="text-white">Quantity</TableHead>
-                <TableHead className="text-white">P.Price</TableHead>
-                <TableHead className="text-white">Unit Price (₹)</TableHead>
-                <TableHead className="text-white">Total Value (₹)</TableHead>
-                <TableHead className="text-white">Expiry Date</TableHead>
-                <TableHead className="text-white">Supplier</TableHead>
-                <TableHead className="text-white">Manufacturer</TableHead>
-                <TableHead className="text-white">Status</TableHead>
-                <TableHead className="text-white text-right" >Actions</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Sl. No</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Item Name</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">HSN</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">SKU</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Category</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Quantity</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">P.Price</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Unit Price (₹)</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Total Value (₹)</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry Date</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Manufacturer</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Status</TableHead>
+                <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-4 pr-4" >Actions</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -117,10 +117,10 @@ export default function ItemTable({
                       : "bg-slate-100 hover:bg-slate-100/60"
                   }
                 >
-                  <TableCell>
+                  <TableCell className="py-3 pl-4">
                     <Checkbox />
                   </TableCell>
-                  <TableCell>{(page - 1) * limit + i + 1}</TableCell>
+                  <TableCell className="py-3 text-slate-500">{(page - 1) * limit + i + 1}</TableCell>
 
                   <TableCell className="font-medium text-gray-900">
                     {item.name}
@@ -129,32 +129,32 @@ export default function ItemTable({
                     </div>
                   </TableCell>
 
-                  <TableCell className="text-xs text-gray-600">
+                  <TableCell className="py-3 text-slate-700">
                     <div className="text-gray-800 text-sm font-medium">
                       HSN: {item.hsnCode}
                     </div>
                   </TableCell>
 
-                  <TableCell>{item.sku}</TableCell>
-                  <TableCell>{item.category}</TableCell>
-                  <TableCell className={getQtyColor(item.quantity, pharmacyInventory.lowStockThreshold)}>
+                  <TableCell className="py-3">{item.sku}</TableCell>
+                  <TableCell className="py-3">{item.category}</TableCell>
+                  <TableCell className={"py-3 " + getQtyColor(item.quantity, pharmacyInventory.lowStockThreshold)}>
                     {item.quantity}
                   </TableCell>
-                  <TableCell>{formatINR(item.purchasePrice)}</TableCell>
-                  <TableCell>{formatINR(item.unitPrice)}</TableCell>
-                  <TableCell>{item?.batches?.length ? formatINR(item?.batches?.reduce((a, b) => a + (b.purchasePrice * b.quantity), 0)) : formatINR(item.quantity * item.purchasePrice)}</TableCell>
-                  <TableCell>{fDate(item.expiryDate)}</TableCell>
-                  <TableCell>{item.supplier}</TableCell>
-                  <TableCell>{item.manufacturer}</TableCell>
-                  <TableCell>
+                  <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
+                  <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
+                  <TableCell className="py-3">{item?.batches?.length ? formatINR(item?.batches?.reduce((a, b) => a + (b.purchasePrice * b.quantity), 0)) : formatINR(item.quantity * item.purchasePrice)}</TableCell>
+                  <TableCell className="py-3">{fDate(item.expiryDate)}</TableCell>
+                  <TableCell className="py-3">{item.supplier}</TableCell>
+                  <TableCell className="py-3">{item.manufacturer}</TableCell>
+                  <TableCell className="py-3">
                     <Chip
                       label={item.status}
                       tone={item.status as "Inactive" | "Active"}
                     />
                   </TableCell>
 
-                  <TableCell>
-                    <div className="flex gap-2">
+                  <TableCell className="py-3 pr-4">
+                    <div className="flex justify-end gap-2">
                       <Button
                         size="sm"
                         variant="outline"
@@ -231,8 +231,8 @@ export default function ItemTable({
             disabled={isBusy}
           />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 

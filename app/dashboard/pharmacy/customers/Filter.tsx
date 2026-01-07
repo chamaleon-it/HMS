@@ -43,7 +43,7 @@ export default function Filter({
   }>("/users/doctors");
 
   return (
-    <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-sm mb-4">
+    <div className="bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100">
       {/* Top row: Search + Reset */}
       <div className="flex flex-col md:flex-row gap-3 md:items-center">
         <div className="flex-1">

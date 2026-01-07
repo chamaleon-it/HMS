@@ -75,7 +75,7 @@ const PharmacySettingsPage: React.FC = () => {
           </TabsTrigger>
         </TabsList>
       </Tabs>
-      <div className="flex flex-col gap-6 p-5 w-full bg-slate-50 text-slate-900">
+      <div className="flex flex-col gap-6 p-5 w-full text-slate-900">
         {isLoading ? (
           <>
             <div className="h-32 w-full rounded-2xl bg-white animate-pulse" />

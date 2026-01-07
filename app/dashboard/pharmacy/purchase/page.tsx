@@ -74,30 +74,25 @@ export default function PurchaseOrdersListPage() {
         </PharmacyHeader>
 
         {/* FILTER BAR */}
-        <Card className="rounded-2xl shadow-sm border-border/60">
-          <CardContent className="p-4 grid gap-4 md:grid-cols-4 lg:grid-cols-5">
-            {/* SEARCH FIELD */}
-            <div className="md:col-span-2 lg:col-span-2 flex flex-col gap-2">
-              <Label className="text-xs font-medium text-muted-foreground">
-                Search
-              </Label>
-              <div className="relative">
-                <Search className="h-4 w-4 text-muted-foreground absolute left-2 top-1/2 -translate-y-1/2" />
-                <Input
-                  className="pl-8 rounded-xl h-9"
-                  placeholder="Search PO #"
-                  value={filter.mrn}
-                  onChange={(e) =>
-                    setFilter((prev) => ({ ...prev, mrn: e.target.value }))
-                  }
-                />
-              </div>
+        <div className="bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 grid gap-4 md:grid-cols-4 lg:grid-cols-5">
+          {/* SEARCH FIELD */}
+          <div className="md:col-span-2 lg:col-span-2 flex flex-col gap-2">
+            <Label className="text-xs font-medium text-muted-foreground">
+              Search
+            </Label>
+            <div className="relative">
+              <Search className="h-4 w-4 text-muted-foreground absolute left-2 top-1/2 -translate-y-1/2" />
+              <Input
+                className="pl-8 rounded-xl h-9"
+                placeholder="Search PO #"
+                value={filter.mrn}
+                onChange={(e) =>
+                  setFilter((prev) => ({ ...prev, mrn: e.target.value }))
+                }
+              />
             </div>
-
-
-
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* TABLE OF ORDERS */}
         {isLoading ? (
