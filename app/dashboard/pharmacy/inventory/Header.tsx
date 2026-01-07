@@ -8,14 +8,10 @@ import PharmacyHeader from "../components/PharmacyHeader";
 interface Props {
   handleAdd: () => void;
   items?: ItemType[];
-  pharmacyInventory: {
-    lowStockThreshold: number;
-    expiryAlert: number;
-    allowNegativeStock: boolean;
-  }
+  lowStockCount?: number;
 }
 
-export default function Header({ handleAdd, items, pharmacyInventory }: Props) {
+export default function Header({ handleAdd, items, lowStockCount }: Props) {
   const [downloadingCsv, setDownloadingCsv] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0); // optional
 
@@ -94,20 +90,17 @@ export default function Header({ handleAdd, items, pharmacyInventory }: Props) {
       <Button variant="outline" onClick={exportCsv} disabled={downloadingCsv}>
         {downloadingCsv ? `Exporting (${downloadProgress}%)` : "Export CSV"}
       </Button>
-      <LowStockButton items={items} lowStockThreshold={pharmacyInventory.lowStockThreshold} />
+      <LowStockButton lowStockThreshold={lowStockCount} />
     </PharmacyHeader>
   );
 }
 
-function LowStockButton({ items, lowStockThreshold }: { items?: ItemType[]; lowStockThreshold: number }) {
-  const lowCount = items?.filter(
-    (it) => it.quantity === 0 || it.quantity < lowStockThreshold
-  ).length;
+function LowStockButton({ lowStockThreshold }: { lowStockThreshold?: number }) {
   return (
     <Button variant="destructive" className="relative">
       Low Stock Alert
       <span className="ml-2 inline-flex items-center justify-center text-[10px] leading-none font-semibold bg-white text-red-600 rounded-full h-5 min-w-[20px] px-1 border border-red-300">
-        {lowCount}
+        {lowStockThreshold}
       </span>
     </Button>
   );

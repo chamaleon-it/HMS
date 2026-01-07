@@ -25,6 +25,26 @@ export default function InventoryPage() {
   const [openEdit, setOpenEdit] = useState(false);
   const [openAdd, setOpenAdd] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItemType | null>(null);
+
+  const { data } = useSWR<{
+    message: string;
+    data: {
+      pharmacy: {
+        inventory: {
+          lowStockThreshold: number;
+          expiryAlert: number;
+          allowNegativeStock: boolean;
+        };
+      };
+    };
+  }>("/users/profile");
+
+  const pharmacyInventory = data?.data.pharmacy.inventory ?? {
+    lowStockThreshold: 20,
+    expiryAlert: 90,
+    allowNegativeStock: false,
+  };
+
   const [filter, setFilter] = useState<FilterType>({
     page: 1,
     limit: 10,
@@ -32,9 +52,11 @@ export default function InventoryPage() {
     category: undefined,
     stock: undefined,
     expiry: undefined,
+    lowStockThreshold: pharmacyInventory.lowStockThreshold,
+
   });
 
-  const { items, total, isLoading, isValidating, mutate } = useItems({
+  const { items, total, isLoading, isValidating, mutate, lowStockCount } = useItems({
     filter,
   });
 
@@ -66,24 +88,7 @@ export default function InventoryPage() {
     setOpenAdd(false);
   };
 
-  const { data } = useSWR<{
-    message: string;
-    data: {
-      pharmacy: {
-        inventory: {
-          lowStockThreshold: number;
-          expiryAlert: number;
-          allowNegativeStock: boolean;
-        };
-      };
-    };
-  }>("/users/profile");
 
-  const pharmacyInventory = data?.data.pharmacy.inventory ?? {
-    lowStockThreshold: 20,
-    expiryAlert: 90,
-    allowNegativeStock: false,
-  };
 
   return (
     <AppShell>
@@ -92,7 +97,7 @@ export default function InventoryPage() {
           className={`flex flex-col gap-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
             }`}
         >
-          <Header handleAdd={handleAdd} items={items} pharmacyInventory={pharmacyInventory} />
+          <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} />
 
           <ItemFilter filter={filter} setFilter={setFilter} />
 
