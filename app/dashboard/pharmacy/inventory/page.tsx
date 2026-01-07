@@ -89,7 +89,7 @@ export default function InventoryPage() {
     <AppShell>
       <div className="p-5 min-h-[calc(100vh-80px)] w-full">
         <div
-          className={`space-y-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
+          className={`flex flex-col gap-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
             }`}
         >
           <Header handleAdd={handleAdd} items={items} />

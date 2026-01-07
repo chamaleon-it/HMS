@@ -103,7 +103,7 @@ export default function BillingPage() {
       <div
         className="min-h-[calc(100vh-80px)] w-full p-5 text-slate-900 dark:text-slate-100"
       >
-        <div className="">
+        <div className="flex flex-col gap-6">
           <Header setTab={setTab} filter={filter} setFilter={setFilter} />
 
           <Tabs
@@ -112,7 +112,7 @@ export default function BillingPage() {
             onValueChange={(e) => setTab(e as "all" | "new")}
             value={tab}
           >
-            <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 mb-6 print:hidden w-fit">
+            <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
               {[
                 { key: "all", label: "All Bills", icon: Receipt },
                 { key: "new", label: "Create Bill", icon: PlusCircle },

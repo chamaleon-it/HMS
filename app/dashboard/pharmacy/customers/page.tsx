@@ -58,7 +58,7 @@ const Customers: React.FC = () => {
   return (
     <AppShell>
       <div className="p-5 min-h-[calc(100vh-80px)]">
-        <main className="space-y-6">
+        <main className="flex flex-col gap-6">
           <PharmacyHeader
             title="Customers"
             subtitle="Click a row to open full pharmacy history for that customer"

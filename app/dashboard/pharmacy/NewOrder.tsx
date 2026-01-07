@@ -113,7 +113,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg active:scale-95"
             size={"sm"}
           >
             New Order
@@ -138,7 +138,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
               }}
             />
 
-            <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={() => setShowAllFields(!showAllFields)}>
+            <Button className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm" onClick={() => setShowAllFields(!showAllFields)}>
               {showAllFields ? "Hide optional fields" : "Display all fields"}
             </Button>
           </div>
@@ -149,7 +149,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
               onClick={createOrder}
             >
               Place Order

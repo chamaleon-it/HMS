@@ -58,7 +58,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
 
   return (
     <>
-      <div className="space-y-4 print:hidden">
+      <div className="flex flex-col gap-6 print:hidden">
         <Filters filter={filter} setFilter={setFilter} />
 
         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">

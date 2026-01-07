@@ -8,7 +8,7 @@ interface PharmacyHeaderProps {
 
 export default function PharmacyHeader({ title, subtitle, children }: PharmacyHeaderProps) {
     return (
-        <header className="flex flex-wrap items-center justify-between gap-3 mb-6">
+        <header className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
                 <div className="flex flex-col">
                     <h1 className="text-xl font-semibold leading-tight text-slate-900">

@@ -41,7 +41,7 @@ function RxQueue() {
   const orders = ordersData?.data ?? [];
 
   return (
-    <div>
+    <div className="flex flex-col gap-6">
 
       <PharmacyHeader
         title="RX Queue"

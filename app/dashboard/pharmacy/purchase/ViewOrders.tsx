@@ -34,7 +34,7 @@ export default function PurchasePackingView({ row }: { row: PurchaseType }) {
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="!max-w-3xl">
+      <DialogContent className="max-w-3xl!">
         <div className="">
           <div className="">
             <div className="">

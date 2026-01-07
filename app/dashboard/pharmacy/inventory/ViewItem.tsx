@@ -257,7 +257,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
       {/* Actions */}
       <div className="flex gap-3 pt-4 border-t mt-2">
-        <Button className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
+        <Button className="flex-1 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
         </Button>
@@ -270,7 +270,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             </Button>
           </AlertDialogTrigger>
 
-          <AlertDialogContent className="!max-w-sm rounded-xl">
+          <AlertDialogContent className="max-w-sm! rounded-xl">
             {/* ... existing alert content doesn't need much change save for maybe rounding ... */}
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
