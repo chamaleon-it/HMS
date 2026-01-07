@@ -13,6 +13,8 @@ export const registerPatientSchema = z.object({
         .replace(/\b\w/g, (char) => char.toUpperCase())
     ),
 
+  mrn: z.string().max(10, "MRN is too long").optional(),
+
   phoneNumber: z
     .string()
     .min(1, "Phone number is required")
@@ -29,7 +31,7 @@ export const registerPatientSchema = z.object({
 
   doctor: z.string().trim().min(1, "Select a doctor."),
 
-  gender: z.enum(["Male", "Female", "Other","Prefer not to say"]),
+  gender: z.enum(["Male", "Female", "Other", "Prefer not to say"]),
 
   dateOfBirth: z.string(),
 
