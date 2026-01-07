@@ -78,22 +78,22 @@ const Customers: React.FC = () => {
           ) : (
             <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
               <Table>
-                <TableHeader className="">
-                  <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
-                    <TableHead className="text-white py-3">Sl</TableHead>
-                    <TableHead className="text-white py-3">Customers</TableHead>
-                    <TableHead className="text-white py-3">PID</TableHead>
-                    <TableHead className="text-white py-3">
+                <TableHeader className="bg-slate-700 hover:bg-slate-700">
+                  <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 px-4 pl-4">Sl</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Customers</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">PID</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">
                       Age / Gender
                     </TableHead>
-                    <TableHead className="text-white py-3">Phone</TableHead>
-                    <TableHead className="text-white py-3 text-right">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Phone</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right">
                       Visits
                     </TableHead>
-                    <TableHead className="text-white py-3 text-right">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right">
                       Last Purchase
                     </TableHead>
-                    <TableHead className="text-white py-3 text-right">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
                       Total Spend
                     </TableHead>
                   </TableRow>
@@ -172,7 +172,7 @@ const Customers: React.FC = () => {
                             )
                           }
                         >
-                          <TableCell className="py-3 align-middle text-slate-500">
+                          <TableCell className="py-3 align-middle text-slate-500 pl-4">
                             {idx + 1}
                           </TableCell>
                           <TableCell className="py-3 align-middle font-medium">
@@ -224,7 +224,7 @@ const Customers: React.FC = () => {
                           <TableCell className="py-3 align-middle text-right text-slate-700">
                             {fDate(p.lastPurchase)}
                           </TableCell>
-                          <TableCell className="py-3 align-middle text-right font-semibold text-slate-900">
+                          <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
                             {formatINR(p.totalSpend)}
                           </TableCell>
                         </TableRow>

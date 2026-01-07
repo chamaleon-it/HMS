@@ -190,41 +190,34 @@ export default function PharmacyReturnPage() {
         />
 
         {/* RETURNED ITEMS TABLE */}
-        <section className="rounded-xl border border-slate-200 bg-white shadow-md overflow-hidden">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50/50">
-            <div className="text-sm font-medium text-slate-700">
-              Items to Return
-            </div>
-            <div className="text-[11px] text-slate-500">
-              Stock will update on confirm
-            </div>
-          </div>
+        <section className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
+
 
           {fetching ? (
             <TableSkeleton rows={5} columns={11} />
           ) : (
             <div className="overflow-x-auto">
               <Table className="min-w-full text-xs">
-                <TableHeader>
-                  <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
-                    <TableHead className="w-[32px] text-center text-white">#</TableHead>
-                    <TableHead className="text-white">Medicine / Gen</TableHead>
-                    <TableHead className="text-white">HSN</TableHead>
-                    <TableHead className="text-white">Batch</TableHead>
-                    <TableHead className="text-white">Expiry</TableHead>
-                    <TableHead className="text-center text-white">Qty Sold</TableHead>
-                    <TableHead className="text-center text-white">Qty Return</TableHead>
-                    <TableHead className="text-right text-white">Rate</TableHead>
-                    <TableHead className="text-right text-white">Amount</TableHead>
-                    <TableHead className="text-white text-right">Reason</TableHead>
-                    <TableHead className="text-white text-right">Action</TableHead>
+                <TableHeader className="bg-slate-700 hover:bg-slate-700">
+                  <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                    <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">#</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Medicine / Gen</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">HSN</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Qty Sold</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Qty Return</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Rate</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Amount</TableHead>
+                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-4">Reason</TableHead>
+                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Action</TableHead>
                   </TableRow>
                 </TableHeader>
 
                 <TableBody className="[&>tr:nth-child(even)]:bg-slate-50/40">
                   {order?.items.map((it, i) => (
                     <TableRow key={it.name._id} className="text-[11px]">
-                      <TableCell className="text-center align-top text-slate-500">
+                      <TableCell className="text-center align-top text-slate-500 py-3 pl-4">
                         {i + 1}
                       </TableCell>
 
@@ -354,7 +347,7 @@ export default function PharmacyReturnPage() {
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right py-3">
                         <Button
                           size={"sm"}
                           className="bg-red-600 hover:bg-red-700 transform duration-200"

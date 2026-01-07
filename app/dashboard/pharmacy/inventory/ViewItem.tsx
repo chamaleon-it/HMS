@@ -171,34 +171,48 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           <Package className="w-4 h-4 text-gray-500" />
           Batch History
         </h3>
-        <div className="border rounded-xl overflow-hidden bg-white shadow-sm">
+        <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
           <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
-                <TableHead className="w-[120px] h-10 text-xs font-semibold text-gray-600">Date Added</TableHead>
-                <TableHead className="h-10 text-xs font-semibold text-gray-600">Batch No</TableHead>
-                <TableHead className="h-10 text-xs font-semibold text-gray-600">Expiry</TableHead>
-                <TableHead className="h-10 text-xs font-semibold text-gray-600">Supplier</TableHead>
-                <TableHead className="text-right h-10 text-xs font-semibold text-gray-600">Price</TableHead>
-                <TableHead className="text-right h-10 text-xs font-semibold text-gray-600">Qty</TableHead>
+            <TableHeader className="bg-slate-700 hover:bg-slate-700">
+              <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
+                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Price</TableHead>
+                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Qty</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {paginatedBatches.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground text-sm">
-                    No batch history found.
+                  <TableCell colSpan={6} className="text-center py-20 text-slate-400">
+                    <div className="flex flex-col items-center gap-2">
+                      <Barcode className="h-8 w-8 opacity-20" />
+                      <p className="font-bold uppercase tracking-widest text-[11px]">No batch history found</p>
+                    </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedBatches.map((batch) => (
-                  <TableRow key={batch._id} className="hover:bg-slate-50 border-b border-slate-100 last:border-0">
-                    <TableCell className="text-xs py-3 font-medium text-slate-700">{fDate(batch.createdAt)}</TableCell>
-                    <TableCell className="font-mono text-xs py-3 text-slate-600 bg-slate-50/50 rounded-sm w-fit px-2">{batch.batchNumber}</TableCell>
-                    <TableCell className="text-xs py-3 text-slate-600">{fDate(batch.expiryDate)}</TableCell>
+                paginatedBatches.map((batch, idx) => (
+                  <TableRow
+                    key={batch._id}
+                    className={
+                      idx % 2 === 0
+                        ? "bg-white hover:bg-white/60"
+                        : "bg-slate-100 hover:bg-slate-100/60"
+                    }
+                  >
+                    <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(batch.createdAt)}</TableCell>
+                    <TableCell className="py-3">
+                      <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
+                        {batch.batchNumber}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(batch.expiryDate)}</TableCell>
                     <TableCell className="text-xs py-3 text-slate-600">{batch.supplier || "-"}</TableCell>
-                    <TableCell className="text-right text-xs py-3 text-slate-900 font-medium">{formatINR(batch.purchasePrice)}</TableCell>
-                    <TableCell className="text-right text-xs py-3 font-medium text-purple-600 bg-purple-50/30">{batch.quantity}</TableCell>
+                    <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(batch.purchasePrice)}</TableCell>
+                    <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 pr-4 tabular-nums">{batch.quantity}</TableCell>
                   </TableRow>
                 ))
               )}
