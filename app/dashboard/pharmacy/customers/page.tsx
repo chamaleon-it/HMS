@@ -114,9 +114,9 @@ const Customers: React.FC = () => {
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
                       Total Spend
                     </TableHead>
-                    {/* <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
                       Actions
-                    </TableHead> */}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-[15px]">
@@ -181,7 +181,7 @@ const Customers: React.FC = () => {
                         </TableCell>
                         <TableCell className="py-3 align-middle text-slate-700">
                           <HighlightText
-                            text={p.patient.phoneNumber}
+                            text={p.patient.phoneNumber.length < 5 ? "-" : p.patient.phoneNumber}
                             highlight={filter.query || ""}
                           />
                         </TableCell>
@@ -194,7 +194,7 @@ const Customers: React.FC = () => {
                         <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
                           {formatINR(p.totalSpend)}
                         </TableCell>
-                        {/* <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                        <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
                           <Button
                             variant="outline"
                             size="sm"
@@ -203,7 +203,7 @@ const Customers: React.FC = () => {
                           >
                             Edit
                           </Button>
-                        </TableCell> */}
+                        </TableCell>
                       </TableRow>
                     );
                   })}

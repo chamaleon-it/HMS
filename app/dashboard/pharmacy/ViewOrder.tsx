@@ -128,42 +128,6 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         return false;
     };
 
-    const markAllPacked = async () => {
-        if (!localOrder) return;
-        if (checkIsDirty()) {
-            toast.error("Please update the order to save changes before packing.");
-            return;
-        }
-        try {
-            setMarkingAllPacked(true);
-            await toast.promise(
-                api.post("/pharmacy/orders/mark_all_as_packed", {
-                    order: localOrder._id,
-                }),
-                {
-                    loading: "Marking all items as packed...",
-                    error: ({ response }) => response.data.message,
-                    success: ({ data }) => data.message,
-                }
-            );
-            setLocalOrder((prev) => {
-                const updated = prev
-                    ? {
-                        ...prev,
-                        items: prev.items.map((it) => ({ ...it, isPacked: true })),
-                    }
-                    : null;
-                setUpdatePayload(updated);
-                return updated;
-            });
-            OrderMutate();
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setMarkingAllPacked(false);
-        }
-    };
-
     const handleUpdate = async () => {
         if (!updatePayload || !localOrder) return;
 
@@ -200,10 +164,49 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         }
     };
 
+
+    const markAllPacked = async () => {
+        if (!localOrder) return;
+        if (checkIsDirty()) {
+            // toast.error("Please update the order to save changes before packing.");
+            // return;
+            await handleUpdate()
+        }
+        try {
+            setMarkingAllPacked(true);
+            await toast.promise(
+                api.post("/pharmacy/orders/mark_all_as_packed", {
+                    order: localOrder._id,
+                }),
+                {
+                    loading: "Marking all items as packed...",
+                    error: ({ response }) => response.data.message,
+                    success: ({ data }) => data.message,
+                }
+            );
+            setLocalOrder((prev) => {
+                const updated = prev
+                    ? {
+                        ...prev,
+                        items: prev.items.map((it) => ({ ...it, isPacked: true })),
+                    }
+                    : null;
+                setUpdatePayload(updated);
+                return updated;
+            });
+            OrderMutate();
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setMarkingAllPacked(false);
+        }
+    };
+
     const handleTogglePacked = async (it: any) => {
         if (checkIsDirty()) {
-            toast.error("Please update the order to save changes before packing.");
-            return;
+            // toast.error("Please update the order to save changes before packing.");
+            // return;
+            await handleUpdate()
         }
         try {
             if (it.isPacked) {
