@@ -200,7 +200,7 @@ export default function PharmacyReturnPage() {
               <Table className="min-w-full text-xs">
                 <TableHeader className="bg-slate-700 hover:bg-slate-700">
                   <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                    <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">#</TableHead>
+                    <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sl No</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Medicine / Gen</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">HSN</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch</TableHead>

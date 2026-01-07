@@ -90,7 +90,7 @@ export default function ItemTable({
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">
                   <Checkbox />
                 </TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Sl. No</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Sl No</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Item Name</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">HSN</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">SKU</TableHead>
