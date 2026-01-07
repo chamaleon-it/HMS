@@ -92,7 +92,7 @@ export default function InventoryPage() {
           className={`flex flex-col gap-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
             }`}
         >
-          <Header handleAdd={handleAdd} items={items} />
+          <Header handleAdd={handleAdd} items={items} pharmacyInventory={pharmacyInventory} />
 
           <ItemFilter filter={filter} setFilter={setFilter} />
 

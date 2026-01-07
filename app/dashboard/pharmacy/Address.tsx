@@ -43,7 +43,7 @@ export default function Address({
 
   return (
     <>
-      <p className="col-span-full font-semibold">Patient Address</p>
+      <p className="col-span-full font-semibold text-left">Patient Address</p>
       <div className="grid gap-2">
         <Label>Address Line 1</Label>
         <Input

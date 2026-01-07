@@ -30,7 +30,7 @@ import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/auth/context/auth-context";
 import Address from "./Address";
 
-export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: string) => void }) {
+export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string) => void, patient?: any, mutate?: () => void }) {
   const { user } = useAuth();
   const {
     register,
@@ -42,11 +42,13 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
   } = useForm({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
-      phoneNumber: "+91",
-      doctor: user?._id,
-      gender: "Prefer not to say",
-      dateOfBirth: new Date().toISOString(),
-      address: "",
+      name: patient?.name || "",
+      phoneNumber: patient?.phoneNumber || "+91",
+      doctor: patient?.doctor || user?._id,
+      gender: patient?.gender || "Prefer not to say",
+      dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
+      address: patient?.address || "",
+      mrn: patient?.mrn || undefined
     },
   });
 
@@ -55,13 +57,23 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
 
   const createEditPatient = handleSubmit(async (data) => {
     try {
-      const { data: patient } = await toast.promise(api.post("/patients", data), {
-        loading: "Customer is registering...!",
-        error: ({ response }) => response.data.message,
-        success: `Customer register successfully.`,
-      });
-      reset();
-      onClose(patient.data._id, patient.data.name);
+      if (patient?._id) {
+        await toast.promise(api.patch(`/patients/${patient._id}`, data), {
+          loading: "Updating customer...!",
+          error: ({ response }) => response.data.message,
+          success: `Customer updated successfully.`,
+        });
+        if (mutate) mutate();
+        onClose();
+      } else {
+        const { data: responseData } = await toast.promise(api.post("/patients", data), {
+          loading: "Customer is registering...!",
+          error: ({ response }) => response.data.message,
+          success: `Customer register successfully.`,
+        });
+        reset();
+        onClose(responseData.data._id, responseData.data.name);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -91,6 +103,21 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
             )}
           </div>
+
+          <div className="grid gap-2">
+            <Label>Customer ID</Label>
+            <Input
+              placeholder="PID"
+              {...register("mrn")}
+              value={values.mrn}
+            />
+            {errors.mrn && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.mrn.message}
+              </p>
+            )}
+          </div>
+
           <div className="grid gap-2">
             <Label>Phone </Label>
             <Input
@@ -104,6 +131,8 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
               </p>
             )}
           </div>
+
+
 
           <div className="grid gap-2">
             <Label>Gender </Label>
@@ -186,7 +215,7 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
         <Button variant="ghost" onClick={() => onClose()} type="button">
           Close
         </Button>
-        <Button type="submit">Register Customer</Button>
+        <Button type="submit">{patient?._id ? "Update Customer" : "Register Customer"}</Button>
       </div>
     </form>
   );

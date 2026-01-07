@@ -8,9 +8,14 @@ import PharmacyHeader from "../components/PharmacyHeader";
 interface Props {
   handleAdd: () => void;
   items?: ItemType[];
+  pharmacyInventory: {
+    lowStockThreshold: number;
+    expiryAlert: number;
+    allowNegativeStock: boolean;
+  }
 }
 
-export default function Header({ handleAdd, items }: Props) {
+export default function Header({ handleAdd, items, pharmacyInventory }: Props) {
   const [downloadingCsv, setDownloadingCsv] = useState(false);
   const [downloadProgress, setDownloadProgress] = useState(0); // optional
 
@@ -89,14 +94,14 @@ export default function Header({ handleAdd, items }: Props) {
       <Button variant="outline" onClick={exportCsv} disabled={downloadingCsv}>
         {downloadingCsv ? `Exporting (${downloadProgress}%)` : "Export CSV"}
       </Button>
-      <LowStockButton items={items} />
+      <LowStockButton items={items} lowStockThreshold={pharmacyInventory.lowStockThreshold} />
     </PharmacyHeader>
   );
 }
 
-function LowStockButton({ items }: { items?: ItemType[] }) {
+function LowStockButton({ items, lowStockThreshold }: { items?: ItemType[]; lowStockThreshold: number }) {
   const lowCount = items?.filter(
-    (it) => it.quantity === 0 || it.quantity < 20
+    (it) => it.quantity === 0 || it.quantity < lowStockThreshold
   ).length;
   return (
     <Button variant="destructive" className="relative">
