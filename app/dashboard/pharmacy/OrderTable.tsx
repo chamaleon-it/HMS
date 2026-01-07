@@ -30,13 +30,21 @@ import PrintPrescription from "./billing/PrintPrescription";
 import PrintReceipt from "./PrintReceipt";
 import useSWR from "swr";
 import ViewOrder from "./ViewOrder";
+import { PaginationBar } from "./components/PaginationBar";
+import { Dispatch, SetStateAction } from "react";
 
 export default function OrderTable({
   orders,
+  total,
+  filter,
+  setFilter,
   handleDelete,
   OrderMutate,
 }: {
   orders: OrderType[];
+  total: number;
+  filter: { page: number; limit: number };
+  setFilter: Dispatch<SetStateAction<any>>;
   handleDelete: (rx: OrderType) => void;
   OrderMutate: () => void;
 }) {
@@ -220,10 +228,9 @@ export default function OrderTable({
       <Table className="print:hidden">
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
           <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">
-              <Checkbox />
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4 w-16">
+              Sl No
             </TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Sl No</TableHead>
             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">RX ID</TableHead>
             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Patient</TableHead>
             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Items</TableHead>
@@ -247,11 +254,10 @@ export default function OrderTable({
                   : "bg-slate-100 hover:bg-slate-100/60"
               }
             >
-              <TableCell className="py-3 pl-4">
-                <Checkbox />
-              </TableCell>
 
-              <TableCell className="py-3">{idx + 1}</TableCell>
+              <TableCell className="py-3 pl-4 text-slate-500 font-medium">
+                {(filter.page - 1) * filter.limit + idx + 1}
+              </TableCell>
               <TableCell className="py-3 font-medium text-slate-900">{r?.mrn}</TableCell>
               <TableCell className="py-3">
                 <div className="font-medium text-slate-900">{r?.patient?.name}</div>
@@ -361,6 +367,15 @@ export default function OrderTable({
       />
 
       {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} />}
+
+      <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+        <PaginationBar
+          page={filter.page}
+          limit={filter.limit}
+          total={total}
+          setFilter={setFilter}
+        />
+      </div>
     </div>
   );
 }

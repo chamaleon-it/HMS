@@ -16,6 +16,7 @@ interface PropsType {
   billingMutate: () => void;
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
+  total: number;
   billing: {
     roundOff: boolean;
     mrn: string;
@@ -42,8 +43,9 @@ import AddPaymentDialog from "./AddPaymentDialog";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import PrintReceipt from "./PrintReceipt";
+import { PaginationBar } from "../components/PaginationBar";
 
-export default function AllBill({ billing, filter, setFilter, billingMutate }: PropsType) {
+export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
   const [selectedBill, setSelectedBill] = React.useState<PropsType["billing"][number] | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
   const [printBill, setPrintBill] = React.useState<PropsType["billing"][number] | null>(null);
@@ -66,7 +68,8 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
             <table className="w-full text-sm">
               <thead className="bg-slate-700 hover:bg-slate-700">
                 <tr className="bg-slate-700 hover:bg-slate-700 border-b-0 text-[11px] uppercase tracking-wider text-white font-bold">
-                  <th className="py-4 text-left pl-4">Invoice</th>
+                  <th className="py-4 text-left pl-4 w-16">Sl No</th>
+                  <th className="py-4 text-left">Invoice</th>
                   <th className="py-4 text-left">Date</th>
                   <th className="py-4 text-left">Patient</th>
                   <th className="py-4 text-right">Items</th>
@@ -101,6 +104,9 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                         : "bg-slate-100 hover:bg-slate-100/60"
                         }`}
                     >
+                      <td className="py-3 px-4 text-slate-500">
+                        {(filter.page - 1) * filter.limit + idx + 1}
+                      </td>
                       <td className="py-3 px-4">
                         <div className="font-medium text-slate-900">{b.mrn}</div>
                         <div className="text-[11px] text-slate-500 space-x-1 mt-1">
@@ -198,18 +204,15 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
           </div>
         </div>
 
-        <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
-          <div>
-            {/* Showing {Math.min(10, billing.length)} of {billing.length} */}
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-              Prev
-            </button>
-            <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">
-              Next
-            </button>
-          </div>
+
+
+        <div className="">
+          <PaginationBar
+            page={filter.page}
+            limit={filter.limit}
+            total={total}
+            setFilter={setFilter}
+          />
         </div>
       </div>
       <AddPaymentDialog

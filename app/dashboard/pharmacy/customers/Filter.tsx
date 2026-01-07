@@ -24,6 +24,8 @@ export interface FilterType {
     from?: string;
     to?: string;
   };
+  page: number;
+  limit: number;
 }
 
 
@@ -51,7 +53,7 @@ export default function Filter({
           <input
             value={filter?.query || ""}
             onChange={(e) =>
-              setFilter((prev) => ({ ...prev, query: e.target.value }))
+              setFilter((prev) => ({ ...prev, query: e.target.value, page: 1 }))
             }
             placeholder="Search by name, ID, phone"
             className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
@@ -66,6 +68,8 @@ export default function Filter({
               age: [0, 100],
               lastVisit: undefined,
               alreadyPurchase: false,
+              page: 1,
+              limit: 10,
               dateRange: {
                 from: undefined,
                 to: undefined,
@@ -113,7 +117,7 @@ export default function Filter({
                 <button
                   key={opt.label}
                   onClick={() =>
-                    setFilter((prev) => ({ ...prev, gender: opt.value }))
+                    setFilter((prev) => ({ ...prev, gender: opt.value, page: 1 }))
                   }
                   aria-pressed={active}
                   aria-label={`Gender: ${opt.label}`}
@@ -135,7 +139,7 @@ export default function Filter({
           <span className="text-xs text-gray-500 px-1">Doctor</span>
           <FilterSelect
             value={filter.doctor || ""}
-            onChange={(v) => setFilter((prev) => ({ ...prev, doctor: v }))}
+            onChange={(v) => setFilter((prev) => ({ ...prev, doctor: v, page: 1 }))}
             placeholder="All doctors"
             options={[
               { label: "All Doctors", value: null },
@@ -160,7 +164,7 @@ export default function Filter({
                   Number(e.target.value),
                   filter.age[1],
                 ];
-                setFilter((prev) => ({ ...prev, age }));
+                setFilter((prev) => ({ ...prev, age, page: 1 }));
               }}
               className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200 placeholder:text-black"
             />
@@ -173,7 +177,7 @@ export default function Filter({
                   filter.age[0],
                   Number(e.target.value),
                 ];
-                setFilter((prev) => ({ ...prev, age }));
+                setFilter((prev) => ({ ...prev, age, page: 1 }));
               }}
               className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200"
             />
@@ -195,7 +199,7 @@ export default function Filter({
               { label: "Custom", value: "Custom" },
             ]}
             value={filter.lastVisit}
-            onChange={(v) => setFilter((prev) => ({ ...prev, lastVisit: v }))}
+            onChange={(v) => setFilter((prev) => ({ ...prev, lastVisit: v, page: 1 }))}
           />
         </div>
 
@@ -217,7 +221,7 @@ export default function Filter({
                   key={opt.label}
                   type="button"
                   onClick={() =>
-                    setFilter((prev) => ({ ...prev, alreadyPurchase: opt.value }))
+                    setFilter((prev) => ({ ...prev, alreadyPurchase: opt.value, page: 1 }))
                   }
                   className={`relative flex items-center gap-2 rounded-full px-4 h-9 transition-all duration-300 ease-in-out cursor-pointer whitespace-nowrap ${active ? "text-white" : "text-slate-600 hover:text-slate-900"
                     }`}

@@ -8,14 +8,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "./Header";
 import useSWR from "swr";
 import { BillingFormSkeleton, TableSkeleton } from "../components/PharmacySkeleton";
-import { Receipt, PlusCircle } from "lucide-react";
+import { ReceiptIndianRupee, PlusCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
 export interface FilterType {
   q: null | string;
   status: string;
   method: string;
-  date: undefined | Date
+  date: undefined | Date;
+  page: number;
+  limit: number;
 }
 
 export default function BillingPage() {
@@ -24,7 +26,9 @@ export default function BillingPage() {
     q: null,
     status: "",
     method: "",
-    date: undefined
+    date: undefined,
+    page: 1,
+    limit: 10,
   });
 
   const params = new URLSearchParams();
@@ -41,11 +45,15 @@ export default function BillingPage() {
     params.set("method", filter.method);
   }
   if (filter.date) {
-    params.set("date", filter.date.toISOString())
+    params.set("date", filter.date.toISOString());
   }
+
+  params.set("page", String(filter.page));
+  params.set("limit", String(filter.limit));
 
   const { data: billingData, mutate: billingMutate, isLoading: isLoadingBilling } = useSWR<{
     message: string;
+    total: number;
     data: {
       roundOff: boolean;
       _id: string;
@@ -70,6 +78,7 @@ export default function BillingPage() {
   }>(`/billing?${params.toString()}`);
 
   const billing = billingData?.data ?? [];
+  const total = billingData?.total ?? 0;
 
   const { data, isLoading: isLoadingProfile } = useSWR<{
     message: string,
@@ -114,7 +123,7 @@ export default function BillingPage() {
           >
             <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
               {[
-                { key: "all", label: "All Bills", icon: Receipt },
+                { key: "all", label: "All Bills", icon: ReceiptIndianRupee },
                 { key: "new", label: "Create Bill", icon: PlusCircle },
               ].map(({ key, label, icon: Icon }) => {
                 const active = tab === key;
@@ -151,6 +160,7 @@ export default function BillingPage() {
                   billing={billing}
                   filter={filter}
                   setFilter={setFilter}
+                  total={total}
                   billingMutate={billingMutate}
                 />
               )}
