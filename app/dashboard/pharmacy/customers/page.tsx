@@ -114,9 +114,9 @@ const Customers: React.FC = () => {
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
                       Total Spend
                     </TableHead>
-                    {/* <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
                       Actions
-                    </TableHead> */}
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-[15px]">

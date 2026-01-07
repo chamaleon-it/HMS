@@ -29,6 +29,9 @@ import toast from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/auth/context/auth-context";
 import Address from "./Address";
+import { useDebounce } from "@/hooks/useDebounce";
+import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
+import ExistingPatientCard from "../ExistingPatientCard";
 
 export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string) => void, patient?: any, mutate?: () => void }) {
   const { user } = useAuth();
@@ -54,6 +57,20 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
 
   const values = watch();
   const { dateOfBirth } = values;
+
+  useEffect(() => {
+    if (patient) {
+      reset({
+        name: patient?.name || "",
+        phoneNumber: patient?.phoneNumber || "+91",
+        doctor: patient?.doctor || user?._id,
+        gender: patient?.gender || "Prefer not to say",
+        dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
+        address: patient?.address || "",
+        mrn: patient?.mrn || undefined
+      });
+    }
+  }, [patient]);
 
   const createEditPatient = handleSubmit(async (data) => {
     try {
@@ -88,6 +105,22 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     if (name) setValue("name", name);
   }, [name, setValue]);
 
+  const debouncedName = useDebounce(values.name, 500);
+  const debouncedPhone = useDebounce(values.phoneNumber, 500);
+
+  const isExist = usePatientAlreadyExist({
+    name: debouncedName,
+    phoneNumber: debouncedPhone,
+  });
+
+  const alreadyExistPatient = isExist?.data?.patient;
+
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    setDismissed(false);
+  }, [alreadyExistPatient]);
+
   return (
     <form className="space-y-5" onSubmit={createEditPatient}>
       <section className="space-y-3">
@@ -96,25 +129,37 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           <h3 className="font-medium">Customer</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="grid gap-2">
-            <Label>Name *</Label>
-            <Input placeholder="Enter patient name" {...register("name")} />
-            {errors.name && (
-              <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
-            )}
-          </div>
+          <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 relative">
+            <div className="grid gap-2">
+              <Label>Name *</Label>
+              <Input placeholder="Enter patient name" {...register("name")} />
+              {errors.name && (
+                <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
+              )}
+            </div>
 
-          <div className="grid gap-2">
-            <Label>Customer ID</Label>
-            <Input
-              placeholder="PID"
-              {...register("mrn")}
-              value={values.mrn}
-            />
-            {errors.mrn && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.mrn.message}
-              </p>
+            <div className="grid gap-2">
+              <Label>Customer ID</Label>
+              <Input
+                placeholder="PID"
+                {...register("mrn")}
+                value={values.mrn}
+                disabled={patient?._id}
+              />
+              {errors.mrn && (
+                <p className="text-red-500 text-xs my-1">
+                  {errors.mrn.message}
+                </p>
+              )}
+            </div>
+
+            {/* Existing Patient Card */}
+            {isExist?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
+              <ExistingPatientCard
+                patient={alreadyExistPatient}
+                onSelect={onClose}
+                onDismiss={() => setDismissed(true)}
+              />
             )}
           </div>
 

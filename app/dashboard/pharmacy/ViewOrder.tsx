@@ -131,8 +131,9 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const markAllPacked = async () => {
         if (!localOrder) return;
         if (checkIsDirty()) {
-            toast.error("Please update the order to save changes before packing.");
-            return;
+            // toast.error("Please update the order to save changes before packing.");
+            // return;
+            handleUpdate()
         }
         try {
             setMarkingAllPacked(true);
@@ -202,8 +203,9 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
     const handleTogglePacked = async (it: any) => {
         if (checkIsDirty()) {
-            toast.error("Please update the order to save changes before packing.");
-            return;
+            // toast.error("Please update the order to save changes before packing.");
+            // return;
+            handleUpdate()
         }
         try {
             if (it.isPacked) {
