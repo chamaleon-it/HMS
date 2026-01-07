@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 
-import { Shield, User, Receipt, Boxes, Bell } from "lucide-react";
+import { Shield, User, Receipt, Boxes, Bell, ReceiptIndianRupee } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import General from "./General";
 import Billing from "./Billing";
@@ -39,7 +39,7 @@ const PharmacySettingsPage: React.FC = () => {
         <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-100 rounded-full p-1 shadow-sm w-full">
           {[
             { key: "general", label: "General", icon: User },
-            { key: "billing", label: "Billing", icon: Receipt },
+            { key: "billing", label: "Billing", icon: ReceiptIndianRupee },
             { key: "inventory", label: "Inventory", icon: Boxes },
             { key: "notifications", label: "Notifications", icon: Bell },
             { key: "security", label: "Security", icon: Shield },
