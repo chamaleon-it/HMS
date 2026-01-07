@@ -108,12 +108,15 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   const debouncedName = useDebounce(values.name, 500);
   const debouncedPhone = useDebounce(values.phoneNumber, 500);
 
-  const isExist = usePatientAlreadyExist({
-    name: debouncedName,
-    phoneNumber: debouncedPhone,
+  const isExistByName = usePatientAlreadyExist({
+    name: debouncedName?.length > 2 ? debouncedName : undefined,
   });
 
-  const alreadyExistPatient = isExist?.data?.patient;
+  const isExistByPhone = usePatientAlreadyExist({
+    phoneNumber: debouncedPhone?.length > 4 ? debouncedPhone : undefined,
+  });
+
+  const alreadyExistPatient = isExistByName?.data?.patient || isExistByPhone?.data?.patient;
 
   const [dismissed, setDismissed] = useState(false);
 
@@ -129,41 +132,41 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           <h3 className="font-medium">Customer</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 relative">
-            <div className="grid gap-2">
-              <Label>Name *</Label>
-              <Input placeholder="Enter patient name" {...register("name")} />
-              {errors.name && (
-                <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
-              )}
-            </div>
+          <div className="grid gap-2 relative">
+            <Label>Name *</Label>
+            <Input placeholder="Enter patient name" {...register("name")} />
+            {errors.name && (
+              <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
+            )}
 
-            <div className="grid gap-2">
-              <Label>Customer ID</Label>
-              <Input
-                placeholder="PID"
-                {...register("mrn")}
-                value={values.mrn}
-                disabled={patient?._id}
-              />
-              {errors.mrn && (
-                <p className="text-red-500 text-xs my-1">
-                  {errors.mrn.message}
-                </p>
-              )}
-            </div>
-
-            {/* Existing Patient Card */}
-            {isExist?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
-              <ExistingPatientCard
-                patient={alreadyExistPatient}
-                onSelect={onClose}
-                onDismiss={() => setDismissed(true)}
-              />
+            {/* Existing Patient Card for Name */}
+            {isExistByName?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
+              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(200%+16px)] z-50">
+                <ExistingPatientCard
+                  patient={alreadyExistPatient}
+                  onSelect={onClose}
+                  onDismiss={() => setDismissed(true)}
+                />
+              </div>
             )}
           </div>
 
           <div className="grid gap-2">
+            <Label>Customer ID</Label>
+            <Input
+              placeholder="PID"
+              {...register("mrn")}
+              value={values.mrn}
+              disabled={patient?._id}
+            />
+            {errors.mrn && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.mrn.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-2 relative">
             <Label>Phone </Label>
             <Input
               placeholder="+91"
@@ -175,9 +178,18 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                 {errors.phoneNumber.message}
               </p>
             )}
+
+            {/* Existing Patient Card for Phone */}
+            {isExistByPhone?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
+              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(200%+16px)] z-50">
+                <ExistingPatientCard
+                  patient={alreadyExistPatient}
+                  onSelect={onClose}
+                  onDismiss={() => setDismissed(true)}
+                />
+              </div>
+            )}
           </div>
-
-
 
           <div className="grid gap-2">
             <Label>Gender </Label>
