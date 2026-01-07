@@ -23,6 +23,20 @@ import PharmacyHeader from "../components/PharmacyHeader";
 const Customers: React.FC = () => {
   const router = useRouter();
 
+  const [filter, setFilter] = useState<FilterType>({
+    query: undefined,
+    gender: undefined,
+    doctor: undefined,
+    age: [0, 100],
+    lastVisit: undefined,
+    alreadyPurchase: false,
+    dateRange: { from: undefined, to: undefined },
+  });
+
+  const params = new URLSearchParams();
+
+  params.set("alreadyPurchase", filter.alreadyPurchase ? "true" : "false");
+
   const { data: customersData, isLoading, mutate } = useSWR<{
     message: string;
     data: {
@@ -40,19 +54,12 @@ const Customers: React.FC = () => {
       };
       lastPurchase: Date;
     }[];
-  }>("/pharmacy/orders/customers");
+  }>(`/pharmacy/orders/customers?${params.toString()}`);
 
   const customers = customersData?.data ?? [];
 
 
-  const [filter, setFilter] = useState<FilterType>({
-    query: undefined,
-    gender: undefined,
-    doctor: undefined,
-    age: [0, 100],
-    lastVisit: undefined,
-    dateRange: { from: undefined, to: undefined },
-  });
+
 
 
   return (
@@ -63,11 +70,7 @@ const Customers: React.FC = () => {
             title="Customers"
             subtitle="Click a row to open full pharmacy history for that customer"
           >
-            <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
-              Showing <span className="font-semibold">{customers.length}</span>{" "}
-              of <span className="font-semibold">{customers.length}</span>{" "}
-              customers
-            </div>
+
             <NewOrder mutate={mutate} />
           </PharmacyHeader>
 

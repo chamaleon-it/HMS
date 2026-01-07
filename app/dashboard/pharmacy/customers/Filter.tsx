@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { CONDITIONS } from "./data";
 import useSWR from "swr";
 import {
@@ -7,7 +8,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, ShoppingBag, Users } from "lucide-react";
 import { fDate } from "@/lib/fDateAndTime";
 import { Calendar } from "@/components/ui/calendar";
 
@@ -18,7 +19,7 @@ export interface FilterType {
   doctor?: string;
   age: [number, number];
   lastVisit?: number | string;
-
+  alreadyPurchase?: boolean;
   dateRange: {
     from?: string;
     to?: string;
@@ -64,6 +65,7 @@ export default function Filter({
               doctor: undefined,
               age: [0, 100],
               lastVisit: undefined,
+              alreadyPurchase: false,
               dateRange: {
                 from: undefined,
                 to: undefined,
@@ -201,7 +203,44 @@ export default function Filter({
           <CustomDateFilter filter={filter} setFilter={setFilter} />
         )}
 
-
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-600">Purchase Status</label>
+          <div className="relative inline-flex items-center gap-2 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 w-fit">
+            {[
+              { label: "All Customers", value: false, icon: Users },
+              { label: "Purchased Customers", value: true, icon: ShoppingBag },
+            ].map((opt) => {
+              const active = filter.alreadyPurchase === opt.value;
+              const Icon = opt.icon;
+              return (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() =>
+                    setFilter((prev) => ({ ...prev, alreadyPurchase: opt.value }))
+                  }
+                  className={`relative flex items-center gap-2 rounded-full px-4 h-9 transition-all duration-300 ease-in-out cursor-pointer whitespace-nowrap ${active ? "text-white" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                >
+                  {active && (
+                    <motion.span
+                      layoutId="purchase-tab-indicator"
+                      className="absolute inset-0 rounded-full shadow-sm"
+                      style={{
+                        background: "linear-gradient(90deg,#4f46e5,#d946ef)",
+                      }}
+                      transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-2 font-bold tracking-tight text-xs">
+                    <Icon size={14} className={active ? "text-white" : "text-slate-400"} />
+                    {opt.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
 
