@@ -12,7 +12,7 @@ import {
 import React, { Dispatch, SetStateAction, useCallback } from "react";
 import { FilterType, ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
-import { PaginationBar } from "./PaginationBar";
+import { PaginationBar } from "../components/PaginationBar";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Checkbox } from "@/components/ui/checkbox";

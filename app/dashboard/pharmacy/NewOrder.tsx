@@ -109,7 +109,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
 
   return (
     <>
-      <Button variant={"outline"} onClick={() => setOpenCreate(true)}>New Customer</Button>
+      <Button variant={"outline"} onClick={() => setOpenCreate(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-
 import AppShell from "@/components/layout/app-shell";
 import OrderTable from "./OrderTable";
 import { OrderType } from "./interface";
@@ -23,22 +22,32 @@ function RxQueue() {
     setDeleteOpen(true);
   };
 
-  const [filter, setFilter] = useState<{ q: "Pending" | "Filling" | "Ready" | "Completed" }>({
+  const [filter, setFilter] = useState<{
+    q: "Pending" | "Filling" | "Ready" | "Completed";
+    page: number;
+    limit: number;
+  }>({
     q: "Pending",
+    page: 1,
+    limit: 20,
   });
 
   const params = new URLSearchParams();
 
 
   params.set("q", filter.q);
+  params.set("page", String(filter.page));
+  params.set("limit", String(filter.limit));
 
 
   const { data: ordersData, mutate: OrderMutate, isLoading } = useSWR<{
     message: string;
+    total: number;
     data: OrderType[];
   }>(`/pharmacy/orders?${params.toString()}`);
 
   const orders = ordersData?.data ?? [];
+  const total = ordersData?.total ?? 0;
 
   return (
     <div className="flex flex-col gap-6">
@@ -48,7 +57,7 @@ function RxQueue() {
         subtitle="Manage prescriptions and pharmacy operations"
       >
         <NewOrder OrderMutate={OrderMutate} />
-        <PharmacyStatus currenctStatus={filter.q} setCurrenctStatus={(status) => setFilter((prev) => ({ ...prev, q: status }))} />
+        <PharmacyStatus currenctStatus={filter.q} setCurrenctStatus={(status) => setFilter((prev) => ({ ...prev, q: status, page: 1 }))} />
       </PharmacyHeader>
 
       {isLoading ? (
@@ -56,6 +65,9 @@ function RxQueue() {
       ) : (
         <OrderTable
           orders={orders}
+          total={total}
+          filter={filter}
+          setFilter={setFilter}
           handleDelete={handleDelete}
           OrderMutate={OrderMutate}
         />

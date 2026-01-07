@@ -19,12 +19,36 @@ import Filter, { FilterType } from "./Filter";
 import NewOrder from "./NewOrder";
 import { TableSkeleton } from "../components/PharmacySkeleton";
 import PharmacyHeader from "../components/PharmacyHeader";
+import { PaginationBar } from "../components/PaginationBar";
 
 const Customers: React.FC = () => {
   const router = useRouter();
 
+  const [filter, setFilter] = useState<FilterType>({
+    query: undefined,
+    gender: undefined,
+    doctor: undefined,
+    age: [0, 100],
+    lastVisit: undefined,
+    alreadyPurchase: false,
+    page: 1,
+    limit: 10,
+    dateRange: { from: undefined, to: undefined },
+  });
+
+  const params = new URLSearchParams();
+
+  params.set("alreadyPurchase", filter.alreadyPurchase ? "true" : "false");
+  params.set("page", String(filter.page));
+  params.set("limit", String(filter.limit));
+  if (filter.query) params.set("q", filter.query);
+  if (filter.gender) params.set("gender", filter.gender);
+  if (filter.doctor) params.set("doctor", filter.doctor);
+  // age and lastVisit might need special handling if server supports them
+
   const { data: customersData, isLoading, mutate } = useSWR<{
     message: string;
+    total: number;
     data: {
       totalSpend: number;
       visits: number;
@@ -40,19 +64,13 @@ const Customers: React.FC = () => {
       };
       lastPurchase: Date;
     }[];
-  }>("/pharmacy/orders/customers");
+  }>(`/pharmacy/orders/customers?${params.toString()}`);
 
   const customers = customersData?.data ?? [];
+  const total = customersData?.total ?? 0;
 
 
-  const [filter, setFilter] = useState<FilterType>({
-    query: undefined,
-    gender: undefined,
-    doctor: undefined,
-    age: [0, 100],
-    lastVisit: undefined,
-    dateRange: { from: undefined, to: undefined },
-  });
+
 
 
   return (
@@ -63,11 +81,7 @@ const Customers: React.FC = () => {
             title="Customers"
             subtitle="Click a row to open full pharmacy history for that customer"
           >
-            <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
-              Showing <span className="font-semibold">{customers.length}</span>{" "}
-              of <span className="font-semibold">{customers.length}</span>{" "}
-              customers
-            </div>
+
             <NewOrder mutate={mutate} />
           </PharmacyHeader>
 
@@ -99,97 +113,36 @@ const Customers: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-[15px]">
-                  {customers
-                    .filter((p) => {
-                      // Query filter
-                      if (filter.query) {
-                        const q = filter.query.toLowerCase();
-                        const match =
-                          (p.patient.name?.toLowerCase() || "").startsWith(q) ||
-                          (p.patient.phoneNumber || "").includes(q) ||
-                          (p.patient.mrn || "").includes(q);
+                  {customers.map((p, idx) => {
+                    const hasHistory = p.visits > 0;
+                    const isRepeat = p.visits > 1;
 
-                        if (!match) return false;
-                      }
-
-                      // Gender filter
-                      if (filter.gender) {
-                        if (p.patient.gender !== filter.gender) return false;
-                      }
-
-                      // Age filter
-                      if (filter.age) {
-                        const age = fAge(p.patient.dateOfBirth);
-                        if (age < filter.age[0] || age > filter.age[1]) return false;
-                      }
-
-                      // Doctor filter
-                      if (filter.doctor) {
-                        if (p.patient.doctor !== filter.doctor) return false;
-                      }
-
-                      // Last visit filter
-                      if (filter.lastVisit && p.lastPurchase) {
-                        const lastPurchaseDate = new Date(p.lastPurchase);
-
-                        // Custom range
-                        if (
-                          filter.lastVisit === "Custom" &&
-                          filter.dateRange?.from &&
-                          filter.dateRange?.to
-                        ) {
-                          const from = new Date(filter.dateRange.from);
-                          const to = new Date(filter.dateRange.to);
-
-                          if (lastPurchaseDate < from || lastPurchaseDate > to) return false;
+                    return (
+                      <TableRow
+                        key={p.patient._id}
+                        className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
+                          ? "bg-white hover:bg-white/60"
+                          : "bg-slate-100 hover:bg-slate-100/60"
+                          } hover:-translate-y-px hover:shadow-sm`}
+                        onClick={() =>
+                          router.push(
+                            `/dashboard/pharmacy/customers/${p.patient._id}`
+                          )
                         }
-
-                        // Last N days
-                        if (typeof filter.lastVisit === "number") {
-                          const cutoff = new Date();
-                          cutoff.setDate(cutoff.getDate() - filter.lastVisit);
-
-                          if (lastPurchaseDate < cutoff) return false;
-                        }
-                      }
-
-                      return true; // ✅ must return true if all filters pass
-                    })
-                    .map((p, idx) => {
-                      const hasHistory = p.visits > 0;
-                      const isRepeat = p.visits > 1;
-
-                      return (
-                        <TableRow
-                          key={p.patient._id}
-                          className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
-                            ? "bg-white hover:bg-white/60"
-                            : "bg-slate-100 hover:bg-slate-100/60"
-                            } hover:-translate-y-px hover:shadow-sm`}
-                          onClick={() =>
-                            router.push(
-                              `/dashboard/pharmacy/customers/${p.patient._id}`
-                            )
-                          }
-                        >
-                          <TableCell className="py-3 align-middle text-slate-500 pl-4">
-                            {idx + 1}
-                          </TableCell>
-                          <TableCell className="py-3 align-middle font-medium">
-                            <div className="flex flex-col gap-0.5">
+                      >
+                        <TableCell className="py-3 align-middle text-slate-500 pl-4">
+                          {(filter.page - 1) * filter.limit + idx + 1}
+                        </TableCell>
+                        <TableCell className="py-3 align-middle font-medium">
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-2">
                               <span className="text-[15px] text-slate-900">
                                 <HighlightText
                                   text={p.patient.name}
                                   highlight={filter.query || ""}
                                 />
                               </span>
-                              <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
-                                <HighlightText
-                                  text={p.patient.address}
-                                  highlight={filter.query || ""}
-                                />
-                              </span>
-                              <div className="flex flex-wrap gap-1 mt-0.5">
+                              <div className="flex flex-wrap gap-1">
                                 {!hasHistory && (
                                   <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-medium">
                                     New
@@ -202,34 +155,41 @@ const Customers: React.FC = () => {
                                 )}
                               </div>
                             </div>
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-slate-700">
-                            <HighlightText
-                              text={p.patient.mrn}
-                              highlight={filter.query || ""}
-                            />
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-slate-700">
-                            {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-slate-700">
-                            <HighlightText
-                              text={p.patient.phoneNumber}
-                              highlight={filter.query || ""}
-                            />
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-right text-slate-900">
-                            {p.visits}
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-right text-slate-700">
-                            {fDate(p.lastPurchase)}
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
-                            {formatINR(p.totalSpend)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                            <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
+                              <HighlightText
+                                text={p.patient.address}
+                                highlight={filter.query || ""}
+                              />
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-slate-700">
+                          <HighlightText
+                            text={p.patient.mrn}
+                            highlight={filter.query || ""}
+                          />
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-slate-700">
+                          {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-slate-700">
+                          <HighlightText
+                            text={p.patient.phoneNumber}
+                            highlight={filter.query || ""}
+                          />
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-right text-slate-900">
+                          {p.visits}
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-right text-slate-700">
+                          {fDate(p.lastPurchase)}
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                          {formatINR(p.totalSpend)}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
 
                   {customers.length === 0 && (
                     <TableRow>
@@ -243,6 +203,17 @@ const Customers: React.FC = () => {
                   )}
                 </TableBody>
               </Table>
+              {total > filter.limit && (
+                <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+                  <PaginationBar
+                    page={filter.page}
+                    limit={filter.limit}
+                    total={total}
+                    setFilter={setFilter}
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
             </div>
           )}
         </main>

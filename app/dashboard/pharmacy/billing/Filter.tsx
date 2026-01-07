@@ -36,7 +36,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
             <input
               value={filter.q ?? ""}
               onChange={(e) =>
-                setFilter((prev) => ({ ...prev, q: e.target.value }))
+                setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
               }
               placeholder="Search invoice no. or patient"
               className={
@@ -52,7 +52,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
             <Select
               value={filter.method}
               onValueChange={(value) =>
-                setFilter((prev) => ({ ...prev, method: value }))
+                setFilter((prev) => ({ ...prev, method: value, page: 1 }))
               }
             >
               <SelectTrigger className="w-full">
@@ -89,7 +89,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
                 selected={filter.date}
                 captionLayout="dropdown"
                 onSelect={(date) => {
-                  setFilter((prev) => ({ ...prev, date }));
+                  setFilter((prev) => ({ ...prev, date, page: 1 }));
                   setOpenCalander(false);
                 }}
               />
@@ -103,7 +103,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
             size={"sm"}
             className="w-full gap-2"
             onClick={() => {
-              setFilter({ q: null, status: "all", method: "all", date: undefined });
+              setFilter({ q: null, status: "all", method: "all", date: undefined, page: 1, limit: 10 });
             }}
           >
             <RefreshCcw className="h-3.5 w-3.5" />
