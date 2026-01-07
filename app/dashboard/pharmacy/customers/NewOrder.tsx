@@ -19,7 +19,7 @@ import api from "@/lib/axios";
 import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 
-export default function NewOrder() {
+export default function NewOrder({ mutate }: { mutate: () => void }) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [openCreate, setOpenCreate] = useState(false);
@@ -157,9 +157,10 @@ export default function NewOrder() {
       >
         <RegisterPatient onClose={(id?: string, name?: string) => {
           setOpenCreate(false);
-          setPayload((prev) => ({ ...prev, patient: id ?? "" }));
-          setOpen(true)
-          setpatientName(name ?? "")
+          mutate()
+          // setPayload((prev) => ({ ...prev, patient: id ?? "" }));
+          // setOpen(true)
+          // setpatientName(name ?? "")
 
         }} />
       </Drawer>

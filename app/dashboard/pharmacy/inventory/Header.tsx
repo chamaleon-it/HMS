@@ -3,6 +3,7 @@ import React, { useCallback, useState } from "react";
 import { ItemType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import PharmacyHeader from "../components/PharmacyHeader";
 
 interface Props {
   handleAdd: () => void;
@@ -75,23 +76,21 @@ export default function Header({ handleAdd, items }: Props) {
       setDownloadProgress(0);
     }
   }, []);
-  
+
 
   return (
-    <div className="flex justify-between items-center">
-      <h1 className="text-2xl font-bold text-purple-700">
-        Inventory Management
-      </h1>
-      <div className="flex gap-2">
-        <Button className="bg-purple-600 text-white" onClick={handleAdd}>
-          + Add New Item
-        </Button>
-        <Button variant="outline" onClick={exportCsv} disabled={downloadingCsv}>
-          {downloadingCsv ? `Exporting (${downloadProgress}%)` : "Export CSV"}
-        </Button>
-        <LowStockButton items={items} />
-      </div>
-    </div>
+    <PharmacyHeader
+      title="Inventory Management"
+      subtitle="Manage your pharmacy stock and inventory"
+    >
+      <Button className="bg-purple-600 text-white" onClick={handleAdd}>
+        + Add New Item
+      </Button>
+      <Button variant="outline" onClick={exportCsv} disabled={downloadingCsv}>
+        {downloadingCsv ? `Exporting (${downloadProgress}%)` : "Export CSV"}
+      </Button>
+      <LowStockButton items={items} />
+    </PharmacyHeader>
   );
 }
 

@@ -10,6 +10,7 @@ import DeleteOrder from "./DeleteOrder";
 import NewOrder from "./NewOrder";
 import PharmacyStatus from "./PharmacyStatus";
 import { TableSkeleton } from "./components/PharmacySkeleton";
+import PharmacyHeader from "./components/PharmacyHeader";
 
 function RxQueue() {
 
@@ -41,21 +42,14 @@ function RxQueue() {
 
   return (
     <div>
-      {/* Queue header row */}
-      <div className="flex items-center justify-between mb-2 print:hidden">
-        <div>
-          <h2 className="text-lg font-semibold">RX Queue</h2>
-          <p className="text-slate-600 text-sm">Live prescriptions</p>
-        </div>
-        <div className="flex gap-5 items-center">
 
-
-          <NewOrder OrderMutate={OrderMutate} />
-
-          <PharmacyStatus currenctStatus={filter.q} setCurrenctStatus={(status) => setFilter((prev) => ({ ...prev, q: status }))} />
-
-        </div>
-      </div>
+      <PharmacyHeader
+        title="RX Queue"
+        subtitle="Manage prescriptions and pharmacy operations"
+      >
+        <NewOrder OrderMutate={OrderMutate} />
+        <PharmacyStatus currenctStatus={filter.q} setCurrenctStatus={(status) => setFilter((prev) => ({ ...prev, q: status }))} />
+      </PharmacyHeader>
 
       {isLoading ? (
         <TableSkeleton rows={8} columns={10} />

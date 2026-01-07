@@ -203,7 +203,7 @@ export function Sidebar() {
     >
       {/* Brand */}
       <div className="px-4 py-4 flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">
+        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">
           S
         </div>
         {!collapsed && (
@@ -211,7 +211,12 @@ export function Sidebar() {
             <div className="text-lg font-semibold text-slate-800 leading-tight">
               Synapse
             </div>
-            <div className="text-xs text-slate-500">HMS</div>
+            <div className="flex items-center gap-2 mt-0.5">
+              <div className="text-[11px] font-medium text-slate-400 uppercase tracking-wider">HMS V1.0</div>
+              {/* <span className="inline-flex items-center justify-center px-2 py-0.5 text-[11px] font-black text-white bg-linear-to-r from-indigo-500 to-fuchsia-500 rounded-full shadow-sm shadow-indigo-200/50 uppercase tracking-tighter ring-1 ring-white/10 [text-shadow:0_1px_1px_rgb(0_0_0/10%)] transition-transform hover:scale-105">
+                v1.0
+              </span> */}
+            </div>
           </div>
         )}
         <button

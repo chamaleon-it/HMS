@@ -12,7 +12,7 @@ export interface FilterType {
   q: null | string;
   status: string;
   method: string;
-  date:undefined | Date
+  date: undefined | Date
 }
 
 export default function BillingPage() {
@@ -21,7 +21,7 @@ export default function BillingPage() {
     q: null,
     status: "",
     method: "",
-    date:undefined
+    date: undefined
   });
 
   const params = new URLSearchParams();
@@ -37,8 +37,8 @@ export default function BillingPage() {
   if (filter.method !== "all") {
     params.set("method", filter.method);
   }
-  if(filter.date){
-    params.set("date",filter.date.toISOString())
+  if (filter.date) {
+    params.set("date", filter.date.toISOString())
   }
 
   const { data: billingData, mutate: billingMutate } = useSWR<{
@@ -66,12 +66,7 @@ export default function BillingPage() {
     <AppShell>
       <div
         className="min-h-[calc(100vh-80px)] w-full p-5 text-slate-900 dark:text-slate-100"
-        style={
-          {
-            background:
-              "radial-gradient(110% 80% at 0% 0%, rgba(79,70,229,0.08), transparent 60%), radial-gradient(110% 80% at 100% 100%, rgba(236,72,153,0.08), transparent 60%), linear-gradient(180deg, rgba(255,255,255,0.92), rgba(255,255,255,0.88))",
-          } as React.CSSProperties
-        }
+
       >
         <div className="">
           <Header setTab={setTab} />
