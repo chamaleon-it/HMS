@@ -368,14 +368,16 @@ export default function OrderTable({
 
       {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} />}
 
-      <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
-        <PaginationBar
-          page={filter.page}
-          limit={filter.limit}
-          total={total}
-          setFilter={setFilter}
-        />
-      </div>
+      {total > filter.limit && (
+        <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+          <PaginationBar
+            page={filter.page}
+            limit={filter.limit}
+            total={total}
+            setFilter={setFilter}
+          />
+        </div>
+      )}
     </div>
   );
 }

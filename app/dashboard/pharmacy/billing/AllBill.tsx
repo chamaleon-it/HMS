@@ -202,17 +202,16 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
               </tbody>
             </table>
           </div>
-        </div>
-
-
-
-        <div className="">
-          <PaginationBar
-            page={filter.page}
-            limit={filter.limit}
-            total={total}
-            setFilter={setFilter}
-          />
+          {total > filter.limit && (
+            <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+              <PaginationBar
+                page={filter.page}
+                limit={filter.limit}
+                total={total}
+                setFilter={setFilter}
+              />
+            </div>
+          )}
         </div>
       </div>
       <AddPaymentDialog

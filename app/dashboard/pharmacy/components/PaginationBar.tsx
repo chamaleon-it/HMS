@@ -29,6 +29,8 @@ export function PaginationBar<T extends { page: number; limit: number }>({
 }) {
     const totalPages = Math.max(1, Math.ceil((total || 0) / (limit || 10)));
 
+    if (totalPages <= 1) return null;
+
     const pages = useMemo(() => {
         const half = Math.floor(pageWindow / 2);
         let start = Math.max(1, page - half);

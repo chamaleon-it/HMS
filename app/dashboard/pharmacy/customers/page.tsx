@@ -90,128 +90,130 @@ const Customers: React.FC = () => {
           {isLoading ? (
             <TableSkeleton rows={10} columns={8} />
           ) : (
-            <div className="flex flex-col gap-4">
-              <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
-                <Table>
-                  <TableHeader className="bg-slate-700 hover:bg-slate-700">
-                    <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 px-4 pl-4">Sl No</TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Customers</TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">PID</TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">
-                        Age / Gender
-                      </TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Phone</TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right">
-                        Visits
-                      </TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right">
-                        Last Purchase
-                      </TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
-                        Total Spend
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody className="text-[15px]">
-                    {customers.map((p, idx) => {
-                      const hasHistory = p.visits > 0;
-                      const isRepeat = p.visits > 1;
+            <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
+              <Table>
+                <TableHeader className="bg-slate-700 hover:bg-slate-700">
+                  <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 px-4 pl-4">Sl No</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Customers</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">PID</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">
+                      Age / Gender
+                    </TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Phone</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right">
+                      Visits
+                    </TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right">
+                      Last Purchase
+                    </TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
+                      Total Spend
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody className="text-[15px]">
+                  {customers.map((p, idx) => {
+                    const hasHistory = p.visits > 0;
+                    const isRepeat = p.visits > 1;
 
-                      return (
-                        <TableRow
-                          key={p.patient._id}
-                          className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
-                            ? "bg-white hover:bg-white/60"
-                            : "bg-slate-100 hover:bg-slate-100/60"
-                            } hover:-translate-y-px hover:shadow-sm`}
-                          onClick={() =>
-                            router.push(
-                              `/dashboard/pharmacy/customers/${p.patient._id}`
-                            )
-                          }
-                        >
-                          <TableCell className="py-3 align-middle text-slate-500 pl-4">
-                            {(filter.page - 1) * filter.limit + idx + 1}
-                          </TableCell>
-                          <TableCell className="py-3 align-middle font-medium">
-                            <div className="flex flex-col gap-0.5">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[15px] text-slate-900">
-                                  <HighlightText
-                                    text={p.patient.name}
-                                    highlight={filter.query || ""}
-                                  />
-                                </span>
-                                <div className="flex flex-wrap gap-1">
-                                  {!hasHistory && (
-                                    <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-medium">
-                                      New
-                                    </Badge>
-                                  )}
-                                  {isRepeat && (
-                                    <Badge className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-medium">
-                                      Repeat
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                              <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
+                    return (
+                      <TableRow
+                        key={p.patient._id}
+                        className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
+                          ? "bg-white hover:bg-white/60"
+                          : "bg-slate-100 hover:bg-slate-100/60"
+                          } hover:-translate-y-px hover:shadow-sm`}
+                        onClick={() =>
+                          router.push(
+                            `/dashboard/pharmacy/customers/${p.patient._id}`
+                          )
+                        }
+                      >
+                        <TableCell className="py-3 align-middle text-slate-500 pl-4">
+                          {(filter.page - 1) * filter.limit + idx + 1}
+                        </TableCell>
+                        <TableCell className="py-3 align-middle font-medium">
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[15px] text-slate-900">
                                 <HighlightText
-                                  text={p.patient.address}
+                                  text={p.patient.name}
                                   highlight={filter.query || ""}
                                 />
                               </span>
+                              <div className="flex flex-wrap gap-1">
+                                {!hasHistory && (
+                                  <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-medium">
+                                    New
+                                  </Badge>
+                                )}
+                                {isRepeat && (
+                                  <Badge className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-medium">
+                                    Repeat
+                                  </Badge>
+                                )}
+                              </div>
                             </div>
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-slate-700">
-                            <HighlightText
-                              text={p.patient.mrn}
-                              highlight={filter.query || ""}
-                            />
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-slate-700">
-                            {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-slate-700">
-                            <HighlightText
-                              text={p.patient.phoneNumber}
-                              highlight={filter.query || ""}
-                            />
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-right text-slate-900">
-                            {p.visits}
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-right text-slate-700">
-                            {fDate(p.lastPurchase)}
-                          </TableCell>
-                          <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
-                            {formatINR(p.totalSpend)}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-
-                    {customers.length === 0 && (
-                      <TableRow>
-                        <TableCell
-                          colSpan={8}
-                          className="text-center text-slate-500 py-6"
-                        >
-                          No patients found.
+                            <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
+                              <HighlightText
+                                text={p.patient.address}
+                                highlight={filter.query || ""}
+                              />
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-slate-700">
+                          <HighlightText
+                            text={p.patient.mrn}
+                            highlight={filter.query || ""}
+                          />
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-slate-700">
+                          {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-slate-700">
+                          <HighlightText
+                            text={p.patient.phoneNumber}
+                            highlight={filter.query || ""}
+                          />
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-right text-slate-900">
+                          {p.visits}
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-right text-slate-700">
+                          {fDate(p.lastPurchase)}
+                        </TableCell>
+                        <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                          {formatINR(p.totalSpend)}
                         </TableCell>
                       </TableRow>
-                    )}
-                  </TableBody>
-                </Table>
-              </div>
-              <PaginationBar
-                page={filter.page}
-                limit={filter.limit}
-                total={total}
-                setFilter={setFilter}
-                disabled={isLoading}
-              />
+                    );
+                  })}
+
+                  {customers.length === 0 && (
+                    <TableRow>
+                      <TableCell
+                        colSpan={8}
+                        className="text-center text-slate-500 py-6"
+                      >
+                        No patients found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              {total > filter.limit && (
+                <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+                  <PaginationBar
+                    page={filter.page}
+                    limit={filter.limit}
+                    total={total}
+                    setFilter={setFilter}
+                    disabled={isLoading}
+                  />
+                </div>
+              )}
             </div>
           )}
         </main>
