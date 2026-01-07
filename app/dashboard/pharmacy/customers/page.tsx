@@ -20,9 +20,13 @@ import NewOrder from "./NewOrder";
 import { TableSkeleton } from "../components/PharmacySkeleton";
 import PharmacyHeader from "../components/PharmacyHeader";
 import { PaginationBar } from "../components/PaginationBar";
+import { Button } from "@/components/ui/button";
+import Drawer from "@/components/ui/drawer";
+import { RegisterPatient } from "./RegisterPatient";
 
 const Customers: React.FC = () => {
   const router = useRouter();
+  const [editCustomer, setEditCustomer] = useState<any>(null);
 
   const [filter, setFilter] = useState<FilterType>({
     query: undefined,
@@ -110,6 +114,9 @@ const Customers: React.FC = () => {
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
                       Total Spend
                     </TableHead>
+                    {/* <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
+                      Actions
+                    </TableHead> */}
                   </TableRow>
                 </TableHeader>
                 <TableBody className="text-[15px]">
@@ -124,16 +131,16 @@ const Customers: React.FC = () => {
                           ? "bg-white hover:bg-white/60"
                           : "bg-slate-100 hover:bg-slate-100/60"
                           } hover:-translate-y-px hover:shadow-sm`}
-                        onClick={() =>
-                          router.push(
-                            `/dashboard/pharmacy/customers/${p.patient._id}`
-                          )
-                        }
+
                       >
                         <TableCell className="py-3 align-middle text-slate-500 pl-4">
                           {(filter.page - 1) * filter.limit + idx + 1}
                         </TableCell>
-                        <TableCell className="py-3 align-middle font-medium">
+                        <TableCell className="py-3 align-middle font-medium cursor-pointer" onClick={() =>
+                          router.push(
+                            `/dashboard/pharmacy/customers/${p.patient._id}`
+                          )
+                        }>
                           <div className="flex flex-col gap-0.5">
                             <div className="flex items-center gap-2">
                               <span className="text-[15px] text-slate-900">
@@ -187,6 +194,16 @@ const Customers: React.FC = () => {
                         <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
                           {formatINR(p.totalSpend)}
                         </TableCell>
+                        {/* <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-slate-700 hover:bg-slate-100"
+                            onClick={() => setEditCustomer(p.patient)}
+                          >
+                            Edit
+                          </Button>
+                        </TableCell> */}
                       </TableRow>
                     );
                   })}
@@ -218,6 +235,18 @@ const Customers: React.FC = () => {
           )}
         </main>
       </div>
+
+      <Drawer
+        open={Boolean(editCustomer)}
+        onClose={() => setEditCustomer(null)}
+        title="Customer Edit"
+      >
+        <RegisterPatient
+          onClose={() => setEditCustomer(null)}
+          mutate={mutate}
+          patient={editCustomer}
+        />
+      </Drawer>
     </AppShell>
   );
 };
