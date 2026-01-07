@@ -196,7 +196,7 @@ const Customer: React.FC = () => {
 
   return (
     <AppShell>
-      <div className="bg-slate-50 p-5 print:hidden">
+      <div className="p-5 print:hidden">
         <main className="space-y-6">
           <PharmacyHeader
             title="Customer Profile"

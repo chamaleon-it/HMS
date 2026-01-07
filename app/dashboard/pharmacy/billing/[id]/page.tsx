@@ -95,19 +95,22 @@ export default function InvoiceView() {
 
   return (
     <AppShell>
-      <div className="flex flex-col items-center p-8 bg-slate-100 min-h-screen overflow-auto gap-6 print:p-0 print:bg-white">
-        <PharmacyHeader
-          title="Invoice Details"
-          subtitle={`Viewing invoice ${billing.mrn}`}
-        >
-          <Link
-            href="/dashboard/pharmacy/billing"
-            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-colors shadow-sm text-xs font-bold"
+      <div className="flex flex-col items-center p-5 min-h-screen overflow-auto gap-6 print:p-0 print:bg-white">
+        <div className="w-full">
+
+          <PharmacyHeader
+            title="Invoice Details"
+            subtitle={`Viewing invoice ${billing.mrn}`}
           >
-            <ArrowLeft className="h-4 w-4" />
-            Back to bills
-          </Link>
-        </PharmacyHeader>
+            <Link
+              href="/dashboard/pharmacy/billing"
+              className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-colors shadow-sm text-xs font-bold"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to bills
+            </Link>
+          </PharmacyHeader>
+        </div>
 
         {/* Receipt Container */}
         <div className="bg-white text-slate-900 font-sans leading-relaxed shadow-xl w-full flex flex-col overflow-hidden rounded-xl print:shadow-none print:rounded-none">
