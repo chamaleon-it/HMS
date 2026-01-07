@@ -103,7 +103,7 @@ function LowStockButton({ items, lowStockThreshold }: { items?: ItemType[]; lowS
     <Button variant="destructive" className="relative">
       Low Stock Alert
       <span className="ml-2 inline-flex items-center justify-center text-[10px] leading-none font-semibold bg-white text-red-600 rounded-full h-5 min-w-[20px] px-1 border border-red-300">
-        {lowCount}
+        {lowStockThreshold}
       </span>
     </Button>
   );
