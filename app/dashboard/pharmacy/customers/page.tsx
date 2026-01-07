@@ -194,7 +194,7 @@ const Customers: React.FC = () => {
                         <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
                           {formatINR(p.totalSpend)}
                         </TableCell>
-                        {/* <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                        <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
                           <Button
                             variant="outline"
                             size="sm"
@@ -203,7 +203,7 @@ const Customers: React.FC = () => {
                           >
                             Edit
                           </Button>
-                        </TableCell> */}
+                        </TableCell>
                       </TableRow>
                     );
                   })}
