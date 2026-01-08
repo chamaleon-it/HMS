@@ -111,7 +111,7 @@ export default function UpdatePrescriptionCard({
                   {m.name.quantity}
                 </td>
                 <td className="p-4 align-middle">
-                  <QuantityInput i={i} m={m} updateField={updateField} />
+                  <QuantityInput i={i} m={m} updateField={updateField} status={data.status} />
                 </td>
                 <td className="p-4 align-middle text-right text-sm font-medium text-slate-600 whitespace-nowrap">
                   {formatINR(m.name.unitPrice)}
@@ -129,6 +129,7 @@ export default function UpdatePrescriptionCard({
                 </td>
                 <td className="p-4 align-middle text-right">
                   <Button
+                    disabled={data.status === "Ready" || data.status === "Completed"}
                     size="icon"
                     variant="ghost"
                     className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors"
@@ -144,7 +145,7 @@ export default function UpdatePrescriptionCard({
         </table>
       </div>
       <div className="p-4 border-t bg-slate-50 flex flex-col gap-3 rounded-b-lg">
-        <UpdateMedicine addMedicineRow={addMedicineRow} />
+        {data.status !== "Completed" && data.status !== "Ready" && <UpdateMedicine addMedicineRow={addMedicineRow} />}
 
         <div className="flex flex-col gap-2 mt-2 w-full max-w-xs ml-auto border-t pt-2">
           <div className="flex justify-between text-sm text-slate-600">
@@ -154,6 +155,7 @@ export default function UpdatePrescriptionCard({
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Discount %</span>
             <input
+              disabled={data.status === "Ready" || data.status === "Completed"}
               type="number"
               min="0"
               className="w-24 text-right bg-white border border-slate-200 rounded px-2 py-1 text-sm outline-none focus:border-emerald-500"
@@ -173,6 +175,7 @@ export default function UpdatePrescriptionCard({
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Discount ₹</span>
             <input
+              disabled={data.status === "Ready" || data.status === "Completed"}
               type="number"
               min="0"
               value={data.discount ? parseFloat(data.discount.toFixed(2)) : ""}
@@ -195,10 +198,12 @@ const QuantityInput = ({
   updateField,
   i,
   m,
+  status,
 }: {
   updateField: (idx: number, key: any, val: string | number) => void;
   i: number;
   m: Item;
+  status: string;
 }) => {
   const [openWarning, setOpenWarning] = useState(false);
 
@@ -206,6 +211,7 @@ const QuantityInput = ({
     <>
       <div className="flex justify-end">
         <input
+          disabled={status === "Ready" || status === "Completed"}
           placeholder="0"
           type="number"
           min="0"
