@@ -286,13 +286,20 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <Button
+                        {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
+                            disabled={updatingOrder}
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                            onClick={handleUpdate}
+                        >
+                            {updatingOrder ? "Updating..." : "Update Order"}
+                        </Button>}
+                        {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
                             disabled={markingAllPacked}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white"
                             onClick={markAllPacked}
                         >
                             {markingAllPacked ? "Marking..." : "Mark all packed"}
-                        </Button>
+                        </Button>}
                         {
                             autoGenerateBill ?
                                 <Button
@@ -311,14 +318,27 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                     </Link>
                                 </Button>
                         }
+                        {localOrder.status !== "Completed" && <Button onClick={async () => {
+                            try {
+                                if (localOrder.status !== "Ready") {
+                                    await markAllPacked();
+                                }
+                                await toast.promise(api.patch(`/pharmacy/orders/complete/${localOrder._id}`), {
+                                    loading: "Completing...",
+                                    success: (data) => {
+                                        OrderMutate();
+                                        return data.data.message;
+                                    },
+                                    error: ({ response: { data } }) => {
+                                        return data.message;
+                                    }
+                                })
+                                handlePrintBill(localOrder)
+                            } catch (error) {
+                                console.log(error);
+                            }
+                        }}>Complete Order</Button>}
 
-                        <Button
-                            disabled={updatingOrder}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                            onClick={handleUpdate}
-                        >
-                            {updatingOrder ? "Updating..." : "Update Order"}
-                        </Button>
                     </div>
                 </div>
 
