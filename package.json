@@ -11,7 +11,7 @@
     "electron:dev": "concurrently \"next dev\" \"wait-on tcp:3000 && electron .\"",
     "electron:build": "next build && cp -r public .next/standalone/public && cp -r .next/static .next/standalone/.next/static && electron-builder",
     "dist": "npm run electron:build",
-    "electron": "electron-builder"
+    "electron": "electron-builder --win"
   },
   "build": {
     "appId": "com.hms.doctorcare",

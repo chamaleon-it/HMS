@@ -3,6 +3,9 @@ const path = require('path');
 const fp = require('find-free-port');
 const { spawn } = require('child_process');
 
+// Disable sandbox to avoid Linux SUID issues
+app.commandLine.appendSwitch('no-sandbox');
+
 const isDev = !app.isPackaged;
 let mainWindow;
 let serverProcess;
@@ -27,12 +30,21 @@ const startServer = async () => {
 
         console.log('Server path:', serverPath);
 
-        serverProcess = spawn('node', [serverPath], {
+        const fs = require('fs');
+        if (!fs.existsSync(serverPath)) {
+            console.error('Server file not found at:', serverPath);
+            // On some setups, resourcesPath might be slightly different, let's debug
+            console.log('Resources Path:', process.resourcesPath);
+        }
+
+        // Use the Electron executable itself as the Node.js runtime
+        serverProcess = spawn(process.execPath, [serverPath], {
             env: {
                 ...process.env,
                 PORT: port,
                 HOSTNAME: '127.0.0.1',
-                NODE_ENV: 'production'
+                NODE_ENV: 'production',
+                ELECTRON_RUN_AS_NODE: '1'
             },
             cwd: path.dirname(serverPath)
         });
@@ -42,6 +54,10 @@ const startServer = async () => {
 
         serverProcess.on('close', (code) => {
             console.log(`Next Server exited with code ${code}`);
+        });
+
+        serverProcess.on('error', (err) => {
+            console.error('Failed to spawn server process:', err);
         });
 
         // Give it a moment to spin up
