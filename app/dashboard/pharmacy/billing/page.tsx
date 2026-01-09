@@ -20,7 +20,17 @@ export interface FilterType {
   limit: number;
 }
 
+import { useSearchParams } from "next/navigation";
+import ViewBill from "./ViewBill";
+
 export default function BillingPage() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+
+  if (id) {
+    return <ViewBill id={id} />;
+  }
+
   const [tab, setTab] = useState<"all" | "new">("all");
   const [filter, setFilter] = useState<FilterType>({
     q: null,
