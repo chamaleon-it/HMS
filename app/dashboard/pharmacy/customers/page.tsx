@@ -138,7 +138,7 @@ const Customers: React.FC = () => {
                         </TableCell>
                         <TableCell className="py-3 align-middle font-medium cursor-pointer" onClick={() =>
                           router.push(
-                            `/dashboard/pharmacy/customers/${p.patient._id}`
+                            `/dashboard/pharmacy/customers/single?id=${p.patient._id}`
                           )
                         }>
                           <div className="flex flex-col gap-0.5">

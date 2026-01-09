@@ -164,7 +164,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                         <div className="flex justify-end items-center gap-2">
                           <Button variant={"outline"} size={"sm"} asChild className="h-8 text-xs gap-1.5">
                             <Link
-                              href={`/dashboard/pharmacy/billing?id=${b._id}`}
+                              href={`/dashboard/pharmacy/billing/single?id=${b._id}`}
                             >
                               <Eye className=" h-3.5 w-3.5 text-slate-500" /> View
                             </Link>

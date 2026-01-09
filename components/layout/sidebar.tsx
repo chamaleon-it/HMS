@@ -99,37 +99,37 @@ export function Sidebar() {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
-        link: "/dashboard/pharmacy",
+        link: "/dashboard/pharmacy/",
       },
       {
         key: "inventory",
         label: "Inventory",
         icon: Warehouse,
-        link: "/dashboard/pharmacy/inventory",
+        link: "/dashboard/pharmacy/inventory/",
       },
       {
         key: "customers",
         label: "Customers",
         icon: Users,
-        link: "/dashboard/pharmacy/customers",
+        link: "/dashboard/pharmacy/customers/",
       },
       {
         key: "return",
         label: "Return",
         icon: Undo2,
-        link: "/dashboard/pharmacy/return",
+        link: "/dashboard/pharmacy/return/",
       },
       {
         key: "purchase",
         label: "Purchase",
         icon: ShoppingCart,
-        link: "/dashboard/pharmacy/purchase",
+        link: "/dashboard/pharmacy/purchase/",
       },
       {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
-        link: "/dashboard/pharmacy/billing",
+        link: "/dashboard/pharmacy/billing/",
       },
     ]) ||
     (user?.role === "Pharmacy Wholesaler" && [
@@ -143,7 +143,7 @@ export function Sidebar() {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
-        link: "/dashboard/pharmacy-wholesaler/billing",
+        link: "/dashboard/pharmacy-wholesaler/billing/",
       },
     ]) ||
     (user?.role === "Lab" && [
@@ -162,12 +162,12 @@ export function Sidebar() {
           {
             key: "lab",
             label: "Lab",
-            link: "/dashboard/lab/test/lab",
+            link: "/dashboard/lab/test/lab/",
           },
           {
             key: "imaging",
             label: "Imaging",
-            link: "/dashboard/lab/test/imaging",
+            link: "/dashboard/lab/test/imaging/",
           }
         ]
       },
@@ -175,13 +175,13 @@ export function Sidebar() {
         key: "patients",
         label: "Patients",
         icon: Users2,
-        link: "/dashboard/lab/patients",
+        link: "/dashboard/lab/patients/",
       },
       {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
-        link: "/dashboard/lab/billing",
+        link: "/dashboard/lab/billing/",
       },
     ]) ||
     [];

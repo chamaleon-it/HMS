@@ -35,7 +35,7 @@ export default function SearchBar() {
 
   const generateLink = (id: string) => {
     if (user?.role === "Pharmacy") {
-      return `/dashboard/pharmacy/customers/${id}`
+      return `/dashboard/pharmacy/customers/single?id=${id}`
     } else {
       return `/dashboard/doctor/patients/${id}`
     }
