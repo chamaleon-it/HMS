@@ -1,12 +1,9 @@
 "use client";
 
 import AppShell from "@/components/layout/app-shell";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
-import { Download, Printer } from "lucide-react";
-import { useParams } from "next/navigation";
 import useSWR from "swr";
 export default function InvoiceView({ id }: { id: string }) {
 
