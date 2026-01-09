@@ -292,11 +292,11 @@ export function Sidebar() {
 }
 
 const settingsLinks: Record<string, string> = {
-  Pharmacy: "/dashboard/pharmacy/settings",
-  "Pharmacy Wholesaler": "/dashboard/pharmacy-wholesaler/settings",
-  Doctor: "/dashboard/doctor/settings",
-  Lab: "/dashboard/lab/settings",
-  Admin: "/dashboard/admin/settings",
+  Pharmacy: "/dashboard/pharmacy/settings/",
+  "Pharmacy Wholesaler": "/dashboard/pharmacy-wholesaler/settings/",
+  Doctor: "/dashboard/doctor/settings/",
+  Lab: "/dashboard/lab/settings/",
+  Admin: "/dashboard/admin/settings/",
 };
 
 function NavItem({
