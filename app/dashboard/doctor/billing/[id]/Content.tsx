@@ -8,7 +8,7 @@ import { formatINR } from "@/lib/fNumber";
 import { Download, Printer } from "lucide-react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
-export default function Content({ id }: { id: string }) {
+export default function InvoiceView({ id }: { id: string }) {
 
   const { data: billingData } = useSWR<{
     message: string;

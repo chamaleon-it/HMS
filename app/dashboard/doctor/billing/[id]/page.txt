@@ -1,4 +1,4 @@
-import Content from './Content'
+import InvoiceView from './Content'
 
 
 export async function generateStaticParams() {
@@ -11,7 +11,7 @@ export async function generateStaticParams() {
 
 export default function page({ params }: { params: { id: string } }) {
     return (
-        <Content id={params.id} />
+        <InvoiceView id={params.id} />
 
     )
 }

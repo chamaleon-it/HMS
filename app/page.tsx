@@ -4,8 +4,8 @@ import { useAuth } from "@/auth/context/auth-context";
 import LoginForm from "@/components/LoginForm";
 import ForgotPassword from "@/components/LoginForm/ForgotPassword";
 import { Lock, Shield } from "lucide-react";
-import { redirect } from "next/navigation";
-import React, { useState, useMemo } from "react";
+import { redirect, useRouter } from "next/navigation";
+import React, { useState, useMemo, useEffect } from "react";
 
 const quotes = [
   {
@@ -44,21 +44,31 @@ export default function LoginPage() {
     []
   );
 
-  if (loading) return null;
 
-  if (isAuthenticated) {
-    if (user?.role) {
-      if (user.role === "Doctor") {
-        redirect("/dashboard/doctor");
-      } else if (user.role === "Pharmacy") {
-        redirect("/dashboard/pharmacy");
-      } else if (user.role === "Pharmacy Wholesaler") {
-        redirect("/dashboard/pharmacy-wholesaler");
-      } else if (user.role === "Lab") {
-        redirect("/dashboard/lab");
-      }
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.role) return;
+
+    switch (user.role) {
+      case "Doctor":
+        router.replace("/dashboard/doctor");
+        break;
+      case "Pharmacy":
+        router.replace("/dashboard/pharmacy");
+        break;
+      case "Pharmacy Wholesaler":
+        router.replace("/dashboard/pharmacy-wholesaler");
+        break;
+      case "Lab":
+        router.replace("/dashboard/lab");
+        break;
     }
-  }
+  }, [isAuthenticated, user, router]);
+
+
+  if (loading) return null;
 
   return (
     <div>
