@@ -19,8 +19,8 @@
     "electron": "electron-builder --win"
   },
   "build": {
-    "appId": "com.hms.doctorcare",
-    "productName": "DoctorCare",
+    "appId": "com.synapsehms",
+    "productName": "Synapse HMS - V1.0",
     "directories": {
       "buildResources": "assets",
       "output": "dist"
