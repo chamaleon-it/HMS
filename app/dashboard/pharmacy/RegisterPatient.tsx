@@ -29,12 +29,11 @@ import toast from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/auth/context/auth-context";
 import Address from "./Address";
+import { useDebounce } from "@/hooks/useDebounce";
 import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
 import ExistingPatientCard from "./ExistingPatientCard";
-import { useDebounce } from "@/hooks/useDebounce";
 
-
-export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: string) => void }) {
+export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string) => void, patient?: any, mutate?: () => void }) {
   const { user } = useAuth();
   const {
     register,
@@ -46,28 +45,54 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
   } = useForm({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
-      phoneNumber: "+91",
-      doctor: user?._id,
-      gender: "Prefer not to say",
-      dateOfBirth: new Date().toISOString(),
-      address: "",
+      name: patient?.name || "",
+      phoneNumber: patient?.phoneNumber || "+91",
+      doctor: patient?.doctor || user?._id,
+      gender: patient?.gender || "Prefer not to say",
+      dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
+      address: patient?.address || "",
+      mrn: patient?.mrn || undefined
     },
   });
 
   const values = watch();
   const { dateOfBirth } = values;
 
+  useEffect(() => {
+    if (patient) {
+      reset({
+        name: patient?.name || "",
+        phoneNumber: patient?.phoneNumber || "+91",
+        doctor: patient?.doctor || user?._id,
+        gender: patient?.gender || "Prefer not to say",
+        dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
+        address: patient?.address || "",
+        mrn: patient?.mrn || undefined
+      });
+    }
+  }, [patient]);
+
   const createEditPatient = handleSubmit(async (data) => {
     try {
-      const { data: patient } = await toast.promise(api.post("/patients", data), {
-        loading: "Customer is registering...!",
-        error: ({ response }) => response.data.message,
-        success: `Customer register successfully.`,
-      });
-      reset();
-      onClose(patient.data._id, patient.data.name);
+      if (patient?._id) {
+        await toast.promise(api.patch(`/patients/${patient._id}`, data), {
+          loading: "Updating customer...!",
+          error: ({ response }) => response.data.message,
+          success: `Customer updated successfully.`,
+        });
+        if (mutate) mutate();
+        onClose();
+      } else {
+        const { data: responseData } = await toast.promise(api.post("/patients", data), {
+          loading: "Customer is registering...!",
+          error: ({ response }) => response.data.message,
+          success: `Customer register successfully.`,
+        });
+        reset();
+        onClose(responseData.data._id, responseData.data.name);
+      }
     } catch (error) {
-      // Handle error
+      console.log(error);
     }
   });
 
@@ -80,27 +105,24 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
     if (name) setValue("name", name);
   }, [name, setValue]);
 
-
   const debouncedName = useDebounce(values.name, 500);
   const debouncedPhone = useDebounce(values.phoneNumber, 500);
-  const debouncedEmail = useDebounce(values.email, 500);
 
-  const isExist = usePatientAlreadyExist({
-    name: debouncedName,
-    phoneNumber: debouncedPhone,
-    email: debouncedEmail,
+  const isExistByName = usePatientAlreadyExist({
+    name: debouncedName?.length > 2 ? debouncedName : undefined,
   });
-  const alreadyExistPatient = isExist?.data?.patient;
+
+  const isExistByPhone = usePatientAlreadyExist({
+    phoneNumber: debouncedPhone?.length > 4 ? debouncedPhone : undefined,
+  });
+
+  const alreadyExistPatient = isExistByName?.data?.patient || isExistByPhone?.data?.patient;
 
   const [dismissed, setDismissed] = useState(false);
 
   useEffect(() => {
     setDismissed(false);
   }, [alreadyExistPatient]);
-
-
-
-
 
   return (
     <form className="space-y-5" onSubmit={createEditPatient}>
@@ -110,37 +132,62 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
           <h3 className="font-medium">Customer</h3>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {/* Name & Phone Wrapper for full-width dropdown */}
-          <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 relative">
-            <div className="grid gap-2">
-              <Label>Name *</Label>
-              <Input placeholder="Enter patient name" {...register("name")} />
-              {errors.name && (
-                <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
-              )}
-            </div>
+          <div className="grid gap-2 relative">
+            <Label>Name *</Label>
+            <Input placeholder="Enter patient name" {...register("name")} />
+            {errors.name && (
+              <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
+            )}
 
-            <div className="grid gap-2">
-              <Label>Phone </Label>
-              <Input
-                placeholder="+91"
-                {...register("phoneNumber")}
-                value={values.phoneNumber}
-              />
-              {errors.phoneNumber && (
-                <p className="text-red-500 text-xs my-1">
-                  {errors.phoneNumber.message}
-                </p>
-              )}
-            </div>
+            {/* Existing Patient Card for Name */}
+            {isExistByName?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
+              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(200%+16px)] z-50">
+                <ExistingPatientCard
+                  patient={alreadyExistPatient}
+                  onSelect={onClose}
+                  onDismiss={() => setDismissed(true)}
+                />
+              </div>
+            )}
+          </div>
 
-            {/* Existing Patient Card */}
-            {isExist?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && (
-              <ExistingPatientCard
-                patient={alreadyExistPatient}
-                onSelect={onClose}
-                onDismiss={() => setDismissed(true)}
-              />
+          <div className="grid gap-2">
+            <Label>Customer ID</Label>
+            <Input
+              placeholder="PID"
+              {...register("mrn")}
+              value={values.mrn}
+              disabled={patient?._id}
+            />
+            {errors.mrn && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.mrn.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-2 relative">
+            <Label>Phone </Label>
+            <Input
+              placeholder="+91"
+              {...register("phoneNumber")}
+              value={values.phoneNumber}
+            />
+            {errors.phoneNumber && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.phoneNumber.message}
+              </p>
+            )}
+
+            {/* Existing Patient Card for Phone */}
+            {isExistByPhone?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
+              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(200%+16px)] z-50">
+                <ExistingPatientCard
+                  patient={alreadyExistPatient}
+                  onSelect={onClose}
+                  onDismiss={() => setDismissed(true)}
+                />
+              </div>
             )}
           </div>
 
@@ -170,51 +217,80 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label>Date of Birth </Label>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-2">
+              <Label>Date of Birth </Label>
 
-            <Popover open={openCalander} onOpenChange={setOpenCalander}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="date"
-                  className="w-full justify-between font-normal"
+              <Popover open={openCalander} onOpenChange={setOpenCalander}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date"
+                    className="w-full justify-between font-normal"
+                  >
+                    {dateOfBirth
+                      ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}`
+                      : "Select date of birth"}
+                    <ChevronDownIcon />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto overflow-hidden p-0"
+                  align="start"
                 >
-                  {dateOfBirth
-                    ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })} - Age : ${fAge(new Date(dateOfBirth))}`
-                    : "Select date of birth"}
-                  <ChevronDownIcon />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto overflow-hidden p-0"
-                align="start"
-              >
-                <Calendar
-                  disabled={{ after: new Date() }}
-                  mode="single"
-                  selected={new Date(dateOfBirth)}
-                  captionLayout="dropdown"
-                  onSelect={(date) => {
-                    setValue(
-                      "dateOfBirth",
-                      date?.toISOString() ?? new Date().toISOString()
-                    );
-                    setOpenCalander(false);
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
+                  <Calendar
+                    disabled={{ after: new Date() }}
+                    mode="single"
+                    selected={new Date(dateOfBirth)}
+                    captionLayout="dropdown"
+                    onSelect={(date) => {
+                      setValue(
+                        "dateOfBirth",
+                        date?.toISOString() ?? new Date().toISOString()
+                      );
+                      setOpenCalander(false);
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
 
-            {errors.dateOfBirth && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.dateOfBirth.message}
-              </p>
-            )}
+              {errors.dateOfBirth && (
+                <p className="text-red-500 text-xs my-1">
+                  {errors.dateOfBirth.message}
+                </p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Age </Label>
+              <Input
+                type="number"
+                placeholder="Age"
+                value={
+                  dateOfBirth
+                    ? new Date().getFullYear() -
+                    new Date(dateOfBirth).getFullYear()
+                    : ""
+                }
+                onChange={(e) => {
+                  const age = parseInt(e.target.value);
+                  if (!isNaN(age)) {
+                    const today = new Date();
+                    const newDob = new Date(
+                      today.getFullYear() - age,
+                      today.getMonth(),
+                      today.getDate()
+                    );
+                    setValue("dateOfBirth", newDob.toISOString());
+                  } else {
+                  }
+                }}
+              />
+            </div>
           </div>
 
           <Address setValue={setValue} />
@@ -225,7 +301,7 @@ export function RegisterPatient({ onClose }: { onClose: (id?: string, name?: str
         <Button variant="ghost" onClick={() => onClose()} type="button">
           Close
         </Button>
-        <Button type="submit">Register Customer</Button>
+        <Button type="submit">{patient?._id ? "Update Customer" : "Register Customer"}</Button>
       </div>
     </form>
   );

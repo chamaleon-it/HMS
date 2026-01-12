@@ -217,51 +217,80 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label>Date of Birth </Label>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-2">
+              <Label>Date of Birth </Label>
 
-            <Popover open={openCalander} onOpenChange={setOpenCalander}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="date"
-                  className="w-full justify-between font-normal"
+              <Popover open={openCalander} onOpenChange={setOpenCalander}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date"
+                    className="w-full justify-between font-normal"
+                  >
+                    {dateOfBirth
+                      ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}`
+                      : "Select date of birth"}
+                    <ChevronDownIcon />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto overflow-hidden p-0"
+                  align="start"
                 >
-                  {dateOfBirth
-                    ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })} - Age : ${fAge(new Date(dateOfBirth))}`
-                    : "Select date of birth"}
-                  <ChevronDownIcon />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto overflow-hidden p-0"
-                align="start"
-              >
-                <Calendar
-                  disabled={{ after: new Date() }}
-                  mode="single"
-                  selected={new Date(dateOfBirth)}
-                  captionLayout="dropdown"
-                  onSelect={(date) => {
-                    setValue(
-                      "dateOfBirth",
-                      date?.toISOString() ?? new Date().toISOString()
-                    );
-                    setOpenCalander(false);
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
+                  <Calendar
+                    disabled={{ after: new Date() }}
+                    mode="single"
+                    selected={new Date(dateOfBirth)}
+                    captionLayout="dropdown"
+                    onSelect={(date) => {
+                      setValue(
+                        "dateOfBirth",
+                        date?.toISOString() ?? new Date().toISOString()
+                      );
+                      setOpenCalander(false);
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
 
-            {errors.dateOfBirth && (
-              <p className="text-red-500 text-xs my-1">
-                {errors.dateOfBirth.message}
-              </p>
-            )}
+              {errors.dateOfBirth && (
+                <p className="text-red-500 text-xs my-1">
+                  {errors.dateOfBirth.message}
+                </p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Age </Label>
+              <Input
+                type="number"
+                placeholder="Age"
+                value={
+                  dateOfBirth
+                    ? new Date().getFullYear() -
+                    new Date(dateOfBirth).getFullYear()
+                    : ""
+                }
+                onChange={(e) => {
+                  const age = parseInt(e.target.value);
+                  if (!isNaN(age)) {
+                    const today = new Date();
+                    const newDob = new Date(
+                      today.getFullYear() - age,
+                      today.getMonth(),
+                      today.getDate()
+                    );
+                    setValue("dateOfBirth", newDob.toISOString());
+                  } else {
+                  }
+                }}
+              />
+            </div>
           </div>
 
           <Address setValue={setValue} />
