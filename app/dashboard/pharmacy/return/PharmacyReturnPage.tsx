@@ -197,20 +197,20 @@ export default function PharmacyReturnPage() {
             <TableSkeleton rows={5} columns={11} />
           ) : (
             <div className="overflow-x-auto">
-              <Table className="min-w-full text-xs">
+              <Table className="min-w-[1000px] text-xs">
                 <TableHeader className="bg-slate-700 hover:bg-slate-700">
                   <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                    <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sl No</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Medicine / Gen</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">HSN</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Qty Sold</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Qty Return</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Rate</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Amount</TableHead>
-                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-4">Reason</TableHead>
-                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Action</TableHead>
+                    <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pl-4">Sl No</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Medicine / Gen</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">HSN</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Batch</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Expiry</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Qty Sold</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Qty Return</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Rate</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Amount</TableHead>
+                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Reason</TableHead>
+                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pr-4">Action</TableHead>
                   </TableRow>
                 </TableHeader>
 

@@ -224,22 +224,22 @@ export default function OrderTable({
 
 
   return (
-    <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
-      <Table className="print:hidden">
+    <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
+      <Table className="print:hidden min-w-fit">
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
           <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4 w-16">
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pl-4 w-16">
               Sl No
             </TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">RX ID</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Patient</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Items</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Priority</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Status</TableHead>
-            <TableHead className="text-left text-white font-bold text-[11px] uppercase tracking-wider py-4">
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">RX ID</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Patient</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-center">Items</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-center">Priority</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-center">Status</TableHead>
+            <TableHead className="text-left text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">
               Created At
             </TableHead>
-            <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">
+            <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pr-4">
               Actions
             </TableHead>
           </TableRow>
@@ -271,7 +271,7 @@ export default function OrderTable({
                 <StatusBadge status={r?.status} />
               </TableCell>
               <TableCell className="py-3">{fDateandTime(r?.createdAt)}</TableCell>
-              <TableCell className="py-3 text-right space-x-2 pr-4">
+              <TableCell className="py-3 text-right space-x-1 pr-4">
                 <Button
                   size="sm"
                   variant="outline"

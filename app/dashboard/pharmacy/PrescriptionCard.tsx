@@ -80,8 +80,8 @@ export default function PrescriptionCard({
 
   return (
     <div className="">
-      <div className="border rounded-xl p-4">
-        <div className="flex flex-col gap-3">
+      <div className="border rounded-xl p-4 overflow-x-auto">
+        <div className="flex flex-col gap-3 min-w-[800px]">
           <div
             className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
               } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
@@ -224,7 +224,7 @@ export default function PrescriptionCard({
 
               <div className="col-span-1 flex justify-end gap-2">
                 <Button
-                  className="!bg-red-600 hover:!bg-red-700 text-white !border-red-600"
+                  className="bg-red-600! hover:bg-red-700! text-white border-red-600!"
                   onClick={() => removeMedicineRow(i)}
                   title="Remove medicine"
                 >

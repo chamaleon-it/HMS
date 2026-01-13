@@ -87,23 +87,23 @@ export default function ItemTable({
           <Table className="whitespace-nowrap">
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pl-4">
                   <Checkbox />
                 </TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Sl No</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Item Name</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">HSN</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">SKU</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Category</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Quantity</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">P.Price</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Unit Price (₹)</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Total Value (₹)</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry Date</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Manufacturer</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Status</TableHead>
-                <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-4 pr-4" >Actions</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Sl No</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Item Name</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">HSN</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">SKU</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Category</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Quantity</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">P.Price</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Unit Price (₹)</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Total Value (₹)</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Expiry Date</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Supplier</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Manufacturer</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Status</TableHead>
+                <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pr-4" >Actions</TableHead>
               </TableRow>
             </TableHeader>
 

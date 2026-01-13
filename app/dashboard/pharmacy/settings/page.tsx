@@ -50,7 +50,7 @@ const PharmacySettingsPage: React.FC = () => {
                 key={key}
                 onClick={() => setActiveSection(key)}
                 className={
-                  "relative  gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer w-1/5 text-center flex justify-center items-center " +
+                  "relative gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer flex-1 text-center justify-center items-center flex " +
                   (active ? "text-white" : "text-slate-600 hover:text-slate-900")
                 }
                 type="button"

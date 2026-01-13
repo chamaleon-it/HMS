@@ -126,7 +126,7 @@ export default function Security() {
           </CardContent>
           <CardFooter className="justify-between gap-2 flex-wrap">
             <Button
-              className="gap-2 bg-gradient-to-r from-sky-600 to-indigo-600 text-white hover:from-sky-700 hover:to-indigo-700 disabled:opacity-60 shadow-sm"
+              className="gap-2 bg-linear-to-r from-sky-600 to-indigo-600 text-white hover:from-sky-700 hover:to-indigo-700 disabled:opacity-60 shadow-sm"
               type="submit"
             >
               <Save className="h-4 w-4" /> Update password
@@ -176,7 +176,7 @@ const RestoreBackup = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-2 w-1/2">
+        <div className="grid gap-2 w-full md:w-1/2">
           <Label htmlFor="password">Password</Label>
           <Input
             id="password"
@@ -187,7 +187,7 @@ const RestoreBackup = () => {
           />
         </div>
         <Button
-          className="gap-2 bg-gradient-to-r from-sky-600 to-indigo-600 text-white hover:from-sky-700 hover:to-indigo-700 disabled:opacity-60 shadow-sm mt-5"
+          className="gap-2 bg-linear-to-r from-sky-600 to-indigo-600 text-white hover:from-sky-700 hover:to-indigo-700 disabled:opacity-60 shadow-sm mt-5"
           onClick={restoreBackup}
         >
           <Save className="h-4 w-4" /> Restore

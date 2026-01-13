@@ -27,7 +27,7 @@ export default function Header() {
         </div>
 
         {/* Top bar */}
-        <div className="flex h-20 items-center justify-between border-b border-slate-200/70 px-4 sm:px-8 bg-white/85">
+        <div className="flex h-16 2xl:h-20 items-center justify-between border-b border-slate-200/70 px-4 sm:px-8 bg-white/85">
           {/* Brand */}
           <div className="flex items-center gap-3 pr-2" data-testid="brand">
             <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">

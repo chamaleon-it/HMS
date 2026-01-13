@@ -193,7 +193,7 @@ export function Sidebar() {
     <aside
       className={
         "sticky top-0 h-screen transition-all duration-300 flex flex-col border-r border-slate-200/80 shrink-0 " +
-        (collapsed ? "w-20" : "w-72")
+        (collapsed ? "w-20" : "2xl:w-72 w-64")
       }
       style={{
         background:
@@ -341,13 +341,13 @@ function NavItem({
     <>
       <span
         className={
-          "grid h-9 w-9 place-items-center rounded-xl transition-all " +
+          "grid 2xl:h-9 2xl:w-9 h-7 w-7 place-items-center rounded-xl transition-all " +
           (isParentActive
             ? "bg-white/20 text-white"
             : "bg-slate-100 text-slate-600 group-hover:bg-slate-200")
         }
       >
-        <Icon className="h-5 w-5" />
+        <Icon className="2xl:h-5 2xl:w-5 h-4 w-4" />
       </span>
       {!collapsed && (
         <>
@@ -355,7 +355,7 @@ function NavItem({
           {badge && (
             <span
               className={
-                "ml-auto inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 " +
+                "ml-auto inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 2xl:px-2 2xl:py-1 " +
                 (isParentActive
                   ? "bg-white/20 text-white"
                   : "bg-slate-100 text-slate-700")

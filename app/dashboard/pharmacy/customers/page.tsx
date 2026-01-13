@@ -94,27 +94,27 @@ const Customers: React.FC = () => {
           {isLoading ? (
             <TableSkeleton rows={10} columns={8} />
           ) : (
-            <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
-              <Table>
+            <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
+              <Table className="min-w-[1000px]">
                 <TableHeader className="bg-slate-700 hover:bg-slate-700">
                   <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 px-4 pl-4">Sl No</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Customers</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">PID</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 px-4 pl-4">Sl No</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Customers</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">PID</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">
                       Age / Gender
                     </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Phone</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Phone</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-right">
                       Visits
                     </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-right">
                       Last Purchase
                     </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-right pr-4">
                       Total Spend
                     </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-right pr-4">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-right pr-4">
                       Actions
                     </TableHead>
                   </TableRow>

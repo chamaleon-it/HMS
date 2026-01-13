@@ -28,6 +28,8 @@ async function createWindow() {
         },
     });
 
+    mainWindow.maximize();
+
     const startUrl =
         process.env.ELECTRON_START_URL ||
         `http://localhost:${port}`;

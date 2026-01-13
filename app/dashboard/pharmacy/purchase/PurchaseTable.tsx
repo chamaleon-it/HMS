@@ -24,15 +24,15 @@ export default function PurchaseTable({ purchase, total }: Props) {
 
     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
       <div className="overflow-x-auto">
-        <Table className="text-sm">
+        <Table className="text-sm min-w-[800px]">
           <TableHeader className="bg-slate-700 hover:bg-slate-700">
             <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-              <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">PO #</TableHead>
-              <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
-              <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Created</TableHead>
-              <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expected</TableHead>
-              <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Status</TableHead>
-              <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Actions</TableHead>
+              <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pl-4">PO #</TableHead>
+              <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Supplier</TableHead>
+              <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Created</TableHead>
+              <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Expected</TableHead>
+              <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Status</TableHead>
+              <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pr-4">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>

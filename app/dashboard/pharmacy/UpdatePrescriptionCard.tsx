@@ -70,8 +70,8 @@ export default function UpdatePrescriptionCard({
 
 
   return (
-    <div className="rounded-lg border">
-      <div className="overflow-hidden rounded-t-lg">
+    <div className="rounded-lg border overflow-x-auto">
+      <div className="rounded-t-lg min-w-[1000px]">
         <table className="w-full text-[15px]">
           <thead className="bg-slate-700 hover:bg-slate-700 text-white">
             <tr className="w-full">
