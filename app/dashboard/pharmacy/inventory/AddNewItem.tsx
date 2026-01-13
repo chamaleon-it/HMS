@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
@@ -17,6 +16,12 @@ import { ChevronDownIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+
+const months = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+];
+const years = Array.from({ length: 11 }, (_, i) => new Date().getFullYear() + i);
 
 export function AddNewItem({ onClose }: { onClose: () => void }) {
   const {
@@ -58,7 +63,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
   return (
     <form
-      className="max-w-xl bg-white rounded-2xl shadow-xl border p-6 space-y-6"
+      className="w-full bg-white rounded-2xl shadow-xl border p-6 space-y-6"
       onSubmit={addItem}
     >
       <div>
@@ -171,7 +176,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            SKU / Internal Code *
+            SKU / Internal Code
           </label>
           <Input
             placeholder="e.g. MED001"
@@ -319,25 +324,68 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
                 id="date"
                 className="w-full justify-between font-normal"
               >
-                {values.expiryDate ? fDate(new Date(values.expiryDate)) : "Select date"}
-                <ChevronDownIcon />
+                {values.expiryDate ? (() => {
+                  const d = new Date(values.expiryDate);
+                  return `${months[d.getMonth()]} / ${d.getFullYear()}`;
+                })() : "Select Expiry"}
+                <ChevronDownIcon className="h-4 w-4 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-              <Calendar
-                startMonth={new Date(2025, 0)}
-                endMonth={new Date(2030, 0)}
-                disabled={{ before: new Date() }}
-                mode="single"
-                selected={values.expiryDate ? new Date(values.expiryDate) : undefined}
-                captionLayout="dropdown"
-                onSelect={(date) => {
-                  if (date) {
-                    setValue("expiryDate", date.toISOString())
-                    setOpenCalendar(false)
-                  }
-                }}
-              />
+            <PopoverContent className="w-64 p-3" align="start">
+              <div className="space-y-3">
+                <div className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">Select Month & Year</div>
+
+                <div className="grid grid-cols-3 gap-1">
+                  {months.map((m: string, idx: number) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className={`px-2 py-1.5 text-xs rounded-md transition-colors ${values.expiryDate && new Date(values.expiryDate).getMonth() === idx
+                        ? "bg-indigo-600 text-white font-medium"
+                        : "hover:bg-gray-100 text-gray-700"
+                        }`}
+                      onClick={() => {
+                        const current = values.expiryDate ? new Date(values.expiryDate) : new Date();
+                        const newDate = new Date(current.getFullYear(), idx, 1);
+                        setValue("expiryDate", newDate.toISOString());
+                      }}
+                    >
+                      {m}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="border-t pt-3">
+                  <Select
+                    value={values.expiryDate ? String(new Date(values.expiryDate).getFullYear()) : String(new Date().getFullYear())}
+                    onValueChange={(y) => {
+                      const current = values.expiryDate ? new Date(values.expiryDate) : new Date();
+                      const newDate = new Date(Number(y), current.getMonth(), 1);
+                      setValue("expiryDate", newDate.toISOString());
+                    }}
+                  >
+                    <SelectTrigger className="w-full h-8 text-xs">
+                      <SelectValue placeholder="Year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {years.map((y: number) => (
+                        <SelectItem key={y} value={String(y)} className="text-xs">
+                          {y}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  className="w-full h-8 text-xs bg-indigo-600 hover:bg-indigo-700"
+                  onClick={() => setOpenCalendar(false)}
+                >
+                  Confirm
+                </Button>
+              </div>
             </PopoverContent>
           </Popover>
           {errors.expiryDate && (

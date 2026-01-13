@@ -19,11 +19,9 @@ export const pharmacyItemAddSchema = z.object({
 
   sku: z
     .string({ error: "SKU is required" })
-    .regex(/^[A-Za-z0-9-_]+$/, {
-      error: "SKU may contain only letters, numbers, hyphens, and underscores",
-    })
     .max(64, { error: "SKU must be at most 64 characters" })
-    .transform((s) => s.trim().toUpperCase()),
+    .transform((s) => s.trim().toUpperCase())
+    .optional(),
 
   category: z
     .string({ error: "Category is required" })
