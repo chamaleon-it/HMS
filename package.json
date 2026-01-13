@@ -1,7 +1,7 @@
 {
-  "name": "doctorcare-4",
-  "version": "0.1.0",
-  "description": "Doctor Care",
+  "name": "synapse-hms",
+  "version": "1.0.1",
+  "description": "Synapse HMS",
   "author": {
     "email": "muhammed916rashid@gmail.com",
     "name": "Muhammed Rashid"
@@ -20,7 +20,7 @@
   },
   "build": {
     "appId": "com.synapsehms",
-    "productName": "Synapse HMS - V1.0",
+    "productName": "Synapse HMS",
     "directories": {
       "buildResources": "assets",
       "output": "dist"

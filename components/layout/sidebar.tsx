@@ -193,7 +193,7 @@ export function Sidebar() {
     <aside
       className={
         "sticky top-0 h-screen transition-all duration-300 flex flex-col border-r border-slate-200/80 shrink-0 " +
-        (collapsed ? "w-20" : "2xl:w-72 w-64")
+        (collapsed ? "w-20" : "2xl:w-72 w-56")
       }
       style={{
         background:
@@ -396,7 +396,7 @@ function NavItem({
         <Link
           href={link || "/"}
           className={
-            "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border " +
+            "group w-full flex items-center gap-3 rounded-2xl px-2 2xl:px-3 2xl:py-3 py-2 transition-all border " +
             (isParentActive
               ? "border-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
