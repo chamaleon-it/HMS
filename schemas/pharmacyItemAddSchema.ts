@@ -9,13 +9,12 @@ export const pharmacyItemAddSchema = z.object({
 
   generic: z
     .string({ error: "Generic name is required" })
-    .min(2, { error: "Generic name must be at least 2 characters" })
     .max(120, { error: "Generic name must be at most 120 characters" })
-    .transform((s) => s.trim()),
+    .transform((s) => s.trim()).optional(),
 
   hsnCode: z
     .string({ error: "HSN code is required" })
-    .regex(/^\d{4,8}$/, { error: "HSN code must be 4–8 digits" })
+    // .regex(/^\d{4,8}$/, { error: "HSN code must be 4–8 digits" })
     .transform((s) => s.trim()),
 
   sku: z
@@ -33,12 +32,10 @@ export const pharmacyItemAddSchema = z.object({
 
   supplier: z
     .string({ error: "Supplier is required" })
-    .min(2, { error: "Supplier must be at least 2 characters" })
     .transform((s) => s.trim()),
 
   manufacturer: z
     .string({ error: "Supplier is required" })
-    .min(2, { error: "Supplier must be at least 2 characters" })
     .transform((s) => s.trim()),
 
   purchasePrice: z.coerce
@@ -64,6 +61,20 @@ export const pharmacyItemAddSchema = z.object({
   // iso.date({
   //   error: "Expiry date must be an ISO date (YYYY-MM-DD)",
   // }),
+
+  batchNumber: z.string({ error: "Batch number is required" }).optional(),
+
+  rackLocation: z.string({ error: "Rack location is required" }).optional(),
+
+  packing: z.coerce
+    .number({ error: "Packing must be a number" })
+    .int({ error: "Packing must be an integer" })
+    .optional(),
+
+  gst: z.coerce
+    .number({ error: "GST must be a number" })
+    .max(100, { error: "GST cannot be above 100" })
+    .optional(),
 
   status: z.enum(["Active", "Inactive"], {
     error: "Status must be 'Active' or 'Inactive'",

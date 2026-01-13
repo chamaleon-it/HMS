@@ -30,6 +30,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
     resolver: zodResolver(pharmacyItemAddSchema),
     defaultValues: {
       status: "Active",
+      category: "Medicine",
     },
   });
 
@@ -67,8 +68,8 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 text-sm">
-        <div className="col-span-2">
+      <div className="grid grid-cols-3 gap-4 text-sm">
+        <div className="col-span-3">
           <label className="text-[12px] text-gray-600 font-medium">
             Brand Name *
           </label>
@@ -85,9 +86,9 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
           </p>
         </div>
 
-        <div className="col-span-2">
+        <div className="col-span-3">
           <label className="text-[12px] text-gray-600 font-medium">
-            Generic / Content *
+            Generic / Content
           </label>
           <Input
             placeholder="e.g. Paracetamol / Acetaminophen"
@@ -106,7 +107,55 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            HSN Code *
+            Batch Number
+          </label>
+          <Input
+            placeholder="e.g. Batch 001"
+            className="mt-1"
+            {...register("batchNumber")}
+          />
+          {errors.batchNumber && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.batchNumber.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            Rack Location
+          </label>
+          <Input
+            placeholder="e.g. Rack 001"
+            className="mt-1"
+            {...register("rackLocation")}
+          />
+          {errors.rackLocation && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.rackLocation.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            Packing
+          </label>
+          <Input
+            placeholder="e.g. 100"
+            className="mt-1"
+            {...register("packing")}
+          />
+          {errors.packing && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.packing.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            HSN Code
           </label>
           <Input
             placeholder="e.g. 30045010"
@@ -136,9 +185,9 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Category *
+            Category
           </label>
-          <Select onValueChange={(value) => setValue("category", value)}>
+          <Select onValueChange={(value) => setValue("category", value)} defaultValue="Medicine">
             <SelectTrigger className="mt-1 w-full">
               <SelectValue placeholder="Select" />
             </SelectTrigger>
@@ -157,7 +206,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Supplier *
+            Supplier
           </label>
           <Input
             placeholder="e.g. ABC Pharma"
@@ -173,7 +222,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Manufacturer *
+            Manufacturer
           </label>
           <Input
             placeholder="e.g. ABC Pharma"
@@ -225,6 +274,24 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
+            GST (%)
+          </label>
+          <Input
+            type="number"
+            step="0.01"
+            placeholder="e.g. 5"
+            className="mt-1"
+            {...register("gst")}
+          />
+          {errors.gst && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.gst.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
             Opening Stock Qty *
           </label>
           <Input
@@ -242,7 +309,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Expiry Date
+            Expiry Date *
           </label>
 
           <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
