@@ -98,23 +98,23 @@ const Customers: React.FC = () => {
               <Table className="min-w-[1000px]">
                 <TableHeader className="bg-slate-700 hover:bg-slate-700">
                   <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 px-4 pl-4">Sl No</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Customers</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">PID</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Customers</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">PID</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
                       Age / Gender
                     </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Phone</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-right">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Phone</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right">
                       Visits
                     </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-right">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right">
                       Last Purchase
                     </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-right pr-4">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
                       Total Spend
                     </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-right pr-4">
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
                       Actions
                     </TableHead>
                   </TableRow>

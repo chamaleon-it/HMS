@@ -75,18 +75,18 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
           <Table className="print:hidden min-w-[1200px] text-sm">
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                <TableHead className="py-2.5 2xl:py-4 text-left pl-4 w-16 text-white font-bold text-[11px] uppercase tracking-wider">Sl No</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-left text-white font-bold text-[11px] uppercase tracking-wider">Invoice</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-left text-white font-bold text-[11px] uppercase tracking-wider">Date</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-left text-white font-bold text-[11px] uppercase tracking-wider">Patient</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-right text-white font-bold text-[11px] uppercase tracking-wider">Items</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-right text-white font-bold text-[11px] uppercase tracking-wider">Total</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-right text-white font-bold text-[11px] uppercase tracking-wider">Round off</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-right text-white font-bold text-[11px] uppercase tracking-wider">Discount</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-right text-white font-bold text-[11px] uppercase tracking-wider">Paid</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-right text-white font-bold text-[11px] uppercase tracking-wider">Due</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-center text-white font-bold text-[11px] uppercase tracking-wider">Status</TableHead>
-                <TableHead className="py-2.5 2xl:py-4 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider">Action</TableHead>
+                <TableHead className="py-2.5 text-left pl-4 w-16 text-white font-bold text-[11px] uppercase tracking-wider">Sl No</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Invoice</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Date</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Patient</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Items</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Total</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Round off</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Discount</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Paid</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Due</TableHead>
+                <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider">Status</TableHead>
+                <TableHead className="py-2.5 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

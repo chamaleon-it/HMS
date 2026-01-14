@@ -193,7 +193,7 @@ export function Sidebar() {
     <aside
       className={
         "sticky top-0 h-screen transition-all duration-300 flex flex-col border-r border-slate-200/80 shrink-0 " +
-        (collapsed ? "w-20" : "2xl:w-72 w-56")
+        (collapsed ? "w-20" : "w-56")
       }
       style={{
         background:
@@ -341,13 +341,13 @@ function NavItem({
     <>
       <span
         className={
-          "grid 2xl:h-9 2xl:w-9 h-7 w-7 place-items-center rounded-xl transition-all " +
+          "grid h-7 w-7 place-items-center rounded-xl transition-all " +
           (isParentActive
             ? "bg-white/20 text-white"
             : "bg-slate-100 text-slate-600 group-hover:bg-slate-200")
         }
       >
-        <Icon className="2xl:h-5 2xl:w-5 h-4 w-4" />
+        <Icon className="h-4 w-4" />
       </span>
       {!collapsed && (
         <>
@@ -355,7 +355,7 @@ function NavItem({
           {badge && (
             <span
               className={
-                "ml-auto inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 2xl:px-2 2xl:py-1 " +
+                "ml-auto inline-flex items-center justify-center rounded-full text-xs px-2 py-0.5 " +
                 (isParentActive
                   ? "bg-white/20 text-white"
                   : "bg-slate-100 text-slate-700")
@@ -396,7 +396,7 @@ function NavItem({
         <Link
           href={link || "/"}
           className={
-            "group w-full flex items-center gap-3 rounded-2xl px-2 2xl:px-3 2xl:py-3 py-2 transition-all border " +
+            "group w-full flex items-center gap-3 rounded-2xl px-2 py-2 transition-all border " +
             (isParentActive
               ? "border-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")

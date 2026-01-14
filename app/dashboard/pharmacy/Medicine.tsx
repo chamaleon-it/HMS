@@ -31,10 +31,14 @@ export default function MedicineField({
   m,
   updateField,
   i,
+  onEnter,
+  inputRef,
 }: {
   m: Medicine;
   updateField: (idx: number, key: keyof Medicine, val: string | number) => void;
   i: number;
+  onEnter?: () => void;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }) {
   // what the user is typing
   const [query, setQuery] = useState("");
@@ -109,7 +113,11 @@ export default function MedicineField({
 
   const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
     if (!open && (e.key === "ArrowDown" || e.key === "Enter")) {
-      setOpen(true);
+      if (e.key === "Enter" && selected) {
+        onEnter?.();
+      } else {
+        setOpen(true);
+      }
       return;
     }
     if (!open) return;
@@ -164,6 +172,7 @@ export default function MedicineField({
           ) : null
         }
         onKeyDown={onKeyDown}
+        inputRef={inputRef}
       />
 
       {open && (
@@ -229,6 +238,7 @@ type LabeledInputProps = {
   right?: ReactNode;
   inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLInputElement>;
 };
 
 function LabeledInput({
@@ -240,11 +250,13 @@ function LabeledInput({
   right,
   inputMode,
   onKeyDown,
+  inputRef,
 }: LabeledInputProps) {
   const hasRight = Boolean(right);
   return (
     <div className="relative w-full">
       <input
+        ref={inputRef}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}

@@ -228,18 +228,18 @@ export default function OrderTable({
       <Table className="print:hidden min-w-fit">
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
           <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pl-4 w-16">
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4 w-16">
               Sl No
             </TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">RX ID</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">Patient</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-center">Items</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-center">Priority</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 text-center">Status</TableHead>
-            <TableHead className="text-left text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4">
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">RX ID</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Patient</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-center">Items</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-center">Priority</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-center">Status</TableHead>
+            <TableHead className="text-left text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
               Created At
             </TableHead>
-            <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5 2xl:py-4 pr-4">
+            <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pr-4">
               Actions
             </TableHead>
           </TableRow>
