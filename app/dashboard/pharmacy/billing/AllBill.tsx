@@ -1,4 +1,4 @@
-import { Eye, Printer, Search } from "lucide-react";
+import { Eye, Printer, Search, CheckCircle } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import Filters from "./Filter";
@@ -6,6 +6,7 @@ import { formatINR, getDecimal } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { FilterType } from "./page";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   Table,
   TableBody,
@@ -168,39 +169,56 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       />
                     </TableCell>
                     <TableCell className="py-3 pr-4">
-                      <div className="flex justify-end items-center gap-2">
-                        <Button variant={"outline"} size={"sm"} asChild className="h-8 text-xs gap-1.5">
-                          <Link
-                            href={`/dashboard/pharmacy/billing/single?id=${b._id}`}
-                          >
-                            <Eye className=" h-3.5 w-3.5 text-slate-500" /> View
-                          </Link>
+                      <div className="flex justify-end items-center gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                              <Link href={`/dashboard/pharmacy/billing/single?id=${b._id}`}>
+                                <Eye className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View Bill</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        <Button variant="outline" size="sm" onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5 text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800">
+                          <Printer className="h-3.5 w-3.5" /> Print
                         </Button>
 
-                        <Button variant={"outline"} size={"sm"} onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5">
-                          <Printer className="h-3.5 w-3.5 text-slate-500" /> Print
-                        </Button>
                         {b.items.reduce(
                           (sum, i) => sum + i.total,
                           0
-                        ) > b.cash + b.online + b.insurance + (b.discount ?? 0) + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) && <Button
-                          variant={"outline"}
-                          size={"sm"}
-                          className="h-8 text-xs bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white border-none shadow-sm shadow-emerald-200"
-                          onClick={async () => {
-                            const due = b.items.reduce((a, b) => a + b.total, 0) -
-                              (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                              (b.insurance + b.cash + b.online + (b.discount ?? 0))
-                            await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
-                              loading: "Marking as paid",
-                              success: "Marked as paid",
-                              error: "Failed to mark as paid"
-                            })
-                            billingMutate()
-                          }}
-                        >
-                            Mark as Paid
-                          </Button>}
+                        ) > b.cash + b.online + b.insurance + (b.discount ?? 0) + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                onClick={async () => {
+                                  const due = b.items.reduce((a, b) => a + b.total, 0) -
+                                    (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
+                                    (b.insurance + b.cash + b.online + (b.discount ?? 0))
+                                  await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
+                                    loading: "Marking as paid",
+                                    success: "Marked as paid",
+                                    error: "Failed to mark as paid"
+                                  })
+                                  billingMutate()
+                                }}
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Mark as Paid</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          <div className="w-8 h-8" />
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

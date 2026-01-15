@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AppShell from "@/components/layout/app-shell";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import OrderTable from "./OrderTable";
 import { OrderType } from "./interface";
 import useSWR from "swr";
@@ -87,9 +88,11 @@ function RxQueue() {
 export default function PharmacyHome() {
   return (
     <AppShell>
-      <main className="p-5 min-h-[calc(100vh-80px)]">
-        <RxQueue />
-      </main>
+      <TooltipProvider>
+        <main className="p-5 min-h-[calc(100vh-80px)]">
+          <RxQueue />
+        </main>
+      </TooltipProvider>
     </AppShell>
   );
 }

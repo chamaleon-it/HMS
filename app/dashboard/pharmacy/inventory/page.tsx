@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog";
 import { formatINR } from "@/lib/fNumber";
 import useSWR from "swr";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 export default function InventoryPage() {
   const [openView, setOpenView] = useState(false);
@@ -53,7 +54,8 @@ export default function InventoryPage() {
     stock: undefined,
     expiry: undefined,
     lowStockThreshold: pharmacyInventory.lowStockThreshold,
-
+    sortBy: "createdAt",
+    order: "desc",
   });
 
   const { items, total, isLoading, isValidating, mutate, lowStockCount } = useItems({
@@ -92,34 +94,35 @@ export default function InventoryPage() {
 
   return (
     <AppShell>
-      <div className="p-5 min-h-[calc(100vh-80px)] w-full">
-        <div
-          className={`flex flex-col gap-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
-            }`}
-        >
-          <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} />
+      <TooltipProvider>
+        <div className="p-5 min-h-[calc(100vh-80px)] w-full">
+          <div
+            className={`flex flex-col gap-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
+              }`}
+          >
+            <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} />
 
-          <ItemFilter filter={filter} setFilter={setFilter} />
+            <ItemFilter filter={filter} setFilter={setFilter} />
 
-          {isLoading ? (
-            <TableSkeleton rows={10} columns={10} />
-          ) : (
-            <ItemTable
-              items={items}
-              handleEdit={handleEdit}
-              handleView={handleView}
-              total={total}
-              page={filter.page}
-              limit={filter.limit}
-              setFilter={setFilter}
-              isBusy={isLoading || isValidating}
-              mutate={mutate}
-              pharmacyInventory={pharmacyInventory}
-            />
-          )}
+            {isLoading ? (
+              <TableSkeleton rows={10} columns={10} />
+            ) : (
+              <ItemTable
+                items={items}
+                handleEdit={handleEdit}
+                handleView={handleView}
+                total={total}
+                page={filter.page}
+                limit={filter.limit}
+                setFilter={setFilter}
+                isBusy={isLoading || isValidating}
+                mutate={mutate}
+                pharmacyInventory={pharmacyInventory}
+              />
+            )}
 
-          {/* Footer */}
-          {/* <div className="flex justify-between text-sm text-gray-600">
+            {/* Footer */}
+            {/* <div className="flex justify-between text-sm text-gray-600">
             <p>Total Items: {items.length}</p>
             <p>
               Total Value:{" "}
@@ -128,60 +131,61 @@ export default function InventoryPage() {
               )}
             </p>
           </div> */}
+          </div>
+
+          <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>
+            <DialogContent className={openView ? "max-w-3xl! w-full" : "max-w-2xl!" + " max-h-[90vh] overflow-y-auto p-0 gap-1"}>
+              <DialogHeader className="flex justify-between items-center border-b p-4">
+                <DialogTitle>
+                  {openView
+                    ? "View Item"
+                    : openEdit
+                      ? "Edit Item"
+                      : openAdd
+                        ? "Add New Item"
+                        : ""}
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="p-2">
+                {openView && selectedItem && (
+                  <ViewItem
+                    item={selectedItem}
+                    editItem={() => {
+                      setOpenView(false);
+                      setOpenEdit(true);
+                    }}
+                    mutate={mutate}
+                    onClose={() => {
+                      closeAll();
+                      mutate();
+                    }}
+                  />
+                )}
+
+                {openEdit && selectedItem && (
+                  <EditItem
+                    item={selectedItem}
+                    onClose={() => {
+                      closeAll();
+                      mutate();
+                    }}
+                  />
+                )}
+
+                {openAdd && (
+                  <AddNewItem
+                    onClose={() => {
+                      closeAll();
+                      mutate();
+                    }}
+                  />
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
         </div>
-
-        <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>
-          <DialogContent className={openView ? "max-w-3xl! w-full" : "max-w-2xl!" + " max-h-[90vh] overflow-y-auto p-0 gap-1"}>
-            <DialogHeader className="flex justify-between items-center border-b p-4">
-              <DialogTitle>
-                {openView
-                  ? "View Item"
-                  : openEdit
-                    ? "Edit Item"
-                    : openAdd
-                      ? "Add New Item"
-                      : ""}
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="p-2">
-              {openView && selectedItem && (
-                <ViewItem
-                  item={selectedItem}
-                  editItem={() => {
-                    setOpenView(false);
-                    setOpenEdit(true);
-                  }}
-                  mutate={mutate}
-                  onClose={() => {
-                    closeAll();
-                    mutate();
-                  }}
-                />
-              )}
-
-              {openEdit && selectedItem && (
-                <EditItem
-                  item={selectedItem}
-                  onClose={() => {
-                    closeAll();
-                    mutate();
-                  }}
-                />
-              )}
-
-              {openAdd && (
-                <AddNewItem
-                  onClose={() => {
-                    closeAll();
-                    mutate();
-                  }}
-                />
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
+      </TooltipProvider>
     </AppShell>
   );
 }

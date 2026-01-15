@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 
 import AppShell from "@/components/layout/app-shell";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 import PurchaseOrder from "./PurchaseOrder";
 import PurchaseTable from "./PurchaseTable";
@@ -60,47 +61,49 @@ export default function PurchaseOrdersListPage() {
 
   return (
     <AppShell>
-      <div className="flex flex-col gap-6 p-5 min-h-[calc(100vh-80px)]">
-        <PharmacyHeader
-          title="Purchase Orders"
-          subtitle="Track, manage, and create purchase orders to wholesalers"
-        >
-          <Button
-            onClick={() => setShowCreate(true)}
-            className="rounded-xl h-9 px-3 gap-2"
+      <TooltipProvider>
+        <div className="flex flex-col gap-6 p-5 min-h-[calc(100vh-80px)]">
+          <PharmacyHeader
+            title="Purchase Orders"
+            subtitle="Track, manage, and create purchase orders to wholesalers"
           >
-            <Plus className="h-4 w-4" /> Create Purchase Order
-          </Button>
-        </PharmacyHeader>
+            <Button
+              onClick={() => setShowCreate(true)}
+              className="rounded-xl h-9 px-3 gap-2"
+            >
+              <Plus className="h-4 w-4" /> Create Purchase Order
+            </Button>
+          </PharmacyHeader>
 
-        {/* FILTER BAR */}
-        <div className="bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 grid gap-4 md:grid-cols-4 lg:grid-cols-5">
-          {/* SEARCH FIELD */}
-          <div className="md:col-span-2 lg:col-span-2 flex flex-col gap-2">
-            <Label className="text-xs font-medium text-muted-foreground">
-              Search
-            </Label>
-            <div className="relative">
-              <Search className="h-4 w-4 text-muted-foreground absolute left-2 top-1/2 -translate-y-1/2" />
-              <Input
-                className="pl-8 rounded-xl h-9"
-                placeholder="Search PO #"
-                value={filter.mrn}
-                onChange={(e) =>
-                  setFilter((prev) => ({ ...prev, mrn: e.target.value }))
-                }
-              />
+          {/* FILTER BAR */}
+          <div className="bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 grid gap-4 md:grid-cols-4 lg:grid-cols-5">
+            {/* SEARCH FIELD */}
+            <div className="md:col-span-2 lg:col-span-2 flex flex-col gap-2">
+              <Label className="text-xs font-medium text-muted-foreground">
+                Search
+              </Label>
+              <div className="relative">
+                <Search className="h-4 w-4 text-muted-foreground absolute left-2 top-1/2 -translate-y-1/2" />
+                <Input
+                  className="pl-8 rounded-xl h-9"
+                  placeholder="Search PO #"
+                  value={filter.mrn}
+                  onChange={(e) =>
+                    setFilter((prev) => ({ ...prev, mrn: e.target.value }))
+                  }
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* TABLE OF ORDERS */}
-        {isLoading ? (
-          <TableSkeleton rows={8} columns={6} />
-        ) : (
-          <PurchaseTable purchase={purchase} total={PurchaseData?.total ?? 0} />
-        )}
-      </div>
+          {/* TABLE OF ORDERS */}
+          {isLoading ? (
+            <TableSkeleton rows={8} columns={6} />
+          ) : (
+            <PurchaseTable purchase={purchase} total={PurchaseData?.total ?? 0} />
+          )}
+        </div>
+      </TooltipProvider>
     </AppShell>
   );
 }

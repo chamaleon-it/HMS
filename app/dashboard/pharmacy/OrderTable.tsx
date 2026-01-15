@@ -32,6 +32,7 @@ import useSWR from "swr";
 import ViewOrder from "./ViewOrder";
 import { PaginationBar } from "./components/PaginationBar";
 import { Dispatch, SetStateAction } from "react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function OrderTable({
   orders,
@@ -272,82 +273,106 @@ export default function OrderTable({
               </TableCell>
               <TableCell className="py-3">{fDateandTime(r?.createdAt)}</TableCell>
               <TableCell className="py-3 text-right space-x-1 pr-4">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setSelected(r);
-                    setOpen(true);
-                  }}
-                  className="gap-2 h-8 text-xs"
-                >
-                  <Eye className="h-4 w-4" />
-                  View
-                </Button>
+                <div className="flex justify-end items-center gap-1">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => {
+                          setSelected(r);
+                          setOpen(true);
+                        }}
+                        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>View Order</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleDelete(r)}
-                  className="gap-2 h-8 text-xs"
-                >
-                  <Trash className="h-4 w-4 text-red-400" />
-                </Button>
-                {
-                  r?.status === "Ready" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-2 h-8 text-xs"
-                      onClick={async () => {
-                        await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
-                          loading: "Completing...",
-                          success: (data) => {
-                            OrderMutate();
-                            return data.data.message;
-                          },
-                          error: ({ response: { data } }) => {
-                            return data.message;
-                          }
-                        })
-                      }}
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      Complete
-                    </Button>
-                  )
-                }
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDelete(r)}
+                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Delete Order</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 h-8 text-xs"
-                  onClick={() => handlePrint(r)}
-                >
-                  <Printer className="h-3.5 w-3.5" />
-                  Print Prescription
-                </Button>
+                  {r?.status === "Ready" && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          onClick={async () => {
+                            await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
+                              loading: "Completing...",
+                              success: (data) => {
+                                OrderMutate();
+                                return data.data.message;
+                              },
+                              error: ({ response: { data } }) => {
+                                return data.message;
+                              }
+                            })
+                          }}
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Complete Order</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
 
-                {autoGenerateBill ? <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!!printingOrderId}
-                  className="gap-2 h-8 text-xs"
-                  onClick={() => { handlePrintBill(r) }}
-                >
-                  <Printer className="h-3.5 w-3.5" />
-                  {printingOrderId === r._id ? "Printing..." : "Print Bill"}
-                </Button> : <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 h-8 text-xs"
-                  asChild
-                >
-                  <Link href={`/dashboard/pharmacy/billing?mrn=${r?.mrn}#new`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 h-8 text-xs text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800"
+                    onClick={() => handlePrint(r)}
+                  >
                     <Printer className="h-3.5 w-3.5" />
-                    Print Bill
-                  </Link>
-                </Button>}
+                    Rx
+                  </Button>
+
+                  {autoGenerateBill ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={!!printingOrderId}
+                      className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800"
+                      onClick={() => { handlePrintBill(r) }}
+                    >
+                      <Printer className="h-3.5 w-3.5" />
+                      {printingOrderId === r._id ? "..." : "Bill"}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800"
+                      asChild
+                    >
+                      <Link href={`/dashboard/pharmacy/billing?mrn=${r?.mrn}#new`}>
+                        <Printer className="h-3.5 w-3.5" />
+                        Bill
+                      </Link>
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}
