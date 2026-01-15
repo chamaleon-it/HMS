@@ -119,7 +119,7 @@ export default function CreateBill({
               {
                 name: i,
                 gst: pharmacyBilling.defaultGst ?? 0,
-                quantity: 0,
+                quantity: 1,
                 total: 0,
                 unitPrice: 0,
               },
@@ -137,7 +137,7 @@ export default function CreateBill({
               {
                 name: item,
                 gst: pharmacyBilling.defaultGst ?? 0,
-                quantity: 0,
+                quantity: 1,
                 total: 0,
                 unitPrice: 0,
               },
