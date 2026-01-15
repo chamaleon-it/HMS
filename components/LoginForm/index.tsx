@@ -3,7 +3,7 @@ import api, { tokenStore } from "@/lib/axios";
 import { loginSchema } from "@/schemas/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Lock, Mail, Shield } from "lucide-react";
-import React, {  useState } from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -28,7 +28,7 @@ export default function LoginForm({
       const { data: loginData } = await toast.promise(
         api.post("/auth/login", data),
         {
-          loading: "Please wait. Login to your account.",
+          loading: "Please wait. Logging in to your account",
           success: ({ data }) => data.message,
           error: ({ response }) => response.data.message,
         }
@@ -42,7 +42,7 @@ export default function LoginForm({
     }
   });
 
- 
+
 
   return (
     <form className="mt-5 space-y-4" onSubmit={login}>
@@ -51,9 +51,8 @@ export default function LoginForm({
           Email
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border ${
-            errors.email ? "border-red-400" : "border-slate-300"
-          } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+          className={`flex items-center rounded-lg bg-white border ${errors.email ? "border-red-400" : "border-slate-300"
+            } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
         >
           <Mail className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
           <input
@@ -75,9 +74,8 @@ export default function LoginForm({
           Password
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border ${
-            errors.password ? "border-red-400" : "border-slate-300"
-          } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+          className={`flex items-center rounded-lg bg-white border ${errors.password ? "border-red-400" : "border-slate-300"
+            } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
         >
           <Lock className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
           <input
@@ -130,9 +128,8 @@ export default function LoginForm({
           {isSubmitting ? "Signing in..." : "Sign in"}
         </span>
         <svg
-          className={`h-4 w-4 transition-transform ${
-            isSubmitting ? "animate-pulse" : "group-hover:translate-x-1"
-          }`}
+          className={`h-4 w-4 transition-transform ${isSubmitting ? "animate-pulse" : "group-hover:translate-x-1"
+            }`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
