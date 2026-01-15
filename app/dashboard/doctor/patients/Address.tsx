@@ -31,7 +31,7 @@ export default function Address({
     line1: null,
     line2: null,
     city: null,
-    state: null,
+    state: "Kerala",
     pin: null,
     country: "India",
   });
