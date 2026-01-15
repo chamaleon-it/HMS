@@ -1,4 +1,4 @@
 export default () => ({
-  backendUrl: "http://localhost:3001", //process.env.NEXT_PUBLIC_BACKEND_URL,
-  in_house_lab_id: "696491f1d123c2740e924a7a" //process.env.NEXT_PUBLIC_IN_HOUSE_LAB_ID as string,
+  backendUrl: "https://api.synapsehms.com", //process.env.NEXT_PUBLIC_BACKEND_URL,
+  in_house_lab_id: "6916a972d135664464b853b9" //process.env.NEXT_PUBLIC_IN_HOUSE_LAB_ID as string,
 });
