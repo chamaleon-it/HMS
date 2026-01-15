@@ -24,8 +24,13 @@ import api from "@/lib/axios"
 import { fDate } from "@/lib/fDateAndTime"
 import { formatINR } from "@/lib/fNumber"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDownIcon, Loader2 } from "lucide-react"
+import { ChevronDownIcon, Loader2, PackagePlus } from "lucide-react"
 import React, { useState } from 'react'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { z } from "zod"
@@ -104,9 +109,20 @@ export default function UpdateBatch({ item, mutate }: Props) {
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button size="sm" variant="secondary">Update Batch</Button>
-            </DialogTrigger>
+            <Tooltip>
+                <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                        <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                        >
+                            <PackagePlus className="h-4 w-4" />
+                        </Button>
+                    </DialogTrigger>
+                </TooltipTrigger>
+                <TooltipContent>Update Batch</TooltipContent>
+            </Tooltip>
             <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Update Batch for {item.name}</DialogTitle>

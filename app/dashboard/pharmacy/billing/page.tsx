@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "./Header";
 import useSWR from "swr";
 import { BillingFormSkeleton, TableSkeleton } from "../components/PharmacySkeleton";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReceiptIndianRupee, PlusCircle } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -109,72 +110,74 @@ export default function BillingPage() {
 
   return (
     <AppShell>
-      <div
-        className="min-h-[calc(100vh-80px)] w-full p-5 text-slate-900 dark:text-slate-100"
-      >
-        <div className="flex flex-col gap-6">
-          <Header setTab={setTab} filter={filter} setFilter={setFilter} />
+      <TooltipProvider>
+        <div
+          className="min-h-[calc(100vh-80px)] w-full p-5 text-slate-900 dark:text-slate-100"
+        >
+          <div className="flex flex-col gap-6">
+            <Header setTab={setTab} filter={filter} setFilter={setFilter} />
 
-          <Tabs
-            defaultValue="all"
-            className="flex-1 overflow-hidden"
-            onValueChange={(e) => setTab(e as "all" | "new")}
-            value={tab}
-          >
-            <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
-              {[
-                { key: "all", label: "All Bills", icon: ReceiptIndianRupee },
-                { key: "new", label: "Create Bill", icon: PlusCircle },
-              ].map(({ key, label, icon: Icon }) => {
-                const active = tab === key;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setTab(key as "all" | "new")}
-                    className={
-                      "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
-                      (active ? "text-white" : "text-gray-700")
-                    }
-                    type="button"
-                  >
-                    {active && (
-                      <motion.span
-                        layoutId="billing-tab-indicator-1"
-                        className="absolute inset-0 rounded-full"
-                        style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
-                        transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                      />
-                    )}
-                    <span className="relative z-10 flex items-center gap-2">
-                      <Icon size={16} /> {label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-            <TabsContent value="all">
-              {isLoadingBilling ? (
-                <TableSkeleton rows={10} columns={6} />
-              ) : (
-                <AllBill
-                  billing={billing}
-                  filter={filter}
-                  setFilter={setFilter}
-                  total={total}
-                  billingMutate={billingMutate}
-                />
-              )}
-            </TabsContent>
-            <TabsContent value="new">
-              {isLoadingProfile ? (
-                <BillingFormSkeleton />
-              ) : (
-                <CreateBill billingMutate={billingMutate} pharmacyBilling={pharmacyBilling} />
-              )}
-            </TabsContent>
-          </Tabs>
+            <Tabs
+              defaultValue="all"
+              className="flex-1 overflow-hidden"
+              onValueChange={(e) => setTab(e as "all" | "new")}
+              value={tab}
+            >
+              <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
+                {[
+                  { key: "all", label: "All Bills", icon: ReceiptIndianRupee },
+                  { key: "new", label: "Create Bill", icon: PlusCircle },
+                ].map(({ key, label, icon: Icon }) => {
+                  const active = tab === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setTab(key as "all" | "new")}
+                      className={
+                        "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
+                        (active ? "text-white" : "text-gray-700")
+                      }
+                      type="button"
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="billing-tab-indicator-1"
+                          className="absolute inset-0 rounded-full"
+                          style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                          transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center gap-2">
+                        <Icon size={16} /> {label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <TabsContent value="all">
+                {isLoadingBilling ? (
+                  <TableSkeleton rows={10} columns={6} />
+                ) : (
+                  <AllBill
+                    billing={billing}
+                    filter={filter}
+                    setFilter={setFilter}
+                    total={total}
+                    billingMutate={billingMutate}
+                  />
+                )}
+              </TabsContent>
+              <TabsContent value="new">
+                {isLoadingProfile ? (
+                  <BillingFormSkeleton />
+                ) : (
+                  <CreateBill billingMutate={billingMutate} pharmacyBilling={pharmacyBilling} />
+                )}
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
-      </div>
+      </TooltipProvider>
     </AppShell>
   );
 }

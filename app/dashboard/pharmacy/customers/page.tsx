@@ -23,7 +23,8 @@ import { PaginationBar } from "../components/PaginationBar";
 import { Button } from "@/components/ui/button";
 import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
-
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Eye, Pencil } from "lucide-react";
 const Customers: React.FC = () => {
   const router = useRouter();
   const [editCustomer, setEditCustomer] = useState<any>(null);
@@ -79,162 +80,197 @@ const Customers: React.FC = () => {
 
   return (
     <AppShell>
-      <div className="p-5 min-h-[calc(100vh-80px)]">
-        <main className="flex flex-col gap-6">
-          <PharmacyHeader
-            title="Customers"
-            subtitle="Click a row to open full pharmacy history for that customer"
-          >
+      <TooltipProvider>
+        <div className="p-5 min-h-[calc(100vh-80px)]">
+          <main className="flex flex-col gap-6">
+            <PharmacyHeader
+              title="Customers"
+              subtitle="Click a row to open full pharmacy history for that customer"
+            >
 
-            <NewOrder mutate={mutate} />
-          </PharmacyHeader>
+              <NewOrder mutate={mutate} />
+            </PharmacyHeader>
 
-          <Filter filter={filter} setFilter={setFilter} />
+            <Filter filter={filter} setFilter={setFilter} />
 
-          {isLoading ? (
-            <TableSkeleton rows={10} columns={8} />
-          ) : (
-            <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
-              <Table className="min-w-[1000px]">
-                <TableHeader className="bg-slate-700 hover:bg-slate-700">
-                  <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Customers</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">PID</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
-                      Age / Gender
-                    </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Phone</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right">
-                      Visits
-                    </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right">
-                      Last Purchase
-                    </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
-                      Total Spend
-                    </TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
-                      Actions
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody className="text-[15px]">
-                  {customers.map((p, idx) => {
-                    const hasHistory = p.visits > 0;
-                    const isRepeat = p.visits > 1;
+            {isLoading ? (
+              <TableSkeleton rows={10} columns={8} />
+            ) : (
+              <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
+                <Table className="min-w-[1000px]">
+                  <TableHeader className="bg-slate-700 hover:bg-slate-700">
+                    <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Customers</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">PID</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                        Age / Gender
+                      </TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Phone</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right">
+                        Visits
+                      </TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right">
+                        Last Purchase
+                      </TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
+                        Total Spend
+                      </TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
+                        Actions
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody className="text-[15px]">
+                    {customers.map((p, idx) => {
+                      const hasHistory = p.visits > 0;
+                      const isRepeat = p.visits > 1;
 
-                    return (
-                      <TableRow
-                        key={p.patient._id}
-                        className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
-                          ? "bg-white hover:bg-white/60"
-                          : "bg-slate-100 hover:bg-slate-100/60"
-                          } hover:-translate-y-px hover:shadow-sm`}
+                      return (
+                        <TableRow
+                          key={p.patient._id}
+                          className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
+                            ? "bg-white hover:bg-white/60"
+                            : "bg-slate-100 hover:bg-slate-100/60"
+                            } hover:-translate-y-px hover:shadow-sm`}
 
-                      >
-                        <TableCell className="py-3 align-middle text-slate-500 pl-4">
-                          {(filter.page - 1) * filter.limit + idx + 1}
-                        </TableCell>
-                        <TableCell className="py-3 align-middle font-medium cursor-pointer" onClick={() =>
-                          router.push(
-                            `/dashboard/pharmacy/customers/single?id=${p.patient._id}`
-                          )
-                        }>
-                          <div className="flex flex-col gap-0.5">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[15px] text-slate-900">
+                        >
+                          <TableCell className="py-3 align-middle text-slate-500 pl-4">
+                            {(filter.page - 1) * filter.limit + idx + 1}
+                          </TableCell>
+                          <TableCell className="py-3 align-middle font-medium cursor-pointer" onClick={() =>
+                            router.push(
+                              `/dashboard/pharmacy/customers/single?id=${p.patient._id}`
+                            )
+                          }>
+                            <div className="flex flex-col gap-0.5">
+                              <div className="flex items-center gap-2">
+                                <span className="text-[15px] text-slate-900">
+                                  <HighlightText
+                                    text={p.patient.name}
+                                    highlight={filter.query || ""}
+                                  />
+                                </span>
+                                <div className="flex flex-wrap gap-1">
+                                  {!hasHistory && (
+                                    <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-medium">
+                                      New
+                                    </Badge>
+                                  )}
+                                  {isRepeat && (
+                                    <Badge className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-medium">
+                                      Repeat
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                              <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
                                 <HighlightText
-                                  text={p.patient.name}
+                                  text={p.patient.address}
                                   highlight={filter.query || ""}
                                 />
                               </span>
-                              <div className="flex flex-wrap gap-1">
-                                {!hasHistory && (
-                                  <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-medium">
-                                    New
-                                  </Badge>
-                                )}
-                                {isRepeat && (
-                                  <Badge className="bg-indigo-50 text-indigo-700 border border-indigo-100 text-[10px] font-medium">
-                                    Repeat
-                                  </Badge>
-                                )}
-                              </div>
                             </div>
-                            <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
-                              <HighlightText
-                                text={p.patient.address}
-                                highlight={filter.query || ""}
-                              />
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-slate-700">
-                          <HighlightText
-                            text={p.patient.mrn}
-                            highlight={filter.query || ""}
-                          />
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-slate-700">
-                          {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-slate-700">
-                          <HighlightText
-                            text={p.patient.phoneNumber.length < 5 ? "-" : p.patient.phoneNumber}
-                            highlight={filter.query || ""}
-                          />
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-right text-slate-900">
-                          {p.visits}
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-right text-slate-700">
-                          {fDate(p.lastPurchase)}
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
-                          {formatINR(p.totalSpend)}
-                        </TableCell>
-                        <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-slate-700 hover:bg-slate-100"
-                            onClick={() => setEditCustomer(p.patient)}
-                          >
-                            Edit
-                          </Button>
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-slate-700">
+                            <HighlightText
+                              text={p.patient.mrn}
+                              highlight={filter.query || ""}
+                            />
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-slate-700">
+                            {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-slate-700">
+                            <HighlightText
+                              text={p.patient.phoneNumber.length < 5 ? "-" : p.patient.phoneNumber}
+                              highlight={filter.query || ""}
+                            />
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-right text-slate-900">
+                            {p.visits}
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-right text-slate-700">
+                            {fDate(p.lastPurchase)}
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                            {formatINR(p.totalSpend)}
+                          </TableCell>
+                          <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                            <div className="flex justify-end items-center gap-1">
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      router.push(
+                                        `/dashboard/pharmacy/customers/single?id=${p.patient._id}`
+                                      )
+                                    }}
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>View History</p>
+                                </TooltipContent>
+                              </Tooltip>
+
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setEditCustomer(p.patient);
+                                    }}
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Edit Customer</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+
+                    {customers.length === 0 && (
+                      <TableRow>
+                        <TableCell
+                          colSpan={9}
+                          className="text-center text-slate-500 py-6"
+                        >
+                          No patients found.
                         </TableCell>
                       </TableRow>
-                    );
-                  })}
-
-                  {customers.length === 0 && (
-                    <TableRow>
-                      <TableCell
-                        colSpan={8}
-                        className="text-center text-slate-500 py-6"
-                      >
-                        No patients found.
-                      </TableCell>
-                    </TableRow>
-                  )}
-                </TableBody>
-              </Table>
-              {total > filter.limit && (
-                <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
-                  <PaginationBar
-                    page={filter.page}
-                    limit={filter.limit}
-                    total={total}
-                    setFilter={setFilter}
-                    disabled={isLoading}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-        </main>
-      </div>
+                    )}
+                  </TableBody>
+                </Table>
+                {total > filter.limit && (
+                  <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+                    <PaginationBar
+                      page={filter.page}
+                      limit={filter.limit}
+                      total={total}
+                      setFilter={setFilter}
+                      disabled={isLoading}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </main>
+        </div>
+      </TooltipProvider>
 
       <Drawer
         open={Boolean(editCustomer)}

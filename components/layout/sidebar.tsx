@@ -193,7 +193,7 @@ export function Sidebar() {
     <aside
       className={
         "sticky top-0 h-screen transition-all duration-300 flex flex-col border-r border-slate-200/80 shrink-0 " +
-        (collapsed ? "w-20" : "w-56")
+        (collapsed ? "w-20" : "w-72")
       }
       style={{
         background:
@@ -341,7 +341,7 @@ function NavItem({
     <>
       <span
         className={
-          "grid h-7 w-7 place-items-center rounded-xl transition-all " +
+          "grid h-7 w-7 2xl:h-10 2xl:w-10 place-items-center rounded-xl transition-all " +
           (isParentActive
             ? "bg-white/20 text-white"
             : "bg-slate-100 text-slate-600 group-hover:bg-slate-200")
