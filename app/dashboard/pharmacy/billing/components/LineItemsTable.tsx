@@ -1,8 +1,9 @@
-import React from "react";
-import { FileText, Plus, Trash2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { FileText, Plus, Star, Trash2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatINR } from "@/lib/fNumber";
 import ItemSelected from "../ItemSelected";
+import { cn } from "@/lib/utils";
 
 interface LineItemsTableProps {
     payload: any;
@@ -15,6 +16,7 @@ interface LineItemsTableProps {
     setItem: (item: string | null) => void;
     itemRef: React.RefObject<HTMLInputElement | null>;
     PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>>;
+    addFullItem: (item: { name: string; unitPrice: number; gst: number }) => void;
 }
 
 export const LineItemsTable: React.FC<LineItemsTableProps> = ({
@@ -28,10 +30,60 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
     setItem,
     itemRef,
     PrimaryButton,
+    addFullItem,
 }) => {
+    const [favorites, setFavorites] = useState<{ name: string; unitPrice: number; gst: number }[]>([]);
+
+    useEffect(() => {
+        const stored = localStorage.getItem("@pharmacy-favorites");
+        if (stored) {
+            setFavorites(JSON.parse(stored));
+        }
+    }, []);
+
+    const toggleFavorite = (item: { name: string; unitPrice: number; gst: number }) => {
+        setFavorites((prev) => {
+            const exists = prev.find((f) => f.name === item.name);
+            const next = exists
+                ? prev.filter((f) => f.name !== item.name)
+                : [...prev, item];
+            localStorage.setItem("@pharmacy-favorites", JSON.stringify(next));
+            return next;
+        });
+    };
+
     return (
         <div className="col-span-12 space-y-4 lg:col-span-8">
             <div className="col-span-12 lg:col-span-8">
+                <AnimatePresence>
+                    {favorites.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mb-4 flex flex-wrap gap-2 overflow-hidden"
+                        >
+                            {favorites.map((fav) => (
+                                <div key={fav.name} className="group relative">
+                                    <button
+                                        onClick={() => addFullItem(fav)}
+                                        className="flex items-center gap-1.5 rounded-full border border-yellow-200 bg-yellow-50/50 px-3 py-1.5 text-xs font-medium text-yellow-700 transition-colors hover:bg-yellow-100 dark:border-yellow-900/30 dark:bg-yellow-900/20 dark:text-yellow-400"
+                                    >
+                                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-500" />
+                                        {fav.name}
+                                        <span className="ml-1 text-[10px] opacity-60">({formatINR(fav.unitPrice)})</span>
+                                    </button>
+                                    <button
+                                        onClick={() => toggleFavorite(fav)}
+                                        className="absolute -right-1 -top-1 hidden h-4 w-4 items-center justify-center rounded-full bg-yellow-500 text-white shadow-sm hover:bg-yellow-600 group-hover:flex"
+                                    >
+                                        <X className="h-2.5 w-2.5" />
+                                    </button>
+                                </div>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
                 <ItemSelected
                     addItem={addItem}
                     item={item}
@@ -54,12 +106,12 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                 <div className="overflow-x-auto">
                     <table className="w-full table-fixed text-sm">
                         <colgroup>
-                            <col className="w-[42%]" />
+                            <col className="w-[36%]" />
                             <col className="w-[10%]" />
                             <col className="w-[16%]" />
                             <col className="w-[12%]" />
                             <col className="w-[14%]" />
-                            <col className="w-[6%]" />
+                            <col className="w-[12%]" />
                         </colgroup>
                         <thead className="sticky top-0 z-10 bg-white/80 backdrop-blur">
                             <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
@@ -140,12 +192,31 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                     {formatINR(it.total)}
                                                 </td>
                                                 <td className="py-2 text-center">
-                                                    <button
-                                                        onClick={() => removeItem(it.name)}
-                                                        className="ml-1 rounded-md p-2 hover:bg-rose-50 text-rose-600"
-                                                    >
-                                                        <Trash2 className="h-4 w-4" />
-                                                    </button>
+                                                    <div className="flex items-center gap-2">
+
+                                                        <button
+                                                            onClick={() => removeItem(it.name)}
+                                                            className="ml-1 rounded-md p-2 hover:bg-rose-50 text-rose-600"
+                                                        >
+                                                            <Trash2 className="h-4 w-4" />
+                                                        </button>
+                                                        <button
+                                                            onClick={() => toggleFavorite({ name: it.name, unitPrice: it.unitPrice, gst: it.gst })}
+                                                            className={cn(
+                                                                "rounded-md p-2 transition-colors",
+                                                                favorites.some((f) => f.name === it.name)
+                                                                    ? "bg-yellow-50 text-yellow-600"
+                                                                    : "text-slate-400 hover:bg-yellow-50 hover:text-yellow-600"
+                                                            )}
+                                                        >
+                                                            <Star
+                                                                className={cn(
+                                                                    "h-4 w-4",
+                                                                    favorites.some((f) => f.name === it.name) && "fill-yellow-600"
+                                                                )}
+                                                            />
+                                                        </button>
+                                                    </div>
                                                 </td>
                                             </motion.tr>
                                         </React.Fragment>
