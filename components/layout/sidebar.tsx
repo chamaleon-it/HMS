@@ -114,6 +114,13 @@ export function Sidebar() {
         link: "/dashboard/pharmacy/customers/",
       },
       {
+        key: "appointments",
+        label: "Appointments",
+        icon: CalendarClock,
+        badge: appointmentStatistics.today.toFixed(0),
+        link: "/dashboard/pharmacy/appointments/",
+      },
+      {
         key: "return",
         label: "Return",
         icon: Undo2,
