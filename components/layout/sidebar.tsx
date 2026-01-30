@@ -96,11 +96,19 @@ export function Sidebar() {
     ]) ||
     (user?.role === "Pharmacy" && [
       {
+        key: "appointments",
+        label: "Appointments",
+        icon: CalendarClock,
+        badge: appointmentStatistics.today.toFixed(0),
+        link: "/dashboard/pharmacy/appointments/",
+      },
+      {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
         link: "/dashboard/pharmacy/",
       },
+
       {
         key: "inventory",
         label: "Inventory",
@@ -113,13 +121,7 @@ export function Sidebar() {
         icon: Users,
         link: "/dashboard/pharmacy/customers/",
       },
-      {
-        key: "appointments",
-        label: "Appointments",
-        icon: CalendarClock,
-        badge: appointmentStatistics.today.toFixed(0),
-        link: "/dashboard/pharmacy/appointments/",
-      },
+
       {
         key: "return",
         label: "Return",

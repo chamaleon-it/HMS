@@ -10,7 +10,7 @@ export default function useAppointmentList({
   activeStatuses?: string[];
   date?: Date;
 }) {
-  const {user} = useAuth()
+  const { user } = useAuth()
   const params = new URLSearchParams();
 
   if (query) params.append("query", query);
@@ -49,18 +49,19 @@ export default function useAppointmentList({
       internalNotes: string | null;
       type: "New" | "Follow up";
       status:
-        | "Upcoming"
-        | "Consulted"
-        | "Observation"
-        // | "Completed"
-        | "Not show";
+      | "Upcoming"
+      | "Consulted"
+      | "Observation"
+      // | "Completed"
+      | "Not show";
       isPaid: boolean;
       createdAt: Date;
       visitCount: number;
     }[];
-  }>(user?.role === "Doctor" ? `/appointments/list?${params?.toString()}` : null,{
-    revalidateIfStale:false
+  }>(`/appointments/list?${params?.toString()}`, {
+    revalidateIfStale: false
   });
+
 
   return { data, isLoading, mutate, error };
 }

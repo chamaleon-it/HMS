@@ -42,7 +42,6 @@ export default function DoctorProfile() {
 
   const { data, mutate } = useSWR("/backup/list")
 
-  console.log(data?.latestBackup)
 
   return (
     <div className="">

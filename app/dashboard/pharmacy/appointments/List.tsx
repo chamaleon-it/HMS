@@ -1,9 +1,11 @@
 import { fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search } from "lucide-react";
+import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil } from "lucide-react";
 import React, { useState } from "react";
 import useAppointmentList from "./data/useAppointmentList";
 import Drawer from "@/components/ui/drawer";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 import {
   Table,
   TableBody,
@@ -73,6 +75,33 @@ export default function List({
 
     return name.includes(q) || mrn.includes(q);
   }) || [];
+
+  const handleStatusUpdate = async (id: string, status: string) => {
+    try {
+      await toast.promise(api.patch(`/appointments/${id}`, { status }), {
+        loading: `Updating status to ${status}...`,
+        success: "Status updated successfully",
+        error: (err) => err?.response?.data?.message || "Failed to update status",
+      });
+      mutate();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this appointment?")) return;
+    try {
+      await toast.promise(api.delete(`/appointments/${id}`), {
+        loading: "Deleting appointment...",
+        success: "Appointment deleted successfully",
+        error: (err) => err?.response?.data?.message || "Failed to delete appointment",
+      });
+      mutate();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 mt-6">
@@ -151,13 +180,37 @@ export default function List({
                 <TableCell className="py-3">
                   <Chip label={row.status} tone={row.status || "gray"} />
                 </TableCell>
-                <TableCell className="py-3 pr-4 text-right">
-                  <button
-                    className="px-3 py-1.5 text-xs font-medium rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer transition-colors"
-                    onClick={() => setEdit(row)}
-                  >
-                    Edit
-                  </button>
+                <TableCell className="py-3 pr-4">
+                  <div className="flex items-center justify-end gap-2">
+                    <button
+                      title="Complete"
+                      className="p-1.5 rounded-lg text-emerald-600 hover:bg-emerald-50 transition-colors cursor-pointer border border-emerald-100"
+                      onClick={() => handleStatusUpdate(row._id, "Consulted")}
+                    >
+                      <CheckCircle2 className="h-4 w-4" />
+                    </button>
+                    <button
+                      title="Not Show"
+                      className="p-1.5 rounded-lg text-amber-600 hover:bg-amber-50 transition-colors cursor-pointer border border-amber-100"
+                      onClick={() => handleStatusUpdate(row._id, "Not show")}
+                    >
+                      <XCircle className="h-4 w-4" />
+                    </button>
+                    <button
+                      title="Edit"
+                      className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors cursor-pointer border border-blue-100"
+                      onClick={() => setEdit(row)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      title="Delete"
+                      className="p-1.5 rounded-lg text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer border border-rose-100"
+                      onClick={() => handleDelete(row._id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))

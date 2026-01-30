@@ -18,7 +18,7 @@ import { motion } from "framer-motion";
 export default function AppointmentPage() {
   const [query, setQuery] = useState("");
   const [activeStatuses, setActiveStatuses] = useState<string[]>([]);
-  const [openCreate, setOpenCreate] = useState(false);
+  const [openCreate, setOpenCreate] = useState<"walk-in" | boolean>(false);
   const [date, setDate] = useState(new Date());
 
   const { mutate } = useAppointmentList({ query, activeStatuses, date });
@@ -33,9 +33,16 @@ export default function AppointmentPage() {
           title="Appointments"
           subtitle="Manage patient appointments and schedules"
         >
-          <PrimaryButton onClick={() => setOpenCreate(true)}>
-            <Plus className="h-4 w-4 mr-2" /> Create
-          </PrimaryButton>
+          <div className="flex gap-5">
+            <PrimaryButton onClick={() => setOpenCreate(true)}>
+              <Plus className="h-4 w-4 mr-2" /> Schedule
+            </PrimaryButton>
+
+            <PrimaryButton onClick={() => setOpenCreate("walk-in")}>
+              Walk-in Appointment
+            </PrimaryButton>
+
+          </div>
         </PharmacyHeader>
 
         {/* Filters Row */}
@@ -100,13 +107,14 @@ export default function AppointmentPage() {
         </div>
 
         <Drawer
-          open={openCreate}
+          open={!!openCreate}
           onClose={() => setOpenCreate(false)}
           title="Create Appointment"
         >
           <CreateAppointmentForm
             onClose={() => setOpenCreate(false)}
             mutate={mutate}
+            walkIn={openCreate === "walk-in"}
           />
         </Drawer>
       </div>
