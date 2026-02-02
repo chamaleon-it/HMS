@@ -40,17 +40,17 @@ const Patients: React.FC = () => {
         <AppShell>
             <div className="bg-slate-50 p-5 min-h-[calc(100vh-80px)]">
                 <main className="space-y-6">
-                    <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center justify-between gap-3 w-full">
                         <LabHeader
                             title="Patients"
                             subtitle="Click a row to open full lab history for that patient."
                         >
-                            <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
-                                Showing <span className="font-semibold">{patients.length}</span>{" "}
-                                of <span className="font-semibold">{patients.length}</span>{" "}
-                                patients
-                            </div>
                         </LabHeader>
+                        <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
+                            Showing <span className="font-semibold">{patients.length}</span>{" "}
+                            of <span className="font-semibold">{patients.length}</span>{" "}
+                            patients
+                        </div>
                     </div>
 
                     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
@@ -83,7 +83,7 @@ const Patients: React.FC = () => {
                                             className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2
                                                 ? "bg-white hover:bg-white/60"
                                                 : "bg-slate-100 hover:bg-slate-100/60"
-                                                } hover:-translate-y-[1px] hover:shadow-sm`}
+                                                } hover:-translate-y-px hover:shadow-sm`}
                                             onClick={() =>
                                                 router.push(
                                                     `/dashboard/lab/patients/${p._id}`

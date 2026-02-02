@@ -40,7 +40,7 @@ const LabSettingsPage: React.FC = () => {
           </div>
         </LabHeader>
       </div>
-      <div className="p-5">
+      <div className="p-5 w-full">
         <AnimatedTabs
           options={[
             { label: "General", value: "general" },
@@ -52,6 +52,7 @@ const LabSettingsPage: React.FC = () => {
           value={activeSection}
           onChange={setActiveSection}
           layoutId="settings-tabs"
+          className="w-full grid grid-cols-5"
         />
       </div>
       <div className="flex flex-col gap-6 p-5 w-full bg-slate-50 text-slate-900">

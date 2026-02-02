@@ -87,7 +87,7 @@ export default function BillingPage() {
 
           <Tabs
             defaultValue="all"
-            className="flex-1 overflow-hidden w-fit"
+            className="flex-1 overflow-hidden"
             onValueChange={(e) => setTab(e as "all" | "new")}
             value={tab}
           >
