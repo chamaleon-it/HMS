@@ -4,9 +4,11 @@ import React, { useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import AllBill from "./AllBill";
 import CreateBill from "./CreateBill";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Header from "./Header";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import useSWR from "swr";
+import { AnimatedTabs } from "@/components/ui/animated-tabs";
+import LabHeader from "@/components/dashboard/lab/LabHeader";
+import { FilePlus2 } from "lucide-react";
 
 export interface FilterType {
   q: null | string;
@@ -69,22 +71,36 @@ export default function BillingPage() {
 
       >
         <div className="">
-          <Header setTab={setTab} />
+          <div className="mb-4">
+            <LabHeader
+              title="Billing"
+              subtitle="Search, filter & review billing history"
+            >
+              <button
+                onClick={() => setTab("new")}
+                className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-indigo-700 hover:shadow-md active:scale-95"
+              >
+                <FilePlus2 className="h-4 w-4" /> New Invoice
+              </button>
+            </LabHeader>
+          </div>
 
           <Tabs
             defaultValue="all"
-            className="flex-1 overflow-hidden"
+            className="flex-1 overflow-hidden w-fit"
             onValueChange={(e) => setTab(e as "all" | "new")}
             value={tab}
           >
-            <TabsList className="mb-4">
-              <TabsTrigger value="all" className="cursor-pointer">
-                All Bills
-              </TabsTrigger>
-              <TabsTrigger value="new" className="cursor-pointer">
-                Create Bill
-              </TabsTrigger>
-            </TabsList>
+            <AnimatedTabs
+              options={[
+                { label: "All Bills", value: "all" },
+                { label: "Create Bill", value: "new" },
+              ]}
+              value={tab}
+              onChange={(v) => setTab(v as "all" | "new")}
+              layoutId="billing-tabs"
+              className="mb-4"
+            />
             <TabsContent value="all">
               <AllBill
                 billing={billing}

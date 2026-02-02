@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import AppShell from "@/components/layout/app-shell";
 import { fAge, fDate } from "@/lib/fDateAndTime";
+import LabHeader from "@/components/dashboard/lab/LabHeader";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 
@@ -40,19 +41,16 @@ const Patients: React.FC = () => {
             <div className="bg-slate-50 p-5 min-h-[calc(100vh-80px)]">
                 <main className="space-y-6">
                     <div className="flex items-center justify-between gap-3">
-                        <div>
-                            <h1 className="text-2xl font-semibold tracking-tight flex items-center gap-2">
-                                Patients
-                            </h1>
-                            <p className="text-sm text-slate-500 mt-1">
-                                Click a row to open full lab history for that patient.
-                            </p>
-                        </div>
-                        <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
-                            Showing <span className="font-semibold">{patients.length}</span>{" "}
-                            of <span className="font-semibold">{patients.length}</span>{" "}
-                            patients
-                        </div>
+                        <LabHeader
+                            title="Patients"
+                            subtitle="Click a row to open full lab history for that patient."
+                        >
+                            <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
+                                Showing <span className="font-semibold">{patients.length}</span>{" "}
+                                of <span className="font-semibold">{patients.length}</span>{" "}
+                                patients
+                            </div>
+                        </LabHeader>
                     </div>
 
                     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
