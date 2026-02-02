@@ -66,32 +66,32 @@ export function Sidebar() {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
-        link: "/dashboard/doctor",
+        link: "/dashboard/doctor/",
       },
       {
         key: "appointments",
         label: "Appointments",
         icon: CalendarClock,
         badge: appointmentStatistics.today.toFixed(0),
-        link: "/dashboard/doctor/appointments",
+        link: "/dashboard/doctor/appointments/",
       },
       {
         key: "patients",
         label: "Patients",
         icon: Users2,
-        link: "/dashboard/doctor/patients",
+        link: "/dashboard/doctor/patients/",
       },
       {
         key: "lab-results",
         label: "Investigations",
         icon: FlaskConical,
-        link: "/dashboard/doctor/lab-report",
+        link: "/dashboard/doctor/lab-report/",
       },
       {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
-        link: "/dashboard/doctor/billing",
+        link: "/dashboard/doctor/billing/",
       },
     ]) ||
     (user?.role === "Pharmacy" && [

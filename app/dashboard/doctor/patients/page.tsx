@@ -8,7 +8,9 @@ import { RegisterPatient } from "./RegisterPatient";
 import PatientTable from "./PatientTable";
 import Filter from "./Filter";
 import Statistics from "./Statistics";
+import DoctorHeader from "../components/DoctorHeader";
 import { Data } from "./PatientTable";
+import { Plus } from "lucide-react";
 
 export interface FilterType {
   query?: string;
@@ -119,7 +121,7 @@ export default function PatientsEnhanced() {
   }, []);
 
   // ✅ Refetch when filter changes
-  
+
 
   const refreshData = () => {
     tableMutate();
@@ -128,22 +130,15 @@ export default function PatientsEnhanced() {
 
   return (
     <AppShell>
-      <div className="min-h-screen w-full bg-gradient-to-b from-white to-slate-50 p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-semibold tracking-tight">Patients</h1>
-            <p className="text-sm text-gray-500">
-              Search, filter & review patient history
-            </p>
-          </div>
-          <button
-            className="px-4 py-2 rounded-xl bg-black text-white hover:opacity-90 cursor-pointer"
-            onClick={() => setOpenCreate(true)}
-          >
-            New Patient
-          </button>
-        </div>
+      <div className="min-h-screen w-full bg-linear-to-b from-white to-slate-50 p-6 space-y-5">
+        <DoctorHeader
+          title="Patients"
+          subtitle="Search, filter & review patient history"
+        >
+          <PrimaryButton onClick={() => setOpenCreate(true)}>
+            <Plus className="mr-2 inline h-4 w-4" /> New Patient
+          </PrimaryButton>
+        </DoctorHeader>
 
         {/* Statistics */}
         <Statistics statistics={statistics} />
@@ -194,3 +189,22 @@ export default function PatientsEnhanced() {
     </AppShell>
   );
 }
+
+const theme = {
+  from: "#4f46e5",
+  to: "#ec4899",
+};
+
+const PrimaryButton: React.FC<
+  React.ButtonHTMLAttributes<HTMLButtonElement>
+> = ({ className = "", children, ...rest }) => (
+  <button
+    {...rest}
+    className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110 active:scale-[0.99] ${className} cursor-pointer flex items-center justify-center`}
+    style={{
+      backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
+    }}
+  >
+    {children}
+  </button>
+);

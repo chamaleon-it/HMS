@@ -1,4 +1,7 @@
+"use client";
+
 import React, { useEffect, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { FilterType } from "./page";
 import { CONDITIONS } from "./data";
 import useSWR from "swr";
@@ -8,9 +11,20 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon } from "lucide-react";
+import {
+  CalendarIcon,
+  Search,
+  RotateCcw,
+  User,
+  Baby,
+  Clock,
+  Activity,
+  Check,
+  ChevronDown
+} from "lucide-react";
 import { fDate } from "@/lib/fDateAndTime";
 import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
 
 export default function Filter({
   filter,
@@ -29,17 +43,18 @@ export default function Filter({
   }>("/users/doctors");
 
   return (
-    <div className="rounded-2xl bg-white ring-1 ring-gray-200 p-4 shadow-sm mb-4">
+    <div className="rounded-2xl bg-white border border-zinc-200 p-5 shadow-sm mb-6">
       {/* Top row: Search + Reset */}
-      <div className="flex flex-col md:flex-row gap-3 md:items-center">
-        <div className="flex-1">
+      <div className="flex flex-col md:flex-row gap-4 md:items-center">
+        <div className="relative flex-1 group">
+          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
           <input
             value={filter.query}
             onChange={(e) =>
               setFilter((prev) => ({ ...prev, query: e.target.value }))
             }
             placeholder="Search by name, ID, phone, condition…"
-            className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
           />
         </div>
         <button
@@ -59,17 +74,20 @@ export default function Filter({
               },
             })
           }
-          className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
+          className="h-11 px-4 rounded-xl bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 cursor-pointer transition-all flex items-center gap-2 font-medium"
         >
-          Reset all
+          <RotateCcw className="h-4 w-4" />
+          <span>Reset all</span>
         </button>
       </div>
 
       {/* Row 2: Primary filters */}
       <div className="mt-3 grid md:grid-cols-3 gap-3">
         {/* Status */}
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-gray-500 px-1">Status</span>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+            <Activity className="h-3 w-3" /> Status
+          </span>
           <FilterSelect
             value={filter.status}
             onChange={(v: string) => {
@@ -84,66 +102,50 @@ export default function Filter({
               "Discharged",
               "Deleted",
             ].map((s) => ({
-              label:
-                s === "Active"
-                  ? "🟢 Active"
-                  : s === "Inactive"
-                  ? "⚪ Inactive"
-                  : s === "Critical"
-                  ? "🔴 Critical"
-                  : s === "Discharged"
-                  ? "🔵 Discharged"
-                  : s === "Deleted"
-                  ? "🔴 Deleted"
-                  : "All statuses",
+              label: s || "All statuses",
               value: s,
             }))}
           />
         </div>
 
         {/* Gender — attractive pills */}
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-gray-500 px-1">Gender</span>
-          <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+            <User className="h-3 w-3" /> Gender
+          </span>
+          <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-fit">
             {[
-              { label: "All", value: undefined, icon: "•" },
-              { label: "Female", value: "Female", icon: "♀" },
-              { label: "Male", value: "Male", icon: "♂" },
-              { label: "Others", value: "Other", icon: "⚧" },
+              { label: "All", value: undefined, icon: null },
+              { label: "Female", value: "Female", color: "bg-rose-600" },
+              { label: "Male", value: "Male", color: "bg-blue-600" },
+              { label: "Others", value: "Other", color: "bg-violet-600" },
             ].map((opt) => {
               const active = filter.gender === opt.value;
-              const activeClass =
-                opt.value === "Female"
-                  ? "bg-rose-600 text-white ring-rose-600"
-                  : opt.value === "Male"
-                  ? "bg-sky-600 text-white ring-sky-600"
-                  : opt.value === "Other"
-                  ? "bg-violet-600 text-white ring-violet-600"
-                  : "bg-white text-gray-900 ring-gray-300";
-              const idleClass =
-                opt.value === "Female"
-                  ? "text-rose-600 ring-transparent hover:bg-rose-50"
-                  : opt.value === "Male"
-                  ? "text-sky-600 ring-transparent hover:bg-sky-50"
-                  : opt.value === "Other"
-                  ? "text-violet-600 ring-transparent hover:bg-violet-50"
-                  : "text-gray-600 ring-transparent hover:bg-gray-50";
               return (
                 <button
                   key={opt.label}
                   onClick={() =>
                     setFilter((prev) => ({ ...prev, gender: opt.value }))
                   }
-                  aria-pressed={active}
-                  aria-label={`Gender: ${opt.label}`}
-                  className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 cursor-pointer ${
-                    active ? activeClass : idleClass
-                  }`}
-                >
-                  {opt.value !== undefined && (
-                    <span aria-hidden>{opt.icon}</span>
+                  className={cn(
+                    "relative px-3.5 h-8.5 rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
+                    active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
                   )}
-                  <span className="truncate">{opt.label}</span>
+                  type="button"
+                >
+                  <AnimatePresence>
+                    {active && (
+                      <motion.span
+                        layoutId="gender-bg"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className={cn("absolute inset-0", opt.color || "bg-zinc-900")}
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                      />
+                    )}
+                  </AnimatePresence>
+                  <span className="relative z-10">{opt.label}</span>
                 </button>
               );
             })}
@@ -170,42 +172,52 @@ export default function Filter({
 
       {/* Row 3: Age + Visit range */}
       <div className="mt-3 grid md:grid-cols-3 gap-3 items-end">
-        <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600">Age</label>
+        {/* Age */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+            <Baby className="h-3 w-3" /> Age Range
+          </span>
           <div className="flex items-center gap-2">
-            <input
-              type="number"
-              value={filter.age[0] ===0 ? "" : filter.age[0]}
-              placeholder="0"
-              onFocus={(e) => (e.target.placeholder = "")}
-              onBlur={(e) => (e.target.placeholder = "0")}
-              onChange={(e) => {
-                const age: [number, number] = [
-                  Number(e.target.value),
-                  filter.age[1],
-                ];
-                setFilter((prev) => ({ ...prev, age }));
-              }}
-              className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200 placeholder:text-black"
-            />
-            <span className="text-gray-400">–</span>
-            <input
-              type="number"
-              value={filter.age[1]}
-              onChange={(e) => {
-                const age: [number, number] = [
-                  filter.age[0],
-                  Number(e.target.value),
-                ];
-                setFilter((prev) => ({ ...prev, age }));
-              }}
-              className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200"
-            />
+            <div className="relative flex-1">
+              <input
+                type="number"
+                value={filter.age[0] === 0 ? "" : filter.age[0]}
+                placeholder="0"
+                onChange={(e) => {
+                  const age: [number, number] = [
+                    Number(e.target.value),
+                    filter.age[1],
+                  ];
+                  setFilter((prev) => ({ ...prev, age }));
+                }}
+                className="w-full h-11 px-3 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 font-bold">MIN</span>
+            </div>
+            <span className="text-zinc-300">—</span>
+            <div className="relative flex-1">
+              <input
+                type="number"
+                value={filter.age[1]}
+                onChange={(e) => {
+                  const age: [number, number] = [
+                    filter.age[0],
+                    Number(e.target.value),
+                  ];
+                  setFilter((prev) => ({ ...prev, age }));
+                }}
+                className="w-full h-11 px-3 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 font-bold">MAX</span>
+            </div>
           </div>
         </div>
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600">Last visit</label>
+        {/* Last Visit */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+            <Clock className="h-3 w-3" /> Last Visit
+          </span>
           <Segmented
             options={[
               { label: "All time", value: undefined },
@@ -252,8 +264,10 @@ export default function Filter({
         </div> */}
       </div>
 
-      <div className="mt-4">
-        <div className="text-sm text-gray-600 mb-1">Conditions</div>
+      <div className="mt-6 border-t border-zinc-100 pt-5">
+        <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-2.5">
+          Common Conditions
+        </div>
         <div className="flex flex-wrap gap-2">
           {CONDITIONS.slice(0, 10).map((c) => {
             const active = filter.conditions.includes(c);
@@ -268,13 +282,14 @@ export default function Filter({
                       : [...prev.conditions, c],
                   }));
                 }}
-                className={`px-3 py-1 rounded-full text-sm ring-1 transition ${
+                className={cn(
+                  "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border cursor-pointer inline-flex items-center gap-2",
                   active
-                    ? "bg-black text-white ring-black"
-                    : "bg-white text-gray-700 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                }`}
+                    ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
+                    : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
+                )}
               >
-                {active ? "✓ " : ""}
+                {active && <Check className="h-3.5 w-3.5" />}
                 {c}
               </button>
             );
@@ -282,9 +297,9 @@ export default function Filter({
           {filter.conditions.length > 0 && (
             <button
               onClick={() => setFilter((prev) => ({ ...prev, conditions: [] }))}
-              className="px-3 py-1 rounded-full text-sm text-gray-600 hover:text-black"
+              className="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-400 hover:text-rose-600 transition-colors cursor-pointer"
             >
-              Clear
+              Clear filters
             </button>
           )}
         </div>
@@ -382,20 +397,32 @@ function Segmented({
   onChange: (v: number | undefined | string) => void;
 }) {
   return (
-    <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
+    <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-fit">
       {options.map((o) => {
         const active = value === o.value;
         return (
           <button
             key={o.label}
             onClick={() => onChange(o.value)}
-            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${
-              active
-                ? "bg-white ring-gray-300 shadow-sm text-gray-900"
-                : "bg-transparent ring-transparent text-gray-600 hover:text-gray-900"
-            } cursor-pointer`}
+            className={cn(
+              "relative px-4 h-8.5 rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
+              active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
+            )}
+            type="button"
           >
-            {o.label}
+            <AnimatePresence>
+              {active && (
+                <motion.span
+                  layoutId="segmented-bg"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="absolute inset-0 bg-zinc-900"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                />
+              )}
+            </AnimatePresence>
+            <span className="relative z-10">{o.label}</span>
           </button>
         );
       })}
@@ -447,74 +474,79 @@ function FilterSelect({
   const current = options.find((o) => o.value === value);
 
   return (
-    <div ref={ref} className={`relative ${className}`}>
+    <div ref={ref} className={cn("relative", className)}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-[150px]`}
-        aria-haspopup="listbox"
-        aria-expanded={open}
-        aria-label={`${placeholder}: ${current ? current.label : "Any"}`}
-        title={`${placeholder}: ${current ? current.label : "Any"}`}
+        className={cn(
+          "h-11 px-4 rounded-xl bg-zinc-50 border border-zinc-200 hover:border-zinc-300 transition-all inline-flex items-center justify-between gap-3 min-w-[180px] group",
+          open && "ring-2 ring-zinc-900/5 border-zinc-900 bg-white"
+        )}
       >
-        <span className="truncate text-sm text-gray-700">
+        <span className={cn(
+          "truncate text-sm font-medium",
+          current ? "text-zinc-900" : "text-zinc-500"
+        )}>
           {current ? current.label : placeholder}
         </span>
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 20 20"
-          fill="none"
-          className={`transition ${open ? "rotate-180" : ""}`}
-        >
-          <path
-            d="M6 8l4 4 4-4"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <ChevronDown className={cn(
+          "h-4 w-4 text-zinc-400 transition-transform duration-200",
+          open ? "rotate-180 text-zinc-900" : "group-hover:text-zinc-600"
+        )} />
       </button>
 
-      {open && (
-        <div className="absolute z-30 mt-2 w-[min(240px,calc(100vw-2rem))] max-h-72 overflow-auto bg-white rounded-xl shadow-xl ring-1 ring-gray-200 p-2">
-          {searchable && (
-            <input
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-              placeholder="Search…"
-              className="mb-2 w-full h-9 px-3 rounded-lg bg-gray-50 ring-1 ring-gray-200 focus:ring-gray-300"
-            />
-          )}
-          <ul role="listbox" className="grid gap-1">
-            {visible.map((o) => {
-              const active = o.value === value;
-              return (
-                <li key={String(o.value)}>
-                  <button
-                    onClick={() => {
-                      onChange(o.value as string);
-                      setOpen(false);
-                    }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
-                      active
-                        ? "bg-gray-100 text-gray-900"
-                        : "hover:bg-gray-50 text-gray-700"
-                    }`}
-                  >
-                    <span className="truncate">{o.label}</span>
-                    {active && <span>✓</span>}
-                  </button>
-                </li>
-              );
-            })}
-            {visible.length === 0 && (
-              <li className="px-3 py-2 text-sm text-gray-500">No matches</li>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.95 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+            className="absolute z-50 mt-2 w-full min-w-[200px] max-h-72 overflow-hidden bg-white rounded-2xl shadow-xl ring-1 ring-zinc-200 p-2"
+          >
+            {searchable && (
+              <div className="relative mb-2 px-1">
+                <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <input
+                  value={q}
+                  onChange={(e) => setQ(e.target.value)}
+                  placeholder="Search…"
+                  className="w-full h-9 pl-9 pr-3 rounded-lg bg-zinc-50 border border-zinc-100 focus:outline-none focus:border-zinc-300 text-sm transition-all"
+                />
+              </div>
             )}
-          </ul>
-        </div>
-      )}
+            <ul role="listbox" className="max-h-[240px] overflow-y-auto custom-scrollbar">
+              {visible.map((o) => {
+                const active = o.value === value;
+                return (
+                  <li key={String(o.value)}>
+                    <button
+                      onClick={() => {
+                        onChange(o.value as string);
+                        setOpen(false);
+                      }}
+                      className={cn(
+                        "w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium flex items-center justify-between transition-colors",
+                        active
+                          ? "bg-zinc-100 text-zinc-900"
+                          : "hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900"
+                      )}
+                    >
+                      <span className="truncate">{o.label}</span>
+                      {active && <Check className="h-4 w-4 text-zinc-900" />}
+                    </button>
+                  </li>
+                );
+              })}
+              {visible.length === 0 && (
+                <li className="px-3 py-4 text-center text-sm text-zinc-400 font-medium">
+                  No matches found
+                </li>
+              )}
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
