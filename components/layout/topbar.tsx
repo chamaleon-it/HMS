@@ -51,7 +51,7 @@ export default function Header() {
           >
             {user?.role === "Doctor" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
                 onClick={() => setOpenCreate(true)}
               >
                 <Plus className="h-4 w-4" /> New Appointment
