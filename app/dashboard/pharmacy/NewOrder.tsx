@@ -57,7 +57,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     if (window.location.hash === "#newOrder") {
       setOpen(true);
     }
-  }, []);
+  }, [id, doctor]);
 
   const createOrder = async () => {
     try {
