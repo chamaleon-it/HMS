@@ -113,7 +113,18 @@ export function Sidebar() {
         key: "inventory",
         label: "Inventory",
         icon: Warehouse,
-        link: "/dashboard/pharmacy/inventory/",
+        childrens: [
+          {
+            key: "inventory-list",
+            label: "Inventory",
+            link: "/dashboard/pharmacy/inventory/",
+          },
+          {
+            key: "bulk-update",
+            label: "Bulk Update",
+            link: "/dashboard/pharmacy/inventory/bulk-update/",
+          }
+        ]
       },
       {
         key: "customers",
