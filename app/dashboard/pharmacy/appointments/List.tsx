@@ -14,6 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useRouter } from "next/navigation";
 
 export default function List({
   query,
@@ -24,6 +25,7 @@ export default function List({
   activeStatuses: string[];
   date: Date;
 }) {
+  const router = useRouter();
   const { data, mutate } = useAppointmentList({ activeStatuses, date });
 
   const [edit, setEdit] = useState<null | {
@@ -84,6 +86,11 @@ export default function List({
         error: (err) => err?.response?.data?.message || "Failed to update status",
       });
       mutate();
+
+      const appointment = filteredData.find((a) => a._id === id);
+      if (status === "Consulted") {
+        router.push(`/dashboard/pharmacy/?mrn=${appointment?.patient?.mrn}&name=${appointment?.patient?.name}&id=${appointment?.patient?._id}&doctor=${appointment?.doctor._id}&#newOrder`);
+      }
     } catch (error) {
       console.error(error);
     }

@@ -6,7 +6,7 @@ import { Plus, CalendarDays } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import Calendar from "./Calender";
 import List from "./List";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
 import Statistics from "./Statistics";
 import Filter from "./Filter";

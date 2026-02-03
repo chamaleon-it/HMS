@@ -42,9 +42,8 @@ export default function Form() {
           Full Name
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border ${
-            errors.name ? "border-red-400" : "border-slate-300"
-          } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+          className={`flex items-center rounded-lg bg-white border ${errors.name ? "border-red-400" : "border-slate-300"
+            } focus-within:ring-4 focus-within:ring-(--brand-soft) focus-within:border-(--brand) hover:border-slate-400 transition`}
         >
           <CircleUser className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
           <input
@@ -61,16 +60,15 @@ export default function Form() {
         )}
       </div>
 
-     
 
-       <div>
+
+      <div>
         <label className="block text-slate-700 text-sm mb-1" htmlFor="email">
           Email
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border ${
-            errors.email ? "border-red-400" : "border-slate-300"
-          } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+          className={`flex items-center rounded-lg bg-white border ${errors.email ? "border-red-400" : "border-slate-300"
+            } focus-within:ring-4 focus-within:ring-(--brand-soft) focus-within:border-(--brand) hover:border-slate-400 transition`}
         >
           <Mail className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
 
@@ -88,16 +86,15 @@ export default function Form() {
         )}
       </div>
 
-       <div>
+      <div>
         <label className="block text-slate-700 text-sm mb-1" htmlFor="i'm a ">
           I&apos;m a
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border max-w-36 ${
-            errors.role ? "border-red-400" : "border-slate-300"
-          } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+          className={`flex items-center rounded-lg bg-white border max-w-36 ${errors.role ? "border-red-400" : "border-slate-300"
+            } focus-within:ring-4 focus-within:ring-(--brand-soft) focus-within:border-(--brand) hover:border-slate-400 transition`}
         >
-          
+
           <select
             className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 px-3.5 py-2.5 outline-none max-w-32"
             {...register("role")}
@@ -119,9 +116,8 @@ export default function Form() {
           Password
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border ${
-            errors.password ? "border-red-400" : "border-slate-300"
-          } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+          className={`flex items-center rounded-lg bg-white border ${errors.password ? "border-red-400" : "border-slate-300"
+            } focus-within:ring-4 focus-within:ring-(--brand-soft) focus-within:border-(--brand) hover:border-slate-400 transition`}
         >
           <Lock className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
 
@@ -154,9 +150,8 @@ export default function Form() {
           Confirm Password
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border ${
-            errors.confirmPassword ? "border-red-400" : "border-slate-300"
-          } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
+          className={`flex items-center rounded-lg bg-white border ${errors.confirmPassword ? "border-red-400" : "border-slate-300"
+            } focus-within:ring-4 focus-within:ring-(--brand-soft) focus-within:border-(--brand) hover:border-slate-400 transition`}
         >
           <Lock className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
 
@@ -186,7 +181,7 @@ export default function Form() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] shadow-[0_6px_20px_-6px_rgba(37,99,235,0.6)] hover:shadow-[0_12px_30px_-10px_rgba(37,99,235,0.75)]"
+        className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-(--brand-soft) hover:shadow-(--shadow-md)"
         style={{
           background: "linear-gradient(90deg, var(--brand), var(--accent-end))",
         }}
@@ -195,9 +190,8 @@ export default function Form() {
           {isSubmitting ? "Registering..." : "Sign up"}
         </span>
         <svg
-          className={`h-4 w-4 transition-transform ${
-            isSubmitting ? "animate-pulse" : "group-hover:translate-x-1"
-          }`}
+          className={`h-4 w-4 transition-transform ${isSubmitting ? "animate-pulse" : "group-hover:translate-x-1"
+            }`}
           viewBox="0 0 24 24"
           fill="none"
           stroke="currentColor"
