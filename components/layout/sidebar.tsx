@@ -121,7 +121,7 @@ export function Sidebar() {
           },
           {
             key: "bulk-update",
-            label: "Bulk Update",
+            label: "Purchase entry",
             link: "/dashboard/pharmacy/inventory/bulk-update/",
           }
         ]

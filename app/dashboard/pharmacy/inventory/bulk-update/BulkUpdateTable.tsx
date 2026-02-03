@@ -143,166 +143,169 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const hasChanges = Object.keys(updates).length > 0 || newItems.length > 0;
 
     return (
-        <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
-            <div className="p-0 m-0">
+        <div className="space-y-6">
+            {/* Seller Details Section */}
+            <div className="bg-white border border-slate-200/60 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
+                <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
+                    <div className="p-2 bg-purple-50 rounded-lg">
+                        <UserCircle className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <h3 className="font-semibold text-slate-800 text-lg">Seller Details</h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 ml-1">Seller Name</label>
+                        <Input
+                            value={customerDetails.name}
+                            onChange={(e) => handleCustomerDetailChange("name", e.target.value)}
+                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            placeholder="Enter name"
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 ml-1">Phone Number</label>
+                        <Input
+                            value={customerDetails.phone}
+                            onChange={(e) => handleCustomerDetailChange("phone", e.target.value)}
+                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            placeholder="Enter phone"
+                        />
+                    </div>
+
+                    <div className="space-y-1.5 md:col-span-2">
+                        <label className="text-xs font-medium text-slate-500 ml-1">Address Line 1</label>
+                        <Input
+                            value={customerDetails.address1}
+                            onChange={(e) => handleCustomerDetailChange("address1", e.target.value)}
+                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            placeholder="Street address, P.O. box, etc."
+                        />
+                    </div>
+
+                    <div className="space-y-1.5 md:col-span-2">
+                        <label className="text-xs font-medium text-slate-500 ml-1">Address Line 2</label>
+                        <Input
+                            value={customerDetails.address2}
+                            onChange={(e) => handleCustomerDetailChange("address2", e.target.value)}
+                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            placeholder="Apartment, suite, unit, etc."
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 ml-1">GSTIN</label>
+                        <Input
+                            value={customerDetails.gstin}
+                            onChange={(e) => handleCustomerDetailChange("gstin", e.target.value)}
+                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            placeholder="GSTIN Number"
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 ml-1">MSME No.</label>
+                        <Input
+                            value={customerDetails.msme}
+                            onChange={(e) => handleCustomerDetailChange("msme", e.target.value)}
+                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            placeholder="MSME Number"
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 ml-1">DL No.</label>
+                        <Input
+                            value={customerDetails.dl}
+                            onChange={(e) => handleCustomerDetailChange("dl", e.target.value)}
+                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            placeholder="Drug License Number"
+                        />
+                    </div>
+
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-medium text-slate-500 ml-1">Description</label>
+                        <Input
+                            value={customerDetails.description}
+                            onChange={(e) => handleCustomerDetailChange("description", e.target.value)}
+                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
+                            placeholder="Additional notes"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Items & Actions Section */}
+            <div className="bg-white border border-slate-200/60 rounded-xl shadow-sm overflow-hidden">
                 {/* Action Bar */}
-                <div className="flex justify-between items-center p-4 border-b bg-slate-50">
+                <div className="flex justify-between items-center p-6 border-b border-slate-100 bg-white">
                     <div className="text-sm text-slate-600">
                         {hasChanges ? (
-                            <span className="font-medium text-amber-600">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
                                 {newItems.length > 0 && `${newItems.length} new item(s)`}
                                 {Object.keys(updates).length > 0 && newItems.length > 0 && ", "}
                                 {Object.keys(updates).length > 0 && `${Object.keys(updates).length} item(s) modified`}
                             </span>
                         ) : (
-                            <span>Edit fields below to update inventory</span>
+                            <span className="text-slate-500">Make changes to the table below</span>
                         )}
                     </div>
                     <Button
                         onClick={handleSaveChanges}
                         disabled={!hasChanges || isSaving}
-                        className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg active:scale-95 gap-2"
+                        className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md shadow-purple-200 transition-all hover:shadow-lg active:scale-95 gap-2 px-6"
                     >
                         <Save className="h-4 w-4" />
                         {isSaving ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>
 
-                {/* Customer Details Section */}
-                <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6 shadow-xs">
-                    <div className="flex items-center gap-2 mb-4">
-                        <UserCircle className="w-5 h-5 text-purple-600" />
-                        <h3 className="font-semibold text-gray-800">Customer Details</h3>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-500 ml-1">Customer Name</label>
-                            <Input
-                                value={customerDetails.name}
-                                onChange={(e) => handleCustomerDetailChange("name", e.target.value)}
-                                className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                                placeholder="Enter name"
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-500 ml-1">Phone Number</label>
-                            <Input
-                                value={customerDetails.phone}
-                                onChange={(e) => handleCustomerDetailChange("phone", e.target.value)}
-                                className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                                placeholder="Enter phone"
-                            />
-                        </div>
-
-                        <div className="space-y-1.5 md:col-span-2">
-                            <label className="text-xs font-medium text-slate-500 ml-1">Address Line 1</label>
-                            <Input
-                                value={customerDetails.address1}
-                                onChange={(e) => handleCustomerDetailChange("address1", e.target.value)}
-                                className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                                placeholder="Street address, P.O. box, etc."
-                            />
-                        </div>
-
-                        <div className="space-y-1.5 md:col-span-2">
-                            <label className="text-xs font-medium text-slate-500 ml-1">Address Line 2</label>
-                            <Input
-                                value={customerDetails.address2}
-                                onChange={(e) => handleCustomerDetailChange("address2", e.target.value)}
-                                className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                                placeholder="Apartment, suite, unit, etc."
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-500 ml-1">GSTIN</label>
-                            <Input
-                                value={customerDetails.gstin}
-                                onChange={(e) => handleCustomerDetailChange("gstin", e.target.value)}
-                                className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                                placeholder="GSTIN Number"
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-500 ml-1">MSME No.</label>
-                            <Input
-                                value={customerDetails.msme}
-                                onChange={(e) => handleCustomerDetailChange("msme", e.target.value)}
-                                className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                                placeholder="MSME Number"
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-500 ml-1">DL No.</label>
-                            <Input
-                                value={customerDetails.dl}
-                                onChange={(e) => handleCustomerDetailChange("dl", e.target.value)}
-                                className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                                placeholder="Drug License Number"
-                            />
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <label className="text-xs font-medium text-slate-500 ml-1">Description</label>
-                            <Input
-                                value={customerDetails.description}
-                                onChange={(e) => handleCustomerDetailChange("description", e.target.value)}
-                                className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                                placeholder="Additional notes"
-                            />
-                        </div>
-                    </div>
-                </div>
-
                 {/* Single Unified Table */}
                 <div className="overflow-x-auto w-full">
                     <Table className="whitespace-nowrap">
-                        <TableHeader className="bg-slate-700 hover:bg-slate-700">
-                            <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">
+                        <TableHeader className="bg-slate-50/50">
+                            <TableRow className="border-b border-slate-200 hover:bg-transparent">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4 pl-6">
                                     SNo
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     Mfac
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     Particulars
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     Packing
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     HSN
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     BatchNo
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     Exp
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     Qty
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     Sch Qty
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     MRP
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     Rate
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     Sch Disc %
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
                                     Disc GST %
                                 </TableHead>
-                                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pr-4">
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4 pr-6">
                                     Taxable Value
                                 </TableHead>
                             </TableRow>
@@ -521,50 +524,49 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 </div>
 
                 {/* Invoice Footer Section - Totals */}
-                <div className="bg-white border border-slate-200 rounded-lg p-6 mt-4">
+                <div className="bg-slate-50 border-t border-slate-200 p-8">
                     <div className="flex justify-end">
-
                         {/* Totals */}
-                        <div className="w-1/3 min-w-[300px]">
-                            <h3 className="font-semibold text-sm mb-3 border-b pb-2">Summary</h3>
-                            <div className="space-y-1 text-sm">
-                                <div className="flex justify-between">
+                        <div className="w-1/3 min-w-[320px] bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                            <h3 className="font-semibold text-slate-800 text-sm mb-4 border-b border-slate-100 pb-2">Payment Summary</h3>
+                            <div className="space-y-3 text-sm">
+                                <div className="flex justify-between text-slate-600">
                                     <span>S.ch Total:</span>
                                     <span className="font-medium">9305.83</span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between text-slate-600">
                                     <span>Cash Disc (Item):</span>
                                     <span>176.20</span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between text-slate-600">
                                     <span>Scheme Disc (Item):</span>
                                     <span>0.00</span>
                                 </div>
-                                <div className="flex justify-between font-semibold border-t pt-1">
+                                <div className="flex justify-between font-medium text-slate-700 border-t border-dashed border-slate-200 pt-2">
                                     <span>Taxable Amount:</span>
                                     <span>9129.63</span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between text-slate-600">
                                     <span>Tax Amount:</span>
                                     <span>456.48</span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between text-slate-600">
                                     <span>Bill Disc:</span>
                                     <span>0.00</span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between text-slate-600">
                                     <span>TDS / TCS Amount:</span>
                                     <span>0.00</span>
                                 </div>
-                                <div className="flex justify-between">
+                                <div className="flex justify-between text-slate-600">
                                     <span>Write Off:</span>
                                     <span>-0.11</span>
                                 </div>
-                                <div className="flex justify-between font-bold text-lg border-t-2 pt-2 mt-2">
+                                <div className="flex justify-between font-bold text-lg text-slate-800 border-t-2 border-slate-100 pt-3 mt-1">
                                     <span>Net Amount:</span>
                                     <span>9586.00</span>
                                 </div>
-                                <div className="flex justify-between font-semibold text-green-700 border-t pt-1">
+                                <div className="flex justify-between font-bold text-emerald-600 bg-emerald-50 p-2 rounded-md mt-1">
                                     <span>Net Payable:</span>
                                     <span>9586.00</span>
                                 </div>
@@ -573,11 +575,11 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     </div>
 
                     {/* Footer Note */}
-                    <div className="mt-4 pt-4 border-t">
-                        <p className="text-xs text-slate-600 text-center">
-                            Amount In Words: Nine Thousand Five Hundred and Eighty Six Rupees Only
+                    <div className="mt-8 pt-6 border-t border-slate-200/60">
+                        <p className="text-xs text-slate-500 text-center font-medium">
+                            Amount In Words: <span className="text-slate-700">Nine Thousand Five Hundred and Eighty Six Rupees Only</span>
                         </p>
-                        <p className="text-xs text-slate-500 text-center mt-2">
+                        <p className="text-[10px] text-slate-400 text-center mt-2 uppercase tracking-wide">
                             E & O.E
                         </p>
                     </div>
