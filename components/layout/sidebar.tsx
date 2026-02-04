@@ -14,6 +14,8 @@ import {
   Users,
   ChevronUp,
   ChevronDown,
+  Truck,
+  ReceiptText,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -113,18 +115,20 @@ export function Sidebar() {
         key: "inventory",
         label: "Inventory",
         icon: Warehouse,
-        childrens: [
-          {
-            key: "inventory-list",
-            label: "Inventory",
-            link: "/dashboard/pharmacy/inventory/",
-          },
-          {
-            key: "bulk-update",
-            label: "Purchase entry",
-            link: "/dashboard/pharmacy/inventory/bulk-update/",
-          }
-        ]
+        link: "/dashboard/pharmacy/inventory/",
+      },
+
+      {
+        key: "purchase-entry",
+        label: "Purchase Entry",
+        icon: ReceiptText,
+        link: "/dashboard/pharmacy/suppliers/purchase-entry/",
+      },
+      {
+        key: "suppliers",
+        label: "Suppliers",
+        icon: Truck,
+        link: "/dashboard/pharmacy/suppliers/",
       },
       {
         key: "customers",

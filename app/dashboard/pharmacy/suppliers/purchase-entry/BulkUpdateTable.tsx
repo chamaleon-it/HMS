@@ -10,9 +10,19 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { AlertCircle, AlertTriangle, Save, Trash2, UserCircle } from "lucide-react";
-import React, { useState } from "react";
+import { AlertCircle, AlertTriangle, Save, Trash2, UserCircle, Phone, FileText, MapPin, ReceiptText } from "lucide-react";
+import React, { useState, useEffect } from "react";
 import toast from "react-hot-toast";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { DUMMY_SUPPLIERS } from "../data";
+import { useSearchParams } from "next/navigation";
+import { Supplier } from "../interface";
 
 interface BulkUpdateItem {
     _id: string;
@@ -42,23 +52,31 @@ interface Props {
 }
 
 export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Props) {
+    const searchParams = useSearchParams();
+    const defaultSupplierId = searchParams.get("supplierId");
+
     const [updates, setUpdates] = useState<Record<string, Partial<BulkUpdateItem>>>({});
     const [newItems, setNewItems] = useState<NewItem[]>([]);
     const [isSaving, setIsSaving] = useState(false);
+    const [selectedSupplierId, setSelectedSupplierId] = useState<string>(defaultSupplierId || "");
 
-    const [customerDetails, setCustomerDetails] = useState({
-        name: "",
-        address1: "",
-        address2: "",
-        phone: "",
-        gstin: "",
-        msme: "",
-        dl: "",
-        description: ""
+    useEffect(() => {
+        if (defaultSupplierId) {
+            setSelectedSupplierId(defaultSupplierId);
+        }
+    }, [defaultSupplierId]);
+
+    const selectedSupplier = DUMMY_SUPPLIERS.find(s => s._id === selectedSupplierId);
+
+    const [billDetails, setBillDetails] = useState({
+        invoiceNo: "",
+        billDate: new Date().toISOString().split("T")[0],
+        paymentMode: "Cash",
+        remarks: ""
     });
 
-    const handleCustomerDetailChange = (field: keyof typeof customerDetails, value: string) => {
-        setCustomerDetails(prev => ({ ...prev, [field]: value }));
+    const handleBillDetailChange = (field: keyof typeof billDetails, value: string) => {
+        setBillDetails(prev => ({ ...prev, [field]: value }));
     };
 
     // New item functions
@@ -142,99 +160,148 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
 
     const hasChanges = Object.keys(updates).length > 0 || newItems.length > 0;
 
+    const calculateTotal = () => {
+        const newItemsTotal = newItems.reduce((acc, item) => acc + (item.totalPrice || 0), 0);
+        return newItemsTotal;
+    };
+
+    const totalAmount = calculateTotal();
+
     return (
         <div className="space-y-6">
-            {/* Seller Details Section */}
+
+
+            {/* Bill Details Section */}
             <div className="bg-white border border-slate-200/60 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow duration-200">
                 <div className="flex items-center gap-2 mb-6 border-b border-slate-100 pb-4">
-                    <div className="p-2 bg-purple-50 rounded-lg">
-                        <UserCircle className="w-5 h-5 text-purple-600" />
+                    <div className="p-2 bg-indigo-50 rounded-lg">
+                        <ReceiptText className="w-5 h-5 text-indigo-600" />
                     </div>
-                    <h3 className="font-semibold text-slate-800 text-lg">Seller Details</h3>
+                    <h3 className="font-semibold text-slate-800 text-lg">Bill Details</h3>
                 </div>
 
+                {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div>
+                        <label className="text-xs font-medium text-slate-500 ml-1 mb-1.5 block">Select Supplier</label>
+                        <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
+                            <SelectTrigger className="w-full h-10 bg-slate-50 border-slate-200">
+                                <SelectValue placeholder="Select a supplier" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {DUMMY_SUPPLIERS.map((s: Supplier) => (
+                                    <SelectItem key={s._id} value={s._id}>
+                                        {s.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {selectedSupplier && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50/50 p-4 rounded-xl border border-slate-200/60 shadow-inner">
+                            <div className="flex items-start gap-3">
+                                <div className="mt-1 p-1.5 bg-sky-100 rounded-md">
+                                    <Phone className="w-3.5 h-3.5 text-sky-600" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Phone</p>
+                                    <p className="font-semibold text-slate-900 text-sm tracking-tight">{selectedSupplier.phoneNumber}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <div className="mt-1 p-1.5 bg-emerald-100 rounded-md">
+                                    <FileText className="w-3.5 h-3.5 text-emerald-600" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">GSTIN</p>
+                                    <p className="font-semibold text-slate-900 text-sm tracking-tight">{selectedSupplier.gstin}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3 sm:col-span-2">
+                                <div className="mt-1 p-1.5 bg-indigo-100 rounded-md">
+                                    <MapPin className="w-3.5 h-3.5 text-indigo-600" />
+                                </div>
+                                <div className="space-y-0.5">
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight">Address</p>
+                                    <p className="font-medium text-slate-700 text-sm leading-snug">
+                                        {selectedSupplier.addressLine1}
+                                        {selectedSupplier.addressLine2 && <span className="text-slate-500">, {selectedSupplier.addressLine2}</span>}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div> */}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-500 ml-1">Seller Name</label>
-                        <Input
-                            value={customerDetails.name}
-                            onChange={(e) => handleCustomerDetailChange("name", e.target.value)}
-                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                            placeholder="Enter name"
-                        />
+
+                    <div>
+                        <label className="text-xs font-medium text-slate-500 ml-1 mb-1.5 block">Select Supplier</label>
+                        <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
+                            <SelectTrigger className="w-full h-10 bg-slate-50 border-slate-200">
+                                <SelectValue placeholder="Select a supplier" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {DUMMY_SUPPLIERS.map((s: Supplier) => (
+                                    <SelectItem key={s._id} value={s._id}>
+                                        {s.name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-500 ml-1">Phone Number</label>
+                        <label className="text-xs font-medium text-slate-500 ml-1">Invoice No.</label>
                         <Input
-                            value={customerDetails.phone}
-                            onChange={(e) => handleCustomerDetailChange("phone", e.target.value)}
+                            value={billDetails.invoiceNo}
+                            onChange={(e) => handleBillDetailChange("invoiceNo", e.target.value)}
                             className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                            placeholder="Enter phone"
-                        />
-                    </div>
-
-                    <div className="space-y-1.5 md:col-span-2">
-                        <label className="text-xs font-medium text-slate-500 ml-1">Address Line 1</label>
-                        <Input
-                            value={customerDetails.address1}
-                            onChange={(e) => handleCustomerDetailChange("address1", e.target.value)}
-                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                            placeholder="Street address, P.O. box, etc."
-                        />
-                    </div>
-
-                    <div className="space-y-1.5 md:col-span-2">
-                        <label className="text-xs font-medium text-slate-500 ml-1">Address Line 2</label>
-                        <Input
-                            value={customerDetails.address2}
-                            onChange={(e) => handleCustomerDetailChange("address2", e.target.value)}
-                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                            placeholder="Apartment, suite, unit, etc."
+                            placeholder="Enter invoice number"
                         />
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-500 ml-1">GSTIN</label>
+                        <label className="text-xs font-medium text-slate-500 ml-1">Bill Date</label>
                         <Input
-                            value={customerDetails.gstin}
-                            onChange={(e) => handleCustomerDetailChange("gstin", e.target.value)}
+                            type="date"
+                            value={billDetails.billDate}
+                            onChange={(e) => handleBillDetailChange("billDate", e.target.value)}
                             className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                            placeholder="GSTIN Number"
                         />
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-500 ml-1">MSME No.</label>
-                        <Input
-                            value={customerDetails.msme}
-                            onChange={(e) => handleCustomerDetailChange("msme", e.target.value)}
-                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                            placeholder="MSME Number"
-                        />
+                        <label className="text-xs font-medium text-slate-500 ml-1">Payment Mode</label>
+                        <Select
+                            value={billDetails.paymentMode}
+                            onValueChange={(v) => handleBillDetailChange("paymentMode", v)}
+                        >
+                            <SelectTrigger className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all">
+                                <SelectValue placeholder="Select mode" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="Cash">Cash</SelectItem>
+                                <SelectItem value="Credit">Credit</SelectItem>
+                                <SelectItem value="Online">Online</SelectItem>
+                                <SelectItem value="UPI">UPI</SelectItem>
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-500 ml-1">DL No.</label>
+                        <label className="text-xs font-medium text-slate-500 ml-1">Remarks</label>
                         <Input
-                            value={customerDetails.dl}
-                            onChange={(e) => handleCustomerDetailChange("dl", e.target.value)}
+                            value={billDetails.remarks}
+                            onChange={(e) => handleBillDetailChange("remarks", e.target.value)}
                             className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                            placeholder="Drug License Number"
-                        />
-                    </div>
-
-                    <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-slate-500 ml-1">Description</label>
-                        <Input
-                            value={customerDetails.description}
-                            onChange={(e) => handleCustomerDetailChange("description", e.target.value)}
-                            className="h-9 bg-slate-50 border-slate-200 focus:bg-white transition-all"
-                            placeholder="Additional notes"
+                            placeholder="Optional notes"
                         />
                     </div>
                 </div>
             </div>
+
+
 
             {/* Items & Actions Section */}
             <div className="bg-white border border-slate-200/60 rounded-xl shadow-sm overflow-hidden">
@@ -303,7 +370,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                     Sch Disc %
                                 </TableHead>
                                 <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
-                                    Disc GST %
+                                    Disc %
+                                </TableHead>
+                                <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4">
+                                    GST %
                                 </TableHead>
                                 <TableHead className="font-semibold text-slate-700 text-xs uppercase tracking-wider py-4 pr-6">
                                     Taxable Value
@@ -373,7 +443,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <Input type="number" placeholder="Sch Disc %" className="h-9 w-20" step="0.01" />
                                     </TableCell>
                                     <TableCell className="py-3">
-                                        <Input type="number" placeholder="Disc GST %" className="h-9 w-20" step="0.01" />
+                                        <Input type="number" placeholder="Disc  %" className="h-9 w-20" step="0.01" />
+                                    </TableCell>
+                                    <TableCell className="py-3">
+                                        <Input type="number" placeholder="GST %" className="h-9 w-20" step="0.01" />
                                     </TableCell>
                                     <TableCell className="py-3 pr-4">
                                         <div className="flex items-center gap-2">

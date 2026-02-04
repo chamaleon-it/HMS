@@ -3,16 +3,19 @@
 import { useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import BulkUpdateTable from "./BulkUpdateTable";
-import { FilterType, ItemType } from "../interface";
-import useItems from "../useItems";
+import { FilterType, ItemType } from "../../inventory/interface";
+import useItems from "../../inventory/useItems";
 import { TableSkeleton } from "../../components/PharmacySkeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import PharmacyHeader from "../../components/PharmacyHeader";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Plus } from "lucide-react";
+import Drawer from "@/components/ui/drawer";
+import { AddSupplier } from "../AddSupplier";
 
 export default function BulkUpdatePage() {
+    const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
     const { data } = useSWR<{
         message: string;
         data: {
@@ -70,13 +73,11 @@ export default function BulkUpdatePage() {
                             subtitle="Update multiple inventory items at once"
                         >
                             <Button
-                                variant="outline"
-                                onClick={() => mutate()}
-                                disabled={isLoading || isValidating}
-                                className="gap-2"
+                                className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md font-medium"
+                                onClick={() => setIsAddDrawerOpen(true)}
                             >
-                                <RefreshCw className={`h-4 w-4 ${isValidating ? "animate-spin" : ""}`} />
-                                Refresh
+                                <Plus className="w-4 h-4 mr-2" />
+                                Add Supplier
                             </Button>
                         </PharmacyHeader>
 
@@ -94,6 +95,14 @@ export default function BulkUpdatePage() {
                     </div>
                 </div>
             </TooltipProvider>
+
+            <Drawer
+                open={isAddDrawerOpen}
+                onClose={() => setIsAddDrawerOpen(false)}
+                title="Add New Supplier"
+            >
+                <AddSupplier onClose={() => setIsAddDrawerOpen(false)} />
+            </Drawer>
         </AppShell>
     );
 }
