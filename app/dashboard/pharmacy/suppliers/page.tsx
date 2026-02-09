@@ -14,16 +14,36 @@ import {
 } from "@/components/ui/table";
 import { formatINR } from "@/lib/fNumber";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Plus, RefreshCw } from "lucide-react";
 import Drawer from "@/components/ui/drawer";
 import { AddSupplier } from "./AddSupplier";
-import { DUMMY_SUPPLIERS } from "./data";
 import { Supplier } from "./interface";
+import useSWR from "swr";
+import api from "@/lib/axios";
+
+const fetcher = (url: string) => api.get(url).then((res) => res.data.data);
 
 const SuppliersPage: React.FC = () => {
     const router = useRouter();
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
-    const [suppliers] = useState<Supplier[]>(DUMMY_SUPPLIERS); // Using Dummy Data
+
+    const { data: suppliers = [], error, isLoading, mutate } = useSWR<Supplier[]>("/suppliers", fetcher);
+
+    if (error) {
+        return (
+            <AppShell>
+                <div className="p-5 flex items-center justify-center min-h-[calc(100vh-80px)]">
+                    <div className="text-center">
+                        <p className="text-red-500 font-medium">Failed to load suppliers</p>
+                        <Button variant="outline" className="mt-4" onClick={() => mutate()}>
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Retry
+                        </Button>
+                    </div>
+                </div>
+            </AppShell>
+        );
+    }
 
     return (
         <AppShell>
@@ -60,39 +80,50 @@ const SuppliersPage: React.FC = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody className="text-[15px]">
-                                {suppliers.map((supplier, idx) => (
-                                    <TableRow
-                                        key={supplier._id}
-                                        className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
-                                                ? "bg-white hover:bg-white/60"
-                                                : "bg-slate-100 hover:bg-slate-100/60"
-                                            } hover:-translate-y-px hover:shadow-sm`}
-                                        onClick={() => router.push(`/dashboard/pharmacy/suppliers/single?id=${supplier._id}`)}
-                                    >
-                                        <TableCell className="py-3 align-middle text-slate-500 pl-4">
-                                            {idx + 1}
-                                        </TableCell>
-                                        <TableCell className="py-3 align-middle font-medium text-slate-900">
-                                            {supplier.name}
-                                        </TableCell>
-                                        <TableCell className="py-3 align-middle text-slate-700">
-                                            {supplier.phoneNumber}
-                                        </TableCell>
-                                        <TableCell className="py-3 align-middle text-slate-700">
-                                            {supplier.gstin}
-                                        </TableCell>
-                                        <TableCell className="py-3 align-middle text-slate-700">
-                                            {supplier.dlNumber || "-"}
-                                        </TableCell>
-                                        <TableCell className="py-3 align-middle text-right text-slate-900">
-                                            {supplier.totalPurchaseCount}
-                                        </TableCell>
-                                        <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
-                                            {formatINR(supplier.totalPurchaseValue)}
+                                {isLoading ? (
+                                    <TableRow>
+                                        <TableCell colSpan={7} className="text-center py-10">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <RefreshCw className="w-5 h-5 animate-spin text-slate-400" />
+                                                <span className="text-slate-500">Loading suppliers...</span>
+                                            </div>
                                         </TableCell>
                                     </TableRow>
-                                ))}
-                                {suppliers.length === 0 && (
+                                ) : (
+                                    suppliers.map((supplier, idx) => (
+                                        <TableRow
+                                            key={supplier._id}
+                                            className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
+                                                ? "bg-white hover:bg-white/60"
+                                                : "bg-slate-100 hover:bg-slate-100/60"
+                                                } hover:-translate-y-px hover:shadow-sm`}
+                                            onClick={() => router.push(`/dashboard/pharmacy/suppliers/single?id=${supplier._id}`)}
+                                        >
+                                            <TableCell className="py-3 align-middle text-slate-500 pl-4">
+                                                {idx + 1}
+                                            </TableCell>
+                                            <TableCell className="py-3 align-middle font-medium text-slate-900">
+                                                {supplier.name}
+                                            </TableCell>
+                                            <TableCell className="py-3 align-middle text-slate-700">
+                                                {supplier.phone}
+                                            </TableCell>
+                                            <TableCell className="py-3 align-middle text-slate-700">
+                                                {supplier.gstin || "-"}
+                                            </TableCell>
+                                            <TableCell className="py-3 align-middle text-slate-700">
+                                                {supplier.dlNo || "-"}
+                                            </TableCell>
+                                            <TableCell className="py-3 align-middle text-right text-slate-900">
+                                                {supplier.totalPurchaseCount || 0}
+                                            </TableCell>
+                                            <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                                                {formatINR(supplier.totalPurchaseValue || 0)}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
+                                {!isLoading && suppliers.length === 0 && (
                                     <TableRow>
                                         <TableCell
                                             colSpan={7}
@@ -113,7 +144,10 @@ const SuppliersPage: React.FC = () => {
                 onClose={() => setIsAddDrawerOpen(false)}
                 title="Add New Supplier"
             >
-                <AddSupplier onClose={() => setIsAddDrawerOpen(false)} />
+                <AddSupplier
+                    onClose={() => setIsAddDrawerOpen(false)}
+                    onRefresh={() => mutate()}
+                />
             </Drawer>
         </AppShell>
     );

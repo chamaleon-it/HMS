@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import PharmacyHeader from "../../components/PharmacyHeader";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Loader2, ChevronDownIcon, Phone, MapPin, FileText, ShieldCheck } from "lucide-react";
-import { DUMMY_SUPPLIERS, DUMMY_SUPPLIER_ORDERS } from "../data";
+import { ArrowLeft, Loader2, ChevronDownIcon, Phone, MapPin, FileText, ShieldCheck, RefreshCw } from "lucide-react";
 import { Supplier, SupplierOrder } from "../interface";
 import { formatINR } from "@/lib/fNumber";
 import { fDate } from "@/lib/fDateAndTime";
@@ -20,57 +19,53 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import { motion } from "framer-motion";
+import useSWR from "swr";
+import api from "@/lib/axios";
+
+const fetcher = (url: string) => api.get(url).then((res) => res.data.data);
 
 const SingleSupplierPage: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const id = searchParams.get("id");
 
-    // State
-    const [supplier, setSupplier] = useState<Supplier | null>(null);
-    const [orders, setOrders] = useState<SupplierOrder[]>([]);
-    const [selectedOrder, setSelectedOrder] = useState<SupplierOrder | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { data: supplier, error: supplierError, isLoading: isSupplierLoading } = useSWR<Supplier>(id ? `/suppliers/${id}` : null, fetcher);
+    const { data: ordersData, error: ordersError, isLoading: isOrdersLoading, mutate: mutateOrders } = useSWR<{ data: SupplierOrder[]; message: string }>(id ? `/purchase_entry/supplier/${id}` : null, (url: string) => api.get(url).then((res) => res.data));
+
+    const orders = ordersData?.data || [];
+
+    const totalPurchaseValue = React.useMemo(() => {
+        return orders.reduce((sum, order) => sum + (order.total || 0), 0);
+    }, [orders]);
+
+    const totalPurchaseCount = orders.length;
 
     // Filter State
     const [date, setDate] = React.useState<DateRange | undefined>(undefined);
     const [openCalendar, setOpenCalendar] = useState(false);
     const [type, setType] = useState("all");
 
+    const [selectedOrder, setSelectedOrder] = useState<SupplierOrder | null>(null);
+
+    // Update selected order when orders list changes
+    React.useEffect(() => {
+        if (orders.length > 0 && !selectedOrder) {
+            setSelectedOrder(orders[0]);
+        }
+    }, [orders, selectedOrder]);
+
     const tabs = [
         { key: "all", label: "All" },
-        { key: "sale", label: "Sale" },
-        { key: "return", label: "Return" },
+        { key: "Pending", label: "Pending" },
+        { key: "Completed", label: "Completed" },
     ];
-
-    useEffect(() => {
-        if (id) {
-            // Simulate API Fetch
-            setTimeout(() => {
-                const foundSupplier = DUMMY_SUPPLIERS.find((s) => s._id === id);
-                const foundOrders = DUMMY_SUPPLIER_ORDERS[id] || [];
-                setSupplier(foundSupplier || null);
-                setOrders(foundOrders);
-                // Select the first order by default if available
-                if (foundOrders.length > 0) {
-                    setSelectedOrder(foundOrders[0]);
-                }
-                setLoading(false);
-            }, 500);
-        } else {
-            setLoading(false);
-        }
-    }, [id]);
 
     const filteredOrders = React.useMemo(() => {
         let result = [...orders];
 
-        // Filter by Type (Mock logic: Assuming all dummy orders are 'sale' for now)
+        // Filter by Type (Payment Status)
         if (type !== "all") {
-            if (type === "return") {
-                result = []; // No mock returns yet
-            }
-            // 'sale' keeps all mocks
+            result = result.filter(o => o.paymentStatus === type);
         }
 
         // Filter by Date Range
@@ -79,7 +74,7 @@ const SingleSupplierPage: React.FC = () => {
             const end = new Date(date.to);
             end.setHours(23, 59, 59, 999);
             result = result.filter((item) => {
-                const itemDate = new Date(item.date);
+                const itemDate = new Date(item.invoiceDate);
                 return itemDate >= start && itemDate <= end;
             });
         }
@@ -87,22 +82,31 @@ const SingleSupplierPage: React.FC = () => {
         return result;
     }, [orders, type, date]);
 
-    if (loading) {
+    if (isSupplierLoading || isOrdersLoading) {
         return (
             <AppShell>
-                <div className="flex items-center justify-center h-screen">
+                <div className="flex items-center justify-center h-screen font-sans">
                     <Loader2 className="w-8 h-8 animate-spin text-slate-500" />
                 </div>
             </AppShell>
         );
     }
 
-    if (!supplier) {
+    if (supplierError || ordersError || !supplier) {
         return (
             <AppShell>
-                <div className="p-10 text-center text-slate-500">
-                    Supplier not found
-                    <Button variant="link" onClick={() => router.push("/dashboard/pharmacy/suppliers")}>Go back</Button>
+                <div className="p-10 text-center text-slate-500 font-sans">
+                    <p className="text-red-500 mb-4">{supplierError || ordersError ? "Failed to load details" : "Supplier not found"}</p>
+                    <div className="flex justify-center gap-2">
+                        <Button variant="outline" onClick={() => router.push("/dashboard/pharmacy/suppliers")}>
+                            <ArrowLeft className="w-4 h-4 mr-2" />
+                            Go Back
+                        </Button>
+                        <Button variant="default" onClick={() => { mutateOrders(); }}>
+                            <RefreshCw className="w-4 h-4 mr-2" />
+                            Retry
+                        </Button>
+                    </div>
                 </div>
             </AppShell>
         );
@@ -110,11 +114,11 @@ const SingleSupplierPage: React.FC = () => {
 
     return (
         <AppShell>
-            <div className="p-5 min-h-[calc(100vh-80px)]">
+            <div className="p-5 min-h-[calc(100vh-80px)] font-sans">
                 <main className="flex flex-col gap-6">
                     <PharmacyHeader
                         title={supplier.name}
-                        subtitle={`GSTIN: ${supplier.gstin}`}
+                        subtitle={`GSTIN: ${supplier.gstin || "N/A"}`}
                     >
                         <div className="flex gap-2">
                             <Button
@@ -137,23 +141,23 @@ const SingleSupplierPage: React.FC = () => {
                     {/* Stats Section */}
                     <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                         <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                            <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
+                            <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide font-sans">
                                 Total Purchase Value
                             </div>
-                            <div className="text-2xl font-semibold text-emerald-900">
-                                {formatINR(supplier.totalPurchaseValue)}
+                            <div className="text-2xl font-semibold text-emerald-900 font-sans">
+                                {formatINR(totalPurchaseValue)}
                             </div>
                         </div>
                         <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                            <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
+                            <div className="text-xs font-medium text-sky-700 uppercase tracking-wide font-sans">
                                 Total Purchase Count
                             </div>
-                            <div className="text-3xl font-semibold text-sky-900">
-                                {supplier.totalPurchaseCount}
+                            <div className="text-3xl font-semibold text-sky-900 font-sans">
+                                {totalPurchaseCount}
                             </div>
                         </div>
                         <div className="border rounded-2xl p-4 bg-white flex flex-col gap-1 shadow-sm col-span-2 transition-transform duration-150 hover:-translate-y-[2px]">
-                            <div className="text-xs font-medium text-slate-500 uppercase tracking-wide">
+                            <div className="text-xs font-medium text-slate-500 uppercase tracking-wide font-sans">
                                 Details
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3">
@@ -162,8 +166,8 @@ const SingleSupplierPage: React.FC = () => {
                                         <Phone className="w-3.5 h-3.5 text-sky-600" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1">Phone</p>
-                                        <p className="font-semibold text-slate-900 text-sm leading-none">{supplier.phoneNumber}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1 font-sans">Phone</p>
+                                        <p className="font-semibold text-slate-900 text-sm leading-none font-sans">{supplier.phone}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
@@ -171,8 +175,8 @@ const SingleSupplierPage: React.FC = () => {
                                         <FileText className="w-3.5 h-3.5 text-emerald-600" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1">MSME Number</p>
-                                        <p className="font-semibold text-slate-900 text-sm leading-none">{supplier.msmeNumber || "N/A"}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1 font-sans">MSME Number</p>
+                                        <p className="font-semibold text-slate-900 text-sm leading-none font-sans">{supplier.msme || "N/A"}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
@@ -180,10 +184,11 @@ const SingleSupplierPage: React.FC = () => {
                                         <MapPin className="w-3.5 h-3.5 text-indigo-600" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1">Address</p>
-                                        <p className="font-medium text-slate-700 text-sm leading-snug">
-                                            {supplier.addressLine1}
-                                            {supplier.addressLine2 && <span className="text-slate-500">, {supplier.addressLine2}</span>}
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1 font-sans">Address</p>
+                                        <p className="font-medium text-slate-700 text-sm leading-snug font-sans truncate max-w-[200px]" title={`${supplier.address.line1}${supplier.address.line2 ? `, ${supplier.address.line2}` : ""}${supplier.address.city ? `, ${supplier.address.city}` : ""}`}>
+                                            {supplier.address.line1}
+                                            {supplier.address.line2 && <span className="text-slate-500">, {supplier.address.line2}</span>}
+                                            {supplier.address.city && <span className="text-slate-500">, {supplier.address.city}</span>}
                                         </p>
                                     </div>
                                 </div>
@@ -192,8 +197,8 @@ const SingleSupplierPage: React.FC = () => {
                                         <ShieldCheck className="w-3.5 h-3.5 text-amber-600" />
                                     </div>
                                     <div>
-                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1">DL Number</p>
-                                        <p className="font-semibold text-slate-900 text-sm leading-none">{supplier.dlNumber || "N/A"}</p>
+                                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-tight leading-none mb-1 font-sans">DL Number</p>
+                                        <p className="font-semibold text-slate-900 text-sm leading-none font-sans">{supplier.dlNo || "N/A"}</p>
                                     </div>
                                 </div>
                             </div>
@@ -205,8 +210,8 @@ const SingleSupplierPage: React.FC = () => {
                         {/* LEFT: Order List */}
                         <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
                             <div className="px-4 py-3 bg-slate-900 text-slate-50 flex items-center justify-between">
-                                <div className="text-sm font-medium flex items-center gap-2">
-                                    <span className="h-7 w-7 rounded-full bg-slate-800 flex items-center justify-center text-[11px]">
+                                <div className="text-sm font-medium flex items-center gap-2 font-sans">
+                                    <span className="h-7 w-7 rounded-full bg-slate-800 flex items-center justify-center text-[11px] font-sans">
                                         {filteredOrders.length}
                                     </span>
                                     Purchase Orders
@@ -215,20 +220,20 @@ const SingleSupplierPage: React.FC = () => {
 
                             {/* Filter Bar */}
                             <div className="flex justify-between items-center bg-slate-50 px-2 py-2 border-b">
-                                <div className="flex items-center gap-3 text-[12px] text-slate-700">
-                                    <span className="font-medium">Filter:</span>
+                                <div className="flex items-center gap-3 text-[12px] text-slate-700 font-sans">
+                                    <span className="font-medium font-sans">Filter:</span>
 
                                     <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
                                         <PopoverTrigger asChild>
                                             <Button
                                                 variant="outline"
                                                 id="date"
-                                                className="w-40 justify-between font-normal h-8 text-[11px] px-2"
+                                                className="w-40 justify-between font-normal h-8 text-[11px] px-2 font-sans"
                                             >
                                                 {date?.from && date?.to
                                                     ? `${fDate(date.from)} - ${fDate(date.to)}`
                                                     : "Select date"}
-                                                <ChevronDownIcon className="h-3 w-3 opacity-50" />
+                                                <ChevronDownIcon className="h-3 w-3 opacity-50 font-sans" />
                                             </Button>
                                         </PopoverTrigger>
 
@@ -256,7 +261,7 @@ const SingleSupplierPage: React.FC = () => {
                                         <Button
                                             variant="ghost"
                                             size="sm"
-                                            className="h-8 text-[11px] px-2 text-slate-500 hover:text-slate-900"
+                                            className="h-8 text-[11px] px-2 text-slate-500 hover:text-slate-900 font-sans"
                                             onClick={() => setDate(undefined)}
                                         >
                                             Clear
@@ -264,7 +269,7 @@ const SingleSupplierPage: React.FC = () => {
                                     )}
                                 </div>
 
-                                <div className="relative inline-flex items-center gap-1 text-xs bg-white border border-gray-200 rounded-full p-0.5">
+                                <div className="relative inline-flex items-center gap-1 text-xs bg-white border border-gray-200 rounded-full p-0.5 font-sans">
                                     {tabs.map(({ key, label }) => {
                                         const active = type === key;
                                         return (
@@ -272,7 +277,7 @@ const SingleSupplierPage: React.FC = () => {
                                                 key={key}
                                                 onClick={() => setType(key)}
                                                 className={cn(
-                                                    "relative flex items-center gap-2 rounded-full px-2 py-1 transition will-change-transform cursor-pointer",
+                                                    "relative flex items-center gap-2 rounded-full px-2 py-1 transition will-change-transform cursor-pointer font-sans",
                                                     active ? "text-white" : "text-gray-700"
                                                 )}
                                                 type="button"
@@ -285,7 +290,7 @@ const SingleSupplierPage: React.FC = () => {
                                                         transition={{ type: "spring", stiffness: 500, damping: 40 }}
                                                     />
                                                 )}
-                                                <span className="relative z-10 font-medium">
+                                                <span className="relative z-10 font-medium font-sans">
                                                     {label}
                                                 </span>
                                             </button>
@@ -294,7 +299,7 @@ const SingleSupplierPage: React.FC = () => {
                                 </div>
                             </div>
 
-                            <div className="flex-1 overflow-y-auto divide-y">
+                            <div className="flex-1 overflow-y-auto divide-y font-sans">
                                 {filteredOrders.map((order) => {
                                     const active = selectedOrder?._id === order._id;
                                     return (
@@ -303,32 +308,32 @@ const SingleSupplierPage: React.FC = () => {
                                             type="button"
                                             onClick={() => setSelectedOrder(order)}
                                             className={cn(
-                                                "w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150",
+                                                "w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 font-sans",
                                                 active ? "bg-slate-900 text-slate-50" : "hover:bg-slate-50"
                                             )}
                                         >
-                                            <div className="flex items-center justify-between gap-2">
-                                                <span className={cn("font-medium", active ? "text-slate-50" : "text-slate-900")}>
-                                                    {order.orderId}
+                                            <div className="flex items-center justify-between gap-2 font-sans">
+                                                <span className={cn("font-medium font-sans", active ? "text-slate-50" : "text-slate-900")}>
+                                                    {order.invoiceNumber}
                                                 </span>
-                                                <span className={cn("text-xs font-semibold", active ? "text-slate-200" : "text-slate-900")}>
-                                                    {formatINR(order.totalValue)}
+                                                <span className={cn("text-xs font-semibold font-sans", active ? "text-slate-200" : "text-slate-900")}>
+                                                    {formatINR(order.total)}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center justify-between gap-2 text-[12px]">
-                                                <span className={cn(active ? "text-slate-400" : "text-slate-500")}>
-                                                    {fDate(order.date)}
+                                            <div className="flex items-center justify-between gap-2 text-[12px] font-sans">
+                                                <span className={cn("font-sans", active ? "text-slate-400" : "text-slate-500")}>
+                                                    {fDate(order.invoiceDate)}
                                                 </span>
-                                                <div className="flex items-center gap-2">
-                                                    <span className={cn(active ? "text-slate-400" : "text-slate-500")}>
-                                                        {order.itemCount} items
+                                                <div className="flex items-center gap-2 font-sans">
+                                                    <span className={cn("font-sans", active ? "text-slate-400" : "text-slate-500")}>
+                                                        {order.items.length} items
                                                     </span>
-                                                    <Badge variant={order.status === "Completed" ? "default" : "secondary"} className={cn(
-                                                        "text-[10px] h-5 px-1.5 font-normal",
-                                                        order.status === "Completed" ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200" :
-                                                            order.status === "Pending" ? "bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200" : ""
+                                                    <Badge variant={order.paymentStatus === "Completed" ? "default" : "secondary"} className={cn(
+                                                        "text-[10px] h-5 px-1.5 font-normal font-sans",
+                                                        order.paymentStatus === "Completed" ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200" :
+                                                            order.paymentStatus === "Pending" ? "bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200" : ""
                                                     )}>
-                                                        {order.status}
+                                                        {order.paymentStatus}
                                                     </Badge>
                                                 </div>
                                             </div>
@@ -336,7 +341,7 @@ const SingleSupplierPage: React.FC = () => {
                                     );
                                 })}
                                 {filteredOrders.length === 0 && (
-                                    <div className="p-8 text-center text-slate-500 text-sm">
+                                    <div className="p-8 text-center text-slate-500 text-sm font-sans">
                                         No orders found.
                                     </div>
                                 )}
@@ -346,15 +351,15 @@ const SingleSupplierPage: React.FC = () => {
                         {/* RIGHT: Order Details */}
                         <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
                             <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
-                                <div className="text-sm font-semibold text-slate-900">
-                                    {selectedOrder ? `Order Details — ${selectedOrder.orderId}` : "Select an Order"}
+                                <div className="text-sm font-semibold text-slate-900 font-sans">
+                                    {selectedOrder ? `Order Details — ${selectedOrder.invoiceNumber}` : "Select an Order"}
                                 </div>
                                 {selectedOrder && (
-                                    <div className="text-[11px] text-slate-500 flex flex-col items-end">
-                                        <span>
+                                    <div className="text-[11px] text-slate-500 flex flex-col items-end font-sans">
+                                        <span className="font-sans">
                                             Date:{" "}
-                                            <span className="font-medium text-slate-700">
-                                                {fDate(selectedOrder.date)}
+                                            <span className="font-medium text-slate-700 font-sans">
+                                                {fDate(selectedOrder.invoiceDate)}
                                             </span>
                                         </span>
                                     </div>
@@ -362,51 +367,107 @@ const SingleSupplierPage: React.FC = () => {
                             </div>
 
                             {!selectedOrder && (
-                                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8">
-                                    <p>Select an order from the list to view details.</p>
+                                <div className="flex-1 flex flex-col items-center justify-center text-slate-400 p-8 font-sans">
+                                    <p className="font-sans">Select an order from the list to view details.</p>
                                 </div>
                             )}
 
                             {selectedOrder && (
-                                <div className="flex-1 overflow-auto">
-                                    <table className="w-full text-[15px]">
-                                        <thead className="bg-slate-50 text-slate-700 sticky top-0 text-xs uppercase tracking-wider">
+                                <div className="flex-1 overflow-auto font-sans">
+                                    <div className="p-4 bg-slate-50 border-b flex flex-wrap gap-4 text-[13px]">
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-slate-500">GST:</span>
+                                            <Badge variant="outline" className={cn("text-[10px] uppercase font-bold", selectedOrder.gstEnabled ? "text-emerald-600 border-emerald-200 bg-emerald-50" : "text-slate-400 border-slate-200")}>
+                                                {selectedOrder.gstEnabled ? "Enabled" : "Disabled"}
+                                            </Badge>
+                                        </div>
+                                        <div className="flex items-center gap-1.5">
+                                            <span className="text-slate-500">TSC:</span>
+                                            <Badge variant="outline" className={cn("text-[10px] uppercase font-bold", selectedOrder.tscEnabled ? "text-amber-600 border-amber-200 bg-amber-50" : "text-slate-400 border-slate-200")}>
+                                                {selectedOrder.tscEnabled ? "Enabled" : "Disabled"}
+                                            </Badge>
+                                        </div>
+                                        <div className="ml-auto text-slate-500">
+                                            Total Items: <span className="font-semibold text-slate-900">{selectedOrder.items.length}</span>
+                                        </div>
+                                    </div>
+
+                                    <table className="w-full text-[13px] font-sans">
+                                        <thead className="bg-slate-50 text-slate-700 sticky top-0 text-[11px] uppercase tracking-wider font-sans border-b">
                                             <tr>
-                                                <th className="p-3 text-left font-medium">Item Name</th>
-                                                <th className="p-3 text-right font-medium">Qty</th>
-                                                <th className="p-3 text-right font-medium">Unit Price</th>
+                                                <th className="p-3 text-left font-medium">Item Details</th>
+                                                <th className="p-3 text-left font-medium">Batch / Expiry</th>
+                                                <th className="p-3 text-right font-medium">Qty/Pack</th>
+                                                <th className="p-3 text-right font-medium">Free</th>
+                                                <th className="p-3 text-right font-medium">Rate</th>
+                                                <th className="p-3 text-right font-medium">GST</th>
+                                                <th className="p-3 text-right font-medium">Discount</th>
                                                 <th className="p-3 text-right font-medium pr-6">Total</th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-slate-50">
+                                        <tbody className="divide-y divide-slate-100 font-sans">
                                             {selectedOrder.items?.map((item, i) => (
-                                                <tr key={i} className="hover:bg-slate-50/50">
-                                                    <td className="p-3 text-slate-900 font-medium">
-                                                        {item.name}
+                                                <tr key={i} className="hover:bg-slate-50/50 font-sans group">
+                                                    <td className="p-3">
+                                                        <div className="font-semibold text-slate-900">{item.item.name}</div>
+                                                        <div className="text-[11px] text-slate-500">HSN: {item.item.hsnCode || "N/A"}</div>
+                                                    </td>
+                                                    <td className="p-3">
+                                                        <div className="text-slate-700 font-medium">{item.batch}</div>
+                                                        <div className="text-[11px] text-slate-500">{fDate(item.expiryDate)}</div>
+                                                    </td>
+                                                    <td className="p-3 text-right">
+                                                        <div className="text-slate-900 font-medium">{item.quantity}</div>
+                                                        <div className="text-[11px] text-slate-500">Pack: {item.pack || 0}</div>
                                                     </td>
                                                     <td className="p-3 text-right text-slate-600">
-                                                        {item.quantity}
+                                                        {item.free || 0}
                                                     </td>
                                                     <td className="p-3 text-right text-slate-600">
                                                         {formatINR(item.unitPrice)}
                                                     </td>
+                                                    <td className="p-3 text-right text-slate-600">
+                                                        {formatINR(item.gst)}
+                                                    </td>
+                                                    <td className="p-3 text-right text-rose-500">
+                                                        -{formatINR(item.discount)}
+                                                    </td>
                                                     <td className="p-3 text-right font-semibold text-slate-900 pr-6">
-                                                        {formatINR(item.totalPrice)}
+                                                        {formatINR(item.purchasePrice)}
                                                     </td>
                                                 </tr>
                                             ))}
                                         </tbody>
-                                        <tfoot className="bg-slate-50 border-t">
-                                            <tr>
-                                                <td colSpan={3} className="p-3 text-right text-slate-600 font-medium">
-                                                    Total Amount
-                                                </td>
-                                                <td className="p-3 text-right text-base font-bold text-slate-900 pr-6">
-                                                    {formatINR(selectedOrder.totalValue)}
-                                                </td>
-                                            </tr>
-                                        </tfoot>
                                     </table>
+
+                                    {/* Financial Summary Section */}
+                                    <div className="p-6 bg-slate-50/50 flex flex-col gap-3">
+                                        <div className="grid grid-cols-2 gap-x-8 gap-y-2 max-w-sm ml-auto">
+                                            <div className="text-slate-500 text-right">Subtotal:</div>
+                                            <div className="text-slate-900 text-right font-medium">{formatINR(selectedOrder.subTotal)}</div>
+
+                                            <div className="text-slate-500 text-right">Discount:</div>
+                                            <div className="text-rose-500 text-right font-medium">-{formatINR(selectedOrder.discount)}</div>
+
+                                            <div className="text-slate-500 text-right">GST:</div>
+                                            <div className="text-slate-900 text-right font-medium">+{formatINR(selectedOrder.gst)}</div>
+
+                                            <div className="text-slate-500 text-right">Transport:</div>
+                                            <div className="text-slate-900 text-right font-medium">+{formatINR(selectedOrder.transportCharge)}</div>
+
+                                            <div className="col-span-2 my-1 border-t border-slate-200"></div>
+
+                                            <div className="text-slate-900 text-right font-bold text-base">Grand Total:</div>
+                                            <div className="text-indigo-600 text-right font-bold text-base">{formatINR(selectedOrder.total)}</div>
+                                        </div>
+
+                                        {selectedOrder.description && (
+                                            <div className="mt-4 p-3 bg-white border rounded-xl text-xs text-slate-600 italic">
+                                                <span className="not-italic font-bold text-slate-400 block mb-1 uppercase tracking-tighter">Description</span>
+                                                "{selectedOrder.description}"
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             )}
                         </div>

@@ -37,23 +37,127 @@ import {
     CommandItem,
     CommandList,
 } from "@/components/ui/command";
+import api from "@/lib/axios";
+
+// ... (ItemSearchCell and useDebounced hook here)
 import {
     Popover,
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
+import useSWR from "swr";
+
+const ItemSearchCell = ({
+    selectedItemId,
+    onSelect
+}: {
+    selectedItemId: string,
+    onSelect: (item: any) => void
+}) => {
+    const [query, setQuery] = useState("");
+    const [open, setOpen] = useState(false);
+    const [localSelectedItem, setLocalSelectedItem] = useState<any>(null);
+    const debouncedQ = useDebounced(query, 300);
+
+    const qs = useMemo(() => {
+        const p = new URLSearchParams();
+        p.set("limit", "10");
+        if (debouncedQ) p.set("q", debouncedQ);
+        return p.toString();
+    }, [debouncedQ]);
+
+    const { data, isLoading } = useSWR<{ data: any[] }>(debouncedQ ? `/pharmacy/items?${qs}` : null);
+    const items = data?.data || [];
+
+    // Sync local selection when found in items (helps if we only have an ID)
+    useEffect(() => {
+        if (selectedItemId && items.length > 0) {
+            const found = items.find(it => it._id === selectedItemId);
+            if (found) setLocalSelectedItem(found);
+        }
+    }, [selectedItemId, items]);
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+                <Button
+                    variant="ghost"
+                    role="combobox"
+                    className={cn(
+                        "w-full h-11 justify-between font-bold text-sm border border-slate-200 bg-white hover:bg-slate-50 hover:border-indigo-300 hover:shadow-md transition-all rounded-lg",
+                        !selectedItemId && "text-slate-400 font-medium"
+                    )}
+                >
+                    <span className="truncate">
+                        {localSelectedItem ? localSelectedItem.name : "Search Medicine..."}
+                    </span>
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-indigo-500" />
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[350px] p-0 shadow-2xl border-slate-200 rounded-xl" align="start">
+                <Command className="rounded-xl font-sans">
+                    <CommandInput
+                        placeholder="Type medicine name..."
+                        className="h-12 border-none focus:ring-0 font-sans"
+                        value={query}
+                        onValueChange={setQuery}
+                    />
+                    <CommandList className="font-sans">
+                        {isLoading && <div className="p-4 text-center text-sm text-slate-500 font-sans">Searching...</div>}
+                        {!isLoading && items.length === 0 && query && (
+                            <CommandEmpty className="py-6 text-center text-slate-500 text-sm font-sans">No medicines found.</CommandEmpty>
+                        )}
+                        <CommandGroup className="p-2 font-sans">
+                            {items.map((it) => (
+                                <CommandItem
+                                    key={it._id}
+                                    value={it.name}
+                                    onSelect={() => {
+                                        setLocalSelectedItem(it);
+                                        onSelect(it);
+                                        setOpen(false);
+                                        setQuery("");
+                                    }}
+                                    className="rounded-lg h-10 px-3 aria-selected:bg-indigo-50 aria-selected:text-indigo-700 font-medium transition-colors cursor-pointer mb-1 font-sans"
+                                >
+                                    <Check
+                                        className={cn(
+                                            "mr-3 h-4 w-4 text-indigo-600 transition-all",
+                                            selectedItemId === it._id ? "opacity-100 scale-100" : "opacity-0 scale-50"
+                                        )}
+                                    />
+                                    <div className="flex flex-col font-sans">
+                                        <span className="font-sans">{it.name}</span>
+                                        {it.generic && <span className="text-[10px] text-slate-400 font-sans">{it.generic}</span>}
+                                    </div>
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    );
+};
+
+function useDebounced<T>(value: T, delay = 250) {
+    const [debounced, setDebounced] = useState(value);
+    useEffect(() => {
+        const id = setTimeout(() => setDebounced(value), delay);
+        return () => clearTimeout(id);
+    }, [value, delay]);
+    return debounced;
+}
+
 import { cn } from "@/lib/utils";
-import { DUMMY_SUPPLIERS } from "../data";
 import { useSearchParams } from "next/navigation";
 import { Supplier } from "../interface";
 
 interface BulkUpdateItem {
     _id: string;
     product: string;
-    hsn: string;
     batch: string;
     qty: number;
-    schm: number;
     pack: string;
     mrp: number;
     expiry: string;
@@ -77,14 +181,6 @@ interface Props {
     onSave?: (updates: Record<string, Partial<BulkUpdateItem>>) => Promise<void>;
 }
 
-const PRODUCTS = [
-    { value: "p1", label: "Paracetamol 500mg" },
-    { value: "p2", label: "Amoxicillin 250mg" },
-    { value: "p3", label: "Cetirizine 10mg" },
-    { value: "p4", label: "Ibuprofen 400mg" },
-    { value: "p5", label: "Azithromycin 500mg" },
-];
-
 export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Props) {
     const searchParams = useSearchParams();
     const defaultSupplierId = searchParams.get("supplierId");
@@ -102,8 +198,8 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     }, [defaultSupplierId]);
 
     const [billDetails, setBillDetails] = useState({
-        invoiceNo: "",
-        billDate: "",
+        invoiceNumber: "",
+        invoiceDate: "",
         transportCharges: "0",
         description: ""
     });
@@ -117,10 +213,8 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             id: Date.now().toString(),
             _id: "",
             product: "",
-            hsn: "",
             batch: "",
             qty: 0,
-            schm: 0,
             pack: "",
             mrp: 0,
             expiry: "",
@@ -197,13 +291,61 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     }, [newItems, billDetails.transportCharges]);
 
     const handleSaveChanges = async () => {
+        if (!selectedSupplierId) {
+            toast.error("Please select a supplier");
+            return;
+        }
+        if (!billDetails.invoiceNumber || !billDetails.invoiceDate) {
+            toast.error("Please fill in invoice number and date");
+            return;
+        }
+        if (newItems.length === 0 || !newItems[0]._id) {
+            toast.error("Please add at least one item");
+            return;
+        }
+
         setIsSaving(true);
         try {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+            const payload = {
+                supplier: selectedSupplierId,
+                invoiceNumber: billDetails.invoiceNumber,
+                invoiceDate: billDetails.invoiceDate,
+                transportCharge: Number(billDetails.transportCharges) || 0,
+                description: billDetails.description,
+                items: newItems.map(item => ({
+                    item: item._id,
+                    batch: item.batch,
+                    quantity: item.qty,
+                    pack: item.pack,
+                    unitPrice: item.mrp,
+                    expiryDate: item.expiry,
+                    free: item.schema_free,
+                    rate: item.rate,
+                    purchasePrice: (item.qty * item.rate),
+                    gst: (item.qty * item.rate - item.dis) * ((item.sgst_p + item.cgst_p) / 100),
+                    discount: item.dis,
+
+                })),
+                subTotal: totals.gross,
+                total: totals.total,
+                grossAmount: totals.gross,
+                gst: totals.sgst + totals.cgst,
+                discount: totals.discount
+            };
+
+            await api.post("/purchase_entry", payload);
             toast.success("Purchase entry saved successfully");
             setNewItems([]);
-        } catch (error) {
-            toast.error("Failed to save changes");
+            setBillDetails({
+                invoiceNumber: "",
+                invoiceDate: "",
+                transportCharges: "0",
+                description: ""
+            });
+            setSelectedSupplierId("");
+        } catch (error: any) {
+            console.error("Purchase entry error:", error);
+            toast.error(error.response?.data?.message || "Failed to save purchase entry");
         } finally {
             setIsSaving(false);
         }
@@ -235,8 +377,11 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
         }
     }, []);
 
+    const { data: suppliersData } = useSWR<{ message: string; data: { _id: string; name: string }[] }>("/suppliers/get_id_and_name");
+    const suppliers = suppliersData?.data || [];
+
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 font-sans">
             {/* Header Section */}
             <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -246,46 +391,46 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             >
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-end">
                     <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Supplier*</label>
+                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-sans">Supplier*</label>
                         <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
-                            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all font-sans">
                                 <SelectValue placeholder="Select Supplier" />
                             </SelectTrigger>
-                            <SelectContent className="rounded-lg border-slate-200">
-                                {DUMMY_SUPPLIERS.map((s: Supplier) => (
-                                    <SelectItem key={s._id} value={s._id} className="rounded-md focus:bg-indigo-50">{s.name}</SelectItem>
+                            <SelectContent className="rounded-lg border-slate-200 font-sans">
+                                {suppliers.map((s: { _id: string; name: string }) => (
+                                    <SelectItem key={s._id} value={s._id} className="rounded-md focus:bg-indigo-50 font-sans">{s.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Invoice Date*</label>
+                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-sans">Invoice Date*</label>
                         <Input
                             type="date"
-                            className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
-                            value={billDetails.billDate}
-                            onChange={(e) => handleBillDetailChange("billDate", e.target.value)}
+                            className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all font-bold font-sans"
+                            value={billDetails.invoiceDate}
+                            onChange={(e) => handleBillDetailChange("invoiceDate", e.target.value)}
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Invoice No*</label>
+                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-sans">Invoice No*</label>
                         <Input
                             placeholder="Invoice no."
-                            className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all font-medium"
-                            value={billDetails.invoiceNo}
-                            onChange={(e) => handleBillDetailChange("invoiceNo", e.target.value)}
+                            className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all font-bold font-sans"
+                            value={billDetails.invoiceNumber}
+                            onChange={(e) => handleBillDetailChange("invoiceNumber", e.target.value)}
                         />
                     </div>
 
                     <div className="space-y-2">
-                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Transport Charges</label>
-                        <div className="relative">
-                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold">₹</span>
+                        <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-sans">Transport Charges</label>
+                        <div className="relative font-sans">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-bold font-sans">₹</span>
                             <Input
                                 placeholder="0.00"
-                                className="h-11 bg-slate-50/50 border-slate-200 rounded-lg pl-7 focus:ring-2 focus:ring-indigo-500/20 transition-all font-bold text-slate-700"
+                                className="h-11 bg-slate-50/50 border-slate-200 rounded-lg pl-7 focus:ring-2 focus:ring-indigo-500/20 transition-all font-bold text-slate-700 font-sans"
                                 value={billDetails.transportCharges}
                                 onChange={(e) => handleBillDetailChange("transportCharges", e.target.value)}
                             />
@@ -293,54 +438,52 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     </div>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-10 mt-8 border-t border-slate-100 pt-7">
-                    <div className="flex items-center gap-10">
-                        <div className="flex items-center gap-6">
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <div className="relative flex items-center justify-center">
+                <div className="flex flex-wrap items-center gap-10 mt-8 border-t border-slate-100 pt-7 font-sans">
+                    <div className="flex items-center gap-10 font-sans">
+                        <div className="flex items-center gap-6 font-sans">
+                            <label className="flex items-center gap-2 cursor-pointer group font-sans">
+                                <div className="relative flex items-center justify-center font-sans">
                                     <input
                                         type="radio"
                                         name="gstType"
                                         checked={gstType === "inclusive"}
                                         onChange={() => setGstType("inclusive")}
-                                        className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer"
+                                        className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer font-sans"
                                     />
-                                    <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all"></div>
+                                    <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all font-sans"></div>
                                 </div>
-                                <span className="text-sm font-bold text-slate-500 group-hover:text-slate-900 transition-colors">GST Inclusive</span>
+                                <span className="text-sm font-bold text-slate-500 group-hover:text-slate-900 transition-colors font-sans">GST Inclusive</span>
                             </label>
-                            <label className="flex items-center gap-2 cursor-pointer group">
-                                <div className="relative flex items-center justify-center">
+                            <label className="flex items-center gap-2 cursor-pointer group font-sans">
+                                <div className="relative flex items-center justify-center font-sans">
                                     <input
                                         type="radio"
                                         name="gstType"
                                         checked={gstType === "exclusive"}
                                         onChange={() => setGstType("exclusive")}
-                                        className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer"
+                                        className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer font-sans"
                                     />
-                                    <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all"></div>
+                                    <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all font-sans"></div>
                                 </div>
-                                <span className="text-sm font-bold text-slate-500 group-hover:text-slate-900 transition-colors">GST Exclusive</span>
+                                <span className="text-sm font-bold text-slate-500 group-hover:text-slate-900 transition-colors font-sans">GST Exclusive</span>
                             </label>
                         </div>
                     </div>
 
-                    <label className="flex items-center gap-3 cursor-pointer group bg-slate-50/50 px-4 py-2 rounded-full border border-slate-100 hover:border-slate-200 transition-all">
-                        <div className="relative flex items-center justify-center">
+                    <label className="flex items-center gap-3 cursor-pointer group bg-slate-50/50 px-4 py-2 rounded-full border border-slate-100 hover:border-slate-200 transition-all font-sans">
+                        <div className="relative flex items-center justify-center font-sans">
                             <input
                                 type="checkbox"
                                 checked={enableTCS}
                                 onChange={(e) => setEnableTCS(e.target.checked)}
-                                className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer"
+                                className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer font-sans"
                             />
-                            <div className="w-5 h-5 rounded border-2 border-slate-200 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all flex items-center justify-center">
-                                <Check className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity" />
+                            <div className="w-5 h-5 rounded border-2 border-slate-200 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all flex items-center justify-center font-sans">
+                                <Check className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity font-sans" />
                             </div>
                         </div>
-                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider transition-colors">Enable TCS</span>
+                        <span className="text-xs font-bold text-slate-500 uppercase tracking-wider transition-colors font-sans">Enable TCS</span>
                     </label>
-
-
                 </div>
             </motion.div>
 
@@ -359,7 +502,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                             <TableRow className="bg-[#334155] hover:bg-[#334155] border-none">
                                 <TableHead className="w-16 text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider border-r border-slate-600/30">SL NO</TableHead>
                                 <TableHead className="min-w-[150px] text-[11px] font-black uppercase text-slate-200 py-4 tracking-wider">PRODUCT NAME</TableHead>
-                                <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 tracking-wider">HSN</TableHead>
+
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 tracking-wider">BATCH</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">QTY</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">PACK</TableHead>
@@ -389,54 +532,17 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="text-center text-xs font-black text-slate-300 py-4 group-hover:text-indigo-500 transition-colors">
                                             {String(index + 1).padStart(2, '0')}
                                         </TableCell>
-                                        <TableCell className="p-2 min-w-[150px]">
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="ghost"
-                                                        role="combobox"
-                                                        className={cn(
-                                                            "w-full h-11 justify-between font-bold text-sm border border-slate-200 bg-white hover:bg-slate-50 hover:border-indigo-300 hover:shadow-md transition-all rounded-lg",
-                                                            !item.product && "text-slate-400 font-medium"
-                                                        )}
-                                                    >
-                                                        {item.product
-                                                            ? PRODUCTS.find((p) => p.value === item.product)?.label
-                                                            : "Select / Search Product..."}
-                                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-indigo-500" />
-                                                    </Button>
-                                                </PopoverTrigger>
-                                                <PopoverContent className="w-[350px] p-0 shadow-2xl border-slate-200 rounded-xl">
-                                                    <Command className="rounded-xl">
-                                                        <CommandInput placeholder="Search medicines..." className="h-12 border-none focus:ring-0" />
-                                                        <CommandList>
-                                                            <CommandEmpty className="py-6 text-center text-slate-500 text-sm">No drug found in inventory.</CommandEmpty>
-                                                            <CommandGroup heading="Medicines" className="p-2">
-                                                                {PRODUCTS.map((product) => (
-                                                                    <CommandItem
-                                                                        key={product.value}
-                                                                        value={product.label}
-                                                                        onSelect={() => {
-                                                                            updateNewItem(item.id, "product", product.value);
-                                                                        }}
-                                                                        className="rounded-lg h-10 px-3 aria-selected:bg-indigo-50 aria-selected:text-indigo-700 font-medium transition-colors cursor-pointer mb-1"
-                                                                    >
-                                                                        <Check
-                                                                            className={cn(
-                                                                                "mr-3 h-4 w-4 text-indigo-600 transition-all",
-                                                                                item.product === product.value ? "opacity-100 scale-100" : "opacity-0 scale-50"
-                                                                            )}
-                                                                        />
-                                                                        {product.label}
-                                                                    </CommandItem>
-                                                                ))}
-                                                            </CommandGroup>
-                                                        </CommandList>
-                                                    </Command>
-                                                </PopoverContent>
-                                            </Popover>
+                                        <TableCell className="p-2 min-w-[150px] font-sans">
+                                            <ItemSearchCell
+                                                selectedItemId={item._id}
+                                                onSelect={(it) => {
+                                                    updateNewItem(item.id, "_id", it._id);
+                                                    updateNewItem(item.id, "product", it.name);
+                                                    updateNewItem(item.id, "mrp", it.mrp || 0);
+                                                    updateNewItem(item.id, "rate", it.unitPrice || 0);
+                                                }}
+                                            />
                                         </TableCell>
-                                        <TableCell className="p-2"><Input className="h-11 text-xs font-bold border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.hsn} onChange={(e) => updateNewItem(item.id, "hsn", e.target.value)} /></TableCell>
                                         <TableCell className="p-2"><Input className="h-11 text-xs font-bold border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} /></TableCell>
                                         <TableCell className="p-2">
                                             <Input
