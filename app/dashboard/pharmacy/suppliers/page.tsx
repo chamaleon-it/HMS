@@ -33,7 +33,7 @@ const SuppliersPage: React.FC = () => {
         totalSuppliers: suppliers.length,
         totalPurchase: suppliers.reduce((acc, s) => acc + (s.totalPurchaseValue || 0), 0),
         totalPurchaseCount: suppliers.reduce((acc, s) => acc + (s.totalPurchaseCount || 0), 0),
-        totalDue: suppliers.reduce((acc, s) => acc + (s.balance || 0), 0),
+        totalDue: suppliers.reduce((acc, s) => acc + (s.totalDue || 0), 0),
     };
 
     if (error) {
@@ -177,7 +177,7 @@ const SuppliersPage: React.FC = () => {
                                                 {formatINR(supplier.totalPurchaseValue || 0)}
                                             </TableCell>
                                             <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
-                                                {formatINR(supplier.balance || 0)}
+                                                {formatINR(supplier.totalDue || 0)}
                                             </TableCell>
                                         </TableRow>
                                     ))

@@ -203,9 +203,9 @@ interface BulkUpdateItem {
     batch: string;
     qty: number;
     pack: string;
-    mrp: number;
-    expiry: string;
-    rate: number;
+    unitPrice: number;
+    expiryDate: string;
+    purchasePrice: number;
     sgst_p: number;
     cgst_p: number;
     dis_p: number;
@@ -261,9 +261,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             batch: "",
             qty: 0,
             pack: "",
-            mrp: 0,
-            expiry: "",
-            rate: 0,
+            unitPrice: 0,
+            expiryDate: "",
+            purchasePrice: 0,
             sgst_p: 0,
             cgst_p: 0,
             dis_p: 0,
@@ -286,7 +286,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     const updated = { ...item, [field]: value };
 
                     const q = Number(updated.qty) || 0;
-                    const r = Number(updated.rate) || 0;
+                    const r = Number(updated.purchasePrice) || 0;
                     const dp = Number(updated.dis_p) || 0;
                     const sp = Number(updated.sgst_p) || 0;
                     const cp = Number(updated.cgst_p) || 0;
@@ -297,7 +297,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     const taxable = gross - discount;
                     const tax = taxable * ((sp + cp) / 100);
 
-                    // SCHEMA AMT calculation: Rate * SCHEMA (FREE)
+                    // SCHEMA AMT calculation: purchasePrice * SCHEMA (FREE)
                     updated.schema_amt = r * sf;
 
                     updated.dis = discount;
@@ -313,7 +313,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const totals = useMemo(() => {
         return newItems.reduce((acc, item) => {
             const q = Number(item.qty) || 0;
-            const r = Number(item.rate) || 0;
+            const r = Number(item.purchasePrice) || 0;
             const dp = Number(item.dis_p) || 0;
             const sp = Number(item.sgst_p) || 0;
             const cp = Number(item.cgst_p) || 0;
@@ -369,12 +369,11 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     batch: item.batch,
                     quantity: item.qty,
                     pack: item.pack,
-                    unitPrice: item.mrp,
-                    expiryDate: item.expiry,
+                    unitPrice: item.unitPrice,
+                    expiryDate: item.expiryDate,
                     free: item.schema_free,
-                    rate: item.rate,
-                    purchasePrice: (item.qty * item.rate),
-                    gst: (item.qty * item.rate - item.dis) * ((item.sgst_p + item.cgst_p) / 100),
+                    purchasePrice: item.purchasePrice,
+                    gst: (item.qty * item.purchasePrice - item.dis) * ((item.sgst_p + item.cgst_p) / 100),
                     discount: item.dis,
 
                 })),
@@ -415,9 +414,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 qty: 0,
                 schm: 0,
                 pack: "",
-                mrp: 0,
-                expiry: "",
-                rate: 0,
+                unitPrice: 0,
+                expiryDate: "",
+                purchasePrice: 0,
                 sgst_p: 0,
                 cgst_p: 0,
                 dis_p: 0,
@@ -558,7 +557,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">PACK</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">MRP</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 tracking-wider">EXPIRY</TableHead>
-                                <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">RATE</TableHead>
+                                <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">Rate</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">SGST(%)</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">CGST(%)</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">DIS(%)</TableHead>
@@ -588,8 +587,8 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onSelect={(it) => {
                                                     updateNewItem(item.id, "_id", it._id);
                                                     updateNewItem(item.id, "product", it.name);
-                                                    updateNewItem(item.id, "mrp", it.mrp || 0);
-                                                    updateNewItem(item.id, "rate", it.unitPrice || 0);
+                                                    updateNewItem(item.id, "unitPrice", it.unitPrice || 0);
+                                                    updateNewItem(item.id, "purchasePrice", it.unitPrice || 0);
                                                 }}
                                             />
                                         </TableCell>
@@ -614,14 +613,14 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <Input
                                                 type="number"
                                                 className="h-11 text-sm font-black border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center text-slate-700"
-                                                value={item.mrp || ""}
-                                                onChange={(e) => updateNewItem(item.id, "mrp", Number(e.target.value))}
+                                                value={item.unitPrice || ""}
+                                                onChange={(e) => updateNewItem(item.id, "unitPrice", Number(e.target.value))}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
                                             <DatePicker
-                                                value={item.expiry}
-                                                onChange={(date) => updateNewItem(item.id, "expiry", date)}
+                                                value={item.expiryDate}
+                                                onChange={(date) => updateNewItem(item.id, "expiryDate", date)}
                                                 className="bg-white text-[11px] h-11 px-2 border-slate-200 focus:border-indigo-400"
                                             />
                                         </TableCell>
@@ -629,8 +628,8 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <Input
                                                 type="number"
                                                 className="h-11 text-sm font-black border-emerald-200 bg-emerald-50/10 rounded-lg focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 transition-all text-center text-emerald-700"
-                                                value={item.rate || ""}
-                                                onChange={(e) => updateNewItem(item.id, "rate", Number(e.target.value))}
+                                                value={item.purchasePrice || ""}
+                                                onChange={(e) => updateNewItem(item.id, "purchasePrice", Number(e.target.value))}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">

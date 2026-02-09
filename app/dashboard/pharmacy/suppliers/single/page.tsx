@@ -18,9 +18,20 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import useSWR from "swr";
 import api from "@/lib/axios";
+import { addDays } from "date-fns";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data.data);
 
@@ -35,13 +46,13 @@ const SingleSupplierPage: React.FC = () => {
     const orders = ordersData?.data || [];
 
     const totalPurchaseValue = React.useMemo(() => {
-        return orders.reduce((sum, order) => sum + (order.total || 0), 0);
+        return orders.reduce((sum: number, order: SupplierOrder) => sum + (order.total || 0), 0);
     }, [orders]);
 
 
 
     const totalDueAmount = React.useMemo(() => {
-        return orders.reduce((sum, order) => sum + (order.total - order.paidAmount), 0);
+        return orders.reduce((sum: number, order: SupplierOrder) => sum + (order.total - order.paidAmount), 0);
     }, [orders]);
 
     // Filter State
@@ -50,11 +61,22 @@ const SingleSupplierPage: React.FC = () => {
     const [type, setType] = useState("all");
 
     const [selectedOrder, setSelectedOrder] = useState<SupplierOrder | null>(null);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [paymentAmount, setPaymentAmount] = useState<string>("");
+    const [isSubmittingPayment, setIsSubmittingPayment] = useState(false);
 
-    // Update selected order when orders list changes
+    // Update selected order when orders list changes or to keep it in sync with fresh data
     React.useEffect(() => {
-        if (orders.length > 0 && !selectedOrder) {
-            setSelectedOrder(orders[0]);
+        if (orders.length > 0) {
+            if (!selectedOrder) {
+                setSelectedOrder(orders[0]);
+            } else {
+                // Keep the selected order in sync with the latest data from the orders array
+                const updatedOrder = orders.find((o: SupplierOrder) => o._id === selectedOrder._id);
+                if (updatedOrder && JSON.stringify(updatedOrder) !== JSON.stringify(selectedOrder)) {
+                    setSelectedOrder(updatedOrder);
+                }
+            }
         }
     }, [orders, selectedOrder]);
 
@@ -85,7 +107,59 @@ const SingleSupplierPage: React.FC = () => {
         }
 
         return result;
-    }, [orders, type, date]);
+    }, [orders, type, date, supplier?.paymentTerms]);
+
+    const sortedFilteredOrders = React.useMemo(() => {
+        return [...filteredOrders].sort((a, b) => {
+            const isDueA = a.paymentStatus !== "Paid";
+            const isDueB = b.paymentStatus !== "Paid";
+
+            // 1. Prioritize Due orders over Paid orders
+            if (isDueA && !isDueB) return -1;
+            if (!isDueA && isDueB) return 1;
+
+            if (isDueA && isDueB) {
+                // 2. Both are due: Sort by nearest Due Date first (Ascending)
+                const dueDateA = addDays(new Date(a.invoiceDate), supplier?.paymentTerms || 0).getTime();
+                const dueDateB = addDays(new Date(b.invoiceDate), supplier?.paymentTerms || 0).getTime();
+                return dueDateA - dueDateB;
+            } else {
+                // 3. Both are paid: Sort by Invoice Date (Descending - newest first)
+                return new Date(b.invoiceDate).getTime() - new Date(a.invoiceDate).getTime();
+            }
+        });
+    }, [filteredOrders, supplier?.paymentTerms]);
+
+    const handlePaymentSubmit = async () => {
+        if (!selectedOrder) return;
+
+        const amount = Number(paymentAmount);
+        const due = selectedOrder.total - selectedOrder.paidAmount;
+
+        if (isNaN(amount) || amount <= 0) {
+            toast.error("Please enter a valid amount");
+            return;
+        }
+
+        if (amount > due) {
+            toast.error(`Payment amount (₹${amount}) cannot exceed due amount (₹${due.toFixed(2)})`);
+            return;
+        }
+
+        setIsSubmittingPayment(true);
+        try {
+            await api.patch(`/purchase_entry/add_payment/${selectedOrder._id}`, { paidAmount: amount });
+            toast.success("Payment successful");
+            setIsPaymentModalOpen(false);
+            setPaymentAmount("");
+            mutateOrders();
+        } catch (error: any) {
+            console.error("Payment error:", error);
+            toast.error(error.response?.data?.message || "Failed to process payment");
+        } finally {
+            setIsSubmittingPayment(false);
+        }
+    };
 
     if (isSupplierLoading || isOrdersLoading) {
         return (
@@ -305,8 +379,12 @@ const SingleSupplierPage: React.FC = () => {
                             </div>
 
                             <div className="flex-1 overflow-y-auto divide-y font-sans">
-                                {filteredOrders.map((order) => {
+                                {sortedFilteredOrders.map((order) => {
                                     const active = selectedOrder?._id === order._id;
+                                    const isDue = order.paymentStatus !== "Paid";
+                                    const dueDate = addDays(new Date(order.invoiceDate), supplier?.paymentTerms || 0);
+                                    const isOverdue = isDue && new Date() > dueDate;
+
                                     return (
                                         <button
                                             key={order._id}
@@ -344,10 +422,30 @@ const SingleSupplierPage: React.FC = () => {
                                                         {order.paymentStatus}
                                                     </Badge>
 
-                                                    {order.paymentStatus !== "Paid" && (
-                                                        <Badge variant="outline" className="rounded-full px-3 bg-red-50 text-red-600 border-red-100 animate-pulse-subtle">
-                                                            Due: {formatINR(order.total - order.paidAmount)}
-                                                        </Badge>
+
+                                                    {isDue && (
+                                                        <>
+                                                            <Badge
+                                                                variant="outline"
+                                                                className={cn(
+                                                                    "rounded-full px-3",
+                                                                    isOverdue
+                                                                        ? "bg-rose-50 text-rose-600 border-rose-100 animate-pulse-subtle"
+                                                                        : "bg-amber-50 text-amber-600 border-amber-100"
+                                                                )}
+                                                            >
+                                                                {isOverdue ? "Overdue: " : "Due: "}{fDate(dueDate)}
+                                                            </Badge>
+                                                            <Badge
+                                                                variant="outline"
+                                                                className={cn(
+                                                                    "rounded-full px-3",
+                                                                    !active ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-rose-50 text-rose-600 border-rose-100"
+                                                                )}
+                                                            >
+                                                                {formatINR(order.total - order.paidAmount)}
+                                                            </Badge>
+                                                        </>
                                                     )}
                                                 </div>
                                             </div>
@@ -368,12 +466,12 @@ const SingleSupplierPage: React.FC = () => {
                                 <div className="text-sm font-semibold text-slate-900 font-sans">
                                     {selectedOrder ? `Order Details — ${selectedOrder.invoiceNumber}` : "Select an Order"}
                                 </div>
-                                {selectedOrder && (
+                                {selectedOrder && selectedOrder.paymentStatus !== "Paid" && (
                                     <div className="text-[11px] text-slate-500 flex flex-col items-end font-sans">
                                         <span className="font-sans">
-                                            Date:{" "}
+                                            Due Date:{" "}
                                             <span className="font-medium text-slate-700 font-sans">
-                                                {fDate(selectedOrder.invoiceDate)}
+                                                {selectedOrder && fDate(addDays(new Date(selectedOrder.invoiceDate), supplier.paymentTerms || 0))}
                                             </span>
                                         </span>
                                     </div>
@@ -438,7 +536,7 @@ const SingleSupplierPage: React.FC = () => {
                                                         {item.free || 0}
                                                     </td>
                                                     <td className="p-3 text-right text-slate-600">
-                                                        {formatINR(item.unitPrice)}
+                                                        {formatINR(item.purchasePrice)}
                                                     </td>
                                                     <td className="p-3 text-right text-slate-600">
                                                         {formatINR(item.gst)}
@@ -447,7 +545,7 @@ const SingleSupplierPage: React.FC = () => {
                                                         -{formatINR(item.discount)}
                                                     </td>
                                                     <td className="p-3 text-right font-semibold text-slate-900 pr-6">
-                                                        {formatINR(item.purchasePrice)}
+                                                        {formatINR(item.purchasePrice * item.quantity)}
                                                     </td>
                                                 </tr>
                                             ))}
@@ -473,6 +571,20 @@ const SingleSupplierPage: React.FC = () => {
 
                                             <div className="text-slate-900 text-right font-bold text-base">Grand Total:</div>
                                             <div className="text-indigo-600 text-right font-bold text-base">{formatINR(selectedOrder.total)}</div>
+
+                                            {selectedOrder.paymentStatus !== "Paid" && (
+                                                <div className="col-span-2 pt-4">
+                                                    <Button
+                                                        onClick={() => {
+                                                            setPaymentAmount((selectedOrder.total - selectedOrder.paidAmount).toString());
+                                                            setIsPaymentModalOpen(true);
+                                                        }}
+                                                        className="w-full bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-200/50 h-11 font-bold text-sm rounded-xl transition-all hover:scale-[1.01]"
+                                                    >
+                                                        Pay Due Amount
+                                                    </Button>
+                                                </div>
+                                            )}
                                         </div>
 
                                         {selectedOrder.description && (
@@ -488,6 +600,72 @@ const SingleSupplierPage: React.FC = () => {
                     </section>
                 </main>
             </div>
+
+            <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
+                <DialogContent className="sm:max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden font-sans">
+                    <div className="bg-linear-to-r from-indigo-600 to-purple-600 p-6 text-white">
+                        <DialogTitle className="text-xl font-bold flex items-center gap-2">
+                            Process Payment
+                        </DialogTitle>
+                        <p className="text-indigo-100/80 text-xs mt-1 font-medium tracking-wide">
+                            {selectedOrder?.invoiceNumber} — {supplier.name}
+                        </p>
+                    </div>
+
+                    <div className="p-8 space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="p-4 rounded-xl bg-slate-50 border border-slate-100">
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Bill</p>
+                                <p className="text-lg font-bold text-slate-900">{formatINR(selectedOrder?.total || 0)}</p>
+                            </div>
+                            <div className="p-4 rounded-xl bg-orange-50 border border-orange-100">
+                                <p className="text-[10px] font-black text-orange-400 uppercase tracking-widest mb-1">Remaining Due</p>
+                                <p className="text-lg font-bold text-orange-700">{formatINR((selectedOrder?.total || 0) - (selectedOrder?.paidAmount || 0))}</p>
+                            </div>
+                        </div>
+
+                        <div className="space-y-3">
+                            <Label className="text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Payment Amount</Label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-lg">₹</span>
+                                <Input
+                                    type="number"
+                                    placeholder="0.00"
+                                    className="h-16 text-2xl font-black bg-slate-50 border-2 border-slate-100 rounded-2xl pl-10 focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-500/50 transition-all text-indigo-700 placeholder:text-slate-300"
+                                    value={paymentAmount}
+                                    onChange={(e) => setPaymentAmount(e.target.value)}
+                                    autoFocus
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="p-6 bg-slate-50/50 border-t flex gap-3">
+                        <Button
+                            variant="outline"
+                            className="flex-1 h-12 rounded-xl border-slate-200 font-bold text-slate-600"
+                            onClick={() => setIsPaymentModalOpen(false)}
+                            disabled={isSubmittingPayment}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            className="flex-2 h-12 rounded-xl bg-linear-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white shadow-lg shadow-indigo-200 font-bold"
+                            onClick={handlePaymentSubmit}
+                            disabled={isSubmittingPayment}
+                        >
+                            {isSubmittingPayment ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Processing...
+                                </>
+                            ) : (
+                                "Confirm Payment"
+                            )}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </AppShell>
     );
 };

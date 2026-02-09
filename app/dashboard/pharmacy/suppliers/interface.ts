@@ -22,6 +22,7 @@ export interface Supplier {
     status: "Active" | "Inactive";
     totalPurchaseCount?: number; // UI specific / Calculated
     totalPurchaseValue?: number; // UI specific / Calculated
+    totalDue?: number; // UI specific / Calculated
     createdAt: Date | string;
 }
 
@@ -40,7 +41,6 @@ export interface SupplierOrderItem {
     quantity: number;
     pack: number;
     free: number;
-    mrp?: number;
     unitPrice: number;
     purchasePrice: number;
     gst: number;
