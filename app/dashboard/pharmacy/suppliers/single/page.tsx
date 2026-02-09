@@ -38,7 +38,11 @@ const SingleSupplierPage: React.FC = () => {
         return orders.reduce((sum, order) => sum + (order.total || 0), 0);
     }, [orders]);
 
-    const totalPurchaseCount = orders.length;
+
+
+    const totalDueAmount = React.useMemo(() => {
+        return orders.reduce((sum, order) => sum + (order.total - order.paidAmount), 0);
+    }, [orders]);
 
     // Filter State
     const [date, setDate] = React.useState<DateRange | undefined>(undefined);
@@ -57,7 +61,8 @@ const SingleSupplierPage: React.FC = () => {
     const tabs = [
         { key: "all", label: "All" },
         { key: "Pending", label: "Pending" },
-        { key: "Completed", label: "Completed" },
+        { key: "Partially Paid", label: "Partially Paid" },
+        { key: "Paid", label: "Paid" },
     ];
 
     const filteredOrders = React.useMemo(() => {
@@ -148,12 +153,12 @@ const SingleSupplierPage: React.FC = () => {
                                 {formatINR(totalPurchaseValue)}
                             </div>
                         </div>
-                        <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                            <div className="text-xs font-medium text-sky-700 uppercase tracking-wide font-sans">
-                                Total Purchase Count
+                        <div className="border rounded-2xl p-4 bg-rose-50/50 border-rose-100 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                            <div className="text-xs font-medium text-rose-700 uppercase tracking-wide font-sans">
+                                Total Due Amount
                             </div>
-                            <div className="text-3xl font-semibold text-sky-900 font-sans">
-                                {totalPurchaseCount}
+                            <div className="text-3xl font-semibold text-rose-900 font-sans">
+                                {formatINR(totalDueAmount)}
                             </div>
                         </div>
                         <div className="border rounded-2xl p-4 bg-white flex flex-col gap-1 shadow-sm col-span-2 transition-transform duration-150 hover:-translate-y-[2px]">
@@ -324,17 +329,26 @@ const SingleSupplierPage: React.FC = () => {
                                                 <span className={cn("font-sans", active ? "text-slate-400" : "text-slate-500")}>
                                                     {fDate(order.invoiceDate)}
                                                 </span>
-                                                <div className="flex items-center gap-2 font-sans">
-                                                    <span className={cn("font-sans", active ? "text-slate-400" : "text-slate-500")}>
-                                                        {order.items.length} items
-                                                    </span>
-                                                    <Badge variant={order.paymentStatus === "Completed" ? "default" : "secondary"} className={cn(
-                                                        "text-[10px] h-5 px-1.5 font-normal font-sans",
-                                                        order.paymentStatus === "Completed" ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-emerald-200" :
-                                                            order.paymentStatus === "Pending" ? "bg-amber-100 text-amber-700 hover:bg-amber-100 border-amber-200" : ""
-                                                    )}>
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <Badge
+                                                        className={cn(
+                                                            "rounded-full px-3",
+                                                            order.paymentStatus === "Paid"
+                                                                ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                                                : order.paymentStatus === "Partially Paid"
+                                                                    ? "bg-amber-50 text-amber-700 border-amber-100"
+                                                                    : "bg-rose-50 text-rose-700 border-rose-100"
+                                                        )}
+                                                        variant="outline"
+                                                    >
                                                         {order.paymentStatus}
                                                     </Badge>
+
+                                                    {order.paymentStatus !== "Paid" && (
+                                                        <Badge variant="outline" className="rounded-full px-3 bg-red-50 text-red-600 border-red-100 animate-pulse-subtle">
+                                                            Due: {formatINR(order.total - order.paidAmount)}
+                                                        </Badge>
+                                                    )}
                                                 </div>
                                             </div>
                                         </button>

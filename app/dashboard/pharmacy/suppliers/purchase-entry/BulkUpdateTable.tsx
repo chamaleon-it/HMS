@@ -16,8 +16,11 @@ import {
     Upload,
     Check,
     ChevronsUpDown,
-    Calculator
+    Calculator,
+    Calendar as CalendarIcon
 } from "lucide-react";
+import { format, parse } from "date-fns";
+import { Calendar } from "@/components/ui/calendar";
 import React, { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
@@ -149,6 +152,47 @@ function useDebounced<T>(value: T, delay = 250) {
     return debounced;
 }
 
+const DatePicker = ({
+    value,
+    onChange,
+    placeholder = "Pick a date",
+    className
+}: {
+    value: string;
+    onChange: (date: string) => void;
+    placeholder?: string;
+    className?: string;
+}) => {
+    const date = value ? new Date(value) : undefined;
+
+    return (
+        <Popover>
+            <PopoverTrigger asChild>
+                <Button
+                    variant={"outline"}
+                    className={cn(
+                        "w-full justify-start text-left font-bold h-11 bg-slate-50/50 border-slate-200 rounded-lg hover:bg-slate-100/50 transition-all",
+                        !value && "text-slate-400 font-medium",
+                        className
+                    )}
+                >
+                    <CalendarIcon className="mr-2 h-4 w-4 text-indigo-500" />
+                    {value ? format(new Date(value), "PPP") : <span>{placeholder}</span>}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={(d) => d && onChange(format(d, "yyyy-MM-dd"))}
+                    initialFocus
+                    className="rounded-xl border-none shadow-none"
+                />
+            </PopoverContent>
+        </Popover>
+    );
+};
+
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Supplier } from "../interface";
@@ -201,6 +245,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
         invoiceNumber: "",
         invoiceDate: "",
         transportCharges: "0",
+        paidAmount: "0",
         description: ""
     });
 
@@ -304,6 +349,12 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             return;
         }
 
+        const paid = Number(billDetails.paidAmount) || 0;
+        if (paid > totals.total) {
+            toast.error(`Paid amount (₹${paid}) cannot exceed net payable (₹${totals.total.toFixed(2)})`);
+            return;
+        }
+
         setIsSaving(true);
         try {
             const payload = {
@@ -311,6 +362,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 invoiceNumber: billDetails.invoiceNumber,
                 invoiceDate: billDetails.invoiceDate,
                 transportCharge: Number(billDetails.transportCharges) || 0,
+                paidAmount: Number(billDetails.paidAmount) || 0,
                 description: billDetails.description,
                 items: newItems.map(item => ({
                     item: item._id,
@@ -340,6 +392,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 invoiceNumber: "",
                 invoiceDate: "",
                 transportCharges: "0",
+                paidAmount: "0",
                 description: ""
             });
             setSelectedSupplierId("");
@@ -406,11 +459,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
 
                     <div className="space-y-2">
                         <label className="text-[11px] font-bold text-slate-400 uppercase tracking-widest font-sans">Invoice Date*</label>
-                        <Input
-                            type="date"
-                            className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all font-bold font-sans"
+                        <DatePicker
                             value={billDetails.invoiceDate}
-                            onChange={(e) => handleBillDetailChange("invoiceDate", e.target.value)}
+                            onChange={(date) => handleBillDetailChange("invoiceDate", date)}
                         />
                     </div>
 
@@ -502,7 +553,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                             <TableRow className="bg-[#334155] hover:bg-[#334155] border-none">
                                 <TableHead className="w-16 text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider border-r border-slate-600/30">SL NO</TableHead>
                                 <TableHead className="min-w-[150px] text-[11px] font-black uppercase text-slate-200 py-4 tracking-wider">PRODUCT NAME</TableHead>
-
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 tracking-wider">BATCH</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">QTY</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">PACK</TableHead>
@@ -512,7 +562,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">SGST(%)</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">CGST(%)</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">DIS(%)</TableHead>
-                                <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">DIS AMT</TableHead>
+                                {/* <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">DIS AMT</TableHead> */}
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA (FREE)</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA AMT</TableHead>
                                 <TableHead className="text-[11px] font-black uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">TOTAL</TableHead>
@@ -554,9 +604,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         </TableCell>
                                         <TableCell className="p-2">
                                             <Input
+                                                type="number"
                                                 className="h-11 text-sm font-bold border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center"
                                                 value={item.pack}
-                                                onChange={(e) => updateNewItem(item.id, "pack", e.target.value)}
+                                                onChange={(e) => updateNewItem(item.id, "pack", Number(e.target.value))}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
@@ -568,11 +619,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
-                                            <Input
-                                                type="date"
-                                                className="h-11 text-[11px] font-bold border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all px-2"
+                                            <DatePicker
                                                 value={item.expiry}
-                                                onChange={(e) => updateNewItem(item.id, "expiry", e.target.value)}
+                                                onChange={(date) => updateNewItem(item.id, "expiry", date)}
+                                                className="bg-white text-[11px] h-11 px-2 border-slate-200 focus:border-indigo-400"
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
@@ -621,11 +671,11 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onChange={(e) => updateNewItem(item.id, "dis_p", Number(e.target.value))}
                                             />
                                         </TableCell>
-                                        <TableCell className="p-2 text-center">
+                                        {/* <TableCell className="p-2 text-center">
                                             <div className="text-xs font-black text-slate-700 bg-slate-50 h-11 flex items-center justify-center rounded-lg border border-slate-100 shadow-sm border-dashed">
                                                 ₹{(item.dis || 0).toFixed(2)}
                                             </div>
-                                        </TableCell>
+                                        </TableCell> */}
                                         <TableCell className="p-2 text-center">
                                             <Input
                                                 type="number"
@@ -712,6 +762,21 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     />
                 </div>
                 <div className="flex flex-col justify-end h-full gap-4 mt-8 lg:mt-0">
+
+                    <div className="space-y-2 mb-2">
+                        <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Paid Amount</label>
+                        <div className="relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">₹</span>
+                            <Input
+                                type="number"
+                                placeholder="0.00"
+                                className="h-14 bg-indigo-50/30 border-2 border-indigo-100/50 rounded-2xl pl-8 focus:ring-4 focus:ring-indigo-500/10 transition-all font-black text-lg text-indigo-700 placeholder:text-indigo-200"
+                                value={billDetails.paidAmount}
+                                onChange={(e) => handleBillDetailChange("paidAmount", e.target.value)}
+                            />
+                        </div>
+                    </div>
+
                     <Button
                         onClick={handleSaveChanges}
                         disabled={isSaving}

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { formatINR } from "@/lib/fNumber";
 import { useRouter } from "next/navigation";
-import { Plus, RefreshCw } from "lucide-react";
+import { Plus, RefreshCw, Users, ShoppingBag, BarChart3, CreditCard } from "lucide-react";
 import Drawer from "@/components/ui/drawer";
 import { AddSupplier } from "./AddSupplier";
 import { Supplier } from "./interface";
@@ -28,6 +28,13 @@ const SuppliersPage: React.FC = () => {
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
     const { data: suppliers = [], error, isLoading, mutate } = useSWR<Supplier[]>("/suppliers", fetcher);
+
+    const stats = {
+        totalSuppliers: suppliers.length,
+        totalPurchase: suppliers.reduce((acc, s) => acc + (s.totalPurchaseValue || 0), 0),
+        totalPurchaseCount: suppliers.reduce((acc, s) => acc + (s.totalPurchaseCount || 0), 0),
+        totalDue: suppliers.reduce((acc, s) => acc + (s.balance || 0), 0),
+    };
 
     if (error) {
         return (
@@ -62,6 +69,51 @@ const SuppliersPage: React.FC = () => {
                         </Button>
                     </PharmacyHeader>
 
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 shadow-sm transition-all hover:scale-[1.02]">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <Users className="w-4 h-4 text-blue-600/70" />
+                                    <p className="text-[11px] font-bold text-blue-800/70 uppercase tracking-widest">Total Suppliers</p>
+                                </div>
+                                <h3 className="text-3xl font-bold text-blue-900 leading-none">{stats.totalSuppliers}</h3>
+                            </div>
+                        </div>
+
+                        <div className="bg-emerald-50/50 p-6 rounded-2xl border border-emerald-100 shadow-sm transition-all hover:scale-[1.02]">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <ShoppingBag className="w-4 h-4 text-emerald-600/70" />
+                                    <p className="text-[11px] font-bold text-emerald-800/70 uppercase tracking-widest">Total Purchase</p>
+                                </div>
+                                <h3 className="text-3xl font-bold text-emerald-900 leading-none">{formatINR(stats.totalPurchase)}</h3>
+                            </div>
+                        </div>
+
+                        <div className="bg-sky-50/50 p-6 rounded-2xl border border-sky-100 shadow-sm transition-all hover:scale-[1.02]">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <BarChart3 className="w-4 h-4 text-sky-600/70" />
+                                    <p className="text-[11px] font-bold text-sky-800/70 uppercase tracking-widest">Purchase Count</p>
+                                </div>
+                                <h3 className="text-3xl font-bold text-sky-900 leading-none">{stats.totalPurchaseCount}</h3>
+                            </div>
+                        </div>
+
+                        <div className="bg-rose-50/50 p-6 rounded-2xl border border-rose-100 shadow-sm transition-all hover:scale-[1.02]">
+                            <div className="flex flex-col gap-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <CreditCard className="w-4 h-4 text-rose-600/70" />
+                                    <p className="text-[11px] font-bold text-rose-800/70 uppercase tracking-widest">Total Due</p>
+                                </div>
+                                <h3 className="text-3xl font-bold text-rose-900 leading-none">{formatINR(stats.totalDue)}</h3>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+
                     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
                         <Table className="min-w-[1000px]">
                             <TableHeader className="bg-slate-700 hover:bg-slate-700">
@@ -76,6 +128,10 @@ const SuppliersPage: React.FC = () => {
                                     </TableHead>
                                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
                                         Purchase Value
+                                    </TableHead>
+
+                                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
+                                        Total Due
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -120,13 +176,16 @@ const SuppliersPage: React.FC = () => {
                                             <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
                                                 {formatINR(supplier.totalPurchaseValue || 0)}
                                             </TableCell>
+                                            <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                                                {formatINR(supplier.balance || 0)}
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 )}
                                 {!isLoading && suppliers.length === 0 && (
                                     <TableRow>
                                         <TableCell
-                                            colSpan={7}
+                                            colSpan={8}
                                             className="text-center text-slate-500 py-6"
                                         >
                                             No suppliers found.

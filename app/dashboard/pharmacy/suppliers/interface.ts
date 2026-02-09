@@ -56,6 +56,7 @@ export interface SupplierOrder {
     tscEnabled: boolean;
     subTotal: number;
     total: number;
+    paidAmount: number;
     discount: number;
     gst: number;
     transportCharge: number;
