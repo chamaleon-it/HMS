@@ -2,14 +2,14 @@
 
 import React, { useState } from "react";
 
-import { Plus, CalendarDays } from "lucide-react";
+import { Plus, CalendarDays, Clock, FlaskConical, Bed, AlertTriangle, CheckCircle2 } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import Calendar from "./Calender";
 import List from "./List";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
 import Statistics from "./Statistics";
-import Filter from "./Filter";
+import Filter, { STATUSES } from "./Filter";
 import Drawer from "@/components/ui/drawer";
 import useAppointmentList from "./data/useAppointmentList";
 import PharmacyHeader from "../components/PharmacyHeader";
@@ -24,7 +24,8 @@ export default function AppointmentPage() {
   const { mutate } = useAppointmentList({ query, activeStatuses, date });
   const [tab, setTab] = useState<"list" | "calendar">("list");
 
-
+  // We consider "All" active if activeStatuses is empty
+  const currentStatus = activeStatuses.length === 0 ? "All" : activeStatuses[0];
 
   return (
     <AppShell>
@@ -45,6 +46,8 @@ export default function AppointmentPage() {
           </div>
         </PharmacyHeader>
 
+        <Statistics />
+
         {/* Filters Row */}
         <Filter
           activeStatuses={activeStatuses}
@@ -55,52 +58,82 @@ export default function AppointmentPage() {
           setDate={setDate}
         />
 
-        {/* Stats Row */}
-        <Statistics />
-
-        {/* Tabs: List / Calendar */}
-        <div className="mt-6">
+        {/* Tabs and Status Filter Row */}
+        <div className="mt-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <Tabs
             value={tab}
             onValueChange={(val) => setTab(val as "list" | "calendar")}
-            className="flex-1 overflow-hidden"
+            className="flex-1 overflow-visible"
           >
-            <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
-              {[
-                { key: "list", label: "List", icon: CalendarDays },
-                { key: "calendar", label: "Calendar", icon: CalendarDays },
-              ].map(({ key, label, icon: Icon }) => {
-                const active = tab === key;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setTab(key as "list" | "calendar")}
-                    className={
-                      "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
-                      (active ? "text-white" : "text-gray-700")
-                    }
-                    type="button"
-                  >
-                    {active && (
-                      <motion.span
-                        layoutId="appointment-tab-indicator"
-                        className="absolute inset-0 rounded-full"
-                        style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
-                        transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                      />
-                    )}
-                    <span className="relative z-10 flex items-center gap-2">
-                      <Icon size={16} /> {label}
-                    </span>
-                  </button>
-                );
-              })}
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between w-full gap-4">
+              {/* Tab Switcher (List/Calendar) */}
+              <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit shadow-sm">
+                {[
+                  { key: "list", label: "List", icon: CalendarDays },
+                  { key: "calendar", label: "Calendar", icon: CalendarDays },
+                ].map(({ key, label, icon: Icon }) => {
+                  const active = tab === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => setTab(key as "list" | "calendar")}
+                      className={
+                        "relative flex items-center gap-2 rounded-full px-5 py-2.5 transition will-change-transform cursor-pointer font-medium " +
+                        (active ? "text-white" : "text-gray-600 hover:text-gray-900")
+                      }
+                      type="button"
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="appointment-tab-indicator"
+                          className="absolute inset-0 rounded-full shadow-md"
+                          style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                          transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center gap-2">
+                        <Icon size={16} /> {label}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Status Filter Toggle */}
+              {tab === "list" && <div className="relative inline-flex items-center gap-1 bg-white border border-gray-200 p-1 rounded-full w-fit shadow-sm print:hidden">
+                {STATUSES.map((s) => {
+                  const active = currentStatus === s;
+                  return (
+                    <button
+                      key={s}
+                      onClick={() =>
+                        setActiveStatuses(s === "All" ? [] : [s])
+                      }
+                      className={
+                        "relative px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer whitespace-nowrap " +
+                        (active ? "text-white" : "text-gray-500 hover:text-gray-800")
+                      }
+                      type="button"
+                    >
+                      {active && (
+                        <motion.span
+                          layoutId="status-filter-indicator"
+                          className="absolute inset-0 rounded-full shadow-md"
+                          style={{ background: "linear-gradient(90deg, #4f46e5, #d946ef)" }}
+                          transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                        />
+                      )}
+                      <span className="relative z-10">{s}</span>
+                    </button>
+                  );
+                })}
+              </div>}
             </div>
 
-            <TabsContent value="list">
+            <TabsContent value="list" className="">
               <List query={query} activeStatuses={activeStatuses} date={date} />
             </TabsContent>
-            <TabsContent value="calendar">
+            <TabsContent value="calendar" className="">
               <Calendar date={date} />
             </TabsContent>
           </Tabs>

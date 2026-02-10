@@ -420,7 +420,7 @@ function NavItem({
         <Link
           href={link || "/"}
           className={
-            "group w-full flex items-center gap-3 rounded-2xl px-2 py-2 transition-all border " +
+            "group w-full flex items-center gap-3 rounded-2xl px-3 py-3.5 transition-all border " +
             (isParentActive
               ? "border-transparent bg-linear-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")

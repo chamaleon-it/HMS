@@ -41,7 +41,7 @@ export default function PurchaseEntryPage() {
                             subtitle="Record new purchases and update inventory"
                         >
                             <Button
-                                className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md font-medium"
+                                className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md font-semibold"
                                 onClick={() => setIsAddDrawerOpen(true)}
                             >
                                 <Plus className="w-4 h-4 mr-2" />
@@ -50,7 +50,8 @@ export default function PurchaseEntryPage() {
                         </PharmacyHeader>
 
                         {isLoading ? (
-                            <TableSkeleton rows={10} columns={9} />
+                            <></>
+                            // <TableSkeleton rows={10} columns={9} />
                         ) : (
                             <BulkUpdateTable
                                 items={[]}
