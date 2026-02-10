@@ -13,13 +13,11 @@ import {
 import {
     Save,
     Trash2,
-    Upload,
     Check,
     ChevronsUpDown,
-    Calculator,
     Calendar as CalendarIcon
 } from "lucide-react";
-import { format, parse } from "date-fns";
+import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import React, { useState, useEffect, useMemo } from "react";
 import toast from "react-hot-toast";
@@ -158,143 +156,7 @@ const months = [
 ];
 const years = Array.from({ length: 15 }, (_, i) => new Date().getFullYear() + i);
 
-const DatePicker = ({
-    value,
-    onChange,
-    placeholder = "Pick a date",
-    className,
-    mode = "date"
-}: {
-    value: string;
-    onChange: (date: string) => void;
-    placeholder?: string;
-    className?: string;
-    mode?: "date" | "year";
-}) => {
-    const [open, setOpen] = useState(false);
-    const date = value ? new Date(value) : undefined;
 
-    const isPast = (monthIdx: number, year: number) => {
-        const today = new Date();
-        const currentYear = today.getFullYear();
-        const currentMonth = today.getMonth();
-        if (year < currentYear) return true;
-        if (year === currentYear && monthIdx < currentMonth) return true;
-        return false;
-    };
-
-    return (
-        <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-                <Button
-                    variant={"outline"}
-                    className={cn(
-                        "w-full justify-start text-left  h-11 bg-slate-50/50 border-slate-200 rounded-lg hover:bg-slate-100/50 transition-all",
-                        !value && "text-slate-400 font-medium",
-                        className
-                    )}
-                >
-                    <CalendarIcon className="mr-2 h-4 w-4 text-indigo-500" />
-                    {value ? (
-                        mode === "year"
-                            ? format(new Date(value), "MM / yyyy")
-                            : format(new Date(value), "PPP")
-                    ) : (
-                        <span>{placeholder}</span>
-                    )}
-                </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-                {mode === "date" ? (
-                    <Calendar
-                        mode="single"
-                        selected={date}
-                        onSelect={(d) => {
-                            if (d) {
-                                onChange(format(d, "yyyy-MM-dd"));
-                                setOpen(false);
-                            }
-                        }}
-                        initialFocus
-                        className="rounded-xl border-none shadow-none"
-                    />
-                ) : (
-                    <div className="w-64 p-3 bg-white rounded-xl shadow-xl border border-slate-100">
-                        <div className="space-y-3">
-                            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest px-1">Select Expiry (MM/YYYY)</div>
-
-                            <div className="grid grid-cols-3 gap-1">
-                                {months.map((m: string, idx: number) => {
-                                    const selectedYear = date ? date.getFullYear() : new Date().getFullYear();
-                                    const disabled = isPast(idx, selectedYear);
-                                    const isSelected = date && date.getMonth() === idx && date.getFullYear() === selectedYear;
-
-                                    return (
-                                        <button
-                                            key={m}
-                                            type="button"
-                                            disabled={disabled}
-                                            className={cn(
-                                                "px-2 py-2 text-xs rounded-lg transition-all ",
-                                                isSelected
-                                                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
-                                                    : disabled
-                                                        ? "text-slate-200 cursor-not-allowed"
-                                                        : "hover:bg-slate-50 text-slate-600 hover:text-indigo-600"
-                                            )}
-                                            onClick={() => {
-                                                const currentYear = date ? date.getFullYear() : new Date().getFullYear();
-                                                const newDate = new Date(currentYear, idx, 1);
-                                                onChange(format(newDate, "yyyy-MM-dd"));
-                                            }}
-                                        >
-                                            {m}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-
-                            <div className="border-t border-slate-100 pt-3">
-                                <Select
-                                    value={date ? String(date.getFullYear()) : String(new Date().getFullYear())}
-                                    onValueChange={(y) => {
-                                        const currentMonth = date ? date.getMonth() : new Date().getMonth();
-                                        // If selecting a year that makes current month past, reset to current month or first valid month
-                                        let targetMonth = currentMonth;
-                                        if (isPast(currentMonth, Number(y))) {
-                                            targetMonth = new Date().getMonth();
-                                        }
-                                        const newDate = new Date(Number(y), targetMonth, 1);
-                                        onChange(format(newDate, "yyyy-MM-dd"));
-                                    }}
-                                >
-                                    <SelectTrigger className="w-full h-10 text-xs  bg-slate-50/50 border-slate-200 rounded-lg">
-                                        <SelectValue placeholder="Year" />
-                                    </SelectTrigger>
-                                    <SelectContent className="rounded-xl border-slate-200">
-                                        {years.map((y: number) => (
-                                            <SelectItem key={y} value={String(y)} className="text-xs  rounded-lg focus:bg-indigo-50">
-                                                {y}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <Button
-                                type="button"
-                                className="w-full h-10 text-[10px] font-semibold uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-lg shadow-indigo-100 transition-all"
-                                onClick={() => setOpen(false)}
-                            >
-                                Confirm Selection
-                            </Button>
-                        </div>
-                    </div>
-                )}
-            </PopoverContent>
-        </Popover>
-    );
-};
 
 // Typable Date Input Component for faster keyboard entry
 const TypableDateInput = ({
@@ -363,7 +225,34 @@ const TypableDateInput = ({
         }
     };
 
-    const date = value ? new Date(value) : undefined;
+    // Parse displayValue to get the typed date, fall back to value or undefined
+    const getDisplayDate = () => {
+        // First try to parse what the user is typing (DD/MM/YYYY)
+        if (displayValue) {
+            const parts = displayValue.split('/');
+            if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10);
+                const year = parseInt(parts[2], 10);
+
+                // If day, month and year are valid, use them
+                if (!isNaN(day) && !isNaN(month) && !isNaN(year) &&
+                    day >= 1 && day <= 31 && month >= 1 && month <= 12 &&
+                    year >= 1900 && year <= 2100) {
+                    return new Date(year, month - 1, day);
+                }
+            }
+        }
+
+        // Fall back to the value prop
+        if (value) {
+            return new Date(value);
+        }
+
+        return undefined;
+    };
+
+    const date = getDisplayDate();
 
     return (
         <div className="relative flex items-center gap-1">
@@ -394,6 +283,7 @@ const TypableDateInput = ({
                     <Calendar
                         mode="single"
                         selected={date}
+                        defaultMonth={date}
                         onSelect={(d) => {
                             if (d) {
                                 onChange(format(d, "yyyy-MM-dd"));
@@ -471,7 +361,31 @@ const TypableExpiryInput = ({
         }
     };
 
-    const date = value ? new Date(value) : undefined;
+    // Parse displayValue to get the typed month/year, fall back to value or current date
+    const getDisplayDate = () => {
+        // First try to parse what the user is typing
+        if (displayValue) {
+            const parts = displayValue.split('/');
+            if (parts.length === 2 && parts[0] && parts[1]) {
+                const month = parseInt(parts[0], 10);
+                const year = parseInt(parts[1], 10);
+
+                // If month and year are valid, use them
+                if (!isNaN(month) && !isNaN(year) && month >= 1 && month <= 12 && year >= 1900 && year <= 2100) {
+                    return new Date(year, month - 1, 1);
+                }
+            }
+        }
+
+        // Fall back to the value prop or current date
+        if (value) {
+            return new Date(value);
+        }
+
+        return new Date();
+    };
+
+    const date = getDisplayDate();
 
     const isPast = (monthIdx: number, year: number) => {
         const today = new Date();
