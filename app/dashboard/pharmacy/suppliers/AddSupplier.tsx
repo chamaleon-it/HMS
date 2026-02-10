@@ -94,20 +94,20 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
         <div className="p-0 font-sans">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                    <Label htmlFor="name">Seller Name *</Label>
+                    <Label htmlFor="name" className="font-semibold">Seller Name *</Label>
                     <Input id="name" placeholder="Enter seller name" {...register("name")} />
                     {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="phone">Phone Number *</Label>
+                        <Label htmlFor="phone" className="font-semibold">Phone Number *</Label>
                         <Input id="phone" placeholder="+91 9999999999" {...register("phone")} />
                         {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="contactPerson">Contact Person *</Label>
+                        <Label htmlFor="contactPerson" className="font-semibold">Contact Person *</Label>
                         <Input id="contactPerson" placeholder="Name of contact person" {...register("contactPerson")} />
                         {errors.contactPerson && <p className="text-red-500 text-xs">{errors.contactPerson.message}</p>}
                     </div>
@@ -115,12 +115,12 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="designation">Designation</Label>
+                        <Label htmlFor="designation" className="font-semibold">Designation</Label>
                         <Input id="designation" placeholder="e.g. Manager" {...register("designation")} />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="email">Email Address *</Label>
+                        <Label htmlFor="email" className="font-semibold">Email Address *</Label>
                         <Input id="email" placeholder="email@example.com" {...register("email")} />
                         {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
                     </div>
@@ -128,74 +128,74 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="line1">Address Line 1 *</Label>
+                        <Label htmlFor="line1" className="font-semibold">Address Line 1 *</Label>
                         <Input id="line1" placeholder="Building, Street" {...register("line1")} />
                         {errors.line1 && <p className="text-red-500 text-xs">{errors.line1.message}</p>}
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="line2">Address Line 2</Label>
+                        <Label htmlFor="line2" className="font-semibold">Address Line 2</Label>
                         <Input id="line2" placeholder="Area, colony" {...register("line2")} />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="city">City</Label>
+                        <Label htmlFor="city" className="font-semibold">City</Label>
                         <Input id="city" placeholder="City" {...register("city")} />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="state">State</Label>
+                        <Label htmlFor="state" className="font-semibold">State</Label>
                         <Input id="state" placeholder="State" {...register("state")} />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="gstin">GSTIN</Label>
+                        <Label htmlFor="gstin" className="font-semibold">GSTIN</Label>
                         <Input id="gstin" placeholder="GSTIN Number" {...register("gstin")} />
                         {errors.gstin && <p className="text-red-500 text-xs">{errors.gstin.message}</p>}
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="msme">MSME No.</Label>
+                        <Label htmlFor="msme" className="font-semibold">MSME No.</Label>
                         <Input id="msme" placeholder="MSME Number" {...register("msme")} />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="pan">PAN Number</Label>
+                        <Label htmlFor="pan" className="font-semibold">PAN Number</Label>
                         <Input id="pan" placeholder="PAN Number" {...register("pan")} />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="dlNo">DL No.</Label>
+                        <Label htmlFor="dlNo" className="font-semibold">DL No.</Label>
                         <Input id="dlNo" placeholder="Drug Licence Number" {...register("dlNo")} />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="dlExpiryDate">DL Expiry Date</Label>
+                        <Label htmlFor="dlExpiryDate" className="font-semibold">DL Expiry Date</Label>
                         <Input id="dlExpiryDate" type="date" {...register("dlExpiryDate")} />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="balance">Opening Balance</Label>
+                        <Label htmlFor="balance" className="font-semibold">Opening Balance</Label>
                         <Input id="balance" type="number" placeholder="0.00" {...register("balance")} />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="paymentTerms">Payment Terms (In Days)</Label>
+                        <Label htmlFor="paymentTerms" className="font-semibold">Payment Terms (In Days)</Label>
                         <Input id="paymentTerms" type="number" placeholder="30" {...register("paymentTerms")} />
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="status">Status</Label>
+                        <Label htmlFor="status" className="font-semibold">Status</Label>
                         <select
                             id="status"
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
@@ -208,15 +208,15 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                 </div>
 
                 <div className="space-y-2">
-                    <Label htmlFor="description">Description (Optional)</Label>
+                    <Label htmlFor="description" className="font-semibold">Description (Optional)</Label>
                     <Input id="description" placeholder="Any additional notes..." {...register("description")} />
                 </div>
 
                 <div className="flex justify-end gap-2 pt-4">
-                    <Button type="button" variant="outline" onClick={onClose}>
+                    <Button type="button" variant="outline" onClick={onClose} className="font-semibold">
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isSubmitting} className="bg-slate-900 text-white hover:bg-slate-800">
+                    <Button type="submit" disabled={isSubmitting} className="bg-slate-900 text-white hover:bg-slate-800 font-semibold">
                         {isSubmitting ? "Adding..." : "Add Supplier"}
                     </Button>
                 </div>

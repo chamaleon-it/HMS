@@ -61,7 +61,7 @@ const SuppliersPage: React.FC = () => {
                         subtitle="Manage your pharmacy suppliers"
                     >
                         <Button
-                            className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
+                            className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md font-semibold"
                             onClick={() => setIsAddDrawerOpen(true)}
                         >
                             <Plus className="w-4 h-4 mr-2" />
@@ -74,7 +74,7 @@ const SuppliersPage: React.FC = () => {
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2 mb-2">
                                     <Users className="w-4 h-4 text-blue-600/70" />
-                                    <p className="text-[11px] font-bold text-blue-800/70 uppercase tracking-widest">Total Suppliers</p>
+                                    <p className="text-[11px] font-semibold text-blue-800/70 uppercase tracking-widest">Total Suppliers</p>
                                 </div>
                                 <h3 className="text-3xl font-bold text-blue-900 leading-none">{stats.totalSuppliers}</h3>
                             </div>
@@ -84,7 +84,7 @@ const SuppliersPage: React.FC = () => {
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2 mb-2">
                                     <ShoppingBag className="w-4 h-4 text-emerald-600/70" />
-                                    <p className="text-[11px] font-bold text-emerald-800/70 uppercase tracking-widest">Total Purchase</p>
+                                    <p className="text-[11px] font-semibold text-emerald-800/70 uppercase tracking-widest">Total Purchase</p>
                                 </div>
                                 <h3 className="text-3xl font-bold text-emerald-900 leading-none">{formatINR(stats.totalPurchase)}</h3>
                             </div>
@@ -94,7 +94,7 @@ const SuppliersPage: React.FC = () => {
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2 mb-2">
                                     <BarChart3 className="w-4 h-4 text-sky-600/70" />
-                                    <p className="text-[11px] font-bold text-sky-800/70 uppercase tracking-widest">Purchase Count</p>
+                                    <p className="text-[11px] font-semibold text-sky-800/70 uppercase tracking-widest">Purchase Count</p>
                                 </div>
                                 <h3 className="text-3xl font-bold text-sky-900 leading-none">{stats.totalPurchaseCount}</h3>
                             </div>
@@ -104,7 +104,7 @@ const SuppliersPage: React.FC = () => {
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2 mb-2">
                                     <CreditCard className="w-4 h-4 text-rose-600/70" />
-                                    <p className="text-[11px] font-bold text-rose-800/70 uppercase tracking-widest">Total Due</p>
+                                    <p className="text-[11px] font-semibold text-rose-800/70 uppercase tracking-widest">Total Due</p>
                                 </div>
                                 <h3 className="text-3xl font-bold text-rose-900 leading-none">{formatINR(stats.totalDue)}</h3>
                             </div>
@@ -118,19 +118,19 @@ const SuppliersPage: React.FC = () => {
                         <Table className="min-w-[1000px]">
                             <TableHeader className="bg-slate-700 hover:bg-slate-700">
                                 <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
-                                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Seller Name</TableHead>
-                                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Phone Number</TableHead>
-                                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">GSTIN</TableHead>
-                                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">DL No</TableHead>
-                                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right">
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Seller Name</TableHead>
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Phone Number</TableHead>
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">GSTIN</TableHead>
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">DL No</TableHead>
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right">
                                         Total Purchase Count
                                     </TableHead>
-                                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
                                         Purchase Value
                                     </TableHead>
 
-                                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
                                         Total Due
                                     </TableHead>
                                 </TableRow>
