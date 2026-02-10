@@ -296,6 +296,294 @@ const DatePicker = ({
     );
 };
 
+// Typable Date Input Component for faster keyboard entry
+const TypableDateInput = ({
+    value,
+    onChange,
+    placeholder = "DD/MM/YYYY",
+    className,
+    onKeyDown
+}: {
+    value: string;
+    onChange: (date: string) => void;
+    placeholder?: string;
+    className?: string;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+}) => {
+    const [displayValue, setDisplayValue] = useState("");
+    const [open, setOpen] = useState(false);
+
+    // Convert yyyy-MM-dd to DD/MM/YYYY for display
+    useEffect(() => {
+        if (value) {
+            try {
+                const date = new Date(value);
+                if (!isNaN(date.getTime())) {
+                    const day = String(date.getDate()).padStart(2, '0');
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    setDisplayValue(`${day}/${month}/${year}`);
+                }
+            } catch (e) {
+                setDisplayValue("");
+            }
+        } else {
+            setDisplayValue("");
+        }
+    }, [value]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let input = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
+
+        // Auto-format with slashes
+        if (input.length >= 2) {
+            input = input.slice(0, 2) + '/' + input.slice(2);
+        }
+        if (input.length >= 5) {
+            input = input.slice(0, 5) + '/' + input.slice(5, 9);
+        }
+
+        setDisplayValue(input);
+
+        // Parse and validate complete date (DD/MM/YYYY)
+        if (input.length === 10) {
+            const parts = input.split('/');
+            if (parts.length === 3) {
+                const day = parseInt(parts[0], 10);
+                const month = parseInt(parts[1], 10);
+                const year = parseInt(parts[2], 10);
+
+                // Basic validation
+                if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2100) {
+                    // Convert to yyyy-MM-dd format
+                    const isoDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    onChange(isoDate);
+                }
+            }
+        }
+    };
+
+    const date = value ? new Date(value) : undefined;
+
+    return (
+        <div className="relative flex items-center gap-1">
+            <Input
+                type="text"
+                placeholder={placeholder}
+                className={cn(
+                    "h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all text-center font-mono pr-10",
+                    className
+                )}
+                value={displayValue}
+                onChange={handleChange}
+                onKeyDown={onKeyDown}
+                maxLength={10}
+            />
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 h-9 w-9 hover:bg-indigo-50 rounded-md transition-colors"
+                    >
+                        <CalendarIcon className="h-4 w-4 text-indigo-500" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                        mode="single"
+                        selected={date}
+                        onSelect={(d) => {
+                            if (d) {
+                                onChange(format(d, "yyyy-MM-dd"));
+                                setOpen(false);
+                            }
+                        }}
+                        initialFocus
+                        className="rounded-xl border-none shadow-none"
+                    />
+                </PopoverContent>
+            </Popover>
+        </div>
+    );
+};
+
+// Typable Expiry Input (MM/YYYY format)
+const TypableExpiryInput = ({
+    value,
+    onChange,
+    placeholder = "MM/YYYY",
+    className,
+    onKeyDown
+}: {
+    value: string;
+    onChange: (date: string) => void;
+    placeholder?: string;
+    className?: string;
+    onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+}) => {
+    const [displayValue, setDisplayValue] = useState("");
+    const [open, setOpen] = useState(false);
+
+    // Convert yyyy-MM-dd to MM/YYYY for display
+    useEffect(() => {
+        if (value) {
+            try {
+                const date = new Date(value);
+                if (!isNaN(date.getTime())) {
+                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                    const year = date.getFullYear();
+                    setDisplayValue(`${month}/${year}`);
+                }
+            } catch (e) {
+                setDisplayValue("");
+            }
+        } else {
+            setDisplayValue("");
+        }
+    }, [value]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let input = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
+
+        // Auto-format with slash
+        if (input.length >= 2) {
+            input = input.slice(0, 2) + '/' + input.slice(2, 6);
+        }
+
+        setDisplayValue(input);
+
+        // Parse and validate complete date (MM/YYYY)
+        if (input.length === 7) {
+            const parts = input.split('/');
+            if (parts.length === 2) {
+                const month = parseInt(parts[0], 10);
+                const year = parseInt(parts[1], 10);
+
+                // Basic validation
+                if (month >= 1 && month <= 12 && year >= 1900 && year <= 2100) {
+                    // Convert to yyyy-MM-dd format (first day of month)
+                    const isoDate = `${year}-${String(month).padStart(2, '0')}-01`;
+                    onChange(isoDate);
+                }
+            }
+        }
+    };
+
+    const date = value ? new Date(value) : undefined;
+
+    const isPast = (monthIdx: number, year: number) => {
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+        if (year < currentYear) return true;
+        if (year === currentYear && monthIdx < currentMonth) return true;
+        return false;
+    };
+
+    return (
+        <div className="relative flex items-center gap-1">
+            <Input
+                type="text"
+                placeholder={placeholder}
+                className={cn(
+                    "h-11 bg-white border-slate-200 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center font-mono text-sm pr-10",
+                    className
+                )}
+                value={displayValue}
+                onChange={handleChange}
+                onKeyDown={onKeyDown}
+                maxLength={7}
+            />
+            <Popover open={open} onOpenChange={setOpen}>
+                <PopoverTrigger asChild>
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-1 h-9 w-9 hover:bg-indigo-50 rounded-md transition-colors"
+                    >
+                        <CalendarIcon className="h-4 w-4 text-indigo-500" />
+                    </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                    <div className="w-64 p-3 bg-white rounded-xl shadow-xl border border-slate-100">
+                        <div className="space-y-3">
+                            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest px-1">Select Expiry (MM/YYYY)</div>
+
+                            <div className="grid grid-cols-3 gap-1">
+                                {months.map((m: string, idx: number) => {
+                                    const selectedYear = date ? date.getFullYear() : new Date().getFullYear();
+                                    const disabled = isPast(idx, selectedYear);
+                                    const isSelected = date && date.getMonth() === idx && date.getFullYear() === selectedYear;
+
+                                    return (
+                                        <button
+                                            key={m}
+                                            type="button"
+                                            disabled={disabled}
+                                            className={cn(
+                                                "px-2 py-2 text-xs rounded-lg transition-all ",
+                                                isSelected
+                                                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-200"
+                                                    : disabled
+                                                        ? "text-slate-200 cursor-not-allowed"
+                                                        : "hover:bg-slate-50 text-slate-600 hover:text-indigo-600"
+                                            )}
+                                            onClick={() => {
+                                                const currentYear = date ? date.getFullYear() : new Date().getFullYear();
+                                                const newDate = new Date(currentYear, idx, 1);
+                                                onChange(format(newDate, "yyyy-MM-dd"));
+                                            }}
+                                        >
+                                            {m}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+
+                            <div className="border-t border-slate-100 pt-3">
+                                <Select
+                                    value={date ? String(date.getFullYear()) : String(new Date().getFullYear())}
+                                    onValueChange={(y) => {
+                                        const currentMonth = date ? date.getMonth() : new Date().getMonth();
+                                        let targetMonth = currentMonth;
+                                        if (isPast(currentMonth, Number(y))) {
+                                            targetMonth = new Date().getMonth();
+                                        }
+                                        const newDate = new Date(Number(y), targetMonth, 1);
+                                        onChange(format(newDate, "yyyy-MM-dd"));
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full h-10 text-xs bg-slate-50/50 border-slate-200 rounded-lg">
+                                        <SelectValue placeholder="Year" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-xl border-slate-200">
+                                        {years.map((y: number) => (
+                                            <SelectItem key={y} value={String(y)} className="text-xs rounded-lg focus:bg-indigo-50">
+                                                {y}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <Button
+                                type="button"
+                                className="w-full h-10 text-[10px] font-semibold uppercase tracking-widest bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-lg shadow-indigo-100 transition-all"
+                                onClick={() => setOpen(false)}
+                            >
+                                Confirm Selection
+                            </Button>
+                        </div>
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </div>
+    );
+};
+
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
 import { Supplier } from "../interface";
@@ -337,6 +625,45 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [selectedSupplierId, setSelectedSupplierId] = useState<string>(defaultSupplierId || "");
     const [gstType, setGstType] = useState<"inclusive" | "exclusive">("exclusive");
     const [enableTCS, setEnableTCS] = useState(false);
+
+    // Keyboard navigation handler
+    const handleKeyDown = (e: React.KeyboardEvent, rowId: string, fieldName: string, isLastField: boolean = false, newMedicine: boolean = false) => {
+        if (e.key === 'Enter' || (newMedicine && e.key === 'Tab' && !e.shiftKey)) {
+            e.preventDefault();
+
+            // If it's the last field (schema_free), create a new row
+            if (isLastField) {
+                addNewRow();
+                // Focus the first field of the new row after a short delay
+                setTimeout(() => {
+                    const allRows = document.querySelectorAll('[data-row-index]');
+                    const lastRow = allRows[allRows.length - 1];
+                    if (lastRow) {
+                        const firstButton = lastRow.querySelector('button[role="combobox"]') as HTMLElement;
+                        firstButton?.click(); // Open the product search
+                    }
+                }, 150);
+                return;
+            }
+
+            // Move to next field within the current row
+            const currentElement = e.target as HTMLElement;
+            const currentRow = currentElement.closest('tr');
+            if (!currentRow) return;
+
+            // Get all focusable elements in the current row
+            const focusableElements = Array.from(
+                currentRow.querySelectorAll('input:not([disabled]), button[role="combobox"]:not([disabled])')
+            ) as HTMLElement[];
+
+            const currentIndex = focusableElements.indexOf(currentElement);
+
+            if (currentIndex !== -1 && currentIndex < focusableElements.length - 1) {
+                const nextElement = focusableElements[currentIndex + 1];
+                nextElement?.focus();
+            }
+        }
+    };
 
     useEffect(() => {
         if (defaultSupplierId) {
@@ -561,7 +888,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
 
                     <div className="space-y-2">
                         <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Invoice Date*</label>
-                        <DatePicker
+                        <TypableDateInput
                             value={billDetails.invoiceDate}
                             onChange={(date) => handleBillDetailChange("invoiceDate", date)}
                         />
@@ -668,6 +995,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA (FREE)</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA AMT</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">TOTAL</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -675,6 +1003,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 {newItems.map((item, index) => (
                                     <motion.tr
                                         key={item.id}
+                                        data-row-index={index}
                                         layout
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
@@ -682,7 +1011,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         className="hover:bg-indigo-50/30 transition-colors border-b border-slate-100 group"
                                     >
                                         <TableCell className="text-center text-xs font-semibold text-slate-300 py-4 group-hover:text-indigo-500 transition-colors">
-                                            {String(index + 1).padStart(2, '0')}
+                                            {String(index + 1)}
                                         </TableCell>
                                         <TableCell className="p-2 min-w-[150px] ">
                                             <ItemSearchCell
@@ -691,17 +1020,28 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                     updateNewItem(item.id, "_id", it._id);
                                                     updateNewItem(item.id, "product", it.name);
                                                     updateNewItem(item.id, "unitPrice", it.unitPrice || 0);
-                                                    updateNewItem(item.id, "purchasePrice", it.unitPrice || 0);
+                                                    updateNewItem(item.id, "purchasePrice", it.purchasePrice || 0);
+                                                    updateNewItem(item.id, "pack", it.packing || 0);
+
+                                                    // Auto-focus next field (batch input) after selection
+                                                    setTimeout(() => {
+                                                        const currentRow = document.querySelector(`[data-row-index="${index}"]`);
+                                                        if (currentRow) {
+                                                            const batchInput = currentRow.querySelector('input[type="text"]') as HTMLInputElement;
+                                                            batchInput?.focus();
+                                                        }
+                                                    }, 100);
                                                 }}
                                             />
                                         </TableCell>
-                                        <TableCell className="p-2"><Input className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} /></TableCell>
+                                        <TableCell className="p-2"><Input className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} /></TableCell>
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
                                                 className="h-11 text-sm font-semibold border-slate-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-700"
                                                 value={item.qty || ""}
                                                 onChange={(e) => updateNewItem(item.id, "qty", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "qty")}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
@@ -710,6 +1050,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center"
                                                 value={item.pack}
                                                 onChange={(e) => updateNewItem(item.id, "pack", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "pack")}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
@@ -718,14 +1059,14 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 className="h-11 text-sm font-semibold border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center text-slate-700"
                                                 value={item.unitPrice || ""}
                                                 onChange={(e) => updateNewItem(item.id, "unitPrice", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "unitPrice")}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
-                                            <DatePicker
-                                                mode="year"
+                                            <TypableExpiryInput
                                                 value={item.expiryDate}
                                                 onChange={(date) => updateNewItem(item.id, "expiryDate", date)}
-                                                className="bg-white text-[11px] h-11 px-2 border-slate-200 focus:border-indigo-400"
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "expiryDate")}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
@@ -734,6 +1075,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 className="h-11 text-sm font-semibold border-emerald-200 bg-emerald-50/10 rounded-lg focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 transition-all text-center text-emerald-700"
                                                 value={item.purchasePrice || ""}
                                                 onChange={(e) => updateNewItem(item.id, "purchasePrice", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "purchasePrice")}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">
@@ -772,19 +1114,17 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 className="h-11 text-sm font-semibold border-red-100 bg-red-50/10 rounded-lg focus:bg-white focus:border-red-400 focus:ring-4 focus:ring-red-500/10 transition-all text-center text-red-600"
                                                 value={item.dis_p || ""}
                                                 onChange={(e) => updateNewItem(item.id, "dis_p", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "dis_p")}
                                             />
                                         </TableCell>
-                                        {/* <TableCell className="p-2 text-center">
-                                            <div className="text-xs font-extrabold text-slate-700 bg-slate-50 h-11 flex items-center justify-center rounded-lg border border-slate-100 shadow-sm border-dashed">
-                                                ₹{(item.dis || 0).toFixed(2)}
-                                            </div>
-                                        </TableCell> */}
+
                                         <TableCell className="p-2 text-center">
                                             <Input
                                                 type="number"
                                                 className="h-11 text-sm font-semibold border-indigo-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-600"
                                                 value={item.schema_free || ""}
                                                 onChange={(e) => updateNewItem(item.id, "schema_free", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "schema_free", true, true)}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2 text-center">
@@ -796,6 +1136,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <div className="text-base font-bold text-[#1e293b] group-hover:text-indigo-700 transition-colors drop-shadow-sm">
                                                 ₹{(item.amount || 0).toFixed(2)}
                                             </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Button onClick={() => removeNewRow(item.id)} variant="ghost" size="icon"><Trash2 className="text-red-500" /></Button>
                                         </TableCell>
                                     </motion.tr>
                                 ))}
