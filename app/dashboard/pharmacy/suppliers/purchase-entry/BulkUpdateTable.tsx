@@ -456,17 +456,18 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                     setTimeout(() => {
                                                         const currentRow = document.querySelector(`[data-row-index="${index}"]`);
                                                         if (currentRow) {
-                                                            const batchInput = currentRow.querySelector('input[type="text"]') as HTMLInputElement;
+                                                            const batchInput = currentRow.querySelector('input[name="batch"]') as HTMLInputElement;
                                                             batchInput?.focus();
                                                         }
                                                     }, 100);
                                                 }}
                                             />
                                         </TableCell>
-                                        <TableCell className="p-2"><Input className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} /></TableCell>
+                                        <TableCell className="p-2"><Input name="batch" className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} /></TableCell>
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                name="qty"
                                                 className="h-11 text-sm font-semibold border-slate-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-700"
                                                 value={item.qty || ""}
                                                 onChange={(e) => updateNewItem(item.id, "qty", Number(e.target.value))}

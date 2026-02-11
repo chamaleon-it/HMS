@@ -116,7 +116,7 @@ const TypableDateInput = ({
                 type="text"
                 placeholder={placeholder}
                 className={cn(
-                    "h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all text-center font-mono pr-10",
+                    "h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all text-center pr-10",
                     className
                 )}
                 value={displayValue}

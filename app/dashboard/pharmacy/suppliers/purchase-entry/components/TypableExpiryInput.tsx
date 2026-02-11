@@ -129,7 +129,7 @@ const TypableExpiryInput = ({
                 type="text"
                 placeholder={placeholder}
                 className={cn(
-                    "h-11 bg-white border-slate-200 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center font-mono text-sm pr-10",
+                    "h-11 bg-white border-slate-200 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center text-sm pr-10",
                     className
                 )}
                 value={displayValue}
