@@ -34,6 +34,10 @@ import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
 import ExistingPatientCard from "./ExistingPatientCard";
 
 export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string) => void, patient?: any, mutate?: () => void }) {
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   const { user } = useAuth();
   const {
     register,
@@ -304,7 +308,15 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
           <div className="grid gap-2">
             <Label>Allergies</Label>
-            <Input placeholder="Allergies" {...register("allergies")} />
+            <Input
+              placeholder="Allergies"
+              {...register("allergies")}
+              onChange={(e) => {
+                setValue("allergies", capitalizeFirstLetter(e.target.value), {
+                  shouldValidate: true,
+                });
+              }}
+            />
             {errors.allergies && (
               <p className="text-red-500 text-xs my-1">
                 {errors.allergies.message}
