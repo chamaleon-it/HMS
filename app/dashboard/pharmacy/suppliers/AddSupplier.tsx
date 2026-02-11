@@ -120,7 +120,14 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
 
                     <div className="space-y-2">
                         <Label htmlFor="contactPerson" className="font-semibold">Contact Person *</Label>
-                        <Input id="contactPerson" placeholder="Name of contact person" {...register("contactPerson")} />
+                        <Input
+                            id="contactPerson"
+                            placeholder="Name of contact person"
+                            {...register("contactPerson")}
+                            onChange={(e) => {
+                                setValue("contactPerson", capitalizeWords(e.target.value), { shouldValidate: true });
+                            }}
+                        />
                         {errors.contactPerson && <p className="text-red-500 text-xs">{errors.contactPerson.message}</p>}
                     </div>
                 </div>
@@ -128,7 +135,14 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="designation" className="font-semibold">Designation</Label>
-                        <Input id="designation" placeholder="e.g. Manager" {...register("designation")} />
+                        <Input
+                            id="designation"
+                            placeholder="e.g. Manager"
+                            {...register("designation")}
+                            onChange={(e) => {
+                                setValue("designation", capitalizeWords(e.target.value), { shouldValidate: true });
+                            }}
+                        />
                     </div>
 
                     <div className="space-y-2">
