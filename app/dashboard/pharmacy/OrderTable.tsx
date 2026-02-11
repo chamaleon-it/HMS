@@ -12,7 +12,7 @@ import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import { CheckCircle, Eye, Printer, Trash, View } from "lucide-react";
+import { AlertTriangle, CheckCircle, Eye, Printer, Trash, View } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -256,22 +256,69 @@ export default function OrderTable({
               }
             >
 
-              <TableCell className="py-3 pl-4 text-slate-500 font-medium">
+              <TableCell className="py-3 pl-4 text-slate-500 font-medium cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >
                 {(filter.page - 1) * filter.limit + idx + 1}
               </TableCell>
-              <TableCell className="py-3 font-medium text-slate-900">{r?.mrn}</TableCell>
-              <TableCell className="py-3">
-                <div className="font-medium text-slate-900">{r?.patient?.name}</div>
+              <TableCell className="py-3 font-medium text-slate-900 cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >{r?.mrn}</TableCell>
+              <TableCell className="py-3 cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <div className="font-medium text-slate-900">{r?.patient?.name}</div>
+                  {r?.patient?.allergies && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        <p className="text-xs font-semibold">Allergy: {r.patient.allergies}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
                 <div className="text-[11px] text-slate-500">({r?.patient?.mrn})</div>
               </TableCell>
-              <TableCell className="py-3 text-center">{r?.items?.length}</TableCell>
-              <TableCell className="py-3 text-center">
+              <TableCell className="py-3 text-center cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >{r?.items?.length}</TableCell>
+              <TableCell className="py-3 text-center cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >
                 <PriorityBadge priority={r?.priority} />
               </TableCell>
-              <TableCell className="py-3 text-center">
+              <TableCell className="py-3 text-center cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >
                 <StatusBadge status={r?.status} />
               </TableCell>
-              <TableCell className="py-3">{fDateandTime(r?.createdAt)}</TableCell>
+              <TableCell className="py-3 cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >{fDateandTime(r?.createdAt)}</TableCell>
               <TableCell className="py-3 text-right space-x-1 pr-4">
                 <div className="flex justify-end items-center gap-1">
                   <Tooltip>

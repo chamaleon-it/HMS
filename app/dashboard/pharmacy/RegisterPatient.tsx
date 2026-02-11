@@ -291,6 +291,16 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                 }}
               />
             </div>
+
+          </div>
+          <div className="grid gap-2">
+            <Label>Allergies</Label>
+            <Input placeholder="Allergies" {...register("allergies")} />
+            {errors.allergies && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.allergies.message}
+              </p>
+            )}
           </div>
 
           <Address setValue={setValue} />

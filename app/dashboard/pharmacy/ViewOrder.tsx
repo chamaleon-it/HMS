@@ -24,6 +24,7 @@ import api from "@/lib/axios";
 import UpdatePrescriptionCard from "./UpdatePrescriptionCard";
 import useSWR from "swr";
 import Link from "next/link";
+import { AlertTriangle } from "lucide-react";
 
 interface Props {
     open: boolean;
@@ -55,6 +56,9 @@ function Barcode({ value }: { value: string }) {
 }
 
 function OrderHeader({ order }: { order: OrderType }) {
+
+    console.log(order?.patient?.allergies)
+
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start mb-4">
             {/* Patient card */}
@@ -78,6 +82,14 @@ function OrderHeader({ order }: { order: OrderType }) {
                     Doctor: {order?.doctor?.name} • Specialization:{" "}
                     {order?.doctor?.specialization}
                 </div>
+                {order?.patient?.allergies && (
+                    <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 shadow-sm">
+                        <AlertTriangle className="h-4 w-4 shrink-0" />
+                        <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                            Allergies: <span className="text-sm normal-case font-semibold bg-yellow-100 px-2 py-0.5 rounded">{order.patient.allergies}</span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Bill card */}
