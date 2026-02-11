@@ -48,6 +48,7 @@ export interface Name {
     status: string;
     createdAt?: Date;
     updatedAt?: Date;
+    rackLocation?: string;
 }
 
 export interface Patient {

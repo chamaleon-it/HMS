@@ -24,14 +24,14 @@ interface TypableDateInputProps {
 const TypableDateInput = ({
     value,
     onChange,
-    placeholder = "DD/MM/YYYY",
+    placeholder = "DD/MM/YY",
     className,
     onKeyDown
 }: TypableDateInputProps) => {
     const [displayValue, setDisplayValue] = useState("");
     const [open, setOpen] = useState(false);
 
-    // Convert yyyy-MM-dd to DD/MM/YYYY for display
+    // Convert yyyy-MM-dd to DD/MM/YY for display
     useEffect(() => {
         if (value) {
             try {
@@ -39,7 +39,7 @@ const TypableDateInput = ({
                 if (!isNaN(date.getTime())) {
                     const day = String(date.getDate()).padStart(2, '0');
                     const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const year = date.getFullYear();
+                    const year = String(date.getFullYear()).slice(-2);
                     setDisplayValue(`${day}/${month}/${year}`);
                 }
             } catch (e) {
@@ -58,21 +58,21 @@ const TypableDateInput = ({
             input = input.slice(0, 2) + '/' + input.slice(2);
         }
         if (input.length >= 5) {
-            input = input.slice(0, 5) + '/' + input.slice(5, 9);
+            input = input.slice(0, 5) + '/' + input.slice(5, 7);
         }
 
         setDisplayValue(input);
 
-        // Parse and validate complete date (DD/MM/YYYY)
-        if (input.length === 10) {
+        // Parse and validate complete date (DD/MM/YY)
+        if (input.length === 8) {
             const parts = input.split('/');
             if (parts.length === 3) {
                 const day = parseInt(parts[0], 10);
                 const month = parseInt(parts[1], 10);
-                const year = parseInt(parts[2], 10);
+                const year = parseInt(parts[2], 10) + 2000; // Assume 20xx
 
                 // Basic validation
-                if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 1900 && year <= 2100) {
+                if (day >= 1 && day <= 31 && month >= 1 && month <= 12 && year >= 2000 && year <= 2100) {
                     // Convert to yyyy-MM-dd format
                     const isoDate = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                     onChange(isoDate);
@@ -83,18 +83,18 @@ const TypableDateInput = ({
 
     // Parse displayValue to get the typed date, fall back to value or undefined
     const getDisplayDate = () => {
-        // First try to parse what the user is typing (DD/MM/YYYY)
+        // First try to parse what the user is typing (DD/MM/YY)
         if (displayValue) {
             const parts = displayValue.split('/');
             if (parts.length === 3 && parts[0] && parts[1] && parts[2]) {
                 const day = parseInt(parts[0], 10);
                 const month = parseInt(parts[1], 10);
-                const year = parseInt(parts[2], 10);
+                const year = parseInt(parts[2], 10) + 2000;
 
                 // If day, month and year are valid, use them
                 if (!isNaN(day) && !isNaN(month) && !isNaN(year) &&
                     day >= 1 && day <= 31 && month >= 1 && month <= 12 &&
-                    year >= 1900 && year <= 2100) {
+                    year >= 2000 && year <= 2100) {
                     return new Date(year, month - 1, day);
                 }
             }
@@ -122,7 +122,7 @@ const TypableDateInput = ({
                 value={displayValue}
                 onChange={handleChange}
                 onKeyDown={onKeyDown}
-                maxLength={10}
+                maxLength={8}
             />
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>

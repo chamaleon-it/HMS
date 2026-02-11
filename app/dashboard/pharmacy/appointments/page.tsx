@@ -17,7 +17,7 @@ import { motion } from "framer-motion";
 
 export default function AppointmentPage() {
   const [query, setQuery] = useState("");
-  const [activeStatuses, setActiveStatuses] = useState<string[]>([]);
+  const [activeStatuses, setActiveStatuses] = useState<string[]>(["Upcoming"]);
   const [openCreate, setOpenCreate] = useState<"walk-in" | boolean>(false);
   const [date, setDate] = useState(new Date());
 

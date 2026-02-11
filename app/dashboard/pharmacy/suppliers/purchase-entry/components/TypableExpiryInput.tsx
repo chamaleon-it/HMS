@@ -18,6 +18,7 @@ import {
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import toast from "react-hot-toast";
 
 const months = [
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -36,21 +37,21 @@ interface TypableExpiryInputProps {
 const TypableExpiryInput = ({
     value,
     onChange,
-    placeholder = "MM/YYYY",
+    placeholder = "MM/YY",
     className,
     onKeyDown
 }: TypableExpiryInputProps) => {
     const [displayValue, setDisplayValue] = useState("");
     const [open, setOpen] = useState(false);
 
-    // Convert yyyy-MM-dd to MM/YYYY for display
+    // Convert yyyy-MM-dd to MM/YY for display
     useEffect(() => {
         if (value) {
             try {
                 const date = new Date(value);
                 if (!isNaN(date.getTime())) {
                     const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const year = date.getFullYear();
+                    const year = String(date.getFullYear()).slice(-2);
                     setDisplayValue(`${month}/${year}`);
                 }
             } catch (e) {
@@ -61,28 +62,41 @@ const TypableExpiryInput = ({
         }
     }, [value]);
 
+    const isPast = (monthIdx: number, year: number) => {
+        const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
+        if (year < currentYear) return true;
+        if (year === currentYear && monthIdx < currentMonth) return true;
+        return false;
+    };
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         let input = e.target.value.replace(/[^0-9]/g, ''); // Remove non-digits
 
         // Auto-format with slash
         if (input.length >= 2) {
-            input = input.slice(0, 2) + '/' + input.slice(2, 6);
+            input = input.slice(0, 2) + '/' + input.slice(2, 4);
         }
 
         setDisplayValue(input);
 
-        // Parse and validate complete date (MM/YYYY)
-        if (input.length === 7) {
+        // Parse and validate complete date (MM/YY)
+        if (input.length === 5) {
             const parts = input.split('/');
             if (parts.length === 2) {
                 const month = parseInt(parts[0], 10);
-                const year = parseInt(parts[1], 10);
+                const year = parseInt(parts[1], 10) + 2000; // Assume 20xx
 
-                // Basic validation
-                if (month >= 1 && month <= 12 && year >= 1900 && year <= 2100) {
-                    // Convert to yyyy-MM-dd format (first day of month)
-                    const isoDate = `${year}-${String(month).padStart(2, '0')}-01`;
-                    onChange(isoDate);
+                // Basic validation and Future-only check
+                if (month >= 1 && month <= 12 && year >= 2000 && year <= 2100) {
+                    if (!isPast(month - 1, year)) {
+                        // Convert to yyyy-MM-dd format (first day of month)
+                        const isoDate = `${year}-${String(month).padStart(2, '0')}-01`;
+                        onChange(isoDate);
+                    } else {
+                        toast.error("Expiry date cannot be in the past");
+                    }
                 }
             }
         }
@@ -95,10 +109,10 @@ const TypableExpiryInput = ({
             const parts = displayValue.split('/');
             if (parts.length === 2 && parts[0] && parts[1]) {
                 const month = parseInt(parts[0], 10);
-                const year = parseInt(parts[1], 10);
+                const year = parseInt(parts[1], 10) + 2000;
 
                 // If month and year are valid, use them
-                if (!isNaN(month) && !isNaN(year) && month >= 1 && month <= 12 && year >= 1900 && year <= 2100) {
+                if (!isNaN(month) && !isNaN(year) && month >= 1 && month <= 12 && year >= 2000 && year <= 2100) {
                     return new Date(year, month - 1, 1);
                 }
             }
@@ -114,15 +128,6 @@ const TypableExpiryInput = ({
 
     const date = getDisplayDate();
 
-    const isPast = (monthIdx: number, year: number) => {
-        const today = new Date();
-        const currentYear = today.getFullYear();
-        const currentMonth = today.getMonth();
-        if (year < currentYear) return true;
-        if (year === currentYear && monthIdx < currentMonth) return true;
-        return false;
-    };
-
     return (
         <div className="relative flex items-center gap-1">
             <Input
@@ -135,7 +140,7 @@ const TypableExpiryInput = ({
                 value={displayValue}
                 onChange={handleChange}
                 onKeyDown={onKeyDown}
-                maxLength={7}
+                maxLength={5}
             />
             <Popover open={open} onOpenChange={setOpen}>
                 <PopoverTrigger asChild>

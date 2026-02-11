@@ -48,6 +48,7 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
             status: "Active",
             balance: "0",
             paymentTerms: "30",
+            state: "Kerala",
         }
     });
 

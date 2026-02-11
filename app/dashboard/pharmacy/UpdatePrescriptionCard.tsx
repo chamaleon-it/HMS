@@ -77,6 +77,7 @@ export default function UpdatePrescriptionCard({
             <tr className="w-full">
               <th className="w-[5%] p-2 text-left">Sl</th>
               <th className="w-[25%] p-2 text-left">Drug</th>
+              <th className="w-[25%] p-2 text-left">Rack</th>
               <th className="w-[10%] p-2 text-left">Exp</th>
               <th className="w-[10%] p-2 text-center">Available</th>
               <th className="w-[10%] p-2 text-right">Qty</th>
@@ -103,6 +104,9 @@ export default function UpdatePrescriptionCard({
                   <div className="text-xs text-slate-500 font-medium mt-1 pl-0.5">
                     {m.name.generic ? <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">Gen: {m.name.generic}</span> : null}
                   </div>
+                </td>
+                <td className="p-4 align-middle text-sm text-slate-600">
+                  {m?.name?.rackLocation || "-"}
                 </td>
                 <td className="p-4 align-middle text-sm text-slate-600">
                   {fDate(m.name.expiryDate)}
