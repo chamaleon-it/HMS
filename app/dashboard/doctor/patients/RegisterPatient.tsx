@@ -263,7 +263,16 @@ export function RegisterPatient({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label>Name *</Label>
-            <Input placeholder="Enter patient name" {...register("name")} />
+            <Input
+              placeholder="Enter patient name"
+              {...register("name")}
+              onChange={(e) => {
+                const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
+                  char.toUpperCase()
+                );
+                setValue("name", capitalizedValue, { shouldValidate: true });
+              }}
+            />
             {errors.name && (
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
             )}

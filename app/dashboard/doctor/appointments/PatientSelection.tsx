@@ -427,7 +427,7 @@ const PatientCard: React.FC<{
             ) : null}
           </div>
 
-          {/* Address */}
+
           {p.address ? (
             <div className="mt-2 flex items-start gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />

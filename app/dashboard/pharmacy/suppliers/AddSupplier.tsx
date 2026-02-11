@@ -36,6 +36,7 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
         handleSubmit,
         formState: { errors, isSubmitting },
         reset,
+        setValue,
     } = useForm<SupplierFormValues>({
         resolver: zodResolver(supplierSchema),
         defaultValues: {
@@ -49,6 +50,10 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
             paymentTerms: "30",
         }
     });
+
+    const capitalizeWords = (str: string) => {
+        return str.replace(/\b\w/g, (char) => char.toUpperCase());
+    };
 
     const onSubmit = async (data: SupplierFormValues) => {
         try {
@@ -95,7 +100,14 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
                     <Label htmlFor="name" className="font-semibold">Seller Name *</Label>
-                    <Input id="name" placeholder="Enter seller name" {...register("name")} />
+                    <Input
+                        id="name"
+                        placeholder="Enter seller name"
+                        {...register("name")}
+                        onChange={(e) => {
+                            setValue("name", capitalizeWords(e.target.value), { shouldValidate: true });
+                        }}
+                    />
                     {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
                 </div>
 
@@ -129,25 +141,53 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="line1" className="font-semibold">Address Line 1 *</Label>
-                        <Input id="line1" placeholder="Building, Street" {...register("line1")} />
+                        <Input
+                            id="line1"
+                            placeholder="Building, Street"
+                            {...register("line1")}
+                            onChange={(e) => {
+                                setValue("line1", capitalizeWords(e.target.value), { shouldValidate: true });
+                            }}
+                        />
                         {errors.line1 && <p className="text-red-500 text-xs">{errors.line1.message}</p>}
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="line2" className="font-semibold">Address Line 2</Label>
-                        <Input id="line2" placeholder="Area, colony" {...register("line2")} />
+                        <Input
+                            id="line2"
+                            placeholder="Area, colony"
+                            {...register("line2")}
+                            onChange={(e) => {
+                                setValue("line2", capitalizeWords(e.target.value), { shouldValidate: true });
+                            }}
+                        />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="city" className="font-semibold">City</Label>
-                        <Input id="city" placeholder="City" {...register("city")} />
+                        <Input
+                            id="city"
+                            placeholder="City"
+                            {...register("city")}
+                            onChange={(e) => {
+                                setValue("city", capitalizeWords(e.target.value), { shouldValidate: true });
+                            }}
+                        />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="state" className="font-semibold">State</Label>
-                        <Input id="state" placeholder="State" {...register("state")} />
+                        <Input
+                            id="state"
+                            placeholder="State"
+                            {...register("state")}
+                            onChange={(e) => {
+                                setValue("state", capitalizeWords(e.target.value), { shouldValidate: true });
+                            }}
+                        />
                     </div>
                 </div>
 
