@@ -42,16 +42,16 @@ export default function InsuranceSelection({
 }: {
   setValue: UseFormSetValue<FormType>;
   errors: FieldErrors<FormType>;
-  values:FormType
+  values: FormType
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
   useEffect(() => {
-    
-  setQuery(values.insurance || "")
+
+    setQuery(values.insurance || "")
   }, [values.insurance])
-  
+
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Case-insensitive filtering; de-dup if needed
@@ -123,7 +123,7 @@ export default function InsuranceSelection({
         </PopoverTrigger>
 
         <PopoverContent
-          className="p-0 w-[var(--radix-popover-trigger-width)]"
+          className="p-0 w-(--radix-popover-trigger-width)"
           align="start"
           onOpenAutoFocus={(e) => e.preventDefault()} // keep focus in input
         >

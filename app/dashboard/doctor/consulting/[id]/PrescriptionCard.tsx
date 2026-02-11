@@ -412,14 +412,14 @@ export default function PrescriptionCard({
 
                     <div className="col-span-2 flex justify-end gap-2">
                       <Button
-                        className="!bg-emerald-600 hover:!bg-emerald-700 text-white !border-emerald-600"
+                        className="bg-emerald-600! hover:bg-emerald-700! text-white border-emerald-600!"
                         onClick={addMedicineRow}
                         title="Add medicine"
                       >
                         <Plus className="w-4 h-4" />
                       </Button>
                       <Button
-                        className="!bg-red-600 hover:!bg-red-700 text-white !border-red-600"
+                        className="bg-red-600! hover:bg-red-700! text-white border-red-600!"
                         onClick={() => removeMedicineRow(i)}
                         title="Remove medicine"
                       >

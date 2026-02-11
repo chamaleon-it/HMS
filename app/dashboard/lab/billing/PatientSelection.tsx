@@ -269,7 +269,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, value }) => {
                     "m-1.5 rounded-2xl border bg-white/90 cursor-pointer transition-all duration-150 hover:shadow-sm",
                     activeIdx === idx && "ring-1 ring-primary/40",
                     selected?._id === p._id &&
-                      "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
+                    "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
                   )}
                 >
                   <PatientCard
@@ -327,7 +327,7 @@ const PatientCard: React.FC<{
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border bg-white/80 supports-[backdrop-filter]:bg-white/70 transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md dark:bg-zinc-900/70 dark:border-zinc-800"
+        "group relative rounded-2xl border bg-white/80 supports-[backdrop-filter]:bg-white/70supports-backdrop-filter:bg-white/70 transition-all duration-200 hover:-translate-y-px hover:shadow-md dark:bg-zinc-900/70 dark:border-zinc-800"
       )}
     >
       {/* Soft highlight when active/selected */}
@@ -356,9 +356,8 @@ const PatientCard: React.FC<{
             <div
               className="flex h-11 w-11 items-center justify-center rounded-xl font-semibold text-sm text-zinc-800 dark:text-zinc-200 bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
               style={{
-                background: `linear-gradient(180deg, hsl(${hue} 70% 96%) 0%, hsl(${
-                  (hue + 30) % 360
-                } 70% 97%) 100%)`,
+                background: `linear-gradient(180deg, hsl(${hue} 70% 96%) 0%, hsl(${(hue + 30) % 360
+                  } 70% 97%) 100%)`,
               }}
               aria-hidden
             >

@@ -9,8 +9,8 @@ export default function AllergyAlert({ allergies }: { allergies: string }) {
       className={
         "relative overflow-hidden rounded-2xl border shadow-lg" +
         (reviewed
-          ? "border-red-200 bg-gradient-to-r from-red-50 to-white"
-          : "border-red-200 bg-gradient-to-r from-red-600 to-red-500 text-white")
+          ? "border-red-200 bg-linear-to-r from-red-50 to-white"
+          : "border-red-200 bg-linear-to-r from-red-600 to-red-500 text-white")
       }
     >
       <div
