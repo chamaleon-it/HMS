@@ -26,8 +26,8 @@ type Patient = {
 };
 
 interface Props {
-  patient?:{
-      _id: string;
+  patient?: {
+    _id: string;
     mrn: string;
     name: string;
     phoneNumber: string;
@@ -65,7 +65,7 @@ const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, values,patient }) => {
+const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
   const [input, setInput] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
@@ -112,7 +112,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values,patient }) => {
   const patients = data?.data ?? [];
 
 
-  
+
 
   const handleSelect = useCallback(
     (p: Patient) => {
@@ -158,10 +158,10 @@ const PatientSelection: React.FC<Props> = ({ setValue, values,patient }) => {
 
 
   useEffect(() => {
-    
-setInput(patient?.name ?? "")
+
+    setInput(patient?.name ?? "")
   }, [patient?.name])
-  
+
 
   return (
     <div ref={rootRef} className="relative w-full">
@@ -181,7 +181,10 @@ setInput(patient?.name ?? "")
           value={input}
           onFocus={() => setOpen(true)}
           onChange={(e) => {
-            setInput(e.target.value);
+            const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
+              char.toUpperCase()
+            );
+            setInput(capitalizedValue);
             setOpen(true);
             setActiveIdx(-1);
           }}
@@ -267,7 +270,7 @@ setInput(patient?.name ?? "")
                     "transition-all duration-150 hover:shadow-sm",
                     activeIdx === idx && "ring-1 ring-primary/40",
                     selected?._id === p._id &&
-                      "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
+                    "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
                   )}
                 >
                   <PatientCard
@@ -322,9 +325,8 @@ const PatientCard: React.FC<{
   isSelected: boolean;
 }> = ({ p, isActive, isSelected }) => {
   const hue = hashHue(p._id ?? p.name ?? p.mrn ?? "hue");
-  const ringGradient = `bg-[conic-gradient(from_180deg,oklch(0.92_0.04_${hue})_0%,oklch(0.94_0.05_${
-    (hue + 40) % 360
-  })_50%,oklch(0.92_0.04_${(hue + 80) % 360})_100%)]`;
+  const ringGradient = `bg-[conic-gradient(from_180deg,oklch(0.92_0.04_${hue})_0%,oklch(0.94_0.05_${(hue + 40) % 360
+    })_50%,oklch(0.92_0.04_${(hue + 80) % 360})_100%)]`;
 
   return (
     <div
@@ -366,9 +368,8 @@ const PatientCard: React.FC<{
                 "bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800"
               )}
               style={{
-                background: `linear-gradient(180deg, oklch(0.98 0 ${hue}) 0%, oklch(0.97 0 ${
-                  (hue + 30) % 360
-                }) 100%)`,
+                background: `linear-gradient(180deg, oklch(0.98 0 ${hue}) 0%, oklch(0.97 0 ${(hue + 30) % 360
+                  }) 100%)`,
               }}
               aria-hidden
             >
