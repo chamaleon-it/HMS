@@ -30,13 +30,10 @@ import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
 import { cn } from "@/lib/utils";
 import { useSearchParams } from "next/navigation";
-
 import ItemSearchCell from "./components/ItemSearchCell";
 import TypableDateInput from "./components/TypableDateInput";
 import TypableExpiryInput from "./components/TypableExpiryInput";
 import { BulkUpdateItem, NewItem } from "./components/types";
-
-// Removed inline ItemSearchCell, useDebounced, months, years, TypableDateInput, TypableExpiryInput, BulkUpdateItem, NewItem definitions
 
 
 interface Props {
@@ -55,32 +52,32 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [gstType, setGstType] = useState<"inclusive" | "exclusive">("exclusive");
     const [enableTCS, setEnableTCS] = useState(false);
 
-    // Keyboard navigation handler
     const handleKeyDown = (e: React.KeyboardEvent, rowId: string, fieldName: string, isLastField: boolean = false, newMedicine: boolean = false) => {
+        if (e.key === 'Delete') {
+            e.preventDefault();
+            removeNewRow(rowId);
+            return;
+        }
         if (e.key === 'Enter' || (newMedicine && e.key === 'Tab' && !e.shiftKey)) {
             e.preventDefault();
 
-            // If it's the last field (schema_free), create a new row
             if (isLastField) {
                 addNewRow();
-                // Focus the first field of the new row after a short delay
                 setTimeout(() => {
                     const allRows = document.querySelectorAll('[data-row-index]');
                     const lastRow = allRows[allRows.length - 1];
                     if (lastRow) {
                         const firstButton = lastRow.querySelector('button[role="combobox"]') as HTMLElement;
-                        firstButton?.click(); // Open the product search
+
                     }
                 }, 150);
                 return;
             }
 
-            // Move to next field within the current row
             const currentElement = e.target as HTMLElement;
             const currentRow = currentElement.closest('tr');
             if (!currentRow) return;
 
-            // Get all focusable elements in the current row
             const focusableElements = Array.from(
                 currentRow.querySelectorAll('input:not([disabled]), button[role="combobox"]:not([disabled])')
             ) as HTMLElement[];
@@ -156,7 +153,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     const taxable = gross - discount;
                     const tax = taxable * ((sp + cp) / 100);
 
-                    // SCHEMA AMT calculation: purchasePrice * SCHEMA (FREE)
                     updated.schema_amt = r * sf;
 
                     updated.dis = discount;
@@ -234,7 +230,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     purchasePrice: item.purchasePrice,
                     gst: (item.qty * item.purchasePrice - item.dis) * ((item.sgst_p + item.cgst_p) / 100),
                     discount: item.dis,
-
                 })),
                 subTotal: totals.gross,
                 total: totals.total,
@@ -452,7 +447,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                     updateNewItem(item.id, "purchasePrice", it.purchasePrice || 0);
                                                     updateNewItem(item.id, "pack", it.packing || 0);
 
-                                                    // Auto-focus next field (batch input) after selection
                                                     setTimeout(() => {
                                                         const currentRow = document.querySelector(`[data-row-index="${index}"]`);
                                                         if (currentRow) {
