@@ -10,10 +10,10 @@ import api from "@/lib/axios";
 const supplierSchema = z.object({
     name: z.string().min(1, "Name is required"),
     phone: z.string().min(10, "Valid phone number is required"),
-    contactPerson: z.string().min(1, "Contact person is required"),
+    contactPerson: z.string().optional(),
     designation: z.string().optional(),
-    email: z.string().email("Invalid email").min(1, "Email is required"),
-    line1: z.string().min(1, "Address Line 1 is required"),
+    email: z.string().email("Invalid email").optional().or(z.literal("")),
+    line1: z.string().optional(),
     line2: z.string().optional(),
     city: z.string().optional(),
     state: z.string().optional(),
@@ -120,7 +120,7 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="contactPerson" className="font-semibold">Contact Person *</Label>
+                        <Label htmlFor="contactPerson" className="font-semibold">Contact Person</Label>
                         <Input
                             id="contactPerson"
                             placeholder="Name of contact person"
@@ -147,7 +147,7 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                     </div>
 
                     <div className="space-y-2">
-                        <Label htmlFor="email" className="font-semibold">Email Address *</Label>
+                        <Label htmlFor="email" className="font-semibold">Email Address</Label>
                         <Input id="email" placeholder="email@example.com" {...register("email")} />
                         {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
                     </div>
@@ -155,7 +155,7 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label htmlFor="line1" className="font-semibold">Address Line 1 *</Label>
+                        <Label htmlFor="line1" className="font-semibold">Address Line 1</Label>
                         <Input
                             id="line1"
                             placeholder="Building, Street"
