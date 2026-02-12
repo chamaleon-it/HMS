@@ -11,8 +11,8 @@ export default function useItems({ filter }: { filter: FilterType }) {
   if (filter.stock) params.set("stock", filter.stock);
   if (filter.expiry) params.set("expiry", String(filter.expiry));
   if (filter.lowStockThreshold) params.set("lowStockThreshold", String(filter.lowStockThreshold));
-  if (filter.sortBy) params.set("sortBy", filter.sortBy);
-  if (filter.order) params.set("order", filter.order);
+  if (filter.supplier && filter.supplier !== "All") params.set("supplier", filter.supplier);
+  if (filter.lowStockItemsView) params.set("lowStockItemsView", String(filter.lowStockItemsView));
 
   const { data, mutate, isLoading, isValidating, error } = useSWR<{
     message: string;

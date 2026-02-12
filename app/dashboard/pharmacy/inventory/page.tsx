@@ -17,7 +17,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { formatINR } from "@/lib/fNumber";
 import useSWR from "swr";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -54,8 +53,8 @@ export default function InventoryPage() {
     stock: undefined,
     expiry: undefined,
     lowStockThreshold: pharmacyInventory.lowStockThreshold,
-    sortBy: "createdAt",
-    order: "desc",
+    supplier: undefined,
+    lowStockItemsView: false,
   });
 
   const { items, total, isLoading, isValidating, mutate, lowStockCount } = useItems({
@@ -100,7 +99,7 @@ export default function InventoryPage() {
             className={`flex flex-col gap-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
               }`}
           >
-            <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} />
+            <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} setFilter={setFilter} lowStockItemsView={filter.lowStockItemsView} />
 
             <ItemFilter filter={filter} setFilter={setFilter} />
 
@@ -121,16 +120,6 @@ export default function InventoryPage() {
               />
             )}
 
-            {/* Footer */}
-            {/* <div className="flex justify-between text-sm text-gray-600">
-            <p>Total Items: {items.length}</p>
-            <p>
-              Total Value:{" "}
-              {formatINR(
-                items?.reduce((a, b) => a + b.unitPrice * b.quantity, 0)
-              )}
-            </p>
-          </div> */}
           </div>
 
           <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>

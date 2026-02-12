@@ -92,19 +92,14 @@ export default function ItemTable({
                   <Checkbox />
                 </TableHead>
                 <SortableHeader label="Sl No" />
-                <SortableHeader label="Item Name" sortKey="name" currentSort={setFilter} />
-                {/* <SortableHeader label="HSN" sortKey="hsnCode" currentSort={setFilter} /> */}
-                {/* <SortableHeader label="SKU" sortKey="sku" currentSort={setFilter} /> */}
-                {/* <SortableHeader label="Category" sortKey="category" currentSort={setFilter} /> */}
-                <SortableHeader label="Rack" sortKey="rackLocation" currentSort={setFilter} />
-                <SortableHeader label="Quantity" sortKey="quantity" currentSort={setFilter} />
-                <SortableHeader label="P.Price" sortKey="purchasePrice" currentSort={setFilter} />
-                <SortableHeader label="Unit Price (₹)" sortKey="unitPrice" currentSort={setFilter} />
-                {/* <SortableHeader label="Total Value (₹)" /> */}
-                <SortableHeader label="Expiry Date" sortKey="expiryDate" currentSort={setFilter} />
-                <SortableHeader label="Supplier" sortKey="supplier" currentSort={setFilter} />
-                {/* <SortableHeader label="Manufacturer" sortKey="manufacturer" currentSort={setFilter} /> */}
-                <SortableHeader label="Status" sortKey="status" currentSort={setFilter} />
+                <SortableHeader label="Item Name" />
+                <SortableHeader label="Rack" />
+                <SortableHeader label="Quantity" />
+                <SortableHeader label="P.Price" />
+                <SortableHeader label="Unit Price (₹)" />
+                <SortableHeader label="Expiry Date" />
+                <SortableHeader label="Supplier" />
+                <SortableHeader label="Status" />
                 <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-2.5 pr-4" >Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -135,8 +130,6 @@ export default function ItemTable({
                     {item.rackLocation || "-"}
                   </TableCell>
 
-                  {/* <TableCell className="py-3">{item.sku}</TableCell> */}
-                  {/* <TableCell className="py-3">{item.category}</TableCell> */}
                   <TableCell className="py-3">
                     {item.quantity === 0 ? (
                       <div className="flex items-center gap-1.5 text-red-600 font-medium">
@@ -157,7 +150,6 @@ export default function ItemTable({
                   </TableCell>
                   <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
                   <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
-                  {/* <TableCell className="py-3">{item?.batches?.length ? formatINR(item?.batches?.reduce((a, b) => a + (b.purchasePrice * b.quantity), 0)) : formatINR(item.quantity * item.purchasePrice)}</TableCell> */}
                   <TableCell className="py-3">
                     {new Date(item.expiryDate) < new Date() ? (
                       <div className="flex items-center gap-1.5 text-red-600 font-medium">
@@ -174,7 +166,6 @@ export default function ItemTable({
                     )}
                   </TableCell>
                   <TableCell className="py-3">{item.supplier}</TableCell>
-                  {/* <TableCell className="py-3">{item.manufacturer}</TableCell> */}
                   <TableCell className="py-3">
                     <Chip
                       label={item.status}
@@ -309,11 +300,7 @@ const Chip: React.FC<{
 }> = ({ label, tone = "gray" }) => {
   const tones: Record<string, string> = {
     Active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    // gray: "bg-slate-100 text-slate-700 ring-slate-200",
     Inactive: "bg-rose-50 text-rose-700 ring-rose-200",
-    // blue: "bg-sky-50 text-sky-700 ring-sky-200",
-    // amber: "bg-amber-50 text-amber-700 ring-amber-200",
-
     Upcoming: "bg-slate-100 text-slate-700 ring-slate-700",
     Test: "bg-sky-100  text-sky-700 ring-sky-700",
     Observation: "bg-amber-100  text-amber-700 ring-amber-700",
@@ -332,23 +319,13 @@ const Chip: React.FC<{
   );
 };
 
-const SortableHeader = ({ label, sortKey, currentSort }: { label: string, sortKey?: string, currentSort?: Dispatch<SetStateAction<FilterType>> }) => {
+const SortableHeader = ({ label }: { label: string }) => {
   return (
     <TableHead
-      className={`text-white font-bold text-[11px] uppercase tracking-wider py-2.5 cursor-pointer hover:bg-slate-600 transition-colors select-none ${sortKey ? "" : "pointer-events-none"}`}
-      onClick={() => {
-        if (sortKey && currentSort) {
-          currentSort((prev) => ({
-            ...prev,
-            sortBy: sortKey,
-            order: prev.sortBy === sortKey && prev.order === "asc" ? "desc" : "asc"
-          }));
-        }
-      }}
+      className={`text-white font-bold text-[11px] uppercase tracking-wider py-2.5`}
     >
       <div className="flex items-center gap-1 group">
         {label}
-        {sortKey && <ArrowUpDown className="h-3 w-3 text-slate-400 group-hover:text-white transition-colors" />}
       </div>
     </TableHead>
   );

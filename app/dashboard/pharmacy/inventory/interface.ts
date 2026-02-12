@@ -41,6 +41,6 @@ export interface FilterType {
   page: number;
   limit: number;
   lowStockThreshold?: number;
-  sortBy?: string;
-  order?: "asc" | "desc";
+  supplier?: string;
+  lowStockItemsView: boolean;
 }
