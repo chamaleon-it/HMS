@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+
 
 import { Item, OrderType } from "./interface";
 import Medicine from "./Medicine";
@@ -67,6 +68,19 @@ export default function UpdatePrescriptionCard({
   };
 
   const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * (b.name.unitPrice || 0), 0);
+
+  useEffect(() => {
+    if (data.items.length > 0) {
+      const lastIdx = data.items.length - 1;
+      setTimeout(() => {
+        const lastQtyInput = document.getElementById(`qty-input-${lastIdx}`);
+        if (lastQtyInput) {
+          lastQtyInput.focus();
+          (lastQtyInput as HTMLInputElement).select();
+        }
+      }, 50);
+    }
+  }, [data.items.length]);
 
 
   return (
@@ -228,11 +242,22 @@ const QuantityInput = ({
               setOpenWarning(true);
             }
           }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              const drugSearch = document.getElementById("drug-search-input");
+              if (drugSearch) {
+                drugSearch.focus();
+              }
+            }
+          }}
+          id={`qty-input-${i}`}
           inputMode="numeric"
           className="w-20 text-right bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-semibold text-slate-700 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
           value={m.quantity ? (m?.quantity === 0 ? "" : m?.quantity) : ""}
         />
       </div>
+
       <AlertDialog open={openWarning} onOpenChange={setOpenWarning}>
         <AlertDialogContent>
           <AlertDialogHeader>

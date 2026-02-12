@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+
 import {
     Dialog,
     DialogContent,
@@ -17,14 +22,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { OrderType } from "./interface";
-import { fAge, fDate, fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import UpdatePrescriptionCard from "./UpdatePrescriptionCard";
 import useSWR from "swr";
 import Link from "next/link";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Banknote, QrCode, AlertCircle } from "lucide-react";
+
 
 interface Props {
     open: boolean;
@@ -119,6 +125,10 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const [openPrintConfirm, setOpenPrintConfirm] = useState(false);
     const [markingAllPacked, setMarkingAllPacked] = useState(false);
     const [updatingOrder, setUpdatingOrder] = useState(false);
+    const [paymentMethod, setPaymentMethod] = useState<"Cash" | "UPI" | "Underpaid">("Cash");
+    const [amountPaid, setAmountPaid] = useState("");
+    const [referenceNumber, setReferenceNumber] = useState("");
+
 
     const { data } = useSWR<{ data: { pharmacy: { inventory: { allowNegativeStock: boolean } } } }>("/users/profile")
     const allowNegativeStock = data?.data?.pharmacy?.inventory?.allowNegativeStock
@@ -286,6 +296,122 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         data={updatePayload}
                         onTogglePacked={handleTogglePacked}
                     />
+
+                    {/* Payment Details Section */}
+                    <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Payment Details</h3>
+                            <div className="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border">
+                                Total Amount: <span className="text-slate-900 font-bold">{formatINR(updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)}</span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {[
+                                { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50" },
+                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-indigo-600", bg: "bg-indigo-50" },
+                                { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50" },
+                            ].map((method) => {
+                                const active = paymentMethod === method.id;
+                                return (
+                                    <button
+                                        key={method.id}
+                                        type="button"
+                                        onClick={() => setPaymentMethod(method.id as any)}
+                                        className={cn(
+                                            "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left group",
+                                            active
+                                                ? `border-${method.id === "Cash" ? "emerald" : method.id === "UPI" ? "indigo" : "rose"}-500 ${method.bg} shadow-md`
+                                                : "border-slate-200 bg-white hover:border-slate-300 shadow-sm"
+                                        )}
+                                    >
+                                        <div className={cn("p-2 rounded-lg", active ? "bg-white" : "bg-slate-50 group-hover:bg-white")}>
+                                            <method.icon className={cn("h-5 w-5", active ? method.color : "text-slate-400")} />
+                                        </div>
+                                        <div>
+                                            <div className={cn("text-sm font-bold", active ? "text-slate-900" : "text-slate-600")}>{method.label}</div>
+                                            <div className="text-[10px] text-slate-400 font-medium">Click to select</div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {paymentMethod === "Cash" && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
+                            >
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter amount from customer"
+                                        value={amountPaid}
+                                        onChange={(e) => setAmountPaid(e.target.value)}
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-emerald-500/20"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance to Return (₹)</Label>
+                                    <div className={cn(
+                                        "h-11 flex items-center px-4 rounded-lg border-2 font-bold text-lg transition-colors",
+                                        (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)) >= 0
+                                            ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                                            : "bg-rose-50 border-rose-100 text-rose-700"
+                                    )}>
+                                        {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)))}
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {paymentMethod === "Underpaid" && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
+                            >
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="0.00"
+                                        value={amountPaid}
+                                        onChange={(e) => setAmountPaid(e.target.value)}
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reference / Bill No.</Label>
+                                    <Input
+                                        placeholder="Enter reference if any"
+                                        value={referenceNumber}
+                                        onChange={(e) => setReferenceNumber(e.target.value)}
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
+                                    />
+                                </div>
+                            </motion.div>
+                        )}
+
+                        {paymentMethod === "UPI" && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: "auto" }}
+                                className="space-y-2 pt-2"
+                            >
+                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
+                                <Input
+                                    placeholder="Enter UPI transaction ID"
+                                    value={referenceNumber}
+                                    onChange={(e) => setReferenceNumber(e.target.value)}
+                                    className="h-11 bg-white border-slate-200 rounded-lg focus:ring-indigo-500/20"
+                                />
+                            </motion.div>
+                        )}
+                    </div>
+
                 </div>
 
                 {/* Footer Actions */}
