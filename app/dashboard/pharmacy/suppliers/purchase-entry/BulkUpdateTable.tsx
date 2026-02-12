@@ -49,7 +49,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [newItems, setNewItems] = useState<NewItem[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [selectedSupplierId, setSelectedSupplierId] = useState<string>(defaultSupplierId || "");
-    const [gstType, setGstType] = useState<"inclusive" | "exclusive">("exclusive");
+    const [gstType, setGstType] = useState<"inclusive" | "exclusive">("inclusive");
     const [enableTCS, setEnableTCS] = useState(false);
 
     const handleKeyDown = (e: React.KeyboardEvent, rowId: string, fieldName: string, isLastField: boolean = false, newMedicine: boolean = false) => {
@@ -412,8 +412,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">EXPIRY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">Rate</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SGST(%)</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">CGST(%)</TableHead>
+                                {gstType === "inclusive" && <>
+                                    <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SGST(%)</TableHead>
+                                    <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">CGST(%)</TableHead>
+                                </>}
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS(%)</TableHead>
                                 {/* <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS AMT</TableHead> */}
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA (FREE)</TableHead>
@@ -502,36 +504,38 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "purchasePrice")}
                                             />
                                         </TableCell>
-                                        <TableCell className="p-2">
-                                            <Select value={String(item.sgst_p)} onValueChange={(v) => updateNewItem(item.id, "sgst_p", Number(v))}>
-                                                <SelectTrigger className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all  px-3">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent className="rounded-lg shadow-xl">
-                                                    <SelectItem value="0" className="">0%</SelectItem>
-                                                    <SelectItem value="2.5" className="">2.5%</SelectItem>
-                                                    <SelectItem value="6" className="">6%</SelectItem>
-                                                    <SelectItem value="9" className="">9%</SelectItem>
-                                                    <SelectItem value="12" className="">12%</SelectItem>
-                                                    <SelectItem value="14" className="">14%</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </TableCell>
-                                        <TableCell className="p-2">
-                                            <Select value={String(item.cgst_p)} onValueChange={(v) => updateNewItem(item.id, "cgst_p", Number(v))}>
-                                                <SelectTrigger className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all  px-3">
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent className="rounded-lg shadow-xl">
-                                                    <SelectItem value="0" className="">0%</SelectItem>
-                                                    <SelectItem value="2.5" className="">2.5%</SelectItem>
-                                                    <SelectItem value="6" className="">6%</SelectItem>
-                                                    <SelectItem value="9" className="">9%</SelectItem>
-                                                    <SelectItem value="12" className="">12%</SelectItem>
-                                                    <SelectItem value="14" className="">14%</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </TableCell>
+                                        {gstType === "inclusive" && <>
+                                            <TableCell className="p-2">
+                                                <Select value={String(item.sgst_p)} onValueChange={(v) => updateNewItem(item.id, "sgst_p", Number(v))}>
+                                                    <SelectTrigger className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all  px-3">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="rounded-lg shadow-xl">
+                                                        <SelectItem value="0" className="">0%</SelectItem>
+                                                        <SelectItem value="2.5" className="">2.5%</SelectItem>
+                                                        <SelectItem value="6" className="">6%</SelectItem>
+                                                        <SelectItem value="9" className="">9%</SelectItem>
+                                                        <SelectItem value="12" className="">12%</SelectItem>
+                                                        <SelectItem value="14" className="">14%</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
+                                            <TableCell className="p-2">
+                                                <Select value={String(item.cgst_p)} onValueChange={(v) => updateNewItem(item.id, "cgst_p", Number(v))}>
+                                                    <SelectTrigger className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all  px-3">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="rounded-lg shadow-xl">
+                                                        <SelectItem value="0" className="">0%</SelectItem>
+                                                        <SelectItem value="2.5" className="">2.5%</SelectItem>
+                                                        <SelectItem value="6" className="">6%</SelectItem>
+                                                        <SelectItem value="9" className="">9%</SelectItem>
+                                                        <SelectItem value="12" className="">12%</SelectItem>
+                                                        <SelectItem value="14" className="">14%</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                            </TableCell>
+                                        </>}
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -590,7 +594,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
-                className="grid grid-cols-2 md:grid-cols-6 gap-6"
+                className={`grid grid-cols-2 ${gstType === "exclusive" ? "md:grid-cols-4" : "md:grid-cols-6"} gap-6`}
             >
                 {[
                     { label: "GROSS AMOUNT", value: totals.gross, color: "text-slate-600" },
@@ -598,7 +602,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     { label: "SGST PAYABLE", value: totals.sgst, color: "text-slate-600" },
                     { label: "CGST PAYABLE", value: totals.cgst, color: "text-slate-600" },
                     { label: "SCHEMA TOTAL", value: totals.schema_amt, color: "text-indigo-600" },
-                ].map((stat, i) => (
+                ].filter((stat) => gstType === "exclusive" ? stat.label !== "SGST PAYABLE" && stat.label !== "CGST PAYABLE" : true).map((stat, i) => (
                     <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-indigo-200 transition-all">
                         <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full group-hover:bg-indigo-50 transition-colors" />
                         <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">{stat.label}</span>
