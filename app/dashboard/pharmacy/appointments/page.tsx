@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { cn } from "@/lib/utils";
 
 import { Plus, CalendarDays, Clock, FlaskConical, Bed, AlertTriangle, CheckCircle2 } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
@@ -35,11 +36,11 @@ export default function AppointmentPage() {
           subtitle="Manage patient appointments and schedules"
         >
           <div className="flex gap-5">
-            <PrimaryButton onClick={() => setOpenCreate(true)}>
+            <PrimaryButton onClick={() => setOpenCreate(true)} className="bg-emerald-600 hover:bg-emerald-700">
               <Plus className="h-4 w-4 mr-2" /> Schedule
             </PrimaryButton>
 
-            <PrimaryButton onClick={() => setOpenCreate("walk-in")}>
+            <PrimaryButton onClick={() => setOpenCreate("walk-in")} className="bg-linear-to-br from-indigo-600 to-pink-500">
               Walk-in Appointment
             </PrimaryButton>
 
@@ -86,8 +87,8 @@ export default function AppointmentPage() {
                       {active && (
                         <motion.span
                           layoutId="appointment-tab-indicator"
-                          className="absolute inset-0 rounded-full shadow-md"
-                          style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-indigo-600 to-fuchsia-500"
+
                           transition={{ type: "spring", stiffness: 500, damping: 40 }}
                         />
                       )}
@@ -118,8 +119,8 @@ export default function AppointmentPage() {
                       {active && (
                         <motion.span
                           layoutId="status-filter-indicator"
-                          className="absolute inset-0 rounded-full shadow-md"
-                          style={{ background: "linear-gradient(90deg, #4f46e5, #d946ef)" }}
+                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-indigo-600 to-fuchsia-500"
+
                           transition={{ type: "spring", stiffness: 400, damping: 35 }}
                         />
                       )}
@@ -155,21 +156,18 @@ export default function AppointmentPage() {
   );
 }
 
-const theme = {
-  from: "#4f46e5",
-  to: "#ec4899",
-};
 
 const PrimaryButton: React.FC<
   React.ButtonHTMLAttributes<HTMLButtonElement>
 > = ({ className = "", children, ...rest }) => (
   <button
     {...rest}
-    className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110 active:scale-[0.99] ${className} cursor-pointer flex items-center justify-center`}
-    style={{
-      backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-    }}
+    className={cn(
+      "rounded-lg px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110 active:scale-[0.99] cursor-pointer flex items-center justify-center",
+      className
+    )}
   >
+
     {children}
   </button>
 );
