@@ -68,9 +68,12 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     const lastRow = allRows[allRows.length - 1];
                     if (lastRow) {
                         const firstButton = lastRow.querySelector('button[role="combobox"]') as HTMLElement;
-
+                        if (firstButton) {
+                            firstButton.focus();
+                            firstButton.click();
+                        }
                     }
-                }, 150);
+                }, 200);
                 return;
             }
 
