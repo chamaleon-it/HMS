@@ -100,10 +100,10 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
         <div className="p-0 font-sans">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div className="space-y-2">
-                    <Label htmlFor="name" className="font-semibold">Seller Name *</Label>
+                    <Label htmlFor="name" className="font-semibold">Supplier Name *</Label>
                     <Input
                         id="name"
-                        placeholder="Enter seller name"
+                        placeholder="Enter supplier name"
                         {...register("name")}
                         onChange={(e) => {
                             setValue("name", capitalizeWords(e.target.value), { shouldValidate: true });
