@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+
 import AppShell from "@/components/layout/app-shell";
 import PharmacyHeader from "../components/PharmacyHeader";
 import { Button } from "@/components/ui/button";
@@ -13,8 +14,11 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { formatINR } from "@/lib/fNumber";
+import { cn } from "@/lib/utils";
+
 import { useRouter } from "next/navigation";
-import { Plus, RefreshCw, Users, ShoppingBag, BarChart3, CreditCard } from "lucide-react";
+import { Plus, RefreshCw, Users, ShoppingBag, BarChart3, CreditCard, ArrowUpDown } from "lucide-react";
+
 import Drawer from "@/components/ui/drawer";
 import { AddSupplier } from "./AddSupplier";
 import { Supplier } from "./interface";
@@ -28,6 +32,26 @@ const SuppliersPage: React.FC = () => {
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
 
     const { data: suppliers = [], error, isLoading, mutate } = useSWR<Supplier[]>("/suppliers", fetcher);
+    const [sortBy, setSortBy] = useState<keyof Supplier | null>(null);
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
+
+    const sortedSuppliers = useMemo(() => {
+        if (!sortBy) return suppliers;
+        return [...suppliers].sort((a, b) => {
+            const valA = (a[sortBy] as number) || 0;
+            const valB = (b[sortBy] as number) || 0;
+            return sortOrder === "asc" ? valA - valB : valB - valA;
+        });
+    }, [suppliers, sortBy, sortOrder]);
+
+    const handleSort = (column: keyof Supplier) => {
+        if (sortBy === column) {
+            setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+        } else {
+            setSortBy(column);
+            setSortOrder("desc");
+        }
+    };
 
     const stats = {
         totalSuppliers: suppliers.length,
@@ -123,18 +147,34 @@ const SuppliersPage: React.FC = () => {
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Phone Number</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">GSTIN</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">DL No</TableHead>
-                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right">
-                                        Total Purchase Count
-                                    </TableHead>
-                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
-                                        Purchase Value
-                                    </TableHead>
 
-                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
-                                        Total Due
-                                    </TableHead>
+                                    <SortableHeader
+                                        label="Total Purchase Count"
+                                        column="totalPurchaseCount"
+                                        currentSort={sortBy}
+                                        sortOrder={sortOrder}
+                                        onSort={handleSort}
+                                        className="text-right"
+                                    />
+                                    <SortableHeader
+                                        label="Purchase Value"
+                                        column="totalPurchaseValue"
+                                        currentSort={sortBy}
+                                        sortOrder={sortOrder}
+                                        onSort={handleSort}
+                                        className="text-right pr-4"
+                                    />
+                                    <SortableHeader
+                                        label="Total Due"
+                                        column="totalDue"
+                                        currentSort={sortBy}
+                                        sortOrder={sortOrder}
+                                        onSort={handleSort}
+                                        className="text-right pr-4"
+                                    />
                                 </TableRow>
                             </TableHeader>
+
                             <TableBody className="text-[15px]">
                                 {isLoading ? (
                                     <TableRow>
@@ -146,7 +186,7 @@ const SuppliersPage: React.FC = () => {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    suppliers.map((supplier, idx) => (
+                                    sortedSuppliers.map((supplier, idx) => (
                                         <TableRow
                                             key={supplier._id}
                                             className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
@@ -155,6 +195,7 @@ const SuppliersPage: React.FC = () => {
                                                 } hover:-translate-y-px hover:shadow-sm`}
                                             onClick={() => router.push(`/dashboard/pharmacy/suppliers/single?id=${supplier._id}`)}
                                         >
+
                                             <TableCell className="py-3 align-middle text-slate-500 pl-4">
                                                 {idx + 1}
                                             </TableCell>
@@ -212,4 +253,42 @@ const SuppliersPage: React.FC = () => {
     );
 };
 
+const SortableHeader = ({
+    label,
+    column,
+    currentSort,
+    sortOrder,
+    onSort,
+    className = "",
+}: {
+    label: string;
+    column: keyof Supplier;
+    currentSort: keyof Supplier | null;
+    sortOrder: "asc" | "desc";
+    onSort: (column: keyof Supplier) => void;
+    className?: string;
+}) => {
+    const active = currentSort === column;
+    return (
+        <TableHead
+            className={cn(
+                "text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 cursor-pointer hover:bg-slate-600 transition-colors select-none",
+                className
+            )}
+            onClick={() => onSort(column)}
+        >
+            <div className={cn("flex items-center gap-1 group", className.includes("text-right") ? "justify-end" : "justify-start")}>
+                {label}
+                <ArrowUpDown
+                    className={cn(
+                        "h-3 w-3 transition-colors",
+                        active ? "text-white" : "text-slate-400 group-hover:text-white"
+                    )}
+                />
+            </div>
+        </TableHead>
+    );
+};
+
 export default SuppliersPage;
+
