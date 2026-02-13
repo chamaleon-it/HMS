@@ -690,9 +690,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start mt-4 pb-12"
+                className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-4 pb-12"
             >
-                <div className="lg:col-span-3 space-y-3">
+                <div className="lg:col-span-8 space-y-3">
                     <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em] ml-2">Description</label>
                     <Textarea
                         placeholder="Type additional details about this transaction for records..."
@@ -701,45 +701,98 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         onChange={(e) => handleBillDetailChange("description", e.target.value)}
                     />
                 </div>
-                <div className="flex flex-col justify-end h-full gap-4 mt-8 lg:mt-0">
-
-                    <div className="space-y-2 mb-2">
-                        <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Paid Amount</label>
-                        <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400  text-sm">₹</span>
-                            <Input
-                                type="number"
-                                placeholder="0.00"
-                                className="h-14 bg-indigo-50/30 border-2 border-indigo-100/50 rounded-2xl pl-8 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-lg text-indigo-700 placeholder:text-indigo-200"
-                                value={billDetails.paidAmount}
-                                onChange={(e) => handleBillDetailChange("paidAmount", e.target.value)}
-                            />
+                <div className="lg:col-span-4 space-y-6">
+                    <div className="bg-white p-8 rounded-3xl border-2 border-slate-100 shadow-xl shadow-slate-200/50 space-y-6">
+                        <div className="flex justify-between items-center border-b pb-4 border-slate-50">
+                            <h3 className="text-xs font-black text-slate-800 uppercase tracking-[0.2em]">Bill Summary</h3>
+                            <div className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-bold">DRAFT</div>
                         </div>
+
+                        <div className="space-y-4">
+                            {(() => {
+                                const taxableAmt = totals.gross - totals.discount;
+                                const taxAmt = totals.sgst + totals.cgst;
+                                const netAmt = taxableAmt + taxAmt;
+                                const netPayable = totals.total;
+
+                                return (
+                                    <>
+                                        <SummaryRow label="Sub Total" value={totals.gross} />
+                                        <SummaryRow label="Cash Disc" value={totals.discount} isNegative />
+                                        <SummaryRow label="Scheme Disc" value={totals.schema_amt} isNegative />
+                                        <div className="h-px bg-slate-100/60 my-2" />
+                                        <SummaryRow label="Taxable Amount" value={taxableAmt} isBold />
+                                        <SummaryRow label="Tax Amount" value={taxAmt} />
+                                        {/* <SummaryRow label="Bill Disc." value={0} isNegative /> */}
+                                        {/* <SummaryRow label="TDS / TCS Amount" value={0} /> */}
+                                        {/* <SummaryRow label="Write Off" value={0} /> */}
+                                        <div className="h-px bg-slate-100/60 my-2" />
+                                        {/* <SummaryRow label="CreditNote Amt." value={0} isNegative /> */}
+                                        {/* <SummaryRow label="DebitNote Amt." value={0} /> */}
+
+                                        <div className="bg-slate-900 -mx-8 px-8 py-6 mt-6 shadow-2xl shadow-indigo-900/20">
+                                            <div className="flex justify-between items-center text-white mb-1">
+                                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Net Payable</span>
+                                                <span className="text-2xl font-black tracking-tight">₹{netPayable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                            </div>
+                                            <div className="text-[9px] text-slate-500 uppercase tracking-widest font-medium text-right mt-1">Inclusive of all taxes</div>
+                                        </div>
+                                    </>
+                                );
+                            })()}
+                        </div>
+
+                        <div className="pt-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Capture Paid Amount</label>
+                            <div className="relative group">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold group-focus-within:text-indigo-500 transition-colors">₹</span>
+                                <Input
+                                    type="number"
+                                    placeholder="0.00"
+                                    className="h-14 bg-indigo-50/40 border-2 border-indigo-100/50 rounded-2xl pl-10 focus:ring-8 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-black text-xl text-indigo-700 tabular-nums shadow-sm"
+                                    value={billDetails.paidAmount}
+                                    onChange={(e) => handleBillDetailChange("paidAmount", e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <Button
+                            onClick={handleSaveChanges}
+                            disabled={isSaving}
+                            className={cn(
+                                "w-full bg-emerald-600 hover:bg-emerald-700 text-white h-16 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-emerald-200/50 transition-all active:scale-95 flex items-center justify-center gap-3 border-b-4 border-emerald-800"
+                            )}
+                        >
+                            {isSaving ? (
+                                <>
+                                    <div className="w-5 h-5 border-3 border-white/30 border-t-white animate-spin rounded-full" />
+                                    <span>Verifying Entry...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="w-5 h-5" />
+                                    <span>Complete Purchase</span>
+                                </>
+                            )}
+                        </Button>
                     </div>
-
-                    <Button
-                        onClick={handleSaveChanges}
-                        disabled={isSaving}
-                        className={cn(
-                            "w-full bg-emerald-600 hover:bg-emerald-700 text-white h-16 rounded-2xl text-sm font-semibold uppercase tracking-widest shadow-xl transition-all"
-                        )}
-                    >
-
-                        {isSaving ? (
-                            <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin rounded-full" />
-                                <span>Verifying...</span>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-3">
-                                <Save className="w-5 h-5" />
-                                <span>Complete Purchase</span>
-                            </div>
-                        )}
-                    </Button>
-
                 </div>
             </motion.div>
+        </div>
+    );
+}
+
+function SummaryRow({ label, value, isBold = false, isNegative = false, color = "text-slate-600" }: { label: string, value: number, isBold?: boolean, isNegative?: boolean, color?: string }) {
+    return (
+        <div className="flex justify-between items-center group/row">
+            <span className="text-[11px] text-slate-500 font-bold uppercase tracking-wider group-hover/row:text-slate-700 transition-colors">{label} :</span>
+            <span className={cn(
+                "text-sm font-bold tabular-nums tracking-tight",
+                isBold ? "text-slate-900" : color,
+                isNegative && "text-rose-500"
+            )}>
+                {isNegative && "- "}₹{Math.abs(value).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </span>
         </div>
     );
 }
