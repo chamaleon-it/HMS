@@ -55,7 +55,11 @@ export default function InventoryPage() {
     lowStockThreshold: pharmacyInventory.lowStockThreshold,
     supplier: undefined,
     lowStockItemsView: false,
+    sortBy: "createdAt",
+    orderBy: "desc",
   });
+
+  console.log(filter)
 
   const { items, total, isLoading, isValidating, mutate, lowStockCount } = useItems({
     filter,
@@ -114,6 +118,8 @@ export default function InventoryPage() {
                 page={filter.page}
                 limit={filter.limit}
                 setFilter={setFilter}
+                sortBy={filter.sortBy}
+                orderBy={filter.orderBy}
                 isBusy={isLoading || isValidating}
                 mutate={mutate}
                 pharmacyInventory={pharmacyInventory}

@@ -52,6 +52,20 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [gstType, setGstType] = useState<"inclusive" | "exclusive">("inclusive");
     const [enableTCS, setEnableTCS] = useState(false);
 
+    const focusNextElement = (currentElement: HTMLElement) => {
+        const currentRow = currentElement.closest('tr');
+        if (!currentRow) return;
+
+        const focusableElements = Array.from(
+            currentRow.querySelectorAll('input:not([disabled]), button[role="combobox"]:not([disabled])')
+        ) as HTMLElement[];
+
+        const currentIndex = focusableElements.indexOf(currentElement);
+        if (currentIndex !== -1 && currentIndex < focusableElements.length - 1) {
+            focusableElements[currentIndex + 1]?.focus();
+        }
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent, rowId: string, fieldName: string, isLastField: boolean = false, newMedicine: boolean = false) => {
         if (e.key === 'Delete') {
             e.preventDefault();
@@ -64,7 +78,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             if (isLastField) {
                 addNewRow();
                 setTimeout(() => {
-                    const allRows = document.querySelectorAll('[data-row-index]');
+                    const allRows = document.querySelectorAll('[data-row-id]');
                     const lastRow = allRows[allRows.length - 1];
                     if (lastRow) {
                         const firstButton = lastRow.querySelector('button[role="combobox"]') as HTMLElement;
@@ -77,20 +91,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 return;
             }
 
-            const currentElement = e.target as HTMLElement;
-            const currentRow = currentElement.closest('tr');
-            if (!currentRow) return;
-
-            const focusableElements = Array.from(
-                currentRow.querySelectorAll('input:not([disabled]), button[role="combobox"]:not([disabled])')
-            ) as HTMLElement[];
-
-            const currentIndex = focusableElements.indexOf(currentElement);
-
-            if (currentIndex !== -1 && currentIndex < focusableElements.length - 1) {
-                const nextElement = focusableElements[currentIndex + 1];
-                nextElement?.focus();
-            }
+            focusNextElement(e.target as HTMLElement);
         }
     };
 
@@ -119,7 +120,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             product: "",
             batch: "",
             qty: 0,
-            pack: "",
+            pack: 0,
             unitPrice: 0,
             expiryDate: "",
             purchasePrice: 0,
@@ -302,7 +303,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 batch: "",
                 qty: 0,
                 schm: 0,
-                pack: "",
+                pack: 0,
                 unitPrice: 0,
                 expiryDate: "",
                 purchasePrice: 0,
@@ -464,7 +465,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 {newItems.map((item, index) => (
                                     <motion.tr
                                         key={item.id}
-                                        data-row-index={index}
+                                        data-row-id={item.id}
                                         layout
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
@@ -485,7 +486,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                     updateNewItem(item.id, "pack", it.packing || 0);
 
                                                     setTimeout(() => {
-                                                        const currentRow = document.querySelector(`[data-row-index="${index}"]`);
+                                                        const currentRow = document.querySelector(`[data-row-id="${item.id}"]`);
                                                         if (currentRow) {
                                                             const batchInput = currentRow.querySelector('input[name="batch"]') as HTMLInputElement;
                                                             batchInput?.focus();
@@ -499,6 +500,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <Input
                                                 type="number"
                                                 name="qty"
+                                                data-field="qty"
                                                 className="h-11 text-sm font-semibold border-slate-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-700"
                                                 value={item.qty || ""}
                                                 onChange={(e) => updateNewItem(item.id, "qty", Number(e.target.value))}
@@ -508,8 +510,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                data-field="pack"
                                                 className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center"
-                                                value={item.pack}
+                                                value={item.pack || ""}
                                                 onChange={(e) => updateNewItem(item.id, "pack", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "pack")}
                                             />
@@ -517,6 +520,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                data-field="unitPrice"
                                                 className="h-11 text-sm font-semibold border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center text-slate-700"
                                                 value={item.unitPrice || ""}
                                                 onChange={(e) => updateNewItem(item.id, "unitPrice", Number(e.target.value))}
@@ -533,6 +537,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                data-field="purchasePrice"
                                                 className="h-11 text-sm font-semibold border-emerald-200 bg-emerald-50/10 rounded-lg focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 transition-all text-center text-emerald-700"
                                                 value={item.purchasePrice || ""}
                                                 onChange={(e) => updateNewItem(item.id, "purchasePrice", Number(e.target.value))}
@@ -541,8 +546,20 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         </TableCell>
                                         {gstType === "inclusive" && <>
                                             <TableCell className="p-2">
-                                                <Select value={String(item.sgst_p)} onValueChange={(v) => updateNewItem(item.id, "sgst_p", Number(v))}>
-                                                    <SelectTrigger className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all  px-3">
+                                                <Select
+                                                    value={String(item.sgst_p)}
+                                                    onValueChange={(v) => {
+                                                        updateNewItem(item.id, "sgst_p", Number(v));
+                                                        setTimeout(() => {
+                                                            const trigger = document.querySelector(`[data-row-id="${item.id}"] [data-field="sgst_p"]`) as HTMLElement;
+                                                            if (trigger) focusNextElement(trigger);
+                                                        }, 50);
+                                                    }}
+                                                >
+                                                    <SelectTrigger
+                                                        data-field="sgst_p"
+                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all px-3"
+                                                    >
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent className="rounded-lg shadow-xl">
@@ -556,8 +573,20 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 </Select>
                                             </TableCell>
                                             <TableCell className="p-2">
-                                                <Select value={String(item.cgst_p)} onValueChange={(v) => updateNewItem(item.id, "cgst_p", Number(v))}>
-                                                    <SelectTrigger className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all  px-3">
+                                                <Select
+                                                    value={String(item.cgst_p)}
+                                                    onValueChange={(v) => {
+                                                        updateNewItem(item.id, "cgst_p", Number(v));
+                                                        setTimeout(() => {
+                                                            const trigger = document.querySelector(`[data-row-id="${item.id}"] [data-field="cgst_p"]`) as HTMLElement;
+                                                            if (trigger) focusNextElement(trigger);
+                                                        }, 50);
+                                                    }}
+                                                >
+                                                    <SelectTrigger
+                                                        data-field="cgst_p"
+                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all px-3"
+                                                    >
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent className="rounded-lg shadow-xl">
@@ -574,6 +603,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                data-field="dis_p"
                                                 className="h-11 text-sm font-semibold border-red-100 bg-red-50/10 rounded-lg focus:bg-white focus:border-red-400 focus:ring-4 focus:ring-red-500/10 transition-all text-center text-red-600"
                                                 value={item.dis_p || ""}
                                                 onChange={(e) => updateNewItem(item.id, "dis_p", Number(e.target.value))}
@@ -584,6 +614,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2 text-center">
                                             <Input
                                                 type="number"
+                                                data-field="schema_free"
                                                 className="h-11 text-sm font-semibold border-indigo-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-600"
                                                 value={item.schema_free || ""}
                                                 onChange={(e) => updateNewItem(item.id, "schema_free", Number(e.target.value))}
