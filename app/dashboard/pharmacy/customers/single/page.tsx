@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDownIcon, Loader2 } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, Loader2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -247,6 +247,14 @@ const Customer: React.FC = () => {
                                     <p className="text-sm text-slate-500 mt-0.5">
                                         {customer?.patient?.address}
                                     </p>
+                                    {customer?.patient?.allergies && (
+                                        <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 shadow-sm max-w-fit">
+                                            <AlertTriangle className="h-4 w-4 shrink-0" />
+                                            <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                                                Allergies: <span className="text-sm normal-case font-semibold bg-yellow-100 px-2 py-0.5 rounded text-amber-900 border border-amber-200/50">{customer.patient.allergies}</span>
+                                            </div>
+                                        </div>
+                                    )}
                                     <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
                                         {customer?.orders.length === 0 && (
                                             <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
