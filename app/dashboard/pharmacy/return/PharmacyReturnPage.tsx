@@ -216,7 +216,7 @@ export default function PharmacyReturnPage() {
 
                 <TableBody className="[&>tr:nth-child(even)]:bg-slate-50/40">
                   {order?.items.map((it, i) => (
-                    <TableRow key={it.name._id} className="text-[11px]">
+                    <TableRow key={it.name._id} className="text-[14px]">
                       <TableCell className="text-center  text-slate-500 py-3 pl-4">
                         {i + 1}
                       </TableCell>
@@ -230,15 +230,15 @@ export default function PharmacyReturnPage() {
                         </div>
                       </TableCell>
 
-                      <TableCell className=" text-slate-900 font-medium">
+                      <TableCell className=" text-slate-700 font-medium text-sm">
                         {it.name.hsnCode}
                       </TableCell>
 
-                      <TableCell className=" text-slate-900 font-medium">
-                        {"N/A"}
+                      <TableCell className=" text-slate-700 font-medium">
+                        {it.name?.batches?.[0]?.batchNumber ?? "N/A"}
                       </TableCell>
 
-                      <TableCell className=" text-slate-900 font-medium">
+                      <TableCell className=" text-slate-700 font-medium">
                         {fDate(it.name.expiryDate)}
                       </TableCell>
 

@@ -265,15 +265,37 @@ const Customer: React.FC = () => {
                                 </div>
                             </div>
 
-                            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                                    <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
+                            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-indigo-50 to-indigo-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                                    <div className="text-xs font-medium text-indigo-700 uppercase tracking-wide">
                                         Total Spend
                                     </div>
-                                    <div className="text-2xl font-semibold text-emerald-900">
+                                    <div className="text-2xl font-bold text-indigo-900">
                                         {formatINR(customer?.totalSpend ?? 0)}
                                     </div>
                                 </div>
+
+
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                                    <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
+                                        Total Paid
+                                    </div>
+                                    <div className="text-2xl font-bold text-emerald-900">
+                                        {formatINR(customer?.totalPaid ?? 0)}
+                                    </div>
+                                </div>
+
+
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                                    <div className="text-xs font-medium text-rose-700 uppercase tracking-wide">
+                                        Total Due
+                                    </div>
+                                    <div className="text-2xl font-bold text-rose-900">
+                                        {formatINR(customer?.totalDue ?? 0)}
+                                    </div>
+                                </div>
+
+
                                 <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                                     <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
                                         Total Visits
@@ -487,44 +509,37 @@ const Customer: React.FC = () => {
                                                                     <span className="font-medium">
                                                                         {fDate(item.createdAt)} • {item.mrn}
                                                                     </span>
-                                                                    <span className="text-xs font-semibold">
-                                                                        {formatINR(
-                                                                            item.items.reduce(
-                                                                                (a: number, b: any) =>
-                                                                                    a + b.quantity * b.name.unitPrice,
-                                                                                0
-                                                                            ) - (item?.discount || 0)
+                                                                    <div className="text-right flex flex-col items-end">
+                                                                        <span className={`text-[13px] font-bold ${active ? "text-slate-50" : "text-slate-900"}`}>
+                                                                            {formatINR(
+                                                                                item.items.reduce(
+                                                                                    (a: number, b: any) =>
+                                                                                        a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
+                                                                                    0
+                                                                                ) - (item?.discount || 0)
+                                                                            )}
+                                                                        </span>
+                                                                        {(item.items.reduce((a: number, b: any) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice), 0) - (item?.discount || 0) - (item?.paidAmount || 0)) > 0 && (
+                                                                            <span className={`text-[10px] font-bold uppercase tracking-tight ${active ? "text-rose-300" : "text-rose-500"}`}>
+                                                                                Due: {formatINR(
+                                                                                    item.items.reduce(
+                                                                                        (a: number, b: any) =>
+                                                                                            a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
+                                                                                        0
+                                                                                    ) - (item?.discount || 0) - (item?.paidAmount || 0)
+                                                                                )}
+                                                                            </span>
                                                                         )}
-                                                                    </span>
+                                                                    </div>
                                                                 </>
                                                             )}
                                                         </div>
 
                                                         <div className="flex items-center justify-between gap-2 text-[12px]">
-                                                            {isReturn ? (
-                                                                // Return Item Subtext
-                                                                <span
-                                                                    className={
-                                                                        active ? "opacity-80" : "text-slate-500"
-                                                                    }
-                                                                >
-                                                                    {item.items.length} item
-                                                                    {item.items.length === 1 ? "" : "s"}
-                                                                </span>
-                                                            ) : (
-                                                                // Sale Item Subtext
-                                                                <>
-                                                                    <span className="opacity-80">RX: {item.mrn}</span>
-                                                                    <span
-                                                                        className={
-                                                                            active ? "opacity-80" : "text-slate-500"
-                                                                        }
-                                                                    >
-                                                                        {item.items.length} item
-                                                                        {item.items.length === 1 ? "" : "s"}
-                                                                    </span>
-                                                                </>
-                                                            )}
+                                                            <span className={active ? "opacity-80" : "text-slate-500"}>
+                                                                {item.items.length} item
+                                                                {item.items.length === 1 ? "" : "s"}
+                                                            </span>
                                                         </div>
                                                     </button>
                                                 );
@@ -589,6 +604,9 @@ const Customer: React.FC = () => {
                                                     </thead>
                                                     <tbody>
                                                         {selectedVisit.items.map((it, i) => {
+
+                                                            console.log(selectedVisit)
+
                                                             const amount = it.quantity * (it?.unitPrice ?? it.name?.unitPrice);
                                                             return (
                                                                 <tr
@@ -648,21 +666,55 @@ const Customer: React.FC = () => {
                                                                 )}
                                                             </td>
                                                         </tr>
-                                                        <tr className="border-t bg-slate-50/80">
-                                                            <td
-                                                                colSpan={4}
-                                                                className="p-2 text-right text-xs text-slate-600"
-                                                            >
-                                                                Discount
-                                                            </td>
-                                                            <td className="p-2 text-right text-sm font-semibold text-slate-900">
-                                                                {formatINR(
-                                                                    selectedVisit?.discount || 0
+                                                        {selectedVisit?.type === "sale" && <>
+                                                            <tr className="border-t bg-slate-50/80">
+                                                                <td
+                                                                    colSpan={4}
+                                                                    className="p-2 text-right text-xs text-slate-600"
+                                                                >
+                                                                    Discount
+                                                                </td>
+                                                                <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                                                    {formatINR(
+                                                                        selectedVisit?.discount || 0
 
-                                                                )}
-                                                            </td>
-                                                        </tr>
+                                                                    )}
+                                                                </td>
+                                                            </tr>
 
+
+                                                            <tr className="border-t bg-slate-50/80">
+                                                                <td
+                                                                    colSpan={4}
+                                                                    className="p-2 text-right text-xs text-slate-600"
+                                                                >
+                                                                    Amount Paid
+                                                                </td>
+                                                                <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                                                    {formatINR(
+                                                                        selectedVisit?.paidAmount || 0
+
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+
+                                                            <tr className="border-t bg-slate-50/80">
+                                                                <td
+                                                                    colSpan={4}
+                                                                    className="p-2 text-right text-xs text-slate-600"
+                                                                >
+                                                                    Due Amount
+                                                                </td>
+                                                                <td className="p-2 text-right text-sm font-semibold text-rose-500">
+                                                                    {formatINR(
+                                                                        selectedVisit.items.reduce(
+                                                                            (a, b) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
+                                                                            0
+                                                                        ) - (selectedVisit?.discount || 0) - (selectedVisit?.paidAmount || 0)
+                                                                    )}
+                                                                </td>
+                                                            </tr>
+                                                        </>}
 
 
                                                         <tr className="border-t bg-slate-50/80">

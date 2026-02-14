@@ -113,16 +113,16 @@ export default function List({
                 </TableCell>
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
-                    <Initials text={row.patient.name} />
+                    <Initials text={row?.patient?.name} />
                     <div className="min-w-0">
                       <div className="truncate text-sm font-medium text-slate-900">
-                        {row.patient.name}{" "}
+                        {row?.patient?.name}{" "}
                         <span className="text-[10px] text-gray-400 font-normal">
-                          ({row.patient.mrn})
+                          ({row?.patient?.mrn})
                         </span>
                       </div>
                       <div className="text-[11px] text-zinc-500 truncate">
-                        {row.patient.phoneNumber}
+                        {row?.patient?.phoneNumber}
                       </div>
                     </div>
                   </div>
@@ -216,11 +216,11 @@ const Chip: React.FC<{
 
 function Initials({ text }: { text: string }) {
   const initials = text
-    .split(" ")
-    .map((s) => s[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+    ?.split(" ")
+    ?.map((s) => s[0])
+    ?.join("")
+    ?.slice(0, 2)
+    ?.toUpperCase();
   return (
     <div
       className="h-7 w-7 rounded-full bg-linear-to-br from-zinc-200 to-zinc-100 text-zinc-700 grid place-items-center text-[10px] font-bold"
