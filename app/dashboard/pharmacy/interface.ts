@@ -93,5 +93,5 @@ export interface DataType {
     discount: number;
     priority: string;
     status: string;
-    assignedTo?: string;
+    pharmacists?: string;
 }

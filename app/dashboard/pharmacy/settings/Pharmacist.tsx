@@ -32,6 +32,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { MoreHorizontal, Plus, Pencil, Trash2, Loader2 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
+import { cn } from '@/lib/utils'
 
 const pharmacistSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -42,7 +43,7 @@ const pharmacistSchema = z.object({
 
 type PharmacistValues = z.infer<typeof pharmacistSchema>
 
-interface PharmacistData extends PharmacistValues {
+export interface PharmacistData extends PharmacistValues {
     _id: string
 }
 
@@ -249,23 +250,23 @@ export default function Pharmacist() {
                 </Dialog>
             </div>
 
-            <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
-                <Table>
-                    <TableHeader className="bg-slate-50/50">
-                        <TableRow>
-                            <TableHead className="font-semibold">Name</TableHead>
-                            <TableHead className="font-semibold">Qualification</TableHead>
-                            <TableHead className="font-semibold">License No.</TableHead>
-                            <TableHead className="font-semibold">Designation</TableHead>
-                            <TableHead className="text-right font-semibold">Actions</TableHead>
+            <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
+                <Table className="min-w-fit">
+                    <TableHeader className="bg-slate-700 hover:bg-slate-700">
+                        <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Name</TableHead>
+                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Qualification</TableHead>
+                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">License No.</TableHead>
+                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Designation</TableHead>
+                            <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pr-4">Actions</TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {pharmacistLoading ? (
                             Array.from({ length: 3 }).map((_, i) => (
-                                <TableRow key={i}>
+                                <TableRow key={i} className={i % 2 === 0 ? "bg-white" : "bg-slate-50"}>
                                     {Array.from({ length: 5 }).map((_, j) => (
-                                        <TableCell key={j}>
+                                        <TableCell key={j} className="py-3 px-4">
                                             <div className="h-5 w-full animate-pulse bg-slate-100 rounded" />
                                         </TableCell>
                                     ))}
@@ -273,43 +274,49 @@ export default function Pharmacist() {
                             ))
                         ) : pharmacist.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground">
+                                <TableCell colSpan={5} className="h-32 text-center text-muted-foreground bg-white">
                                     No pharmacists found. Add your first pharmacist to get started.
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            pharmacist.map((p) => (
-                                <TableRow key={p._id} className="group transition-colors hover:bg-slate-50/50">
-                                    <TableCell className="font-medium">{p.name}</TableCell>
-                                    <TableCell>{p.qualification || <span className="text-slate-400 italic text-xs">Not set</span>}</TableCell>
-                                    <TableCell>
+                            pharmacist.map((p, idx) => (
+                                <TableRow
+                                    key={p._id}
+                                    className={cn(
+                                        "group transition-colors",
+                                        idx % 2 === 0 ? "bg-white hover:bg-white/60" : "bg-slate-50 hover:bg-slate-50/60"
+                                    )}
+                                >
+                                    <TableCell className="py-3 pl-4 font-medium text-slate-900">{p.name}</TableCell>
+                                    <TableCell className="py-3 text-slate-600">{p.qualification || <span className="text-slate-400 italic text-[11px]">Not set</span>}</TableCell>
+                                    <TableCell className="py-3">
                                         {p.licenseNumber ? (
-                                            <Badge variant="outline" className="font-mono text-[10px] uppercase">
-                                                {p.licenseNumber}
-                                            </Badge>
+
+                                            p.licenseNumber
+
                                         ) : (
-                                            <span className="text-slate-400 italic text-xs">Not set</span>
+                                            <span className="text-slate-400 italic text-[11px]">Not set</span>
                                         )}
                                     </TableCell>
-                                    <TableCell>{p.designation || <span className="text-slate-400 italic text-xs">Not set</span>}</TableCell>
-                                    <TableCell className="text-right">
+                                    <TableCell className="py-3 text-slate-600 font-medium text-[13px]">{p.designation || <span className="text-slate-400 italic text-[11px]">Not set</span>}</TableCell>
+                                    <TableCell className="py-3 text-right pr-4">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-white hover:shadow-sm">
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full">
                                                     <MoreHorizontal size={14} />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-40">
+                                            <DropdownMenuContent align="end" className="w-40 p-1 border-slate-200">
                                                 <DropdownMenuItem
                                                     onClick={() => openEditDialog(p)}
-                                                    className="gap-2"
+                                                    className="gap-2 text-slate-700 cursor-pointer"
                                                 >
-                                                    <Pencil size={14} />
+                                                    <Pencil size={14} className="text-blue-500" />
                                                     Edit
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => deletePharmacist(p._id)}
-                                                    className="gap-2 text-red-600 focus:text-red-600"
+                                                    className="gap-2 text-red-600 focus:text-red-700 focus:bg-red-50 cursor-pointer"
                                                 >
                                                     <Trash2 size={14} />
                                                     Delete

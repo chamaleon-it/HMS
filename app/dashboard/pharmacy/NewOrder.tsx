@@ -52,7 +52,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     discount: 0,
     priority: "Normal",
     status: "Pending",
-    assignedTo: "",
+    pharmacists: "",
   });
 
   useEffect(() => {
@@ -121,7 +121,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         discount: 0,
         priority: "Normal",
         status: "Pending",
-        assignedTo: "",
+        pharmacists: ""
       });
     }
   }, [open, user?._id]);
@@ -225,10 +225,10 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
 
               <div className="flex-1 max-w-sm">
                 <PharmacistSelection
-                  setValue={(id: string) => {
-                    setPayload((prev) => ({ ...prev, assignedTo: id }));
+                  setValue={(name: string) => {
+                    setPayload((prev) => ({ ...prev, pharmacists: name }));
                   }}
-                  pharmacistName=""
+                  pharmacistName={payload.pharmacists}
                 />
               </div>
 
