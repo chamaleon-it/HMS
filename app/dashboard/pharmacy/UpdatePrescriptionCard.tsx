@@ -240,6 +240,17 @@ export default function UpdatePrescriptionCard({
               placeholder="0"
             />
           </div>
+
+          <div className="flex justify-between items-center text-sm text-slate-600">
+            <span>Amount Paid</span>
+            <span>{formatINR(data.paidAmount ?? 0)}</span>
+          </div>
+
+          <div className="flex justify-between items-center text-sm text-slate-600">
+            <span>Amount Due</span>
+            <span className="text-red-600">{formatINR((subTotal - (data.discount || 0)) - (data.paidAmount ?? 0))}</span>
+          </div>
+
           <div className="flex justify-between text-md font-semibold text-slate-800 border-t pt-2">
             <span>Grand Total</span>
             <span>{formatINR(subTotal - (data.discount || 0))}</span>

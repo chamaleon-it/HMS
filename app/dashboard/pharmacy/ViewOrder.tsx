@@ -154,11 +154,17 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
             const key = e.key.toLowerCase();
             if (key === 'c') {
+                e.preventDefault();
                 setPaymentMethod("Cash");
+                setTimeout(() => document.getElementById("cash-amount-input")?.focus(), 10);
             } else if (key === 'u') {
+                e.preventDefault();
                 setPaymentMethod("UPI");
+                setTimeout(() => document.getElementById("upi-ref-input")?.focus(), 10);
             } else if (key === 'p') {
+                e.preventDefault();
                 setPaymentMethod("Underpaid");
+                setTimeout(() => document.getElementById("partial-amount-input")?.focus(), 10);
             }
         };
 
@@ -327,11 +333,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     />
 
                     {/* Payment Details Section */}
-                    <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
+                    {order?.paymentStatus !== "Paid" && <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Payment Details</h3>
                             <div className="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border">
-                                Total Amount: <span className="text-slate-900 font-bold">{formatINR(updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)}</span>
+                                Total Amount: <span className="text-slate-900 font-bold">{formatINR(updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0) || 0)}</span>
                             </div>
                         </div>
 
@@ -383,6 +389,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                 <div className="space-y-2">
                                     <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
                                     <Input
+                                        id="cash-amount-input"
                                         type="number"
                                         placeholder="Enter amount from customer"
                                         value={amountPaid}
@@ -394,11 +401,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                     <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance to Return (₹)</Label>
                                     <div className={cn(
                                         "h-11 flex items-center px-4 rounded-lg border-2 font-bold text-lg transition-colors",
-                                        (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)) >= 0
+                                        (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)) >= 0
                                             ? "bg-emerald-50 border-emerald-100 text-emerald-700"
                                             : "bg-rose-50 border-rose-100 text-rose-700"
                                     )}>
-                                        {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)))}
+                                        {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)))}
                                     </div>
                                 </div>
                             </div>
@@ -411,6 +418,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                 <div className="space-y-2">
                                     <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
                                     <Input
+                                        id="partial-amount-input"
                                         type="number"
                                         placeholder="0.00"
                                         value={amountPaid}
@@ -434,6 +442,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                             <div className="space-y-2 pt-2">
                                 <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
                                 <Input
+                                    id="upi-ref-input"
                                     placeholder="Enter UPI transaction ID"
                                     value={referenceNumber}
                                     onChange={(e) => setReferenceNumber(e.target.value)}
@@ -441,7 +450,49 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                 />
                             </div>
                         )}
-                    </div>
+                        <div className="flex justify-end">
+
+                            <Button
+                                onClick={async () => {
+                                    const payload = {
+                                        orderId: updatePayload._id,
+                                        paidAmount: 0,
+                                        paymentStatus: "Partial",
+                                        paymentReference: referenceNumber
+                                    }
+
+                                    if (paymentMethod === "UPI" || paymentMethod === "Cash") {
+                                        payload.paymentStatus = "Paid";
+                                        payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0;
+                                    } else {
+                                        payload.paymentStatus = "Partial";
+                                        payload.paidAmount = Number(amountPaid);
+                                    }
+
+                                    try {
+                                        const { data: response } = await toast.promise(
+                                            api.patch<{ data: OrderType }>("/pharmacy/orders/update_payment", payload),
+                                            {
+                                                loading: "Updating payment...",
+                                                success: "Payment updated successfully",
+                                                error: "Failed to update payment"
+                                            }
+                                        )
+                                        OrderMutate()
+                                        if (response?.data) {
+                                            setLocalOrder(response.data)
+                                            setUpdatePayload(response.data)
+                                        }
+                                    } catch (error) {
+                                        console.log(error)
+                                    }
+
+                                }}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                                Update Payment
+                            </Button>
+                        </div>
+                    </div>}
 
                 </div>
 
