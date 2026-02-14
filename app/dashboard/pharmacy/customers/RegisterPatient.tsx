@@ -71,7 +71,9 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         gender: patient?.gender || "Prefer not to say",
         dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
         address: patient?.address || "",
-        mrn: patient?.mrn || undefined
+        mrn: patient?.mrn || undefined,
+        allergies: patient?.allergies || undefined,
+
       });
     }
   }, [patient]);

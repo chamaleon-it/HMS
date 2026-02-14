@@ -138,6 +138,40 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         setUpdatePayload(order);
     }, [order]);
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!open) return;
+
+            // Don't trigger shortcuts if user is typing in an input or textarea
+            const target = e.target as HTMLElement;
+            if (
+                target.tagName === 'INPUT' ||
+                target.tagName === 'TEXTAREA' ||
+                target.isContentEditable
+            ) {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+            if (key === 'c') {
+                e.preventDefault();
+                setPaymentMethod("Cash");
+                setTimeout(() => document.getElementById("cash-amount-input")?.focus(), 10);
+            } else if (key === 'u') {
+                e.preventDefault();
+                setPaymentMethod("UPI");
+                setTimeout(() => document.getElementById("upi-ref-input")?.focus(), 10);
+            } else if (key === 'p') {
+                e.preventDefault();
+                setPaymentMethod("Underpaid");
+                setTimeout(() => document.getElementById("partial-amount-input")?.focus(), 10);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [open]);
+
     const checkIsDirty = () => {
         if (!localOrder || !updatePayload) return false;
         if (localOrder.items.length !== updatePayload.items.length) return true;
@@ -295,22 +329,23 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         setData={setUpdatePayload as React.Dispatch<React.SetStateAction<OrderType>>}
                         data={updatePayload}
                         onTogglePacked={handleTogglePacked}
+                        allergies={order?.patient.allergies}
                     />
 
                     {/* Payment Details Section */}
-                    <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
+                    {order?.paymentStatus !== "Paid" && <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Payment Details</h3>
                             <div className="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border">
-                                Total Amount: <span className="text-slate-900 font-bold">{formatINR(updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)}</span>
+                                Total Amount: <span className="text-slate-900 font-bold">{formatINR(updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0) || 0)}</span>
                             </div>
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {[
-                                { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50" },
-                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-indigo-600", bg: "bg-indigo-50" },
-                                { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50" },
+                                { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50", shortcut: "C" },
+                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-indigo-600", bg: "bg-indigo-50", shortcut: "U" },
+                                { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50", shortcut: "P" },
                             ].map((method) => {
                                 const active = paymentMethod === method.id;
                                 return (
@@ -319,12 +354,22 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         type="button"
                                         onClick={() => setPaymentMethod(method.id as any)}
                                         className={cn(
-                                            "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left group",
+                                            "relative flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left group",
                                             active
                                                 ? `border-${method.id === "Cash" ? "emerald" : method.id === "UPI" ? "indigo" : "rose"}-500 ${method.bg} shadow-md`
                                                 : "border-slate-200 bg-white hover:border-slate-300 shadow-sm"
                                         )}
                                     >
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <kbd className={cn(
+                                                "px-1.5 py-0.5 text-[9px] font-bold rounded shadow-xs border",
+                                                method.id === "Cash" && "bg-emerald-50 border-emerald-200 text-emerald-600",
+                                                method.id === "UPI" && "bg-indigo-50 border-indigo-200 text-indigo-600",
+                                                method.id === "Underpaid" && "bg-rose-50 border-rose-200 text-rose-600"
+                                            )}>
+                                                {method.shortcut}
+                                            </kbd>
+                                        </div>
                                         <div className={cn("p-2 rounded-lg", active ? "bg-white" : "bg-slate-50 group-hover:bg-white")}>
                                             <method.icon className={cn("h-5 w-5", active ? method.color : "text-slate-400")} />
                                         </div>
@@ -338,14 +383,13 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         </div>
 
                         {paymentMethod === "Cash" && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
+                            <div
                                 className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
                             >
                                 <div className="space-y-2">
                                     <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
                                     <Input
+                                        id="cash-amount-input"
                                         type="number"
                                         placeholder="Enter amount from customer"
                                         value={amountPaid}
@@ -357,25 +401,24 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                     <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance to Return (₹)</Label>
                                     <div className={cn(
                                         "h-11 flex items-center px-4 rounded-lg border-2 font-bold text-lg transition-colors",
-                                        (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)) >= 0
+                                        (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)) >= 0
                                             ? "bg-emerald-50 border-emerald-100 text-emerald-700"
                                             : "bg-rose-50 border-rose-100 text-rose-700"
                                     )}>
-                                        {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)))}
+                                        {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)))}
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
 
                         {paymentMethod === "Underpaid" && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
+                            <div
                                 className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
                             >
                                 <div className="space-y-2">
                                     <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
                                     <Input
+                                        id="partial-amount-input"
                                         type="number"
                                         placeholder="0.00"
                                         value={amountPaid}
@@ -392,35 +435,71 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
                                     />
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
 
                         {paymentMethod === "UPI" && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                className="space-y-2 pt-2"
-                            >
+                            <div className="space-y-2 pt-2">
                                 <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
                                 <Input
+                                    id="upi-ref-input"
                                     placeholder="Enter UPI transaction ID"
                                     value={referenceNumber}
                                     onChange={(e) => setReferenceNumber(e.target.value)}
                                     className="h-11 bg-white border-slate-200 rounded-lg focus:ring-indigo-500/20"
                                 />
-                            </motion.div>
+                            </div>
                         )}
-                    </div>
+                        <div className="flex justify-end">
+
+                            <Button
+                                onClick={async () => {
+                                    const payload = {
+                                        orderId: updatePayload._id,
+                                        paidAmount: 0,
+                                        paymentStatus: "Partial",
+                                        paymentReference: referenceNumber
+                                    }
+
+                                    if (paymentMethod === "UPI" || paymentMethod === "Cash") {
+                                        payload.paymentStatus = "Paid";
+                                        payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0;
+                                    } else {
+                                        payload.paymentStatus = "Partial";
+                                        payload.paidAmount = Number(amountPaid);
+                                    }
+
+                                    try {
+                                        const { data: response } = await toast.promise(
+                                            api.patch<{ data: OrderType }>("/pharmacy/orders/update_payment", payload),
+                                            {
+                                                loading: "Updating payment...",
+                                                success: "Payment updated successfully",
+                                                error: "Failed to update payment"
+                                            }
+                                        )
+                                        OrderMutate()
+                                        if (response?.data) {
+                                            setLocalOrder(response.data)
+                                            setUpdatePayload(response.data)
+                                        }
+                                    } catch (error) {
+                                        console.log(error)
+                                    }
+
+                                }}
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                                Update Payment
+                            </Button>
+                        </div>
+                    </div>}
 
                 </div>
 
-                {/* Footer Actions */}
+
                 <div className="bg-white border-t pt-4 mt-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm">
                     <div className="text-sm">
-                        {/* Packed:{" "}
-                        <span className="font-medium text-slate-700">
-                            In progress
-                        </span> */}
+
                     </div>
 
                     <div className="flex items-center gap-2">

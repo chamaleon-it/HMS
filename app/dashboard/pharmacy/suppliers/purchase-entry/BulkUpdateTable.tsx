@@ -52,6 +52,20 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [gstType, setGstType] = useState<"inclusive" | "exclusive">("inclusive");
     const [enableTCS, setEnableTCS] = useState(false);
 
+    const focusNextElement = (currentElement: HTMLElement) => {
+        const currentRow = currentElement.closest('tr');
+        if (!currentRow) return;
+
+        const focusableElements = Array.from(
+            currentRow.querySelectorAll('input:not([disabled]), button[role="combobox"]:not([disabled])')
+        ) as HTMLElement[];
+
+        const currentIndex = focusableElements.indexOf(currentElement);
+        if (currentIndex !== -1 && currentIndex < focusableElements.length - 1) {
+            focusableElements[currentIndex + 1]?.focus();
+        }
+    };
+
     const handleKeyDown = (e: React.KeyboardEvent, rowId: string, fieldName: string, isLastField: boolean = false, newMedicine: boolean = false) => {
         if (e.key === 'Delete') {
             e.preventDefault();
@@ -64,7 +78,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             if (isLastField) {
                 addNewRow();
                 setTimeout(() => {
-                    const allRows = document.querySelectorAll('[data-row-index]');
+                    const allRows = document.querySelectorAll('[data-row-id]');
                     const lastRow = allRows[allRows.length - 1];
                     if (lastRow) {
                         const firstButton = lastRow.querySelector('button[role="combobox"]') as HTMLElement;
@@ -77,20 +91,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 return;
             }
 
-            const currentElement = e.target as HTMLElement;
-            const currentRow = currentElement.closest('tr');
-            if (!currentRow) return;
-
-            const focusableElements = Array.from(
-                currentRow.querySelectorAll('input:not([disabled]), button[role="combobox"]:not([disabled])')
-            ) as HTMLElement[];
-
-            const currentIndex = focusableElements.indexOf(currentElement);
-
-            if (currentIndex !== -1 && currentIndex < focusableElements.length - 1) {
-                const nextElement = focusableElements[currentIndex + 1];
-                nextElement?.focus();
-            }
+            focusNextElement(e.target as HTMLElement);
         }
     };
 
@@ -119,7 +120,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             product: "",
             batch: "",
             qty: 0,
-            pack: "",
+            pack: 0,
             unitPrice: 0,
             expiryDate: "",
             purchasePrice: 0,
@@ -202,9 +203,41 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             toast.error("Please fill in invoice number and date");
             return;
         }
-        if (newItems.length === 0 || !newItems[0]._id) {
-            toast.error("Please add at least one item");
+        const validItems = newItems.filter(item => item._id);
+
+        if (validItems.length === 0) {
+            toast.error("Please add at least one valid item");
             return;
+        }
+
+        // Validation Loop
+        for (const item of validItems) {
+            const rowIndex = newItems.findIndex(ni => ni.id === item.id) + 1;
+
+            if (!item.batch) {
+                toast.error(`Row ${rowIndex}: Batch number is required`);
+                return;
+            }
+            if (!item.qty || item.qty <= 0) {
+                toast.error(`Row ${rowIndex}: Quantity must be positive`);
+                return;
+            }
+            if (!item.unitPrice || item.unitPrice <= 0) {
+                toast.error(`Row ${rowIndex}: MRP must be positive`);
+                return;
+            }
+            if (!item.expiryDate) {
+                toast.error(`Row ${rowIndex}: Expiry date is required`);
+                return;
+            }
+
+            const expiryDate = new Date(item.expiryDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (expiryDate <= today) {
+                toast.error(`Row ${rowIndex}: Expiry date must be a future date`);
+                return;
+            }
         }
 
         const paid = Number(billDetails.paidAmount) || 0;
@@ -222,7 +255,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 transportCharge: Number(billDetails.transportCharges) || 0,
                 paidAmount: Number(billDetails.paidAmount) || 0,
                 description: billDetails.description,
-                items: newItems.map(item => ({
+                items: validItems.map(item => ({
                     item: item._id,
                     batch: item.batch,
                     quantity: item.qty,
@@ -270,7 +303,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 batch: "",
                 qty: 0,
                 schm: 0,
-                pack: "",
+                pack: 0,
                 unitPrice: 0,
                 expiryDate: "",
                 purchasePrice: 0,
@@ -298,11 +331,11 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 transition={{ duration: 0.5 }}
                 className="bg-white p-7 rounded-xl shadow-sm border border-slate-200"
             >
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-8 items-end">
+                <div className="flex gap-8 items-end">
                     <div className="space-y-2">
                         <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Supplier*</label>
                         <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
-                            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all ">
+                            <SelectTrigger className="h-11! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all  ">
                                 <SelectValue placeholder="Select Supplier" />
                             </SelectTrigger>
                             <SelectContent className="rounded-lg border-slate-200 ">
@@ -343,54 +376,54 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                             />
                         </div>
                     </div>
-                </div>
 
-                <div className="flex flex-wrap items-center gap-10 mt-8 border-t border-slate-100 pt-7 ">
-                    <div className="flex items-center gap-10 ">
-                        <div className="flex items-center gap-6 ">
-                            <label className="flex items-center gap-2 cursor-pointer group ">
-                                <div className="relative flex items-center justify-center ">
-                                    <input
-                                        type="radio"
-                                        name="gstType"
-                                        checked={gstType === "inclusive"}
-                                        onChange={() => setGstType("inclusive")}
-                                        className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
-                                    />
-                                    <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all "></div>
-                                </div>
-                                <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Inclusive</span>
-                            </label>
-                            <label className="flex items-center gap-2 cursor-pointer group ">
-                                <div className="relative flex items-center justify-center ">
-                                    <input
-                                        type="radio"
-                                        name="gstType"
-                                        checked={gstType === "exclusive"}
-                                        onChange={() => setGstType("exclusive")}
-                                        className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
-                                    />
-                                    <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all "></div>
-                                </div>
-                                <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Exclusive</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <label className="flex items-center gap-3 cursor-pointer group bg-slate-50/50 px-4 py-2 rounded-full border border-slate-100 hover:border-slate-200 transition-all ">
-                        <div className="relative flex items-center justify-center ">
-                            <input
-                                type="checkbox"
-                                checked={enableTCS}
-                                onChange={(e) => setEnableTCS(e.target.checked)}
-                                className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
-                            />
-                            <div className="w-5 h-5 rounded border-2 border-slate-200 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all flex items-center justify-center ">
-                                <Check className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity " />
+                    <div className="flex flex-wrap items-center gap-10 mt-8 pt-7 ">
+                        <div className="flex items-center gap-10 ">
+                            <div className="flex items-center gap-6 ">
+                                <label className="flex items-center gap-2 cursor-pointer group ">
+                                    <div className="relative flex items-center justify-center ">
+                                        <input
+                                            type="radio"
+                                            name="gstType"
+                                            checked={gstType === "inclusive"}
+                                            onChange={() => setGstType("inclusive")}
+                                            className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
+                                        />
+                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all "></div>
+                                    </div>
+                                    <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Inclusive</span>
+                                </label>
+                                <label className="flex items-center gap-2 cursor-pointer group ">
+                                    <div className="relative flex items-center justify-center ">
+                                        <input
+                                            type="radio"
+                                            name="gstType"
+                                            checked={gstType === "exclusive"}
+                                            onChange={() => setGstType("exclusive")}
+                                            className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
+                                        />
+                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all "></div>
+                                    </div>
+                                    <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Exclusive</span>
+                                </label>
                             </div>
                         </div>
-                        <span className="text-xs  text-slate-500 uppercase tracking-wider transition-colors font-semibold">Enable TCS</span>
-                    </label>
+
+                        <label className="flex items-center gap-3 cursor-pointer group bg-slate-50/50 px-4 py-2 rounded-full">
+                            <div className="relative flex items-center justify-center ">
+                                <input
+                                    type="checkbox"
+                                    checked={enableTCS}
+                                    onChange={(e) => setEnableTCS(e.target.checked)}
+                                    className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
+                                />
+                                <div className="w-5 h-5 rounded border-2 border-slate-200 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all flex items-center justify-center ">
+                                    <Check className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity " />
+                                </div>
+                            </div>
+                            <span className="text-xs  text-slate-500 uppercase tracking-wider transition-colors font-semibold">Enable TCS</span>
+                        </label>
+                    </div>
                 </div>
             </motion.div>
 
@@ -432,7 +465,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 {newItems.map((item, index) => (
                                     <motion.tr
                                         key={item.id}
-                                        data-row-index={index}
+                                        data-row-id={item.id}
                                         layout
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
@@ -453,7 +486,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                     updateNewItem(item.id, "pack", it.packing || 0);
 
                                                     setTimeout(() => {
-                                                        const currentRow = document.querySelector(`[data-row-index="${index}"]`);
+                                                        const currentRow = document.querySelector(`[data-row-id="${item.id}"]`);
                                                         if (currentRow) {
                                                             const batchInput = currentRow.querySelector('input[name="batch"]') as HTMLInputElement;
                                                             batchInput?.focus();
@@ -467,6 +500,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <Input
                                                 type="number"
                                                 name="qty"
+                                                data-field="qty"
                                                 className="h-11 text-sm font-semibold border-slate-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-700"
                                                 value={item.qty || ""}
                                                 onChange={(e) => updateNewItem(item.id, "qty", Number(e.target.value))}
@@ -476,8 +510,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                data-field="pack"
                                                 className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center"
-                                                value={item.pack}
+                                                value={item.pack || ""}
                                                 onChange={(e) => updateNewItem(item.id, "pack", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "pack")}
                                             />
@@ -485,6 +520,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                data-field="unitPrice"
                                                 className="h-11 text-sm font-semibold border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center text-slate-700"
                                                 value={item.unitPrice || ""}
                                                 onChange={(e) => updateNewItem(item.id, "unitPrice", Number(e.target.value))}
@@ -501,6 +537,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                data-field="purchasePrice"
                                                 className="h-11 text-sm font-semibold border-emerald-200 bg-emerald-50/10 rounded-lg focus:bg-white focus:border-emerald-400 focus:ring-4 focus:ring-emerald-500/10 transition-all text-center text-emerald-700"
                                                 value={item.purchasePrice || ""}
                                                 onChange={(e) => updateNewItem(item.id, "purchasePrice", Number(e.target.value))}
@@ -509,8 +546,20 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         </TableCell>
                                         {gstType === "inclusive" && <>
                                             <TableCell className="p-2">
-                                                <Select value={String(item.sgst_p)} onValueChange={(v) => updateNewItem(item.id, "sgst_p", Number(v))}>
-                                                    <SelectTrigger className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all  px-3">
+                                                <Select
+                                                    value={String(item.sgst_p)}
+                                                    onValueChange={(v) => {
+                                                        updateNewItem(item.id, "sgst_p", Number(v));
+                                                        setTimeout(() => {
+                                                            const trigger = document.querySelector(`[data-row-id="${item.id}"] [data-field="sgst_p"]`) as HTMLElement;
+                                                            if (trigger) focusNextElement(trigger);
+                                                        }, 50);
+                                                    }}
+                                                >
+                                                    <SelectTrigger
+                                                        data-field="sgst_p"
+                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all px-3"
+                                                    >
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent className="rounded-lg shadow-xl">
@@ -524,8 +573,20 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 </Select>
                                             </TableCell>
                                             <TableCell className="p-2">
-                                                <Select value={String(item.cgst_p)} onValueChange={(v) => updateNewItem(item.id, "cgst_p", Number(v))}>
-                                                    <SelectTrigger className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all  px-3">
+                                                <Select
+                                                    value={String(item.cgst_p)}
+                                                    onValueChange={(v) => {
+                                                        updateNewItem(item.id, "cgst_p", Number(v));
+                                                        setTimeout(() => {
+                                                            const trigger = document.querySelector(`[data-row-id="${item.id}"] [data-field="cgst_p"]`) as HTMLElement;
+                                                            if (trigger) focusNextElement(trigger);
+                                                        }, 50);
+                                                    }}
+                                                >
+                                                    <SelectTrigger
+                                                        data-field="cgst_p"
+                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all px-3"
+                                                    >
                                                         <SelectValue />
                                                     </SelectTrigger>
                                                     <SelectContent className="rounded-lg shadow-xl">
@@ -542,6 +603,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                data-field="dis_p"
                                                 className="h-11 text-sm font-semibold border-red-100 bg-red-50/10 rounded-lg focus:bg-white focus:border-red-400 focus:ring-4 focus:ring-red-500/10 transition-all text-center text-red-600"
                                                 value={item.dis_p || ""}
                                                 onChange={(e) => updateNewItem(item.id, "dis_p", Number(e.target.value))}
@@ -552,6 +614,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2 text-center">
                                             <Input
                                                 type="number"
+                                                data-field="schema_free"
                                                 className="h-11 text-sm font-semibold border-indigo-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-600"
                                                 value={item.schema_free || ""}
                                                 onChange={(e) => updateNewItem(item.id, "schema_free", Number(e.target.value))}
@@ -627,9 +690,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
-                className="grid grid-cols-1 lg:grid-cols-4 gap-8 items-start mt-4 pb-12"
+                className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-4 pb-12"
             >
-                <div className="lg:col-span-3 space-y-3">
+                <div className="lg:col-span-8 space-y-3">
                     <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em] ml-2">Description</label>
                     <Textarea
                         placeholder="Type additional details about this transaction for records..."
@@ -638,45 +701,98 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         onChange={(e) => handleBillDetailChange("description", e.target.value)}
                     />
                 </div>
-                <div className="flex flex-col justify-end h-full gap-4 mt-8 lg:mt-0">
-
-                    <div className="space-y-2 mb-2">
-                        <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest ml-1">Paid Amount</label>
-                        <div className="relative">
-                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400  text-sm">₹</span>
-                            <Input
-                                type="number"
-                                placeholder="0.00"
-                                className="h-14 bg-indigo-50/30 border-2 border-indigo-100/50 rounded-2xl pl-8 focus:ring-4 focus:ring-indigo-500/10 transition-all font-bold text-lg text-indigo-700 placeholder:text-indigo-200"
-                                value={billDetails.paidAmount}
-                                onChange={(e) => handleBillDetailChange("paidAmount", e.target.value)}
-                            />
+                <div className="lg:col-span-4 space-y-6">
+                    <div className="bg-white p-8 rounded-3xl border-2 border-slate-100 shadow-xl shadow-slate-200/50 space-y-6">
+                        <div className="flex justify-between items-center border-b pb-4 border-slate-50">
+                            <h3 className="text-xs font-black text-slate-800 uppercase tracking-[0.2em]">Bill Summary</h3>
+                            <div className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-bold">DRAFT</div>
                         </div>
+
+                        <div className="space-y-4">
+                            {(() => {
+                                const taxableAmt = totals.gross - totals.discount;
+                                const taxAmt = totals.sgst + totals.cgst;
+                                const netAmt = taxableAmt + taxAmt;
+                                const netPayable = totals.total;
+
+                                return (
+                                    <>
+                                        <SummaryRow label="Sub Total" value={totals.gross} />
+                                        <SummaryRow label="Cash Disc" value={totals.discount} isNegative />
+                                        <SummaryRow label="Scheme Disc" value={totals.schema_amt} isNegative />
+                                        <div className="h-px bg-slate-100/60 my-2" />
+                                        <SummaryRow label="Taxable Amount" value={taxableAmt} isBold />
+                                        <SummaryRow label="Tax Amount" value={taxAmt} />
+                                        {/* <SummaryRow label="Bill Disc." value={0} isNegative /> */}
+                                        {/* <SummaryRow label="TDS / TCS Amount" value={0} /> */}
+                                        {/* <SummaryRow label="Write Off" value={0} /> */}
+                                        <div className="h-px bg-slate-100/60 my-2" />
+                                        {/* <SummaryRow label="CreditNote Amt." value={0} isNegative /> */}
+                                        {/* <SummaryRow label="DebitNote Amt." value={0} /> */}
+
+                                        <div className="bg-slate-900 -mx-8 px-8 py-6 mt-6 shadow-2xl shadow-indigo-900/20">
+                                            <div className="flex justify-between items-center text-white mb-1">
+                                                <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Net Payable</span>
+                                                <span className="text-2xl font-black tracking-tight">₹{netPayable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                                            </div>
+                                            <div className="text-[9px] text-slate-500 uppercase tracking-widest font-medium text-right mt-1">Inclusive of all taxes</div>
+                                        </div>
+                                    </>
+                                );
+                            })()}
+                        </div>
+
+                        <div className="pt-2">
+                            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Capture Paid Amount</label>
+                            <div className="relative group">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold group-focus-within:text-indigo-500 transition-colors">₹</span>
+                                <Input
+                                    type="number"
+                                    placeholder="0.00"
+                                    className="h-14 bg-indigo-50/40 border-2 border-indigo-100/50 rounded-2xl pl-10 focus:ring-8 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-black text-xl text-indigo-700 tabular-nums shadow-sm"
+                                    value={billDetails.paidAmount}
+                                    onChange={(e) => handleBillDetailChange("paidAmount", e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <Button
+                            onClick={handleSaveChanges}
+                            disabled={isSaving}
+                            className={cn(
+                                "w-full bg-emerald-600 hover:bg-emerald-700 text-white h-16 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-emerald-200/50 transition-all active:scale-95 flex items-center justify-center gap-3 border-b-4 border-emerald-800"
+                            )}
+                        >
+                            {isSaving ? (
+                                <>
+                                    <div className="w-5 h-5 border-3 border-white/30 border-t-white animate-spin rounded-full" />
+                                    <span>Verifying Entry...</span>
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="w-5 h-5" />
+                                    <span>Complete Purchase</span>
+                                </>
+                            )}
+                        </Button>
                     </div>
-
-                    <Button
-                        onClick={handleSaveChanges}
-                        disabled={isSaving}
-                        className={cn(
-                            "w-full bg-emerald-600 hover:bg-emerald-700 text-white h-16 rounded-2xl text-sm font-semibold uppercase tracking-widest shadow-xl transition-all"
-                        )}
-                    >
-
-                        {isSaving ? (
-                            <div className="flex items-center gap-3">
-                                <div className="w-4 h-4 border-2 border-white border-t-transparent animate-spin rounded-full" />
-                                <span>Verifying...</span>
-                            </div>
-                        ) : (
-                            <div className="flex items-center gap-3">
-                                <Save className="w-5 h-5" />
-                                <span>Complete Purchase</span>
-                            </div>
-                        )}
-                    </Button>
-
                 </div>
             </motion.div>
+        </div>
+    );
+}
+
+function SummaryRow({ label, value, isBold = false, isNegative = false, color = "text-slate-600" }: { label: string, value: number, isBold?: boolean, isNegative?: boolean, color?: string }) {
+    return (
+        <div className="flex justify-between items-center group/row">
+            <span className="text-[11px] text-slate-500 font-bold uppercase tracking-wider group-hover/row:text-slate-700 transition-colors">{label} :</span>
+            <span className={cn(
+                "text-sm font-bold tabular-nums tracking-tight",
+                isBold ? "text-slate-900" : color,
+                isNegative && "text-rose-500"
+            )}>
+                {isNegative && "- "}₹{Math.abs(value).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </span>
         </div>
     );
 }

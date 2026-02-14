@@ -11,12 +11,12 @@ import { ChevronDownIcon, Search } from "lucide-react";
 import React, { useState } from "react";
 
 export const STATUSES = [
-  "All",
   "Upcoming",
   "Consulted",
   "Observation",
   "Completed",
   "Not show",
+  "All",
 ] as const;
 
 

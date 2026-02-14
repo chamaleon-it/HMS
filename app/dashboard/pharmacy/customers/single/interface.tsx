@@ -10,6 +10,8 @@ export interface Data {
   averageSpend: number;
   totalSpend: number;
   lastPurchase: Date;
+  totalPaid: number;
+  totalDue: number;
 }
 
 export interface Order {
@@ -24,6 +26,8 @@ export interface Order {
   assignedTo: null;
   createdAt: Date;
   updatedAt: Date;
+  paidAmount?: number;
+  type?: string
 }
 
 export interface Item {

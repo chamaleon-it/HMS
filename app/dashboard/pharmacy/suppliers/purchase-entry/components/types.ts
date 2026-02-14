@@ -3,7 +3,7 @@ export interface BulkUpdateItem {
     product: string;
     batch: string;
     qty: number;
-    pack: string; // Changed from number to string based on usage in BulkUpdateTable
+    pack: number; // Changed from number to string based on usage in BulkUpdateTable
     unitPrice: number;
     expiryDate: string;
     purchasePrice: number;

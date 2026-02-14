@@ -52,7 +52,9 @@ interface Props {
     lowStockThreshold: number;
     expiryAlert: number;
     allowNegativeStock: boolean;
-  }
+  };
+  sortBy?: "createdAt" | "quantity";
+  orderBy?: "desc" | "asc";
 }
 
 export default function ItemTable({
@@ -65,8 +67,19 @@ export default function ItemTable({
   setFilter,
   mutate,
   isBusy,
-  pharmacyInventory
+  pharmacyInventory,
+  sortBy,
+  orderBy
 }: Props) {
+  const handleSort = (field: "createdAt" | "quantity") => {
+    setFilter((prev: FilterType): FilterType => ({
+      ...prev,
+      sortBy: field,
+      orderBy: prev.sortBy === field && prev.orderBy === "desc" ? "asc" : "desc",
+    }));
+  };
+
+
   const deleteItem = useCallback(
     async (_id: string) => {
       await toast.promise(api.delete(`/pharmacy/items/${_id}`), {
@@ -91,15 +104,21 @@ export default function ItemTable({
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">
                   <Checkbox />
                 </TableHead>
-                <SortableHeader label="Sl No" />
-                <SortableHeader label="Item Name" />
-                <SortableHeader label="Rack" />
-                <SortableHeader label="Quantity" />
-                <SortableHeader label="P.Price" />
-                <SortableHeader label="Unit Price (₹)" />
-                <SortableHeader label="Expiry Date" />
-                <SortableHeader label="Supplier" />
-                <SortableHeader label="Status" />
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Sl No</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Item Name</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Rack</TableHead>
+                <SortableHeader
+                  label="Quantity"
+                  field="quantity"
+                  currentSortBy={sortBy}
+                  currentSortOrder={orderBy}
+                  onSort={handleSort}
+                />
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">P.Price</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Unit Price (₹)</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Expiry Date</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Supplier</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Status</TableHead>
                 <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-2.5 pr-4" >Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -319,13 +338,37 @@ const Chip: React.FC<{
   );
 };
 
-const SortableHeader = ({ label }: { label: string }) => {
+const SortableHeader = ({
+  label,
+  field,
+  currentSortBy,
+  currentSortOrder,
+  onSort,
+}: {
+  label: string;
+  field: "createdAt" | "quantity";
+  currentSortBy?: string;
+  currentSortOrder?: "desc" | "asc";
+  onSort: (field: "createdAt" | "quantity") => void;
+}) => {
+  const isActive = currentSortBy === field;
+
   return (
     <TableHead
-      className={`text-white font-bold text-[11px] uppercase tracking-wider py-2.5`}
+      className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 cursor-pointer hover:bg-slate-600 transition-colors"
+      onClick={() => onSort(field)}
     >
       <div className="flex items-center gap-1 group">
         {label}
+        <div className={`transition-opacity ${isActive ? "opacity-100" : "opacity-30 group-hover:opacity-100"}`}>
+          {isActive && currentSortOrder === "asc" ? (
+            <ArrowUpDown className="w-3.5 h-3.5 text-blue-400" />
+          ) : isActive && currentSortOrder === "desc" ? (
+            <ArrowUpDown className="w-3.5 h-3.5 text-blue-400" />
+          ) : (
+            <ArrowUpDown className="w-3.5 h-3.5" />
+          )}
+        </div>
       </div>
     </TableHead>
   );

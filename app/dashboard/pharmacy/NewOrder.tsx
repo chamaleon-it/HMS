@@ -19,11 +19,11 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import PharmacistSelection from "./PharmacistSelection";
+import { cn } from "@/lib/utils";
 
 export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const mrn = new URLSearchParams(window.location.search).get("mrn");
@@ -52,7 +52,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     discount: 0,
     priority: "Normal",
     status: "Pending",
-    assignedTo: "",
+    pharmacists: "",
   });
 
   useEffect(() => {
@@ -69,6 +69,11 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     try {
       if (!payload.patient) {
         toast.error("Please select patient");
+        return;
+      }
+
+      if (!payload.pharmacists) {
+        toast.error("Please select pharmacist");
         return;
       }
 
@@ -121,7 +126,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         discount: 0,
         priority: "Normal",
         status: "Pending",
-        assignedTo: "",
+        pharmacists: ""
       });
     }
   }, [open, user?._id]);
@@ -184,52 +189,73 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
                     }}
                   />
                 )}
-
-                <div className={`mt-3 flex flex-col gap-3 p-3 border rounded-xl transition-all duration-300 max-w-72 ${hasAllergy
-                  ? "bg-amber-50 border-amber-200 shadow-sm shadow-amber-100/50"
-                  : "bg-slate-50/50 border-slate-200"
-                  }`}>
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2">
-                      <div className={`p-1.5 rounded-lg transition-colors ${hasAllergy ? "bg-amber-100 text-amber-600" : "bg-slate-200/50 text-slate-400"}`}>
-                        <AlertTriangle className="h-4 w-4" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 items-stretch">
+                  <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user-cog"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /><circle cx="19" cy="11" r="2" /><path d="m19 13.5 0 .5" /><path d="m19 8.5 0 .5" /></svg>
                       </div>
-                      <Label htmlFor="allergy-toggle" className="text-sm font-semibold text-slate-700 cursor-pointer">
-                        Allergy Present?
-                      </Label>
+                      <Label className="text-sm font-semibold text-slate-700">Pharmacist In-charge</Label>
                     </div>
-                    <Switch
-                      id="allergy-toggle"
-                      checked={hasAllergy}
-                      onCheckedChange={setHasAllergy}
-                      className="data-[state=checked]:bg-amber-500"
+                    <PharmacistSelection
+                      hideLabel
+                      setValue={(name: string) => {
+                        setPayload((prev) => ({ ...prev, pharmacists: name }));
+                      }}
+                      pharmacistName={payload.pharmacists}
+                      className="mt-auto"
                     />
                   </div>
 
-                  {hasAllergy && (
-                    <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
-                      <Input
-                        id="allergy-input"
-                        placeholder="Enter clinical allergy details..."
-                        value={allergyDetails}
-                        onChange={(e) => setAllergyDetails(e.target.value)}
-                        className="h-10 focus:ring-amber-500/20 focus:border-amber-400 bg-white border-amber-100 placeholder:text-slate-400 text-sm"
+                  <div className={cn(
+                    "flex flex-col p-3.5 border transition-all duration-300 rounded-xl hover:shadow-sm",
+                    hasAllergy
+                      ? "bg-amber-50/60 border-amber-200 shadow-sm shadow-amber-100/30"
+                      : "bg-slate-50/40 border-slate-200"
+                  )}>
+                    <div className="flex items-center justify-between gap-3 mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className={cn(
+                          "p-1.5 rounded-lg transition-colors",
+                          hasAllergy ? "bg-amber-100 text-amber-600" : "bg-slate-200/60 text-slate-400"
+                        )}>
+                          <AlertTriangle className="h-4 w-4" />
+                        </div>
+                        <Label htmlFor="allergy-toggle" className="text-sm font-semibold text-slate-700 cursor-pointer">
+                          Patient Allergy?
+                        </Label>
+                      </div>
+                      <Switch
+                        id="allergy-toggle"
+                        checked={hasAllergy}
+                        onCheckedChange={setHasAllergy}
+                        className="data-[state=checked]:bg-amber-500"
                       />
-                      <p className="text-[10px] text-amber-600 font-medium px-1">
-                        Please specify medication or food allergies
-                      </p>
                     </div>
-                  )}
-                </div>
-              </div>
 
-              <div className="flex-1 max-w-sm">
-                <PharmacistSelection
-                  setValue={(id: string) => {
-                    setPayload((prev) => ({ ...prev, assignedTo: id }));
-                  }}
-                  pharmacistName=""
-                />
+                    <div className="flex-1 flex flex-col justify-center">
+                      {hasAllergy ? (
+                        <div className="space-y-1.5 animate-in fade-in slide-in-from-top-2 duration-300">
+                          <Input
+                            id="allergy-input"
+                            placeholder="Specify medical/food allergies..."
+                            value={allergyDetails}
+                            onChange={(e) => setAllergyDetails(e.target.value)}
+                            className="h-9 focus:ring-amber-500/20 focus:border-amber-400 bg-white border-amber-100 placeholder:text-slate-400 text-sm"
+                          />
+                          <p className="text-[10px] text-amber-600 font-medium px-1">
+                            Critical for medication safety
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-400 italic px-1 animate-in fade-in duration-500">
+                          Toggle if patient has known allergies
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
               <div className="shrink-0 pt-7">
@@ -265,19 +291,20 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
           </div>
         </DialogContent>
       </Dialog>
-      <Drawer
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        title="Customer Register"
-      >
-        <RegisterPatient onClose={(id?: string, name?: string) => {
-          setOpenCreate(false);
-          setPayload((prev) => ({ ...prev, patient: id ?? "" }));
-          setOpen(true)
-          setpatientName(name ?? "")
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient onClose={(id?: string, name?: string) => {
+            setOpenCreate(false);
+            setPayload((prev) => ({ ...prev, patient: id ?? "" }));
+            setOpen(true)
+            setpatientName(name ?? "")
 
-        }} />
-      </Drawer>
+          }} />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
