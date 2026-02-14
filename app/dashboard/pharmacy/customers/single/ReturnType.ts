@@ -18,6 +18,7 @@ export interface Datum {
     discount?: number
     paidAmount?: number
     type?: string
+    billNo?: string
 }
 
 export interface Item {

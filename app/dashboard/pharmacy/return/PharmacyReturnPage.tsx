@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,15 +12,12 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import AppShell from "@/components/layout/app-shell";
 import { OrderType } from "./interface";
 import Header from "./Header";
 import { formatINR } from "@/lib/fNumber";
 import Search from "./Search";
 import toast from "react-hot-toast";
-import Link from "next/link";
-import useSWR from "swr";
 import api from "@/lib/axios";
 import { fDate, fTime } from "@/lib/fDateAndTime";
 import { useAuth } from "@/auth/context/auth-context";
@@ -61,9 +58,6 @@ export default function PharmacyReturnPage() {
   const [filter, setFilter] = useState<{ q: null | string }>({
     q: null,
   });
-
-  const { data: profile } = useSWR<{ data: { pharmacy: { billing: { defaultGst?: number } } } }>("/users/profile");
-  const defaultGst = profile?.data.pharmacy.billing.defaultGst ?? 0;
 
   const [order, setOrder] = useState<null | OrderType>(null);
   const [fetching, setFetching] = useState(false);
@@ -151,6 +145,7 @@ export default function PharmacyReturnPage() {
           reason: string;
           unitPrice: number;
         }[];
+        billNo?: string;
       } = {
         patient: order?.patient._id,
         order: order?._id,
@@ -163,6 +158,7 @@ export default function PharmacyReturnPage() {
           reason: it.reason,
           unitPrice: it.unitPrice ?? it.name.unitPrice,
         })),
+        billNo: order?.billNo,
       };
       await toast.promise(api.post("pharmacy/return", payload), {
         loading: "Returning...!",

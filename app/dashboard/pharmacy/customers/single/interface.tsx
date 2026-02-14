@@ -28,6 +28,7 @@ export interface Order {
   updatedAt: Date;
   paidAmount?: number;
   type?: string
+  billNo?: string
 }
 
 export interface Item {

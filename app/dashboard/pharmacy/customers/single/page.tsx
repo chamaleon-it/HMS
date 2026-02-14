@@ -491,7 +491,7 @@ const Customer: React.FC = () => {
                                                                 // Return Item Header
                                                                 <>
                                                                     <span className="font-medium">
-                                                                        {fDate(item.createdAt)} - Return
+                                                                        {fDate(item.createdAt)} - {item.billNo} - Return
                                                                     </span>
                                                                     <span className="text-xs font-semibold">
                                                                         {formatINR(
@@ -507,7 +507,7 @@ const Customer: React.FC = () => {
                                                                 // Sale Item Header
                                                                 <>
                                                                     <span className="font-medium">
-                                                                        {fDate(item.createdAt)} • {item.mrn}
+                                                                        {fDate(item.createdAt)} • {item.billNo}
                                                                     </span>
                                                                     <div className="text-right flex flex-col items-end">
                                                                         <span className={`text-[13px] font-bold ${active ? "text-slate-50" : "text-slate-900"}`}>
@@ -554,7 +554,7 @@ const Customer: React.FC = () => {
                                     <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                                         <div className="text-sm font-semibold text-slate-900">
                                             {selectedVisit
-                                                ? `${selectedVisit?.mrn ? "Sale" : "Return"} Details — ${selectedVisit?.mrn || selectedVisit?._id}`
+                                                ? `${selectedVisit?.type === "sale" ? "Sale" : "Return"} Details — ${selectedVisit?.billNo || selectedVisit?._id}`
                                                 : "Bill Details"}
                                         </div>
                                         {selectedVisit && (
