@@ -19,7 +19,6 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
@@ -292,19 +291,20 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
           </div>
         </DialogContent>
       </Dialog>
-      <Drawer
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        title="Customer Register"
-      >
-        <RegisterPatient onClose={(id?: string, name?: string) => {
-          setOpenCreate(false);
-          setPayload((prev) => ({ ...prev, patient: id ?? "" }));
-          setOpen(true)
-          setpatientName(name ?? "")
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient onClose={(id?: string, name?: string) => {
+            setOpenCreate(false);
+            setPayload((prev) => ({ ...prev, patient: id ?? "" }));
+            setOpen(true)
+            setpatientName(name ?? "")
 
-        }} />
-      </Drawer>
+          }} />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

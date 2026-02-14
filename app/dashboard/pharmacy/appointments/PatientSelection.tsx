@@ -12,6 +12,14 @@ import React, {
   useRef,
   useState,
 } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { RegisterPatient } from "../RegisterPatient";
+import { Button } from "@/components/ui/button";
 import { UseFormSetValue } from "react-hook-form";
 import useSWR from "swr";
 
@@ -70,6 +78,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
+  const [openCreate, setOpenCreate] = useState(false);
 
   // Close on outside click
   const rootRef = useRef<HTMLDivElement>(null);
@@ -223,29 +232,20 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
                 <div className="p-3 text-gray-500 text-sm border-b">
                   No results found for “{input}”
                 </div>
-                <Link
-                  href={`/dashboard/doctor/patients?name=${input
-                    .trim()
-                    .replace(/\s+/g, " ")
-                    .replace(/\b\w/g, (char) => char.toUpperCase())}#register`}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
-                >
-                  <span className="text-lg">➕</span> Add new patient
-                </Link>
+                <div className="p-1">
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setOpenCreate(true);
+                      setOpen(false)
+                    }}
+                    className="flex items-center gap-2 w-full justify-start px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium h-auto"
+                  >
+                    <span className="text-lg">➕</span> Add new patient
+                  </Button>
+                </div>
               </div>
             ) : (
-              // <div className="flex items-center gap-2">
-              //   <span>No patients found.</span>
-              //   <span>Can’t find?</span>
-              //   <Button
-              //     asChild
-              //     variant={"default"}
-              //     className="bg-emerald-600 text-white hover:bg-emerald-700 transition"
-              //     size={"sm"}
-              //   >
-              //     <Link href="/dashboard/doctor/patients">Add New</Link>
-              //   </Button>
-              // </div>
               <span>Press ↑/↓ to navigate, Enter to select.</span>
             )}
           </div>
@@ -284,6 +284,23 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
           </ScrollArea>
         </div>
       )}
+
+      {/* Modal for Registering New Patient */}
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            onClose={(id?: string, name?: string) => {
+              setOpenCreate(false);
+              if (id && name) {
+                handleSelect({ _id: id, name, mrn: "" }); // mrn might be empty initially, but ID is what matters
+              }
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -331,8 +348,8 @@ const PatientCard: React.FC<{
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70",
-        "transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md",
+        "group relative rounded-2xl border bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/70",
+        "transition-all duration-200 hover:-translate-y-px hover:shadow-md",
         "dark:bg-zinc-900/70 dark:border-zinc-800"
       )}
     >

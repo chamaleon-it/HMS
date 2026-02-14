@@ -135,7 +135,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           <UserRound className="h-4 w-4" />
           <h3 className="font-medium">Customer</h3>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="grid gap-2 relative">
             <Label>Name *</Label>
             <Input
@@ -154,7 +154,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
 
             {/* Existing Patient Card for Name */}
             {isExistByName?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
-              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(200%+16px)] z-50">
+              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(300%+32px)] z-50">
                 <ExistingPatientCard
                   patient={alreadyExistPatient}
                   onSelect={onClose}
@@ -194,7 +194,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
 
             {/* Existing Patient Card for Phone */}
             {isExistByPhone?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
-              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(200%+16px)] z-50">
+              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(300%+32px)] z-50">
                 <ExistingPatientCard
                   patient={alreadyExistPatient}
                   onSelect={onClose}
@@ -230,82 +230,80 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-2">
-            <div className="grid gap-2">
-              <Label>Date of Birth </Label>
+          <div className="grid gap-2">
+            <Label>Date of Birth </Label>
 
-              <Popover open={openCalander} onOpenChange={setOpenCalander}>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    id="date"
-                    className="w-full justify-between font-normal"
-                  >
-                    {dateOfBirth
-                      ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })}`
-                      : "Select date of birth"}
-                    <ChevronDownIcon />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent
-                  className="w-auto overflow-hidden p-0"
-                  align="start"
+            <Popover open={openCalander} onOpenChange={setOpenCalander}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  id="date"
+                  className="w-full justify-between font-normal"
                 >
-                  <Calendar
-                    disabled={{ after: new Date() }}
-                    mode="single"
-                    selected={new Date(dateOfBirth)}
-                    captionLayout="dropdown"
-                    onSelect={(date) => {
-                      setValue(
-                        "dateOfBirth",
-                        date?.toISOString() ?? new Date().toISOString()
-                      );
-                      setOpenCalander(false);
-                    }}
-                  />
-                </PopoverContent>
-              </Popover>
-
-              {errors.dateOfBirth && (
-                <p className="text-red-500 text-xs my-1">
-                  {errors.dateOfBirth.message}
-                </p>
-              )}
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Age </Label>
-              <Input
-                type="number"
-                placeholder="Age"
-                value={
-                  dateOfBirth
-                    ? new Date().getFullYear() -
-                    new Date(dateOfBirth).getFullYear()
-                    : ""
-                }
-                onChange={(e) => {
-                  const age = parseInt(e.target.value);
-                  if (!isNaN(age)) {
-                    const today = new Date();
-                    const newDob = new Date(
-                      today.getFullYear() - age,
-                      today.getMonth(),
-                      today.getDate()
+                  {dateOfBirth
+                    ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}`
+                    : "Select date of birth"}
+                  <ChevronDownIcon />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent
+                className="w-auto overflow-hidden p-0"
+                align="start"
+              >
+                <Calendar
+                  disabled={{ after: new Date() }}
+                  mode="single"
+                  selected={new Date(dateOfBirth)}
+                  captionLayout="dropdown"
+                  onSelect={(date) => {
+                    setValue(
+                      "dateOfBirth",
+                      date?.toISOString() ?? new Date().toISOString()
                     );
-                    setValue("dateOfBirth", newDob.toISOString());
-                  } else {
-                  }
-                }}
-              />
-            </div>
+                    setOpenCalander(false);
+                  }}
+                />
+              </PopoverContent>
+            </Popover>
 
+            {errors.dateOfBirth && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.dateOfBirth.message}
+              </p>
+            )}
           </div>
+
+          <div className="grid gap-2">
+            <Label>Age </Label>
+            <Input
+              type="number"
+              placeholder="Age"
+              value={
+                dateOfBirth
+                  ? new Date().getFullYear() -
+                  new Date(dateOfBirth).getFullYear()
+                  : ""
+              }
+              onChange={(e) => {
+                const age = parseInt(e.target.value);
+                if (!isNaN(age)) {
+                  const today = new Date();
+                  const newDob = new Date(
+                    today.getFullYear() - age,
+                    today.getMonth(),
+                    today.getDate()
+                  );
+                  setValue("dateOfBirth", newDob.toISOString());
+                } else {
+                }
+              }}
+            />
+          </div>
+
           <div className="grid gap-2">
             <Label>Allergies</Label>
             <Input
