@@ -23,6 +23,7 @@ import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
+import PharmacistSelection from "./PharmacistSelection";
 
 export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const mrn = new URLSearchParams(window.location.search).get("mrn");
@@ -51,6 +52,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     discount: 0,
     priority: "Normal",
     status: "Pending",
+    assignedTo: "",
   });
 
   useEffect(() => {
@@ -119,6 +121,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         discount: 0,
         priority: "Normal",
         status: "Pending",
+        assignedTo: "",
       });
     }
   }, [open, user?._id]);
@@ -218,6 +221,15 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
                     </div>
                   )}
                 </div>
+              </div>
+
+              <div className="flex-1 max-w-sm">
+                <PharmacistSelection
+                  setValue={(id: string) => {
+                    setPayload((prev) => ({ ...prev, assignedTo: id }));
+                  }}
+                  pharmacistName=""
+                />
               </div>
 
               <div className="shrink-0 pt-7">
