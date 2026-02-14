@@ -406,13 +406,10 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
                 </div>
 
-                {/* Footer Actions */}
+
                 <div className="bg-white border-t pt-4 mt-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm">
                     <div className="text-sm">
-                        {/* Packed:{" "}
-                        <span className="font-medium text-slate-700">
-                            In progress
-                        </span> */}
+
                     </div>
 
                     <div className="flex items-center gap-2">
