@@ -338,9 +338,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         </div>
 
                         {paymentMethod === "Cash" && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
+                            <div
                                 className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
                             >
                                 <div className="space-y-2">
@@ -364,13 +362,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) || 0)))}
                                     </div>
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
 
                         {paymentMethod === "Underpaid" && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
+                            <div
                                 className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
                             >
                                 <div className="space-y-2">
@@ -392,15 +388,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
                                     />
                                 </div>
-                            </motion.div>
+                            </div>
                         )}
 
                         {paymentMethod === "UPI" && (
-                            <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                className="space-y-2 pt-2"
-                            >
+                            <div className="space-y-2 pt-2">
                                 <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
                                 <Input
                                     placeholder="Enter UPI transaction ID"
@@ -408,7 +400,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                     onChange={(e) => setReferenceNumber(e.target.value)}
                                     className="h-11 bg-white border-slate-200 rounded-lg focus:ring-indigo-500/20"
                                 />
-                            </motion.div>
+                            </div>
                         )}
                     </div>
 
