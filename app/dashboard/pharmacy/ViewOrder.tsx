@@ -355,7 +355,12 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         )}
                                     >
                                         <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <kbd className="px-1.5 py-0.5 text-[9px] font-bold bg-white border border-slate-200 rounded text-slate-400 shadow-xs">
+                                            <kbd className={cn(
+                                                "px-1.5 py-0.5 text-[9px] font-bold rounded shadow-xs border",
+                                                method.id === "Cash" && "bg-emerald-50 border-emerald-200 text-emerald-600",
+                                                method.id === "UPI" && "bg-indigo-50 border-indigo-200 text-indigo-600",
+                                                method.id === "Underpaid" && "bg-rose-50 border-rose-200 text-rose-600"
+                                            )}>
                                                 {method.shortcut}
                                             </kbd>
                                         </div>
