@@ -138,6 +138,34 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         setUpdatePayload(order);
     }, [order]);
 
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (!open) return;
+
+            // Don't trigger shortcuts if user is typing in an input or textarea
+            const target = e.target as HTMLElement;
+            if (
+                target.tagName === 'INPUT' ||
+                target.tagName === 'TEXTAREA' ||
+                target.isContentEditable
+            ) {
+                return;
+            }
+
+            const key = e.key.toLowerCase();
+            if (key === 'c') {
+                setPaymentMethod("Cash");
+            } else if (key === 'u') {
+                setPaymentMethod("UPI");
+            } else if (key === 'p') {
+                setPaymentMethod("Underpaid");
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [open]);
+
     const checkIsDirty = () => {
         if (!localOrder || !updatePayload) return false;
         if (localOrder.items.length !== updatePayload.items.length) return true;
@@ -309,9 +337,9 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {[
-                                { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50" },
-                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-indigo-600", bg: "bg-indigo-50" },
-                                { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50" },
+                                { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50", shortcut: "C" },
+                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-indigo-600", bg: "bg-indigo-50", shortcut: "U" },
+                                { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50", shortcut: "P" },
                             ].map((method) => {
                                 const active = paymentMethod === method.id;
                                 return (
@@ -320,12 +348,17 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         type="button"
                                         onClick={() => setPaymentMethod(method.id as any)}
                                         className={cn(
-                                            "flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left group",
+                                            "relative flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left group",
                                             active
                                                 ? `border-${method.id === "Cash" ? "emerald" : method.id === "UPI" ? "indigo" : "rose"}-500 ${method.bg} shadow-md`
                                                 : "border-slate-200 bg-white hover:border-slate-300 shadow-sm"
                                         )}
                                     >
+                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <kbd className="px-1.5 py-0.5 text-[9px] font-bold bg-white border border-slate-200 rounded text-slate-400 shadow-xs">
+                                                {method.shortcut}
+                                            </kbd>
+                                        </div>
                                         <div className={cn("p-2 rounded-lg", active ? "bg-white" : "bg-slate-50 group-hover:bg-white")}>
                                             <method.icon className={cn("h-5 w-5", active ? method.color : "text-slate-400")} />
                                         </div>
