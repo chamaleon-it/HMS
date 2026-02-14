@@ -430,17 +430,19 @@ const SingleSupplierPage: React.FC = () => {
                                                                 className={cn(
                                                                     "rounded-full px-3",
                                                                     isOverdue
-                                                                        ? "bg-rose-50 text-rose-600 border-rose-100 animate-pulse-subtle"
-                                                                        : "bg-amber-50 text-amber-600 border-amber-100"
+                                                                        ? "bg-rose-50 text-rose-900 border-rose-200 animate-pulse-subtle font-bold px-2.5 py-0.5"
+                                                                        : "bg-orange-50 text-orange-900 border-orange-200 font-bold px-2.5 py-0.5"
                                                                 )}
                                                             >
-                                                                {isOverdue ? "Overdue: " : "Due: "}{fDate(dueDate)}
+                                                                {isOverdue ? "Overdue: " : "Due date: "}{fDate(dueDate)}
                                                             </Badge>
                                                             <Badge
                                                                 variant="outline"
                                                                 className={cn(
-                                                                    "rounded-full px-3",
-                                                                    !active ? "bg-amber-50 text-amber-600 border-amber-100" : "bg-rose-50 text-rose-600 border-rose-100"
+                                                                    "rounded-full px-3 font-bold",
+                                                                    !active
+                                                                        ? "bg-orange-50 text-orange-900 border-orange-200 ring-1 ring-orange-200/50"
+                                                                        : "bg-rose-50 text-rose-900 border-rose-200 ring-1 ring-rose-200/50"
                                                                 )}
                                                             >
                                                                 {formatINR(order.total - order.paidAmount)}
