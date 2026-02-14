@@ -1,4 +1,5 @@
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 import {
@@ -21,6 +22,8 @@ type Pharmacist = {
 interface Props {
     setValue: (id: string) => void;
     pharmacistName?: string;
+    hideLabel?: boolean;
+    className?: string;
 }
 
 const DUMMY_PHARMACISTS: Pharmacist[] = [
@@ -31,7 +34,7 @@ const DUMMY_PHARMACISTS: Pharmacist[] = [
     { _id: "ph005", name: "Jessica Pearson", role: "pharmacist", email: "jessica.p@hospital.com", phoneNumber: "5550105" },
 ];
 
-const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName }) => {
+const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName, hideLabel, className }) => {
     const { data: pharmacistResponse, mutate: pharmacistMutate, isLoading: pharmacistLoading } = useSWR<{
         data: PharmacistData[], message: string
     }>("/pharmacist")
@@ -42,8 +45,8 @@ const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName }) => {
 
 
     return (
-        <div className="relative w-full max-w-[500px]">
-            <Label className="block mb-1.5">Pharmacist Name</Label>
+        <div className={cn("relative w-full", className)}>
+            {!hideLabel && <Label className="block mb-1.5">Pharmacist Name</Label>}
             <Select
                 onValueChange={(val) => {
 

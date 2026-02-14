@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Item, OrderType } from "./interface";
 import Medicine from "./Medicine";
 import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
+import { Trash, AlertTriangle } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import UpdateMedicine from "./UpdateMedicine";
 import { fDate } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
@@ -29,14 +30,31 @@ interface Medicine {
   quantity: number;
 }
 
+const hasAllergyConflict = (generic?: string, allergies?: string) => {
+  if (!generic || !allergies) return false;
+
+  const normalize = (str: string) =>
+    str.toLowerCase()
+      .replace(/[^a-zA-Z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(word => word.length > 2); // Filter out short words and units like 'mg', 'ml'
+
+  const genericWords = normalize(generic);
+  const allergyWords = normalize(allergies);
+
+  return genericWords.some(word => allergyWords.includes(word));
+};
+
 export default function UpdatePrescriptionCard({
   data,
   setData,
   onTogglePacked,
+  allergies
 }: {
   data: OrderType;
   setData: React.Dispatch<React.SetStateAction<OrderType>>;
   onTogglePacked: (item: any) => void;
+  allergies?: string
 }) {
   const updateField = (
     idx: number,
@@ -106,17 +124,37 @@ export default function UpdatePrescriptionCard({
               <tr key={i} className="border-b last:border-b-0 hover:bg-slate-50/80 transition-all duration-200 group">
                 <td className="p-4 align-middle text-slate-500 font-medium text-sm">{i + 1}</td>
                 <td className="p-4 align-middle">
-                  <div className="relative w-full">
-                    <input
-                      placeholder="Drug Name"
-                      type="text"
-                      disabled
-                      className="w-full bg-transparent text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none disabled:cursor-not-allowed"
-                      value={m.name.name}
-                    />
-                  </div>
-                  <div className="text-xs text-slate-500 font-medium mt-1 pl-0.5">
-                    {m.name.generic ? <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">Gen: {m.name.generic}</span> : null}
+                  <div className="flex items-center justify-start gap-2">
+
+
+                    <div className="">
+                      <div className="relative w-full">
+                        <input
+                          placeholder="Drug Name"
+                          type="text"
+                          disabled
+                          className="w-full bg-transparent text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none disabled:cursor-not-allowed"
+                          value={m.name.name}
+                        />
+                      </div>
+                      <div className="text-xs text-slate-500 font-medium mt-1 pl-0.5">
+                        {m.name.generic ? <span className="bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">Gen: {m.name.generic}</span> : null}
+                      </div>
+                    </div>
+                    {hasAllergyConflict(m.name.generic, allergies) && (
+                      <div className="mt-1 flex items-center gap-1.5 px-1.5 py-0.5 rounded bg-rose-50 border border-rose-100 w-fit">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <AlertTriangle className="h-3.5 w-3.5 text-rose-600 animate-pulse cursor-help" />
+                            </TooltipTrigger>
+                            <TooltipContent className="bg-rose-600 text-white border-none shadow-lg">
+                              <p className="font-semibold">Medicine is allergic to this patient</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                    )}
                   </div>
                 </td>
                 <td className="p-4 align-middle text-sm text-slate-600">

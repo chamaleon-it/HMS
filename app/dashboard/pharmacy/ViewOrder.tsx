@@ -295,6 +295,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         setData={setUpdatePayload as React.Dispatch<React.SetStateAction<OrderType>>}
                         data={updatePayload}
                         onTogglePacked={handleTogglePacked}
+                        allergies={order?.patient.allergies}
                     />
 
                     {/* Payment Details Section */}
