@@ -26,13 +26,13 @@ import { motion } from "framer-motion";
 // ... existing imports ...
 
 const APPOINTMENT_STATUSES = [
-  { label: "Scheduled", value: "Scheduled", color: "bg-gray-100 text-gray-700", key: "S" },
-  { label: "Waiting", value: "Waiting", color: "bg-orange-100 text-orange-700", key: "W" },
-  { label: "Engaged", value: "Engaged", color: "bg-blue-100 text-blue-700", key: "G" },
+  { label: "Upcoming", value: "Upcoming", color: "bg-indigo-100 text-indigo-700", key: "U" },
   { label: "Consulted", value: "Consulted", color: "bg-emerald-100 text-emerald-700", key: "C" },
-  { label: "Check Out", value: "Check Out", color: "bg-gray-200 text-gray-600", key: "O" },
-  { label: "No Show", value: "No Show", color: "bg-red-100 text-red-700", key: "N" },
-  { label: "Cancelled", value: "Cancelled", color: "bg-red-100 text-red-700", key: "X" },
+  { label: "Observation", value: "Observation", color: "bg-sky-100 text-sky-700", key: "O" },
+  { label: "Not show", value: "Not show", color: "bg-amber-100 text-amber-700", key: "N" },
+  { label: "Completed", value: "Completed", color: "bg-emerald-100 text-emerald-700", key: "P" },
+  { label: "Admit", value: "Admit", color: "bg-rose-100 text-rose-700", key: "A" },
+  { label: "Test", value: "Test", color: "bg-rose-100 text-rose-700", key: "T" },
 ];
 
 function DoctorAvailabilityCard({ doctorId }: { doctorId: string }) {
@@ -125,13 +125,12 @@ function AppointmentSidePanel({ appointment, onClose, onEdit, onUpdateStatus }: 
       // Only trigger if no modifier keys are pressed (to avoid conflicts)
       if (!e.ctrlKey && !e.metaKey && !e.altKey) {
         const statusMap: Record<string, string> = {
-          's': 'Scheduled',
-          'w': 'Waiting',
-          'g': 'Engaged',
-          'c': 'Consulted',
-          'o': 'Check Out',
-          'n': 'No Show',
-          'x': 'Cancelled'
+          "u": "Upcoming",
+          "c": "Consulted",
+          "o": "Observation",
+          "n": "No show",
+          "a": "Admit",
+          "t": "Test",
         };
         if (statusMap[e.key.toLowerCase()]) {
           e.preventDefault();

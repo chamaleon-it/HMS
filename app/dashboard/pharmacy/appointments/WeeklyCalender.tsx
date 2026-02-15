@@ -3,10 +3,7 @@ import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
 import {
-  generateTimeSlots,
   toMinutes,
-  dayNameToIndex,
-  combineToIST,
 } from "@/lib/fDateAndTime";
 
 const colorMap = {
@@ -36,40 +33,32 @@ const colorMap = {
 // Status-based coloring logic
 const getStatusStyles = (status: ApiStatus) => {
   switch (status) {
-    case "Waiting": return "bg-orange-50 border-orange-200 text-orange-900";
-    case "Engaged": return "bg-blue-50 border-blue-200 text-blue-900"; // On Consulting
+    case "Upcoming": return "bg-indigo-50 border-indigo-200 text-indigo-900";
     case "Consulted":
     case "Completed": return "bg-emerald-50 border-emerald-200 text-emerald-900";
-    case "Check Out": return "bg-gray-100 border-gray-200 text-gray-500 dashed-border";
-    case "No Show":
-    case "Cancelled": return "bg-red-50 border-red-200 text-red-900";
-    case "Scheduled":
-    case "Upcoming":
-    default: return "bg-white border-indigo-200 text-gray-900";
+    case "Observation": return "bg-sky-50 border-sky-200 text-sky-900";
+    case "Not show": return "bg-amber-50 border-amber-200 text-amber-900";
+    case "Admit":
+    case "Test": return "bg-rose-50 border-rose-200 text-rose-900";
+    default: return "bg-white border-zinc-200 text-zinc-900";
   }
 }
 
 const getStatusDot = (status: ApiStatus) => {
   switch (status) {
-    case "Waiting": return "bg-orange-400";
-    case "Engaged": return "bg-blue-500 animate-pulse";
+    case "Upcoming": return "bg-indigo-500";
     case "Consulted":
     case "Completed": return "bg-emerald-500";
-    case "Check Out": return "bg-gray-400";
-    case "No Show":
-    case "Cancelled": return "bg-red-500";
-    default: return "bg-indigo-400";
+    case "Observation": return "bg-sky-500";
+    case "Not show": return "bg-amber-500";
+    case "Admit":
+    case "Test": return "bg-rose-500";
+    default: return "bg-zinc-400";
   }
 }
 
 
-const consultedStyles = {
-  container: "opacity-60 grayscale",
-  chip: "bg-gray-200 text-gray-700",
-  dot: "bg-gray-400",
-  badge:
-    "inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200",
-} as const;
+
 
 // ==== Config ====
 const START_HOUR = 8;
@@ -114,16 +103,13 @@ const getRoundForTime = (
 };
 
 type ApiStatus =
-  | "Scheduled"
   | "Upcoming"
-  | "Waiting"
-  | "Engaged"
   | "Consulted"
-  | "Completed"
-  | "Check Out"
   | "Observation"
-  | "Cancelled"
-  | "No Show";
+  | "Not show"
+  | "Completed"
+  | "Admit"
+  | "Test";
 
 type ApiType = keyof typeof colorMap | "New" | "Follow up"; // Merging types
 
@@ -301,12 +287,13 @@ export default function WeeklyCalender({
         </h3>
 
         {/* Legend */}
-        <div className="hidden lg:flex items-center gap-4 text-xs text-gray-500 font-medium">
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-orange-400"></div> Waiting</div>
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-blue-500"></div> Engaged</div>
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Completed</div>
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-red-500"></div> Cancelled/No Show</div>
-          <div className="flex items-center gap-1.5"><div className="w-1.5 h-1.5 bg-red-500 rounded-full"></div> Current Time</div>
+        <div className="hidden lg:flex items-center gap-4 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-indigo-500"></div> Upcoming</div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-emerald-500"></div> Consulted</div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-sky-500"></div> Observation</div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div> Not show</div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div> Admit/Test</div>
+          <div className="flex items-center gap-1.5 h-4 px-2 rounded-full bg-red-50 text-[9px] text-red-600 border border-red-100 uppercase">Live</div>
         </div>
       </div>
 
@@ -389,7 +376,7 @@ export default function WeeklyCalender({
                   })}
 
                   {/* Day Hover Effect Overlay - Optional */}
-                  {!past && <div className="absolute inset-0 hover:bg-black/[0.005] pointer-events-none transition-colors" />}
+                  {!past && <div className="absolute inset-0 hover:bg-black/0.5 pointer-events-none transition-colors" />}
 
                   {/* Current Time Line - Only render if today */}
                   {today && currentTimeMinutes !== null && (
@@ -398,7 +385,7 @@ export default function WeeklyCalender({
                       style={{ top: `${(currentTimeMinutes / BLOCK_MINUTES) * ROW_HEIGHT_REM}rem` }}
                     >
                       <div className="w-2.5 h-2.5 bg-red-500 rounded-full -ml-1.5 shadow-md shadow-red-200"></div>
-                      <div className="flex-1 bg-linear-to-r from-red-500/20 to-transparent h-[1px]"></div>
+                      <div className="flex-1 bg-linear-to-r from-red-500/20 to-transparent h-px"></div>
                     </div>
                   )}
                 </div>
@@ -459,7 +446,7 @@ export default function WeeklyCalender({
                             {/* Name and N badge */}
                             <div className="flex items-center gap-1 overflow-hidden">
                               {isNew && (
-                                <span className="shrink-0 bg-red-500 text-white text-[9px] font-bold px-1 rounded-full flex items-center justify-center h-4 min-w-[1rem]" title="New Patient">N</span>
+                                <span className="shrink-0 bg-red-500 text-white text-[9px] font-bold px-1 rounded-full flex items-center justify-center h-4 min-w-4" title="New Patient">N</span>
                               )}
                               <span className="font-bold truncate text-[10px] sm:text-xs text-gray-900">
                                 {e.patient?.name ?? "—"}

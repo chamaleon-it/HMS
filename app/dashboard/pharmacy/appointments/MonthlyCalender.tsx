@@ -28,12 +28,14 @@ const colorMap = {
   },
 } as const;
 
-const consultedStyles = {
-  container: "opacity-60 grayscale",
-  chip: "bg-gray-200 text-gray-700",
-  dot: "bg-gray-400",
-  badge:
-    "inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 border border-gray-200",
+const statusColorMap = {
+  Upcoming: "bg-indigo-500",
+  Consulted: "bg-emerald-500",
+  Completed: "bg-emerald-500",
+  Observation: "bg-sky-500",
+  "Not show": "bg-amber-500",
+  Admit: "bg-rose-500",
+  Test: "bg-rose-500",
 } as const;
 
 export default function MonthlyCalender({
@@ -55,9 +57,11 @@ export default function MonthlyCalender({
       type: string;
       status: string;
     }[];
-  }>(`/appointments/calender-monthly?date=${selectedDate.toString()}`);
+  }>(`/appointments/calender-monthly`);
 
-  
+
+
+
 
   const firstDayOFTheMonth = new Date(
     new Date(selectedDate).getFullYear(),
@@ -75,18 +79,12 @@ export default function MonthlyCalender({
           <h3 className="font-semibold">Monthly Bookings</h3>
         </div>
         <div className="hidden md:flex items-center gap-4 text-xs text-gray-600">
-          {Object.entries(colorMap).map(([key, v]) => (
+          {Object.entries(statusColorMap).filter(([k]) => k !== "Completed" && k !== "Test").map(([key, color]) => (
             <div key={key} className="flex items-center gap-1">
-              <span className={`w-2.5 h-2.5 rounded-full ${v.dot}`}></span>
-              <span>{v.label}</span>
+              <span className={`w-2.5 h-2.5 rounded-full ${color}`}></span>
+              <span>{key === "Admit" ? "Admit/Test" : key}</span>
             </div>
           ))}
-          <div className="flex items-center gap-1">
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${consultedStyles.dot}`}
-            ></span>
-            <span>Consulted</span>
-          </div>
         </div>
       </div>
       <div className="grid grid-cols-7 gap-2">
@@ -101,10 +99,10 @@ export default function MonthlyCalender({
             <div key={idx}></div>
           ))}
         {[...Array(31)].map((_, i) => {
-          const date = `${selectedDate.getFullYear()}-${
-            selectedDate.getMonth() + 1
-          }-${String(i + 1).padStart(2, "0")}`;
-          const events = data?.data.filter((b) => b.date === date) || [];
+          const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+          const day = String(i + 1).padStart(2, "0");
+          const dateStr = `${selectedDate.getFullYear()}-${month}-${day}`;
+          const events = data?.data.filter((b) => b.date === dateStr) || [];
 
           return (
             <motion.div
@@ -114,7 +112,7 @@ export default function MonthlyCalender({
             >
               <p className="text-xs text-gray-500">{i + 1}</p>
               {events.length > 0 && (
-                <span className="absolute top-1 right-1 text-[10px] bg-gray-900 text-white rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">
+                <span className="absolute top-1 right-1 text-[10px] bg-gray-900 text-white rounded-full min-w-5 h-5 px-1 flex items-center justify-center">
                   {events.length}
                 </span>
               )}
@@ -128,10 +126,8 @@ export default function MonthlyCalender({
                   <div
                     key={j}
                     className={cn(
-                      "mt-1 text-[11px] rounded px-1 truncate bg-gray-200",
-                      ev.status === "Upcoming" && "bg-blue-500",
-                      ev.status === "Consulted" && "bg-gray-200",
-                      ev.status === "Test" && "bg-amber-500"
+                      "mt-1 text-[11px] rounded px-1 truncate text-white",
+                      statusColorMap[ev.status as keyof typeof statusColorMap] || "bg-gray-400"
                     )}
                   >
                     {ev?.patient?.name} ({ev.type}){" • " + ev.status}

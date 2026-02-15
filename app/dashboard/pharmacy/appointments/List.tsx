@@ -24,58 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const MOCK_DATA = [
-  {
-    _id: "m1",
-    patient: { _id: "p1", name: "Sarah Connor", mrn: "MRN-2024-001", phoneNumber: "+1 555-0101", email: "sarah@example.com" },
-    doctor: { _id: "d1", name: "Dr. Miles Dyson", email: "miles@hms.com" },
-    date: new Date(new Date().setHours(9, 30)),
-    status: "Waiting",
-    type: "Follow up",
-    method: "In clinic",
-    visitCount: 3
-  },
-  {
-    _id: "m2",
-    patient: { _id: "p2", name: "John Wick", mrn: "MRN-2024-009", phoneNumber: "+1 555-0199", email: "john@example.com" },
-    doctor: { _id: "d2", name: "Dr. Winston Scott", email: "winston@hms.com" },
-    date: new Date(new Date().setHours(10, 15)),
-    status: "Engaged",
-    type: "New",
-    method: "Video",
-    visitCount: 1
-  },
-  {
-    _id: "m3",
-    patient: { _id: "p3", name: "Ellen Ripley", mrn: "MRN-2024-042", phoneNumber: "+1 555-0999", email: "ellen@example.com" },
-    doctor: { _id: "d3", name: "Dr. Ash Bishop", email: "ash@hms.com" },
-    date: new Date(new Date().setHours(11, 0)),
-    status: "Scheduled",
-    type: "Follow up",
-    method: "In clinic",
-    visitCount: 12
-  },
-  {
-    _id: "m4",
-    patient: { _id: "p4", name: "Tony Stark", mrn: "MRN-2024-888", phoneNumber: "+1 555-3000", email: "tony@example.com" },
-    doctor: { _id: "d4", name: "Dr. Strange", email: "strange@hms.com" },
-    date: new Date(new Date().setHours(13, 15)),
-    status: "Consulted",
-    type: "Follow up",
-    method: "Video",
-    visitCount: 5
-  },
-  {
-    _id: "m5",
-    patient: { _id: "p5", name: "Bruce Wayne", mrn: "MRN-2024-099", phoneNumber: "+1 555-7777", email: "bruce@example.com" },
-    doctor: { _id: "d5", name: "Dr. Crane", email: "crane@hms.com" },
-    date: new Date(new Date().setHours(14, 30)),
-    status: "No Show",
-    type: "New",
-    method: "In clinic",
-    visitCount: 1
-  }
-];
+
 
 export default function List({
   query,
@@ -92,7 +41,7 @@ export default function List({
   const [edit, setEdit] = useState<null | any>(null);
 
   // Combine real data with mock data if real data is empty for demo purposes
-  const rawData = data?.data && data.data.length > 0 ? data.data : MOCK_DATA;
+  const rawData = data?.data && data.data.length > 0 ? data.data : [];
 
   const filteredData = rawData.filter((a: any) => {
     if (!query) return true;
@@ -282,9 +231,12 @@ function ActionButtons({ id, onStatusUpdate, onEdit, onDelete }: any) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuLabel>Change Status</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Waiting")}>Mark Waiting</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Engaged")}>Mark Engaged</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Upcoming")}>Mark Upcoming</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Consulted")}>Mark Consulted</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Observation")}>Mark Observation</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Completed")}>Mark Completed</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Admit")}>Mark Admit</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Test")}>Mark Test</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "No Show")} className="text-red-600 focus:text-red-700 focus:bg-red-50">Mark No Show</DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -299,19 +251,16 @@ function ActionButtons({ id, onStatusUpdate, onEdit, onDelete }: any) {
 
 const Chip: React.FC<{ label: string }> = ({ label }) => {
   const styles: Record<string, string> = {
-    Scheduled: "bg-gray-100 text-gray-700 border-gray-200",
     Upcoming: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    Waiting: "bg-orange-50 text-orange-700 border-orange-200",
-    Engaged: "bg-blue-50 text-blue-700 border-blue-200",
     Consulted: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    Completed: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    "Check Out": "bg-gray-100 text-gray-600 border-gray-200 dashed",
-    "No Show": "bg-red-50 text-red-700 border-red-200",
-    Cancelled: "bg-red-50 text-red-700 border-red-200",
-    Observation: "bg-amber-50 text-amber-700 border-amber-200",
+    Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    "Not show": "bg-amber-50 text-amber-700 border-amber-200",
+    Observation: "bg-sky-50 text-sky-700 border-sky-200",
+    Admit: "bg-rose-50 text-rose-700 border-rose-200",
+    Test: "bg-rose-50 text-rose-700 border-rose-200",
   };
 
-  const style = styles[label] || "bg-gray-100 text-gray-600 border-gray-200";
+  const style = styles[label] || "bg-zinc-100 text-zinc-600 border-zinc-200";
 
   return (
     <span
