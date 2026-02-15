@@ -16,6 +16,9 @@ export interface Datum {
     createdAt?: Date;
     updatedAt?: Date;
     discount?: number
+    paidAmount?: number
+    type?: string
+    billNo?: string
 }
 
 export interface Item {

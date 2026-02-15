@@ -41,7 +41,7 @@ export default function Search({
               className="pl-9 text-sm h-9 rounded-lg border-slate-300 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
               value={filter.q ?? ""}
               onChange={(e) =>
-                setFilter((prev) => ({ ...prev, q: e.target.value }))
+                setFilter((prev) => ({ ...prev, q: e.target.value.trim() }))
               }
             />
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
@@ -77,29 +77,29 @@ export default function Search({
       {/* RIGHT: BILL SUMMARY */}
       <div className="xl:col-span-2 bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 grid grid-cols-2 md:grid-cols-4 gap-4 text-[11px] text-slate-600">
         <div className="flex flex-col">
-          <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500">
+          <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500 font-medium text-xs">
             <User className="w-3 h-3 text-blue-500" /> Patient
           </span>
           <span className="text-blue-700 font-semibold text-sm leading-tight mt-1">
             {order?.patient.name}
           </span>
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] font-semibold text-slate-400">
             PID: {order?.patient.mrn}
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500">
+          <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500 font-medium text-xs">
             <Stethoscope className="w-3 h-3 text-purple-500" /> Doctor
           </span>
           <span className="text-slate-900 font-medium text-sm leading-tight mt-1">
             Dr. {order?.doctor.name}
           </span>
-          <span className="text-[10px] text-slate-400">
+          <span className="text-[10px] font-semibold text-slate-400">
             {order?.doctor.specialization}
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500">
+          <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500 font-medium text-xs">
             <CreditCard className="w-3 h-3 text-orange-500" /> Payment
           </span>
           <span className="text-slate-900 font-medium text-sm leading-tight mt-1">
@@ -107,7 +107,7 @@ export default function Search({
           </span>
         </div>
         <div className="flex flex-col">
-          <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500">
+          <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500 font-medium text-xs">
             <ReceiptIndianRupee className="w-3 h-3 text-emerald-500" /> Total
           </span>
           <span className="text-emerald-700 font-bold text-lg leading-tight mt-1">
@@ -115,7 +115,7 @@ export default function Search({
               order?.items.reduce((a, b) => a + b.name.unitPrice * b.quantity, 0) ?? 0
             )}
           </span>
-          <span className="text-[10px] text-slate-400">incl. GST</span>
+          <span className="text-[10px] font-semibold text-slate-400">incl. GST</span>
         </div>
       </div>
     </section >

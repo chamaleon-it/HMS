@@ -43,4 +43,6 @@ export interface FilterType {
   lowStockThreshold?: number;
   supplier?: string;
   lowStockItemsView: boolean;
+  sortBy?: "createdAt" | "quantity";
+  orderBy?: "desc" | "asc";
 }

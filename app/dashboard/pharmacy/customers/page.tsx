@@ -21,7 +21,12 @@ import { TableSkeleton } from "../components/PharmacySkeleton";
 import PharmacyHeader from "../components/PharmacyHeader";
 import { PaginationBar } from "../components/PaginationBar";
 import { Button } from "@/components/ui/button";
-import Drawer from "@/components/ui/drawer";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { RegisterPatient } from "./RegisterPatient";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, Pencil } from "lucide-react";
@@ -204,7 +209,7 @@ const Customers: React.FC = () => {
                                     variant="ghost"
                                     size="icon"
                                     className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                                    onClick={(e) => {
+                                    onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
                                       router.push(
                                         `/dashboard/pharmacy/customers/single?id=${p.patient._id}`
@@ -225,7 +230,7 @@ const Customers: React.FC = () => {
                                     variant="ghost"
                                     size="icon"
                                     className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                                    onClick={(e) => {
+                                    onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
                                       setEditCustomer(p.patient);
                                     }}
@@ -272,17 +277,18 @@ const Customers: React.FC = () => {
         </div>
       </TooltipProvider>
 
-      <Drawer
-        open={Boolean(editCustomer)}
-        onClose={() => setEditCustomer(null)}
-        title="Customer Edit"
-      >
-        <RegisterPatient
-          onClose={() => setEditCustomer(null)}
-          mutate={mutate}
-          patient={editCustomer}
-        />
-      </Drawer>
+      <Dialog open={Boolean(editCustomer)} onOpenChange={(v) => !v && setEditCustomer(null)}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Edit</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            onClose={() => setEditCustomer(null)}
+            mutate={mutate}
+            patient={editCustomer}
+          />
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 };

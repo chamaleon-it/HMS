@@ -7,6 +7,8 @@ export interface OrderType {
     priority: string;
     status: string;
     discount: number;
+    paidAmount: number;
+    paymentStatus: "Paid" | "Pending" | "Partial";
     assignedTo: null;
     createdAt?: Date;
     updatedAt?: Date;
@@ -93,4 +95,5 @@ export interface DataType {
     discount: number;
     priority: string;
     status: string;
+    pharmacists?: string;
 }
