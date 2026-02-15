@@ -56,8 +56,10 @@ export function CreateAppointmentForm({
     | "Upcoming"
     | "Consulted"
     | "Observation"
-    // | "Completed"
-    | "Not show";
+    | "Completed"
+    | "Not show"
+    | "Admit"
+    | "Test";
     isPaid: boolean;
     createdAt: Date;
     visitCount: number;

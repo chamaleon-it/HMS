@@ -16,6 +16,8 @@ export const STATUSES = [
   "Observation",
   "Completed",
   "Not show",
+  "Admit",
+  "Test",
   "All",
 ] as const;
 
