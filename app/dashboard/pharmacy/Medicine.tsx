@@ -32,12 +32,14 @@ export default function MedicineField({
   updateField,
   i,
   onEnter,
+  onSelect,
   inputRef,
 }: {
   m: Medicine;
   updateField: (idx: number, key: keyof Medicine, val: string | number) => void;
   i: number;
   onEnter?: () => void;
+  onSelect?: () => void;
   inputRef?: React.RefObject<HTMLInputElement>;
 }) {
   // what the user is typing
@@ -109,6 +111,7 @@ export default function MedicineField({
     setQuery("");
     setFilter((f) => ({ ...f, q: "", page: 1 }));
     setOpen(false);
+    onSelect?.();
   };
 
   const onKeyDown: React.KeyboardEventHandler<HTMLInputElement> = (e) => {
@@ -129,9 +132,11 @@ export default function MedicineField({
       e.preventDefault();
       setActiveIdx((idx) => Math.max(idx - 1, 0));
     } else if (e.key === "Enter") {
-      e.preventDefault();
       const sel = items[activeIdx];
-      if (sel) handleSelect(sel);
+      if (sel) {
+        handleSelect(sel);
+        onSelect?.();
+      }
     } else if (e.key === "Escape") {
       setOpen(false);
     }
