@@ -69,8 +69,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
 
   return (
     <>
-      <div className="flex flex-col gap-6 print:hidden">
-        <Filters filter={filter} setFilter={setFilter} />
+      <div className="flex flex-col gap-6 print:hidden mt-6">
+
 
         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
           <Table className="print:hidden min-w-[1200px] text-sm">

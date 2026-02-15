@@ -369,9 +369,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         <div className="relative ">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm  ">₹</span>
                             <Input
+                                type="number"
                                 placeholder="0.00"
                                 className="h-11 bg-slate-50/50 border-slate-200 rounded-lg pl-7 focus:ring-2 focus:ring-indigo-500/20 transition-all  text-slate-700 "
-                                value={billDetails.transportCharges}
+                                value={Number(billDetails.transportCharges) || ""}
                                 onChange={(e) => handleBillDetailChange("transportCharges", e.target.value)}
                             />
                         </div>
@@ -750,7 +751,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                     type="number"
                                     placeholder="0.00"
                                     className="h-14 bg-indigo-50/40 border-2 border-indigo-100/50 rounded-2xl pl-10 focus:ring-8 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-black text-xl text-indigo-700 tabular-nums shadow-sm"
-                                    value={billDetails.paidAmount}
+                                    value={Number(billDetails.paidAmount) || ""}
                                     onChange={(e) => handleBillDetailChange("paidAmount", e.target.value)}
                                 />
                             </div>
