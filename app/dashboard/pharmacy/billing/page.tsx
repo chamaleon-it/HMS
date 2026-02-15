@@ -11,6 +11,7 @@ import { BillingFormSkeleton, TableSkeleton } from "../components/PharmacySkelet
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReceiptIndianRupee, PlusCircle } from "lucide-react";
 import { motion } from "framer-motion";
+import Filters from "./Filter";
 
 export interface FilterType {
   q: null | string;
@@ -155,9 +156,11 @@ export default function BillingPage() {
                 })}
               </div>
               <TabsContent value="all">
+                <Filters filter={filter} setFilter={setFilter} />
                 {isLoadingBilling ? (
                   <TableSkeleton rows={10} columns={6} />
                 ) : (
+
                   <AllBill
                     billing={billing}
                     filter={filter}
@@ -165,6 +168,8 @@ export default function BillingPage() {
                     total={total}
                     billingMutate={billingMutate}
                   />
+
+
                 )}
               </TabsContent>
               <TabsContent value="new">

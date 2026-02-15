@@ -569,6 +569,9 @@ const SingleSupplierPage: React.FC = () => {
                                             <div className="text-slate-500 text-right">Transport:</div>
                                             <div className="text-slate-900 text-right font-medium">+{formatINR(selectedOrder.transportCharge)}</div>
 
+                                            <div className="text-slate-500 text-right">Due:</div>
+                                            <div className="text-right font-medium text-rose-500">{formatINR(selectedOrder.total - selectedOrder.paidAmount)}</div>
+
                                             <div className="col-span-2 my-1 border-t border-slate-200"></div>
 
                                             <div className="text-slate-900 text-right font-bold text-base">Grand Total:</div>
