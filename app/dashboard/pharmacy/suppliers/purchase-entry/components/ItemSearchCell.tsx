@@ -15,9 +15,16 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { Check, ChevronsUpDown, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useSWR from "swr";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { QuickAddItem } from "../../../inventory/QuickAddItem";
 
 // Simple hook for debouncing
 function useDebounced<T>(value: T, delay = 250) {
@@ -50,6 +57,7 @@ const ItemSearchCell = ({
 }: ItemSearchCellProps) => {
     const [query, setQuery] = useState("");
     const [open, setOpen] = useState(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [localSelectedItem, setLocalSelectedItem] = useState<Item | null>(null);
     const debouncedQ = useDebounced(query, 300);
 
@@ -99,7 +107,20 @@ const ItemSearchCell = ({
                     <CommandList className="">
                         {isLoading && <div className="p-4 text-center text-sm text-slate-500 ">Searching...</div>}
                         {!isLoading && items.length === 0 && query && (
-                            <CommandEmpty className="py-6 text-center text-slate-500 text-sm ">No medicines found.</CommandEmpty>
+                            <CommandEmpty className="py-6 text-center text-slate-500 text-sm flex flex-col items-center gap-3">
+                                <span>No medicines found for "{query}"</span>
+                                <Button
+                                    size="sm"
+                                    className="h-9 bg-indigo-600 hover:bg-indigo-700 text-white gap-2 font-semibold shadow-md "
+                                    onClick={() => {
+                                        setIsAddModalOpen(true);
+                                        setOpen(false);
+                                    }}
+                                >
+                                    <Plus className="h-4 w-4" />
+                                    Add New Medicine
+                                </Button>
+                            </CommandEmpty>
                         )}
                         <CommandGroup className="p-2 ">
                             {items.map((it) => (
@@ -130,6 +151,23 @@ const ItemSearchCell = ({
                     </CommandList>
                 </Command>
             </PopoverContent>
+
+            <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+                <DialogContent className="max-w-3xl!">
+                    <DialogHeader>
+                        <DialogTitle>Register New Medicine</DialogTitle>
+                    </DialogHeader>
+                    <QuickAddItem
+                        initialName={query}
+                        onClose={() => setIsAddModalOpen(false)}
+                        onSelect={(it) => {
+                            setLocalSelectedItem(it);
+                            onSelect(it);
+                            setIsAddModalOpen(false);
+                        }}
+                    />
+                </DialogContent>
+            </Dialog>
         </Popover>
     );
 };
