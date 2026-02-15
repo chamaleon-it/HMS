@@ -54,7 +54,10 @@ const Customers: React.FC = () => {
   if (filter.query) params.set("q", filter.query);
   if (filter.gender) params.set("gender", filter.gender);
   if (filter.doctor) params.set("doctor", filter.doctor);
-  // age and lastVisit might need special handling if server supports them
+  if (filter.dateRange.from) params.set("from", filter.dateRange.from);
+  if (filter.dateRange.to) params.set("to", filter.dateRange.to);
+  if (filter.age[0] !== 0 || filter.age[1] !== 100) params.set("age", `${filter.age[0]}-${filter.age[1]}`);
+  if (filter.lastVisit) params.set("lastVisit", String(filter.lastVisit));
 
   const { data: customersData, isLoading, mutate } = useSWR<{
     message: string;
