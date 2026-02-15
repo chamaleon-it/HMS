@@ -28,9 +28,7 @@ export const pharmacyItemAddSchema = z.object({
     .min(2, { error: "Category must be at least 2 characters" })
     .transform((s) => s.trim()),
 
-  supplier: z
-    .string({ error: "Supplier is required" })
-    .transform((s) => s.trim()),
+
 
   manufacturer: z
     .string({ error: "Supplier is required" })
@@ -44,23 +42,11 @@ export const pharmacyItemAddSchema = z.object({
     .number({ error: "Unit price must be a number" })
     .min(1, { error: "Unit price cannot be zero or below" }),
 
-  openingStockQuantity: z.coerce
-    .number({ error: "Opening stock must be a number" })
-    .int({ error: "Opening stock must be an integer" })
-    .min(1, { error: "Opening stock cannot be zero or below" }),
 
-  quantity: z.coerce
-    .number({ error: "Quantity must be a number" })
-    .int({ error: "Quantity must be an integer" })
-    .min(1, { error: "Quantity cannot be zero or below" }),
 
-  // Zod v4 provides z.iso.date() for ISO date strings
+
   expiryDate: z.string({ error: "Expiry date is required" }),
-  // iso.date({
-  //   error: "Expiry date must be an ISO date (YYYY-MM-DD)",
-  // }),
 
-  batchNumber: z.string({ error: "Batch number is required" }).optional(),
 
   rackLocation: z.string({ error: "Rack location is required" }).optional(),
 
@@ -69,10 +55,6 @@ export const pharmacyItemAddSchema = z.object({
     .int({ error: "Packing must be an integer" })
     .optional(),
 
-  gst: z.coerce
-    .number({ error: "GST must be a number" })
-    .max(100, { error: "GST cannot be above 100" })
-    .optional(),
 
   status: z.enum(["Active", "Inactive"], {
     error: "Status must be 'Active' or 'Inactive'",

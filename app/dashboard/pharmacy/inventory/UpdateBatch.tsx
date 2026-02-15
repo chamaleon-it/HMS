@@ -139,7 +139,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                 </TooltipTrigger>
                 <TooltipContent>Update Batch</TooltipContent>
             </Tooltip>
-            <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-4xl! max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>Update Batch for {item.name}</DialogTitle>
                     <DialogDescription>

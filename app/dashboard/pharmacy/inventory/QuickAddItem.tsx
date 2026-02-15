@@ -40,11 +40,6 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
             name: initialName || "",
             status: "Active",
             category: "Medicine",
-            supplier: "",
-            openingStockQuantity: 0,
-            quantity: 0,
-            batchNumber: "",
-            gst: 0,
         },
     });
 
