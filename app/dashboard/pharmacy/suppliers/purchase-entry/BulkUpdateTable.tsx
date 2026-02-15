@@ -331,7 +331,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 transition={{ duration: 0.5 }}
                 className="bg-white p-7 rounded-xl shadow-sm border border-slate-200"
             >
-                <div className="flex gap-8 items-end">
+                <div className="flex gap-8">
                     <div className="space-y-2">
                         <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Supplier*</label>
                         <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
@@ -378,7 +378,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-10 mt-8 pt-7 ">
+                    <div className="flex flex-wrap items-center gap-10 pt-7 ">
                         <div className="flex items-center gap-10 ">
                             <div className="flex items-center gap-6 ">
                                 <label className="flex items-center gap-2 cursor-pointer group ">

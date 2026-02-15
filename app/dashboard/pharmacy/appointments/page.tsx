@@ -19,7 +19,7 @@ import Drawer from "@/components/ui/drawer";
 import useAppointmentList from "./data/useAppointmentList";
 import PharmacyHeader from "../components/PharmacyHeader";
 import Select from "./AppointmentSelect";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { User, Calendar as CalendarIcon, Clock as ClockIcon, Phone, Mail, MapPin, X } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -285,6 +285,7 @@ export default function AppointmentPage() {
   const [date, setDate] = useState(new Date());
 
   const { mutate } = useAppointmentList({ query, activeStatuses, date });
+  const { mutate: globalMutate } = useSWRConfig();
   const [tab, setTab] = useState<"list" | "calendar">("list");
 
   // Doctor Selection (Calendar View)
@@ -368,6 +369,7 @@ export default function AppointmentPage() {
         }
       );
       mutate(); // Refresh list
+      globalMutate((key) => typeof key === 'string' && key.startsWith('/appointments/calender/weekly'));
 
       // Auto-prompt follow-up
       if (newStatus === "Consulted" || newStatus === "Completed") {
