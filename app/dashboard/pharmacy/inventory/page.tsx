@@ -59,8 +59,6 @@ export default function InventoryPage() {
     orderBy: "desc",
   });
 
-  console.log(filter)
-
   const { items, total, isLoading, isValidating, mutate, lowStockCount } = useItems({
     filter,
   });
