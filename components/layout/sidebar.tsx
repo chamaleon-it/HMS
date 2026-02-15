@@ -36,7 +36,7 @@ export function Sidebar() {
       today: number;
       upcoming: number;
     };
-  }>(user?.role === "Doctor" ? "/appointments/statistics" : null, {
+  }>("/appointments/statistics", {
     revalidateIfStale: false,
   });
 
