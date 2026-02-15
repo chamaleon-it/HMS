@@ -14,7 +14,7 @@ export interface ItemType {
   pharmacy: string;
   generic: string;
   hsnCode: string;
-  sku: string;
+  sku?: string;
   category: string;
   supplier: string;
   manufacturer: string;
@@ -27,6 +27,10 @@ export interface ItemType {
   createdAt: Date;
   updatedAt: Date;
   batches: BatchType[];
+  batchNumber?: string;
+  rackLocation?: string;
+  packing?: number;
+  gst?: number;
 }
 
 export interface FilterType {
@@ -37,4 +41,8 @@ export interface FilterType {
   page: number;
   limit: number;
   lowStockThreshold?: number;
+  supplier?: string;
+  lowStockItemsView: boolean;
+  sortBy?: "createdAt" | "quantity";
+  orderBy?: "desc" | "asc";
 }

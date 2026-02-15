@@ -39,9 +39,9 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                 <Wallet2 className="h-4 w-4" />
                 Payments & Insurance
             </div>
-            <div className="grid grid-cols-12 gap-4">
+            <div className="grid grid-cols-5 gap-4">
                 {paymentModes.map(({ key, label, icon: Icon, tint }) => (
-                    <div key={key} className="col-span-12 md:col-span-4">
+                    <div key={key} className="col-span-12 md:col-span-1">
                         <div className={`rounded-xl border px-3 py-3 ${tint}`}>
                             <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
                                 <Icon className="h-4 w-4" />
@@ -71,7 +71,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                     </div>
                 ))}
 
-                <div className="col-span-12 md:col-span-4">
+                <div className="col-span-12 md:col-span-1">
                     <div className="rounded-xl border px-3 py-3 bg-red-50 text-red-700 border-red-200">
                         <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
                             <BadgePercent className="h-4 w-4" />
@@ -98,7 +98,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                     </div>
                 </div>
 
-                <div className="col-span-12 md:col-span-4">
+                <div className="col-span-12 md:col-span-1">
                     <div className="rounded-xl border px-3 py-3 bg-red-50 text-red-700 border-red-200">
                         <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
                             <BadgePercent className="h-4 w-4" />
@@ -125,8 +125,8 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                     </div>
                 </div>
 
-                <div className="col-span-12 h-px bg-slate-200" />
-                <div className="col-span-12 md:col-span-3">
+                {/* <div className="col-span-12 h-px bg-slate-200" /> */}
+                <div className="col-span-12 md:col-span-1">
                     <label className="mb-1 block text-xs text-slate-500">Payer / Insurer</label>
                     <input
                         value={payload.payer || ""}
@@ -137,7 +137,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                         className="h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
                     />
                 </div>
-                <div className="col-span-12 md:col-span-3">
+                <div className="col-span-12 md:col-span-1">
                     <label className="mb-1 block text-xs text-slate-500">Policy No.</label>
                     <input
                         value={payload.policyNo || ""}
@@ -151,7 +151,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                         className="h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
                     />
                 </div>
-                <div className="col-span-12 md:col-span-3">
+                <div className="col-span-12 md:col-span-1">
                     <label className="mb-1 block text-xs text-slate-500">TPA</label>
                     <input
                         value={payload.tpa || ""}
@@ -162,7 +162,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                         className="h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
                     />
                 </div>
-                <div className="col-span-12 md:col-span-3">
+                <div className="col-span-12 md:col-span-1">
                     <label className="mb-1 block text-xs text-slate-500">Pre-Auth No.</label>
                     <input
                         value={payload.preAuthNo || ""}

@@ -1,4 +1,4 @@
-import { Eye, Printer, Search } from "lucide-react";
+import { Eye, Printer, Search, CheckCircle } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import Filters from "./Filter";
@@ -6,6 +6,15 @@ import { formatINR, getDecimal } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { FilterType } from "./page";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface BillRow {
   status: "Paid" | "Partial" | "Unpaid";
@@ -63,156 +72,171 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
       <div className="flex flex-col gap-6 print:hidden">
         <Filters filter={filter} setFilter={setFilter} />
 
-        <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-slate-700 hover:bg-slate-700">
-                <tr className="bg-slate-700 hover:bg-slate-700 border-b-0 text-[11px] uppercase tracking-wider text-white font-bold">
-                  <th className="py-4 text-left pl-4 w-16">Sl No</th>
-                  <th className="py-4 text-left">Invoice</th>
-                  <th className="py-4 text-left">Date</th>
-                  <th className="py-4 text-left">Patient</th>
-                  <th className="py-4 text-right">Items</th>
-                  <th className="py-4 text-right">Total</th>
-                  <th className="py-4 text-right">Round off</th>
-                  <th className="py-4 text-right">Discount</th>
-                  <th className="py-4 text-right">Paid</th>
-                  <th className="py-4 text-right">Due</th>
-                  <th className="py-4 text-center">Status</th>
-                  <th className="py-4 text-center pr-4">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {billing.length === 0 ? (
-                  <tr>
-                    <td colSpan={11} className="py-20 text-center">
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
-                          <Search className="h-6 w-6 text-slate-300" />
-                        </div>
-                        <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No bills found</p>
-                        <p className="text-xs text-slate-400">Try adjusting your filters or search terms</p>
+        <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
+          <Table className="print:hidden min-w-[1200px] text-sm">
+            <TableHeader className="bg-slate-700 hover:bg-slate-700">
+              <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                <TableHead className="py-2.5 text-left pl-4 w-16 text-white font-bold text-[11px] uppercase tracking-wider">Sl No</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Invoice</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Date</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Patient</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Items</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Total</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Round off</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Discount</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Paid</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Due</TableHead>
+                <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider">Status</TableHead>
+                <TableHead className="py-2.5 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider">Action</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {billing.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={12} className="py-20 text-center">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
+                        <Search className="h-6 w-6 text-slate-300" />
                       </div>
-                    </td>
-                  </tr>
-                ) : (
-                  billing.map((b, idx) => (
-                    <tr
-                      key={b._id}
-                      className={`border-b border-slate-100 last:border-0 ${idx % 2 === 0
-                        ? "bg-white hover:bg-white/60"
-                        : "bg-slate-100 hover:bg-slate-100/60"
-                        }`}
-                    >
-                      <td className="py-3 px-4 text-slate-500">
-                        {(filter.page - 1) * filter.limit + idx + 1}
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="font-medium text-slate-900">{b.mrn}</div>
-                        <div className="text-[11px] text-slate-500 space-x-1 mt-1">
-                          {Boolean(b.cash) && <MethodPill m="cash" />}
-                          {Boolean(b.online) && <MethodPill m="online" />}
-                          {Boolean(b.insurance) && <MethodPill m="insurance" />}
-                        </div>
-                      </td>
-                      <td className="py-3 pr-2 text-slate-600">{fDateandTime(b.createdAt)}</td>
-                      <td className="py-3 pr-2">
-                        <div className="font-medium truncate text-slate-900">{b.patient.name}</div>
-                        <div className="text-[11px] text-slate-500">
-                          {b.patient.mrn}
-                        </div>
-                      </td>
-                      <td className="py-3 pr-2 text-right tabular-nums text-slate-700">
-                        {b.items.length}
-                      </td>
-                      <td className="py-3 pr-2 text-right tabular-nums font-medium text-slate-900">
-                        {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
-                      </td>
-                      <td className="py-3 pr-2 text-right tabular-nums text-slate-600">
-                        {(b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0)}
-                      </td>
-                      <td className="py-3 pr-2 text-right tabular-nums text-slate-600">
-                        {formatINR(b.discount)}
-                      </td>
-                      <td className="py-3 pr-2 text-right tabular-nums text-emerald-600 font-medium">
-                        {formatINR(b.insurance + b.cash + b.online)}
-                      </td>
-                      <td className="py-3 pr-2 text-right tabular-nums text-rose-600 font-medium">
-                        {formatINR(
-                          b.items.reduce((a, b) => a + b.total, 0) -
-                          (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                          (b.insurance + b.cash + b.online + (b.discount ?? 0))
-                        )}
-                      </td>
-                      <td className="py-3 px-2 text-center">
-                        <StatusPill
-                          s={(() => {
-                            const total = b.items.reduce(
-                              (sum, i) => sum + i.total,
-                              0
-                            ) - (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
-                            const paid = b.cash + b.online + b.insurance + (b.discount ?? 0);
-                            return total <= paid
-                              ? "Paid"
-                              : paid === 0
-                                ? "Unpaid"
-                                : "Partial";
-                          })()}
-                        />
-                      </td>
-                      <td className="py-3 pr-4">
-                        <div className="flex justify-end items-center gap-2">
-                          <Button variant={"outline"} size={"sm"} asChild className="h-8 text-xs gap-1.5">
-                            <Link
-                              href={`/dashboard/pharmacy/billing/${b._id}`}
-                            >
-                              <Eye className=" h-3.5 w-3.5 text-slate-500" /> View
-                            </Link>
-                          </Button>
-
-                          <Button variant={"outline"} size={"sm"} onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5">
-                            <Printer className="h-3.5 w-3.5 text-slate-500" /> Print
-                          </Button>
-                          {b.items.reduce(
+                      <p className="text-sm font-bold text-slate-400 uppercase tracking-widest">No bills found</p>
+                      <p className="text-xs text-slate-400">Try adjusting your filters or search terms</p>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ) : (
+                billing.map((b, idx) => (
+                  <TableRow
+                    key={b._id}
+                    className={idx % 2 === 0
+                      ? "bg-white hover:bg-white/60"
+                      : "bg-slate-100 hover:bg-slate-100/60"
+                    }
+                  >
+                    <TableCell className="py-3 pl-4 text-slate-500">
+                      {(filter.page - 1) * filter.limit + idx + 1}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <div className="font-medium text-slate-900">{b.mrn}</div>
+                      <div className="text-[11px] text-slate-500 space-x-1 mt-1">
+                        {Boolean(b.cash) && <MethodPill m="cash" />}
+                        {Boolean(b.online) && <MethodPill m="online" />}
+                        {Boolean(b.insurance) && <MethodPill m="insurance" />}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3 text-slate-600 whitespace-nowrap">{fDateandTime(b.createdAt)}</TableCell>
+                    <TableCell className="py-3">
+                      <div className="font-medium truncate text-slate-900">{b.patient.name}</div>
+                      <div className="text-[11px] text-slate-500">
+                        {b.patient.mrn}
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums text-slate-700">
+                      {b.items.length}
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums font-medium text-slate-900">
+                      {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums text-slate-600">
+                      {(b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0)}
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums text-slate-600">
+                      {formatINR(b.discount)}
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
+                      {formatINR(b.insurance + b.cash + b.online)}
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
+                      {formatINR(
+                        b.items.reduce((a, b) => a + b.total, 0) -
+                        (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
+                        (b.insurance + b.cash + b.online + (b.discount ?? 0))
+                      )}
+                    </TableCell>
+                    <TableCell className="py-3 text-center">
+                      <StatusPill
+                        s={(() => {
+                          const total = b.items.reduce(
                             (sum, i) => sum + i.total,
                             0
-                          ) > b.cash + b.online + b.insurance + (b.discount ?? 0) + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) && <Button
-                            variant={"outline"}
-                            size={"sm"}
-                            className="h-8 text-xs bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white border-none shadow-sm shadow-emerald-200"
-                            onClick={async () => {
-                              const due = b.items.reduce((a, b) => a + b.total, 0) -
-                                (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                                (b.insurance + b.cash + b.online + (b.discount ?? 0))
-                              await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
-                                loading: "Marking as paid",
-                                success: "Marked as paid",
-                                error: "Failed to mark as paid"
-                              })
-                              billingMutate()
-                            }}
-                          >
-                              Mark as Paid
-                            </Button>}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-          {total > filter.limit && (
-            <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
-              <PaginationBar
-                page={filter.page}
-                limit={filter.limit}
-                total={total}
-                setFilter={setFilter}
-              />
-            </div>
-          )}
+                          ) - (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
+                          const paid = b.cash + b.online + b.insurance + (b.discount ?? 0);
+                          return total <= paid
+                            ? "Paid"
+                            : paid === 0
+                              ? "Unpaid"
+                              : "Partial";
+                        })()}
+                      />
+                    </TableCell>
+                    <TableCell className="py-3 pr-4">
+                      <div className="flex justify-end items-center gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="ghost" size="icon" asChild className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                              <Link href={`/dashboard/pharmacy/billing/single?id=${b._id}`}>
+                                <Eye className="h-4 w-4" />
+                              </Link>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View Bill</p>
+                          </TooltipContent>
+                        </Tooltip>
+
+                        <Button variant="outline" size="sm" onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5 text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800">
+                          <Printer className="h-3.5 w-3.5" /> Print
+                        </Button>
+
+                        {b.items.reduce(
+                          (sum, i) => sum + i.total,
+                          0
+                        ) > b.cash + b.online + b.insurance + (b.discount ?? 0) + (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) ? (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                onClick={async () => {
+                                  const due = b.items.reduce((a, b) => a + b.total, 0) -
+                                    (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
+                                    (b.insurance + b.cash + b.online + (b.discount ?? 0))
+                                  await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
+                                    loading: "Marking as paid",
+                                    success: "Marked as paid",
+                                    error: "Failed to mark as paid"
+                                  })
+                                  billingMutate()
+                                }}
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Mark as Paid</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        ) : (
+                          <div className="w-8 h-8" />
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
+        {total > filter.limit && (
+          <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+            <PaginationBar
+              page={filter.page}
+              limit={filter.limit}
+              total={total}
+              setFilter={setFilter}
+            />
+          </div>
+        )}
       </div>
       <AddPaymentDialog
         open={isPaymentOpen}
@@ -251,8 +275,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             grandTotal: printBill.items.reduce((a, b) => a + b.total, 0),
           }}
         />
-      )
-      }
+      )}
     </>
   );
 }

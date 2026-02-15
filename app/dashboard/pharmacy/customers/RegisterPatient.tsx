@@ -34,6 +34,10 @@ import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
 import ExistingPatientCard from "../ExistingPatientCard";
 
 export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string) => void, patient?: any, mutate?: () => void }) {
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   const { user } = useAuth();
   const {
     register,
@@ -67,7 +71,9 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         gender: patient?.gender || "Prefer not to say",
         dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
         address: patient?.address || "",
-        mrn: patient?.mrn || undefined
+        mrn: patient?.mrn || undefined,
+        allergies: patient?.allergies || undefined,
+
       });
     }
   }, [patient]);
@@ -134,7 +140,16 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="grid gap-2 relative">
             <Label>Name *</Label>
-            <Input placeholder="Enter patient name" {...register("name")} />
+            <Input
+              placeholder="Enter patient name"
+              {...register("name")}
+              onChange={(e) => {
+                const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
+                  char.toUpperCase()
+                );
+                setValue("name", capitalizedValue, { shouldValidate: true });
+              }}
+            />
             {errors.name && (
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
             )}
@@ -217,49 +232,97 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label>Date of Birth </Label>
+          <div className="grid grid-cols-2 gap-2">
+            <div className="grid gap-2">
+              <Label>Date of Birth </Label>
 
-            <Popover open={openCalander} onOpenChange={setOpenCalander}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  id="date"
-                  className="w-full justify-between font-normal"
+              <Popover open={openCalander} onOpenChange={setOpenCalander}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    id="date"
+                    className="w-full justify-between font-normal"
+                  >
+                    {dateOfBirth
+                      ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}`
+                      : "Select date of birth"}
+                    <ChevronDownIcon />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent
+                  className="w-auto overflow-hidden p-0"
+                  align="start"
                 >
-                  {dateOfBirth
-                    ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })} - Age : ${fAge(new Date(dateOfBirth))}`
-                    : "Select date of birth"}
-                  <ChevronDownIcon />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto overflow-hidden p-0"
-                align="start"
-              >
-                <Calendar
-                  disabled={{ after: new Date() }}
-                  mode="single"
-                  selected={new Date(dateOfBirth)}
-                  captionLayout="dropdown"
-                  onSelect={(date) => {
-                    setValue(
-                      "dateOfBirth",
-                      date?.toISOString() ?? new Date().toISOString()
-                    );
-                    setOpenCalander(false);
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
+                  <Calendar
+                    disabled={{ after: new Date() }}
+                    mode="single"
+                    selected={new Date(dateOfBirth)}
+                    captionLayout="dropdown"
+                    onSelect={(date) => {
+                      setValue(
+                        "dateOfBirth",
+                        date?.toISOString() ?? new Date().toISOString()
+                      );
+                      setOpenCalander(false);
+                    }}
+                  />
+                </PopoverContent>
+              </Popover>
 
-            {errors.dateOfBirth && (
+              {errors.dateOfBirth && (
+                <p className="text-red-500 text-xs my-1">
+                  {errors.dateOfBirth.message}
+                </p>
+              )}
+            </div>
+
+            <div className="grid gap-2">
+              <Label>Age </Label>
+              <Input
+                type="number"
+                placeholder="Age"
+                value={
+                  dateOfBirth
+                    ? new Date().getFullYear() -
+                    new Date(dateOfBirth).getFullYear()
+                    : ""
+                }
+                onChange={(e) => {
+                  const age = parseInt(e.target.value);
+                  if (!isNaN(age)) {
+                    const today = new Date();
+                    const newDob = new Date(
+                      today.getFullYear() - age,
+                      today.getMonth(),
+                      today.getDate()
+                    );
+                    setValue("dateOfBirth", newDob.toISOString());
+                  } else {
+                  }
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Allergies</Label>
+            <Input
+              placeholder="Allergies"
+              {...register("allergies")}
+              value={values.allergies}
+              onChange={(e) => {
+                setValue("allergies", capitalizeFirstLetter(e.target.value), {
+                  shouldValidate: true,
+                });
+              }}
+            />
+            {errors.allergies && (
               <p className="text-red-500 text-xs my-1">
-                {errors.dateOfBirth.message}
+                {errors.allergies.message}
               </p>
             )}
           </div>

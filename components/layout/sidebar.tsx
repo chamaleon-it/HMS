@@ -14,6 +14,8 @@ import {
   Users,
   ChevronUp,
   ChevronDown,
+  Truck,
+  ReceiptText,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -66,70 +68,92 @@ export function Sidebar() {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
-        link: "/dashboard/doctor",
+        link: "/dashboard/doctor/",
       },
       {
         key: "appointments",
         label: "Appointments",
         icon: CalendarClock,
         badge: appointmentStatistics.today.toFixed(0),
-        link: "/dashboard/doctor/appointments",
+        link: "/dashboard/doctor/appointments/",
       },
       {
         key: "patients",
         label: "Patients",
         icon: Users2,
-        link: "/dashboard/doctor/patients",
+        link: "/dashboard/doctor/patients/",
       },
       {
         key: "lab-results",
         label: "Investigations",
         icon: FlaskConical,
-        link: "/dashboard/doctor/lab-report",
+        link: "/dashboard/doctor/lab-report/",
       },
       {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
-        link: "/dashboard/doctor/billing",
+        link: "/dashboard/doctor/billing/",
       },
     ]) ||
     (user?.role === "Pharmacy" && [
       {
+        key: "appointments",
+        label: "Appointments",
+        icon: CalendarClock,
+        badge: appointmentStatistics.today.toFixed(0),
+        link: "/dashboard/pharmacy/appointments/",
+      },
+      {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
-        link: "/dashboard/pharmacy",
+        link: "/dashboard/pharmacy/",
       },
+
       {
         key: "inventory",
         label: "Inventory",
         icon: Warehouse,
-        link: "/dashboard/pharmacy/inventory",
+        link: "/dashboard/pharmacy/inventory/",
+      },
+
+      {
+        key: "purchase-entry",
+        label: "Purchase Entry",
+        icon: ReceiptText,
+        link: "/dashboard/pharmacy/suppliers/purchase-entry/",
+      },
+      {
+        key: "suppliers",
+        label: "Suppliers",
+        icon: Truck,
+        link: "/dashboard/pharmacy/suppliers/",
       },
       {
         key: "customers",
         label: "Customers",
         icon: Users,
-        link: "/dashboard/pharmacy/customers",
+        link: "/dashboard/pharmacy/customers/",
       },
+
       {
         key: "return",
         label: "Return",
         icon: Undo2,
-        link: "/dashboard/pharmacy/return",
+        link: "/dashboard/pharmacy/return/",
       },
       {
         key: "purchase",
         label: "Purchase",
         icon: ShoppingCart,
-        link: "/dashboard/pharmacy/purchase",
+        link: "/dashboard/pharmacy/purchase/",
       },
       {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
-        link: "/dashboard/pharmacy/billing",
+        link: "/dashboard/pharmacy/billing/",
       },
     ]) ||
     (user?.role === "Pharmacy Wholesaler" && [
@@ -143,7 +167,7 @@ export function Sidebar() {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
-        link: "/dashboard/pharmacy-wholesaler/billing",
+        link: "/dashboard/pharmacy-wholesaler/billing/",
       },
     ]) ||
     (user?.role === "Lab" && [
@@ -162,12 +186,12 @@ export function Sidebar() {
           {
             key: "lab",
             label: "Lab",
-            link: "/dashboard/lab/test/lab",
+            link: "/dashboard/lab/test/lab/",
           },
           {
             key: "imaging",
             label: "Imaging",
-            link: "/dashboard/lab/test/imaging",
+            link: "/dashboard/lab/test/imaging/",
           }
         ]
       },
@@ -175,13 +199,13 @@ export function Sidebar() {
         key: "patients",
         label: "Patients",
         icon: Users2,
-        link: "/dashboard/lab/patients",
+        link: "/dashboard/lab/patients/",
       },
       {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
-        link: "/dashboard/lab/billing",
+        link: "/dashboard/lab/billing/",
       },
     ]) ||
     [];
@@ -244,7 +268,7 @@ export function Sidebar() {
         ))}
 
         {/* Divider */}
-        <div className="my-3 h-px bg-gradient-to-r from-transparent via-slate-200 to-transparent" />
+        <div className="my-3 h-px bg-linear-to-r from-transparent via-slate-200 to-transparent" />
 
         {settingsLink && (
           <NavItem
@@ -292,11 +316,11 @@ export function Sidebar() {
 }
 
 const settingsLinks: Record<string, string> = {
-  Pharmacy: "/dashboard/pharmacy/settings",
-  "Pharmacy Wholesaler": "/dashboard/pharmacy-wholesaler/settings",
-  Doctor: "/dashboard/doctor/settings",
-  Lab: "/dashboard/lab/settings",
-  Admin: "/dashboard/admin/settings",
+  Pharmacy: "/dashboard/pharmacy/settings/",
+  "Pharmacy Wholesaler": "/dashboard/pharmacy-wholesaler/settings/",
+  Doctor: "/dashboard/doctor/settings/",
+  Lab: "/dashboard/lab/settings/",
+  Admin: "/dashboard/admin/settings/",
 };
 
 function NavItem({
@@ -341,13 +365,13 @@ function NavItem({
     <>
       <span
         className={
-          "grid h-9 w-9 place-items-center rounded-xl transition-all " +
+          "grid h-7 w-7 place-items-center rounded-xl transition-all " +
           (isParentActive
             ? "bg-white/20 text-white"
             : "bg-slate-100 text-slate-600 group-hover:bg-slate-200")
         }
       >
-        <Icon className="h-5 w-5" />
+        <Icon className="h-4 w-4" />
       </span>
       {!collapsed && (
         <>
@@ -386,7 +410,7 @@ function NavItem({
           className={
             "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border cursor-pointer " +
             (isParentActive
-              ? "border-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
+              ? "border-transparent bg-linear-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
           }
         >
@@ -396,9 +420,9 @@ function NavItem({
         <Link
           href={link || "/"}
           className={
-            "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border " +
+            "group w-full flex items-center gap-3 rounded-2xl px-3 py-3.5 transition-all border " +
             (isParentActive
-              ? "border-transparent bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
+              ? "border-transparent bg-linear-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
           }
         >

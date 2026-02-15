@@ -139,12 +139,13 @@ export default function PatientTable({
         </div>
       )}
 
-      <div className="rounded-2xl overflow-hidden bg-white ring-1 ring-gray-200 shadow-sm">
+      <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 mt-6">
         <table className="w-full">
           <thead>
-            <tr className="bg-gray-50 text-xs text-gray-600">
-              <th className="w-14  px-4 py-3">
+            <tr className="bg-slate-700 hover:bg-slate-700 border-b-0">
+              <th className="w-14  px-4 py-2.5">
                 <Checkbox
+                  className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700"
                   checked={selectedIds.length === data?.data.length}
                   onCheckedChange={(checked: boolean) =>
                     checked
@@ -153,17 +154,17 @@ export default function PatientTable({
                   }
                 />
               </th>
-              <th className="w-14 text-left px-4 py-3">No.</th>
+              <th className="w-14 text-left px-4 py-2.5 text-white font-bold text-[11px] uppercase tracking-wider">No.</th>
               {headerCell("Patient")}
               {headerCell("Phone Number")}
               {headerCell("Age / Gender")}
               {headerCell("Created At")}
               {headerCell("Doctor")}
-              <th className="text-left px-4 py-3">Conditions</th>
+              <th className="text-left px-4 py-2.5 text-white font-bold text-[11px] uppercase tracking-wider">Conditions</th>
               {headerCell("Blood")}
               {headerCell("Allergies")}
 
-              <th className="w-40 text-right px-4 py-3">Actions</th>
+              <th className="w-40 text-right px-4 py-2.5 pr-4 text-white font-bold text-[11px] uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -317,7 +318,7 @@ function headerCell(label: string) {
   return (
     <th className="text-left px-2 py-3 select-none">
       <button
-        className={`inline-flex items-center gap-1 text-xs font-medium ${"text-gray-600"} hover:text-gray-900`}
+        className={`inline-flex items-center gap-1 text-[11px] uppercase tracking-wider font-bold text-white hover:text-white/80`}
       >
         {label}
       </button>

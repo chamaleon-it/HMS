@@ -9,6 +9,7 @@ export interface OrderType {
     assignedTo: null;
     createdAt: Date;
     updatedAt: Date;
+    billNo?: string;
 }
 
 
@@ -29,6 +30,13 @@ export interface Item {
     return?: number;
     reason: string;
     unitPrice?: number;
+
+}
+
+export interface Batch {
+    batchNumber: string;
+    expiryDate: Date;
+    quantity: number;
 }
 
 export interface Name {
@@ -49,6 +57,7 @@ export interface Name {
     status: string;
     createdAt: Date;
     updatedAt: Date;
+    batches?: Batch[]
 }
 
 export interface Patient {

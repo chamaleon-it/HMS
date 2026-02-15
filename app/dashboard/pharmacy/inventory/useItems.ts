@@ -11,6 +11,10 @@ export default function useItems({ filter }: { filter: FilterType }) {
   if (filter.stock) params.set("stock", filter.stock);
   if (filter.expiry) params.set("expiry", String(filter.expiry));
   if (filter.lowStockThreshold) params.set("lowStockThreshold", String(filter.lowStockThreshold));
+  if (filter.supplier && filter.supplier !== "All") params.set("supplier", filter.supplier);
+  if (filter.lowStockItemsView) params.set("lowStockItemsView", String(filter.lowStockItemsView));
+  if (filter.sortBy) params.set("sortBy", filter.sortBy);
+  if (filter.orderBy) params.set("orderBy", filter.orderBy);
 
   const { data, mutate, isLoading, isValidating, error } = useSWR<{
     message: string;
@@ -19,7 +23,9 @@ export default function useItems({ filter }: { filter: FilterType }) {
     page: number;
     limit: number;
     lowStockCount: number
-  }>(`/pharmacy/items?${params.toString()}`);
+  }>(`/pharmacy/items?${params.toString()}`, {
+    keepPreviousData: true,
+  });
 
   return {
     items: data?.data ?? [],

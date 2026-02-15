@@ -16,6 +16,7 @@ import { ProfileType } from "./interface";
 import { TableSkeleton } from "../components/PharmacySkeleton";
 import { Skeleton } from "@/components/ui/skeleton";
 import PharmacyHeader from "../components/PharmacyHeader";
+import Pharmacist from "./Pharmacist";
 
 const PharmacySettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
@@ -41,6 +42,7 @@ const PharmacySettingsPage: React.FC = () => {
             { key: "general", label: "General", icon: User },
             { key: "billing", label: "Billing", icon: ReceiptIndianRupee },
             { key: "inventory", label: "Inventory", icon: Boxes },
+            { key: "pharmacist", label: "Pharmacist", icon: User },
             { key: "notifications", label: "Notifications", icon: Bell },
             { key: "security", label: "Security", icon: Shield },
           ].map(({ key, label, icon: Icon }) => {
@@ -50,7 +52,7 @@ const PharmacySettingsPage: React.FC = () => {
                 key={key}
                 onClick={() => setActiveSection(key)}
                 className={
-                  "relative  gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer w-1/5 text-center flex justify-center items-center " +
+                  "relative gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer flex-1 text-center justify-center items-center flex " +
                   (active ? "text-white" : "text-slate-600 hover:text-slate-900")
                 }
                 type="button"
@@ -82,6 +84,9 @@ const PharmacySettingsPage: React.FC = () => {
             <TopSummary profile={profile} />
             {activeSection === "general" && (
               <General profile={profile} profileMutate={profileMutate} />
+            )}
+            {activeSection === "pharmacist" && (
+              <Pharmacist />
             )}
             {activeSection === "billing" && (
               <Billing profileMutate={profileMutate} profile={profile} />

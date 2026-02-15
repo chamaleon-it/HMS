@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit } from "lucide-react";
+import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText } from "lucide-react";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -62,10 +62,15 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-xs font-medium">HSN: {item.hsnCode}</span>
           </div>
         </div>
-        {/* <Button variant="outline" size="sm" className="gap-2 h-8 text-xs border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-800">
-          <Printer className="h-3.5 w-3.5" />
-          Print Label
-        </Button> */}
+
+        <div className="flex flex-col items-end gap-1">
+          <div className="h-10 bg-white border border-slate-200 rounded-md p-1 flex items-center justify-center shadow-sm">
+            <div className="w-32 h-full bg-[repeating-linear-gradient(90deg,black_0px,black_1px,transparent_1px,transparent_3px)] opacity-80" />
+          </div>
+          <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium">
+            <span className="font-mono tracking-wider">{item.sku}</span>
+          </div>
+        </div>
       </div>
 
       {/* Stock / Status - REPLACED BY NEW SALES CARDS SECTION BELOW, REMOVING OLD STOCK CARDS IF REDUNDANT, BUT USER ASKED FOR ALL UI IMPROVEMENT. LET'S KEEP STOCK BUT MODERNIZE IT OR MERGE WITH DETAILS. Let's make it a compact stat row below header */}
@@ -87,44 +92,122 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
       </div>
 
       {/* Info grid */}
-      <div className="grid grid-cols-3 gap-3">
-        <div className="col-span-2 rounded-xl border p-4 space-y-4">
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Product Details</h3>
-          <div className="grid grid-cols-2 gap-y-4 gap-x-6">
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Tag className="w-3 h-3" /> SKU
+      {/* Info grid */}
+      <div className="rounded-xl border p-4 space-y-4">
+        <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Product Details</h3>
+        <div className="grid grid-cols-4 gap-6">
+          {/* Row 1 */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
+                <Tag className="w-3.5 h-3.5 text-blue-600" />
               </div>
-              <div className="text-sm font-medium text-gray-900">{item.sku}</div>
+              SKU
             </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Building2 className="w-3 h-3" /> Supplier
-              </div>
-              <div className="text-sm font-medium text-gray-900">{item.supplier}</div>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <CreditCard className="w-3 h-3" /> Unit Price
-              </div>
-              <div className="text-sm font-medium text-gray-900">₹ {item.unitPrice}</div>
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Calendar className="w-3 h-3" /> Expiry
-              </div>
-              <div className="text-sm font-medium text-gray-900">{fDate(item.expiryDate)}</div>
-            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.sku}</div>
           </div>
-        </div>
 
-        <div className="col-span-1 rounded-xl border bg-slate-50 p-4 flex flex-col items-center justify-center gap-2 text-center">
-          <Barcode className="h-8 w-8 text-slate-400 mb-1" />
-          <div className="text-[10px] text-muted-foreground uppercase font-medium tracking-wider">Scannable ID</div>
-          <div className="w-full h-12 bg-white border rounded p-1 flex items-center justify-center">
-            <div className="w-full h-full bg-[repeating-linear-gradient(90deg,black_0px,black_1px,transparent_1px,transparent_3px)] opacity-80" />
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
+                <Building2 className="w-3.5 h-3.5 text-purple-600" />
+              </div>
+              Supplier
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.supplier}</div>
           </div>
-          <div className="font-mono text-xs font-medium text-slate-700">{item.sku}</div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
+                <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+              </div>
+              Unit Price
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.unitPrice}</div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
+                <Calendar className="w-3.5 h-3.5 text-red-600" />
+              </div>
+              Expiry
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{fDate(item.expiryDate)}</div>
+          </div>
+
+          {/* Row 2 */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center">
+                <Tag className="w-3.5 h-3.5 text-orange-600" />
+              </div>
+              Category
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.category}</div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center">
+                <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+              </div>
+              Manufacturer
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.manufacturer}</div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-teal-100 flex items-center justify-center">
+                <CreditCard className="w-3.5 h-3.5 text-teal-600" />
+              </div>
+              Total Value
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{formatINR(item.quantity * item.unitPrice)}</div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-cyan-100 flex items-center justify-center">
+                <Tag className="w-3.5 h-3.5 text-cyan-600" />
+              </div>
+              HSN
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.hsnCode}</div>
+          </div>
+
+          {/* Row 3 */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-pink-100 flex items-center justify-center">
+                <Tag className="w-3.5 h-3.5 text-pink-600" />
+              </div>
+              Rack
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.rackLocation || "-"}</div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-yellow-100 flex items-center justify-center">
+                <Package className="w-3.5 h-3.5 text-yellow-600" />
+              </div>
+              Packing
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.packing}</div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center">
+                <CreditCard className="w-3.5 h-3.5 text-rose-600" />
+              </div>
+              GST
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.gst}%</div>
+          </div>
         </div>
       </div>
 
@@ -166,7 +249,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
         </Card>
       </div> */}
 
-      <div className="space-y-3">
+      < div className="space-y-3" >
         <h3 className="font-semibold text-sm text-gray-900 flex items-center gap-2">
           <Package className="w-4 h-4 text-gray-500" />
           Batch History
@@ -219,44 +302,46 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             </TableBody>
           </Table>
         </div>
-        {sortedBatches.length > ITEMS_PER_PAGE && (
-          <div className="flex items-center justify-end space-x-2 py-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrevPage}
-              disabled={currentPage === 1}
-            >
-              Previous
-            </Button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        {
+          sortedBatches.length > ITEMS_PER_PAGE && (
+            <div className="flex items-center justify-end space-x-2 py-4">
               <Button
-                key={page}
-                variant={currentPage === page ? "default" : "outline"}
+                variant="outline"
                 size="sm"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage(page);
-                }}
-                className="w-8 h-8 p-0"
+                onClick={handlePrevPage}
+                disabled={currentPage === 1}
               >
-                {page}
+                Previous
               </Button>
-            ))}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleNextPage}
-              disabled={currentPage === totalPages}
-            >
-              Next
-            </Button>
-          </div>
-        )}
-      </div>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant={currentPage === page ? "default" : "outline"}
+                  size="sm"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setCurrentPage(page);
+                  }}
+                  className="w-8 h-8 p-0"
+                >
+                  {page}
+                </Button>
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleNextPage}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          )
+        }
+      </div >
 
       {/* Actions */}
-      <div className="flex gap-3 pt-4 border-t mt-2">
+      < div className="flex gap-3 pt-4 border-t mt-2" >
         <Button className="flex-1 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
@@ -295,7 +380,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 }

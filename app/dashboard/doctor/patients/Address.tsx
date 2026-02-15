@@ -20,6 +20,10 @@ export default function Address({
     notes?: string | undefined;
   }>;
 }) {
+  const capitalizeWords = (str: string) => {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   const [address, setAddress] = useState<{
     line1: null | string;
     line2: null | string;
@@ -31,7 +35,7 @@ export default function Address({
     line1: null,
     line2: null,
     city: null,
-    state: null,
+    state: "Kerala",
     pin: null,
     country: "India",
   });
@@ -50,7 +54,10 @@ export default function Address({
           placeholder="Address Line 1"
           value={address.line1 ?? ""}
           onChange={(e) =>
-            setAddress((prev) => ({ ...prev, line1: e.target.value }))
+            setAddress((prev) => ({
+              ...prev,
+              line1: capitalizeWords(e.target.value),
+            }))
           }
         />
       </div>
@@ -60,7 +67,10 @@ export default function Address({
           placeholder="Address Line 2"
           value={address.line2 ?? ""}
           onChange={(e) =>
-            setAddress((prev) => ({ ...prev, line2: e.target.value }))
+            setAddress((prev) => ({
+              ...prev,
+              line2: capitalizeWords(e.target.value),
+            }))
           }
         />
       </div>
@@ -70,7 +80,10 @@ export default function Address({
           placeholder="City"
           value={address.city ?? ""}
           onChange={(e) =>
-            setAddress((prev) => ({ ...prev, city: e.target.value }))
+            setAddress((prev) => ({
+              ...prev,
+              city: capitalizeWords(e.target.value),
+            }))
           }
         />
       </div>
@@ -81,7 +94,10 @@ export default function Address({
           placeholder="State"
           value={address.state ?? ""}
           onChange={(e) =>
-            setAddress((prev) => ({ ...prev, state: e.target.value }))
+            setAddress((prev) => ({
+              ...prev,
+              state: capitalizeWords(e.target.value),
+            }))
           }
         />
       </div>
@@ -104,7 +120,10 @@ export default function Address({
           placeholder="Country"
           value={address.country ?? ""}
           onChange={(e) =>
-            setAddress((prev) => ({ ...prev, country: e.target.value }))
+            setAddress((prev) => ({
+              ...prev,
+              country: capitalizeWords(e.target.value),
+            }))
           }
           disabled
         />

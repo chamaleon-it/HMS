@@ -84,7 +84,16 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label>Name *</Label>
-            <Input placeholder="Enter patient name" {...register("name")} />
+            <Input
+              placeholder="Enter patient name"
+              {...register("name")}
+              onChange={(e) => {
+                const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
+                  char.toUpperCase()
+                );
+                setValue("name", capitalizedValue, { shouldValidate: true });
+              }}
+            />
             {errors.name && (
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
             )}
@@ -141,10 +150,10 @@ export function RegisterPatient({ onClose }: { onClose: () => void }) {
                 >
                   {dateOfBirth
                     ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })} - Age : ${fAge(new Date(dateOfBirth))}`
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })} - Age : ${fAge(new Date(dateOfBirth))}`
                     : "Select date of birth"}
                   <ChevronDownIcon />
                 </Button>

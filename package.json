@@ -1,12 +1,52 @@
 {
-  "name": "doctorcare-4",
-  "version": "0.1.0",
+  "name": "synapse-hms",
+  "version": "1.0.1",
+  "description": "Synapse HMS",
+  "author": {
+    "email": "muhammed916rashid@gmail.com",
+    "name": "Muhammed Rashid"
+  },
   "private": true,
+  "main": "main.js",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "pack": "next build && electron-builder",
+    "lint": "next lint",
+    "electron:dev": "concurrently \"next dev\" \"wait-on tcp:3000 && electron .\"",
+    "dist": "npm run electron:build",
+    "electron": "electron-builder --win"
+  },
+  "build": {
+    "appId": "com.synapsehms",
+    "productName": "Synapse HMS",
+    "directories": {
+      "buildResources": "assets",
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "out/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": ".next/out",
+        "to": "app_server",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "linux": {
+      "target": "AppImage",
+      "category": "Office"
+    },
+    "win": {
+      "target": "nsis"
+    }
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -36,6 +76,7 @@
     "cmdk": "^1.1.1",
     "crypto": "^1.0.1",
     "date-fns": "^4.1.0",
+    "find-free-port": "^2.0.0",
     "framer-motion": "^12.23.12",
     "html-to-image": "^1.11.13",
     "jspdf": "^3.0.3",
@@ -50,6 +91,7 @@
     "react-hook-form": "^7.64.0",
     "react-hot-toast": "^2.6.0",
     "recharts": "^3.1.2",
+    "serve-handler": "^6.1.6",
     "swr": "^2.3.6",
     "tailwind-merge": "^3.3.1",
     "uuid": "^13.0.0",
@@ -64,11 +106,15 @@
     "@types/pouchdb-find": "^7.3.3",
     "@types/react": "19.2.7",
     "@types/react-dom": "19.2.3",
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.4.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.1",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.7",
-    "typescript": "^5"
+    "typescript": "^5",
+    "wait-on": "^9.0.3"
   },
   "resolutions": {
     "@types/react": "19.2.7",

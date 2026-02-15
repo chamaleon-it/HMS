@@ -9,53 +9,65 @@ import { Shield, Lock, User } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import SecurityForm from "./SecurityForm";
 import ProfileForm from "./ProfileForm";
+import DoctorHeader from "../components/DoctorHeader";
 
 export default function SettingsPage() {
   const [tab, setTab] = React.useState("profile");
 
+  const tabs = [
+    { key: "profile", label: "Profile", icon: User },
+    { key: "security", label: "Security", icon: Lock },
+  ];
+
   return (
     <AppShell>
-      <div className="min-h-[calc(100vh-80px)] bg-white">
-        <div className="sticky top-0 z-10 bg-white/70 backdrop-blur border-b">
-          <div className="px-4 py-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Shield className="h-5 w-5" />
-              <div>
-                <h1 className="text-xl font-semibold">Settings</h1>
-                <p className="text-xs text-muted-foreground">
-                  Manage your profile, specialization, and security
-                </p>
-              </div>
-            </div>
-            <div className="hidden md:flex items-center gap-2">
-              <Badge className="bg-emerald-600 text-white">Mark Hospital</Badge>
-              <Badge variant="secondary">HIPAA-ready</Badge>
-              <Badge variant="outline">ISO 27001-minded</Badge>
-            </div>
-          </div>
-        </div>
+      <div className="min-h-[calc(100vh-80px)] bg-white p-5 space-y-5">
+        <DoctorHeader
+          title="Settings"
+          subtitle="Manage your profile, specialization, and security"
+        />
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className="px-4 py-6"
+          className=""
         >
           <Tabs value={tab} onValueChange={setTab}>
-            <TabsList className="grid grid-cols-2 w-full bg-white rounded-xl p-1 shadow-sm border h-12 items-stretch">
-              <TabsTrigger
-                value="profile"
-                className="gap-2 rounded-lg flex items-center justify-center h-10 w-full text-slate-700 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:ring-1 data-[state=active]:ring-slate-200 hover:bg-slate-50 transition"
-              >
-                <User className="h-4 w-4" /> Profile
-              </TabsTrigger>
-              <TabsTrigger
-                value="security"
-                className="gap-2 rounded-lg flex items-center justify-center h-10 w-full text-slate-700 data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:ring-1 data-[state=active]:ring-slate-200 hover:bg-slate-50 transition"
-              >
-                <Lock className="h-4 w-4" /> Security
-              </TabsTrigger>
-            </TabsList>
+            <div className="mb-4 relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
+              {tabs.map(({ key, label, icon: Icon }) => {
+                const active = tab === key;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setTab(key)}
+                    className={
+                      "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer w-1/2 text-center justify-center " +
+                      (active ? "text-white" : "text-gray-700 hover:text-gray-900")
+                    }
+                    type="button"
+                  >
+                    {active && (
+                      <motion.span
+                        layoutId="settings-tab-indicator"
+                        className="absolute inset-0 rounded-full"
+                        style={{
+                          background: "linear-gradient(90deg,#4f46e5,#d946ef)",
+                        }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 40,
+                        }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center gap-2">
+                      <Icon size={16} /> {label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
 
             <SecurityForm />
             <ProfileForm />

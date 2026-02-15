@@ -89,62 +89,64 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                         </div>
                     </SheetContent>
                 </Sheet>
+
+
+                <div className="">
+                    <div className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <span
+                            className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
+                            style={{
+                                backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
+                            }}
+                        >
+                            <FileText className="h-4 w-4" />
+                        </span>
+                        Invoice
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <div>
+                            <div className="flex items-center gap-1 font-medium">
+                                <CalendarDays className="h-4 w-4" />
+                                {fDate(new Date())}
+                            </div>
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="flex-1">
+                                <div className="text-xs text-slate-500">Doctor Name</div>
+                                <input
+                                    type="text"
+                                    placeholder="Referrer / Doctor"
+                                    value={payload.doctor}
+                                    onChange={(e) =>
+                                        setPayload((prev: any) => ({
+                                            ...prev,
+                                            doctor: e.target.value,
+                                        }))
+                                    }
+                                    className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <div className="text-xs text-slate-500">Department</div>
+                                <input
+                                    type="text"
+                                    placeholder="e.g. Cardiology"
+                                    value={payload.department}
+                                    onChange={(e) =>
+                                        setPayload((prev: any) => ({
+                                            ...prev,
+                                            department: e.target.value,
+                                        }))
+                                    }
+                                    className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div className="">
-                <div className="text-sm font-medium mb-2 flex items-center gap-2">
-                    <span
-                        className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
-                        style={{
-                            backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-                        }}
-                    >
-                        <FileText className="h-4 w-4" />
-                    </span>
-                    Invoice
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                    <div>
-                        <div className="text-xs text-slate-500">Date</div>
-                        <div className="flex items-center gap-1 font-medium">
-                            <CalendarDays className="h-4 w-4" />
-                            {fDate(new Date())}
-                        </div>
-                    </div>
-                    <div className="flex flex-col sm:flex-row gap-3">
-                        <div className="flex-1">
-                            <div className="text-xs text-slate-500">Doctor Name</div>
-                            <input
-                                type="text"
-                                placeholder="Referrer / Doctor"
-                                value={payload.doctor}
-                                onChange={(e) =>
-                                    setPayload((prev: any) => ({
-                                        ...prev,
-                                        doctor: e.target.value,
-                                    }))
-                                }
-                                className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                            />
-                        </div>
-                        <div className="flex-1">
-                            <div className="text-xs text-slate-500">Department</div>
-                            <input
-                                type="text"
-                                placeholder="e.g. Cardiology"
-                                value={payload.department}
-                                onChange={(e) =>
-                                    setPayload((prev: any) => ({
-                                        ...prev,
-                                        department: e.target.value,
-                                    }))
-                                }
-                                className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
+
         </div>
     );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,15 +12,12 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import AppShell from "@/components/layout/app-shell";
 import { OrderType } from "./interface";
 import Header from "./Header";
 import { formatINR } from "@/lib/fNumber";
 import Search from "./Search";
 import toast from "react-hot-toast";
-import Link from "next/link";
-import useSWR from "swr";
 import api from "@/lib/axios";
 import { fDate, fTime } from "@/lib/fDateAndTime";
 import { useAuth } from "@/auth/context/auth-context";
@@ -61,9 +58,6 @@ export default function PharmacyReturnPage() {
   const [filter, setFilter] = useState<{ q: null | string }>({
     q: null,
   });
-
-  const { data: profile } = useSWR<{ data: { pharmacy: { billing: { defaultGst?: number } } } }>("/users/profile");
-  const defaultGst = profile?.data.pharmacy.billing.defaultGst ?? 0;
 
   const [order, setOrder] = useState<null | OrderType>(null);
   const [fetching, setFetching] = useState(false);
@@ -151,6 +145,7 @@ export default function PharmacyReturnPage() {
           reason: string;
           unitPrice: number;
         }[];
+        billNo?: string;
       } = {
         patient: order?.patient._id,
         order: order?._id,
@@ -163,6 +158,7 @@ export default function PharmacyReturnPage() {
           reason: it.reason,
           unitPrice: it.unitPrice ?? it.name.unitPrice,
         })),
+        billNo: order?.billNo,
       };
       await toast.promise(api.post("pharmacy/return", payload), {
         loading: "Returning...!",
@@ -197,31 +193,31 @@ export default function PharmacyReturnPage() {
             <TableSkeleton rows={5} columns={11} />
           ) : (
             <div className="overflow-x-auto">
-              <Table className="min-w-full text-xs">
+              <Table className="min-w-[1000px] text-xs">
                 <TableHeader className="bg-slate-700 hover:bg-slate-700">
                   <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                    <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sl No</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Medicine / Gen</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">HSN</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Qty Sold</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Qty Return</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Rate</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Amount</TableHead>
-                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-4">Reason</TableHead>
-                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Action</TableHead>
+                    <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Sl No</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Medicine / Gen</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">HSN</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Batch</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Expiry</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Qty Sold</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Qty Return</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Rate</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Amount</TableHead>
+                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-2.5">Reason</TableHead>
+                    <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-2.5 pr-4">Action</TableHead>
                   </TableRow>
                 </TableHeader>
 
                 <TableBody className="[&>tr:nth-child(even)]:bg-slate-50/40">
                   {order?.items.map((it, i) => (
-                    <TableRow key={it.name._id} className="text-[11px]">
-                      <TableCell className="text-center align-top text-slate-500 py-3 pl-4">
+                    <TableRow key={it.name._id} className="text-[14px]">
+                      <TableCell className="text-center  text-slate-500 py-3 pl-4">
                         {i + 1}
                       </TableCell>
 
-                      <TableCell className="align-top">
+                      <TableCell className="">
                         <div className="text-slate-900 font-medium text-[12px] leading-tight">
                           {it.name.name}
                         </div>
@@ -230,15 +226,15 @@ export default function PharmacyReturnPage() {
                         </div>
                       </TableCell>
 
-                      <TableCell className="align-top text-slate-600">
+                      <TableCell className=" text-slate-700 font-medium text-sm">
                         {it.name.hsnCode}
                       </TableCell>
 
-                      <TableCell className="align-top text-slate-600">
-                        {"N/A"}
+                      <TableCell className=" text-slate-700 font-medium">
+                        {it.name?.batches?.[0]?.batchNumber ?? "N/A"}
                       </TableCell>
 
-                      <TableCell className="align-top text-slate-600">
+                      <TableCell className=" text-slate-700 font-medium">
                         {fDate(it.name.expiryDate)}
                       </TableCell>
 
@@ -246,12 +242,12 @@ export default function PharmacyReturnPage() {
                         {it.quantity}
                       </TableCell>
 
-                      <TableCell className="text-center">
+                      <TableCell className="text-center font-medium">
                         <Input
                           type="number"
                           min={0}
                           max={it.quantity}
-                          className="h-8 w-14 text-center rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+                          className="h-8 w-14 text-center rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 font-medium"
                           value={it.return === 0 ? "" : it.return}
 
                           onChange={(e) => {
@@ -278,11 +274,11 @@ export default function PharmacyReturnPage() {
                         />
                       </TableCell>
 
-                      <TableCell className="text-right">
+                      <TableCell className="text-right font-medium">
                         <Input
                           type="number"
                           min={0}
-                          className="h-8 w-20 text-right rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 ml-auto"
+                          className="h-8 w-20 text-right rounded-lg border-slate-300 text-[11px] px-2 py-1 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 ml-auto font-medium"
                           value={it.unitPrice || ""}
                           onChange={(e) => {
                             const value = Number(e.target.value);
@@ -306,46 +302,46 @@ export default function PharmacyReturnPage() {
                       </TableCell>
 
                       <TableCell className="text-right tabular-nums font-semibold text-slate-900">
-                        {formatINR(((it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0)) * (1 + defaultGst / 100))}
+                        {formatINR(((it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0)))}
                       </TableCell>
 
-                      <TableCell className="align-top text-right">
-                        <div className="relative inline-block text-[11px]">
-                          <select
-                            value={it.reason}
-                            onChange={(e) => {
-                              setOrder((prev) =>
-                                prev
-                                  ? {
-                                    ...prev,
-                                    items: prev.items.map((item) =>
-                                      item.name._id === it.name._id
-                                        ? {
-                                          ...item,
-                                          reason: e.target.value,
-                                        }
-                                        : item
-                                    ),
-                                  }
-                                  : null
-                              );
-                            }}
-                            className="appearance-none h-8 rounded-lg border border-slate-300 bg-white pr-7 pl-2 text-[11px] leading-none text-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-                          >
-                            <option>Doctor Changed Rx</option>
-                            <option>Expired</option>
-                            <option>Near Expiry</option>
-                            <option>Quality Issue</option>
-                            <option>Wrong Item</option>
-                            <option>Adverse Reaction</option>
-                            <option>Not Required</option>
-                            <option>Other</option>
-                            <option>Damaged</option>
-                          </select>
-                          <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
-                            ▾
-                          </span>
-                        </div>
+                      <TableCell className="text-right">
+                        <Select
+                          defaultValue="Doctor Changed Rx"
+                          value={it.reason}
+                          onValueChange={(val) => {
+                            setOrder((prev) =>
+                              prev
+                                ? {
+                                  ...prev,
+                                  items: prev.items.map((item) =>
+                                    item.name._id === it.name._id
+                                      ? {
+                                        ...item,
+                                        reason: val,
+                                      }
+                                      : item
+                                  ),
+                                }
+                                : null
+                            );
+                          }}
+                        >
+                          <SelectTrigger className="h-8 w-[160px] text-[11px] rounded-lg border-slate-300 ml-auto">
+                            <SelectValue placeholder="Select Reason" />
+                          </SelectTrigger>
+                          <SelectContent className="text-[11px]">
+                            <SelectItem value="Doctor Changed Rx">Doctor Changed Rx</SelectItem>
+                            <SelectItem value="Expired">Expired</SelectItem>
+                            <SelectItem value="Near Expiry">Near Expiry</SelectItem>
+                            <SelectItem value="Quality Issue">Quality Issue</SelectItem>
+                            <SelectItem value="Wrong Item">Wrong Item</SelectItem>
+                            <SelectItem value="Adverse Reaction">Adverse Reaction</SelectItem>
+                            <SelectItem value="Not Required">Not Required</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                            <SelectItem value="Damaged">Damaged</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </TableCell>
                       <TableCell className="text-right py-3">
                         <Button
@@ -364,8 +360,8 @@ export default function PharmacyReturnPage() {
                             );
                           }}
                         >
-                          <Trash className="w-3.5 h-3.5 mr-2" />
-                          Remove
+                          <Trash className="w-3.5 h-3.5" />
+
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -377,34 +373,12 @@ export default function PharmacyReturnPage() {
 
           <div className="flex justify-end border-t border-slate-100 bg-slate-50/50 px-4 py-3">
             <div className="text-right text-xs">
-              <div className="flex justify-between gap-6">
-                <span className="text-slate-500">Subtotal</span>
-                <span className="font-medium text-slate-700">
-                  {formatINR(
-                    order?.items.reduce(
-                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0),
-                      0
-                    ) ?? 0
-                  )}
-                </span>
-              </div>
-              <div className="flex justify-between gap-6 text-[11px]">
-                <span className="text-slate-500">GST Adjust</span>
-                <span className="text-slate-700 font-medium">
-                  {formatINR(
-                    order?.items.reduce(
-                      (acc, it) => acc + (it.unitPrice ?? it.name.unitPrice) * (it.return ?? 0) * (defaultGst / 100),
-                      0
-                    ) || 0
-                  )}
-                </span>
-              </div>
               <div className="flex justify-between gap-6 text-sm font-semibold text-slate-900 border-t border-slate-100 pt-1 mt-1">
                 <span>Total Refund</span>
                 <span>
                   {formatINR(
                     order?.items.reduce(
-                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0) * (1 + defaultGst / 100),
+                      (a, b) => a + (b.unitPrice ?? b.name.unitPrice) * (b.return ?? 0),
                       0
                     ) ?? 0
                   )}
@@ -426,7 +400,7 @@ export default function PharmacyReturnPage() {
             <CardContent className="grid grid-cols-1 gap-5 text-sm">
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
-                  <span className="text-[11px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
+                  <span className="text-[12px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
                     <CreditCard className="w-3.5 h-3.5 text-slate-400" />
                     Refund Mode
                   </span>
@@ -451,7 +425,7 @@ export default function PharmacyReturnPage() {
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <span className="text-[11px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
+                  <span className="text-[12px] uppercase tracking-wide text-slate-500 flex items-center gap-1.5 font-semibold">
                     <User className="w-3.5 h-3.5 text-slate-400" />
                     Returned By
                   </span>
@@ -496,16 +470,7 @@ export default function PharmacyReturnPage() {
           <Card className="shadow-md border-slate-200 flex flex-col">
             <CardContent className="p-4 flex flex-col justify-between flex-1">
               <div className="flex items-start justify-between">
-                <div className="flex flex-col text-[11px] text-slate-600">
-                  <span className="uppercase tracking-wide text-[10px] text-slate-500">
-                    Status
-                  </span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <Badge className="rounded-full bg-yellow-100 text-yellow-700 border-yellow-200 text-[10px] font-medium px-2 py-0.5 h-auto">
-                      Pending Approval
-                    </Badge>
-                  </div>
-                </div>
+                <div className=""></div>
                 <div className="text-right text-xs text-slate-500 leading-tight">
                   <div>
                     Handled by{" "}

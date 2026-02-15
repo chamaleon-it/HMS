@@ -27,7 +27,7 @@ export default function Header() {
         </div>
 
         {/* Top bar */}
-        <div className="flex h-20 items-center justify-between border-b border-slate-200/70 px-4 sm:px-8 bg-white/85">
+        <div className="flex h-16 items-center justify-between border-b border-slate-200/70 px-4 sm:px-8 bg-white/85">
           {/* Brand */}
           <div className="flex items-center gap-3 pr-2" data-testid="brand">
             <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">
@@ -51,7 +51,7 @@ export default function Header() {
           >
             {user?.role === "Doctor" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
                 onClick={() => setOpenCreate(true)}
               >
                 <Plus className="h-4 w-4" /> New Appointment

@@ -119,7 +119,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             .map((r, idx) => {
               const maxEstimatedTime = Math.max(
                 ...r.test
-                  .map((t) => t.name?.estimatedTime)
+                  .map((t) => t.name?.estimatedTime as number)
                   .filter((time) => typeof time === "number"), 0
               );
 
@@ -336,14 +336,14 @@ const Chip: React.FC<{
     >
       <span
         className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === "gray"
-            ? "bg-slate-400"
-            : tone === "green"
-              ? "bg-emerald-500"
-              : tone === "amber"
-                ? "bg-amber-500"
-                : tone === "blue"
-                  ? "bg-sky-500"
-                  : "bg-rose-500"
+          ? "bg-slate-400"
+          : tone === "green"
+            ? "bg-emerald-500"
+            : tone === "amber"
+              ? "bg-amber-500"
+              : tone === "blue"
+                ? "bg-sky-500"
+                : "bg-rose-500"
           }`}
       ></span>
       {label}

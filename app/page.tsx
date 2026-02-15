@@ -4,8 +4,8 @@ import { useAuth } from "@/auth/context/auth-context";
 import LoginForm from "@/components/LoginForm";
 import ForgotPassword from "@/components/LoginForm/ForgotPassword";
 import { Lock, Shield } from "lucide-react";
-import { redirect } from "next/navigation";
-import React, { useState, useMemo } from "react";
+import { redirect, useRouter } from "next/navigation";
+import React, { useState, useMemo, useEffect } from "react";
 
 const quotes = [
   {
@@ -44,21 +44,31 @@ export default function LoginPage() {
     []
   );
 
-  if (loading) return null;
 
-  if (isAuthenticated) {
-    if (user?.role) {
-      if (user.role === "Doctor") {
-        redirect("/dashboard/doctor");
-      } else if (user.role === "Pharmacy") {
-        redirect("/dashboard/pharmacy");
-      } else if (user.role === "Pharmacy Wholesaler") {
-        redirect("/dashboard/pharmacy-wholesaler");
-      } else if (user.role === "Lab") {
-        redirect("/dashboard/lab");
-      }
+
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isAuthenticated || !user?.role) return;
+
+    switch (user.role) {
+      case "Doctor":
+        router.replace("/dashboard/doctor");
+        break;
+      case "Pharmacy":
+        router.replace("/dashboard/pharmacy");
+        break;
+      case "Pharmacy Wholesaler":
+        router.replace("/dashboard/pharmacy-wholesaler");
+        break;
+      case "Lab":
+        router.replace("/dashboard/lab");
+        break;
     }
-  }
+  }, [isAuthenticated, user, router]);
+
+
+  if (loading) return null;
 
   return (
     <div>
@@ -171,7 +181,7 @@ export default function LoginPage() {
 
               {view === "sent" && (
                 <div className="text-center py-10 animate-fade-up">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--brand-soft)] text-[var(--brand)]">
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-(--brand-soft) text-(--brand)">
                     <svg
                       className="h-7 w-7"
                       viewBox="0 0 24 24"
@@ -188,7 +198,7 @@ export default function LoginPage() {
                   <p className="mt-2 text-slate-600 max-w-sm mx-auto">
                     We emailed a secure reset link. It expires in 15 minutes. If
                     it doesn&apos;t arrive, check spam or{" "}
-                    <button className="underline text-[var(--brand)] hover:text-[var(--brand-dark)]">
+                    <button className="underline text-(--brand) hover:text-(--brand-dark)">
                       resend
                     </button>
                     .

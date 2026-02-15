@@ -16,6 +16,12 @@ import { PaginationBar } from "../components/PaginationBar";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ArrowUpDown, AlertCircle, AlertTriangle, Eye, Pencil, Trash2 } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,11 +36,6 @@ import {
 import { formatINR } from "@/lib/fNumber";
 import UpdateBatch from "./UpdateBatch";
 
-const getQtyColor = (qty: number, lowStockThreshold: number) => {
-  if (qty === 0) return "bg-red-100 text-red-600 font-bold";
-  if (qty < lowStockThreshold) return "bg-orange-100 text-orange-600 font-bold";
-  return "";
-};
 
 interface Props {
   items: ItemType[];
@@ -51,7 +52,9 @@ interface Props {
     lowStockThreshold: number;
     expiryAlert: number;
     allowNegativeStock: boolean;
-  }
+  };
+  sortBy?: "createdAt" | "quantity";
+  orderBy?: "desc" | "asc";
 }
 
 export default function ItemTable({
@@ -64,8 +67,19 @@ export default function ItemTable({
   setFilter,
   mutate,
   isBusy,
-  pharmacyInventory
+  pharmacyInventory,
+  sortBy,
+  orderBy
 }: Props) {
+  const handleSort = (field: "createdAt" | "quantity") => {
+    setFilter((prev: FilterType): FilterType => ({
+      ...prev,
+      sortBy: field,
+      orderBy: prev.sortBy === field && prev.orderBy === "desc" ? "asc" : "desc",
+    }));
+  };
+
+
   const deleteItem = useCallback(
     async (_id: string) => {
       await toast.promise(api.delete(`/pharmacy/items/${_id}`), {
@@ -87,23 +101,25 @@ export default function ItemTable({
           <Table className="whitespace-nowrap">
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">
                   <Checkbox />
                 </TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Sl No</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Item Name</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">HSN</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">SKU</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Category</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Quantity</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">P.Price</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Unit Price (₹)</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Total Value (₹)</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry Date</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Manufacturer</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Status</TableHead>
-                <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-4 pr-4" >Actions</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Sl No</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Item Name</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Rack</TableHead>
+                <SortableHeader
+                  label="Quantity"
+                  field="quantity"
+                  currentSortBy={sortBy}
+                  currentSortOrder={orderBy}
+                  onSort={handleSort}
+                />
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">P.Price</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Unit Price (₹)</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Expiry Date</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Supplier</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Status</TableHead>
+                <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-2.5 pr-4" >Actions</TableHead>
               </TableRow>
             </TableHeader>
 
@@ -130,22 +146,45 @@ export default function ItemTable({
                   </TableCell>
 
                   <TableCell className="py-3 text-slate-700">
-                    <div className="text-gray-800 text-sm font-medium">
-                      HSN: {item.hsnCode}
-                    </div>
+                    {item.rackLocation || "-"}
                   </TableCell>
 
-                  <TableCell className="py-3">{item.sku}</TableCell>
-                  <TableCell className="py-3">{item.category}</TableCell>
-                  <TableCell className={"py-3 " + getQtyColor(item.quantity, pharmacyInventory.lowStockThreshold)}>
-                    {item.quantity}
+                  <TableCell className="py-3">
+                    {item.quantity === 0 ? (
+                      <div className="flex items-center gap-1.5 text-red-600 font-medium">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>Out of Stock</span>
+                      </div>
+                    ) : item.quantity < pharmacyInventory.lowStockThreshold ? (
+                      <div className="flex items-center gap-1.5 text-amber-600 font-medium">
+                        <AlertTriangle className="w-4 h-4" />
+                        <span>{item.quantity}</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 text-slate-700 font-medium pl-2">
+                        {item.quantity}
+                      </div>
+
+                    )}
                   </TableCell>
                   <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
                   <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
-                  <TableCell className="py-3">{item?.batches?.length ? formatINR(item?.batches?.reduce((a, b) => a + (b.purchasePrice * b.quantity), 0)) : formatINR(item.quantity * item.purchasePrice)}</TableCell>
-                  <TableCell className="py-3">{fDate(item.expiryDate)}</TableCell>
+                  <TableCell className="py-3">
+                    {new Date(item.expiryDate) < new Date() ? (
+                      <div className="flex items-center gap-1.5 text-red-600 font-medium">
+                        <AlertCircle className="w-4 h-4" />
+                        <span>{fDate(item.expiryDate)}</span>
+                      </div>
+                    ) : new Date(item.expiryDate) < new Date(Date.now() + pharmacyInventory.expiryAlert * 24 * 60 * 60 * 1000) ? (
+                      <div className="flex items-center gap-1.5 text-amber-600 font-medium">
+                        <AlertTriangle className="w-4 h-4" />
+                        <span>{fDate(item.expiryDate)}</span>
+                      </div>
+                    ) : (
+                      <span className="text-slate-700">{fDate(item.expiryDate)}</span>
+                    )}
+                  </TableCell>
                   <TableCell className="py-3">{item.supplier}</TableCell>
-                  <TableCell className="py-3">{item.manufacturer}</TableCell>
                   <TableCell className="py-3">
                     <Chip
                       label={item.status}
@@ -155,27 +194,50 @@ export default function ItemTable({
 
                   <TableCell className="py-3 pr-4">
                     <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleView(item)}
-                      >
-                        View
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => handleEdit(item)}
-                      >
-                        Edit
-                      </Button>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={() => handleView(item)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>View Details</TooltipContent>
+                      </Tooltip>
+
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                            onClick={() => handleEdit(item)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>Edit Item</TooltipContent>
+                      </Tooltip>
 
                       <UpdateBatch item={item} mutate={mutate} />
-                      <AlertDialog >
+
+                      <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button size="sm" variant="destructive">
-                            Delete
-                          </Button>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>Delete Item</TooltipContent>
+                          </Tooltip>
                         </AlertDialogTrigger>
 
                         <AlertDialogContent className="max-w-sm!">
@@ -251,21 +313,21 @@ const Chip: React.FC<{
   | "Consulted"
   | "Not show"
   | "Active"
-  | "Inactive";
+  | "Inactive"
+  | "LowStock"
+  | "OutOfStock";
 }> = ({ label, tone = "gray" }) => {
   const tones: Record<string, string> = {
     Active: "bg-emerald-50 text-emerald-700 ring-emerald-200",
-    // gray: "bg-slate-100 text-slate-700 ring-slate-200",
     Inactive: "bg-rose-50 text-rose-700 ring-rose-200",
-    // blue: "bg-sky-50 text-sky-700 ring-sky-200",
-    // amber: "bg-amber-50 text-amber-700 ring-amber-200",
-
     Upcoming: "bg-slate-100 text-slate-700 ring-slate-700",
     Test: "bg-sky-100  text-sky-700 ring-sky-700",
     Observation: "bg-amber-100  text-amber-700 ring-amber-700",
     Admit: "bg-rose-100  text-rose-700 ring-rose-700",
     Consulted: "bg-emerald-100  text-emerald-700 ring-emerald-700",
     "Not show": "bg-red-100 text-red-700 ring-red-700",
+    LowStock: "bg-orange-100 text-orange-800 ring-orange-200", // Darker text on lighter bg
+    OutOfStock: "bg-red-100 text-red-800 ring-red-200", // Darker text on lighter bg
   };
   return (
     <span
@@ -273,5 +335,41 @@ const Chip: React.FC<{
     >
       {label}
     </span>
+  );
+};
+
+const SortableHeader = ({
+  label,
+  field,
+  currentSortBy,
+  currentSortOrder,
+  onSort,
+}: {
+  label: string;
+  field: "createdAt" | "quantity";
+  currentSortBy?: string;
+  currentSortOrder?: "desc" | "asc";
+  onSort: (field: "createdAt" | "quantity") => void;
+}) => {
+  const isActive = currentSortBy === field;
+
+  return (
+    <TableHead
+      className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 cursor-pointer hover:bg-slate-600 transition-colors"
+      onClick={() => onSort(field)}
+    >
+      <div className="flex items-center gap-1 group">
+        {label}
+        <div className={`transition-opacity ${isActive ? "opacity-100" : "opacity-30 group-hover:opacity-100"}`}>
+          {isActive && currentSortOrder === "asc" ? (
+            <ArrowUpDown className="w-3.5 h-3.5 text-blue-400" />
+          ) : isActive && currentSortOrder === "desc" ? (
+            <ArrowUpDown className="w-3.5 h-3.5 text-blue-400" />
+          ) : (
+            <ArrowUpDown className="w-3.5 h-3.5" />
+          )}
+        </div>
+      </div>
+    </TableHead>
   );
 };

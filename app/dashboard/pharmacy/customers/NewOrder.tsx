@@ -16,7 +16,6 @@ import PatientSelection from "./PatientSelection";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 
 export default function NewOrder({ mutate }: { mutate: () => void }) {
@@ -150,20 +149,21 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      <Drawer
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        title="Customer Register"
-      >
-        <RegisterPatient onClose={(id?: string, name?: string) => {
-          setOpenCreate(false);
-          mutate()
-          // setPayload((prev) => ({ ...prev, patient: id ?? "" }));
-          // setOpen(true)
-          // setpatientName(name ?? "")
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient onClose={(id?: string, name?: string) => {
+            setOpenCreate(false);
+            mutate()
+            // setPayload((prev) => ({ ...prev, patient: id ?? "" }));
+            // setOpen(true)
+            // setpatientName(name ?? "")
 
-        }} />
-      </Drawer>
+          }} />
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

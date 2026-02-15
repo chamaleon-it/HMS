@@ -45,7 +45,7 @@ export default function DailyViewTimeline({
   selectedDate: Date | undefined;
 }) {
   const day = selectedDate ? new Date(selectedDate) : new Date();
-  
+
 
   const { data: appointmentData, mutate } = useAppointmentList({ date: day });
   const appointment = useMemo(
@@ -61,7 +61,7 @@ export default function DailyViewTimeline({
     return () => clearInterval(id);
   }, []);
 
-  
+
 
   const [currenctStatus, setCurrenctStatus] = useState<
     "Upcoming" | "Consulted" | "Observation" | "Not show"
@@ -147,7 +147,7 @@ export default function DailyViewTimeline({
 
           {/* Regular Appointment */}
           <button
-            className="inline-flex items-center gap-2 rounded-xl bg-black text-white px-4 py-2 hover:bg-black/80 transition font-medium shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 text-white px-4 py-2 transition font-medium shadow-sm cursor-pointer"
             onClick={() => setOpenAppointment(true)}
           >
             <CalendarPlus className="h-4 w-4" />
@@ -183,11 +183,10 @@ export default function DailyViewTimeline({
                 >
                   <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
                     <span
-                      className={`text-[11px] select-none ${
-                        labelBold
+                      className={`text-[11px] select-none ${labelBold
                           ? "font-semibold text-gray-900"
                           : "text-gray-500"
-                      }`}
+                        }`}
                     >
                       {fromMinutes(m)}
                     </span>
@@ -226,11 +225,10 @@ export default function DailyViewTimeline({
                   >
                     <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
                       <span
-                        className={`text-[11px] select-none rounded-full border px-2 py-0.5 ${
-                          labelBold
+                        className={`text-[11px] select-none rounded-full border px-2 py-0.5 ${labelBold
                             ? "font-semibold border-gray-300 text-gray-800 bg-white"
                             : "font-medium border-gray-200 text-gray-500 bg-white"
-                        }`}
+                          }`}
                       >
                         {fromMinutes(m)}
                       </span>

@@ -1,15 +1,11 @@
 "use client";
 
 import AppShell from "@/components/layout/app-shell";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
-import { Download, Printer } from "lucide-react";
-import { useParams } from "next/navigation";
 import useSWR from "swr";
-export default function InvoiceView() {
-  const { id } = useParams();
+export default function InvoiceView({ id }: { id: string }) {
 
   const { data: billingData } = useSWR<{
     message: string;
@@ -73,11 +69,11 @@ export default function InvoiceView() {
               <p>
                 {billing?.createdAt
                   ? fDate(
-                      new Date(
-                        new Date(billing.createdAt).getTime() +
-                          10 * 24 * 60 * 60 * 1000
-                      )
+                    new Date(
+                      new Date(billing.createdAt).getTime() +
+                      10 * 24 * 60 * 60 * 1000
                     )
+                  )
                   : ""}
               </p>
             </div>
@@ -131,7 +127,7 @@ export default function InvoiceView() {
               <p className="mt-1">Pothukallu, Nilambur, Kerala</p>
               <p>+91 98765 43210</p>
               <p className="mt-1">Booking No: BK2025-00921</p>
-             
+
             </div>
           </div>
           <div className="p-8">
@@ -224,7 +220,7 @@ export default function InvoiceView() {
                 {formatINR(
                   billing?.items?.reduce(
                     (acc, { total }) =>
-                      acc +total,
+                      acc + total,
                     0
                   ) ?? 0
                 )}
@@ -235,12 +231,12 @@ export default function InvoiceView() {
             </div>
             <div className="flex justify-between py-1 text-sm text-red-600">
               <span>Due</span> <span>{formatINR(
-                  (billing?.items?.reduce(
-                    (acc, { total }) =>
-                      acc +total,
-                    0
-                  ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
-                )}</span>
+                (billing?.items?.reduce(
+                  (acc, { total }) =>
+                    acc + total,
+                  0
+                ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
+              )}</span>
             </div>
           </div>
         </div>

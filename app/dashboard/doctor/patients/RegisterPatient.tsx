@@ -64,6 +64,10 @@ export function RegisterPatient({
   mutate?: () => void;
   patient?: Data;
 }) {
+  const capitalizeFirstLetter = (str: string) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   const {
     register,
     handleSubmit,
@@ -263,7 +267,16 @@ export function RegisterPatient({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="grid gap-2">
             <Label>Name *</Label>
-            <Input placeholder="Enter patient name" {...register("name")} />
+            <Input
+              placeholder="Enter patient name"
+              {...register("name")}
+              onChange={(e) => {
+                const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
+                  char.toUpperCase()
+                );
+                setValue("name", capitalizedValue, { shouldValidate: true });
+              }}
+            />
             {errors.name && (
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
             )}
@@ -411,7 +424,15 @@ export function RegisterPatient({
 
           <div className="grid gap-2">
             <Label>Allergies</Label>
-            <Input placeholder="Allergies" {...register("allergies")} />
+            <Input
+              placeholder="Allergies"
+              {...register("allergies")}
+              onChange={(e) => {
+                setValue("allergies", capitalizeFirstLetter(e.target.value), {
+                  shouldValidate: true,
+                });
+              }}
+            />
             {errors.allergies && (
               <p className="text-red-500 text-xs my-1">
                 {errors.allergies.message}

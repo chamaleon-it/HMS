@@ -119,7 +119,7 @@ export default function CreateBill({
               {
                 name: i,
                 gst: pharmacyBilling.defaultGst ?? 0,
-                quantity: 0,
+                quantity: 1,
                 total: 0,
                 unitPrice: 0,
               },
@@ -137,7 +137,7 @@ export default function CreateBill({
               {
                 name: item,
                 gst: pharmacyBilling.defaultGst ?? 0,
-                quantity: 0,
+                quantity: 1,
                 total: 0,
                 unitPrice: 0,
               },
@@ -154,6 +154,28 @@ export default function CreateBill({
       }
     },
     [item, payload.items, pharmacyBilling.defaultGst]
+  );
+
+  const addFullItem = useCallback(
+    (item: { name: string; unitPrice: number; gst: number }) => {
+      if (!payload.items.find((e) => e.name === item.name)) {
+        setPayload((prev) => ({
+          ...prev,
+          items: [
+            ...prev.items,
+            {
+              ...item,
+              quantity: 1,
+              total: calcTotal(item.unitPrice, 1, item.gst),
+            },
+          ],
+        }));
+      } else {
+        toast.error("Item already exists.");
+      }
+      itemRef.current?.focus();
+    },
+    [payload.items]
   );
 
   const removeItem = useCallback(
@@ -361,6 +383,7 @@ export default function CreateBill({
             setItem={setItem}
             itemRef={itemRef}
             PrimaryButton={PrimaryButton}
+            addFullItem={addFullItem}
           />
 
           <PaymentSection payload={payload} setPayload={setPayload} />

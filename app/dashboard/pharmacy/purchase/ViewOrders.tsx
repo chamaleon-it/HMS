@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Eye } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 // shadcn table + checkbox
 import {
@@ -25,13 +26,22 @@ export default function PurchasePackingView({ row }: { row: PurchaseType }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 px-2 rounded-lg text-xs"
-        >
-          <Eye className="h-4 w-4 mr-1" /> View
-        </Button>
+        <div className="flex justify-end">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+              >
+                <Eye className="h-4 w-4" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>View Order</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
       </DialogTrigger>
 
       <DialogContent className="max-w-3xl!">

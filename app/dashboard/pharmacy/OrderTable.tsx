@@ -12,7 +12,7 @@ import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import { CheckCircle, Eye, Printer, Trash, View } from "lucide-react";
+import { AlertTriangle, CheckCircle, Eye, Printer, Trash, View } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,6 +32,7 @@ import useSWR from "swr";
 import ViewOrder from "./ViewOrder";
 import { PaginationBar } from "./components/PaginationBar";
 import { Dispatch, SetStateAction } from "react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function OrderTable({
   orders,
@@ -224,22 +225,22 @@ export default function OrderTable({
 
 
   return (
-    <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
-      <Table className="print:hidden">
+    <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
+      <Table className="print:hidden min-w-fit">
         <TableHeader className="bg-slate-700 hover:bg-slate-700">
           <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4 w-16">
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4 w-16">
               Sl No
             </TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">RX ID</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Patient</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Items</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Priority</TableHead>
-            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Status</TableHead>
-            <TableHead className="text-left text-white font-bold text-[11px] uppercase tracking-wider py-4">
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">RX ID</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Patient</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-center">Items</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-center">Priority</TableHead>
+            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-center">Status</TableHead>
+            <TableHead className="text-left text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
               Created At
             </TableHead>
-            <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">
+            <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pr-4">
               Actions
             </TableHead>
           </TableRow>
@@ -255,99 +256,170 @@ export default function OrderTable({
               }
             >
 
-              <TableCell className="py-3 pl-4 text-slate-500 font-medium">
+              <TableCell className="py-3 pl-4 text-slate-500 font-medium cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >
                 {(filter.page - 1) * filter.limit + idx + 1}
               </TableCell>
-              <TableCell className="py-3 font-medium text-slate-900">{r?.mrn}</TableCell>
-              <TableCell className="py-3">
-                <div className="font-medium text-slate-900">{r?.patient?.name}</div>
+              <TableCell className="py-3 font-medium text-slate-900 cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >{r?.mrn}</TableCell>
+              <TableCell className="py-3 cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >
+                <div className="flex items-center gap-1.5">
+                  <div className="font-medium text-slate-900">{r?.patient?.name}</div>
+                  {r?.patient?.allergies && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <AlertTriangle className="h-3.5 w-3.5 text-yellow-500 cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="bg-yellow-50 text-yellow-700 border-yellow-200">
+                        <p className="text-xs font-semibold">Allergy: {r.patient.allergies}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
+                </div>
                 <div className="text-[11px] text-slate-500">({r?.patient?.mrn})</div>
               </TableCell>
-              <TableCell className="py-3 text-center">{r?.items?.length}</TableCell>
-              <TableCell className="py-3 text-center">
+              <TableCell className="py-3 text-center cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >{r?.items?.length}</TableCell>
+              <TableCell className="py-3 text-center cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >
                 <PriorityBadge priority={r?.priority} />
               </TableCell>
-              <TableCell className="py-3 text-center">
+              <TableCell className="py-3 text-center cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >
                 <StatusBadge status={r?.status} />
               </TableCell>
-              <TableCell className="py-3">{fDateandTime(r?.createdAt)}</TableCell>
-              <TableCell className="py-3 text-right space-x-2 pr-4">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    setSelected(r);
-                    setOpen(true);
-                  }}
-                  className="gap-2 h-8 text-xs"
-                >
-                  <Eye className="h-4 w-4" />
-                  View
-                </Button>
+              <TableCell className="py-3 cursor-pointer"
+                onClick={() => {
+                  setSelected(r);
+                  setOpen(true);
+                }}
+              >{fDateandTime(r?.createdAt)}</TableCell>
+              <TableCell className="py-3 text-right space-x-1 pr-4">
+                <div className="flex justify-end items-center gap-1">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => {
+                          setSelected(r);
+                          setOpen(true);
+                        }}
+                        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>View Order</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleDelete(r)}
-                  className="gap-2 h-8 text-xs"
-                >
-                  <Trash className="h-4 w-4 text-red-400" />
-                </Button>
-                {
-                  r?.status === "Ready" && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-2 h-8 text-xs"
-                      onClick={async () => {
-                        await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
-                          loading: "Completing...",
-                          success: (data) => {
-                            OrderMutate();
-                            return data.data.message;
-                          },
-                          error: ({ response: { data } }) => {
-                            return data.message;
-                          }
-                        })
-                      }}
-                    >
-                      <CheckCircle className="h-4 w-4" />
-                      Complete
-                    </Button>
-                  )
-                }
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        onClick={() => handleDelete(r)}
+                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      >
+                        <Trash className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Delete Order</p>
+                    </TooltipContent>
+                  </Tooltip>
 
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 h-8 text-xs"
-                  onClick={() => handlePrint(r)}
-                >
-                  <Printer className="h-3.5 w-3.5" />
-                  Print Prescription
-                </Button>
+                  {r?.status === "Ready" && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                          onClick={async () => {
+                            await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
+                              loading: "Completing...",
+                              success: (data) => {
+                                OrderMutate();
+                                return data.data.message;
+                              },
+                              error: ({ response: { data } }) => {
+                                return data.message;
+                              }
+                            })
+                          }}
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Complete Order</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
 
-                {autoGenerateBill ? <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!!printingOrderId}
-                  className="gap-2 h-8 text-xs"
-                  onClick={() => { handlePrintBill(r) }}
-                >
-                  <Printer className="h-3.5 w-3.5" />
-                  {printingOrderId === r._id ? "Printing..." : "Print Bill"}
-                </Button> : <Button
-                  variant="outline"
-                  size="sm"
-                  className="gap-2 h-8 text-xs"
-                  asChild
-                >
-                  <Link href={`/dashboard/pharmacy/billing?mrn=${r?.mrn}#new`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="gap-2 h-8 text-xs text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800"
+                    onClick={() => handlePrint(r)}
+                  >
                     <Printer className="h-3.5 w-3.5" />
-                    Print Bill
-                  </Link>
-                </Button>}
+                    Rx
+                  </Button>
+
+                  {autoGenerateBill ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={!!printingOrderId}
+                      className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800"
+                      onClick={() => { handlePrintBill(r) }}
+                    >
+                      <Printer className="h-3.5 w-3.5" />
+                      {printingOrderId === r._id ? "..." : "Bill"}
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800"
+                      asChild
+                    >
+                      <Link href={`/dashboard/pharmacy/billing?mrn=${r?.mrn}#new`}>
+                        <Printer className="h-3.5 w-3.5" />
+                        Bill
+                      </Link>
+                    </Button>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}

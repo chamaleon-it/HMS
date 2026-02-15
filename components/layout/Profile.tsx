@@ -9,10 +9,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Settings } from "lucide-react";
+import { ArchiveRestore, DatabaseBackup, LogOut, Settings } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/auth/context/auth-context";
 import configuration from "@/config/configuration";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import useSWR from "swr";
+import { fDateandTime } from "@/lib/fDateAndTime";
 
 
 
@@ -35,6 +39,9 @@ export default function DoctorProfile() {
       window.removeEventListener('offline', handleOffline);
     };
   }, []);
+
+  const { data, mutate } = useSWR("/backup/list")
+
 
   return (
     <div className="">
@@ -101,15 +108,93 @@ export default function DoctorProfile() {
           {/* Settings & logout */}
           <DropdownMenuGroup>
             <DropdownMenuItem className="px-3" asChild>
-              <Link
-                href={`/dashboard/${user?.role === "Doctor" && "doctor" || user?.role === "Pharmacy" && "pharmacy" || user?.role === "Pharmacy Wholesaler" && "pharmacy-wholesaler" || user?.role === "Lab" && "lab" || "doctor"}/settings`}
-                className="flex items-center gap-1"
-              >
-                <Settings className="mr-2 h-4 w-4" /> Settings
-              </Link>
+              <Button asChild variant={"ghost"} className="w-full text-left justify-start">
+
+                <Link
+                  href={`/dashboard/${user?.role === "Doctor" && "doctor" || user?.role === "Pharmacy" && "pharmacy" || user?.role === "Pharmacy Wholesaler" && "pharmacy-wholesaler" || user?.role === "Lab" && "lab" || "doctor"}/settings`}
+                  className="flex items-center gap-1"
+                >
+                  <Settings className="mr-1 h-4 w-4" /> Settings
+                </Link>
+              </Button>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
+
+            <DropdownMenuItem className="px-3" asChild>
+              <Button variant={"ghost"} className="w-full text-left justify-start" onClick={async () => {
+                try {
+
+                  await toast.promise(api.post("/backup/create"), {
+                    loading: "Creating Backup...",
+                    success: "Backup Created Successfully",
+                    error: "Failed to Create Backup"
+                  })
+                  await mutate();
+                } catch (error) {
+                  console.log(error)
+                }
+              }}>
+                <div className="flex justify-between w-full items-center">
+
+                  <div className="flex items-center gap-1">
+                    <DatabaseBackup className="mr-1 h-4 w-4" />
+                    Backup
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-[10px] text-slate-500 italic">
+                      {fDateandTime(data?.latestBackup?.replace(/T(\d+)-(\d+)-(\d+)/, "T$1:$2:$3"))}
+                    </span>
+
+                    {data?.latestBackup && (() => {
+                      const dateStr = data.latestBackup.replace(/T(\d+)-(\d+)-(\d+)/, "T$1:$2:$3");
+                      const backupDate = new Date(dateStr);
+                      const today = new Date();
+                      const diffTime = Math.abs(today.getTime() - backupDate.getTime());
+                      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+                      return (
+                        <>
+                          {diffDays >= 1 && (
+                            <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-orange-100 text-orange-600 border border-orange-200">
+                              {diffDays} {diffDays === 1 ? "day" : "days"} ago
+                            </span>
+                          )}
+
+                        </>
+                      );
+                    })()}
+
+                  </div>
+
+                </div>
+              </Button>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            {/* <DropdownMenuItem className="px-3" asChild>
+              <Button variant={"ghost"} className="w-full text-left justify-start" onClick={async () => {
+                try {
+
+                  await toast.promise(api.post("/backup/restore_latest"), {
+                    loading: "Restoring Backup...",
+                    success: "Backup Restored Successfully",
+                    error: "Failed to Restore Backup"
+                  })
+                } catch (error) {
+                  console.log(error)
+                }
+              }}>
+
+                <ArchiveRestore className="mr-2 h-4 w-4" />
+                Restore Latest Backup
+
+              </Button>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator /> */}
+
             <DropdownMenuItem className="px-3" asChild>
               <Button
                 onClick={() => {

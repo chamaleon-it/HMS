@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import React, { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { FilterType } from "./interface";
+import useSWR from "swr";
 
 interface Props {
   setFilter: Dispatch<SetStateAction<FilterType>>;
@@ -16,6 +17,11 @@ interface Props {
 }
 
 export default function ItemFilter({ filter, setFilter }: Props) {
+
+  const { data: suppliersResponse } = useSWR("/pharmacy/items/suppliers")
+
+  const suppliers: string[] = suppliersResponse?.data || [];
+
   const [search, setSearch] = useState(filter.q || "");
 
   useEffect(() => {
@@ -27,7 +33,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
   }, [search, setFilter]);
 
   return (
-    <div className="bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div className="bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 grid grid-cols-1 md:grid-cols-5 gap-4">
       <Input
         placeholder="Search by Item Name, SKU, or Barcode"
         onChange={(e) => setSearch(e.target.value)}
@@ -47,6 +53,24 @@ export default function ItemFilter({ filter, setFilter }: Props) {
           <SelectItem value="Medicine">Medicine</SelectItem>
           <SelectItem value="Equipment">Equipment</SelectItem>
           <SelectItem value="Consumables">Consumables</SelectItem>
+        </SelectContent>
+      </Select>
+
+      <Select
+        onValueChange={(v) =>
+          setFilter((prev) => ({ ...prev, supplier: v === "all" ? undefined : v, page: 1 }))
+        }
+      >
+        <SelectTrigger>
+          <SelectValue placeholder="Supplier" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="All">All</SelectItem>
+          {suppliers.map((supplier) => (
+            <SelectItem key={supplier} value={supplier}>
+              {supplier}
+            </SelectItem>
+          ))}
         </SelectContent>
       </Select>
 
