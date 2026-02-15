@@ -26,13 +26,7 @@ interface Props {
     className?: string;
 }
 
-const DUMMY_PHARMACISTS: Pharmacist[] = [
-    { _id: "ph001", name: "Sarah Jenkins", role: "pharmacist", email: "sarah.j@hospital.com", phoneNumber: "5550101" },
-    { _id: "ph002", name: "Mike Ross", role: "pharmacist", email: "mike.r@hospital.com", phoneNumber: "5550102" },
-    { _id: "ph003", name: "Emily Chen", role: "pharmacist", email: "emily.c@hospital.com", phoneNumber: "5550103" },
-    { _id: "ph004", name: "David Kim", role: "pharmacist", email: "david.k@hospital.com", phoneNumber: "5550104" },
-    { _id: "ph005", name: "Jessica Pearson", role: "pharmacist", email: "jessica.p@hospital.com", phoneNumber: "5550105" },
-];
+
 
 const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName, hideLabel, className }) => {
     const { data: pharmacistResponse, mutate: pharmacistMutate, isLoading: pharmacistLoading } = useSWR<{

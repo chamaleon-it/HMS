@@ -22,7 +22,7 @@ import registerPatientSchema from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ChevronDownIcon, UserRound, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FieldErrors, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
@@ -61,6 +61,42 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
 
   const values = watch();
   const { dateOfBirth } = values;
+
+  const refs = {
+    name: useRef<HTMLInputElement>(null),
+    mrn: useRef<HTMLInputElement>(null),
+    phoneNumber: useRef<HTMLInputElement>(null),
+    gender: useRef<HTMLButtonElement>(null),
+    dob: useRef<HTMLButtonElement>(null),
+    age: useRef<HTMLInputElement>(null),
+    allergies: useRef<HTMLInputElement>(null),
+    addressDetails: {
+      line1: useRef<HTMLInputElement>(null),
+      line2: useRef<HTMLInputElement>(null),
+      city: useRef<HTMLInputElement>(null),
+      state: useRef<HTMLInputElement>(null),
+      pin: useRef<HTMLInputElement>(null),
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<any>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      nextRef.current?.focus();
+    }
+  };
+
+  const mergeRefs = (...refs: any[]) => {
+    return (node: any) => {
+      refs.forEach((ref) => {
+        if (typeof ref === "function") {
+          ref(node);
+        } else if (ref != null) {
+          ref.current = node;
+        }
+      });
+    };
+  };
 
   useEffect(() => {
     if (patient) {
@@ -141,6 +177,8 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             <Input
               placeholder="Enter patient name"
               {...register("name")}
+              ref={mergeRefs(refs.name, register("name").ref)}
+              onKeyDown={(e) => handleKeyDown(e, refs.mrn)}
               onChange={(e) => {
                 const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
                   char.toUpperCase()
@@ -169,8 +207,10 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             <Input
               placeholder="PID"
               {...register("mrn")}
+              ref={mergeRefs(refs.mrn, register("mrn").ref)}
               value={values.mrn}
               disabled={patient?._id}
+              onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
             />
             {errors.mrn && (
               <p className="text-red-500 text-xs my-1">
@@ -184,7 +224,9 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             <Input
               placeholder="+91"
               {...register("phoneNumber")}
+              ref={mergeRefs(refs.phoneNumber, register("phoneNumber").ref)}
               value={values.phoneNumber}
+              onKeyDown={(e) => handleKeyDown(e, refs.gender)}
             />
             {errors.phoneNumber && (
               <p className="text-red-500 text-xs my-1">
@@ -212,7 +254,11 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               ) => setValue("gender", value)}
               value={values.gender}
             >
-              <SelectTrigger className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+              <SelectTrigger
+                ref={refs.gender}
+                onKeyDown={(e) => handleKeyDown(e, refs.dob)}
+                className="w-full h-10 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200"
+              >
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
@@ -236,9 +282,11 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             <Popover open={openCalander} onOpenChange={setOpenCalander}>
               <PopoverTrigger asChild>
                 <Button
+                  ref={refs.dob}
                   variant="outline"
                   id="date"
                   className="w-full justify-between font-normal"
+                  onKeyDown={(e) => handleKeyDown(e, refs.age)}
                 >
                   {dateOfBirth
                     ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
@@ -280,8 +328,10 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           <div className="grid gap-2">
             <Label>Age </Label>
             <Input
+              ref={refs.age}
               type="number"
               placeholder="Age"
+              onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
               value={
                 dateOfBirth
                   ? new Date().getFullYear() -
@@ -309,6 +359,8 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             <Input
               placeholder="Allergies"
               {...register("allergies")}
+              ref={mergeRefs(refs.allergies, register("allergies").ref)}
+              onKeyDown={(e) => handleKeyDown(e, refs.addressDetails.line1)}
               onChange={(e) => {
                 setValue("allergies", capitalizeFirstLetter(e.target.value), {
                   shouldValidate: true,
@@ -322,7 +374,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <Address setValue={setValue} />
+          <Address setValue={setValue} refs={refs.addressDetails} />
         </div>
       </section>
 

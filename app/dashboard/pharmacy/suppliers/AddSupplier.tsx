@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "react-hot-toast";
 import api from "@/lib/axios";
+import React, { useRef } from "react";
 
 const supplierSchema = z.object({
     name: z.string().min(1, "Name is required"),
@@ -96,6 +97,36 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
         }
     };
 
+    // Refs for keyboard navigation
+    const refs = {
+        name: useRef<HTMLInputElement>(null),
+        phone: useRef<HTMLInputElement>(null),
+        contactPerson: useRef<HTMLInputElement>(null),
+        designation: useRef<HTMLInputElement>(null),
+        email: useRef<HTMLInputElement>(null),
+        line1: useRef<HTMLInputElement>(null),
+        line2: useRef<HTMLInputElement>(null),
+        city: useRef<HTMLInputElement>(null),
+        state: useRef<HTMLInputElement>(null),
+        gstin: useRef<HTMLInputElement>(null),
+        msme: useRef<HTMLInputElement>(null),
+        pan: useRef<HTMLInputElement>(null),
+        dlNo: useRef<HTMLInputElement>(null),
+        dlExpiryDate: useRef<HTMLInputElement>(null),
+        balance: useRef<HTMLInputElement>(null),
+        paymentTerms: useRef<HTMLInputElement>(null),
+        status: useRef<HTMLSelectElement>(null),
+        description: useRef<HTMLInputElement>(null),
+        submitButton: useRef<HTMLButtonElement>(null),
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<any>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            nextRef.current?.focus();
+        }
+    };
+
     return (
         <div className="p-0 font-sans">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
@@ -108,6 +139,12 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                         onChange={(e) => {
                             setValue("name", capitalizeWords(e.target.value), { shouldValidate: true });
                         }}
+                        ref={(e) => {
+                            register("name").ref(e);
+                            refs.name.current = e;
+                        }}
+                        onKeyDown={(e) => handleKeyDown(e, refs.phone)}
+                        autoFocus
                     />
                     {errors.name && <p className="text-red-500 text-xs">{errors.name.message}</p>}
                 </div>
@@ -115,7 +152,16 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="phone" className="font-semibold">Phone Number *</Label>
-                        <Input id="phone" placeholder="+91 9999999999" {...register("phone")} />
+                        <Input
+                            id="phone"
+                            placeholder="+91 9999999999"
+                            {...register("phone")}
+                            ref={(e) => {
+                                register("phone").ref(e);
+                                refs.phone.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.contactPerson)}
+                        />
                         {errors.phone && <p className="text-red-500 text-xs">{errors.phone.message}</p>}
                     </div>
 
@@ -128,6 +174,11 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                             onChange={(e) => {
                                 setValue("contactPerson", capitalizeWords(e.target.value), { shouldValidate: true });
                             }}
+                            ref={(e) => {
+                                register("contactPerson").ref(e);
+                                refs.contactPerson.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.designation)}
                         />
                         {errors.contactPerson && <p className="text-red-500 text-xs">{errors.contactPerson.message}</p>}
                     </div>
@@ -143,12 +194,26 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                             onChange={(e) => {
                                 setValue("designation", capitalizeWords(e.target.value), { shouldValidate: true });
                             }}
+                            ref={(e) => {
+                                register("designation").ref(e);
+                                refs.designation.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.email)}
                         />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="email" className="font-semibold">Email Address</Label>
-                        <Input id="email" placeholder="email@example.com" {...register("email")} />
+                        <Input
+                            id="email"
+                            placeholder="email@example.com"
+                            {...register("email")}
+                            ref={(e) => {
+                                register("email").ref(e);
+                                refs.email.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.line1)}
+                        />
                         {errors.email && <p className="text-red-500 text-xs">{errors.email.message}</p>}
                     </div>
                 </div>
@@ -163,6 +228,11 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                             onChange={(e) => {
                                 setValue("line1", capitalizeWords(e.target.value), { shouldValidate: true });
                             }}
+                            ref={(e) => {
+                                register("line1").ref(e);
+                                refs.line1.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.line2)}
                         />
                         {errors.line1 && <p className="text-red-500 text-xs">{errors.line1.message}</p>}
                     </div>
@@ -176,6 +246,11 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                             onChange={(e) => {
                                 setValue("line2", capitalizeWords(e.target.value), { shouldValidate: true });
                             }}
+                            ref={(e) => {
+                                register("line2").ref(e);
+                                refs.line2.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.city)}
                         />
                     </div>
                 </div>
@@ -190,6 +265,11 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                             onChange={(e) => {
                                 setValue("city", capitalizeWords(e.target.value), { shouldValidate: true });
                             }}
+                            ref={(e) => {
+                                register("city").ref(e);
+                                refs.city.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.state)}
                         />
                     </div>
 
@@ -202,6 +282,11 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                             onChange={(e) => {
                                 setValue("state", capitalizeWords(e.target.value), { shouldValidate: true });
                             }}
+                            ref={(e) => {
+                                register("state").ref(e);
+                                refs.state.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.gstin)}
                         />
                     </div>
                 </div>
@@ -209,44 +294,109 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="gstin" className="font-semibold">GSTIN</Label>
-                        <Input id="gstin" placeholder="GSTIN Number" {...register("gstin")} />
+                        <Input
+                            id="gstin"
+                            placeholder="GSTIN Number"
+                            {...register("gstin")}
+                            ref={(e) => {
+                                register("gstin").ref(e);
+                                refs.gstin.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.msme)}
+                        />
                         {errors.gstin && <p className="text-red-500 text-xs">{errors.gstin.message}</p>}
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="msme" className="font-semibold">MSME No.</Label>
-                        <Input id="msme" placeholder="MSME Number" {...register("msme")} />
+                        <Input
+                            id="msme"
+                            placeholder="MSME Number"
+                            {...register("msme")}
+                            ref={(e) => {
+                                register("msme").ref(e);
+                                refs.msme.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.pan)}
+                        />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="pan" className="font-semibold">PAN Number</Label>
-                        <Input id="pan" placeholder="PAN Number" {...register("pan")} />
+                        <Input
+                            id="pan"
+                            placeholder="PAN Number"
+                            {...register("pan")}
+                            ref={(e) => {
+                                register("pan").ref(e);
+                                refs.pan.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.dlNo)}
+                        />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="dlNo" className="font-semibold">DL No.</Label>
-                        <Input id="dlNo" placeholder="Drug Licence Number" {...register("dlNo")} />
+                        <Input
+                            id="dlNo"
+                            placeholder="Drug Licence Number"
+                            {...register("dlNo")}
+                            ref={(e) => {
+                                register("dlNo").ref(e);
+                                refs.dlNo.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.dlExpiryDate)}
+                        />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="dlExpiryDate" className="font-semibold">DL Expiry Date</Label>
-                        <Input id="dlExpiryDate" type="date" {...register("dlExpiryDate")} />
+                        <Input
+                            id="dlExpiryDate"
+                            type="date"
+                            {...register("dlExpiryDate")}
+                            ref={(e) => {
+                                register("dlExpiryDate").ref(e);
+                                refs.dlExpiryDate.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.balance)}
+                        />
                     </div>
 
                     <div className="space-y-2">
                         <Label htmlFor="balance" className="font-semibold">Opening Balance</Label>
-                        <Input id="balance" type="number" placeholder="0.00" {...register("balance")} />
+                        <Input
+                            id="balance"
+                            type="number"
+                            placeholder="0.00"
+                            {...register("balance")}
+                            ref={(e) => {
+                                register("balance").ref(e);
+                                refs.balance.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.paymentTerms)}
+                        />
                     </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                         <Label htmlFor="paymentTerms" className="font-semibold">Payment Terms (In Days)</Label>
-                        <Input id="paymentTerms" type="number" placeholder="30" {...register("paymentTerms")} />
+                        <Input
+                            id="paymentTerms"
+                            type="number"
+                            placeholder="30"
+                            {...register("paymentTerms")}
+                            ref={(e) => {
+                                register("paymentTerms").ref(e);
+                                refs.paymentTerms.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.status)}
+                        />
                     </div>
 
                     <div className="space-y-2">
@@ -255,6 +405,11 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                             id="status"
                             className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             {...register("status")}
+                            ref={(e) => {
+                                register("status").ref(e);
+                                refs.status.current = e;
+                            }}
+                            onKeyDown={(e) => handleKeyDown(e, refs.description)}
                         >
                             <option value="Active">Active</option>
                             <option value="Inactive">Inactive</option>
@@ -264,14 +419,28 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
 
                 <div className="space-y-2">
                     <Label htmlFor="description" className="font-semibold">Description (Optional)</Label>
-                    <Input id="description" placeholder="Any additional notes..." {...register("description")} />
+                    <Input
+                        id="description"
+                        placeholder="Any additional notes..."
+                        {...register("description")}
+                        ref={(e) => {
+                            register("description").ref(e);
+                            refs.description.current = e;
+                        }}
+                        onKeyDown={(e) => handleKeyDown(e, refs.submitButton)}
+                    />
                 </div>
 
                 <div className="flex justify-end gap-2 pt-4">
                     <Button type="button" variant="outline" onClick={onClose} className="font-semibold">
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isSubmitting} className="bg-slate-900 text-white hover:bg-slate-800 font-semibold">
+                    <Button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="bg-slate-900 text-white hover:bg-slate-800 font-semibold"
+                        ref={refs.submitButton}
+                    >
                         {isSubmitting ? "Adding..." : "Add Supplier"}
                     </Button>
                 </div>

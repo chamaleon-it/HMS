@@ -27,7 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { RegisterPatient } from "./RegisterPatient";
+import { RegisterPatient } from "../RegisterPatient";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, Pencil } from "lucide-react";
 const Customers: React.FC = () => {
