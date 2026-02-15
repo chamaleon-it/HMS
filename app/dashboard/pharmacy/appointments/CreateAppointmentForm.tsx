@@ -53,11 +53,13 @@ export function CreateAppointmentForm({
     internalNotes: string | null;
     type: "New" | "Follow up";
     status:
-      | "Upcoming"
-      | "Consulted"
-      | "Observation"
-      // | "Completed"
-      | "Not show";
+    | "Upcoming"
+    | "Consulted"
+    | "Observation"
+    | "Completed"
+    | "Not show"
+    | "Admit"
+    | "Test";
     isPaid: boolean;
     createdAt: Date;
     visitCount: number;
@@ -70,8 +72,8 @@ export function CreateAppointmentForm({
       email: string;
     }[];
     message: string;
-  }>("/users/doctors",{
-    revalidateIfStale:false
+  }>("/users/doctors", {
+    revalidateIfStale: false
   });
 
   const {
@@ -92,18 +94,22 @@ export function CreateAppointmentForm({
 
   useEffect(() => {
     if (appointment) {
+      // Safely access properties, as appointment might be a partial object when coming from "Book Follow-up"
+      const doctorId = typeof appointment.doctor === 'object' ? appointment.doctor?._id : appointment.doctor;
+      const patientId = typeof appointment.patient === 'object' ? appointment.patient?._id : appointment.patient;
+
       reset({
-        date: new Date(appointment.date).toISOString(),
-        doctor: appointment.doctor._id,
-        internalNotes: appointment.internalNotes || undefined,
+        date: appointment.date ? new Date(appointment.date).toISOString() : new Date().toISOString(),
+        doctor: doctorId || "",
+        internalNotes: appointment.internalNotes || "",
         isPaid: appointment.isPaid ? "true" : "false",
-        method: appointment.method,
-        notes: appointment.notes || undefined,
-        patient: appointment.patient._id,
-        type: appointment.type,
+        method: appointment.method || "In clinic",
+        notes: appointment.notes || "",
+        patient: patientId || "",
+        type: appointment.type || "New",
       });
     }
-  }, [appointment,reset]);
+  }, [appointment, reset]);
 
   const values = watch();
 
