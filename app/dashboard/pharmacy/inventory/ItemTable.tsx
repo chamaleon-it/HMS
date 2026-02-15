@@ -101,9 +101,7 @@ export default function ItemTable({
           <Table className="whitespace-nowrap">
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">
-                  <Checkbox />
-                </TableHead>
+
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Sl No</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Item Name</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Rack</TableHead>
@@ -133,9 +131,6 @@ export default function ItemTable({
                       : "bg-slate-100 hover:bg-slate-100/60"
                   }
                 >
-                  <TableCell className="py-3 pl-4">
-                    <Checkbox />
-                  </TableCell>
                   <TableCell className="py-3 text-slate-500">{(page - 1) * limit + i + 1}</TableCell>
 
                   <TableCell className="font-medium text-gray-900">
