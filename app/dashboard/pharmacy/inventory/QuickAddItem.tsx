@@ -43,6 +43,9 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
         },
     });
 
+
+    console.log(errors)
+
     const values = watch();
 
     const addItem = handleSubmit(async (data) => {
