@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus } from "lucide-react";
 import React, { RefObject, SetStateAction, useEffect, useMemo, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import useSWR from "swr";
 
 interface Item {
@@ -31,11 +32,17 @@ export default function SelectMedicine({
 
   const [open, setOpen] = useState(false);
   const [highlight, setHighlight] = useState<number>(-1);
+  const [error, setError] = useState(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (medicine && (items.length > 0 || medicine.length > 0)) setOpen(true);
-    else setOpen(false);
+    if (medicine && (items.length > 0 || medicine.length > 0)) {
+      setOpen(true);
+      setError(false);
+    }
+    else {
+      setOpen(false);
+    }
     setHighlight(-1);
   }, [medicine, items]);
 
@@ -51,6 +58,11 @@ export default function SelectMedicine({
   }, []);
 
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && !medicine) {
+      setError(true);
+      toast.error("Please enter medicine name");
+      return;
+    }
     if (!medicine) return;
 
     if (e.key === "ArrowDown") {
@@ -106,7 +118,8 @@ export default function SelectMedicine({
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
         <Input
           placeholder="Type medicine"
-          className="h-10 rounded-xl sm:w-[220px]"
+          className={`h-10 rounded-xl sm:w-[220px] transition-all outline-0 ring-0 focus:outline-0! focus:ring-0!   ${error ? "border-red-500 ring-1 ring-red-500" : ""
+            }`}
           onChange={(e) => setMedicine(e.target.value)}
           value={medicine ?? ""}
           ref={medicineRef}
@@ -121,7 +134,11 @@ export default function SelectMedicine({
           variant="outline"
           className="rounded-xl h-10 gap-1 text-sm bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white"
           onClick={() => {
-            if (!medicine) return;
+            if (!medicine) {
+              setError(true);
+              toast.error("Please enter medicine name");
+              return
+            };
             addItems(medicine);
             setOpen(false);
           }}
@@ -140,9 +157,8 @@ export default function SelectMedicine({
                 onMouseEnter={() => setHighlight(idx)}
                 onMouseLeave={() => setHighlight(-1)}
                 onClick={() => onClickItem(idx)}
-                className={`w-full text-left px-3 py-2 hover:bg-gray-100 flex justify-between ${
-                  highlight === idx ? "bg-gray-100" : ""
-                }`}
+                className={`w-full text-left px-3 py-2 hover:bg-gray-100 flex justify-between ${highlight === idx ? "bg-gray-100" : ""
+                  }`}
               >
                 <div className="truncate">
                   <div className="font-medium text-sm">{it.name}</div>
@@ -163,9 +179,8 @@ export default function SelectMedicine({
               onMouseEnter={() => setHighlight(items.length)}
               onMouseLeave={() => setHighlight(-1)}
               onClick={() => onClickItem(items.length)}
-              className={`w-full text-left px-3 py-2 hover:bg-gray-100 ${
-                highlight === items.length ? "bg-gray-100" : ""
-              }`}
+              className={`w-full text-left px-3 py-2 hover:bg-gray-100 ${highlight === items.length ? "bg-gray-100" : ""
+                }`}
             >
               <div className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
