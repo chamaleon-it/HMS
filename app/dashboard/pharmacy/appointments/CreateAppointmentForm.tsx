@@ -5,7 +5,7 @@ import api from "@/lib/axios";
 import { createAppointmentSchema } from "@/schemas/createAppointmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, UserRound } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import useSWR from "swr";
@@ -63,6 +63,7 @@ export function CreateAppointmentForm({
     isPaid: boolean;
     createdAt: Date;
     visitCount: number;
+    visitId?: string;
   };
 }) {
   const { data } = useSWR<{
@@ -147,6 +148,25 @@ export function CreateAppointmentForm({
     }
   });
 
+  // Refs for keyboard navigation
+  const refs = {
+    patient: useRef<HTMLInputElement>(null),
+    doctor: useRef<HTMLButtonElement>(null),
+    method: useRef<HTMLButtonElement>(null),
+    notes: useRef<HTMLTextAreaElement>(null),
+    type: useRef<HTMLButtonElement>(null),
+    isPaid: useRef<HTMLButtonElement>(null),
+    internalNotes: useRef<HTMLTextAreaElement>(null),
+    submitButton: useRef<HTMLButtonElement>(null),
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<any>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      nextRef.current?.focus();
+    }
+  };
+
   return (
     <form className="space-y-5" onSubmit={createAppointment}>
       <section className="space-y-3">
@@ -159,6 +179,8 @@ export function CreateAppointmentForm({
             setValue={setValue}
             values={values}
             patient={appointment?.patient}
+            ref={refs.patient}
+            onKeyDown={(e) => handleKeyDown(e, refs.doctor)}
           />
           {errors.patient && (
             <p className="text-red-500 text-xs mt-1.5">
@@ -183,6 +205,8 @@ export function CreateAppointmentForm({
               options={
                 data?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
               }
+              ref={refs.doctor}
+              onKeyDown={(e) => handleKeyDown(e, refs.method)}
             />
             {errors.doctor && (
               <p className="text-red-500 text-xs mt-1.5">
@@ -197,6 +221,8 @@ export function CreateAppointmentForm({
               onChange={(v) => setValue("method", v)}
               placeholder="In-clinic / Video / Phone"
               options={METHODS.map((s) => ({ label: s, value: s })) ?? []}
+              ref={refs.method}
+              onKeyDown={(e) => handleKeyDown(e, refs.notes)}
             />
             {errors.method && (
               <p className="text-red-500 text-xs mt-1.5">
@@ -224,6 +250,11 @@ export function CreateAppointmentForm({
               placeholder="Optional"
               {...register("notes")}
               className="mt-2.5"
+              ref={(e) => {
+                register("notes").ref(e);
+                refs.notes.current = e;
+              }}
+              onKeyDown={(e) => handleKeyDown(e, refs.type)}
             />
             {errors.notes && (
               <p className="text-red-500 text-xs mt-1.5">
@@ -252,6 +283,8 @@ export function CreateAppointmentForm({
                   ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
                   []
                 }
+                ref={refs.type}
+                onKeyDown={(e) => handleKeyDown(e, refs.isPaid)}
               />
               {errors.type && (
                 <p className="text-red-500 text-xs mt-1.5">
@@ -270,6 +303,8 @@ export function CreateAppointmentForm({
                   { value: "false", label: "Unpaid" },
                   { value: "true", label: "Paid" },
                 ]}
+                ref={refs.isPaid}
+                onKeyDown={(e) => handleKeyDown(e, refs.internalNotes)}
               />
               {errors.isPaid && (
                 <p className="text-red-500 text-xs mt-1.5">
@@ -285,6 +320,11 @@ export function CreateAppointmentForm({
               placeholder="Visible to staff only"
               {...register("internalNotes")}
               className="mt-2.5"
+              ref={(e) => {
+                register("internalNotes").ref(e);
+                refs.internalNotes.current = e;
+              }}
+              onKeyDown={(e) => handleKeyDown(e, refs.submitButton)}
             />
             {errors.internalNotes && (
               <p className="text-red-500 text-xs mt-1.5">
@@ -299,7 +339,7 @@ export function CreateAppointmentForm({
         <Button variant="ghost" onClick={onClose} type="button">
           Close
         </Button>
-        <Button type="submit">
+        <Button type="submit" ref={refs.submitButton}>
           {appointment?._id ? "Edit" : "Create"} Appointment
         </Button>
       </div>

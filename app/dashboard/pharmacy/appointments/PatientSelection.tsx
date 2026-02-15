@@ -73,7 +73,7 @@ const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
+const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?: (e: React.KeyboardEvent) => void }>(({ setValue, values, patient, onKeyDown: parentOnKeyDown }, ref) => {
   const [input, setInput] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
@@ -143,7 +143,10 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
 
   // Keyboard navigation within the listbox
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!open) return;
+    if (!open) {
+      if (parentOnKeyDown) parentOnKeyDown(e);
+      return;
+    }
     const max = patients.length - 1;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -153,7 +156,12 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
       setActiveIdx((i) => (i > 0 ? i - 1 : max));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      if (patients[activeIdx]) handleSelect(patients[activeIdx]);
+      if (patients[activeIdx]) {
+        handleSelect(patients[activeIdx]);
+      } else {
+        // If no item selected in list, pass Enter to parent
+        if (parentOnKeyDown) parentOnKeyDown(e);
+      }
     }
   };
 
@@ -188,6 +196,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
         <Input
           placeholder="Search or type new"
           value={input}
+          ref={ref}
           onFocus={() => setOpen(true)}
           onChange={(e) => {
             const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
@@ -303,7 +312,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
       </Dialog>
     </div>
   );
-};
+});
 
 export default PatientSelection;
 

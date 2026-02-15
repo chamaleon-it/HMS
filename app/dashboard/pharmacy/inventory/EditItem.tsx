@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { pharmacyItemAddSchema } from "@/schemas/pharmacyItemAddSchema";
@@ -92,6 +92,33 @@ export function EditItem({
 
   const [openCalendar, setOpenCalendar] = useState(false)
 
+  // Refs for keyboard navigation
+  const refs = {
+    name: useRef<HTMLInputElement>(null),
+    generic: useRef<HTMLInputElement>(null),
+    rackLocation: useRef<HTMLInputElement>(null),
+    packing: useRef<HTMLInputElement>(null),
+    hsnCode: useRef<HTMLInputElement>(null),
+    sku: useRef<HTMLInputElement>(null),
+    category: useRef<HTMLButtonElement>(null),
+    supplier: useRef<HTMLInputElement>(null),
+    manufacturer: useRef<HTMLInputElement>(null),
+    purchasePrice: useRef<HTMLInputElement>(null),
+    unitPrice: useRef<HTMLInputElement>(null),
+    gst: useRef<HTMLInputElement>(null),
+    openingStockQuantity: useRef<HTMLInputElement>(null),
+    expiryDate: useRef<HTMLButtonElement>(null),
+    status: useRef<HTMLButtonElement>(null),
+    saveButton: useRef<HTMLButtonElement>(null),
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<any>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      nextRef.current?.focus();
+    }
+  };
+
   return (
     <form
       onSubmit={editItem}
@@ -113,6 +140,12 @@ export function EditItem({
             placeholder="e.g. T Dolo 650 mg"
             className="mt-1"
             {...register("name")}
+            ref={(e) => {
+              register("name").ref(e);
+              refs.name.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.generic)}
+            autoFocus
           />
           {errors.name && (
             <p className="text-xs text-red-600 my-1">{errors.name.message}</p>
@@ -130,6 +163,11 @@ export function EditItem({
             placeholder="e.g. Paracetamol / Acetaminophen"
             className="mt-1"
             {...register("generic")}
+            ref={(e) => {
+              register("generic").ref(e);
+              refs.generic.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.rackLocation)}
           />
           {errors.generic && (
             <p className="text-xs text-red-600 my-1">
@@ -151,6 +189,11 @@ export function EditItem({
             placeholder="e.g. Rack 001"
             className="mt-1"
             {...register("rackLocation")}
+            ref={(e) => {
+              register("rackLocation").ref(e);
+              refs.rackLocation.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.packing)}
           />
           {errors.rackLocation && (
             <p className="text-xs text-red-600 my-1">
@@ -167,6 +210,11 @@ export function EditItem({
             placeholder="e.g. 100"
             className="mt-1"
             {...register("packing")}
+            ref={(e) => {
+              register("packing").ref(e);
+              refs.packing.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.hsnCode)}
           />
           {errors.packing && (
             <p className="text-xs text-red-600 my-1">
@@ -183,6 +231,11 @@ export function EditItem({
             placeholder="e.g. 30045010"
             className="mt-1"
             {...register("hsnCode")}
+            ref={(e) => {
+              register("hsnCode").ref(e);
+              refs.hsnCode.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.sku)}
           />
           {errors.hsnCode && (
             <p className="text-xs text-red-600 my-1">
@@ -199,6 +252,11 @@ export function EditItem({
             placeholder="e.g. MED001"
             className="mt-1"
             {...register("sku")}
+            ref={(e) => {
+              register("sku").ref(e);
+              refs.sku.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.category)}
           />
           {errors.sku && (
             <p className="text-xs text-red-600 my-1">{errors.sku.message}</p>
@@ -213,7 +271,7 @@ export function EditItem({
             onValueChange={(value) => setValue("category", value)}
             defaultValue={item.category}
           >
-            <SelectTrigger className="mt-1 w-full">
+            <SelectTrigger className="mt-1 w-full" ref={refs.category} onKeyDown={(e) => handleKeyDown(e, refs.supplier)}>
               <SelectValue placeholder="Select" />
             </SelectTrigger>
             <SelectContent>
@@ -237,6 +295,11 @@ export function EditItem({
             placeholder="e.g. ABC Pharma"
             className="mt-1"
             {...register("supplier")}
+            ref={(e) => {
+              register("supplier").ref(e);
+              refs.supplier.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.manufacturer)}
           />
           {errors.supplier && (
             <p className="text-xs text-red-600 my-1">
@@ -253,6 +316,11 @@ export function EditItem({
             placeholder="e.g. ABC Pharma"
             className="mt-1"
             {...register("manufacturer")}
+            ref={(e) => {
+              register("manufacturer").ref(e);
+              refs.manufacturer.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
           />
           {errors.manufacturer && (
             <p className="text-xs text-red-600 my-1">
@@ -271,6 +339,11 @@ export function EditItem({
             placeholder="e.g. 2.50"
             className="mt-1"
             {...register("purchasePrice")}
+            ref={(e) => {
+              register("purchasePrice").ref(e);
+              refs.purchasePrice.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
           />
           {errors.purchasePrice && (
             <p className="text-xs text-red-600 my-1">
@@ -289,6 +362,11 @@ export function EditItem({
             placeholder="e.g. 2.50"
             className="mt-1"
             {...register("unitPrice")}
+            ref={(e) => {
+              register("unitPrice").ref(e);
+              refs.unitPrice.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.gst)}
           />
           {errors.unitPrice && (
             <p className="text-xs text-red-600 my-1">
@@ -307,6 +385,11 @@ export function EditItem({
             placeholder="e.g. 5"
             className="mt-1"
             {...register("gst")}
+            ref={(e) => {
+              register("gst").ref(e);
+              refs.gst.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.openingStockQuantity)}
           />
           {errors.gst && (
             <p className="text-xs text-red-600 my-1">
@@ -324,6 +407,11 @@ export function EditItem({
             placeholder="e.g. 100"
             className="mt-1"
             {...register("openingStockQuantity")}
+            ref={(e) => {
+              register("openingStockQuantity").ref(e);
+              refs.openingStockQuantity.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.expiryDate)}
           />
           {errors.openingStockQuantity && (
             <p className="text-xs text-red-600 my-1">
@@ -343,6 +431,8 @@ export function EditItem({
                 variant="outline"
                 id="date"
                 className="w-full justify-between font-normal"
+                ref={refs.expiryDate}
+                onKeyDown={(e) => handleKeyDown(e, refs.status)}
               >
                 {values.expiryDate ? (() => {
                   const d = new Date(values.expiryDate);
@@ -426,7 +516,7 @@ export function EditItem({
               setValue("status", value)
             }
           >
-            <SelectTrigger className="mt-1 w-full">
+            <SelectTrigger className="mt-1 w-full" ref={refs.status} onKeyDown={(e) => handleKeyDown(e, refs.saveButton)}>
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -443,7 +533,7 @@ export function EditItem({
 
 
       <div className="flex gap-2">
-        <Button className="bg-indigo-600 text-white flex-1" type="submit">
+        <Button className="bg-indigo-600 text-white flex-1" type="submit" ref={refs.saveButton}>
           Save Changes
         </Button>
         <Button

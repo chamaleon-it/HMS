@@ -25,7 +25,7 @@ import { fDate } from "@/lib/fDateAndTime"
 import { formatINR } from "@/lib/fNumber"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ChevronDownIcon, Loader2, PackagePlus } from "lucide-react"
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import {
     Tooltip,
     TooltipContent,
@@ -75,8 +75,22 @@ export default function UpdateBatch({ item, mutate }: Props) {
 
     const expiryDate = watch("expiryDate");
 
+    // Refs for keyboard navigation
+    const refs = {
+        batchNumber: useRef<HTMLInputElement>(null),
+        expiryDate: useRef<HTMLButtonElement>(null),
+        quantity: useRef<HTMLInputElement>(null),
+        purchasePrice: useRef<HTMLInputElement>(null),
+        supplier: useRef<HTMLInputElement>(null),
+        addButton: useRef<HTMLButtonElement>(null),
+    };
 
-
+    const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<any>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            nextRef.current?.focus();
+        }
+    };
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -86,6 +100,8 @@ export default function UpdateBatch({ item, mutate }: Props) {
                 supplier: item.supplier
             });
             mutate();
+            // Focus back on first field for next entry
+            refs.batchNumber.current?.focus();
         } catch (error) {
             console.error(error);
             toast.error("Failed to add batch");
@@ -142,6 +158,12 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     {...register("batchNumber")}
                                     placeholder="e.g. BATCH001"
                                     className="mt-1 h-9"
+                                    ref={(e) => {
+                                        register("batchNumber").ref(e);
+                                        refs.batchNumber.current = e;
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.expiryDate)}
+                                    autoFocus
                                 />
                                 {errors.batchNumber && <p className="text-xs text-red-500 mt-1">{errors.batchNumber.message}</p>}
                             </div>
@@ -153,6 +175,8 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         <Button
                                             variant="outline"
                                             className="w-full justify-between font-normal mt-1 h-9"
+                                            ref={refs.expiryDate}
+                                            onKeyDown={(e) => handleKeyDown(e, refs.quantity)}
                                         >
                                             {expiryDate ? fDate(expiryDate) : "Select date"}
                                             <ChevronDownIcon className="h-4 w-4 opacity-50" />
@@ -169,6 +193,8 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                             onSelect={(date) => {
                                                 if (date) setValue("expiryDate", date);
                                                 setOpenCalander(false);
+                                                // Move focus to next field after selection
+                                                refs.quantity.current?.focus();
                                             }}
                                             initialFocus
                                         />
@@ -184,6 +210,11 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     {...register("quantity")}
                                     placeholder="e.g. 100"
                                     className="mt-1 h-9"
+                                    ref={(e) => {
+                                        register("quantity").ref(e);
+                                        refs.quantity.current = e;
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
                                 />
                                 {errors.quantity && <p className="text-xs text-red-500 mt-1">{errors.quantity.message}</p>}
                             </div>
@@ -196,6 +227,11 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     {...register("purchasePrice")}
                                     placeholder="e.g. 10.50"
                                     className="mt-1 h-9"
+                                    ref={(e) => {
+                                        register("purchasePrice").ref(e);
+                                        refs.purchasePrice.current = e;
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.supplier)}
                                 />
                                 {errors.purchasePrice && <p className="text-xs text-red-500 mt-1">{errors.purchasePrice.message}</p>}
                             </div>
@@ -206,11 +242,16 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     {...register("supplier")}
                                     placeholder="e.g. ABC Pharma"
                                     className="mt-1 h-9"
+                                    ref={(e) => {
+                                        register("supplier").ref(e);
+                                        refs.supplier.current = e;
+                                    }}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.addButton)}
                                 />
                             </div>
 
                             <div className="col-span-2 flex justify-end mt-2">
-                                <Button type="submit" size="sm" disabled={isSubmitting}>
+                                <Button type="submit" size="sm" disabled={isSubmitting} ref={refs.addButton}>
                                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Add Batch
                                 </Button>
