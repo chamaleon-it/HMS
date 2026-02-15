@@ -16,7 +16,7 @@ import PatientSelection from "./PatientSelection";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { RegisterPatient } from "./RegisterPatient";
+import { RegisterPatient } from "../RegisterPatient";
 
 export default function NewOrder({ mutate }: { mutate: () => void }) {
   const { user } = useAuth();
