@@ -220,9 +220,9 @@ export default function ItemTable({
                       <UpdateBatch item={item} mutate={mutate} />
 
                       <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <AlertDialogTrigger asChild>
                               <Button
                                 size="icon"
                                 variant="ghost"
@@ -230,10 +230,10 @@ export default function ItemTable({
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>Delete Item</TooltipContent>
-                          </Tooltip>
-                        </AlertDialogTrigger>
+                            </AlertDialogTrigger>
+                          </TooltipTrigger>
+                          <TooltipContent>Delete Item</TooltipContent>
+                        </Tooltip>
 
                         <AlertDialogContent className="max-w-sm!">
                           <AlertDialogHeader>
