@@ -53,6 +53,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     priority: "Normal",
     status: "Pending",
     pharmacists: "",
+    allergies: undefined
   });
 
   useEffect(() => {
@@ -134,7 +135,6 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const [showAllFields, setShowAllFields] = useState(false);
   const [patientName, setpatientName] = useState("")
   const [hasAllergy, setHasAllergy] = useState(false);
-  const [allergyDetails, setAllergyDetails] = useState("");
 
   const router = useRouter()
 
@@ -239,8 +239,8 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
                           <Input
                             id="allergy-input"
                             placeholder="Specify medical/food allergies..."
-                            value={allergyDetails}
-                            onChange={(e) => setAllergyDetails(e.target.value)}
+                            value={payload.allergies}
+                            onChange={(e) => setPayload((prev) => ({ ...prev, allergies: e.target.value }))}
                             className="h-9 focus:ring-amber-500/20 focus:border-amber-400 bg-white border-amber-100 placeholder:text-slate-400 text-sm"
                           />
                           <p className="text-[10px] text-amber-600 font-medium px-1">

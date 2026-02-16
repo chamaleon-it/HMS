@@ -96,4 +96,5 @@ export interface DataType {
     priority: string;
     status: string;
     pharmacists?: string;
+    allergies?: string;
 }
