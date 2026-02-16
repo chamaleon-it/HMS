@@ -21,7 +21,7 @@ export default function Header() {
       <header className="sticky top-0 z-40 backdrop-blur-md w-full print:hidden">
         {/* Background glow (subtle) */}
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-28">
-          <div className="mx-auto h-full w-full max-w-screen-2xl opacity-40 [mask-image:radial-gradient(60%_60%_at_50%_0%,#000_0%,transparent_70%)]">
+          <div className="mx-auto h-full w-full max-w-screen-2xl opacity-40 mask-[radial-gradient(60%_60%_at_50%_0%,#000_0%,transparent_70%)]">
             <div className="h-full w-full bg-[radial-gradient(1000px_200px_at_15%_-20%,#818cf8_12%,transparent_60%),radial-gradient(1000px_200px_at_85%_-20%,#e879f9_12%,transparent_60%)]" />
           </div>
         </div>
@@ -30,7 +30,7 @@ export default function Header() {
         <div className="flex h-16 items-center justify-between border-b border-slate-200/70 px-4 sm:px-8 bg-white/85">
           {/* Brand */}
           <div className="flex items-center gap-3 pr-2" data-testid="brand">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">
+            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">
               S
             </div>
             <div className="hidden md:block leading-tight">
@@ -71,7 +71,7 @@ export default function Header() {
 
         {/* Bottom divider (slimmer) */}
         <div
-          className="h-[3px] bg-gradient-to-r from-indigo-600/15 via-fuchsia-600/15 to-indigo-600/15"
+          className="h-[3px] bg-linear-to-r from-indigo-600/15 via-fuchsia-600/15 to-indigo-600/15"
           data-testid="header-divider"
         />
       </header>
