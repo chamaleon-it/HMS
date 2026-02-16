@@ -238,7 +238,7 @@ function ActionButtons({ id, onStatusUpdate, onEdit, onDelete }: any) {
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Admit")}>Mark Admit</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Test")}>Mark Test</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "No Show")} className="text-red-600 focus:text-red-700 focus:bg-red-50">Mark No Show</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Not show")} className="text-red-600 focus:text-red-700 focus:bg-red-50">Mark Not Show</DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={onDelete} className="text-red-600 focus:text-red-700 focus:bg-red-50">
             <Trash2 className="w-4 h-4 mr-2" /> Delete
