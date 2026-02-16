@@ -806,7 +806,7 @@ const Customer: React.FC = () => {
                                                         className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
                                                         asChild
                                                     >
-                                                        <Link href={`/dashboard/pharmacy/return/?mrn=${selectedVisit?.mrn}`}>
+                                                        <Link href={selectedVisit.billNo ? `/dashboard/pharmacy/return/?mrn=${selectedVisit?.billNo}` : `#`}>
                                                             Return
                                                         </Link>
                                                     </Button>

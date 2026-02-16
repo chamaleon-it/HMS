@@ -311,6 +311,43 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         }
     };
 
+    const handlePaymentUpdate = async () => {
+        if (!updatePayload) return;
+
+        const payload = {
+            orderId: updatePayload._id,
+            paidAmount: 0,
+            paymentStatus: "Partial",
+            paymentReference: referenceNumber
+        }
+
+        if (paymentMethod === "UPI" || paymentMethod === "Cash") {
+            payload.paymentStatus = "Paid";
+            payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0;
+        } else {
+            payload.paymentStatus = "Partial";
+            payload.paidAmount = Number(amountPaid);
+        }
+
+        try {
+            const { data: response } = await toast.promise(
+                api.patch<{ data: OrderType }>("/pharmacy/orders/update_payment", payload),
+                {
+                    loading: "Updating payment...",
+                    success: "Payment updated successfully",
+                    error: "Failed to update payment"
+                }
+            )
+            OrderMutate()
+            if (response?.data) {
+                setLocalOrder(response.data)
+                setUpdatePayload(response.data)
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
     if (!localOrder || !updatePayload) return null;
 
     return (
@@ -333,7 +370,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     />
 
                     {/* Payment Details Section */}
-                    {order?.paymentStatus !== "Paid" && <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
+                    {localOrder?.paymentStatus !== "Paid" && <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Payment Details</h3>
                             <div className="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border">
@@ -394,6 +431,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         placeholder="Enter amount from customer"
                                         value={amountPaid}
                                         onChange={(e) => setAmountPaid(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
                                         className="h-11 bg-white border-slate-200 rounded-lg focus:ring-emerald-500/20"
                                     />
                                 </div>
@@ -423,15 +461,22 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         placeholder="0.00"
                                         value={amountPaid}
                                         onChange={(e) => setAmountPaid(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                document.getElementById("partial-reference-input")?.focus();
+                                            }
+                                        }}
                                         className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reference / Bill No.</Label>
                                     <Input
+                                        id="partial-reference-input"
                                         placeholder="Enter reference if any"
                                         value={referenceNumber}
                                         onChange={(e) => setReferenceNumber(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
                                         className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
                                     />
                                 </div>
@@ -446,6 +491,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                     placeholder="Enter UPI transaction ID"
                                     value={referenceNumber}
                                     onChange={(e) => setReferenceNumber(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
                                     className="h-11 bg-white border-slate-200 rounded-lg focus:ring-indigo-500/20"
                                 />
                             </div>
@@ -453,41 +499,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         <div className="flex justify-end">
 
                             <Button
-                                onClick={async () => {
-                                    const payload = {
-                                        orderId: updatePayload._id,
-                                        paidAmount: 0,
-                                        paymentStatus: "Partial",
-                                        paymentReference: referenceNumber
-                                    }
-
-                                    if (paymentMethod === "UPI" || paymentMethod === "Cash") {
-                                        payload.paymentStatus = "Paid";
-                                        payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0;
-                                    } else {
-                                        payload.paymentStatus = "Partial";
-                                        payload.paidAmount = Number(amountPaid);
-                                    }
-
-                                    try {
-                                        const { data: response } = await toast.promise(
-                                            api.patch<{ data: OrderType }>("/pharmacy/orders/update_payment", payload),
-                                            {
-                                                loading: "Updating payment...",
-                                                success: "Payment updated successfully",
-                                                error: "Failed to update payment"
-                                            }
-                                        )
-                                        OrderMutate()
-                                        if (response?.data) {
-                                            setLocalOrder(response.data)
-                                            setUpdatePayload(response.data)
-                                        }
-                                    } catch (error) {
-                                        console.log(error)
-                                    }
-
-                                }}
+                                onClick={handlePaymentUpdate}
                                 className="bg-emerald-600 hover:bg-emerald-700 text-white">
                                 Update Payment
                             </Button>

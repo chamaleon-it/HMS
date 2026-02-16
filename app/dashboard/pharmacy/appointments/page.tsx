@@ -23,6 +23,8 @@ import useSWR, { useSWRConfig } from "swr";
 import { User, Calendar as CalendarIcon, Clock as ClockIcon, Phone, Mail, MapPin, X } from "lucide-react";
 import { motion } from "framer-motion";
 
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
+
 // ... existing imports ...
 
 const APPOINTMENT_STATUSES = [
@@ -286,7 +288,18 @@ export default function AppointmentPage() {
 
   const { mutate } = useAppointmentList({ query, activeStatuses, date });
   const { mutate: globalMutate } = useSWRConfig();
-  const [tab, setTab] = useState<"list" | "calendar">("list");
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const tab = (searchParams.get("tab") as "list" | "calendar") || "list";
+
+  const setTab = (newTab: "list" | "calendar") => {
+    const params = new URLSearchParams(searchParams);
+    params.set("tab", newTab);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   // Doctor Selection (Calendar View)
   const { data: doctorsData } = useSWR("/users/doctors");

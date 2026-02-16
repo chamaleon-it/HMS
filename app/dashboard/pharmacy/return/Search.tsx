@@ -61,7 +61,7 @@ export default function Search({
             <div className="flex flex-col">
               <span className="uppercase tracking-wide">Invoice No</span>
               <span className="text-slate-900 font-medium text-xs">
-                {order?.mrn}
+                {order?.billNo}
               </span>
             </div>
             <div className="flex flex-col text-right">
