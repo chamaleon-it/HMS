@@ -129,7 +129,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
 
   return (
     <div ref={rootRef} className="relative w-full max-w-[500px]">
-      <Label className="block">Customer Name</Label>
+      <Label className="block">Customer Name <span className="text-xs">*</span></Label>
 
       <div
         role="combobox"
