@@ -121,7 +121,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                     <div className="mt-10 flex justify-end">
                         <div className="text-center w-64">
                             <div className="border-b-2 border-slate-900 mb-2 w-full"></div>
-                            <p className="font-black text-slate-900 uppercase tracking-tight leading-none tracking-tighter">DR. {doctor?.name || "—"}</p>
+                            <p className="font-black text-slate-900 uppercase leading-none tracking-tighter">DR. {doctor?.name || "—"}</p>
                             <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{doctor?.specialization || "SPECIALIST"}</p>
                         </div>
                     </div>
