@@ -8,7 +8,7 @@ import { CalendarDays, UserRound } from "lucide-react";
 import React, { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import DateTimePicker from "./DateTimePicker";
 import PatientSelection from "./PatientSelection";
 import Select from "./AppointmentSelect";
@@ -93,6 +93,24 @@ export function CreateAppointmentForm({
     },
   });
 
+  const { mutate: globalMutate } = useSWRConfig();
+
+  const refreshCalendars = async () => {
+    // Invalidate monthly calendar
+    await globalMutate(
+      (key) => typeof key === 'string' && key.startsWith('/appointments/calender-monthly'),
+      undefined,
+      { revalidate: true }
+    );
+
+    // Invalidate weekly calendar (which has query params)
+    await globalMutate(
+      (key) => typeof key === 'string' && key.startsWith('/appointments/calender/weekly'),
+      undefined,
+      { revalidate: true }
+    );
+  };
+
   useEffect(() => {
     if (appointment) {
       // Safely access properties, as appointment might be a partial object when coming from "Book Follow-up"
@@ -130,6 +148,7 @@ export function CreateAppointmentForm({
         if (mutate) {
           mutate();
         }
+        await refreshCalendars();
 
         return;
       }
@@ -143,6 +162,7 @@ export function CreateAppointmentForm({
       if (mutate) {
         mutate();
       }
+      await refreshCalendars();
     } catch (error) {
       console.log(error);
     }
@@ -340,7 +360,7 @@ export function CreateAppointmentForm({
           Close
         </Button>
         <Button type="submit" ref={refs.submitButton}>
-          {appointment?._id ? "Edit" : "Create"} Appointment
+          {appointment?._id ? "Save" : "Create"} Appointment
         </Button>
       </div>
     </form>
