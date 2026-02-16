@@ -47,16 +47,16 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
 
             <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col">
                 {/* HEADER */}
-                <div className="bg-black text-white px-10 py-8">
+                <div className="bg-white text-slate-900 border-b border-slate-200 px-10 py-8">
                     <div className="flex justify-between items-start">
                         <HospitalName />
                         <div className="text-right space-y-2">
-                            <span className="inline-block bg-white text-slate-900 text-[10px] px-3 py-1 rounded-full font-black tracking-widest uppercase">
+                            <span className="inline-block bg-slate-900 text-white text-[10px] px-3 py-1 rounded-full font-black tracking-widest uppercase hover:bg-slate-800 transition-colors">
                                 PRESCRIPTION
                             </span>
                             <div className="space-y-0.5">
                                 <p className="text-sm font-bold">{fDateandTime(new Date()).split(",")[0]}</p>
-                                <p className="text-[10px] opacity-80 tracking-widest">DRUG ADVICE PAGE</p>
+                                <p className="text-[10px] text-slate-500 tracking-widest font-semibold">DRUG ADVICE PAGE</p>
                             </div>
                         </div>
                     </div>
@@ -128,15 +128,15 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-black px-10 py-6 text-[10px] text-slate-400 flex justify-between items-center normal-case">
+                <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 text-[10px] text-slate-500 flex justify-between items-center normal-case">
                     <div className="space-y-1">
-                        <p className="text-slate-300 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
-                        <p className="text-slate-500">
-                            For Appointments / Booking: <span className="text-slate-400 font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
+                        <p className="text-slate-700 font-bold">This prescription is valid only if signed by registered medical practitioner</p>
+                        <p className="text-slate-500 font-medium">
+                            For Appointments / Booking: <span className="text-slate-700 font-bold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
                         </p>
                     </div>
-                    <p className="text-slate-500">
-                        Powered by <span className="font-bold text-slate-300 tracking-tight uppercase">Synapse IT Services LLP</span>
+                    <p className="text-slate-500 font-medium">
+                        Powered by <span className="font-bold text-slate-700 tracking-tight uppercase">Synapse IT Services LLP</span>
                     </p>
                 </div>
             </div>
