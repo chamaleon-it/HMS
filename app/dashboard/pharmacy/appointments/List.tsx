@@ -85,6 +85,8 @@ export default function List({
     }
   };
 
+
+  console.log(filteredData)
   return (
     <div className="bg-white border text-sm rounded-xl overflow-hidden shadow-sm mt-4">
       <Table>
@@ -131,8 +133,10 @@ export default function List({
                     <div className="flex items-center gap-3">
                       <div className="relative shrink-0">
                         <Avatar text={row.patient.name} />
-                        {isNew && (
+                        {row.visitCount === 1 ? (
                           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[9px] font-bold px-1 py-0 rounded-full ring-2 ring-white">N</span>
+                        ) : (
+                          <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[9px] font-bold px-1 py-0 rounded-full ring-2 ring-white">R</span>
                         )}
                       </div>
                       <div className="min-w-0 max-w-[200px]">
