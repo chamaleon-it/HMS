@@ -29,7 +29,7 @@ import api from "@/lib/axios";
 import UpdatePrescriptionCard from "./UpdatePrescriptionCard";
 import useSWR from "swr";
 import Link from "next/link";
-import { AlertTriangle, Banknote, QrCode, AlertCircle } from "lucide-react";
+import { AlertTriangle, Banknote, QrCode, AlertCircle, IndianRupee } from "lucide-react";
 
 
 interface Props {
@@ -401,8 +401,14 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     {localOrder?.paymentStatus !== "Paid" && <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Payment Details</h3>
-                            <div className="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border">
-                                Total Amount: <span className="text-slate-900 font-bold">{formatINR(updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0) || 0)}</span>
+                            <div className="flex flex-col items-end justify-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm min-w-[140px]">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Total Amount</span>
+                                <div className="flex items-center text-slate-900">
+                                    <IndianRupee className="w-5 h-5 stroke-[2.5] mr-0.5 text-slate-400" />
+                                    <span className="text-xl font-extrabold leading-none tracking-tight">
+                                        {formatINR(Math.max(0, (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0)).replace("₹", "")}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
