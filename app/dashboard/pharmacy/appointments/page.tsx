@@ -456,7 +456,7 @@ export default function AppointmentPage() {
   return (
     <AppShell>
       <div className="p-0 sm:p-5 h-[calc(100vh-80px)] overflow-hidden flex flex-col">
-        <div className="shrink-0 mb-4 px-4 sm:px-0">
+        <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
           <PharmacyHeader
             title="Appointments"
             subtitle="Manage patient appointments and schedules"
@@ -497,11 +497,11 @@ export default function AppointmentPage() {
         </div>
 
         {/* Statistics - Only show on List view to save space? Or make it collapsible? User requested optimizing blank space. */}
-        {tab === 'list' && <div className="shrink-0 mb-5 px-4 sm:px-0"><Statistics /></div>}
+        {tab === 'list' && <div className="shrink-0 mb-5 px-4 sm:px-0 print:hidden"><Statistics /></div>}
 
         {/* Filters Row */}
         {tab === 'list' &&
-          <div className="shrink-0 mb-4 px-4 sm:px-0">
+          <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
             <Filter
               activeStatuses={activeStatuses}
               query={query}
@@ -514,7 +514,7 @@ export default function AppointmentPage() {
         }
 
         {/* Tabs and Content */}
-        <div className="flex flex-col flex-1 overflow-hidden px-4 sm:px-0">
+        <div className="flex flex-col flex-1 overflow-hidden px-4 sm:px-0 print:hidden">
           <Tabs
             value={tab}
             onValueChange={(val) => setTab(val as "list" | "calendar")}

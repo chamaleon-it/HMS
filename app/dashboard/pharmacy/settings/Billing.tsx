@@ -35,6 +35,7 @@ export default function Billing({
     roundOff: false,
     autoPrintAfterSave: false,
     autoGenerateBill: false,
+    autoGeneratePrescription: false,
   });
 
   useEffect(() => {
@@ -46,6 +47,8 @@ export default function Billing({
       autoPrintAfterSave:
         profile?.pharmacy?.billing?.autoPrintAfterSave ?? false,
       autoGenerateBill: profile?.pharmacy?.billing?.autoGenerateBill ?? false,
+      autoGeneratePrescription:
+        profile?.pharmacy?.billing?.autoGeneratePrescription ?? false,
     }));
   }, [profile]);
 
@@ -178,6 +181,24 @@ export default function Billing({
                 checked={payload.autoGenerateBill}
                 onCheckedChange={(v) =>
                   setPayload((prev) => ({ ...prev, autoGenerateBill: v }))
+                }
+              />
+            </div>
+
+
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-slate-900">
+                  Auto-generate Blank Prescription
+                </p>
+                <p className="text-xs text-slate-500">
+                  Automatically generate a printable blank prescription when an appointment is created.
+                </p>
+              </div>
+              <Switch
+                checked={payload.autoGeneratePrescription}
+                onCheckedChange={(v) =>
+                  setPayload((prev) => ({ ...prev, autoGeneratePrescription: v }))
                 }
               />
             </div>
