@@ -18,7 +18,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 backdrop-blur-md w-full">
+      <header className="sticky top-0 z-40 backdrop-blur-md w-full print:hidden">
         {/* Background glow (subtle) */}
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-28">
           <div className="mx-auto h-full w-full max-w-screen-2xl opacity-40 [mask-image:radial-gradient(60%_60%_at_50%_0%,#000_0%,transparent_70%)]">

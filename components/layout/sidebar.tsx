@@ -216,7 +216,7 @@ export function Sidebar() {
   return (
     <aside
       className={
-        "sticky top-0 h-screen transition-all duration-300 flex flex-col border-r border-slate-200/80 shrink-0 " +
+        "sticky top-0 h-screen transition-all duration-300 flex flex-col border-r border-slate-200/80 shrink-0 print:hidden " +
         (collapsed ? "w-20" : "w-72")
       }
       style={{

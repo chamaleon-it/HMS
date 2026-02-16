@@ -12,6 +12,7 @@ import useSWR, { useSWRConfig } from "swr";
 import DateTimePicker from "./DateTimePicker";
 import PatientSelection from "./PatientSelection";
 import Select from "./AppointmentSelect";
+import BlankPrescription from "./BlankPrescription";
 const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({
@@ -66,7 +67,7 @@ export function CreateAppointmentForm({
     visitId?: string;
   };
 }) {
-  const { data } = useSWR<{
+  const { data: doctorsData } = useSWR<{
     data: {
       _id: string;
       name: string;
@@ -132,6 +133,32 @@ export function CreateAppointmentForm({
 
   const values = watch();
 
+  const { data: profile } = useSWR<{
+    data: {
+      pharmacy: {
+        billing: {
+          autoGeneratePrescription: boolean
+        }
+      }
+    },
+    message: string
+  }>("/users/profile");
+
+  const autoGeneratePrescription = profile?.data?.pharmacy?.billing?.autoGeneratePrescription || false;
+
+  const [printData, setPrintData] = React.useState<any>(null);
+
+  useEffect(() => {
+    if (printData) {
+      setTimeout(() => {
+        window.print();
+        setPrintData(null);
+        onClose();
+      }, 500);
+    }
+  }, [printData, onClose]);
+
+
   const createAppointment = handleSubmit(async (data) => {
     try {
       if (appointment?._id) {
@@ -152,16 +179,43 @@ export function CreateAppointmentForm({
 
         return;
       }
-      await toast.promise(api.post("/appointments", data), {
+      const res = await toast.promise(api.post("/appointments", data), {
         loading: "Please wait, We are creating an appointment",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
+
+      if (autoGeneratePrescription) {
+        try {
+          const createdId = res.data?.data?._id;
+          if (createdId) {
+            const { data: fullAppt } = await api.get(`/appointments/single/${createdId}`);
+            let printPayload = fullAppt.data;
+            if (typeof printPayload.doctor === 'string') {
+              const selectedDoctor = doctorsData?.data.find((d) => d._id === printPayload.doctor);
+              if (selectedDoctor) {
+                printPayload = { ...printPayload, doctor: selectedDoctor };
+              }
+            }
+            setPrintData(printPayload);
+            await refreshCalendars();
+            if (mutate) mutate();
+            reset();
+            // Don't close here, wait for print effect
+            return;
+          }
+        } catch (err) {
+          console.error("Failed to prepare prescription print", err);
+          // Fallback simple close if print prep fails
+        }
+      }
+
       reset();
       onClose();
       if (mutate) {
         mutate();
       }
+
       await refreshCalendars();
     } catch (error) {
       console.log(error);
@@ -189,7 +243,7 @@ export function CreateAppointmentForm({
 
   return (
     <form className="space-y-5" onSubmit={createAppointment}>
-      <section className="space-y-3">
+      <section className="space-y-3 print:hidden">
         <div className="flex items-center gap-2">
           <UserRound className="h-4 w-4" />
           <h3 className="font-medium">Patient</h3>
@@ -210,7 +264,7 @@ export function CreateAppointmentForm({
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-3 print:hidden">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-4 w-4" />
           <h3 className="font-medium">Appointment</h3>
@@ -223,7 +277,7 @@ export function CreateAppointmentForm({
               onChange={(v) => setValue("doctor", v, { shouldValidate: true })}
               placeholder="Choose doctor"
               options={
-                data?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
+                doctorsData?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
               }
               ref={refs.doctor}
               onKeyDown={(e) => handleKeyDown(e, refs.method)}
@@ -285,7 +339,7 @@ export function CreateAppointmentForm({
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-3 print:hidden">
         <div className="flex items-center justify-between">
           <h3 className="font-medium">Advanced</h3>
         </div>
@@ -355,7 +409,7 @@ export function CreateAppointmentForm({
         </div>
       </section>
 
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex items-center justify-between pt-2 print:hidden">
         <Button variant="ghost" onClick={onClose} type="button">
           Close
         </Button>
@@ -363,6 +417,7 @@ export function CreateAppointmentForm({
           {appointment?._id ? "Save" : "Create"} Appointment
         </Button>
       </div>
+      {printData && <BlankPrescription data={printData} />}
     </form>
   );
 }
