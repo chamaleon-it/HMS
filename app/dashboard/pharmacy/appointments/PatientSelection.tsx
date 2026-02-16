@@ -23,6 +23,8 @@ import { Button } from "@/components/ui/button";
 import { UseFormSetValue } from "react-hook-form";
 import useSWR from "swr";
 
+import api from "@/lib/axios";
+
 type Patient = {
   _id: string;
   name: string;
@@ -126,7 +128,7 @@ const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?
   const handleSelect = useCallback(
     (p: Patient) => {
       setSelected(p);
-      setValue("patient", p._id);
+      setValue("patient", p._id, { shouldValidate: true });
       setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
       setOpen(false);
     },
@@ -301,10 +303,22 @@ const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
           <RegisterPatient
-            onClose={(id?: string, name?: string) => {
+            patient={{ name: input }}
+            onClose={async (id?: string, name?: string) => {
               setOpenCreate(false);
               if (id && name) {
-                handleSelect({ _id: id, name, mrn: "" }); // mrn might be empty initially, but ID is what matters
+                // Immediately select with available data
+                handleSelect({ _id: id, name, mrn: "" });
+
+                // Fetch full details (MRN, etc.) in background
+                try {
+                  const { data } = await api.get(`/patients/${id}`);
+                  if (data && data.data) {
+                    handleSelect(data.data);
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch full patient details", error);
+                }
               }
             }}
           />

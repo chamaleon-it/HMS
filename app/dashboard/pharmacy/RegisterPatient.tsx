@@ -330,12 +330,12 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             <Input
               ref={refs.age}
               type="number"
-              placeholder="Age"
+              placeholder="0"
               onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
               value={
                 dateOfBirth
-                  ? new Date().getFullYear() -
-                  new Date(dateOfBirth).getFullYear()
+                  ? (new Date().getFullYear() -
+                    new Date(dateOfBirth).getFullYear() || "")
                   : ""
               }
               onChange={(e) => {
@@ -349,6 +349,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   );
                   setValue("dateOfBirth", newDob.toISOString());
                 } else {
+                  setValue("dateOfBirth", new Date().toISOString());
                 }
               }}
             />

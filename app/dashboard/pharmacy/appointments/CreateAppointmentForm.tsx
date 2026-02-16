@@ -220,7 +220,7 @@ export function CreateAppointmentForm({
             <Label>Doctor</Label>
             <Select
               value={values.doctor}
-              onChange={(v) => setValue("doctor", v)}
+              onChange={(v) => setValue("doctor", v, { shouldValidate: true })}
               placeholder="Choose doctor"
               options={
                 data?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
