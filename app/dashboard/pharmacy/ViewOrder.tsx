@@ -221,18 +221,16 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     };
 
 
-    const markAllPacked = async () => {
-        if (!localOrder) return;
+    const markAllPacked = async (currentOrder = localOrder) => {
+        if (!currentOrder) return;
         if (checkIsDirty()) {
-            // toast.error("Please update the order to save changes before packing.");
-            // return;
             await handleUpdate()
         }
         try {
             setMarkingAllPacked(true);
             await toast.promise(
                 api.post("/pharmacy/orders/mark_all_as_packed", {
-                    order: localOrder._id,
+                    order: currentOrder._id,
                 }),
                 {
                     loading: "Marking all items as packed...",
@@ -311,6 +309,31 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         }
     };
 
+    const handleCompleteOrder = async (orderToComplete = localOrder) => {
+        if (!orderToComplete) return;
+        try {
+            if (orderToComplete.status !== "Ready") {
+                await markAllPacked(orderToComplete);
+            }
+            await toast.promise(api.patch(`/pharmacy/orders/complete/${orderToComplete._id}`), {
+                loading: "Completing...",
+                success: (data) => {
+                    OrderMutate();
+                    return data.data.message;
+                },
+                error: ({ response: { data } }) => {
+                    return data.message;
+                }
+            })
+            // Fetch latest order state for printing, or just use current if sufficient
+            // Ideally we should print the completed order.
+            // But handlePrintBill mostly uses ID/mrn.
+            handlePrintBill(orderToComplete)
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
     const handlePaymentUpdate = async () => {
         if (!updatePayload) return;
 
@@ -342,6 +365,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             if (response?.data) {
                 setLocalOrder(response.data)
                 setUpdatePayload(response.data)
+
+                if (paymentMethod === "UPI" || paymentMethod === "Cash") {
+                    // Trigger completion and printing
+                    await handleCompleteOrder(response.data);
+                }
             }
         } catch (error) {
             console.log(error)
@@ -525,7 +553,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
                             disabled={markingAllPacked}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                            onClick={markAllPacked}
+                            onClick={() => markAllPacked()}
                         >
                             {markingAllPacked ? "Marking..." : "Mark all packed"}
                         </Button>}
@@ -547,26 +575,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                     </Link>
                                 </Button>
                         }
-                        {localOrder.status !== "Completed" && <Button onClick={async () => {
-                            try {
-                                if (localOrder.status !== "Ready") {
-                                    await markAllPacked();
-                                }
-                                await toast.promise(api.patch(`/pharmacy/orders/complete/${localOrder._id}`), {
-                                    loading: "Completing...",
-                                    success: (data) => {
-                                        OrderMutate();
-                                        return data.data.message;
-                                    },
-                                    error: ({ response: { data } }) => {
-                                        return data.message;
-                                    }
-                                })
-                                handlePrintBill(localOrder)
-                            } catch (error) {
-                                console.log(error);
-                            }
-                        }}>Complete Order</Button>}
+                        {localOrder.status !== "Completed" && <Button onClick={() => handleCompleteOrder()}>Complete Order</Button>}
 
                     </div>
                 </div>
