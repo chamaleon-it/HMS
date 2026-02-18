@@ -331,7 +331,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 transition={{ duration: 0.5 }}
                 className="bg-white p-7 rounded-xl shadow-sm border border-slate-200"
             >
-                <div className="flex gap-8 items-end">
+                <div className="flex gap-8">
                     <div className="space-y-2">
                         <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Supplier*</label>
                         <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
@@ -369,15 +369,16 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         <div className="relative ">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm  ">₹</span>
                             <Input
+                                type="number"
                                 placeholder="0.00"
                                 className="h-11 bg-slate-50/50 border-slate-200 rounded-lg pl-7 focus:ring-2 focus:ring-indigo-500/20 transition-all  text-slate-700 "
-                                value={billDetails.transportCharges}
+                                value={Number(billDetails.transportCharges) || ""}
                                 onChange={(e) => handleBillDetailChange("transportCharges", e.target.value)}
                             />
                         </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-10 mt-8 pt-7 ">
+                    <div className="flex flex-wrap items-center gap-10 pt-7 ">
                         <div className="flex items-center gap-10 ">
                             <div className="flex items-center gap-6 ">
                                 <label className="flex items-center gap-2 cursor-pointer group ">
@@ -750,7 +751,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                     type="number"
                                     placeholder="0.00"
                                     className="h-14 bg-indigo-50/40 border-2 border-indigo-100/50 rounded-2xl pl-10 focus:ring-8 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-black text-xl text-indigo-700 tabular-nums shadow-sm"
-                                    value={billDetails.paidAmount}
+                                    value={Number(billDetails.paidAmount) || ""}
                                     onChange={(e) => handleBillDetailChange("paidAmount", e.target.value)}
                                 />
                             </div>

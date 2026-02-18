@@ -14,6 +14,7 @@ export interface ProfileType {
       roundOff: boolean;
       autoPrintAfterSave: boolean;
       autoGenerateBill: boolean;
+      autoGeneratePrescription?: boolean;
     };
     inventory?: {
       lowStockThreshold: number;

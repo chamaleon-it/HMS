@@ -29,7 +29,7 @@ import api from "@/lib/axios";
 import UpdatePrescriptionCard from "./UpdatePrescriptionCard";
 import useSWR from "swr";
 import Link from "next/link";
-import { AlertTriangle, Banknote, QrCode, AlertCircle } from "lucide-react";
+import { AlertTriangle, Banknote, QrCode, AlertCircle, IndianRupee } from "lucide-react";
 
 
 interface Props {
@@ -221,18 +221,16 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     };
 
 
-    const markAllPacked = async () => {
-        if (!localOrder) return;
+    const markAllPacked = async (currentOrder = localOrder) => {
+        if (!currentOrder) return;
         if (checkIsDirty()) {
-            // toast.error("Please update the order to save changes before packing.");
-            // return;
             await handleUpdate()
         }
         try {
             setMarkingAllPacked(true);
             await toast.promise(
                 api.post("/pharmacy/orders/mark_all_as_packed", {
-                    order: localOrder._id,
+                    order: currentOrder._id,
                 }),
                 {
                     loading: "Marking all items as packed...",
@@ -311,6 +309,73 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         }
     };
 
+    const handleCompleteOrder = async (orderToComplete = localOrder) => {
+        if (!orderToComplete) return;
+        try {
+            if (orderToComplete.status !== "Ready") {
+                await markAllPacked(orderToComplete);
+            }
+            await toast.promise(api.patch(`/pharmacy/orders/complete/${orderToComplete._id}`), {
+                loading: "Completing...",
+                success: (data) => {
+                    OrderMutate();
+                    return data.data.message;
+                },
+                error: ({ response: { data } }) => {
+                    return data.message;
+                }
+            })
+            // Fetch latest order state for printing, or just use current if sufficient
+            // Ideally we should print the completed order.
+            // But handlePrintBill mostly uses ID/mrn.
+            handlePrintBill(orderToComplete)
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const handlePaymentUpdate = async () => {
+        if (!updatePayload) return;
+
+        const payload = {
+            orderId: updatePayload._id,
+            paidAmount: 0,
+            paymentStatus: "Partial",
+            paymentReference: referenceNumber
+        }
+
+        if (paymentMethod === "UPI" || paymentMethod === "Cash") {
+            payload.paymentStatus = "Paid";
+            payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0;
+        } else {
+            payload.paymentStatus = "Partial";
+            payload.paidAmount = Number(amountPaid);
+        }
+
+        try {
+            const { data: response } = await toast.promise(
+                api.patch<{ data: OrderType }>("/pharmacy/orders/update_payment", payload),
+                {
+                    loading: "Updating payment...",
+                    success: "Payment updated successfully",
+                    error: "Failed to update payment"
+                }
+            )
+            OrderMutate()
+            if (response?.data) {
+                setLocalOrder(response.data)
+                setUpdatePayload(response.data)
+
+                if (paymentMethod === "UPI" || paymentMethod === "Cash") {
+                    // Trigger completion and printing
+                    await handleCompleteOrder(response.data);
+                }
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    };
+
     if (!localOrder || !updatePayload) return null;
 
     return (
@@ -333,11 +398,17 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     />
 
                     {/* Payment Details Section */}
-                    {order?.paymentStatus !== "Paid" && <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
+                    {localOrder?.paymentStatus !== "Paid" && <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Payment Details</h3>
-                            <div className="text-xs font-medium text-slate-500 bg-white px-2 py-1 rounded border">
-                                Total Amount: <span className="text-slate-900 font-bold">{formatINR(updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0) || 0)}</span>
+                            <div className="flex flex-col items-end justify-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm min-w-[140px]">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Total Amount</span>
+                                <div className="flex items-center text-slate-900">
+                                    <IndianRupee className="w-5 h-5 stroke-[2.5] mr-0.5 text-slate-400" />
+                                    <span className="text-xl font-extrabold leading-none tracking-tight">
+                                        {formatINR(Math.max(0, (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0)).replace("₹", "")}
+                                    </span>
+                                </div>
                             </div>
                         </div>
 
@@ -394,6 +465,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         placeholder="Enter amount from customer"
                                         value={amountPaid}
                                         onChange={(e) => setAmountPaid(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
                                         className="h-11 bg-white border-slate-200 rounded-lg focus:ring-emerald-500/20"
                                     />
                                 </div>
@@ -423,15 +495,22 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         placeholder="0.00"
                                         value={amountPaid}
                                         onChange={(e) => setAmountPaid(e.target.value)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter") {
+                                                document.getElementById("partial-reference-input")?.focus();
+                                            }
+                                        }}
                                         className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
                                     />
                                 </div>
                                 <div className="space-y-2">
                                     <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reference / Bill No.</Label>
                                     <Input
+                                        id="partial-reference-input"
                                         placeholder="Enter reference if any"
                                         value={referenceNumber}
                                         onChange={(e) => setReferenceNumber(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
                                         className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
                                     />
                                 </div>
@@ -446,6 +525,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                     placeholder="Enter UPI transaction ID"
                                     value={referenceNumber}
                                     onChange={(e) => setReferenceNumber(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
                                     className="h-11 bg-white border-slate-200 rounded-lg focus:ring-indigo-500/20"
                                 />
                             </div>
@@ -453,41 +533,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         <div className="flex justify-end">
 
                             <Button
-                                onClick={async () => {
-                                    const payload = {
-                                        orderId: updatePayload._id,
-                                        paidAmount: 0,
-                                        paymentStatus: "Partial",
-                                        paymentReference: referenceNumber
-                                    }
-
-                                    if (paymentMethod === "UPI" || paymentMethod === "Cash") {
-                                        payload.paymentStatus = "Paid";
-                                        payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0;
-                                    } else {
-                                        payload.paymentStatus = "Partial";
-                                        payload.paidAmount = Number(amountPaid);
-                                    }
-
-                                    try {
-                                        const { data: response } = await toast.promise(
-                                            api.patch<{ data: OrderType }>("/pharmacy/orders/update_payment", payload),
-                                            {
-                                                loading: "Updating payment...",
-                                                success: "Payment updated successfully",
-                                                error: "Failed to update payment"
-                                            }
-                                        )
-                                        OrderMutate()
-                                        if (response?.data) {
-                                            setLocalOrder(response.data)
-                                            setUpdatePayload(response.data)
-                                        }
-                                    } catch (error) {
-                                        console.log(error)
-                                    }
-
-                                }}
+                                onClick={handlePaymentUpdate}
                                 className="bg-emerald-600 hover:bg-emerald-700 text-white">
                                 Update Payment
                             </Button>
@@ -513,7 +559,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
                             disabled={markingAllPacked}
                             className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                            onClick={markAllPacked}
+                            onClick={() => markAllPacked()}
                         >
                             {markingAllPacked ? "Marking..." : "Mark all packed"}
                         </Button>}
@@ -535,26 +581,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                     </Link>
                                 </Button>
                         }
-                        {localOrder.status !== "Completed" && <Button onClick={async () => {
-                            try {
-                                if (localOrder.status !== "Ready") {
-                                    await markAllPacked();
-                                }
-                                await toast.promise(api.patch(`/pharmacy/orders/complete/${localOrder._id}`), {
-                                    loading: "Completing...",
-                                    success: (data) => {
-                                        OrderMutate();
-                                        return data.data.message;
-                                    },
-                                    error: ({ response: { data } }) => {
-                                        return data.message;
-                                    }
-                                })
-                                handlePrintBill(localOrder)
-                            } catch (error) {
-                                console.log(error);
-                            }
-                        }}>Complete Order</Button>}
+                        {localOrder.status !== "Completed" && <Button onClick={() => handleCompleteOrder()}>Complete Order</Button>}
 
                     </div>
                 </div>

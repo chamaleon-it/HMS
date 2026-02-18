@@ -72,6 +72,7 @@ export default function PrescriptionCard({
 
   const [shouldFocusNewRow, setShouldFocusNewRow] = useState(false);
   const medicineRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const quantityRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   useEffect(() => {
     if (shouldFocusNewRow && medicineRefs.current[data.items.length - 1]) {
@@ -80,7 +81,17 @@ export default function PrescriptionCard({
     }
   }, [data.items.length, shouldFocusNewRow]);
 
-  const handleEnter = () => {
+  const focusQuantity = (idx: number) => {
+    setTimeout(() => {
+      quantityRefs.current[idx]?.focus();
+    }, 10);
+  };
+
+  const handleEnterOnDrug = (idx: number) => {
+    focusQuantity(idx);
+  };
+
+  const handleEnterOnQuantity = () => {
     addMedicineRow();
   };
 
@@ -127,7 +138,8 @@ export default function PrescriptionCard({
                 i={i}
                 m={m}
                 updateField={updateField}
-                onEnter={handleEnter}
+                onEnter={() => handleEnterOnDrug(i)}
+                onSelect={() => focusQuantity(i)}
                 inputRef={{
                   get current() {
                     return medicineRefs.current[i] || null;
@@ -154,7 +166,7 @@ export default function PrescriptionCard({
                     value={m.dosage}
                     onChange={(e) => updateField(i, "dosage", e)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") handleEnter();
+                      if (e.key === "Enter") handleEnterOnDrug(i);
                     }}
                   />
                 </div>
@@ -173,7 +185,7 @@ export default function PrescriptionCard({
                     value={m.frequency}
                     onChange={(e) => updateField(i, "frequency", e)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") handleEnter();
+                      if (e.key === "Enter") handleEnterOnDrug(i);
                     }}
                   />
                 </div>
@@ -191,7 +203,7 @@ export default function PrescriptionCard({
                     value={m.food}
                     onChange={(e) => updateField(i, "food", e)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") handleEnter();
+                      if (e.key === "Enter") handleEnterOnDrug(i);
                     }}
                   />
                 </div>
@@ -210,7 +222,7 @@ export default function PrescriptionCard({
                     value={m.duration}
                     onChange={(e) => updateField(i, "duration", e)}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") handleEnter();
+                      if (e.key === "Enter") handleEnterOnDrug(i);
                     }}
                   />
                 </div>
@@ -222,8 +234,16 @@ export default function PrescriptionCard({
                 i={i}
                 m={m}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") handleEnter();
+                  if (e.key === "Enter") handleEnterOnQuantity();
                 }}
+                inputRef={{
+                  get current() {
+                    return quantityRefs.current[i] || null;
+                  },
+                  set current(val) {
+                    quantityRefs.current[i] = val;
+                  },
+                } as React.RefObject<HTMLInputElement>}
               />
             </div>
 
@@ -378,11 +398,13 @@ const QuantityInput = ({
   i,
   m,
   onKeyDown,
+  inputRef,
 }: {
   updateField: (idx: number, key: keyof Medicine, val: string | number) => void;
   i: number;
   m: Medicine;
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }) => {
   const currentOptions = {
     dosage: ["½ tab", "1 tab", "2 tab"],
@@ -432,6 +454,7 @@ const QuantityInput = ({
     <>
       <div className="relative w-full">
         <input
+          ref={inputRef}
           placeholder="0"
           onChange={(e) => {
             const value = Number(e.target.value);

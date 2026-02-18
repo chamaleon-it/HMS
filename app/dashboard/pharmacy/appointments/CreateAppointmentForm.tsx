@@ -5,13 +5,14 @@ import api from "@/lib/axios";
 import { createAppointmentSchema } from "@/schemas/createAppointmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, UserRound } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import DateTimePicker from "./DateTimePicker";
 import PatientSelection from "./PatientSelection";
 import Select from "./AppointmentSelect";
+import BlankPrescription from "./BlankPrescription";
 const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({
@@ -63,9 +64,10 @@ export function CreateAppointmentForm({
     isPaid: boolean;
     createdAt: Date;
     visitCount: number;
+    visitId?: string;
   };
 }) {
-  const { data } = useSWR<{
+  const { data: doctorsData } = useSWR<{
     data: {
       _id: string;
       name: string;
@@ -92,6 +94,24 @@ export function CreateAppointmentForm({
     },
   });
 
+  const { mutate: globalMutate } = useSWRConfig();
+
+  const refreshCalendars = async () => {
+    // Invalidate monthly calendar
+    await globalMutate(
+      (key) => typeof key === 'string' && key.startsWith('/appointments/calender-monthly'),
+      undefined,
+      { revalidate: true }
+    );
+
+    // Invalidate weekly calendar (which has query params)
+    await globalMutate(
+      (key) => typeof key === 'string' && key.startsWith('/appointments/calender/weekly'),
+      undefined,
+      { revalidate: true }
+    );
+  };
+
   useEffect(() => {
     if (appointment) {
       // Safely access properties, as appointment might be a partial object when coming from "Book Follow-up"
@@ -113,6 +133,32 @@ export function CreateAppointmentForm({
 
   const values = watch();
 
+  const { data: profile } = useSWR<{
+    data: {
+      pharmacy: {
+        billing: {
+          autoGeneratePrescription: boolean
+        }
+      }
+    },
+    message: string
+  }>("/users/profile");
+
+  const autoGeneratePrescription = profile?.data?.pharmacy?.billing?.autoGeneratePrescription || false;
+
+  const [printData, setPrintData] = React.useState<any>(null);
+
+  useEffect(() => {
+    if (printData) {
+      setTimeout(() => {
+        window.print();
+        setPrintData(null);
+        onClose();
+      }, 500);
+    }
+  }, [printData, onClose]);
+
+
   const createAppointment = handleSubmit(async (data) => {
     try {
       if (appointment?._id) {
@@ -129,27 +175,75 @@ export function CreateAppointmentForm({
         if (mutate) {
           mutate();
         }
+        await refreshCalendars();
 
         return;
       }
-      await toast.promise(api.post("/appointments", data), {
+      const res = await toast.promise(api.post("/appointments", data), {
         loading: "Please wait, We are creating an appointment",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
+
+      if (autoGeneratePrescription) {
+        try {
+          const createdId = res.data?.data?._id;
+          if (createdId) {
+            const { data: fullAppt } = await api.get(`/appointments/single/${createdId}`);
+            let printPayload = fullAppt.data;
+            if (typeof printPayload.doctor === 'string') {
+              const selectedDoctor = doctorsData?.data.find((d) => d._id === printPayload.doctor);
+              if (selectedDoctor) {
+                printPayload = { ...printPayload, doctor: selectedDoctor };
+              }
+            }
+            setPrintData(printPayload);
+            await refreshCalendars();
+            if (mutate) mutate();
+            reset();
+            // Don't close here, wait for print effect
+            return;
+          }
+        } catch (err) {
+          console.error("Failed to prepare prescription print", err);
+          // Fallback simple close if print prep fails
+        }
+      }
+
       reset();
       onClose();
       if (mutate) {
         mutate();
       }
+
+      await refreshCalendars();
     } catch (error) {
       console.log(error);
     }
   });
 
+  // Refs for keyboard navigation
+  const refs = {
+    patient: useRef<HTMLInputElement>(null),
+    doctor: useRef<HTMLButtonElement>(null),
+    method: useRef<HTMLButtonElement>(null),
+    notes: useRef<HTMLTextAreaElement>(null),
+    type: useRef<HTMLButtonElement>(null),
+    isPaid: useRef<HTMLButtonElement>(null),
+    internalNotes: useRef<HTMLTextAreaElement>(null),
+    submitButton: useRef<HTMLButtonElement>(null),
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<any>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      nextRef.current?.focus();
+    }
+  };
+
   return (
     <form className="space-y-5" onSubmit={createAppointment}>
-      <section className="space-y-3">
+      <section className="space-y-3 print:hidden">
         <div className="flex items-center gap-2">
           <UserRound className="h-4 w-4" />
           <h3 className="font-medium">Patient</h3>
@@ -159,6 +253,8 @@ export function CreateAppointmentForm({
             setValue={setValue}
             values={values}
             patient={appointment?.patient}
+            ref={refs.patient}
+            onKeyDown={(e) => handleKeyDown(e, refs.doctor)}
           />
           {errors.patient && (
             <p className="text-red-500 text-xs mt-1.5">
@@ -168,7 +264,7 @@ export function CreateAppointmentForm({
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-3 print:hidden">
         <div className="flex items-center gap-2">
           <CalendarDays className="h-4 w-4" />
           <h3 className="font-medium">Appointment</h3>
@@ -178,11 +274,13 @@ export function CreateAppointmentForm({
             <Label>Doctor</Label>
             <Select
               value={values.doctor}
-              onChange={(v) => setValue("doctor", v)}
+              onChange={(v) => setValue("doctor", v, { shouldValidate: true })}
               placeholder="Choose doctor"
               options={
-                data?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
+                doctorsData?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
               }
+              ref={refs.doctor}
+              onKeyDown={(e) => handleKeyDown(e, refs.method)}
             />
             {errors.doctor && (
               <p className="text-red-500 text-xs mt-1.5">
@@ -197,6 +295,8 @@ export function CreateAppointmentForm({
               onChange={(v) => setValue("method", v)}
               placeholder="In-clinic / Video / Phone"
               options={METHODS.map((s) => ({ label: s, value: s })) ?? []}
+              ref={refs.method}
+              onKeyDown={(e) => handleKeyDown(e, refs.notes)}
             />
             {errors.method && (
               <p className="text-red-500 text-xs mt-1.5">
@@ -224,6 +324,11 @@ export function CreateAppointmentForm({
               placeholder="Optional"
               {...register("notes")}
               className="mt-2.5"
+              ref={(e) => {
+                register("notes").ref(e);
+                refs.notes.current = e;
+              }}
+              onKeyDown={(e) => handleKeyDown(e, refs.type)}
             />
             {errors.notes && (
               <p className="text-red-500 text-xs mt-1.5">
@@ -234,7 +339,7 @@ export function CreateAppointmentForm({
         </div>
       </section>
 
-      <section className="space-y-3">
+      <section className="space-y-3 print:hidden">
         <div className="flex items-center justify-between">
           <h3 className="font-medium">Advanced</h3>
         </div>
@@ -252,6 +357,8 @@ export function CreateAppointmentForm({
                   ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
                   []
                 }
+                ref={refs.type}
+                onKeyDown={(e) => handleKeyDown(e, refs.isPaid)}
               />
               {errors.type && (
                 <p className="text-red-500 text-xs mt-1.5">
@@ -270,6 +377,8 @@ export function CreateAppointmentForm({
                   { value: "false", label: "Unpaid" },
                   { value: "true", label: "Paid" },
                 ]}
+                ref={refs.isPaid}
+                onKeyDown={(e) => handleKeyDown(e, refs.internalNotes)}
               />
               {errors.isPaid && (
                 <p className="text-red-500 text-xs mt-1.5">
@@ -285,6 +394,11 @@ export function CreateAppointmentForm({
               placeholder="Visible to staff only"
               {...register("internalNotes")}
               className="mt-2.5"
+              ref={(e) => {
+                register("internalNotes").ref(e);
+                refs.internalNotes.current = e;
+              }}
+              onKeyDown={(e) => handleKeyDown(e, refs.submitButton)}
             />
             {errors.internalNotes && (
               <p className="text-red-500 text-xs mt-1.5">
@@ -295,14 +409,15 @@ export function CreateAppointmentForm({
         </div>
       </section>
 
-      <div className="flex items-center justify-between pt-2">
+      <div className="flex items-center justify-between pt-2 print:hidden">
         <Button variant="ghost" onClick={onClose} type="button">
           Close
         </Button>
-        <Button type="submit">
-          {appointment?._id ? "Edit" : "Create"} Appointment
+        <Button type="submit" ref={refs.submitButton}>
+          {appointment?._id ? "Save" : "Create"} Appointment
         </Button>
       </div>
+      {printData && <BlankPrescription data={printData} />}
     </form>
   );
 }

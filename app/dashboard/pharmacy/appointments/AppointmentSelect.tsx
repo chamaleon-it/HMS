@@ -1,27 +1,31 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, forwardRef } from "react";
 
-function Select<T extends string>({
-  value,
-  onChange,
-  options,
-  placeholder,
-  searchable = false,
-  className = "",
-}: {
+interface SelectProps<T> {
   value: T;
   onChange: (v: T) => void;
   options: { label: string; value: T }[];
   placeholder: string;
   searchable?: boolean;
   className?: string;
-}) {
+  onKeyDown?: (e: React.KeyboardEvent) => void;
+}
+
+const Select = forwardRef<HTMLButtonElement, SelectProps<any>>(({
+  value,
+  onChange,
+  options,
+  placeholder,
+  searchable = false,
+  className = "",
+  onKeyDown,
+}, ref) => {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
-  const ref = React.useRef<HTMLDivElement>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onDoc = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node))
+      if (containerRef.current && !containerRef.current.contains(e.target as Node))
         setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => {
@@ -44,10 +48,12 @@ function Select<T extends string>({
   const current = options.find((o) => o.value === value);
 
   return (
-    <div ref={ref} className={`relative ${className} mt-2.5`}>
+    <div ref={containerRef} className={`relative ${className} mt-2.5`}>
       <button
         type="button"
+        ref={ref}
         onClick={() => setOpen((v) => !v)}
+        onKeyDown={onKeyDown}
         className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-[150px] w-full justify-between`}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -94,11 +100,10 @@ function Select<T extends string>({
                       onChange(o.value);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
-                      active
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${active
                         ? "bg-gray-100 text-gray-900"
                         : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                      }`}
                   >
                     <span className="truncate">{o.label}</span>
                     {active && <span>✓</span>}
@@ -114,6 +119,6 @@ function Select<T extends string>({
       )}
     </div>
   );
-}
+});
 
 export default Select;

@@ -30,29 +30,31 @@ export const pharmacyItemAddSchema = z.object({
 
   supplier: z
     .string({ error: "Supplier is required" })
-    .transform((s) => s.trim()),
+    .transform((s) => s.trim())
+    .optional(),
 
   manufacturer: z
     .string({ error: "Supplier is required" })
-    .transform((s) => s.trim()),
+    .transform((s) => s.trim())
+    .optional(),
 
   purchasePrice: z.coerce
     .number({ error: "Purchase price must be a number" })
-    .min(1, { error: "Purchase price cannot be zero or below" }),
+    .optional(),
 
   unitPrice: z.coerce
     .number({ error: "Unit price must be a number" })
-    .min(1, { error: "Unit price cannot be zero or below" }),
+    .optional(),
 
   openingStockQuantity: z.coerce
     .number({ error: "Opening stock must be a number" })
     .int({ error: "Opening stock must be an integer" })
-    .min(1, { error: "Opening stock cannot be zero or below" }),
+    .optional(),
 
   quantity: z.coerce
     .number({ error: "Quantity must be a number" })
     .int({ error: "Quantity must be an integer" })
-    .min(1, { error: "Quantity cannot be zero or below" }),
+    .optional(),
 
   // Zod v4 provides z.iso.date() for ISO date strings
   expiryDate: z.string({ error: "Expiry date is required" }),

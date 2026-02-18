@@ -45,13 +45,8 @@ import {
 
 export default function PharmacyReturnPage() {
 
-
   const searchParams = useSearchParams();
   const mrn = searchParams?.get('mrn') ?? '';
-
-
-
-
 
   const { user } = useAuth();
 
@@ -63,10 +58,6 @@ export default function PharmacyReturnPage() {
   const [fetching, setFetching] = useState(false);
   const [returning, setReturning] = useState(false);
 
-
-
-
-
   const fetchOrder = async () => {
     try {
       setFetching(true);
@@ -77,9 +68,23 @@ export default function PharmacyReturnPage() {
         return;
       }
 
+
       const params = new URLSearchParams();
 
-      params.set("q", (filter.q ?? mrn) ?? "");
+      if (mrn) {
+        params.set("q", mrn);
+      }
+      else if (filter.q) {
+
+        if (filter.q.startsWith("RX")) {
+          toast.error("Please enter a valid RX id");
+          return;
+        }
+        params.set("q", filter.q ?? "");
+      } else {
+        toast.error("Please enter a valid RX id");
+        return;
+      }
 
       const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
       setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });

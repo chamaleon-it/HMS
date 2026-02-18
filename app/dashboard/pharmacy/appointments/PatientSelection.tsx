@@ -23,6 +23,8 @@ import { Button } from "@/components/ui/button";
 import { UseFormSetValue } from "react-hook-form";
 import useSWR from "swr";
 
+import api from "@/lib/axios";
+
 type Patient = {
   _id: string;
   name: string;
@@ -73,7 +75,7 @@ const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
+const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?: (e: React.KeyboardEvent) => void }>(({ setValue, values, patient, onKeyDown: parentOnKeyDown }, ref) => {
   const [input, setInput] = useState("");
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
@@ -126,7 +128,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
   const handleSelect = useCallback(
     (p: Patient) => {
       setSelected(p);
-      setValue("patient", p._id);
+      setValue("patient", p._id, { shouldValidate: true });
       setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
       setOpen(false);
     },
@@ -143,7 +145,10 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
 
   // Keyboard navigation within the listbox
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!open) return;
+    if (!open) {
+      if (parentOnKeyDown) parentOnKeyDown(e);
+      return;
+    }
     const max = patients.length - 1;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -153,7 +158,12 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
       setActiveIdx((i) => (i > 0 ? i - 1 : max));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      if (patients[activeIdx]) handleSelect(patients[activeIdx]);
+      if (patients[activeIdx]) {
+        handleSelect(patients[activeIdx]);
+      } else {
+        // If no item selected in list, pass Enter to parent
+        if (parentOnKeyDown) parentOnKeyDown(e);
+      }
     }
   };
 
@@ -188,6 +198,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
         <Input
           placeholder="Search or type new"
           value={input}
+          ref={ref}
           onFocus={() => setOpen(true)}
           onChange={(e) => {
             const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
@@ -292,10 +303,22 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
           <RegisterPatient
-            onClose={(id?: string, name?: string) => {
+            patient={{ name: input }}
+            onClose={async (id?: string, name?: string) => {
               setOpenCreate(false);
               if (id && name) {
-                handleSelect({ _id: id, name, mrn: "" }); // mrn might be empty initially, but ID is what matters
+                // Immediately select with available data
+                handleSelect({ _id: id, name, mrn: "" });
+
+                // Fetch full details (MRN, etc.) in background
+                try {
+                  const { data } = await api.get(`/patients/${id}`);
+                  if (data && data.data) {
+                    handleSelect(data.data);
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch full patient details", error);
+                }
               }
             }}
           />
@@ -303,7 +326,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
       </Dialog>
     </div>
   );
-};
+});
 
 export default PatientSelection;
 

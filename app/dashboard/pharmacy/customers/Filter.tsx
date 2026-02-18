@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
-import { CONDITIONS } from "./data";
 import useSWR from "swr";
 import {
   Popover,
@@ -8,10 +7,10 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, ShoppingBag, Users } from "lucide-react";
+import { CalendarIcon, ShoppingBag, Users, RotateCcw, Search } from "lucide-react";
 import { fDate } from "@/lib/fDateAndTime";
 import { Calendar } from "@/components/ui/calendar";
-
+import { Input } from "@/components/ui/input";
 
 export interface FilterType {
   query?: string;
@@ -28,7 +27,6 @@ export interface FilterType {
   limit: number;
 }
 
-
 export default function Filter({
   filter,
   setFilter,
@@ -36,7 +34,7 @@ export default function Filter({
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 }) {
-  const { data } = useSWR<{
+  const { data: doctorsData } = useSWR<{
     data: {
       _id: string;
       name: string;
@@ -45,89 +43,85 @@ export default function Filter({
     message: string;
   }>("/users/doctors");
 
+  const doctors = doctorsData?.data || [];
+
+  const handleReset = () => {
+    setFilter({
+      query: undefined,
+      gender: undefined,
+      doctor: undefined,
+      age: [0, 100],
+      lastVisit: undefined,
+      alreadyPurchase: false,
+      page: 1,
+      limit: 10,
+      dateRange: {
+        from: undefined,
+        to: undefined,
+      },
+    });
+  };
+
   return (
-    <div className="bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100">
-      {/* Top row: Search + Reset */}
-      <div className="flex flex-col md:flex-row gap-3 md:items-center">
-        <div className="flex-1">
-          <input
-            value={filter?.query || ""}
-            onChange={(e) =>
-              setFilter((prev) => ({ ...prev, query: e.target.value, page: 1 }))
-            }
-            placeholder="Search by name, ID, phone"
-            className="w-full h-11 px-4 rounded-xl bg-gray-50 ring-1 ring-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
-          />
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-white p-7 rounded-xl shadow-sm border border-slate-200 space-y-6"
+    >
+      <div className="flex flex-wrap items-end gap-6">
+        {/* Search */}
+        <div className="space-y-2 flex-1 min-w-[280px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Search Customers
+          </label>
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Input
+              value={filter?.query || ""}
+              onChange={(e) =>
+                setFilter((prev) => ({ ...prev, query: e.target.value, page: 1 }))
+              }
+              placeholder="Name, ID, phone..."
+              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+            />
+          </div>
         </div>
-        <button
-          onClick={() =>
-            setFilter({
-              query: undefined,
-              gender: undefined,
-              doctor: undefined,
-              age: [0, 100],
-              lastVisit: undefined,
-              alreadyPurchase: false,
-              page: 1,
-              limit: 10,
-              dateRange: {
-                from: undefined,
-                to: undefined,
-              },
-            })
-          }
-          className="h-11 px-4 rounded-xl bg-gray-100 text-gray-700 hover:bg-gray-200 cursor-pointer"
-        >
-          Reset all
-        </button>
-      </div>
 
-      {/* Row 2: Primary filters */}
-      <div className="mt-3 grid md:grid-cols-3 gap-3">
-
-
-        {/* Gender — attractive pills */}
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-gray-500 px-1">Gender</span>
-          <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
+        {/* Gender */}
+        <div className="space-y-2">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Gender
+          </label>
+          <div className="flex gap-1.5 p-1 bg-slate-50 border border-slate-100 rounded-xl w-fit">
             {[
               { label: "All", value: undefined, icon: "•" },
               { label: "Female", value: "Female", icon: "♀" },
               { label: "Male", value: "Male", icon: "♂" },
-              { label: "Others", value: "Other", icon: "⚧" },
+              { label: "Other", value: "Other", icon: "⚧" },
             ].map((opt) => {
               const active = filter.gender === opt.value;
               const activeClass =
                 opt.value === "Female"
-                  ? "bg-rose-600 text-white ring-rose-600"
+                  ? "bg-rose-500 text-white shadow-sm"
                   : opt.value === "Male"
-                    ? "bg-sky-600 text-white ring-sky-600"
+                    ? "bg-sky-500 text-white shadow-sm"
                     : opt.value === "Other"
-                      ? "bg-violet-600 text-white ring-violet-600"
-                      : "bg-white text-gray-900 ring-gray-300";
-              const idleClass =
-                opt.value === "Female"
-                  ? "text-rose-600 ring-transparent hover:bg-rose-50"
-                  : opt.value === "Male"
-                    ? "text-sky-600 ring-transparent hover:bg-sky-50"
-                    : opt.value === "Other"
-                      ? "text-violet-600 ring-transparent hover:bg-violet-50"
-                      : "text-gray-600 ring-transparent hover:bg-gray-50";
+                      ? "bg-violet-500 text-white shadow-sm"
+                      : "bg-white text-slate-800 border-slate-200 shadow-sm";
+
+              const baseClass = "px-3 h-9 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
+              const idleClass = "text-slate-500 hover:text-slate-800 hover:bg-white/80";
+
               return (
                 <button
                   key={opt.label}
                   onClick={() =>
                     setFilter((prev) => ({ ...prev, gender: opt.value, page: 1 }))
                   }
-                  aria-pressed={active}
-                  aria-label={`Gender: ${opt.label}`}
-                  className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition inline-flex items-center gap-1.5 cursor-pointer ${active ? activeClass : idleClass
-                    }`}
+                  className={`${baseClass} ${active ? activeClass : idleClass}`}
                 >
-                  {opt.value !== undefined && (
-                    <span aria-hidden>{opt.icon}</span>
-                  )}
-                  <span className="truncate">{opt.label}</span>
+                  {opt.value !== undefined && <span>{opt.icon}</span>}
+                  <span>{opt.label}</span>
                 </button>
               );
             })}
@@ -135,30 +129,34 @@ export default function Filter({
         </div>
 
         {/* Doctor */}
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-gray-500 px-1">Doctor</span>
+        <div className="space-y-2 min-w-[180px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Doctor
+          </label>
           <FilterSelect
             value={filter.doctor || ""}
             onChange={(v) => setFilter((prev) => ({ ...prev, doctor: v, page: 1 }))}
-            placeholder="All doctors"
+            placeholder="All Doctors"
             options={[
               { label: "All Doctors", value: null },
-              ...(data?.data?.map(({ name, _id }) => ({
+              ...doctors.map(({ name, _id }) => ({
                 label: name,
                 value: _id,
-              })) ?? []),
+              })),
             ]}
           />
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600">Age</label>
+
+        {/* Age Range */}
+        <div className="space-y-2">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Age Range
+          </label>
           <div className="flex items-center gap-2">
-            <input
+            <Input
               type="number"
               value={filter.age[0] === 0 ? "" : filter.age[0]}
-              placeholder="0"
-              onFocus={(e) => (e.target.placeholder = "")}
-              onBlur={(e) => (e.target.placeholder = "0")}
+              placeholder="Min"
               onChange={(e) => {
                 const age: [number, number] = [
                   Number(e.target.value),
@@ -166,12 +164,13 @@ export default function Filter({
                 ];
                 setFilter((prev) => ({ ...prev, age, page: 1 }));
               }}
-              className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200 placeholder:text-black"
+              className="w-20 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all text-center"
             />
-            <span className="text-gray-400">–</span>
-            <input
+            <span className="text-slate-300 font-bold">–</span>
+            <Input
               type="number"
-              value={filter.age[1]}
+              value={filter.age[1] === 100 ? "" : filter.age[1]}
+              placeholder="Max"
               onChange={(e) => {
                 const age: [number, number] = [
                   filter.age[0],
@@ -179,23 +178,23 @@ export default function Filter({
                 ];
                 setFilter((prev) => ({ ...prev, age, page: 1 }));
               }}
-              className="w-24 h-11 px-2 rounded-xl ring-1 ring-gray-200"
+              className="w-20 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all text-center"
             />
           </div>
         </div>
       </div>
 
-      {/* Row 3: Age + Visit range */}
-      <div className="mt-3 grid md:grid-cols-3 gap-3 items-end">
-
-
-        <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600">Last visit</label>
+      <div className="flex flex-wrap items-end gap-6 pt-2 border-t border-slate-50">
+        {/* Last Visit */}
+        <div className="space-y-2">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Last Visit
+          </label>
           <Segmented
             options={[
-              { label: "All time", value: undefined },
-              { label: "7 days", value: 7 },
-              { label: "30 days", value: 30 as const },
+              { label: "All Time", value: undefined },
+              { label: "7 Days", value: 7 },
+              { label: "30 Days", value: 30 },
               { label: "Custom", value: "Custom" },
             ]}
             value={filter.lastVisit}
@@ -204,15 +203,23 @@ export default function Filter({
         </div>
 
         {filter.lastVisit === "Custom" && (
-          <CustomDateFilter filter={filter} setFilter={setFilter} />
+          <div className="space-y-2">
+            <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+              Custom Range
+            </label>
+            <CustomDateFilter filter={filter} setFilter={setFilter} />
+          </div>
         )}
 
-        <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600">Purchase Status</label>
-          <div className="relative inline-flex items-center gap-2 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 w-fit">
+        {/* Purchase Status */}
+        <div className="space-y-2">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Purchase Status
+          </label>
+          <div className="flex gap-1.5 p-1 bg-slate-50 border border-slate-100 rounded-xl w-fit">
             {[
               { label: "All Customers", value: false, icon: Users },
-              { label: "Purchased Customers", value: true, icon: ShoppingBag },
+              { label: "Purchased Only", value: true, icon: ShoppingBag },
             ].map((opt) => {
               const active = filter.alreadyPurchase === opt.value;
               const Icon = opt.icon;
@@ -223,32 +230,30 @@ export default function Filter({
                   onClick={() =>
                     setFilter((prev) => ({ ...prev, alreadyPurchase: opt.value, page: 1 }))
                   }
-                  className={`relative flex items-center gap-2 rounded-full px-4 h-9 transition-all duration-300 ease-in-out cursor-pointer whitespace-nowrap ${active ? "text-white" : "text-slate-600 hover:text-slate-900"
+                  className={`px-4 h-9 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${active ? "bg-indigo-600 text-white shadow-md shadow-indigo-100" : "text-slate-500 hover:text-slate-800 hover:bg-white/80"
                     }`}
                 >
-                  {active && (
-                    <motion.span
-                      layoutId="purchase-tab-indicator"
-                      className="absolute inset-0 rounded-full shadow-sm"
-                      style={{
-                        background: "linear-gradient(90deg,#4f46e5,#d946ef)",
-                      }}
-                      transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                    />
-                  )}
-                  <span className="relative z-10 flex items-center gap-2 font-bold tracking-tight text-xs">
-                    <Icon size={14} className={active ? "text-white" : "text-slate-400"} />
-                    {opt.label}
-                  </span>
+                  <Icon size={14} className={active ? "text-white" : "text-slate-400"} />
+                  {opt.label}
                 </button>
               );
             })}
           </div>
         </div>
+
+        {/* Reset Button */}
+        <div className="ml-auto">
+          <Button
+            onClick={handleReset}
+            variant="outline"
+            className="h-11 px-6 border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold rounded-lg flex items-center gap-2 transition-all active:scale-95 shadow-sm"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Reset All
+          </Button>
+        </div>
       </div>
-
-
-    </div>
+    </motion.div>
   );
 }
 
@@ -260,73 +265,56 @@ const CustomDateFilter = ({
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 }) => {
   return (
-    <div className="flex items-end gap-2">
-      <div className="clearflex flex-col gap-1 w-fit">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              data-empty={!filter.dateRange.from}
-              className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
-            >
-              <CalendarIcon />
-              {filter.dateRange.from ? (
-                fDate(filter.dateRange.from)
-              ) : (
-                <span>From</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={
-                filter.dateRange.from
-                  ? new Date(filter.dateRange.from)
-                  : new Date()
-              }
-              onSelect={(date) => {
-                setFilter((prev) => ({
-                  ...prev,
-                  dateRange: { ...prev.dateRange, from: date?.toISOString() },
-                }));
-              }}
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
-      <div className="clearflex flex-col gap-1 w-fit">
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              data-empty={!filter.dateRange.to}
-              className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
-            >
-              <CalendarIcon />
-              {filter.dateRange.to ? (
-                fDate(filter.dateRange.to)
-              ) : (
-                <span>To</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
-            <Calendar
-              mode="single"
-              selected={
-                filter.dateRange.to ? new Date(filter.dateRange.to) : new Date()
-              }
-              onSelect={(date) => {
-                setFilter((prev) => ({
-                  ...prev,
-                  dateRange: { ...prev.dateRange, to: date?.toISOString() },
-                }));
-              }}
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
+    <div className="flex items-center gap-2">
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="h-11 px-3 bg-slate-50/50 border-slate-200 rounded-lg w-32 justify-start text-xs font-semibold"
+          >
+            <CalendarIcon className="w-4 h-4 mr-2 text-slate-400" />
+            {filter.dateRange.from ? fDate(filter.dateRange.from) : <span className="text-slate-400">From</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={filter.dateRange.from ? new Date(filter.dateRange.from) : undefined}
+            onSelect={(date) => {
+              setFilter((prev) => ({
+                ...prev,
+                dateRange: { ...prev.dateRange, from: date?.toISOString() },
+              }));
+            }}
+          />
+        </PopoverContent>
+      </Popover>
+
+      <span className="text-slate-300 font-bold">to</span>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            className="h-11 px-3 bg-slate-50/50 border-slate-200 rounded-lg w-32 justify-start text-xs font-semibold"
+          >
+            <CalendarIcon className="w-4 h-4 mr-2 text-slate-400" />
+            {filter.dateRange.to ? fDate(filter.dateRange.to) : <span className="text-slate-400">To</span>}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0">
+          <Calendar
+            mode="single"
+            selected={filter.dateRange.to ? new Date(filter.dateRange.to) : undefined}
+            onSelect={(date) => {
+              setFilter((prev) => ({
+                ...prev,
+                dateRange: { ...prev.dateRange, to: date?.toISOString() },
+              }));
+            }}
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };
@@ -341,17 +329,17 @@ function Segmented({
   onChange: (v: number | undefined | string) => void;
 }) {
   return (
-    <div className="flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto w-fit">
+    <div className="flex gap-1.5 p-1 bg-slate-50 border border-slate-100 rounded-xl w-fit">
       {options.map((o) => {
         const active = value === o.value;
         return (
           <button
             key={o.label}
             onClick={() => onChange(o.value)}
-            className={`px-3 h-9 rounded-lg text-sm whitespace-nowrap ring-1 transition ${active
-              ? "bg-white ring-gray-300 shadow-sm text-gray-900"
-              : "bg-transparent ring-transparent text-gray-600 hover:text-gray-900"
-              } cursor-pointer`}
+            className={`px-4 h-9 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${active
+                ? "bg-white text-indigo-600 shadow-sm border border-slate-200"
+                : "text-slate-500 hover:text-slate-800 hover:bg-white/80"
+              }`}
           >
             {o.label}
           </button>
@@ -409,26 +397,23 @@ function FilterSelect({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-[150px]`}
+        className="h-11 px-4 bg-slate-50/50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-all flex items-center justify-between gap-2 min-w-[180px]"
         aria-haspopup="listbox"
         aria-expanded={open}
-        aria-label={`${placeholder}: ${current ? current.label : "Any"}`}
-        title={`${placeholder}: ${current ? current.label : "Any"}`}
       >
-        <span className="truncate text-sm text-gray-700">
+        <span className="truncate text-xs font-semibold text-slate-700">
           {current ? current.label : placeholder}
         </span>
         <svg
-          width="14"
-          height="14"
+          width="12"
+          height="12"
           viewBox="0 0 20 20"
-          fill="none"
-          className={`transition ${open ? "rotate-180" : ""}`}
+          className={`transition-transform duration-200 text-slate-400 ${open ? "rotate-180" : ""}`}
         >
           <path
             d="M6 8l4 4 4-4"
             stroke="currentColor"
-            strokeWidth="1.5"
+            strokeWidth="2"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -436,16 +421,16 @@ function FilterSelect({
       </button>
 
       {open && (
-        <div className="absolute z-30 mt-2 w-[min(240px,calc(100vw-2rem))] max-h-72 overflow-auto bg-white rounded-xl shadow-xl ring-1 ring-gray-200 p-2">
+        <div className="absolute z-30 mt-2 w-full min-w-[200px] bg-white rounded-xl shadow-2xl border border-slate-200 p-2 overflow-hidden">
           {searchable && (
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search…"
-              className="mb-2 w-full h-9 px-3 rounded-lg bg-gray-50 ring-1 ring-gray-200 focus:ring-gray-300"
+              placeholder="Search..."
+              className="mb-2 w-full h-9 px-3 rounded-lg bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500/10 text-xs"
             />
           )}
-          <ul role="listbox" className="grid gap-1">
+          <ul role="listbox" className="max-h-60 overflow-auto space-y-1">
             {visible.map((o) => {
               const active = o.value === value;
               return (
@@ -455,20 +440,16 @@ function FilterSelect({
                       onChange(o.value as string);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${active
-                      ? "bg-gray-100 text-gray-900"
-                      : "hover:bg-gray-50 text-gray-700"
+                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors ${active
+                        ? "bg-indigo-50 text-indigo-700"
+                        : "hover:bg-slate-50 text-slate-600"
                       }`}
                   >
-                    <span className="truncate">{o.label}</span>
-                    {active && <span>✓</span>}
+                    {o.label}
                   </button>
                 </li>
               );
             })}
-            {visible.length === 0 && (
-              <li className="px-3 py-2 text-sm text-gray-500">No matches</li>
-            )}
           </ul>
         </div>
       )}

@@ -19,9 +19,11 @@ import Drawer from "@/components/ui/drawer";
 import useAppointmentList from "./data/useAppointmentList";
 import PharmacyHeader from "../components/PharmacyHeader";
 import Select from "./AppointmentSelect";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { User, Calendar as CalendarIcon, Clock as ClockIcon, Phone, Mail, MapPin, X } from "lucide-react";
 import { motion } from "framer-motion";
+
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 // ... existing imports ...
 
@@ -285,7 +287,19 @@ export default function AppointmentPage() {
   const [date, setDate] = useState(new Date());
 
   const { mutate } = useAppointmentList({ query, activeStatuses, date });
-  const [tab, setTab] = useState<"list" | "calendar">("list");
+  const { mutate: globalMutate } = useSWRConfig();
+
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const tab = (searchParams.get("tab") as "list" | "calendar") || "list";
+
+  const setTab = (newTab: "list" | "calendar") => {
+    const params = new URLSearchParams(searchParams);
+    params.set("tab", newTab);
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   // Doctor Selection (Calendar View)
   const { data: doctorsData } = useSWR("/users/doctors");
@@ -368,6 +382,7 @@ export default function AppointmentPage() {
         }
       );
       mutate(); // Refresh list
+      globalMutate((key) => typeof key === 'string' && key.startsWith('/appointments/calender/weekly'));
 
       // Auto-prompt follow-up
       if (newStatus === "Consulted" || newStatus === "Completed") {
@@ -441,7 +456,7 @@ export default function AppointmentPage() {
   return (
     <AppShell>
       <div className="p-0 sm:p-5 h-[calc(100vh-80px)] overflow-hidden flex flex-col">
-        <div className="shrink-0 mb-4 px-4 sm:px-0">
+        <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
           <PharmacyHeader
             title="Appointments"
             subtitle="Manage patient appointments and schedules"
@@ -482,11 +497,11 @@ export default function AppointmentPage() {
         </div>
 
         {/* Statistics - Only show on List view to save space? Or make it collapsible? User requested optimizing blank space. */}
-        {tab === 'list' && <div className="shrink-0 mb-5 px-4 sm:px-0"><Statistics /></div>}
+        {tab === 'list' && <div className="shrink-0 mb-5 px-4 sm:px-0 print:hidden"><Statistics /></div>}
 
         {/* Filters Row */}
         {tab === 'list' &&
-          <div className="shrink-0 mb-4 px-4 sm:px-0">
+          <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
             <Filter
               activeStatuses={activeStatuses}
               query={query}
@@ -499,7 +514,7 @@ export default function AppointmentPage() {
         }
 
         {/* Tabs and Content */}
-        <div className="flex flex-col flex-1 overflow-hidden px-4 sm:px-0">
+        <div className="flex flex-col flex-1 overflow-hidden px-4 sm:px-0 print:hidden">
           <Tabs
             value={tab}
             onValueChange={(val) => setTab(val as "list" | "calendar")}

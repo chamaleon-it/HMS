@@ -5,6 +5,7 @@ import { UseFormSetValue } from "react-hook-form";
 
 export default function Address({
   setValue,
+  refs,
 }: {
   setValue: UseFormSetValue<{
     name: string;
@@ -19,9 +20,23 @@ export default function Address({
     address?: string | undefined;
     notes?: string | undefined;
   }>;
+  refs: {
+    line1: React.RefObject<HTMLInputElement | null>;
+    line2: React.RefObject<HTMLInputElement | null>;
+    city: React.RefObject<HTMLInputElement | null>;
+    state: React.RefObject<HTMLInputElement | null>;
+    pin: React.RefObject<HTMLInputElement | null>;
+  };
 }) {
   const capitalizeWords = (str: string) => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<HTMLElement | null>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      nextRef.current?.focus();
+    }
   };
 
   const [address, setAddress] = useState<{
@@ -51,8 +66,10 @@ export default function Address({
       <div className="grid gap-2">
         <Label>Address Line 1</Label>
         <Input
+          ref={refs.line1}
           placeholder="Address Line 1"
           value={address.line1 ?? ""}
+          onKeyDown={(e) => handleKeyDown(e, refs.line2)}
           onChange={(e) =>
             setAddress((prev) => ({
               ...prev,
@@ -64,8 +81,10 @@ export default function Address({
       <div className="grid gap-2">
         <Label>Address Line 2</Label>
         <Input
+          ref={refs.line2}
           placeholder="Address Line 2"
           value={address.line2 ?? ""}
+          onKeyDown={(e) => handleKeyDown(e, refs.city)}
           onChange={(e) =>
             setAddress((prev) => ({
               ...prev,
@@ -77,8 +96,10 @@ export default function Address({
       <div className="grid gap-2">
         <Label>City</Label>
         <Input
+          ref={refs.city}
           placeholder="City"
           value={address.city ?? ""}
+          onKeyDown={(e) => handleKeyDown(e, refs.state)}
           onChange={(e) =>
             setAddress((prev) => ({
               ...prev,
@@ -91,8 +112,10 @@ export default function Address({
       <div className="grid gap-2">
         <Label>State</Label>
         <Input
+          ref={refs.state}
           placeholder="State"
           value={address.state ?? ""}
+          onKeyDown={(e) => handleKeyDown(e, refs.pin)}
           onChange={(e) =>
             setAddress((prev) => ({
               ...prev,
@@ -105,6 +128,7 @@ export default function Address({
       <div className="grid gap-2">
         <Label>PIN Code</Label>
         <Input
+          ref={refs.pin}
           placeholder="PIN Code"
           value={address.pin ?? ""}
           onChange={(e) =>

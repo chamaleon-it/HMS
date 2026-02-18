@@ -86,14 +86,14 @@ export default function PrintReceipt({
 
             <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col">
                 {/* HEADER */}
-                <div className="bg-black text-white px-10 py-8">
+                <div className="bg-white text-slate-900 border-b border-slate-200 px-10 py-8">
                     <div className="flex justify-between items-start">
                         <HospitalName />
                         <div className="text-right space-y-2">
-                            <Badge className="bg-white text-slate-900 border-none px-3 py-1 font-bold text-xs">CASH RECEIPT</Badge>
+                            <Badge className="bg-slate-900 text-white border-none px-3 py-1 font-bold text-xs hover:bg-slate-800">CASH RECEIPT</Badge>
                             <div className="space-y-0.5">
                                 <p className="text-sm font-medium">Invoice No: <span className="font-bold">{invoiceNo}</span></p>
-                                <p className="text-[11px] opacity-80">{fDateandTime(new Date())}</p>
+                                <p className="text-[11px] text-slate-500">{fDateandTime(new Date())}</p>
                             </div>
                         </div>
                     </div>
@@ -187,15 +187,15 @@ export default function PrintReceipt({
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-black px-10 py-6 text-[10px] text-slate-400 flex justify-between items-center">
+                <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 text-[10px] text-slate-500 flex justify-between items-center">
                     <div className="space-y-1">
-                        <p className="text-slate-300 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
+                        <p className="text-slate-700 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
                         <p className="text-slate-500">
-                            For Appointments / Booking: <span className="text-slate-400 font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
+                            For Appointments / Booking: <span className="text-slate-700 font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
                         </p>
                     </div>
                     <p className="text-slate-500">
-                        Powered by <span className="font-bold text-slate-300 tracking-tight uppercase">Synapse IT Services LLP</span>
+                        Powered by <span className="font-bold text-slate-700 tracking-tight uppercase">Synapse IT Services LLP</span>
                     </p>
                 </div>
             </div>
