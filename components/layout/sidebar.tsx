@@ -16,6 +16,8 @@ import {
   ChevronDown,
   Truck,
   ReceiptText,
+  FileBarChart,
+  Banknote,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -177,9 +179,20 @@ export function Sidebar() {
         icon: LayoutDashboard,
         link: "/dashboard/lab",
       },
-
       {
-        key: "investigations",
+        key: "payments",
+        label: "Payments",
+        icon: Banknote,
+        link: "/dashboard/lab/payments/",
+      },
+      {
+        key: "collection-report",
+        label: "Sample Collection",
+        icon: FileBarChart,
+        link: "/dashboard/lab/collection-report/",
+      },
+      {
+        key: "tests",
         label: "Test",
         icon: FlaskConical,
         childrens: [
@@ -194,6 +207,12 @@ export function Sidebar() {
             link: "/dashboard/lab/test/imaging/",
           }
         ]
+      },
+      {
+        key: "inventory",
+        label: "Inventory",
+        icon: Warehouse,
+        link: "/dashboard/lab/inventory/",
       },
       {
         key: "patients",
