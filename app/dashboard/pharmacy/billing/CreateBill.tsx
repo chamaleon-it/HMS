@@ -349,9 +349,9 @@ export default function CreateBill({
       />
 
 
-      <div className="grid grid-cols-12 gap-4 relative z-0 print:hidden">
+      <div className="flex flex-col gap-4 relative z-0 print:hidden">
 
-        <div className="col-span-12 space-y-4 lg:col-span-8">
+        <div className="w-full space-y-4">
           <LineItemsTable
             payload={payload}
             updateQty={updateQty}
@@ -367,24 +367,28 @@ export default function CreateBill({
           />
 
           <PaymentSection payload={payload} setPayload={setPayload} />
-
-          <InvoiceNotes payload={payload} setPayload={setPayload} />
         </div>
 
-        <div className="col-span-12 lg:col-span-4">
-          <BillSummary
-            subtotal={subtotal}
-            totalGst={totalGst}
-            roundOffAmount={roundOffAmount}
-            finalTotal={finalTotal}
-            totalPaid={totalPaid}
-            dueAmount={dueAmount}
-            payload={payload}
-            generateBill={generateBill}
-            onPrint={onClick}
-            downloadPdf={downloadPdf}
-            PrimaryButton={PrimaryButton}
-          />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="lg:col-span-8 flex flex-col h-full">
+            <InvoiceNotes payload={payload} setPayload={setPayload} />
+          </div>
+
+          <div className="lg:col-span-4 h-full">
+            <BillSummary
+              subtotal={subtotal}
+              totalGst={totalGst}
+              roundOffAmount={roundOffAmount}
+              finalTotal={finalTotal}
+              totalPaid={totalPaid}
+              dueAmount={dueAmount}
+              payload={payload}
+              generateBill={generateBill}
+              onPrint={onClick}
+              downloadPdf={downloadPdf}
+              PrimaryButton={PrimaryButton}
+            />
+          </div>
         </div>
       </div>
 

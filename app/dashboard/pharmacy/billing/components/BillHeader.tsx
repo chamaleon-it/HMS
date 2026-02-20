@@ -30,20 +30,10 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
     setOpenCreate,
 }) => {
     return (
-        <div className="rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900 relative z-10">
-            <div className="mb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="md:w-2/5">
-                    <div className="text-sm font-medium mb-2 flex items-center gap-2">
-                        <span
-                            className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
-                            style={{
-                                backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-                            }}
-                        >
-                            <User2 className="h-4 w-4" />
-                        </span>
-                        Patient
-                    </div>
+        <div className="bg-white p-7 rounded-xl shadow-sm border border-slate-200">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+                <div className="space-y-2">
+                    <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Patient</label>
                     <div className="flex items-center gap-2">
                         <div className="flex-1">
                             <PatientSelection
@@ -56,13 +46,38 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                             />
                         </div>
                         <button
-                            className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 shrink-0"
+                            className="h-11 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium hover:bg-slate-50 hover:text-indigo-600 transition-colors shrink-0"
                             onClick={() => setOpenCreate(true)}
+                            title="New Patient"
                         >
-                            <UserPlus className="mr-2 inline h-4 w-4" />
-                            New
+                            <UserPlus className="h-4 w-4 md:mr-2 inline" />
+                            <span className="hidden md:inline">New</span>
                         </button>
                     </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Invoice Date</label>
+                    <div className="h-11 flex items-center px-3 rounded-lg border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-700">
+                        <CalendarDays className="h-4 w-4 mr-2 text-slate-400" />
+                        {fDate(new Date())}
+                    </div>
+                </div>
+
+                <div className="space-y-2">
+                    <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Doctor Name</label>
+                    <input
+                        type="text"
+                        placeholder="Referrer / Doctor"
+                        value={payload.doctor}
+                        onChange={(e) =>
+                            setPayload((prev: any) => ({
+                                ...prev,
+                                doctor: e.target.value,
+                            }))
+                        }
+                        className="h-11 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                    />
                 </div>
 
                 <Sheet open={openCreate} onOpenChange={setOpenCreate}>
@@ -89,64 +104,7 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                         </div>
                     </SheetContent>
                 </Sheet>
-
-
-                <div className="">
-                    <div className="text-sm font-medium mb-2 flex items-center gap-2">
-                        <span
-                            className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
-                            style={{
-                                backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-                            }}
-                        >
-                            <FileText className="h-4 w-4" />
-                        </span>
-                        Invoice
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                        <div>
-                            <div className="flex items-center gap-1 font-medium">
-                                <CalendarDays className="h-4 w-4" />
-                                {fDate(new Date())}
-                            </div>
-                        </div>
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <div className="flex-1">
-                                <div className="text-xs text-slate-500">Doctor Name</div>
-                                <input
-                                    type="text"
-                                    placeholder="Referrer / Doctor"
-                                    value={payload.doctor}
-                                    onChange={(e) =>
-                                        setPayload((prev: any) => ({
-                                            ...prev,
-                                            doctor: e.target.value,
-                                        }))
-                                    }
-                                    className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                                />
-                            </div>
-                            <div className="flex-1">
-                                <div className="text-xs text-slate-500">Department</div>
-                                <input
-                                    type="text"
-                                    placeholder="e.g. Cardiology"
-                                    value={payload.department}
-                                    onChange={(e) =>
-                                        setPayload((prev: any) => ({
-                                            ...prev,
-                                            department: e.target.value,
-                                        }))
-                                    }
-                                    className="h-8 w-full rounded-lg border border-slate-200 bg-white/70 px-2 text-xs outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-
-
         </div>
     );
 };

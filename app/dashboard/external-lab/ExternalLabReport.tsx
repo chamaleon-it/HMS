@@ -81,7 +81,7 @@ export default function ExternalLabReport() {
     const REPORT = data?.data ?? [];
 
     const [status, setStatus] = useState<
-        "Pending" | "In Progress" | "Completed"
+        "Pending" | "In Progress" | "Completed" | "Flagged"
     >("Pending");
 
     return (

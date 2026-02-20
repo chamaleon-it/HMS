@@ -6,7 +6,7 @@ import LabStatus from "./LabStatus";
 import NewTest from "./NewTest";
 import LabTable from "./LabTable";
 import LabHeader from "../LabHeader";
-import { Beaker, Clock, CheckCircle2, FlaskConical, Filter, Plus } from "lucide-react";
+import { Beaker, Clock, CheckCircle2, FlaskConical, Filter, Plus, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -57,11 +57,12 @@ export default function LabResultsPage() {
     total: REPORT.length,
     pending: REPORT.filter(r => r.status === "Pending").length,
     inProgress: REPORT.filter(r => r.status === "In Progress").length,
-    completed: REPORT.filter(r => r.status === "Completed").length
+    completed: REPORT.filter(r => r.status === "Completed").length,
+    flagged: REPORT.filter(r => r.status === "Flagged").length
   };
 
   const [status, setStatus] = useState<
-    "Pending" | "In Progress" | "Completed"
+    "Pending" | "In Progress" | "Completed" | "Flagged"
   >("Pending");
 
   return (
@@ -75,7 +76,7 @@ export default function LabResultsPage() {
       </LabHeader>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           delay={0.1}
           icon={<FlaskConical className="h-6 w-6" />}
@@ -111,6 +112,15 @@ export default function LabResultsPage() {
           colorClass="from-emerald-500/10 to-emerald-500/5"
           iconBgClass="bg-emerald-100 text-emerald-600"
           borderClass="hover:border-emerald-200"
+        />
+        <StatCard
+          delay={0.5}
+          icon={<AlertTriangle className="h-6 w-6" />}
+          label="Flagged"
+          value={stats.flagged}
+          colorClass="from-rose-500/10 to-rose-500/5"
+          iconBgClass="bg-rose-100 text-rose-600"
+          borderClass="hover:border-rose-200"
         />
       </div>
 

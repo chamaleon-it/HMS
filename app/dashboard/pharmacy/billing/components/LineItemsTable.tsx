@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FileText, Plus, Star, Trash2, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { formatINR } from "@/lib/fNumber";
 import ItemSelected from "../ItemSelected";
 import { cn } from "@/lib/utils";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 
 interface LineItemsTableProps {
     payload: any;
@@ -33,6 +34,25 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
     addFullItem,
 }) => {
     const [favorites, setFavorites] = useState<{ name: string; unitPrice: number; gst: number }[]>([]);
+    const [isCustomItemModalOpen, setIsCustomItemModalOpen] = useState(false);
+    const [customItem, setCustomItem] = useState({ procedureCode: "", name: "", unitPrice: 0 });
+    const procedureNameRef = useRef<HTMLInputElement>(null);
+    const unitPriceRef = useRef<HTMLInputElement>(null);
+
+    const handleAddCustomItem = () => {
+        if (!customItem.procedureCode || !customItem.name) return;
+
+        // Append procedure code to the name if it is provided
+        const itemName = `[${customItem.procedureCode}] ${customItem.name}`;
+
+        addFullItem({
+            name: itemName,
+            unitPrice: customItem.unitPrice || 0,
+            gst: 0 // Default GST to 0 for custom procedures based on original requirements
+        });
+        setCustomItem({ procedureCode: "", name: "", unitPrice: 0 });
+        setIsCustomItemModalOpen(false);
+    };
 
     useEffect(() => {
         const stored = localStorage.getItem("@pharmacy-favorites");
@@ -89,17 +109,17 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                     item={item}
                     itemRef={itemRef}
                     setItem={setItem}
+                    onOpenCustomModal={() => setIsCustomItemModalOpen(true)}
                 />
             </div>
 
-            <div className="rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900">
-                <div className="mb-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-sm font-medium">
-                        <FileText className="h-4 w-4" />
+            <div className="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
+                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
+                    <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest ml-2">
                         Line Items
                     </div>
-                    <span className="text-xs text-slate-500">
-                        Simple mode • Advanced fields in each row
+                    <span className="text-xs text-slate-400 italic">
+                        Start typing to search items
                     </span>
                 </div>
 
@@ -113,14 +133,14 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                             <col className="w-[14%]" />
                             <col className="w-[12%]" />
                         </colgroup>
-                        <thead className="sticky top-0 z-10 bg-white/80 backdrop-blur">
-                            <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
-                                <th className="py-2 text-left">Item</th>
-                                <th className="py-2 text-right">Qty</th>
-                                <th className="py-2 text-right">Unit Price</th>
-                                <th className="py-2 text-right">GST%</th>
-                                <th className="py-2 text-right">Amount</th>
-                                <th className="py-2 text-center">• • •</th>
+                        <thead className="bg-[#334155]">
+                            <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-white font-semibold">
+                                <th className="py-4 pl-4 text-left">Item Name</th>
+                                <th className="py-4 pr-2 text-right">Qty</th>
+                                <th className="py-4 pr-2 text-right">Unit Price</th>
+                                <th className="py-4 pr-2 text-right">GST%</th>
+                                <th className="py-4 pr-2 text-right">Amount</th>
+                                <th className="py-4 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -133,19 +153,19 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -6 }}
                                                 transition={{ duration: 0.18 }}
-                                                className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50"
+                                                className="border-b border-slate-100 last:border-0 hover:bg-indigo-50/30 group transition-colors"
                                             >
-                                                <td className="py-2 pr-2">
+                                                <td className="py-3 pl-3 pr-2">
                                                     <div className="space-y-1">
                                                         <input
                                                             value={it.name}
                                                             readOnly
                                                             disabled
-                                                            className="h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+                                                            className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                                                         />
                                                     </div>
                                                 </td>
-                                                <td className="py-2 pr-2 text-right">
+                                                <td className="py-3 pr-2 text-right">
                                                     <input
                                                         type="number"
                                                         min={1}
@@ -156,10 +176,10 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updateQty(it.name, Number(e.target.value))
                                                         }
-                                                        className="h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50 text-right"
+                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-indigo-50/30 px-3 text-sm font-bold text-indigo-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-center"
                                                     />
                                                 </td>
-                                                <td className="py-2 pr-2 text-right">
+                                                <td className="py-3 pr-2 text-right">
                                                     <input
                                                         type="number"
                                                         min={0}
@@ -170,10 +190,10 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updatePrice(it.name, Number(e.target.value))
                                                         }
-                                                        className="h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50 text-right"
+                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-right"
                                                     />
                                                 </td>
-                                                <td className="py-2 pr-2 text-right">
+                                                <td className="py-3 pr-2 text-right">
                                                     <input
                                                         type="number"
                                                         min={0}
@@ -185,25 +205,25 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updateGST(it.name, Number(e.target.value))
                                                         }
-                                                        className="h-10 w-20 rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50 text-right"
+                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-right"
                                                     />
                                                 </td>
-                                                <td className="py-2 pr-2 text-right font-medium tabular-nums">
+                                                <td className="py-3 pr-2 text-right font-bold text-slate-700 tabular-nums text-base">
                                                     {formatINR(it.total)}
                                                 </td>
-                                                <td className="py-2 text-center">
-                                                    <div className="flex items-center gap-2">
+                                                <td className="py-3 text-center">
+                                                    <div className="flex items-center justify-center gap-2">
 
                                                         <button
                                                             onClick={() => removeItem(it.name)}
-                                                            className="ml-1 rounded-md p-2 hover:bg-rose-50 text-rose-600"
+                                                            className="rounded-lg p-2 hover:bg-rose-50 text-slate-400 hover:text-rose-600 transition-colors"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </button>
                                                         <button
                                                             onClick={() => toggleFavorite({ name: it.name, unitPrice: it.unitPrice, gst: it.gst })}
                                                             className={cn(
-                                                                "rounded-md p-2 transition-colors",
+                                                                "rounded-lg p-2 transition-colors",
                                                                 favorites.some((f) => f.name === it.name)
                                                                     ? "bg-yellow-50 text-yellow-600"
                                                                     : "text-slate-400 hover:bg-yellow-50 hover:text-yellow-600"
@@ -227,10 +247,10 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                     </table>
                 </div>
 
-                <div className="mt-3 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm shadow-sm dark:border-slate-700 dark:bg-slate-900">
-                        <span className="text-slate-500">Line Items Total</span>
-                        <span className="ml-3 font-semibold tabular-nums">
+                <div className="p-4 pt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="rounded-xl border border-slate-200 bg-white px-5 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 flex items-center">
+                        <span className="text-slate-500 text-[15px] font-medium">Line Items Total</span>
+                        <span className="ml-3 font-bold tabular-nums text-lg text-slate-800">
                             {formatINR(payload.items.reduce((acc: number, i: any) => acc + i.total, 0))}
                         </span>
                     </div>
@@ -240,7 +260,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                 if (item) {
                                     addItem();
                                 } else {
-                                    itemRef.current?.focus();
+                                    setIsCustomItemModalOpen(true);
                                 }
                             }}
                             className="flex-1 sm:flex-none"
@@ -251,6 +271,75 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                     </div>
                 </div>
             </div>
+
+            <Dialog open={isCustomItemModalOpen} onOpenChange={setIsCustomItemModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Add Custom Item / Service</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Service / Item code <span className="text-red-500">*</span></label>
+                            <input
+                                value={customItem.procedureCode}
+                                onChange={(e) => setCustomItem({ ...customItem, procedureCode: e.target.value })}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        procedureNameRef.current?.focus();
+                                    }
+                                }}
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                placeholder="e.g. CPT-12345"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Service / Item Name <span className="text-red-500">*</span></label>
+                            <input
+                                ref={procedureNameRef}
+                                value={customItem.name}
+                                onChange={(e) => setCustomItem({ ...customItem, name: e.target.value })}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        unitPriceRef.current?.focus();
+                                    }
+                                }}
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                placeholder="ex. Consultation"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-slate-700">Price (₹)</label>
+                            <input
+                                ref={unitPriceRef}
+                                type="number"
+                                min="0"
+                                value={customItem.unitPrice === 0 ? "" : customItem.unitPrice.toString()}
+                                onChange={(e) => setCustomItem({ ...customItem, unitPrice: Number(e.target.value) })}
+                                onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                        e.preventDefault();
+                                        if (customItem.name.trim() && customItem.procedureCode.trim()) {
+                                            handleAddCustomItem();
+                                        }
+                                    }
+                                }}
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                placeholder="0"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <PrimaryButton
+                            onClick={handleAddCustomItem}
+                            disabled={!customItem.name.trim() || !customItem.procedureCode.trim()}
+                        >
+                            Add Procedure
+                        </PrimaryButton>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 };

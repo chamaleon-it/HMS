@@ -121,7 +121,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                         <div>
                             <DialogTitle className="text-lg font-semibold text-gray-900">Update Lab Results</DialogTitle>
                             <DialogDescription className="text-sm text-gray-500 mt-0.5">
-                                Enter the results for the lab tests performed for <span className="font-medium text-gray-700">{r.patient.name}</span>.
+                                Enter the results for the lab tests performed for <span className="font-medium text-gray-700">{r?.patient?.name}</span>.
                             </DialogDescription>
                         </div>
                     </div>

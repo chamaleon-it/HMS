@@ -10,7 +10,7 @@ import { Bell, Clock } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 
 interface PropsTypes {
-  status: "Pending" | "In Progress" | "Completed";
+  status: "Pending" | "In Progress" | "Completed" | "Flagged";
   mutate: () => void;
   REPORT: {
     _id: string;
@@ -151,13 +151,13 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   <td className="px-3 py-2">
                     <div className="flex flex-col">
                       <span className="font-semibold text-gray-900 text-sm">
-                        {r.patient.name}
+                        {r?.patient?.name}
                       </span>
                       <span className="text-xs text-gray-500 mt-0.5">
                         <span className="font-medium text-gray-600">
-                          {r.patient.mrn}
+                          {r?.patient?.mrn}
                         </span>{" "}
-                        • {fAge(r.patient.dateOfBirth)} yrs • {r.patient.gender}
+                        • {fAge(r?.patient?.dateOfBirth)} yrs • {r?.patient?.gender}
                       </span>
                     </div>
                   </td>

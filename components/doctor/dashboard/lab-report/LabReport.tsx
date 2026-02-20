@@ -483,7 +483,7 @@ export default function LabResultsPage() {
 
       <LabTable REPORT={
         REPORT.filter((r) => {
-          const patientMatch = r.patient.name.toLowerCase().includes(filter.patient.toLowerCase())
+          const patientMatch = r?.patient?.name.toLowerCase().includes(filter.patient.toLowerCase())
           const statusMatch = filter.status === "All" || r.status === filter.status
           const facilityMatch = filter.facility === "All" || r.test.some((e) => e.name.type === filter.facility)
           const dateMatch = filter.date === "All time" || r.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)

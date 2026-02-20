@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import PatientSelection from "./PatientSelection";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/auth/context/auth-context";
 import {
   Popover,
@@ -46,17 +46,41 @@ import { RegisterPatient } from "./RegisterPatient";
 import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
 
-export default function NewTest({ mutate }: { mutate: () => void }) {
+interface NewTestProps {
+  mutate?: () => void;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  defaultBookingType?: "Book Now" | "Schedule";
+}
+
+export default function NewTest({
+  mutate,
+  open: controlledOpen,
+  onOpenChange: setControlledOpen,
+  defaultBookingType = "Book Now"
+}: NewTestProps) {
   const { user } = useAuth();
   const { panels } = useGetPanels();
 
 
   const [openCreate, setOpenCreate] = useState(false);
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? setControlledOpen : setInternalOpen;
+
   const [openDate, setOpenDate] = useState(false);
   const [bookingType, setBookingType] = useState<"Book Now" | "Schedule">(
-    "Book Now"
+    defaultBookingType
   );
+
+  // Update booking type when default changes or dialog opens
+  useEffect(() => {
+    if (open && defaultBookingType) {
+      setBookingType(defaultBookingType);
+    }
+  }, [open, defaultBookingType]);
 
   const tabs = [
     { key: "Book Now", label: "Book Now", icon: Zap },
@@ -116,8 +140,8 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
           error: ({ response }) => response.data.message,
         }
       );
-      setOpen(false);
-      mutate();
+      setOpen?.(false);
+      mutate?.();
       setPayload({
         patient: "",
         doctor: user?._id ?? "",
@@ -136,14 +160,16 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          className="bg-emerald-600 hover:bg-emerald-700 text-white"
-          size={"sm"}
-        >
-          New Test
-        </Button>
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button
+            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            size={"sm"}
+          >
+            New Test
+          </Button>
+        </DialogTrigger>
+      )}
 
       <DialogContent className="min-w-4xl">
         <DialogHeader>
@@ -157,7 +183,7 @@ export default function NewTest({ mutate }: { mutate: () => void }) {
             }}
             register={() => {
               setOpenCreate(true);
-              setOpen(false);
+              setOpen?.(false);
             }}
           />
           <div className="flex flex-col gap-3">
