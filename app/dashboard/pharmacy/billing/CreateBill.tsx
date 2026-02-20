@@ -1,28 +1,8 @@
-import {
-  FilePlus2,
-  Printer,
-  Download,
-} from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { fDate } from "@/lib/fDateAndTime";
-import { formatINR, getDecimal } from "@/lib/fNumber";
-import { useRouter } from "next/navigation";
+
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import PatientSelection from "./PatientSelection";
-import ItemSelected from "./ItemSelected";
+
 import usePrint from "./usePrint";
 import PrintReceipt from "./PrintReceipt";
 import { useBillCalculations } from "./hooks/useBillCalculations";
@@ -69,9 +49,6 @@ export default function CreateBill({
   }), [pharmacyBilling.roundOff])
 
 
-
-  const router = useRouter();
-
   const [item, setItem] = useState<null | string>(null);
   const itemRef = useRef<null | HTMLInputElement>(null);
   const [payload, setPayload] = useState<{
@@ -95,6 +72,7 @@ export default function CreateBill({
     tpa?: string;
     preAuthNo?: string;
     note?: string;
+    rxId?: string;
   }>(defaultPayload);
 
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
@@ -103,10 +81,6 @@ export default function CreateBill({
 
   // ... inside component ...
   const [openCreate, setOpenCreate] = useState(false);
-  // registerPatient callback is no longer needed but kept if referenced elsewhere, otherwise remove logic inside.
-  const registerPatient = useCallback(async () => {
-    setOpenCreate(true)
-  }, []);
 
   const addItem = useCallback(
     (i?: string) => {
@@ -274,7 +248,13 @@ export default function CreateBill({
     const urlParams = new URLSearchParams(window.location.search);
     const orderMrn = urlParams.get("mrn");
 
+
     if (!orderMrn) return;
+
+    setPayload((prev) => ({
+      ...prev,
+      rxId: orderMrn,
+    }))
 
     api
       .get<{

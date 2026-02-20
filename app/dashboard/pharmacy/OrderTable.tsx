@@ -395,7 +395,7 @@ export default function OrderTable({
                     Rx
                   </Button>
 
-                  {autoGenerateBill ? (
+                  {r.billNo != "-" ? (
                     <Button
                       variant="outline"
                       size="sm"
