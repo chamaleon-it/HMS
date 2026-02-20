@@ -1,16 +1,16 @@
 "use client";
 
 import React, { JSX, useMemo } from "react";
-import { CheckCircle, Eye, Clock } from "lucide-react";
+import { CheckCircle, Eye, Clock, AlertTriangle } from "lucide-react";
 import { motion } from "framer-motion";
 export default function LabStatus({
   currenctStatus,
   setCurrenctStatus,
 }: {
-  currenctStatus: "Pending" | "In Progress" | "Completed";
+  currenctStatus: "Pending" | "In Progress" | "Completed" | "Flagged";
   setCurrenctStatus: React.Dispatch<
     React.SetStateAction<
-      "Pending" | "In Progress" | "Completed"
+      "Pending" | "In Progress" | "Completed" | "Flagged"
     >
   >;
 }): JSX.Element {
@@ -21,6 +21,7 @@ export default function LabStatus({
 
       { key: "In Progress", label: "In Progress", icon: Eye },
       { key: "Completed", label: "Completed", icon: CheckCircle },
+      { key: "Flagged", label: "Flagged", icon: AlertTriangle },
     ],
     []
   );
@@ -34,7 +35,7 @@ export default function LabStatus({
             key={key}
             onClick={() =>
               setCurrenctStatus(
-                key as "Pending" | "In Progress" | "Completed"
+                key as "Pending" | "In Progress" | "Completed" | "Flagged"
               )
             }
             className={

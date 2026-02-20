@@ -216,7 +216,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, value, orderPatient, onSe
             setActiveIdx(-1);
           }}
           onKeyDown={onKeyDown}
-          className="w-full"
+          className="w-full h-11 border-slate-200 bg-slate-50/50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-lg transition-all"
         />
 
         {input && (

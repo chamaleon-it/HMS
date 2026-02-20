@@ -139,7 +139,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
               <DialogDescription className="text-sm text-gray-500 mt-0.5">
                 Enter the results for the lab tests performed for{" "}
                 <span className="font-medium text-gray-700">
-                  {r.patient.name}
+                  {r?.patient?.name}
                 </span>
                 .
               </DialogDescription>

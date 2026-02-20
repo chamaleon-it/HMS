@@ -105,8 +105,8 @@ export default function ViewResultModal({ r }: Props) {
                                 <User className="w-5 h-5" />
                             </div>
                             <div>
-                                <h3 className="text-sm font-semibold text-gray-900">{r.patient.name}</h3>
-                                <p className="text-xs text-gray-500">{r.patient.mrn}</p>
+                                <h3 className="text-sm font-semibold text-gray-900">{r?.patient?.name}</h3>
+                                <p className="text-xs text-gray-500">{r?.patient?.mrn}</p>
                             </div>
                         </div>
                         <div className="h-8 w-px bg-gray-200"></div>

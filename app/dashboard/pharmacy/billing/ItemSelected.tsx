@@ -14,6 +14,7 @@ interface PropsType {
   itemRef: React.RefObject<HTMLInputElement | null>;
   item: string | null;
   setItem: (v: string) => void;
+  onOpenCustomModal: () => void;
 }
 
 export default function ItemSelected({
@@ -21,6 +22,7 @@ export default function ItemSelected({
   itemRef,
   item,
   setItem,
+  onOpenCustomModal,
 }: PropsType) {
   const query = item?.trim() ? `/billing/billing_items?item=${encodeURIComponent(item.trim())}` : null;
   const { data: billingItemsData, mutate } = useSWR<{ message: string; data: string[] }>(
@@ -58,9 +60,13 @@ export default function ItemSelected({
   );
 
   const onAddClick = useCallback(() => {
-    addItem();
-    if (item?.trim()) addbillingItem(item);
-  }, [addItem, item, addbillingItem]);
+    if (item?.trim()) {
+      addItem();
+      addbillingItem(item);
+    } else {
+      onOpenCustomModal();
+    }
+  }, [addItem, item, addbillingItem, onOpenCustomModal]);
 
   return (
     <div className="col-span-12 md:col-span-4 ">
@@ -81,7 +87,7 @@ export default function ItemSelected({
             placeholder="Search services / tests / items…"
             ref={itemRef}
             className={
-              "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+              "h-12 w-full rounded-lg border border-slate-200 bg-white/70 px-4 text-[15px] font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/50 transition-all shadow-sm"
             }
             value={item ?? ""}
             onChange={(e) => setItem(e.target.value)}
@@ -127,8 +133,8 @@ export default function ItemSelected({
             </div>
           )}
         </div>
-        <PrimaryButton onClick={onAddClick}>
-          <Plus className="h-4 w-4" />
+        <PrimaryButton onClick={onAddClick} className="h-12 w-16 sm:w-20 flex items-center justify-center p-0 shrink-0">
+          <Plus className="h-6 w-6 stroke-[2.5]" />
         </PrimaryButton>
       </div>
     </div>
