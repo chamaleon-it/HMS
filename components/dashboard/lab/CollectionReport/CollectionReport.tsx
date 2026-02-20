@@ -60,6 +60,12 @@ import LabViewOrder from "../LabViewOrder";
 import NewTest from "../Home/NewTest";
 
 // Mock Data
+const theme = {
+    from: "#4f46e5",
+    to: "#ec4899",
+    accent: "#06b6d4",
+};
+
 const SAMPLES = [
     { id: "SC-1001", patient: "John Doe", mrn: "MRN-2024-001", test: "CBC", sampleType: "Whole Blood (EDTA)", time: "2024-02-18T10:30:00", status: "Sample Collected", waitTime: "10 min", priority: "Routine" },
     { id: "SC-1002", patient: "Jane Smith", mrn: "MRN-2024-045", test: "Lipid Profile", sampleType: "Serum", time: "2024-02-18T10:45:00", status: "Waiting for Result", waitTime: "5 min", priority: "VIP" },
@@ -221,13 +227,16 @@ export default function CollectionReport() {
                         <SampleCollectionStatus currentStatus={status} setCurrentStatus={setStatus} />
                         <div className="flex items-center gap-2">
                             <Button
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
+                                className="text-white gap-2 shadow-md hover:brightness-110 border-0 transition-all active:scale-95"
+                                style={{
+                                    backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
+                                }}
                                 onClick={() => {
                                     setBookingType("Book Now");
                                     setNewTestOpen(true);
                                 }}
                             >
-                                <Plus className="h-4 w-4" /> Book now
+                                <Plus className="h-4 w-4 stroke-[2.5]" /> Book now
                             </Button>
                             <Button
                                 variant="outline"
