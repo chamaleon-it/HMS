@@ -164,7 +164,7 @@ export default function Lab() {
       >
         <LabTable
           REPORT={REPORT.filter((r) => {
-            const patientMatch = r.patient.name.toLowerCase().includes(filter.patient.toLowerCase()) || r.patient.mrn.toLowerCase().includes(filter.patient.toLowerCase());
+            const patientMatch = r?.patient?.name.toLowerCase().includes(filter.patient.toLowerCase()) || r?.patient?.mrn.toLowerCase().includes(filter.patient.toLowerCase());
             const statusMatch = filter.status === "All" || r.status === filter.status;
             const dateMatch = filter.date === "All time" || r.createdAt >= new Date(Date.now() - (filter.date === "7 days" ? 7 : 30) * 24 * 60 * 60 * 1000);
             return patientMatch && statusMatch && dateMatch;

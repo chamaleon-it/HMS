@@ -379,6 +379,9 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     if (!localOrder || !updatePayload) return null;
 
     return (
+
+
+
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogContent className="w-[98vw]! max-w-7xl! h-[90vh] flex flex-col print:hidden">
                 <DialogHeader>
@@ -542,49 +545,43 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
                 </div>
 
+                <div className="flex items-center gap-2">
+                    {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
+                        disabled={updatingOrder}
+                        className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        onClick={handleUpdate}
+                    >
+                        {updatingOrder ? "Updating..." : "Update Order"}
+                    </Button>}
+                    {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
+                        disabled={markingAllPacked}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                        onClick={() => markAllPacked()}
+                    >
+                        {markingAllPacked ? "Marking..." : "Mark all packed"}
+                    </Button>}
+                    {
+                        autoGenerateBill ?
+                            <Button
+                                variant="outline"
+                                disabled={!!printingOrderId}
+                                onClick={() => handlePrintBill(localOrder)}
+                            >
+                                {printingOrderId === localOrder._id ? "Printing..." : "Print"}
+                            </Button>
+                            : <Button
+                                variant="outline"
+                                asChild
+                            >
+                                <Link href={`/dashboard/pharmacy/billing?mrn=${localOrder.mrn}#new`}>
+                                    Print
+                                </Link>
+                            </Button>
+                    }
+                    {localOrder.status !== "Completed" && <Button onClick={() => handleCompleteOrder()}>Complete Order</Button>}
 
-                <div className="bg-white border-t pt-4 mt-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-sm">
-                    <div className="text-sm">
-
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                        {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
-                            disabled={updatingOrder}
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
-                            onClick={handleUpdate}
-                        >
-                            {updatingOrder ? "Updating..." : "Update Order"}
-                        </Button>}
-                        {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
-                            disabled={markingAllPacked}
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                            onClick={() => markAllPacked()}
-                        >
-                            {markingAllPacked ? "Marking..." : "Mark all packed"}
-                        </Button>}
-                        {
-                            autoGenerateBill ?
-                                <Button
-                                    variant="outline"
-                                    disabled={!!printingOrderId}
-                                    onClick={() => handlePrintBill(localOrder)}
-                                >
-                                    {printingOrderId === localOrder._id ? "Printing..." : "Print"}
-                                </Button>
-                                : <Button
-                                    variant="outline"
-                                    asChild
-                                >
-                                    <Link href={`/dashboard/pharmacy/billing?mrn=${localOrder.mrn}#new`}>
-                                        Print
-                                    </Link>
-                                </Button>
-                        }
-                        {localOrder.status !== "Completed" && <Button onClick={() => handleCompleteOrder()}>Complete Order</Button>}
-
-                    </div>
                 </div>
+
 
                 <AlertDialog open={openPrintConfirm} onOpenChange={setOpenPrintConfirm}>
                     <AlertDialogContent>

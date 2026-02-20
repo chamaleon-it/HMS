@@ -11,7 +11,11 @@ import {
     FlaskConical,
     FileText,
     AlertTriangle,
-    Eye
+    Eye,
+    Trash,
+    Pencil,
+    Calendar,
+    Plus
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +30,34 @@ import {
 } from "@/components/ui/table";
 import { Input } from "@/components/ui/input";
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import LabViewOrder from "../LabViewOrder";
+import NewTest from "../Home/NewTest";
 
 // Mock Data
 const SAMPLES = [
@@ -114,25 +146,60 @@ function StatusBadge({ status }: { status: string }) {
     );
 }
 
+
+
 export default function CollectionReport() {
+    const [samples, setSamples] = useState(SAMPLES);
     const [status, setStatus] = useState<StatusType>("Pending");
     const [search, setSearch] = useState("");
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [selectedSample, setSelectedSample] = useState<string | null>(null);
+    const [editDialogOpen, setEditDialogOpen] = useState(false);
+    const [editingSample, setEditingSample] = useState<typeof SAMPLES[0] | null>(null);
+    const [viewOrderOpen, setViewOrderOpen] = useState(false);
+    const [viewingSample, setViewingSample] = useState<typeof SAMPLES[0] | null>(null);
 
-    const filteredSamples = SAMPLES.filter(sample =>
-        (status === "Pending" ? true : sample.status === status) && // Show all for demo or specific logic? 
-        // Actually, usually tabs filter strictly. Let's filter strictly based on status matching or mapping.
-        // For this mock data, the statuses might not perfectly align with the tab names if I didn't update the mock data.
-        // Let's assume strict filtering:
+    const [newTestOpen, setNewTestOpen] = useState(false);
+    const [bookingType, setBookingType] = useState<"Book Now" | "Schedule">("Book Now");
+
+    const filteredSamples = samples.filter(sample =>
+        (status === "Pending" ? true : sample.status === status) &&
         (sample.status === status) &&
         (sample.patient.toLowerCase().includes(search.toLowerCase()) ||
             sample.mrn.toLowerCase().includes(search.toLowerCase()) ||
             sample.test.toLowerCase().includes(search.toLowerCase()))
     );
 
-    // For demo purposes, if "Pending" is selected, let's show "Pending" items. 
-    // If "Sample Collected" is selected, show "Sample Collected" items.
-    // The Mock data has "Sample Collected", "Waiting for Result", "Pending". 
-    // "Completed" items are missing in mock data, but logic holds.
+    const confirmDelete = (id: string) => {
+        setSelectedSample(id);
+        setDeleteDialogOpen(true);
+    };
+
+    const handleDelete = () => {
+        if (selectedSample) {
+            setSamples(prev => prev.filter(s => s.id !== selectedSample));
+            setDeleteDialogOpen(false);
+            setSelectedSample(null);
+        }
+    };
+
+    const handleEdit = (sample: typeof SAMPLES[0]) => {
+        setEditingSample(sample);
+        setEditDialogOpen(true);
+    };
+
+    const saveEdit = () => {
+        if (editingSample) {
+            setSamples(prev => prev.map(s => s.id === editingSample.id ? editingSample : s));
+            setEditDialogOpen(false);
+            setEditingSample(null);
+        }
+    };
+
+    const handleViewOrder = (sample: typeof SAMPLES[0]) => {
+        setViewingSample(sample);
+        setViewOrderOpen(true);
+    };
 
     return (
         <TooltipProvider>
@@ -152,6 +219,27 @@ export default function CollectionReport() {
                             />
                         </div>
                         <SampleCollectionStatus currentStatus={status} setCurrentStatus={setStatus} />
+                        <div className="flex items-center gap-2">
+                            <Button
+                                className="bg-indigo-600 hover:bg-indigo-700 text-white gap-2"
+                                onClick={() => {
+                                    setBookingType("Book Now");
+                                    setNewTestOpen(true);
+                                }}
+                            >
+                                <Plus className="h-4 w-4" /> Book now
+                            </Button>
+                            <Button
+                                variant="outline"
+                                className="gap-2"
+                                onClick={() => {
+                                    setBookingType("Schedule");
+                                    setNewTestOpen(true);
+                                }}
+                            >
+                                <Calendar className="h-4 w-4" /> Schedule
+                            </Button>
+                        </div>
                     </div>
                 </LabHeader>
 
@@ -214,7 +302,8 @@ export default function CollectionReport() {
                                                     <Button
                                                         size="icon"
                                                         variant="ghost"
-                                                        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                        className="h-8 w-8 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                                                        onClick={() => handleViewOrder(sample)}
                                                     >
                                                         <Eye className="h-4 w-4" />
                                                     </Button>
@@ -224,15 +313,51 @@ export default function CollectionReport() {
                                                 </TooltipContent>
                                             </Tooltip>
 
-                                            <Button
-                                                variant="outline"
-                                                size="sm"
-                                                className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 ml-1"
-                                                onClick={() => window.print()}
-                                            >
-                                                <Printer className="h-3.5 w-3.5" />
-                                                Print Result
-                                            </Button>
+                                            {sample.status !== "Sample Collected" && (
+                                                <Tooltip>
+                                                    <TooltipTrigger asChild>
+                                                        <Button
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                            onClick={() => handleEdit(sample)}
+                                                        >
+                                                            <Pencil className="h-4 w-4" />
+                                                        </Button>
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Edit Sample</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            )}
+
+                                            <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                    <Button
+                                                        size="icon"
+                                                        variant="ghost"
+                                                        className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                        onClick={() => confirmDelete(sample.id)}
+                                                    >
+                                                        <Trash className="h-4 w-4" />
+                                                    </Button>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                    <p>Delete Sample</p>
+                                                </TooltipContent>
+                                            </Tooltip>
+
+                                            {sample.status !== "Pending" && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 ml-1"
+                                                    onClick={() => window.print()}
+                                                >
+                                                    <Printer className="h-3.5 w-3.5" />
+                                                    Print Result
+                                                </Button>
+                                            )}
                                         </div>
                                     </TableCell>
                                 </TableRow>
@@ -247,6 +372,84 @@ export default function CollectionReport() {
                         </TableBody>
                     </Table>
                 </div>
+
+                <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete the sample record.
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
+                                Delete
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+
+                <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Edit Sample Status</DialogTitle>
+                            <DialogDescription>
+                                Update the status of the sample.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="status" className="text-right">
+                                    Status
+                                </Label>
+                                <Select
+                                    value={editingSample?.status}
+                                    onValueChange={(value) =>
+                                        setEditingSample(prev => prev ? { ...prev, status: value as string } : null)
+                                    }
+                                >
+                                    <SelectTrigger className="col-span-3">
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Pending">Pending</SelectItem>
+                                        <SelectItem value="Sample Collected">Sample Collected</SelectItem>
+                                        <SelectItem value="Waiting for Result">Waiting for Result</SelectItem>
+                                        <SelectItem value="Completed">Completed</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button type="submit" onClick={saveEdit}>Save changes</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+
+                <LabViewOrder
+                    open={viewOrderOpen}
+                    setOpen={setViewOrderOpen}
+                    sample={viewingSample}
+                    onUpdateStatus={(newStatus) => {
+                        if (viewingSample) {
+                            const updated = { ...viewingSample, status: newStatus as StatusType };
+                            setSamples(prev => prev.map(s => s.id === viewingSample.id ? updated : s));
+                            setViewingSample(updated);
+                        }
+                    }}
+                />
+
+                <NewTest
+                    open={newTestOpen}
+                    onOpenChange={setNewTestOpen}
+                    defaultBookingType={bookingType}
+                    mutate={() => {
+                        // In a real app, we would reload data here.
+                        // For now, since CollectionReport uses mock data, we just close the dialog.
+                        setNewTestOpen(false);
+                    }}
+                />
             </div>
         </TooltipProvider>
     );

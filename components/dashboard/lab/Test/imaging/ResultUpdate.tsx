@@ -125,7 +125,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                         <div>
                             <DialogTitle className="text-lg font-semibold text-gray-900">Update Imaging Results</DialogTitle>
                             <DialogDescription className="text-sm text-gray-500 mt-0.5">
-                                Upload the imaging reports and files for <span className="font-medium text-gray-700">{r.patient.name}</span>.
+                                Upload the imaging reports and files for <span className="font-medium text-gray-700">{r?.patient?.name}</span>.
                             </DialogDescription>
                         </div>
                     </div>
