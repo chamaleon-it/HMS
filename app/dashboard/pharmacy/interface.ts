@@ -12,6 +12,7 @@ export interface OrderType {
     assignedTo: null;
     createdAt?: Date;
     updatedAt?: Date;
+    billNo?: string;
 }
 
 
