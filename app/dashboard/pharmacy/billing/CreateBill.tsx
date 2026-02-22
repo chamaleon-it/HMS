@@ -83,74 +83,43 @@ export default function CreateBill({
   const [openCreate, setOpenCreate] = useState(false);
 
   const addItem = useCallback(
-    (i?: string) => {
-      if (i) {
-        if (!payload.items.find((e) => e.name === i)) {
-          setPayload((prev) => ({
-            ...prev,
-            items: [
-              ...prev.items,
-              {
-                name: i,
-                gst: pharmacyBilling.defaultGst ?? 0,
-                quantity: 1,
-                total: 0,
-                unitPrice: 0,
-              },
-            ],
-          }));
-        }
-        itemRef.current?.focus();
-        setItem(null);
-      } else if (item) {
-        if (!payload.items.find((e) => e.name === item)) {
-          setPayload((prev) => ({
-            ...prev,
-            items: [
-              ...prev.items,
-              {
-                name: item,
-                gst: pharmacyBilling.defaultGst ?? 0,
-                quantity: 1,
-                total: 0,
-                unitPrice: 0,
-              },
-            ],
-          }));
-        } else {
-          toast.error("Item already exist.");
-        }
+    (selectedName?: string, selectedPrice?: number) => {
+      const nameToAdd = selectedName || item;
+      const priceToAdd = selectedPrice ?? 0;
 
+      if (!nameToAdd) {
         itemRef.current?.focus();
-        setItem(null);
-      } else {
-        itemRef.current?.focus();
+        return;
       }
+
+      const existingItem = payload.items.find((it) => it.name === nameToAdd);
+      if (existingItem) {
+        toast.error("Item already exists.");
+        itemRef.current?.focus();
+        return;
+      }
+
+      setPayload((prev) => ({
+        ...prev,
+        items: [
+          ...prev.items,
+          {
+            name: nameToAdd,
+            gst: pharmacyBilling.defaultGst ?? 0,
+            quantity: 1,
+            unitPrice: priceToAdd,
+            total: calcTotal(priceToAdd, 1, pharmacyBilling.defaultGst ?? 0),
+          },
+        ],
+      }));
+
+      itemRef.current?.focus();
+      setItem(null);
     },
     [item, payload.items, pharmacyBilling.defaultGst]
   );
 
-  const addFullItem = useCallback(
-    (item: { name: string; unitPrice: number; gst: number }) => {
-      if (!payload.items.find((e) => e.name === item.name)) {
-        setPayload((prev) => ({
-          ...prev,
-          items: [
-            ...prev.items,
-            {
-              ...item,
-              quantity: 1,
-              total: calcTotal(item.unitPrice, 1, item.gst),
-            },
-          ],
-        }));
-      } else {
-        toast.error("Item already exists.");
-      }
-      itemRef.current?.focus();
-    },
-    [payload.items]
-  );
+
 
   const removeItem = useCallback(
     (name: string) => {
@@ -363,7 +332,6 @@ export default function CreateBill({
             setItem={setItem}
             itemRef={itemRef}
             PrimaryButton={PrimaryButton}
-            addFullItem={addFullItem}
           />
 
           <PaymentSection payload={payload} setPayload={setPayload} />
