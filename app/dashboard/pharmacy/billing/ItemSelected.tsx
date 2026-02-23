@@ -71,17 +71,6 @@ export default function ItemSelected({
 
   return (
     <div className="col-span-12 md:col-span-4 ">
-      <div className="text-sm font-medium mb-2 flex items-center gap-2">
-        <span
-          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
-          style={{
-            backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-          }}
-        >
-          <Search className="h-4 w-4" />
-        </span>
-        Add Item
-      </div>
       <div className="flex items-center gap-2">
         <div className="relative w-full">
           <input

@@ -142,58 +142,6 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                         </div>
                     </div>
                 </div>
-
-                {/* <div className="col-span-12 h-px bg-slate-200" /> */}
-                <div className="col-span-12 md:col-span-1">
-                    <label className="mb-2 block text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Payer / Insurer</label>
-                    <input
-                        value={payload.payer || ""}
-                        onChange={(e) =>
-                            setPayload((prev: any) => ({ ...prev, payer: e.target.value }))
-                        }
-                        placeholder="e.g., Star Health"
-                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-300"
-                    />
-                </div>
-                <div className="col-span-12 md:col-span-1">
-                    <label className="mb-2 block text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Policy No.</label>
-                    <input
-                        value={payload.policyNo || ""}
-                        onChange={(e) =>
-                            setPayload((prev: any) => ({
-                                ...prev,
-                                policyNo: e.target.value,
-                            }))
-                        }
-                        placeholder="Policy #"
-                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-300"
-                    />
-                </div>
-                <div className="col-span-12 md:col-span-1">
-                    <label className="mb-2 block text-[11px] font-semibold text-slate-400 uppercase tracking-widest">TPA</label>
-                    <input
-                        value={payload.tpa || ""}
-                        onChange={(e) =>
-                            setPayload((prev: any) => ({ ...prev, tpa: e.target.value }))
-                        }
-                        placeholder="TPA name"
-                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-300"
-                    />
-                </div>
-                <div className="col-span-12 md:col-span-1">
-                    <label className="mb-2 block text-[11px] font-semibold text-slate-400 uppercase tracking-widest">Pre-Auth No.</label>
-                    <input
-                        value={payload.preAuthNo || ""}
-                        onChange={(e) =>
-                            setPayload((prev: any) => ({
-                                ...prev,
-                                preAuthNo: e.target.value,
-                            }))
-                        }
-                        placeholder="Pre-auth"
-                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-300"
-                    />
-                </div>
             </div>
         </div>
     );
