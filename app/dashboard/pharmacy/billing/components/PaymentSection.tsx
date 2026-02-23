@@ -16,21 +16,24 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
             label: "Cash Payment",
             icon: Banknote,
             color: "text-emerald-600",
-            bg: "group-hover:bg-emerald-50"
+            activeBorder: "border-emerald-500",
+            activeBg: "bg-emerald-50"
         },
         {
             key: "online",
             label: "UPI / Card",
             icon: CreditCard,
             color: "text-indigo-600",
-            bg: "group-hover:bg-indigo-50"
+            activeBorder: "border-indigo-500",
+            activeBg: "bg-indigo-50"
         },
         {
             key: "insurance",
             label: "Insurance / TPA",
             icon: Building2,
             color: "text-fuchsia-600",
-            bg: "group-hover:bg-fuchsia-50"
+            activeBorder: "border-fuchsia-500",
+            activeBg: "bg-fuchsia-50"
         },
     ];
 
@@ -42,56 +45,64 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                 <Wallet2 className="h-4 w-4" />
                 Payments & Insurance
             </div>
-            <div className="grid grid-cols-5 gap-4">
-                {paymentModes.map(({ key, label, icon: Icon, color, bg }) => (
-                    <div key={key} className="col-span-12 md:col-span-1">
-                        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-slate-300 transition-all">
-                            <div className={cn("absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full transition-colors", bg)} />
-
-                            <div className="flex items-center gap-2 relative z-10">
-                                <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100", color)}>
-                                    <Icon className="h-4 w-4" />
+            {/* Payment Section Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                {paymentModes.map(({ key, label, icon: Icon, color, activeBorder, activeBg }) => {
+                    const active = payload[key] && payload[key] > 0;
+                    return (
+                        <div
+                            key={key}
+                            className={cn(
+                                "relative flex items-center gap-3 p-3 rounded-xl border-2 transition-all group",
+                                active
+                                    ? cn(activeBorder, activeBg, "shadow-md")
+                                    : "border-slate-200 bg-white hover:border-slate-300 shadow-sm"
+                            )}
+                        >
+                            <div className={cn("p-2 rounded-lg shrink-0", active ? "bg-white" : "bg-slate-50 group-hover:bg-white")}>
+                                <Icon className={cn("h-5 w-5", active ? color : "text-slate-400")} />
+                            </div>
+                            <div className="flex flex-col flex-1 min-w-0">
+                                <div className={cn("text-[10px] font-semibold uppercase tracking-widest truncate", active ? "text-slate-900" : "text-slate-500")}>{label}</div>
+                                <div className={cn("text-sm font-bold flex items-center gap-1", active ? "text-slate-900" : color)}>
+                                    <span className="opacity-60">₹</span>
+                                    <input
+                                        type="number"
+                                        min={0}
+                                        placeholder="0"
+                                        onFocus={(e) => (e.target.placeholder = "")}
+                                        onBlur={(e) => (e.target.placeholder = "0")}
+                                        value={payload[key] === 0 ? "" : payload[key].toString()}
+                                        onChange={(e) =>
+                                            setPayload((prev: any) => ({
+                                                ...prev,
+                                                [key]: Number(e.target.value),
+                                            }))
+                                        }
+                                        className="bg-transparent border-none outline-none w-full p-0 h-auto font-bold tabular-nums placeholder:text-current/20 focus:ring-0"
+                                    />
                                 </div>
-                                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">{label}</span>
-                            </div>
-
-                            <div className={cn("text-2xl font-bold mt-4 relative z-10 flex items-baseline gap-1", color)}>
-                                <span className="text-lg opacity-60">₹</span>
-                                <input
-                                    type="number"
-                                    min={0}
-                                    placeholder="0"
-                                    onFocus={(e) => (e.target.placeholder = "")}
-                                    onBlur={(e) => (e.target.placeholder = "0")}
-                                    value={
-                                        payload[key] === 0 ? "" : payload[key].toString()
-                                    }
-                                    onChange={(e) =>
-                                        setPayload((prev: any) => ({
-                                            ...prev,
-                                            [key]: Number(e.target.value),
-                                        }))
-                                    }
-                                    className="bg-transparent border-none outline-none w-full p-0 h-auto font-bold tabular-nums placeholder:text-current/20 focus:ring-0"
-                                />
                             </div>
                         </div>
+                    );
+                })}
+
+                {/* Discount (₹) */}
+                <div
+                    className={cn(
+                        "relative flex items-center gap-3 p-3 rounded-xl border-2 transition-all group",
+                        payload.discount > 0
+                            ? "border-rose-500 bg-rose-50 shadow-md"
+                            : "border-slate-200 bg-white hover:border-slate-300 shadow-sm"
+                    )}
+                >
+                    <div className={cn("p-2 rounded-lg shrink-0", payload.discount > 0 ? "bg-white" : "bg-slate-50 group-hover:bg-white")}>
+                        <BadgePercent className={cn("h-5 w-5", payload.discount > 0 ? "text-rose-600" : "text-slate-400")} />
                     </div>
-                ))}
-
-                <div className="col-span-12 md:col-span-1">
-                    <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-slate-300 transition-all text-rose-600">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full transition-colors group-hover:bg-rose-50" />
-
-                        <div className="flex items-center gap-2 relative z-10">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
-                                <BadgePercent className="h-4 w-4" />
-                            </div>
-                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">Discount (₹)</span>
-                        </div>
-
-                        <div className="text-2xl font-bold mt-4 relative z-10 flex items-baseline gap-1">
-                            <span className="text-lg opacity-60">₹</span>
+                    <div className="flex flex-col flex-1 min-w-0">
+                        <div className={cn("text-[10px] font-semibold uppercase tracking-widest truncate", payload.discount > 0 ? "text-slate-900" : "text-slate-500")}>Discount (₹)</div>
+                        <div className={cn("text-sm font-bold flex items-center gap-1", payload.discount > 0 ? "text-slate-900" : "text-rose-600")}>
+                            <span className="opacity-60">₹</span>
                             <input
                                 type="number"
                                 min={0}
@@ -111,18 +122,21 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                     </div>
                 </div>
 
-                <div className="col-span-12 md:col-span-1">
-                    <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-slate-300 transition-all text-rose-600">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full transition-colors group-hover:bg-rose-50" />
-
-                        <div className="flex items-center gap-2 relative z-10">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
-                                <Percent className="h-4 w-4" />
-                            </div>
-                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">Discount (%)</span>
-                        </div>
-
-                        <div className="text-2xl font-bold mt-4 relative z-10 flex items-baseline gap-1">
+                {/* Discount (%) */}
+                <div
+                    className={cn(
+                        "relative flex items-center gap-3 p-3 rounded-xl border-2 transition-all group",
+                        payload.discount > 0
+                            ? "border-rose-500 bg-rose-50 shadow-md"
+                            : "border-slate-200 bg-white hover:border-slate-300 shadow-sm"
+                    )}
+                >
+                    <div className={cn("p-2 rounded-lg shrink-0", payload.discount > 0 ? "bg-white" : "bg-slate-50 group-hover:bg-white")}>
+                        <Percent className={cn("h-5 w-5", payload.discount > 0 ? "text-rose-600" : "text-slate-400")} />
+                    </div>
+                    <div className="flex flex-col flex-1 min-w-0">
+                        <div className={cn("text-[10px] font-semibold uppercase tracking-widest truncate", payload.discount > 0 ? "text-slate-900" : "text-slate-500")}>Discount (%)</div>
+                        <div className={cn("text-sm font-bold flex items-center gap-1", payload.discount > 0 ? "text-slate-900" : "text-rose-600")}>
                             <input
                                 type="number"
                                 min={0}
@@ -136,9 +150,9 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                                         discount: (Number(e.target.value) * itemsTotal) / 100,
                                     }))
                                 }
-                                className="bg-transparent border-none outline-none w-full p-0 h-auto font-bold tabular-nums placeholder:text-current/20 focus:ring-0 text-right pr-1"
+                                className="bg-transparent border-none outline-none w-full p-0 h-auto font-bold tabular-nums placeholder:text-current/20 focus:ring-0 pr-1 text-left"
                             />
-                            <span className="text-lg opacity-60">%</span>
+                            <span className="opacity-60">%</span>
                         </div>
                     </div>
                 </div>
