@@ -91,11 +91,13 @@ export default function TestCatalogue({
     nbMax?: number;
     unit?: string;
     estimatedTime?: number;
+    dataType: "number" | "text" | "boolean"
   }>({
     code: "",
     name: "",
     price: 0,
     type: "",
+    dataType: "number"
   });
 
   const addNewTest = async () => {
@@ -117,6 +119,7 @@ export default function TestCatalogue({
         name: "",
         price: 0,
         type: "",
+        dataType: "number"
       });
 
     } catch (error) {
@@ -134,6 +137,7 @@ export default function TestCatalogue({
       code: string;
       name: string;
       type: "Lab" | "Imaging";
+      dataType: "number" | "text" | "boolean"
       price: number;
       min?: number;
       max?: number;
@@ -207,7 +211,7 @@ export default function TestCatalogue({
                 <Label className="text-xs font-medium text-slate-700">Type *</Label>
                 <Select
                   value={newTest.type}
-                  onValueChange={(val: "Lab" | "Imaging") => setNewTest(prev => ({ ...prev, type: val }))}
+                  onValueChange={(val: "Lab" | "Imaging") => setNewTest(prev => ({ ...prev, type: val, dataType: val === "Lab" ? "number" : "text" }))}
                 >
                   <SelectTrigger className="h-9 bg-slate-50 w-full">
                     <SelectValue placeholder="Select type" />
@@ -218,6 +222,8 @@ export default function TestCatalogue({
                   </SelectContent>
                 </Select>
               </div>
+
+
 
 
 
@@ -248,110 +254,131 @@ export default function TestCatalogue({
               </div>
 
               <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Range Min</Label>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={newTest.min || ""}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, min: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
+                <Label className="text-xs font-medium text-slate-700">Data Type *</Label>
+                <Select
+                  value={newTest.dataType}
+                  onValueChange={(val: "number" | "text" | "boolean") => setNewTest(prev => ({ ...prev, dataType: val }))}
+                >
+                  <SelectTrigger className="h-9 bg-slate-50 w-full">
+                    <SelectValue placeholder="Select type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="number">Number</SelectItem>
+                    <SelectItem value="text">Text</SelectItem>
+                    <SelectItem value="boolean">Boolean</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+              {newTest.dataType === "number" && <>
 
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Range Max</Label>
-                <Input
-                  type="number"
-                  placeholder="100"
-                  value={newTest.max || ""}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, max: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
+                <div className="col-span-3 space-y-1.5">
+                  <Label className="text-xs font-medium text-slate-700">Range Min</Label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={newTest.min || ""}
+                    onChange={(e) =>
+                      setNewTest((prev) => ({ ...prev, min: Number(e.target.value) }))
+                    }
+                    className="h-9 bg-slate-50"
+                  />
+                </div>
 
-            </div>
 
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Women Range Min</Label>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={newTest.womenMin || ""}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, womenMin: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Women Range Max</Label>
-                <Input
-                  type="number"
-                  placeholder="100"
-                  value={newTest.womenMax || ""}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, womenMax: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
 
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Child Range Min</Label>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={newTest.childMin || ""}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, childMin: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Child Range Max</Label>
-                <Input
-                  type="number"
-                  placeholder="100"
-                  value={newTest.childMax || ""}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, childMax: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
-            </div>
+                <div className="col-span-3 space-y-1.5">
+                  <Label className="text-xs font-medium text-slate-700">Range Max</Label>
+                  <Input
+                    type="number"
+                    placeholder="100"
+                    value={newTest.max || ""}
+                    onChange={(e) =>
+                      setNewTest((prev) => ({ ...prev, max: Number(e.target.value) }))
+                    }
+                    className="h-9 bg-slate-50"
+                  />
+                </div>
 
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Newborn Range Min</Label>
-                <Input
-                  type="number"
-                  placeholder="0"
-                  value={newTest.nbMin || ""}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, nbMin: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Newborn Range Max</Label>
-                <Input
-                  type="number"
-                  placeholder="100"
-                  value={newTest.nbMax || ""}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, nbMax: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
+
+
+
+                <div className="col-span-3 space-y-1.5">
+                  <Label className="text-xs font-medium text-slate-700">Women Range Min</Label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={newTest.womenMin || ""}
+                    onChange={(e) =>
+                      setNewTest((prev) => ({ ...prev, womenMin: Number(e.target.value) }))
+                    }
+                    className="h-9 bg-slate-50"
+                  />
+                </div>
+                <div className="col-span-3 space-y-1.5">
+                  <Label className="text-xs font-medium text-slate-700">Women Range Max</Label>
+                  <Input
+                    type="number"
+                    placeholder="100"
+                    value={newTest.womenMax || ""}
+                    onChange={(e) =>
+                      setNewTest((prev) => ({ ...prev, womenMax: Number(e.target.value) }))
+                    }
+                    className="h-9 bg-slate-50"
+                  />
+                </div>
+
+                <div className="col-span-3 space-y-1.5">
+                  <Label className="text-xs font-medium text-slate-700">Child Range Min</Label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={newTest.childMin || ""}
+                    onChange={(e) =>
+                      setNewTest((prev) => ({ ...prev, childMin: Number(e.target.value) }))
+                    }
+                    className="h-9 bg-slate-50"
+                  />
+                </div>
+                <div className="col-span-3 space-y-1.5">
+                  <Label className="text-xs font-medium text-slate-700">Child Range Max</Label>
+                  <Input
+                    type="number"
+                    placeholder="100"
+                    value={newTest.childMax || ""}
+                    onChange={(e) =>
+                      setNewTest((prev) => ({ ...prev, childMax: Number(e.target.value) }))
+                    }
+                    className="h-9 bg-slate-50"
+                  />
+                </div>
+
+
+                <div className="col-span-3 space-y-1.5">
+                  <Label className="text-xs font-medium text-slate-700">Newborn Range Min</Label>
+                  <Input
+                    type="number"
+                    placeholder="0"
+                    value={newTest.nbMin || ""}
+                    onChange={(e) =>
+                      setNewTest((prev) => ({ ...prev, nbMin: Number(e.target.value) }))
+                    }
+                    className="h-9 bg-slate-50"
+                  />
+                </div>
+                <div className="col-span-3 space-y-1.5">
+                  <Label className="text-xs font-medium text-slate-700">Newborn Range Max</Label>
+                  <Input
+                    type="number"
+                    placeholder="100"
+                    value={newTest.nbMax || ""}
+                    onChange={(e) =>
+                      setNewTest((prev) => ({ ...prev, nbMax: Number(e.target.value) }))
+                    }
+                    className="h-9 bg-slate-50"
+                  />
+
+                </div>
+              </>}
 
               <div className="grid grid-cols-12 gap-4 col-span-full">
 

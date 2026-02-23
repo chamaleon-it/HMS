@@ -31,6 +31,7 @@ export default function TestCatalogueRow({
         unit?: string;
         estimatedTime?: number;
         panels: { name: string }[]
+        dataType: "number" | "text" | "boolean"
     };
     testMutate: () => void
 }) {
@@ -54,6 +55,7 @@ export default function TestCatalogueRow({
         unit: test.unit,
         estimatedTime: test.estimatedTime,
         _id: test._id,
+        dataType: test.dataType
     })
 
 
@@ -162,6 +164,22 @@ export default function TestCatalogueRow({
                                     Price
                                 </Label>
                                 <Input id="price" type="number" defaultValue={test.price} className="col-span-4" onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} />
+                            </div>
+
+                            <div className="grid grid-cols-6 items-center gap-4">
+                                <Label htmlFor="price" className="text-right col-span-2">
+                                    Data Type
+                                </Label>
+                                <Select defaultValue={test.dataType} onValueChange={(value: "number" | "text" | "boolean") => setPayload({ ...payload, dataType: value })}>
+                                    <SelectTrigger id="dataType" className="col-span-4 w-full">
+                                        <SelectValue placeholder="Select a data type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="number">Number</SelectItem>
+                                        <SelectItem value="text">Text</SelectItem>
+                                        <SelectItem value="boolean">Boolean</SelectItem>
+                                    </SelectContent>
+                                </Select>
                             </div>
 
                             <div className="grid grid-cols-6 items-center gap-4">
