@@ -173,7 +173,7 @@ export default function PrintReceipt({
                     </div>
 
                     {/* SIGNATURES */}
-                    <div className="mt-10 grid grid-cols-3 gap-12 text-xs">
+                    {/* <div className="mt-10 grid grid-cols-3 gap-12 text-xs">
                         <div className="border-t border-slate-300 pt-4 text-center">
                             <p className="font-bold text-slate-900 uppercase tracking-wider">Receiver’s Signature</p>
                         </div>
@@ -183,7 +183,7 @@ export default function PrintReceipt({
                         <div className="border-t border-slate-300 pt-4 text-center h-24">
                             <p className="font-bold text-slate-900 uppercase tracking-wider">Hospital Seal</p>
                         </div>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* FOOTER */}
