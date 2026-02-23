@@ -177,7 +177,7 @@ export function Sidebar() {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
-        link: "/dashboard/lab",
+        link: "/dashboard/lab/",
       },
 
       {

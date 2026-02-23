@@ -21,6 +21,7 @@ import { combineToIST, fDate } from "@/lib/fDateAndTime";
 import {
   Calendar as CalendarIcon,
   ChevronDownIcon,
+  Plus,
   Trash,
   Zap,
 } from "lucide-react";
@@ -53,6 +54,12 @@ interface NewTestProps {
   defaultBookingType?: "Book Now" | "Schedule";
 }
 
+const theme = {
+  from: "#4f46e5",
+  to: "#ec4899",
+  accent: "#06b6d4",
+};
+
 export default function NewTest({
   mutate,
   open: controlledOpen,
@@ -75,12 +82,12 @@ export default function NewTest({
     defaultBookingType
   );
 
-  // Update booking type when default changes or dialog opens
-  useEffect(() => {
-    if (open && defaultBookingType) {
-      setBookingType(defaultBookingType);
-    }
-  }, [open, defaultBookingType]);
+  // // Update booking type when default changes or dialog opens
+  // useEffect(() => {
+  //   if (open && defaultBookingType) {
+  //     setBookingType(defaultBookingType);
+  //   }
+  // }, [open, defaultBookingType]);
 
   const tabs = [
     { key: "Book Now", label: "Book Now", icon: Zap },
@@ -161,14 +168,30 @@ export default function NewTest({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {!isControlled && (
-        <DialogTrigger asChild>
+        <div className="flex items-center gap-2">
           <Button
-            className="bg-emerald-600 hover:bg-emerald-700 text-white"
-            size={"sm"}
+            className="text-white gap-2 shadow-md hover:brightness-110 border-0 transition-all active:scale-95"
+            style={{
+              backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
+            }}
+            onClick={() => {
+              setBookingType("Book Now");
+              setOpen?.(true);
+            }}
           >
-            New Test
+            <Plus className="h-4 w-4 stroke-[2.5]" /> Book now
           </Button>
-        </DialogTrigger>
+          <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => {
+              setBookingType("Schedule");
+              setOpen?.(true);
+            }}
+          >
+            <CalendarIcon className="h-4 w-4" /> Schedule
+          </Button>
+        </div>
       )}
 
       <DialogContent className="min-w-4xl">
