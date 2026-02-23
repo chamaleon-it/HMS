@@ -179,12 +179,7 @@ export function Sidebar() {
         icon: LayoutDashboard,
         link: "/dashboard/lab",
       },
-      {
-        key: "payments",
-        label: "Payments",
-        icon: Banknote,
-        link: "/dashboard/lab/payments/",
-      },
+
       {
         key: "collection-report",
         label: "Sample Collection",
@@ -225,6 +220,12 @@ export function Sidebar() {
         label: "Billing",
         icon: CreditCard,
         link: "/dashboard/lab/billing/",
+      },
+      {
+        key: "payments",
+        label: "Payments",
+        icon: Banknote,
+        link: "/dashboard/lab/payments/",
       },
     ]) ||
     [];

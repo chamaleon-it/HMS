@@ -176,7 +176,7 @@ export function CreateAppointmentForm({
             error: ({ response }) => response.data.message,
           }
         );
-        reset();
+        reset({ doctor: doctorsData?.data[0]?._id });
         onClose();
         if (mutate) {
           mutate();
@@ -206,7 +206,7 @@ export function CreateAppointmentForm({
             setPrintData(printPayload);
             await refreshCalendars();
             if (mutate) mutate();
-            reset();
+            reset({ doctor: doctorsData?.data[0]?._id });
             // Don't close here, wait for print effect
             return;
           }
@@ -216,7 +216,7 @@ export function CreateAppointmentForm({
         }
       }
 
-      reset();
+      reset({ doctor: doctorsData?.data[0]?._id });
       onClose();
       if (mutate) {
         mutate();
