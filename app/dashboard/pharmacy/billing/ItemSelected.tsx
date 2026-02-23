@@ -96,9 +96,6 @@ export default function ItemSelected({
               if (e.code === "Enter" || e.code === "Tab") {
                 e.preventDefault();
                 addItem("", 0);
-                if (item?.trim()) {
-                  addbillingItem(item, 0);
-                }
               }
             }}
           />

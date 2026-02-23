@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import useSWR from "swr";
 
 interface LineItemsTableProps {
     payload: any;
@@ -60,6 +61,11 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
         });
     };
 
+
+    const { data: billingItemsResponse, mutate: billingItemsMutate } = useSWR<{ data: { code: string, item: string, price: number, _id: string }[], message: string }>("/billing/billing_items")
+    const billingItems = billingItemsResponse?.data ?? []
+
+
     return (
         <div className="col-span-12 space-y-4 lg:col-span-8">
             <div className="col-span-12 lg:col-span-8">
@@ -69,12 +75,15 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: "auto" }}
                             exit={{ opacity: 0, height: 0 }}
-                            className="mb-4 flex flex-wrap gap-2 overflow-hidden"
+                            className="mb-4 flex flex-wrap gap-2 overflow-hidden pt-3"
                         >
                             {favorites.map((fav) => (
                                 <div key={fav.name} className="group relative">
                                     <button
                                         className="flex items-center gap-1.5 rounded-full border border-yellow-200 bg-yellow-50/50 px-3 py-1.5 text-xs font-medium text-yellow-700 transition-colors hover:bg-yellow-100 dark:border-yellow-900/30 dark:bg-yellow-900/20 dark:text-yellow-400"
+                                        onClick={() => {
+                                            addItem(fav.name, fav.unitPrice)
+                                        }}
                                     >
                                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-500" />
                                         {fav.name}
@@ -91,6 +100,50 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                         </motion.div>
                     )}
                 </AnimatePresence>
+
+
+                <AnimatePresence>
+                    {billingItems?.length > 0 && (
+                        <motion.div
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: "auto" }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="mb-4 flex flex-wrap gap-2 overflow-hidden pt-5"
+                        >
+                            {billingItems?.map((item) => (
+                                <div key={item.item} className="group relative">
+                                    <button
+                                        className="relative flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition-all hover:bg-slate-50 hover:border-slate-300 hover:text-indigo-600 shadow-sm"
+                                        onClick={() => {
+                                            addItem(item.item, item.price)
+                                        }}
+                                    >
+                                        {item.item}
+                                        <span className="ml-1 text-[10px] text-slate-400 font-normal">({formatINR(item.price)})</span>
+                                    </button>
+                                    <button
+                                        onClick={async () => {
+                                            try {
+                                                await toast.promise(api.delete(`/billing/billing_item?item=${item.item}`), {
+                                                    loading: "Deleting item...",
+                                                    success: "Item deleted successfully",
+                                                    error: "Failed to delete item"
+                                                })
+                                                billingItemsMutate()
+                                            } catch (error) {
+
+                                            }
+                                        }}
+                                        className="absolute -right-1.5 -top-1.5 hidden h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-white shadow-md hover:bg-rose-600 group-hover:flex z-10"
+                                    >
+                                        <X className="h-2.5 w-2.5" />
+                                    </button>
+                                </div>
+                            ))}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+
                 <ItemSelected
                     addItem={addItem}
                     item={item}
@@ -329,6 +382,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                         unitPrice: 0
                                     })
                                     setIsCustomItemModalOpen(false)
+                                    billingItemsMutate()
                                 } catch (error) {
                                     console.log(error)
                                 }
