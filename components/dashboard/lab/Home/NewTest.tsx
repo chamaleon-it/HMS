@@ -82,12 +82,12 @@ export default function NewTest({
     defaultBookingType
   );
 
-  // // Update booking type when default changes or dialog opens
-  // useEffect(() => {
-  //   if (open && defaultBookingType) {
-  //     setBookingType(defaultBookingType);
-  //   }
-  // }, [open, defaultBookingType]);
+  // Update booking type when default changes or dialog opens
+  useEffect(() => {
+    if (open && isControlled && defaultBookingType) {
+      setBookingType(defaultBookingType);
+    }
+  }, [open, isControlled, defaultBookingType]);
 
   const tabs = [
     { key: "Book Now", label: "Book Now", icon: Zap },
@@ -168,29 +168,39 @@ export default function NewTest({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {!isControlled && (
-        <div className="flex items-center gap-2">
-          <Button
-            className="text-white gap-2 shadow-md hover:brightness-110 border-0 transition-all active:scale-95"
-            style={{
-              backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-            }}
-            onClick={() => {
-              setBookingType("Book Now");
-              setOpen?.(true);
-            }}
-          >
-            <Plus className="h-4 w-4 stroke-[2.5]" /> Book now
-          </Button>
-          <Button
-            variant="outline"
-            className="gap-2"
-            onClick={() => {
-              setBookingType("Schedule");
-              setOpen?.(true);
-            }}
-          >
-            <CalendarIcon className="h-4 w-4" /> Schedule
-          </Button>
+        <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+          {[
+            { key: "Book Now", label: "Book now", icon: Zap },
+            { key: "Schedule", label: "Schedule", icon: CalendarIcon },
+          ].map(({ key, label, icon: Icon }) => {
+            const active = bookingType === key;
+            return (
+              <button
+                key={key}
+                onClick={() => {
+                  setBookingType(key as "Book Now" | "Schedule");
+                  setOpen?.(true);
+                }}
+                className={
+                  "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium " +
+                  (active ? "text-white" : "text-slate-600 hover:bg-slate-50")
+                }
+                type="button"
+              >
+                {active && (
+                  <motion.span
+                    layoutId="external-booking-indicator"
+                    className="absolute inset-0 rounded-full"
+                    style={{ background: `linear-gradient(90deg, ${theme.from}, ${theme.to})` }}
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-2">
+                  <Icon size={16} /> {label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
 
