@@ -64,9 +64,9 @@ export default function OrderTable({
   }>("/users/profile");
 
   const autoGenerateBill =
-    profile?.data.pharmacy.billing.autoGenerateBill ?? false;
-  const prefix = profile?.data.pharmacy.billing.prefix ?? "INV";
-  const defaultGst = profile?.data.pharmacy.billing.defaultGst ?? 0;
+    profile?.data?.pharmacy?.billing?.autoGenerateBill ?? false;
+  const prefix = profile?.data?.pharmacy?.billing?.prefix ?? "INV";
+  const defaultGst = profile?.data?.pharmacy?.billing?.defaultGst ?? 0;
 
   const [printBill, setPrintBill] = useState<null | {
     payload?: {

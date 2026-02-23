@@ -78,9 +78,9 @@ const Customer: React.FC = () => {
     const [showRepeatConfirm, setShowRepeatConfirm] = useState(false)
 
     const { data: profile } = useSWR<{ data: { pharmacy: { billing: { autoGenerateBill: boolean, prefix: string, defaultGst?: number } } }, message: string }>("/users/profile")
-    const autoGenerateBill = profile?.data.pharmacy.billing.autoGenerateBill ?? false
-    const prefix = profile?.data.pharmacy.billing.prefix ?? "INV"
-    const defaultGst = profile?.data.pharmacy.billing.defaultGst ?? 0
+    const autoGenerateBill = profile?.data?.pharmacy?.billing?.autoGenerateBill ?? false
+    const prefix = profile?.data?.pharmacy?.billing?.prefix ?? "INV"
+    const defaultGst = profile?.data?.pharmacy?.billing?.defaultGst ?? 0
 
     const [printBill, setPrintBill] = useState<null | any>(null)
     const [printOrder, setPrintOrder] = useState<OrderType | null>(null);

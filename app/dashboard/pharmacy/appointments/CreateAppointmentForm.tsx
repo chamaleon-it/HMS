@@ -131,6 +131,12 @@ export function CreateAppointmentForm({
     }
   }, [appointment, reset]);
 
+  useEffect(() => {
+    if (doctorsData?.data?.length && !appointment && !watch("doctor")) {
+      setValue("doctor", doctorsData.data[0]._id);
+    }
+  }, [doctorsData, appointment, setValue, watch]);
+
   const values = watch();
 
   const { data: profile } = useSWR<{
