@@ -179,8 +179,13 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
                 ) : (
                   <PatientSelection
                     patientName={patientName}
-                    setValue={(id: string) => {
-                      setPayload((prev) => ({ ...prev, patient: id }));
+                    setValue={(id: string, allergies?: string) => {
+                      setPayload((prev) => ({ ...prev, patient: id, allergies: allergies || undefined }));
+                      if (allergies && allergies.trim().toLowerCase() !== "none" && allergies.trim().toLowerCase() !== "n/a" && allergies.trim() !== "") {
+                        setHasAllergy(true);
+                      } else {
+                        setHasAllergy(false);
+                      }
                     }}
                     register={() => {
                       setOpenCreate(true);
