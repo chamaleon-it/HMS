@@ -66,12 +66,8 @@ const theme = {
     accent: "#06b6d4",
 };
 
-const SAMPLES = [
-    { id: "SC-1001", patient: "John Doe", mrn: "MRN-2024-001", test: "CBC", sampleType: "Whole Blood (EDTA)", time: "2024-02-18T10:30:00", status: "Sample Collected", waitTime: "10 min", priority: "Routine" },
-    { id: "SC-1002", patient: "Jane Smith", mrn: "MRN-2024-045", test: "Lipid Profile", sampleType: "Serum", time: "2024-02-18T10:45:00", status: "Waiting for Result", waitTime: "5 min", priority: "VIP" },
-    { id: "SC-1003", patient: "Robert Brown", mrn: "MRN-2024-088", test: "Urine Routine", sampleType: "Urine", time: "2024-02-18T11:00:00", status: "Pending", waitTime: "15 min", priority: "Routine" },
-    { id: "SC-1004", patient: "Emily Davis", mrn: "MRN-2024-102", test: "TSH", sampleType: "Serum", time: "2024-02-18T11:15:00", status: "Sample Collected", waitTime: "8 min", priority: "STAT" },
-    { id: "SC-1005", patient: "Michael Wilson", mrn: "MRN-2024-150", test: "HbA1c", sampleType: "Whole Blood (EDTA)", time: "2024-02-18T11:30:00", status: "Pending", waitTime: "25 min", priority: "Routine" },
+const SAMPLES: { id: string; patient: string; mrn: string; test: string; sampleType: string; time: string; status: string; waitTime: string; priority: string }[] = [
+
 ];
 
 type StatusType = "Pending" | "Sample Collected" | "Waiting for Result" | "Completed";

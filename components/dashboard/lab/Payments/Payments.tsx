@@ -24,6 +24,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { formatINR } from "@/lib/fNumber";
 
 const StatCard: React.FC<{
     icon: React.ReactNode;
@@ -110,7 +111,7 @@ export default function Payments() {
                     delay={0.1}
                     icon={<Wallet className="h-7 w-7" />}
                     label="Total Revenue"
-                    value={`$${totalCollection.toLocaleString()}`}
+                    value={formatINR(totalCollection)}
                     subtext="+12% from last month"
                     colorClass="from-indigo-500/10 to-indigo-500/5"
                     iconBgClass="bg-indigo-100 text-indigo-600"
@@ -120,7 +121,7 @@ export default function Payments() {
                     delay={0.2}
                     icon={<Banknote className="h-7 w-7" />}
                     label="Cash Collection"
-                    value={`$${totalCash.toLocaleString()}`}
+                    value={formatINR(totalCash)}
                     subtext={`${((totalCash / (totalCollection || 1)) * 100).toFixed(1)}% of total`}
                     colorClass="from-emerald-500/10 to-emerald-500/5"
                     iconBgClass="bg-emerald-100 text-emerald-600"
@@ -130,7 +131,7 @@ export default function Payments() {
                     delay={0.3}
                     icon={<CreditCard className="h-7 w-7" />}
                     label="Digital Payments"
-                    value={`$${totalOnline.toLocaleString()}`}
+                    value={formatINR(totalOnline)}
                     subtext={`${((totalOnline / (totalCollection || 1)) * 100).toFixed(1)}% of total`}
                     colorClass="from-blue-500/10 to-blue-500/5"
                     iconBgClass="bg-blue-100 text-blue-600"
@@ -140,7 +141,7 @@ export default function Payments() {
                     delay={0.4}
                     icon={<TrendingUp className="h-7 w-7" />}
                     label="Insurance / Due"
-                    value={`$${totalInsurance.toLocaleString()}`}
+                    value={formatINR(totalInsurance)}
                     subtext={`${((totalInsurance / (totalCollection || 1)) * 100).toFixed(1)}% of total`}
                     colorClass="from-amber-500/10 to-amber-500/5"
                     iconBgClass="bg-amber-100 text-amber-600"

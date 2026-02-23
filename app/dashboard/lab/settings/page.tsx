@@ -55,7 +55,7 @@ const LabSettingsPage: React.FC = () => {
           className="w-full grid grid-cols-5"
         />
       </div>
-      <div className="flex flex-col gap-6 p-5 w-full bg-slate-50 text-slate-900">
+      <div className="flex flex-col gap-6 p-5 w-full text-slate-900">
         <TopSummary profile={profile} />
         {activeSection === "general" && (
           <General profile={profile} profileMutate={profileMutate} />
