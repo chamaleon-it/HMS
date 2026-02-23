@@ -47,6 +47,7 @@ interface PropsTypes {
                 name: string;
                 type: string;
                 unit?: string;
+                dataType: "number" | "text" | "boolean";
                 min?: number;
                 max?: number;
                 womenMin?: number;
@@ -154,7 +155,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                                             className={cn("text-gray-600 font-mono h-5",
                                                                 normal ? "" : "text-red-600"
                                                             )}
-                                                        >{e?.value ? `${e.value} ${e?.name?.unit}` : "-"}</span>
+                                                        >{e?.value ? `${e.value} ${e?.name?.unit ?? ""}` : "-"}</span>
                                                     )
                                                 }
                                             }

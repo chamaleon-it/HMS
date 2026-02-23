@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import toast from 'react-hot-toast'
 import api from '@/lib/axios'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 
 
@@ -47,6 +48,7 @@ interface Props {
                 code: string;
                 name: string;
                 type: string;
+                dataType: "number" | "text" | "boolean"
                 unit?: string;
                 min?: number;
                 max?: number;
@@ -81,7 +83,11 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
     const [payload, setPayload] = useState({
         _id: r._id,
-        test: r.test.filter((item) => item.name.type === "Lab").map((item) => ({ _id: item._id, value: item.value && item?.value?.toString(), name: item.name })),
+        test: r.test.filter((item) => item.name.type === "Lab").map((item) => ({
+            _id: item._id,
+            value: item.value !== undefined && item.value !== null ? item.value.toString() : "",
+            name: item.name
+        })),
     })
 
     const updateResult = async () => {
@@ -157,18 +163,35 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                             </TableCell>
                                             <TableCell className="py-4">
                                                 <div className="relative max-w-[240px]">
-                                                    <Input
-                                                        value={payload.test.find((item) => item._id === labTest._id)?.value}
-                                                        onChange={(e) => setPayload({ ...payload, test: payload.test.map((item) => item._id === labTest._id ? { ...item, value: e.target.value } : item) })}
-                                                        type="text"
-                                                        placeholder="Enter result"
-                                                        className="pl-3 pr-12 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
-                                                    />
-                                                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-                                                        <span className="text-xs font-medium text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                                                            {labTest.name.unit}
-                                                        </span>
-                                                    </div>
+                                                    {labTest.name.dataType === "boolean" ? (
+                                                        <Select
+                                                            value={payload.test.find((item) => item._id === labTest._id)?.value}
+                                                            onValueChange={(value) => setPayload({ ...payload, test: payload.test.map((item) => item._id === labTest._id ? { ...item, value } : item) })}
+                                                        >
+                                                            <SelectTrigger className="h-10 bg-white border-gray-200 focus:border-blue-500 transition-all font-medium text-gray-900 w-full">
+                                                                <SelectValue placeholder="Select result" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                <SelectItem value="Positive">Positive</SelectItem>
+                                                                <SelectItem value="Negative">Negative</SelectItem>
+                                                            </SelectContent>
+                                                        </Select>
+                                                    ) : (
+                                                        <>
+                                                            <Input
+                                                                value={payload.test.find((item) => item._id === labTest._id)?.value}
+                                                                onChange={(e) => setPayload({ ...payload, test: payload.test.map((item) => item._id === labTest._id ? { ...item, value: e.target.value } : item) })}
+                                                                type={labTest.name.dataType === "number" ? "number" : "text"}
+                                                                placeholder="Enter result"
+                                                                className="pl-3 pr-12 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
+                                                            />
+                                                            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                                                                <span className="text-xs font-medium text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
+                                                                    {labTest.name.unit}
+                                                                </span>
+                                                            </div>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="pr-6 py-4 text-right">

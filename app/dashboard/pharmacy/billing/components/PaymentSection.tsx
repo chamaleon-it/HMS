@@ -1,5 +1,5 @@
-import React from "react";
 import { Wallet2, Banknote, CreditCard, Building2, IndianRupee, BadgePercent, Percent } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface PaymentSectionProps {
     payload: any;
@@ -13,21 +13,24 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
     const paymentModes = [
         {
             key: "cash",
-            label: "Cash",
+            label: "Cash Payment",
             icon: Banknote,
-            tint: "bg-white text-emerald-600 border-slate-200 hover:border-emerald-300",
+            color: "text-emerald-600",
+            bg: "group-hover:bg-emerald-50"
         },
         {
             key: "online",
-            label: "Card / UPI",
+            label: "UPI / Card",
             icon: CreditCard,
-            tint: "bg-white text-indigo-600 border-slate-200 hover:border-indigo-300",
+            color: "text-indigo-600",
+            bg: "group-hover:bg-indigo-50"
         },
         {
             key: "insurance",
-            label: "Insurance",
+            label: "Insurance / TPA",
             icon: Building2,
-            tint: "bg-white text-fuchsia-600 border-slate-200 hover:border-fuchsia-300",
+            color: "text-fuchsia-600",
+            bg: "group-hover:bg-fuchsia-50"
         },
     ];
 
@@ -40,15 +43,20 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                 Payments & Insurance
             </div>
             <div className="grid grid-cols-5 gap-4">
-                {paymentModes.map(({ key, label, icon: Icon, tint }) => (
+                {paymentModes.map(({ key, label, icon: Icon, color, bg }) => (
                     <div key={key} className="col-span-12 md:col-span-1">
-                        <div className={`rounded-xl border px-4 py-4 ${tint} transition-all hover:shadow-sm`}>
-                            <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide opacity-80">
-                                <Icon className="h-3.5 w-3.5" />
-                                {label}
+                        <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-slate-300 transition-all">
+                            <div className={cn("absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full transition-colors", bg)} />
+
+                            <div className="flex items-center gap-2 relative z-10">
+                                <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100", color)}>
+                                    <Icon className="h-4 w-4" />
+                                </div>
+                                <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">{label}</span>
                             </div>
-                            <div className="flex items-center gap-1 relative">
-                                <IndianRupee className="h-4 w-4 absolute left-0 text-current opacity-60" />
+
+                            <div className={cn("text-2xl font-bold mt-4 relative z-10 flex items-baseline gap-1", color)}>
+                                <span className="text-lg opacity-60">₹</span>
                                 <input
                                     type="number"
                                     min={0}
@@ -64,7 +72,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                                             [key]: Number(e.target.value),
                                         }))
                                     }
-                                    className="h-9 w-full bg-transparent text-lg font-bold outline-none text-right placeholder:text-current/30 pl-5"
+                                    className="bg-transparent border-none outline-none w-full p-0 h-auto font-bold tabular-nums placeholder:text-current/20 focus:ring-0"
                                 />
                             </div>
                         </div>
@@ -72,13 +80,18 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                 ))}
 
                 <div className="col-span-12 md:col-span-1">
-                    <div className="rounded-xl border px-4 py-4 bg-white text-rose-500 border-slate-200 hover:border-rose-300 transition-all hover:shadow-sm group">
-                        <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide opacity-80">
-                            <BadgePercent className="h-3.5 w-3.5" />
-                            Discount (₹)
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-slate-300 transition-all text-rose-600">
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full transition-colors group-hover:bg-rose-50" />
+
+                        <div className="flex items-center gap-2 relative z-10">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
+                                <BadgePercent className="h-4 w-4" />
+                            </div>
+                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">Discount (₹)</span>
                         </div>
-                        <div className="flex items-center gap-1 relative">
-                            <IndianRupee className="h-4 w-4 absolute left-0 text-current opacity-60" />
+
+                        <div className="text-2xl font-bold mt-4 relative z-10 flex items-baseline gap-1">
+                            <span className="text-lg opacity-60">₹</span>
                             <input
                                 type="number"
                                 min={0}
@@ -92,20 +105,24 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                                         discount: Number(e.target.value),
                                     }))
                                 }
-                                className="h-9 w-full bg-transparent text-lg font-bold outline-none text-right placeholder:text-current/30 pl-5"
+                                className="bg-transparent border-none outline-none w-full p-0 h-auto font-bold tabular-nums placeholder:text-current/20 focus:ring-0"
                             />
                         </div>
                     </div>
                 </div>
 
                 <div className="col-span-12 md:col-span-1">
-                    <div className="rounded-xl border px-4 py-4 bg-white text-rose-500 border-slate-200 hover:border-rose-300 transition-all hover:shadow-sm group">
-                        <div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase tracking-wide opacity-80">
-                            <BadgePercent className="h-3.5 w-3.5" />
-                            Discount (%)
+                    <div className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-slate-300 transition-all text-rose-600">
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full transition-colors group-hover:bg-rose-50" />
+
+                        <div className="flex items-center gap-2 relative z-10">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-50 group-hover:bg-white transition-colors border border-transparent group-hover:border-slate-100">
+                                <Percent className="h-4 w-4" />
+                            </div>
+                            <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">Discount (%)</span>
                         </div>
-                        <div className="flex items-center gap-1 relative">
-                            <Percent className="h-4 w-4 absolute left-0 text-current opacity-60" />
+
+                        <div className="text-2xl font-bold mt-4 relative z-10 flex items-baseline gap-1">
                             <input
                                 type="number"
                                 min={0}
@@ -119,8 +136,9 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                                         discount: (Number(e.target.value) * itemsTotal) / 100,
                                     }))
                                 }
-                                className="h-9 w-full bg-transparent text-lg font-bold outline-none text-right placeholder:text-current/30 pl-5"
+                                className="bg-transparent border-none outline-none w-full p-0 h-auto font-bold tabular-nums placeholder:text-current/20 focus:ring-0 text-right pr-1"
                             />
+                            <span className="text-lg opacity-60">%</span>
                         </div>
                     </div>
                 </div>

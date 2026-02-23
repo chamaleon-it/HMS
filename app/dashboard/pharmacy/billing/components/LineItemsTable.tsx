@@ -5,6 +5,8 @@ import { formatINR } from "@/lib/fNumber";
 import ItemSelected from "../ItemSelected";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
 
 interface LineItemsTableProps {
     payload: any;
@@ -12,12 +14,12 @@ interface LineItemsTableProps {
     updatePrice: (itemName: string, unitPrice: number) => void;
     updateGST: (itemName: string, gst: number) => void;
     removeItem: (name: string) => void;
-    addItem: (i?: string) => void;
+    addItem: (item: string, price: number) => void;
     item: string | null;
     setItem: (item: string | null) => void;
     itemRef: React.RefObject<HTMLInputElement | null>;
     PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>>;
-    addFullItem: (item: { name: string; unitPrice: number; gst: number }) => void;
+
 }
 
 export const LineItemsTable: React.FC<LineItemsTableProps> = ({
@@ -31,7 +33,6 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
     setItem,
     itemRef,
     PrimaryButton,
-    addFullItem,
 }) => {
     const [favorites, setFavorites] = useState<{ name: string; unitPrice: number; gst: number }[]>([]);
     const [isCustomItemModalOpen, setIsCustomItemModalOpen] = useState(false);
@@ -39,20 +40,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
     const procedureNameRef = useRef<HTMLInputElement>(null);
     const unitPriceRef = useRef<HTMLInputElement>(null);
 
-    const handleAddCustomItem = () => {
-        if (!customItem.procedureCode || !customItem.name) return;
 
-        // Append procedure code to the name if it is provided
-        const itemName = `[${customItem.procedureCode}] ${customItem.name}`;
-
-        addFullItem({
-            name: itemName,
-            unitPrice: customItem.unitPrice || 0,
-            gst: 0 // Default GST to 0 for custom procedures based on original requirements
-        });
-        setCustomItem({ procedureCode: "", name: "", unitPrice: 0 });
-        setIsCustomItemModalOpen(false);
-    };
 
     useEffect(() => {
         const stored = localStorage.getItem("@pharmacy-favorites");
@@ -86,7 +74,6 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                             {favorites.map((fav) => (
                                 <div key={fav.name} className="group relative">
                                     <button
-                                        onClick={() => addFullItem(fav)}
                                         className="flex items-center gap-1.5 rounded-full border border-yellow-200 bg-yellow-50/50 px-3 py-1.5 text-xs font-medium text-yellow-700 transition-colors hover:bg-yellow-100 dark:border-yellow-900/30 dark:bg-yellow-900/20 dark:text-yellow-400"
                                     >
                                         <Star className="h-3 w-3 fill-yellow-400 text-yellow-500" />
@@ -258,7 +245,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                         <PrimaryButton
                             onClick={() => {
                                 if (item) {
-                                    addItem();
+                                    addItem("", 0);
                                 } else {
                                     setIsCustomItemModalOpen(true);
                                 }
@@ -317,14 +304,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                 min="0"
                                 value={customItem.unitPrice === 0 ? "" : customItem.unitPrice.toString()}
                                 onChange={(e) => setCustomItem({ ...customItem, unitPrice: Number(e.target.value) })}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                        e.preventDefault();
-                                        if (customItem.name.trim() && customItem.procedureCode.trim()) {
-                                            handleAddCustomItem();
-                                        }
-                                    }
-                                }}
+
                                 className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
                                 placeholder="0"
                             />
@@ -332,7 +312,27 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                     </div>
                     <DialogFooter>
                         <PrimaryButton
-                            onClick={handleAddCustomItem}
+                            onClick={async () => {
+                                try {
+                                    const data = await toast.promise(api.post("/billing/billing_item", {
+                                        item: customItem.name,
+                                        price: customItem.unitPrice,
+                                        code: customItem.procedureCode
+                                    }), {
+                                        loading: "Adding custom item...",
+                                        success: "Custom item added successfully!",
+                                        error: "Failed to add custom item!"
+                                    })
+                                    setCustomItem({
+                                        name: "",
+                                        procedureCode: "",
+                                        unitPrice: 0
+                                    })
+                                    setIsCustomItemModalOpen(false)
+                                } catch (error) {
+                                    console.log(error)
+                                }
+                            }}
                             disabled={!customItem.name.trim() || !customItem.procedureCode.trim()}
                         >
                             Add Procedure
