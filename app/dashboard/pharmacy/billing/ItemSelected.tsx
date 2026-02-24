@@ -77,7 +77,7 @@ export default function ItemSelected({
             placeholder="Search services / tests / items…"
             ref={itemRef}
             className={
-              "h-12 w-full rounded-lg border border-slate-200 bg-white/70 px-4 text-[15px] font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/50 transition-all shadow-sm"
+              "h-[42px] w-full rounded-lg border border-slate-200 bg-white/70 px-4 text-[13px] font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/50 transition-all shadow-sm"
             }
             value={item ?? ""}
             onChange={(e) => setItem(e.target.value)}
@@ -137,8 +137,8 @@ export default function ItemSelected({
             </div>
           )}
         </div>
-        <PrimaryButton onClick={onAddClick} className="h-12 w-16 sm:w-20 flex items-center justify-center p-0 shrink-0">
-          <Plus className="h-6 w-6 stroke-[2.5]" />
+        <PrimaryButton onClick={onAddClick} className="h-[42px] w-12 sm:w-14 flex items-center justify-center p-0 shrink-0">
+          <Plus className="h-5 w-5 stroke-[2.5]" />
         </PrimaryButton>
       </div>
     </div>

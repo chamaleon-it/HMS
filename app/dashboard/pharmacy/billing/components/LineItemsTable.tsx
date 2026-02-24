@@ -102,135 +102,139 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                 </AnimatePresence>
 
 
-                <AnimatePresence>
-                    {billingItems?.length > 0 && (
-                        <div className="space-y-6  mb-5">
-                            {(() => {
-                                const categories = [
-                                    { name: "Dressing", keywords: ["dressing"] },
-                                    { name: "Procedure", keywords: ["procedure", "injection", "cannulation", "extraction", "catheterisation", "enema"] },
-                                    { name: "Consultation", keywords: ["consultation"] }
-                                ];
+                <div className="flex flex-col md:flex-row gap-4 items-end mb-4">
+                    <AnimatePresence>
+                        {billingItems?.length > 0 && (
+                            <div className="flex-1">
+                                {(() => {
+                                    const categories = [
+                                        { name: "Dressing", keywords: ["dressing"] },
+                                        { name: "Procedure", keywords: ["procedure", "injection", "cannulation", "extraction", "catheterisation", "enema"] },
+                                        { name: "Consultation", keywords: ["consultation"] }
+                                    ];
 
-                                const grouped = billingItems.reduce((acc, item) => {
-                                    const itemName = item.item.toLowerCase();
-                                    const category = categories.find(c => c.keywords.some(k => itemName.includes(k)));
-                                    const categoryName = category ? category.name : "Others";
+                                    const grouped = billingItems.reduce((acc, item) => {
+                                        const itemName = item.item.toLowerCase();
+                                        const category = categories.find(c => c.keywords.some(k => itemName.includes(k)));
+                                        const categoryName = category ? category.name : "Others";
 
-                                    if (!acc[categoryName]) acc[categoryName] = [];
-                                    acc[categoryName].push(item);
-                                    return acc;
-                                }, {} as Record<string, typeof billingItems>);
+                                        if (!acc[categoryName]) acc[categoryName] = [];
+                                        acc[categoryName].push(item);
+                                        return acc;
+                                    }, {} as Record<string, typeof billingItems>);
 
-                                return ["Consultation"].map(catName => {
-                                    const items = grouped[catName];
-                                    if (!items || items.length === 0) return null;
+                                    return ["Consultation"].map(catName => {
+                                        const items = grouped[catName];
+                                        if (!items || items.length === 0) return null;
 
-                                    return (
-                                        <div key={catName} className="space-y-3">
-                                            <div className="flex items-center gap-2 px-1">
-                                                <div className="h-1 w-1 rounded-full bg-slate-400" />
-                                                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{catName}</h4>
-                                                <div className="h-px flex-1 bg-slate-100" />
-                                            </div>
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: "auto" }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                className="flex flex-wrap gap-2 overflow-hidden pt-1"
-                                            >
-                                                {items.map((item) => {
-                                                    const isConsultation = catName === "Consultation";
-                                                    let tierStyles = "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-indigo-600";
-                                                    let Icon = null;
+                                        return (
+                                            <div key={catName} className="space-y-3">
+                                                <div className="flex items-center gap-2 px-1">
+                                                    <div className="h-1 w-1 rounded-full bg-slate-400" />
+                                                    <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{catName}</h4>
+                                                    <div className="h-px flex-1 bg-slate-100" />
+                                                </div>
+                                                <motion.div
+                                                    initial={{ opacity: 0, height: 0 }}
+                                                    animate={{ opacity: 1, height: "auto" }}
+                                                    exit={{ opacity: 0, height: 0 }}
+                                                    className="flex flex-wrap gap-2 overflow-hidden pt-1"
+                                                >
+                                                    {items.map((item) => {
+                                                        const isConsultation = catName === "Consultation";
+                                                        let tierStyles = "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-indigo-600";
+                                                        let Icon = null;
 
-                                                    if (isConsultation) {
-                                                        const p = item.price;
-                                                        if (item.code === "CF1") {
-                                                            // CF1: Early Morning (6am-8am) - Soft Sunrise Amber
-                                                            tierStyles = "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-300 shadow-amber-500/5";
-                                                            Icon = (
-                                                                <div className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-100/80 text-amber-600">
-                                                                    <Sunrise className="h-3 w-3" />
-                                                                </div>
-                                                            );
-                                                        } else if (item.code === "CF2") {
-                                                            // CF2: Day (8am-10pm) - Vibrant Solar Gold
-                                                            tierStyles = "border-orange-400 bg-orange-500 text-white hover:bg-orange-600 hover:border-orange-500 shadow-orange-500/10";
-                                                            Icon = (
-                                                                <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/20 text-white">
-                                                                    <Sun className="h-3 w-3 fill-white/20" />
-                                                                </div>
-                                                            );
-                                                        } else if (item.code === "CF3") {
-                                                            // CF3: Evening (10pm-11pm) - Light Dark (Slate)
-                                                            tierStyles = "border-slate-400 bg-slate-600 text-white hover:bg-slate-700 hover:border-slate-600 shadow-slate-500/10";
-                                                            Icon = (
-                                                                <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/10 text-white/90">
-                                                                    <Moon className="h-3 w-3 fill-white/20" />
-                                                                </div>
-                                                            );
-                                                        } else if (item.code === "CF4") {
-                                                            // CF4: Midnight (11pm-6am) - Sleek Midnight Zinc
-                                                            tierStyles = "border-zinc-800 bg-zinc-900 text-white hover:bg-black hover:border-black shadow-zinc-900/20";
-                                                            Icon = (
-                                                                <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/5 text-zinc-400">
-                                                                    <MoonStar className="h-3 w-3" />
-                                                                </div>
-                                                            );
+                                                        if (isConsultation) {
+                                                            const p = item.price;
+                                                            if (item.code === "CF1") {
+                                                                // CF1: Early Morning (6am-8am) - Soft Sunrise Amber
+                                                                tierStyles = "border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100 hover:border-amber-300 shadow-amber-500/5";
+                                                                Icon = (
+                                                                    <div className="flex h-5 w-5 items-center justify-center rounded-md bg-amber-100/80 text-amber-600">
+                                                                        <Sunrise className="h-3 w-3" />
+                                                                    </div>
+                                                                );
+                                                            } else if (item.code === "CF2") {
+                                                                // CF2: Day (8am-10pm) - Vibrant Solar Gold
+                                                                tierStyles = "border-orange-400 bg-orange-500 text-white hover:bg-orange-600 hover:border-orange-500 shadow-orange-500/10";
+                                                                Icon = (
+                                                                    <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/20 text-white">
+                                                                        <Sun className="h-3 w-3 fill-white/20" />
+                                                                    </div>
+                                                                );
+                                                            } else if (item.code === "CF3") {
+                                                                // CF3: Evening (10pm-11pm) - Light Dark (Slate)
+                                                                tierStyles = "border-slate-400 bg-slate-600 text-white hover:bg-slate-700 hover:border-slate-600 shadow-slate-500/10";
+                                                                Icon = (
+                                                                    <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/10 text-white/90">
+                                                                        <Moon className="h-3 w-3 fill-white/20" />
+                                                                    </div>
+                                                                );
+                                                            } else if (item.code === "CF4") {
+                                                                // CF4: Midnight (11pm-6am) - Sleek Midnight Zinc
+                                                                tierStyles = "border-zinc-800 bg-zinc-900 text-white hover:bg-black hover:border-black shadow-zinc-900/20";
+                                                                Icon = (
+                                                                    <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/5 text-zinc-400">
+                                                                        <MoonStar className="h-3 w-3" />
+                                                                    </div>
+                                                                );
+                                                            }
                                                         }
-                                                    }
 
-                                                    return (
-                                                        <div key={item.item} className="group relative">
-                                                            <button
-                                                                className={`relative flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-all shadow-sm ${tierStyles}`}
-                                                                onClick={() => {
-                                                                    addItem(item.item, item.price)
-                                                                }}
-                                                            >
-                                                                {Icon}
-                                                                {item.item}
-                                                                <span className={`ml-1 text-[10px] font-normal ${isConsultation && item.price >= 120 ? "opacity-70" : "text-slate-400"}`}>
-                                                                    ({formatINR(item.price)})
-                                                                </span>
-                                                            </button>
-                                                            <button
-                                                                onClick={async () => {
-                                                                    try {
-                                                                        await toast.promise(api.delete(`/billing/billing_item?item=${item.item}`), {
-                                                                            loading: "Deleting item...",
-                                                                            success: "Item deleted successfully",
-                                                                            error: "Failed to delete item"
-                                                                        })
-                                                                        billingItemsMutate()
-                                                                    } catch (error) {
+                                                        return (
+                                                            <div key={item.item} className="group relative">
+                                                                <button
+                                                                    className={`relative flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-all shadow-sm ${tierStyles}`}
+                                                                    onClick={() => {
+                                                                        addItem(item.item, item.price)
+                                                                    }}
+                                                                >
+                                                                    {Icon}
+                                                                    {item.item}
+                                                                    <span className={`ml-1 text-[10px] font-normal ${isConsultation && item.price >= 120 ? "opacity-70" : "text-slate-400"}`}>
+                                                                        ({formatINR(item.price)})
+                                                                    </span>
+                                                                </button>
+                                                                <button
+                                                                    onClick={async () => {
+                                                                        try {
+                                                                            await toast.promise(api.delete(`/billing/billing_item?item=${item.item}`), {
+                                                                                loading: "Deleting item...",
+                                                                                success: "Item deleted successfully",
+                                                                                error: "Failed to delete item"
+                                                                            })
+                                                                            billingItemsMutate()
+                                                                        } catch (error) {
 
-                                                                    }
-                                                                }}
-                                                                className="absolute -right-1.5 -top-1.5 hidden h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-white shadow-md hover:bg-rose-600 group-hover:flex z-50"
-                                                            >
-                                                                <X className="h-2.5 w-2.5" />
-                                                            </button>
-                                                        </div>
-                                                    );
-                                                })}
-                                            </motion.div>
-                                        </div>
-                                    );
-                                });
-                            })()}
-                        </div>
-                    )}
-                </AnimatePresence>
+                                                                        }
+                                                                    }}
+                                                                    className="absolute -right-1.5 -top-1.5 hidden h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-white shadow-md hover:bg-rose-600 group-hover:flex z-50"
+                                                                >
+                                                                    <X className="h-2.5 w-2.5" />
+                                                                </button>
+                                                            </div>
+                                                        );
+                                                    })}
+                                                </motion.div>
+                                            </div>
+                                        );
+                                    });
+                                })()}
+                            </div>
+                        )}
+                    </AnimatePresence>
 
-                <ItemSelected
-                    addItem={addItem}
-                    item={item}
-                    itemRef={itemRef}
-                    setItem={setItem}
-                    onOpenCustomModal={() => setIsCustomItemModalOpen(true)}
-                />
+                    <div className="w-full md:w-[320px] lg:w-[600px] md:flex-none">
+                        <ItemSelected
+                            addItem={addItem}
+                            item={item}
+                            itemRef={itemRef}
+                            setItem={setItem}
+                            onOpenCustomModal={() => setIsCustomItemModalOpen(true)}
+                        />
+                    </div>
+                </div>
             </div>
 
             <div className="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
