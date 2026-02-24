@@ -42,6 +42,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
     ];
 
     const {
+        finalTotal,
         totalPaid,
         dueAmount
     } = useBillCalculations({
@@ -187,11 +188,11 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                     <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance to Return (₹)</label>
                     <div className={cn(
                         "h-11 flex items-center px-4 rounded-lg border-2 font-bold text-lg transition-colors",
-                        dueAmount < 0
+                        (totalPaid - finalTotal) > 0
                             ? "bg-rose-50 border-rose-100 text-rose-700"
                             : "bg-slate-50 border-slate-100 text-slate-700"
                     )}>
-                        {formatINR(dueAmount)}
+                        {formatINR(Math.max(0, totalPaid - finalTotal))}
                     </div>
                 </div>
             </div>
