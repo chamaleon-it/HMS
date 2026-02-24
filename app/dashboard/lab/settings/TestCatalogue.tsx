@@ -90,7 +90,7 @@ export default function TestCatalogue({
     nbMin?: number;
     nbMax?: number;
     unit?: string;
-    estimatedTime?: number;
+    estimatedTime?: string;
     dataType: "number" | "text" | "boolean"
   }>({
     code: "",
@@ -106,7 +106,15 @@ export default function TestCatalogue({
         toast.error("Please fill all required fields");
         return;
       }
-      await toast.promise(api.post("/lab/panels/create_test", newTest), {
+      let finalPayload = { ...newTest };
+      if (newTest.estimatedTime && typeof newTest.estimatedTime === 'string') {
+        const [hoursStr, minutesStr] = newTest.estimatedTime.split(':');
+        const hours = parseInt(hoursStr || '0', 10);
+        const minutes = parseInt(minutesStr || '0', 10);
+        finalPayload.estimatedTime = (hours * 60 + minutes) as any;
+      }
+
+      await toast.promise(api.post("/lab/panels/create_test", finalPayload), {
         loading: "Adding test...",
         success: "Test added successfully",
         error: ({ response }) => response.data.message,
@@ -148,7 +156,7 @@ export default function TestCatalogue({
       nbMin?: number;
       nbMax?: number;
       unit?: string;
-      estimatedTime?: number;
+      estimatedTime?: string;
       panels: {
         name: string;
       }[]
@@ -229,14 +237,17 @@ export default function TestCatalogue({
 
 
               <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Estimated Time (Minutes)</Label>
+                <Label className="text-xs font-medium text-slate-700">Estimated Duration (HH:MM)</Label>
                 <Input
-                  placeholder="e.g. 30"
+                  placeholder="HH:MM"
                   value={newTest.estimatedTime || ""}
-                  type="number"
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, estimatedTime: Number(e.target.value) }))
-                  }
+                  type="text"
+                  onChange={(e) => {
+                    let val = e.target.value.replace(/\D/g, "");
+                    if (val.length > 4) val = val.slice(0, 4);
+                    if (val.length >= 3) val = `${val.slice(0, 2)}:${val.slice(2)}`;
+                    setNewTest((prev) => ({ ...prev, estimatedTime: val }));
+                  }}
                   className="h-9 bg-slate-50"
                 />
               </div>
