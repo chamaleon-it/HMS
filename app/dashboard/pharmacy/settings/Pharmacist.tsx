@@ -30,7 +30,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Plus, Pencil, Trash2, Loader2 } from 'lucide-react'
+import { MoreHorizontal, Plus, Pencil, Trash2, Loader2, Star } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
@@ -307,6 +307,13 @@ export default function Pharmacist() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-40 p-1 border-slate-200">
+                                                <DropdownMenuItem
+                                                    onClick={() => { }}
+                                                    className="gap-2 text-slate-700 cursor-pointer"
+                                                >
+                                                    <Star size={14} className="text-amber-500 fill-amber-500/20" />
+                                                    Mark as Default
+                                                </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => openEditDialog(p)}
                                                     className="gap-2 text-slate-700 cursor-pointer"

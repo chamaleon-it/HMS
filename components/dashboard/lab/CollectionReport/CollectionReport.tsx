@@ -71,7 +71,7 @@ const SAMPLES: { id: string; patient: string; mrn: string; test: string; sampleT
 
 ];
 
-type StatusType = "Pending" | "Sample Collected" | "Waiting for Result" | "Completed";
+type StatusType = "Upcoming" | "Sample Collected" | "Waiting for Result" | "Completed";
 
 function SampleCollectionStatus({
     currentStatus,
@@ -82,7 +82,7 @@ function SampleCollectionStatus({
 }) {
     const tabs = useMemo<{ key: StatusType; icon: React.ElementType }[]>(
         () => [
-            { key: "Pending", icon: Clock },
+            { key: "Upcoming", icon: Clock },
             { key: "Sample Collected", icon: TestTube2 },
             { key: "Waiting for Result", icon: FlaskConical },
             { key: "Completed", icon: CheckCircle },
@@ -137,7 +137,7 @@ function PriorityBadge({ priority }: { priority: string }) {
 
 function StatusBadge({ status }: { status: string }) {
     const map: Record<string, string> = {
-        "Pending": "bg-amber-100 text-amber-700 border-amber-200",
+        "Upcoming": "bg-amber-100 text-amber-700 border-amber-200",
         "Sample Collected": "bg-blue-100 text-blue-700 border-blue-200",
         "Waiting for Result": "bg-indigo-100 text-indigo-700 border-indigo-200",
         "Completed": "bg-emerald-100 text-emerald-700 border-emerald-200",
@@ -153,7 +153,7 @@ function StatusBadge({ status }: { status: string }) {
 
 export default function CollectionReport() {
     const [samples, setSamples] = useState(SAMPLES);
-    const [status, setStatus] = useState<StatusType>("Pending");
+    const [status, setStatus] = useState<StatusType>("Upcoming");
     const [search, setSearch] = useState("");
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [selectedSample, setSelectedSample] = useState<string | null>(null);
@@ -166,7 +166,7 @@ export default function CollectionReport() {
     const [bookingType, setBookingType] = useState<"Book Now" | "Schedule">("Book Now");
 
     const filteredSamples = samples.filter(sample =>
-        (status === "Pending" ? true : sample.status === status) &&
+        (status === "Upcoming" ? true : sample.status === status) &&
         (sample.status === status) &&
         (sample.patient.toLowerCase().includes(search.toLowerCase()) ||
             sample.mrn.toLowerCase().includes(search.toLowerCase()) ||
@@ -363,7 +363,7 @@ export default function CollectionReport() {
                                                 </TooltipContent>
                                             </Tooltip>
 
-                                            {sample.status !== "Pending" && (
+                                            {sample.status !== "Upcoming" && (
                                                 <Button
                                                     variant="outline"
                                                     size="sm"
@@ -429,7 +429,7 @@ export default function CollectionReport() {
                                         <SelectValue placeholder="Select status" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="Pending">Pending</SelectItem>
+                                        <SelectItem value="Upcoming">Upcoming</SelectItem>
                                         <SelectItem value="Sample Collected">Sample Collected</SelectItem>
                                         <SelectItem value="Waiting for Result">Waiting for Result</SelectItem>
                                         <SelectItem value="Completed">Completed</SelectItem>

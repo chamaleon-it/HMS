@@ -6,7 +6,7 @@ import LabStatus from "./LabStatus";
 import NewTest from "./NewTest";
 import LabTable from "./LabTable";
 import LabHeader from "../LabHeader";
-import { Beaker, Clock, CheckCircle2, FlaskConical, Filter, Plus, AlertTriangle } from "lucide-react";
+import { Beaker, Clock, CheckCircle2, FlaskConical, Filter, Plus, AlertTriangle, TestTube2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -56,13 +56,13 @@ export default function LabResultsPage() {
   const stats = {
     total: REPORT.length,
     pending: REPORT.filter(r => r.status === "Pending").length,
-    inProgress: REPORT.filter(r => r.status === "In Progress").length,
+    inProgress: REPORT.filter(r => r.status === "Sample Collected").length,
     completed: REPORT.filter(r => r.status === "Completed").length,
     flagged: REPORT.filter(r => r.status === "Flagged").length
   };
 
   const [status, setStatus] = useState<
-    "Pending" | "In Progress" | "Completed" | "Flagged"
+    "Pending" | "Sample Collected" | "Completed" | "Flagged"
   >("Pending");
 
   return (
@@ -97,8 +97,8 @@ export default function LabResultsPage() {
         />
         <StatCard
           delay={0.3}
-          icon={<Beaker className="h-6 w-6" />}
-          label="In Progress"
+          icon={<TestTube2 className="h-6 w-6" />}
+          label="Sample Collected"
           value={stats.inProgress}
           colorClass="from-indigo-500/10 to-indigo-500/5"
           iconBgClass="bg-indigo-100 text-indigo-600"

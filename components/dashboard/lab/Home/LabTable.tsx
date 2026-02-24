@@ -10,7 +10,7 @@ import { Bell, Clock } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 
 interface PropsTypes {
-  status: "Pending" | "In Progress" | "Completed" | "Flagged";
+  status: "Pending" | "Sample Collected" | "Completed" | "Flagged";
   mutate: () => void;
   REPORT: {
     _id: string;
@@ -96,14 +96,14 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             {status !== "Pending" && headerCell("Sample Collected")}
             {headerCell("Doctor")}
             {headerCell("Status")}
-            {status === "In Progress" && headerCell("Estimated Time")}
+            {status === "Sample Collected" && headerCell("Estimated Time")}
             {headerCell("Actions", "right")}
           </tr>
         </thead>
         <tbody>
           {REPORT.filter((r) => r.status === status)
             .sort((a, b) => {
-              if (status !== "In Progress") return 0;
+              if (status !== "Sample Collected") return 0;
               const getTargetTime = (item: typeof a) => {
                 if (!item.sampleCollectedAt) return Infinity;
                 const times = item.test
@@ -123,7 +123,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   .filter((time) => typeof time === "number"), 0
               );
 
-              const expired = status === "In Progress" ? (r.sampleCollectedAt
+              const expired = status === "Sample Collected" ? (r.sampleCollectedAt
                 ? Date.now() >=
                 new Date(r.sampleCollectedAt).getTime() +
                 maxEstimatedTime * 60_000
@@ -219,7 +219,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   <td className="px-3 py-2">
                     <Chip label={r.status} tone={statusTone(r.status)} />
                   </td>
-                  {status === "In Progress" && (
+                  {status === "Sample Collected" && (
                     <td>
                       {r.sampleCollectedAt ? (
                         <Countdown
@@ -238,7 +238,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   )}
                   <td className="px-3 py-2 text-right">
                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
-                      {r.status === "In Progress" && expired && <ResultUpdate mutate={mutate} r={r} />}
+                      {r.status === "Sample Collected" && expired && <ResultUpdate mutate={mutate} r={r} />}
                       {r.status === "Pending" && (
                         <Button
                           variant="outline"
@@ -314,7 +314,7 @@ const statusTone = (s: string): "green" | "gray" | "red" | "blue" | "amber" =>
     ? "green"
     : s === "Pending"
       ? "gray"
-      : s === "In Progress"
+      : s === "Sample Collected"
         ? "amber"
         : "red";
 
