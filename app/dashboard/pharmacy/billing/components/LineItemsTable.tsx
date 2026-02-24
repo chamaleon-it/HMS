@@ -122,7 +122,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                     return acc;
                                 }, {} as Record<string, typeof billingItems>);
 
-                                return ["Dressing", "Procedure", "Consultation", "Others"].map(catName => {
+                                return ["Consultation"].map(catName => {
                                     const items = grouped[catName];
                                     if (!items || items.length === 0) return null;
 

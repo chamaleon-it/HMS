@@ -174,8 +174,8 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       {r?.test
                         ?.filter(
                           (t) =>
-                            !t.name.panels
-                              .map((p) => r.panels.includes(p.name))
+                            !(t.name?.panels || [])
+                              .map((p: any) => r.panels?.includes(p.name))
                               .includes(true)
                         )
                         .map((e) => (
