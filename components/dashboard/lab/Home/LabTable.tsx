@@ -8,12 +8,14 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Bell, Clock, Play } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
+import ReportCard from "./ReportCard";
 
 interface PropsTypes {
   status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged";
   mutate: () => void;
   REPORT: {
     _id: string;
+    mrn: number;
     patient: {
       _id: string;
       name: string;
@@ -81,6 +83,16 @@ interface PropsTypes {
 
 export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
   const { user } = useAuth();
+  const [printReport, setPrintReport] = React.useState<any | null>(null);
+
+  const handlePrint = (report: any) => {
+    setPrintReport(report);
+    setTimeout(() => {
+      window.print();
+      setPrintReport(null);
+    }, 100);
+  };
+
   return (
     <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
       <table className="w-full whitespace-nowrap  overflow-scroll">
@@ -89,7 +101,8 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             <th className="w-10 text-left px-3 py-2">
               <Checkbox />
             </th>
-            {headerCell("No.")}
+            {headerCell("SL No.")}
+            {headerCell("Report No.")}
             {headerCell("Patient")}
             {headerCell("Test")}
             {headerCell("Created At")}
@@ -147,6 +160,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {String(idx + 1).padStart(2, "0")}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-500">
+                    {String(r.mrn).padStart(4, "0")}
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex flex-col">
@@ -301,6 +317,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                       {r.status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} />}
 
+
                       {r.status === "Completed" && <ViewResultModal r={r} />}
                       <Button
                         variant={"outline"}
@@ -324,6 +341,15 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       >
                         Delete
                       </Button>
+
+                      {r.status === "Completed" && <Button
+                        variant={"outline"}
+                        size="sm"
+                        className="bg-white text-gray-600 hover:bg-gray-100"
+                        onClick={() => handlePrint(r)}
+                      >
+                        Print Report
+                      </Button>}
                     </div>
                   </td>
                 </tr>
@@ -331,6 +357,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             })}
         </tbody>
       </table>
+      {printReport && <ReportCard report={printReport} />}
     </div>
   );
 }
