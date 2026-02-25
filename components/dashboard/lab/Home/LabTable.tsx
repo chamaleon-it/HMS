@@ -10,7 +10,7 @@ import { Bell, Clock } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 
 interface PropsTypes {
-  status: "Pending" | "Sample Collected" | "Waiting for Result" | "Completed" | "Flagged";
+  status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged";
   mutate: () => void;
   REPORT: {
     _id: string;
@@ -93,10 +93,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             {headerCell("Patient")}
             {headerCell("Test")}
             {headerCell("Created At")}
-            {status !== "Pending" && headerCell("Sample Collected")}
+            {status !== "Upcoming" && headerCell("Sample Collected")}
             {headerCell("Doctor")}
             {headerCell("Status")}
-            {status === "Sample Collected" && headerCell("Estimated Time")}
+            {status === "Waiting For Result" && headerCell("Estimated Time")}
             {headerCell("Actions", "right")}
           </tr>
         </thead>
@@ -193,7 +193,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     {fDateandTime(r.createdAt)}
                   </td>
 
-                  {status !== "Pending" && (
+                  {status !== "Upcoming" && (
                     <td className="px-3 py-2 text-sm text-gray-500">
                       {r.sampleCollectedAt
                         ? fDateandTime(r.sampleCollectedAt)
@@ -219,7 +219,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   <td className="px-3 py-2">
                     <Chip label={r.status} tone={statusTone(r.status)} />
                   </td>
-                  {status === "Sample Collected" && (
+                  {status === "Waiting For Result" && (
                     <td>
                       {r.sampleCollectedAt ? (
                         <Countdown
@@ -238,8 +238,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   )}
                   <td className="px-3 py-2 text-right">
                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
-                      {r.status === "Sample Collected" && expired && <ResultUpdate mutate={mutate} r={r} />}
-                      {r.status === "Pending" && (
+                      {r.status === "Upcoming" && (
                         <Button
                           variant="outline"
                           size="sm"
@@ -268,7 +267,41 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         </Button>
                       )}
 
-                      {r.status !== "Pending" && <ViewResultModal r={r} />}
+                      {
+                        r.status === "Sample Collected" && <Button
+                          variant="outline"
+                          size="sm"
+                          className="bg-white text-gray-600 hover:bg-gray-100"
+                          onClick={async () => {
+                            try {
+                              await toast.promise(
+                                api.post(
+                                  `lab/report/start_test/${r._id}`
+                                ),
+                                {
+                                  loading: "Processing...",
+                                  success: "Test Started",
+                                  error: "Failed to start test",
+                                }
+                              );
+                              mutate();
+                            } catch (error) {
+                              toast.error(
+                                `Failed to start test : ${error}`
+                              );
+                            }
+                          }}
+                        >
+                          Start Test
+                        </Button>
+                      }
+
+                      {r.status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Ready"} />}
+                      {r.status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} />}
+
+                      {r.status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} />}
+
+                      {r.status === "Completed" && <ViewResultModal r={r} />}
                       <Button
                         variant={"outline"}
                         size="sm"
@@ -312,9 +345,9 @@ function headerCell(
 const statusTone = (s: string): "green" | "gray" | "red" | "blue" | "amber" =>
   s === "Completed"
     ? "green"
-    : s === "Waiting for Result"
+    : s === "Waiting For Result"
       ? "blue"
-      : s === "Pending"
+      : s === "Upcoming"
         ? "gray"
         : s === "Sample Collected"
           ? "amber"

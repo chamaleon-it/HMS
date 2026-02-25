@@ -88,9 +88,10 @@ interface Props {
     updatedAt: Date;
   };
   mutate: () => void;
+  buttonText?: string;
 }
 
-export default function ResultUpdate({ r, mutate }: Props) {
+export default function ResultUpdate({ r, mutate, buttonText }: Props) {
   const [open, setOpen] = useState(false);
 
   const [payload, setPayload] = useState({
@@ -123,7 +124,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
-          Update Result
+          {buttonText || "Update Result"}
         </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden gap-0">

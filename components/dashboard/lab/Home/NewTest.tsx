@@ -112,7 +112,7 @@ export default function NewTest({
     date: new Date(),
     priority: "Normal",
     sampleType: "Other",
-    status: "Pending",
+    status: "Upcoming",
   });
 
   const { tests } = useGetTest();
@@ -158,7 +158,7 @@ export default function NewTest({
         date: new Date(),
         priority: "Normal",
         sampleType: "Other",
-        status: "Pending",
+        status: "Upcoming",
       });
     } catch (error) {
       console.log(error);
@@ -397,7 +397,6 @@ export default function NewTest({
                       setPayload((prev) => {
                         if (!prev.panels.includes(t)) return prev;
 
-                        // collect test ids related to this panel
                         const relatedTestIds = new Set(
                           tests
                             .filter((test) =>

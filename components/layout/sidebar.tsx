@@ -179,13 +179,6 @@ export function Sidebar() {
         icon: LayoutDashboard,
         link: "/dashboard/lab/",
       },
-
-      {
-        key: "collection-report",
-        label: "Sample Collection",
-        icon: FileBarChart,
-        link: "/dashboard/lab/collection-report/",
-      },
       {
         key: "tests",
         label: "Test",

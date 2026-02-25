@@ -62,8 +62,8 @@ export default function LabResultsPage() {
   };
 
   const [status, setStatus] = useState<
-    "Pending" | "Sample Collected" | "Waiting for Result" | "Completed" | "Flagged"
-  >("Pending");
+    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged"
+  >("Upcoming");
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-6">
