@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Bell, Clock } from "lucide-react";
+import { Bell, Clock, Play } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 
 interface PropsTypes {
@@ -103,7 +103,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
         <tbody>
           {REPORT.filter((r) => r.status === status)
             .sort((a, b) => {
-              if (status !== "Sample Collected") return 0;
+              if (status !== "Waiting For Result") return 0;
               const getTargetTime = (item: typeof a) => {
                 if (!item.sampleCollectedAt) return Infinity;
                 const times = item.test
@@ -123,7 +123,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   .filter((time) => typeof time === "number"), 0
               );
 
-              const expired = status === "Sample Collected" ? (r.sampleCollectedAt
+              const expired = status === "Waiting For Result" ? (r.sampleCollectedAt
                 ? Date.now() >=
                 new Date(r.sampleCollectedAt).getTime() +
                 maxEstimatedTime * 60_000
@@ -269,9 +269,8 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                       {
                         r.status === "Sample Collected" && <Button
-                          variant="outline"
                           size="sm"
-                          className="bg-white text-gray-600 hover:bg-gray-100"
+                          className="bg-linear-to-br from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 px-4 font-semibold rounded-lg"
                           onClick={async () => {
                             try {
                               await toast.promise(
@@ -292,6 +291,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                             }
                           }}
                         >
+                          <Play className="h-3.5 w-3.5 fill-current" />
                           Start Test
                         </Button>
                       }
