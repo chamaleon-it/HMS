@@ -1,6 +1,6 @@
 import api from "@/lib/axios";
 import { Plus, Search, Trash2, Tag, CreditCard } from "lucide-react";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import useSWR from "swr";
 import { formatINR } from "@/lib/fNumber";
 
@@ -25,7 +25,12 @@ export default function ItemSelected({
   setItem,
   onOpenCustomModal,
 }: PropsType) {
-  const query = item?.trim() ? `/billing/billing_items?item=${encodeURIComponent(item.trim())}` : null;
+  const [isFocused, setIsFocused] = useState(false);
+
+  const query = isFocused || item?.trim()
+    ? `/billing/billing_items${item?.trim() ? `?item=${encodeURIComponent(item.trim())}` : ""}`
+    : null;
+
   const { data: billingItemsData, mutate } = useSWR<{ message: string; data: { item: string, code: string, price: number, _id: string }[] }>(
     query
   );
@@ -81,6 +86,8 @@ export default function ItemSelected({
             }
             value={item ?? ""}
             onChange={(e) => setItem(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             onKeyDown={(e) => {
               if (e.code === "Enter" || e.code === "Tab") {
                 e.preventDefault();
@@ -88,8 +95,8 @@ export default function ItemSelected({
               }
             }}
           />
-          {billingItems.length > 0 && (
-            <div className="absolute w-full mt-2 p-1.5 rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 top-full flex flex-col gap-1 z-50 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          {isFocused && billingItems.length > 0 && (
+            <div className="absolute w-full mt-2 p-1.5 max-h-64 overflow-y-auto rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 top-full flex flex-col gap-1 z-50 shadow-xl animate-in fade-in zoom-in-95 duration-200">
               {billingItems.map((i) => (
                 <div
                   key={i._id}
