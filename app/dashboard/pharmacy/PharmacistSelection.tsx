@@ -1,6 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useEffectEvent, useState } from "react";
 import useSWR from "swr";
 import {
     Select,
@@ -11,13 +11,7 @@ import {
 } from "@/components/ui/select";
 import { PharmacistData } from "./settings/Pharmacist";
 
-type Pharmacist = {
-    _id: string;
-    name: string;
-    phoneNumber?: string;
-    role: string;
-    email?: string;
-};
+
 
 interface Props {
     setValue: (id: string) => void;
@@ -36,6 +30,12 @@ const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName, hideLa
     const pharmacists = pharmacistResponse?.data ?? []
 
 
+    useEffect(() => {
+        const inCharge = pharmacists.find((p) => p.inCharge)
+        if (inCharge) {
+            setValue(inCharge.name)
+        }
+    }, [pharmacists])
 
 
     return (
