@@ -59,7 +59,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
     const itemsTotal = payload.items.reduce((a: number, b: any) => a + b.total, 0);
 
     return (
-        <div className="bg-white rounded-xl shadow-md border border-slate-200 p-6">
+        <div className="mb-2 relative z-10">
             <div className="mb-6 flex items-center gap-2 text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
                 <Wallet2 className="h-4 w-4" />
                 Payments & Insurance
