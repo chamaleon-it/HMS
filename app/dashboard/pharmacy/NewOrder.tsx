@@ -52,7 +52,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     discount: 0,
     priority: "Normal",
     status: "Pending",
-    pharmacists: "",
+    pharmacist: "",
     allergies: undefined
   });
 
@@ -90,6 +90,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         }
       }
       const payloadToSubmit = { ...payload, items: validItems };
+      console.log(payload)
       const { data } = await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,
@@ -126,7 +127,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         discount: 0,
         priority: "Normal",
         status: "Pending",
-        pharmacists: ""
+        pharmacist: ""
       });
     }
   }, [open, user?._id]);
@@ -204,9 +205,9 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
                     <PharmacistSelection
                       hideLabel
                       setValue={(name: string) => {
-                        setPayload((prev) => ({ ...prev, pharmacists: name }));
+                        setPayload((prev) => ({ ...prev, pharmacist: name }));
                       }}
-                      pharmacistName={payload.pharmacists}
+                      pharmacistName={payload.pharmacist}
                       className="mt-auto"
                     />
                   </div>
