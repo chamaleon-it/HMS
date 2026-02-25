@@ -177,7 +177,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
                 </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6 pt-6 border-t border-slate-100">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4  pt-6 border-slate-100">
                 <div className="space-y-2">
                     <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</label>
                     <div className="h-11 w-full flex items-center px-4 bg-slate-50 border border-slate-200 rounded-lg text-slate-700 font-bold text-lg">

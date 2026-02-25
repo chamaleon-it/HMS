@@ -67,7 +67,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
 
 
     return (
-        <div className="col-span-12 space-y-4 lg:col-span-8">
+        <div className="col-span-12 space-y-4 lg:col-span-8 mt-2">
             <div className="col-span-12 lg:col-span-8">
                 <AnimatePresence>
                     {favorites.length > 0 && (
@@ -238,14 +238,6 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
             </div>
 
             <div className="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden">
-                <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-                    <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest ml-2">
-                        Line Items
-                    </div>
-                    <span className="text-xs text-slate-400 italic">
-                        Start typing to search items
-                    </span>
-                </div>
 
                 <div className="overflow-x-auto">
                     <table className="w-full table-fixed text-sm">
@@ -259,12 +251,12 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                         </colgroup>
                         <thead className="bg-[#334155]">
                             <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-white font-semibold">
-                                <th className="py-4 pl-4 text-left">Item Name</th>
-                                <th className="py-4 pr-2 text-right">Qty</th>
-                                <th className="py-4 pr-2 text-right">Unit Price</th>
-                                <th className="py-4 pr-2 text-right">GST%</th>
-                                <th className="py-4 pr-2 text-right">Amount</th>
-                                <th className="py-4 text-center">Action</th>
+                                <th className="py-2.5 pl-4 text-left">Item Name</th>
+                                <th className="py-2.5 pr-2 text-right">Qty</th>
+                                <th className="py-2.5 pr-2 text-right">Unit Price</th>
+                                <th className="py-2.5 pr-2 text-right">GST%</th>
+                                <th className="py-2.5 pr-2 text-right">Amount</th>
+                                <th className="py-2.5 text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -371,12 +363,12 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                     </table>
                 </div>
 
-                <div className="p-4 pt-6 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="rounded-xl border border-slate-200 bg-white px-5 py-3 shadow-sm dark:border-slate-700 dark:bg-slate-900 flex items-center">
-                        <span className="text-slate-500 text-[15px] font-medium">Line Items Total</span>
-                        <span className="ml-3 font-bold tabular-nums text-lg text-slate-800">
+                <div className="p-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className=" flex items-center">
+                        <p className="text-slate-500 text-[14px] font-medium">Line Items Total</p>
+                        <p className="ml-3 font-bold tabular-nums text-md text-slate-800">
                             {formatINR(payload.items.reduce((acc: number, i: any) => acc + i.total, 0))}
-                        </span>
+                        </p>
                     </div>
                     <div className="flex gap-2">
                         <PrimaryButton
