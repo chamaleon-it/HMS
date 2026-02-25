@@ -179,18 +179,18 @@ export default function ResultUpdate({ r, mutate }: Props) {
                             <Beaker className="w-4 h-4" />
                           </div>
                           <span className="font-medium text-gray-900">
-                            {labTest.name.name}
+                            {labTest.name?.name}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell className="py-4">
                         <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-mono text-gray-500">
-                          {labTest.name.code}
+                          {labTest.name?.code}
                         </div>
                       </TableCell>
                       <TableCell className="py-4">
                         <div className="relative max-w-[240px]">
-                          {labTest.name.type === "Lab" ? (
+                          {labTest.name?.type === "Lab" ? (
                             <Input
                               value={
                                 payload.test.find(
@@ -243,7 +243,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                           )}
                           <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
                             <span className="text-xs font-medium text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                              {labTest.name.unit}
+                              {labTest.name?.unit}
                             </span>
                           </div>
                         </div>
@@ -251,9 +251,9 @@ export default function ResultUpdate({ r, mutate }: Props) {
                       <TableCell className="pr-6 py-4 text-right">
                         <div className="flex flex-col items-end gap-0.5">
                           <span className="text-sm font-medium text-gray-700">
-                            {labTest.name.min ?? "0"} -{" "}
-                            {labTest.name.unit ? labTest.name.unit : ""}{" "}
-                            {labTest.name.max ?? "N/A"}
+                            {labTest.name?.min ?? "0"} -{" "}
+                            {labTest.name?.unit ? labTest.name?.unit : ""}{" "}
+                            {labTest.name?.max ?? "N/A"}
                           </span>
                           <span className="text-[10px] text-gray-400 uppercase tracking-wide">
                             Normal Range

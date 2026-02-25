@@ -10,7 +10,7 @@ import { Bell, Clock } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 
 interface PropsTypes {
-  status: "Pending" | "Sample Collected" | "Completed" | "Flagged";
+  status: "Pending" | "Sample Collected" | "Waiting for Result" | "Completed" | "Flagged";
   mutate: () => void;
   REPORT: {
     _id: string;
@@ -183,7 +183,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                             key={e._id}
                             className="flex items-center gap-1 h-5 font-medium text-sm"
                           >
-                            {e.name.name}
+                            {e.name?.name}
                           </div>
                         ))}
                     </div>
@@ -312,11 +312,13 @@ function headerCell(
 const statusTone = (s: string): "green" | "gray" | "red" | "blue" | "amber" =>
   s === "Completed"
     ? "green"
-    : s === "Pending"
-      ? "gray"
-      : s === "Sample Collected"
-        ? "amber"
-        : "red";
+    : s === "Waiting for Result"
+      ? "blue"
+      : s === "Pending"
+        ? "gray"
+        : s === "Sample Collected"
+          ? "amber"
+          : "red";
 
 // ----- Small UI helpers -----
 const Chip: React.FC<{

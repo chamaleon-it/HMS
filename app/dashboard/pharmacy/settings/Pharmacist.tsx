@@ -312,7 +312,7 @@ export default function Pharmacist() {
                                                     className="gap-2 text-slate-700 cursor-pointer"
                                                 >
                                                     <Star size={14} className="text-amber-500 fill-amber-500/20" />
-                                                    Mark as Default
+                                                    Person In Charge
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => openEditDialog(p)}

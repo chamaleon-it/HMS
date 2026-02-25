@@ -153,17 +153,17 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                                     <div className="p-2 bg-white border border-gray-100 text-blue-600 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all">
                                                         <Beaker className="w-4 h-4" />
                                                     </div>
-                                                    <span className="font-medium text-gray-900">{labTest.name.name}</span>
+                                                    <span className="font-medium text-gray-900">{labTest.name?.name}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4">
                                                 <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-mono text-gray-500">
-                                                    {labTest.name.code}
+                                                    {labTest.name?.code}
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4">
                                                 <div className="relative max-w-[240px]">
-                                                    {labTest.name.dataType === "boolean" ? (
+                                                    {labTest.name?.dataType === "boolean" ? (
                                                         <Select
                                                             value={payload.test.find((item) => item._id === labTest._id)?.value}
                                                             onValueChange={(value) => setPayload({ ...payload, test: payload.test.map((item) => item._id === labTest._id ? { ...item, value } : item) })}
@@ -181,13 +181,13 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                                             <Input
                                                                 value={payload.test.find((item) => item._id === labTest._id)?.value}
                                                                 onChange={(e) => setPayload({ ...payload, test: payload.test.map((item) => item._id === labTest._id ? { ...item, value: e.target.value } : item) })}
-                                                                type={labTest.name.dataType === "number" ? "number" : "text"}
+                                                                type={labTest.name?.dataType === "number" ? "number" : "text"}
                                                                 placeholder="Enter result"
                                                                 className="pl-3 pr-12 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
                                                             />
                                                             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
                                                                 <span className="text-xs font-medium text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                                                                    {labTest.name.unit}
+                                                                    {labTest.name?.unit}
                                                                 </span>
                                                             </div>
                                                         </>
@@ -197,7 +197,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                             <TableCell className="pr-6 py-4 text-right">
                                                 <div className="flex flex-col items-end gap-0.5">
                                                     <span className="text-sm font-medium text-gray-700">
-                                                        {labTest.name.min ?? "0"} - {labTest.name.unit ? labTest.name.unit : ""} {labTest.name.max ?? "N/A"}
+                                                        {labTest.name?.min ?? "0"} - {labTest.name?.unit ? labTest.name?.unit : ""} {labTest.name?.max ?? "N/A"}
                                                     </span>
                                                     <span className="text-[10px] text-gray-400 uppercase tracking-wide">Normal Range</span>
                                                 </div>

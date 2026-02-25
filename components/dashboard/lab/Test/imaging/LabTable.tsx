@@ -102,7 +102,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     {REPORT.filter(
                         (r) => status === "All" || r.status === status
                     ).map((r, idx) => {
-                        return r.test.some((e) => e.name.type === "Imaging") && (
+                        return r.test.some((e) => e.name?.type === "Imaging") && (
                             <tr
                                 key={r._id}
                                 className={cn(`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${idx % 2 === 0
@@ -126,9 +126,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 </td>
                                 <td className="px-3 py-2 text-sm text-gray-700">
                                     <div className="flex flex-col gap-2">
-                                        {r.test.map((e) => e.name.type === "Imaging" && (
+                                        {r.test.map((e) => e.name?.type === "Imaging" && (
                                             <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
-                                                {e.name.name}
+                                                {e.name?.name}
                                             </div>
                                         ))}
                                     </div>
@@ -138,7 +138,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                     <div className="flex flex-col gap-2">
                                         {r.test.map(
                                             (e) =>
-                                                e.name.type === "Imaging" && (
+                                                e.name?.type === "Imaging" && (
                                                     <div key={e._id} className="h-5 flex items-center">
                                                         {e.value ? (
                                                             <a
@@ -162,11 +162,11 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                     <div className="flex flex-col gap-2">
                                         {r.test.map(
                                             (e) =>
-                                                e.name.type === "Imaging" && (
+                                                e.name?.type === "Imaging" && (
                                                     <span
                                                         key={e._id}
                                                         className="text-gray-600 font-mono h-5"
-                                                    >{`${e?.name?.min ?? ""} - ${e?.name?.max ?? ""} ${e?.name?.min ? e.name.unit : ""}`}</span>
+                                                    >{`${e?.name?.min ?? ""} - ${e?.name?.max ?? ""} ${e?.name?.min ? e.name?.unit : ""}`}</span>
                                                 )
                                         )}
                                     </div>

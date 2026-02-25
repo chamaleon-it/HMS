@@ -55,14 +55,14 @@ export default function LabResultsPage() {
 
   const stats = {
     total: REPORT.length,
-    pending: REPORT.filter(r => r.status === "Pending").length,
+    upcoming: REPORT.filter(r => r.status === "Pending").length,
     inProgress: REPORT.filter(r => r.status === "Sample Collected").length,
     completed: REPORT.filter(r => r.status === "Completed").length,
     flagged: REPORT.filter(r => r.status === "Flagged").length
   };
 
   const [status, setStatus] = useState<
-    "Pending" | "Sample Collected" | "Completed" | "Flagged"
+    "Pending" | "Sample Collected" | "Waiting for Result" | "Completed" | "Flagged"
   >("Pending");
 
   return (
@@ -90,7 +90,7 @@ export default function LabResultsPage() {
           delay={0.2}
           icon={<Clock className="h-6 w-6" />}
           label="Upcoming"
-          value={stats.pending}
+          value={stats.upcoming}
           colorClass="from-amber-500/10 to-amber-500/5"
           iconBgClass="bg-amber-100 text-amber-600"
           borderClass="hover:border-amber-200"
