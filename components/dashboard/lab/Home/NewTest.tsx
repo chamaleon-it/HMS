@@ -262,6 +262,7 @@ export default function NewTest({
             <LabeledCombobox
               label="Select a Test"
               value=""
+              clearOnSelect={true}
               onChange={(val) => {
                 if (!val) return;
 

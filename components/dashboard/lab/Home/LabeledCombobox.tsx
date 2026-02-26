@@ -6,6 +6,7 @@ type LabeledComboboxProps = {
     onChange: (v: string) => void;
     options: string[];
     digitsOnly?: boolean; // e.g., for duration
+    clearOnSelect?: boolean;
 };
 
 export default function LabeledCombobox({
@@ -14,14 +15,21 @@ export default function LabeledCombobox({
     onChange,
     options,
     digitsOnly,
+    clearOnSelect,
 }: LabeledComboboxProps) {
     const [open, setOpen] = useState(false);
     const [text, setText] = useState(value ?? "");
+    const [focusedIndex, setFocusedIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
         setText(value ?? "");
     }, [value]);
+
+    // Reset focused index whenever text changes or options list changes
+    React.useEffect(() => {
+        setFocusedIndex(-1);
+    }, [text, options, open]);
 
     const handleChange = (raw: string) => {
         const v = digitsOnly ? raw.replace(/[^0-9]/g, "") : raw;
@@ -31,9 +39,14 @@ export default function LabeledCombobox({
     };
 
     const commit = (val: string) => {
-        setText(val);
+        if (clearOnSelect) {
+            setText("");
+        } else {
+            setText(val);
+        }
         onChange(val);
         setOpen(false);
+        setFocusedIndex(-1);
     };
 
     // Internal filtering to match standard combobox behavior (showing relevant options)
@@ -41,11 +54,68 @@ export default function LabeledCombobox({
         opt.toLowerCase().startsWith(text.toLowerCase())
     );
 
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!open && e.key !== 'Escape') {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                setOpen(true);
+            }
+            return;
+        }
+
+        switch (e.key) {
+            case "ArrowDown":
+                e.preventDefault();
+                setFocusedIndex((prevIndex) =>
+                    prevIndex < filteredOptions.length - 1 ? prevIndex + 1 : prevIndex
+                );
+                break;
+            case "ArrowUp":
+                e.preventDefault();
+                setFocusedIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : 0));
+                break;
+            case "Enter":
+                e.preventDefault();
+                if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
+                    commit(filteredOptions[focusedIndex]);
+                } else if (filteredOptions.length === 1) {
+                    // Utility: auto-select the only option on Enter
+                    commit(filteredOptions[0]);
+                }
+                break;
+            case "Escape":
+                setOpen(false);
+                setFocusedIndex(-1);
+                break;
+        }
+    };
+
+    // Auto scroll the focused item into view
+    const listboxRef = useRef<HTMLDivElement>(null);
+    React.useEffect(() => {
+        if (focusedIndex >= 0 && listboxRef.current) {
+            const listboxNode = listboxRef.current;
+            const focusedItemNode = listboxNode.children[focusedIndex] as HTMLElement;
+            if (focusedItemNode) {
+                const itemTop = focusedItemNode.offsetTop;
+                const itemBottom = itemTop + focusedItemNode.offsetHeight;
+                const listboxTop = listboxNode.scrollTop;
+                const listboxBottom = listboxTop + listboxNode.offsetHeight;
+
+                if (itemTop < listboxTop) {
+                    listboxNode.scrollTop = itemTop;
+                } else if (itemBottom > listboxBottom) {
+                    listboxNode.scrollTop = itemBottom - listboxNode.offsetHeight;
+                }
+            }
+        }
+    }, [focusedIndex]);
+
     return (
         <div className="relative w-full" ref={containerRef}>
             <input
                 value={text}
                 onChange={(e) => handleChange(e.target.value)}
+                onKeyDown={handleKeyDown}
                 onFocus={() => setOpen(true)}
                 onClick={() => setOpen(true)}
                 onBlur={() => setTimeout(() => setOpen(false), 200)} // Increased timeout slightly to allow click
@@ -60,16 +130,23 @@ export default function LabeledCombobox({
             </span>
 
             {open && filteredOptions.length > 0 && (
-                <div className="absolute left-0 right-0  z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1">
-                    {filteredOptions.map((opt: string) => (
+                <div
+                    ref={listboxRef}
+                    className="absolute left-0 right-0  z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1"
+                >
+                    {filteredOptions.map((opt: string, index: number) => (
                         <button
                             key={opt}
                             type="button"
-                            className="w-full text-left px-2 py-1.5 rounded-lg text-sm bg-white hover:bg-emerald-50 hover:text-emerald-700"
+                            className={`w-full text-left px-2 py-1.5 rounded-lg text-sm transition-colors ${index === focusedIndex
+                                    ? "bg-emerald-100 text-emerald-800 font-medium"
+                                    : "bg-white hover:bg-emerald-50 hover:text-emerald-700"
+                                }`}
                             onMouseDown={(e) => {
                                 e.preventDefault(); // Prevent blur
                                 commit(opt);
                             }}
+                            onMouseEnter={() => setFocusedIndex(index)}
                         >
                             {opt}
                         </button>
