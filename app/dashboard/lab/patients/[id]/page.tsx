@@ -287,8 +287,8 @@ const Customer: React.FC = () => {
                                   active ? "opacity-80" : "text-slate-500"
                                 }
                               >
-                                {bill.name.filter(o => type === "All" || o.type === type).length} item
-                                {bill.name.filter(o => type === "All" || o.type === type).length === 1 ? "" : "s"}
+                                {bill?.name?.filter(o => type === "All" || o.type === type).length} item
+                                {bill?.name?.filter(o => type === "All" || o.type === type).length === 1 ? "" : "s"}
                               </span>
                             </div>
                           </button>
@@ -301,7 +301,7 @@ const Customer: React.FC = () => {
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit
-                        ? `Bill Details — ${selectedVisit?.name.filter(o => type === "All" || o.type === type).map(e => e.code).join(", ")}`
+                        ? `Bill Details — ${selectedVisit?.name?.filter(o => type === "All" || o?.type === type).map(e => e?.code).join(", ")}`
                         : "Bill Details"}
                     </div>
                     {selectedVisit && (
@@ -347,7 +347,7 @@ const Customer: React.FC = () => {
                             </tr>
                           </thead>
                           <tbody>
-                            {selectedVisit.name.filter(o => type === "All" || o.type === type).map((it, i) => {
+                            {selectedVisit?.name?.filter(o => type === "All" || o?.type === type)?.map((it, i) => {
                               return (
                                 <tr
                                   key={it.name}
@@ -423,7 +423,7 @@ const Customer: React.FC = () => {
                               );
                             })}
 
-                            {selectedVisit.name.length === 0 && (
+                            {selectedVisit?.name?.length === 0 && (
                               <tr>
                                 <td
                                   className="p-3 text-center text-slate-500"
