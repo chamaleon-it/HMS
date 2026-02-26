@@ -53,11 +53,11 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(
     new Date()
   );
-  const [selectedTime, setSelectedTime] = useState<string>("09:00");
+  const [selectedTime, setSelectedTime] = useState<string>("");
 
   const handleTimeClick = useCallback((time: string) => {
-  setSelectedTime(time);
-}, []);
+    setSelectedTime(time);
+  }, []);
 
 
   useEffect(() => {
@@ -120,53 +120,70 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     };
   }>(walkIn && doctor ? `/appointments/walk-in/${doctor}` : null);
 
-  
+
 
   useEffect(() => {
     if (!walkIn || !doctor || !availability || !walkInData?.data) return;
 
-    const { alreadyBooked, nextAvailableDate } = walkInData.data;
-
-    const nextDate = new Date(nextAvailableDate);
-    const today = startOfDay(new Date());
-    const isNextDayToday = isSameDay(nextDate, today);
-
     const now = new Date();
-    const cutoffMins = isNextDayToday
-      ? now.getHours() * 60 + now.getMinutes()
-      : -1;
+    const today = startOfDay(now);
+    const { alreadyBooked, nextAvailableDate } = walkInData.data;
 
     const bookedSet = new Set(
       (alreadyBooked ?? []).map((d) => new Date(d).getTime())
     );
 
-    const nextDateTime = nextDate.getTime();
-    setSelectedDate((prev) =>
-      prev?.getTime() === nextDateTime ? prev : nextDate
-    );
+    let searchDate = new Date(nextAvailableDate);
+    let foundTime = "";
 
-    const times = generateTimeSlots(
-      availability.startTime ?? "09:00",
-      availability.endTime ?? "18:00",
-      15
-    );
+    // Search up to 14 days ahead for the first available future slot
+    for (let i = 0; i < 14; i++) {
+      const isSearchDayToday = isSameDay(searchDate, today);
+      const cutoffMins = isSearchDayToday
+        ? now.getHours() * 60 + now.getMinutes()
+        : -1;
 
-    const firstFree = times.find((time) => {
-      const round = getRoundForTime(time, availability.rounds);
-      if (round) return false;
+      const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][searchDate.getDay()];
 
-      const tm = toMinutes(time);
-      if (isNextDayToday && tm < cutoffMins) return false;
+      if (availability.days.includes(dayName)) {
+        const times = generateTimeSlots(
+          availability.startTime ?? "09:00",
+          availability.endTime ?? "18:00",
+          15
+        );
 
-      const slotDate = combineToIST(nextDate, time);
-      if (bookedSet.has(slotDate.getTime())) return false;
+        const firstFree = times.find((time) => {
+          const round = getRoundForTime(time, availability.rounds);
+          if (round) return false;
 
-      return true;
-    });
+          const tm = toMinutes(time);
+          if (tm <= cutoffMins) return false;
 
-    setSelectedTime((prev) =>
-      prev === (firstFree ?? "09:00") ? prev : firstFree ?? "09:00"
-    );
+          if (isSameDay(searchDate, new Date(nextAvailableDate))) {
+            const slotDate = combineToIST(searchDate, time);
+            if (bookedSet.has(slotDate.getTime())) return false;
+          }
+
+          return true;
+        });
+
+        if (firstFree) {
+          foundTime = firstFree;
+          break;
+        }
+      }
+
+      searchDate.setDate(searchDate.getDate() + 1);
+      searchDate = startOfDay(searchDate);
+    }
+
+    if (foundTime) {
+      const foundDateTime = searchDate.getTime();
+      setSelectedDate((prev) =>
+        prev?.getTime() === foundDateTime ? prev : new Date(foundDateTime)
+      );
+      setSelectedTime((prev) => (prev === foundTime ? prev : foundTime));
+    }
   }, [walkIn, doctor, availability, walkInData]);
 
   if (walkIn && !doctor) {
@@ -226,18 +243,18 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
             const reason = isDisabledByRound
               ? round?.label ?? "Unavailable"
               : isBooked
-              ? "Already booked"
-              : isPastTime
-              ? "Past time"
-              : undefined;
+                ? "Already booked"
+                : isPastTime
+                  ? "Past time"
+                  : undefined;
 
             const disabledClasses = isDisabledByRound
               ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300 cursor-not-allowed"
               : isBooked
-              ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
-              : isPastTime
-              ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
-              : "";
+                ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
+                : isPastTime
+                  ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
+                  : "";
 
             return (
               <motion.div
@@ -252,9 +269,9 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
                   type="button"
                   size="sm"
                   variant={selectedTime === time ? "default" : "outline"}
-                  // disabled={isDisabled}
+                  disabled={isDisabled}
                   title={reason}
-                  className={cn("w-full cursor-pointer", disabledClasses)}
+                  className={cn("w-full", !isDisabled && "cursor-pointer", disabledClasses)}
                 >
                   {to12h(time)}
                 </Button>
