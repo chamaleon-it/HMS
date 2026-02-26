@@ -9,6 +9,7 @@ import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, Trash2 } from "lucide-r
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
+import ResetTimerModal from "./ResetTimerModal";
 
 interface PropsTypes {
   status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged";
@@ -17,6 +18,7 @@ interface PropsTypes {
     _id: string;
     mrn: number;
     sampleId: string;
+    extraTime: number;
     testStartedAt: Date | null;
     isFlagged: boolean;
     patient: {
@@ -126,7 +128,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   .filter((time): time is number => typeof time === "number");
                 const maxTime = times.length > 0 ? Math.max(...times) : 0;
                 return (
-                  new Date(item.testStartedAt).getTime() + maxTime * 60000
+                  new Date(item.testStartedAt).getTime() + maxTime * 60000 + (item.extraTime || 0) * 60000
                 );
               };
               return getTargetTime(a) - getTargetTime(b);
@@ -141,7 +143,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
               const expired = status === "Waiting For Result" ? (r.testStartedAt
                 ? Date.now() >=
                 new Date(r.testStartedAt).getTime() +
-                maxEstimatedTime * 60_000
+                maxEstimatedTime * 60_000 + (r.extraTime || 0) * 60_000
                 : false) : false;
 
 
@@ -250,13 +252,13 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   </td> */}
                   {status === "Waiting For Result" && (
                     <td>
-                      {r.sampleCollectedAt ? (
+                      {r.testStartedAt ? (
                         <Countdown
                           targetDate={
                             maxEstimatedTime ?
                               new Date(
-                                new Date(r.sampleCollectedAt).getTime() +
-                                maxEstimatedTime * 60000
+                                new Date(r.testStartedAt).getTime() +
+                                (maxEstimatedTime + (r.extraTime || 0)) * 60000
                               ) : undefined
                           }
                         />
@@ -305,21 +307,13 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       }
 
                       {
-                        status === "Waiting For Result" && <Button
-                          size="sm"
-                          variant={"outline"}
-                          className="h-8 bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-700 gap-1.5 text-xs font-medium"
-                          onClick={async () => {
-                            try {
-                              // TODO: Implement reset timer logic
-                            } catch (error) {
-                              console.error(error);
-                            }
-                          }}
-                        >
-                          <RotateCcw className="h-3.5 w-3.5" />
-                          Reset Timer
-                        </Button>
+                        status === "Waiting For Result" && (
+                          <ResetTimerModal
+                            reportId={r._id}
+                            patientName={r.patient?.name}
+                            mutate={mutate}
+                          />
+                        )
                       }
 
                       {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Ready"} />}
