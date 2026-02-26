@@ -90,7 +90,6 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         }
       }
       const payloadToSubmit = { ...payload, items: validItems };
-      console.log(payload)
       const { data } = await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
         success: ({ data }) => data.message,
