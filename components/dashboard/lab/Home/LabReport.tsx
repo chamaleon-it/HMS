@@ -6,9 +6,9 @@ import LabStatus from "./LabStatus";
 import NewTest from "./NewTest";
 import LabTable from "./LabTable";
 import LabHeader from "../LabHeader";
-import { Beaker, Clock, CheckCircle2, FlaskConical, Filter, Plus, AlertTriangle, TestTube2 } from "lucide-react";
+import { Clock, CheckCircle2, FlaskConical, AlertTriangle, TestTube2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 
 const StatCard: React.FC<{
@@ -46,24 +46,29 @@ const StatCard: React.FC<{
 );
 
 export default function LabResultsPage() {
-  const { data, mutate } = useSWR<{
-    message: string;
-    data: any[]; // Truncated for brevity but remains same in original
-  }>("/lab/report");
-
-  const REPORT = data?.data ?? [];
-
-  const stats = {
-    total: REPORT.length,
-    upcoming: REPORT.filter(r => r.status === "Pending").length,
-    inProgress: REPORT.filter(r => r.status === "Sample Collected").length,
-    completed: REPORT.filter(r => r.status === "Completed").length,
-    flagged: REPORT.filter(r => r.status === "Flagged").length
-  };
 
   const [status, setStatus] = useState<
     "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged"
   >("Upcoming");
+
+  const { data, mutate } = useSWR<{
+    message: string;
+    data: any[];
+  }>(`/lab/report?status=${status}`);
+
+
+  const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number, flagged: number } }>("/lab/report/statistics")
+
+  const statsData = statsResponse?.data ?? {
+    total: 0,
+    upcoming: 0,
+    sampleCollected: 0,
+    waitingForResult: 0,
+    completed: 0,
+    flagged: 0
+  };
+
+  const REPORT = data?.data ?? [];
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-6">
@@ -72,7 +77,7 @@ export default function LabResultsPage() {
         subtitle="Manage and track laboratory and imaging results"
       >
         <LabStatus currenctStatus={status} setCurrenctStatus={setStatus} />
-        <NewTest mutate={mutate} />
+        <NewTest mutate={() => { mutate(); statsMutate(); }} />
       </LabHeader>
 
       {/* Stats Grid */}
@@ -81,7 +86,7 @@ export default function LabResultsPage() {
           delay={0.1}
           icon={<FlaskConical className="h-6 w-6" />}
           label="Total Reports"
-          value={stats.total}
+          value={statsData.total}
           colorClass="from-zinc-500/10 to-zinc-500/5"
           iconBgClass="bg-zinc-100 text-zinc-600"
           borderClass="hover:border-zinc-200"
@@ -90,7 +95,7 @@ export default function LabResultsPage() {
           delay={0.2}
           icon={<Clock className="h-6 w-6" />}
           label="Upcoming"
-          value={stats.upcoming}
+          value={statsData.upcoming}
           colorClass="from-amber-500/10 to-amber-500/5"
           iconBgClass="bg-amber-100 text-amber-600"
           borderClass="hover:border-amber-200"
@@ -99,7 +104,7 @@ export default function LabResultsPage() {
           delay={0.3}
           icon={<TestTube2 className="h-6 w-6" />}
           label="Sample Collected"
-          value={stats.inProgress}
+          value={statsData.sampleCollected}
           colorClass="from-indigo-500/10 to-indigo-500/5"
           iconBgClass="bg-indigo-100 text-indigo-600"
           borderClass="hover:border-indigo-200"
@@ -108,7 +113,7 @@ export default function LabResultsPage() {
           delay={0.4}
           icon={<CheckCircle2 className="h-6 w-6" />}
           label="Completed"
-          value={stats.completed}
+          value={statsData.completed}
           colorClass="from-emerald-500/10 to-emerald-500/5"
           iconBgClass="bg-emerald-100 text-emerald-600"
           borderClass="hover:border-emerald-200"
@@ -117,7 +122,7 @@ export default function LabResultsPage() {
           delay={0.5}
           icon={<AlertTriangle className="h-6 w-6" />}
           label="Flagged"
-          value={stats.flagged}
+          value={statsData.flagged}
           colorClass="from-rose-500/10 to-rose-500/5"
           iconBgClass="bg-rose-100 text-rose-600"
           borderClass="hover:border-rose-200"
@@ -129,7 +134,7 @@ export default function LabResultsPage() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, delay: 0.5 }}
       >
-        <LabTable REPORT={REPORT} status={status} mutate={mutate} />
+        <LabTable REPORT={REPORT} status={status} mutate={() => { mutate(); statsMutate(); }} />
       </motion.div>
     </div>
   );

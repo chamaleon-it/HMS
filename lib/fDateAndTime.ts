@@ -22,9 +22,12 @@ export function fTime(date?: string | Date): string {
 export function fDateandTime(date?: string | Date): string {
   if (!date) return "";
   const d = new Date(date);
-  const formattedDate = fDate(d);
+  const day = d.getDate().toString().padStart(2, "0");
+  const month = (d.getMonth() + 1).toString().padStart(2, "0");
+  const year = d.getFullYear().toString().slice(-2);
+  const formattedDate = `${day}/${month}/${year}`;
   const formattedTime = fTime(d);
-  return `${formattedDate}, ${formattedTime}`;
+  return `${formattedDate} ${formattedTime}`;
 }
 
 export function to12h(time24: string) {
@@ -118,7 +121,7 @@ export const dayNameToIndex: Record<string, number> = {
 export function combineDateAndSlot(date: Date, slot: string) {
   // slot like "09:30 AM"
   const [time, meridian] = slot.split(" ");
-  let  hours = Number(time.split(":")[0]);
+  let hours = Number(time.split(":")[0]);
 
   const minutes = Number(time.split(":")[1]);
 

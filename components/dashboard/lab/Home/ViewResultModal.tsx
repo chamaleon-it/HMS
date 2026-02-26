@@ -1,6 +1,7 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 import { fAge, fDate } from '@/lib/fDateAndTime';
-import { Activity, Clock, FileText, FlaskConical, User } from 'lucide-react';
+import { Activity, Clock, Eye, FileText, FlaskConical, User } from 'lucide-react';
 
 interface Props {
     r: {
@@ -65,9 +66,13 @@ export default function ViewResultModal({ r }: Props) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
-                    View
-                </button>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-8 px-3 text-blue-600 border-blue-100 hover:bg-blue-50 transition-colors shadow-sm inline-flex items-center"
+                >
+                    <Eye className="w-4 h-4" />
+                </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden gap-0">
                 <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">

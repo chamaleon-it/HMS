@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -9,7 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Beaker, FlaskConical, Save, X } from "lucide-react";
+import { Beaker, CheckCircle2, Edit, FileCheck2, FlaskConical, Save, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
@@ -88,7 +88,7 @@ interface Props {
     updatedAt: Date;
   };
   mutate: () => void;
-  buttonText?: string;
+  buttonText?: "Ready" | "Completed" | "Update";
 }
 
 export default function ResultUpdate({ r, mutate, buttonText }: Props) {
@@ -123,9 +123,19 @@ export default function ResultUpdate({ r, mutate, buttonText }: Props) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm">
+        <Button
+          className={`h-8 text-xs font-semibold rounded-lg transition-all duration-200 shadow-sm border flex items-center gap-2 ${buttonText === "Ready"
+            ? "text-emerald-600 bg-white border-emerald-100 hover:bg-emerald-50 hover:text-emerald-700"
+            : buttonText === "Completed"
+              ? "text-blue-600 bg-white border-blue-100 hover:bg-blue-50 hover:text-blue-700"
+              : "text-amber-600 bg-white border-amber-100 hover:bg-amber-50 hover:text-amber-700"
+            }`}
+        >
+          {buttonText === "Ready" && <CheckCircle2 className="w-3.5 h-3.5" />}
+          {buttonText === "Completed" && <FileCheck2 className="w-3.5 h-3.5" />}
+          {buttonText === "Update" && <Edit className="w-3.5 h-3.5" />}
           {buttonText || "Update Result"}
-        </button>
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden gap-0">
         <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">

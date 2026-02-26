@@ -1,14 +1,14 @@
 import { useAuth } from "@/auth/context/auth-context";
-import { fAge, fDateandTime, fTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import React from "react";
 import ViewResultModal from "./ViewResultModal";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Bell, Clock, Play } from "lucide-react";
+import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, Trash2 } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
+import SampleCollectionModal from "./SampleCollectionModal";
 
 interface PropsTypes {
   status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged";
@@ -16,6 +16,9 @@ interface PropsTypes {
   REPORT: {
     _id: string;
     mrn: number;
+    sampleId: string;
+    testStartedAt: Date | null;
+    isFlagged: boolean;
     patient: {
       _id: string;
       name: string;
@@ -98,33 +101,32 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
       <table className="w-full whitespace-nowrap  overflow-scroll">
         <thead className="bg-slate-700 hover:bg-slate-700">
           <tr className="bg-slate-700 hover:bg-slate-700 border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
-            <th className="w-10 text-left px-3 py-2">
-              <Checkbox />
-            </th>
             {headerCell("SL No.")}
             {headerCell("Report No.")}
             {headerCell("Patient")}
             {headerCell("Test")}
             {headerCell("Created At")}
-            {status !== "Upcoming" && headerCell("Sample Collected")}
+            {status === "Sample Collected" && headerCell("Sample Collected")}
+            {status !== "Upcoming" && headerCell("Sample Id")}
+            {(status !== "Upcoming" && status !== "Sample Collected") && headerCell("Test Started At")}
             {headerCell("Doctor")}
-            {headerCell("Status")}
+            {/* {headerCell("Status")} */}
             {status === "Waiting For Result" && headerCell("Estimated Time")}
             {headerCell("Actions", "right")}
           </tr>
         </thead>
         <tbody>
-          {REPORT.filter((r) => r.status === status)
+          {REPORT
             .sort((a, b) => {
               if (status !== "Waiting For Result") return 0;
               const getTargetTime = (item: typeof a) => {
-                if (!item.sampleCollectedAt) return Infinity;
+                if (!item.testStartedAt) return Infinity;
                 const times = item.test
                   .map((t) => t.name?.estimatedTime)
                   .filter((time): time is number => typeof time === "number");
                 const maxTime = times.length > 0 ? Math.max(...times) : 0;
                 return (
-                  new Date(item.sampleCollectedAt).getTime() + maxTime * 60000
+                  new Date(item.testStartedAt).getTime() + maxTime * 60000
                 );
               };
               return getTargetTime(a) - getTargetTime(b);
@@ -136,12 +138,11 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   .filter((time) => typeof time === "number"), 0
               );
 
-              const expired = status === "Waiting For Result" ? (r.sampleCollectedAt
+              const expired = status === "Waiting For Result" ? (r.testStartedAt
                 ? Date.now() >=
-                new Date(r.sampleCollectedAt).getTime() +
+                new Date(r.testStartedAt).getTime() +
                 maxEstimatedTime * 60_000
                 : false) : false;
-
 
 
               return (
@@ -155,9 +156,6 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                      `}
                 >
-                  <td className="px-3 py-2">
-                    <Checkbox />
-                  </td>
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {String(idx + 1).padStart(2, "0")}
                   </td>
@@ -209,10 +207,25 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     {fDateandTime(r.createdAt)}
                   </td>
 
-                  {status !== "Upcoming" && (
+                  {status === "Sample Collected" && (
                     <td className="px-3 py-2 text-sm text-gray-500">
                       {r.sampleCollectedAt
                         ? fDateandTime(r.sampleCollectedAt)
+                        : "-"}
+                    </td>
+                  )}
+
+                  {status !== "Upcoming" && (
+                    <td className="px-3 py-2 text-sm text-gray-500">
+                      {r.sampleId}
+                    </td>
+                  )}
+
+
+                  {status !== "Upcoming" && status !== "Sample Collected" && (
+                    <td className="px-3 py-2 text-sm text-gray-500">
+                      {r.testStartedAt
+                        ? fDateandTime(r.testStartedAt)
                         : "-"}
                     </td>
                   )}
@@ -232,9 +245,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     </div>
                   </td>
 
-                  <td className="px-3 py-2">
+                  {/* <td className="px-3 py-2">
                     <Chip label={r.status} tone={statusTone(r.status)} />
-                  </td>
+                  </td> */}
                   {status === "Waiting For Result" && (
                     <td>
                       {r.sampleCollectedAt ? (
@@ -254,39 +267,18 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   )}
                   <td className="px-3 py-2 text-right">
                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
-                      {r.status === "Upcoming" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="bg-white text-gray-600 hover:bg-gray-100"
-                          onClick={async () => {
-                            try {
-                              await toast.promise(
-                                api.post(
-                                  `lab/report/sample_collected/${r._id}`
-                                ),
-                                {
-                                  loading: "Processing...",
-                                  success: "Sample Collected",
-                                  error: "Failed to collect sample",
-                                }
-                              );
-                              mutate();
-                            } catch (error) {
-                              toast.error(
-                                `Failed to collect sample : ${error}`
-                              );
-                            }
-                          }}
-                        >
-                          Sample Collected
-                        </Button>
+                      {status === "Upcoming" && (
+                        <SampleCollectionModal
+                          reportId={r._id}
+                          patientName={r.patient?.name}
+                          mutate={mutate}
+                        />
                       )}
 
                       {
-                        r.status === "Sample Collected" && <Button
+                        status === "Sample Collected" && <Button
                           size="sm"
-                          className="bg-linear-to-br from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 px-4 font-semibold rounded-lg"
+                          className="h-8 bg-linear-to-br from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 px-4 font-semibold rounded-lg"
                           onClick={async () => {
                             try {
                               await toast.promise(
@@ -312,17 +304,98 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         </Button>
                       }
 
-                      {r.status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Ready"} />}
-                      {r.status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} />}
+                      {
+                        status === "Waiting For Result" && <Button
+                          size="sm"
+                          variant={"outline"}
+                          className="h-8 bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-700 gap-1.5 text-xs font-medium"
+                          onClick={async () => {
+                            try {
+                              // TODO: Implement reset timer logic
+                            } catch (error) {
+                              console.error(error);
+                            }
+                          }}
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                          Reset Timer
+                        </Button>
+                      }
 
-                      {r.status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} />}
+                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Ready"} />}
+                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} />}
+                      {status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} />}
+
+                      {
+                        status === "Completed" && r.isFlagged === false && <Button
+                          variant={"outline"}
+                          size="sm"
+                          className="h-8 bg-white text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700 gap-1.5 text-xs font-medium"
+                          onClick={async () => {
+                            try {
+                              await toast.promise(
+                                api.post(`lab/report/mark_as_flagged/${r._id}`),
+                                {
+                                  loading: "Processing...",
+                                  success: "Marked As Flagged",
+                                  error: "Failed to mark as flagged",
+                                }
+                              );
+                              mutate();
+                            } catch (error) {
+                              toast.error(`Failed to mark as flagged : ${error}`);
+                            }
+                          }}
+                        >
+                          <Flag className="h-3.5 w-3.5" />
+                          Mark Flagged
+                        </Button>
+                      }
+
+                      {
+                        r.isFlagged && <Button
+                          variant={"outline"}
+                          size="sm"
+                          className="bg-white text-emerald-600 border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700 gap-1.5 h-8 text-xs font-medium"
+                          onClick={async () => {
+                            try {
+                              await toast.promise(
+                                api.post(`lab/report/mark_as_unflagged/${r._id}`),
+                                {
+                                  loading: "Processing...",
+                                  success: "Marked As Unflagged",
+                                  error: "Failed to mark as unflagged",
+                                }
+                              );
+                              mutate();
+                            } catch (error) {
+                              toast.error(`Failed to mark as unflagged : ${error}`);
+                            }
+                          }}
+                        >
+                          <FlagOff className="h-3.5 w-3.5" />
+                          Unmark Flagged
+                        </Button>
+                      }
 
 
-                      {r.status === "Completed" && <ViewResultModal r={r} />}
+
+                      {status === "Completed" && <Button
+                        variant={"outline"}
+                        size="sm"
+                        className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
+                        onClick={() => handlePrint(r)}
+                      >
+                        <Printer className="h-3.5 w-3.5" />
+                        Report
+                      </Button>}
+
+                      {(status === "Completed" || status === "Flagged") && <ViewResultModal r={r} />}
+
                       <Button
                         variant={"outline"}
                         size="sm"
-                        className="bg-white text-gray-600 hover:bg-gray-100"
+                        className="h-8 bg-white text-rose-600 hover:bg-rose-50 hover:text-rose-700 border-rose-100"
                         onClick={async () => {
                           try {
                             await toast.promise(
@@ -339,17 +412,8 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                           }
                         }}
                       >
-                        Delete
+                        <Trash2 className="h-4 w-4" />
                       </Button>
-
-                      {r.status === "Completed" && <Button
-                        variant={"outline"}
-                        size="sm"
-                        className="bg-white text-gray-600 hover:bg-gray-100"
-                        onClick={() => handlePrint(r)}
-                      >
-                        Print Report
-                      </Button>}
                     </div>
                   </td>
                 </tr>
