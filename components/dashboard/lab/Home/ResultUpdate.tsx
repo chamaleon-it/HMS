@@ -218,7 +218,28 @@ export default function ResultUpdate({ r, mutate, buttonText }: Props) {
                                   ),
                                 })
                               }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+
+                                  // Find current index in payload
+                                  const idx = r?.test?.findIndex(t => t._id === labTest._id) ?? -1;
+
+                                  // Try to focus the next text input
+                                  if (idx >= 0 && r?.test && idx + 1 < r.test.length) {
+                                    const nextTest = r.test[idx + 1];
+                                    if (nextTest.name?.type === "Lab") {
+                                      // give a small tick for any React renders to finish
+                                      setTimeout(() => {
+                                        const nextInput = document.getElementById(`result-input-${nextTest._id}`);
+                                        if (nextInput) nextInput.focus();
+                                      }, 10);
+                                    }
+                                  }
+                                }
+                              }}
                               type="text"
+                              id={`result-input-${labTest._id}`}
                               placeholder="Enter result"
                               className="pl-3 pr-12 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
                             />

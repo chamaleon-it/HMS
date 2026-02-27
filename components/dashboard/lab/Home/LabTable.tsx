@@ -107,6 +107,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             {headerCell("Report No.")}
             {headerCell("Patient")}
             {headerCell("Test")}
+            {status === "Upcoming" && headerCell("Sheduled Date")}
             {headerCell("Created At")}
             {status === "Sample Collected" && headerCell("Sample Collected")}
             {status !== "Upcoming" && headerCell("Sample Id")}
@@ -204,6 +205,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         ))}
                     </div>
                   </td>
+
+                  {status === "Upcoming" && <td className="px-3 py-2 text-sm text-gray-500">
+                    {fDateandTime(r.date)}
+                  </td>}
 
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {fDateandTime(r.createdAt)}

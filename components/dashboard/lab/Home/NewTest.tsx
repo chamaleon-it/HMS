@@ -117,8 +117,6 @@ export default function NewTest({
 
   const { tests } = useGetTest();
 
-  const Tests = tests;
-
   const handleSubmit = async () => {
     if (!payload.patient) {
       toast.error("Please select patient");
@@ -140,7 +138,7 @@ export default function NewTest({
 
     try {
       await toast.promise(
-        api.post("/lab/report", { ...payload, date: submitDate }),
+        api.post("/lab/report", { ...payload, date: submitDate.toISOString() }),
         {
           loading: "We are create new lab test order",
           success: ({ data }) => data.message,
@@ -340,11 +338,21 @@ export default function NewTest({
                       captionLayout="dropdown"
                       startMonth={new Date(2025, 0)}
                       endMonth={new Date(2027, 0)}
-                      onSelect={(date) => {
-                        setPayload((prev) => ({ ...prev, date }));
+                      onSelect={(selectedDate) => {
+                        if (!selectedDate) return;
+                        setPayload((prev) => {
+                          const timeStr = prev.date
+                            ? `${prev.date.getHours().toString().padStart(2, "0")}:${prev.date.getMinutes().toString().padStart(2, "0")}`
+                            : `${new Date().getHours().toString().padStart(2, "0")}:${new Date().getMinutes().toString().padStart(2, "0")}`;
+                          return { ...prev, date: combineToIST(selectedDate, timeStr) };
+                        });
                         setOpenDate(false);
                       }}
-                      disabled={(date) => date < new Date()}
+                      disabled={(date) => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        return date < today;
+                      }}
                     />
                   </PopoverContent>
                 </Popover>
@@ -352,18 +360,15 @@ export default function NewTest({
                   type="time"
                   id="time-picker"
                   step="1800"
-                  defaultValue={`${new Date().getHours()}:${new Date().getMinutes()}`}
+                  value={payload.date ? `${payload.date.getHours().toString().padStart(2, "0")}:${payload.date.getMinutes().toString().padStart(2, "0")}` : ""}
                   className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                   onChange={(e) => {
-                    if (payload.date) {
-                      const newDate = combineToIST(
-                        payload.date,
-                        e.target.value
-                      );
-                      setPayload((prev) => ({ ...prev, date: newDate }));
-                    } else {
-                      toast.error("Select date first");
-                    }
+                    const timeStr = e.target.value;
+                    if (!timeStr) return;
+                    setPayload((prev) => {
+                      const baseDate = prev.date || new Date();
+                      return { ...prev, date: combineToIST(baseDate, timeStr) };
+                    });
                   }}
                 />
               </div>
@@ -467,7 +472,7 @@ export default function NewTest({
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
             onClick={handleSubmit}
           >
-            New Test
+            Book Test
           </Button>
         </DialogFooter>
       </DialogContent>

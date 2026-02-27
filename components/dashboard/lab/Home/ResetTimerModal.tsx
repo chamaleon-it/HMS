@@ -117,6 +117,30 @@ export default function ResetTimerModal({ reportId, patientName, mutate }: Props
                             autoFocus
                         />
                         <p className="text-[11px] text-gray-500 italic">Enter the total extra time required to provide the results.</p>
+                        <div className="flex gap-2 mt-2">
+                            {[
+                                { label: "+15m", value: 15 },
+                                { label: "+30m", value: 30 },
+                                { label: "+45m", value: 45 },
+                                { label: "+1h", value: 60 },
+                                { label: "+2h", value: 120 },
+                                { label: "+3h", value: 180 },
+                            ].map((preset) => (
+                                <Button
+                                    key={preset.value}
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 px-3 text-xs rounded-full border-gray-200 text-gray-600 hover:bg-amber-50 hover:text-amber-700 hover:border-amber-200 transition-colors cursor-pointer"
+                                    onClick={() => {
+                                        setDuration(preset.value);
+                                        setDisplayDuration(formatMinutesToHHMM(preset.value));
+                                    }}
+                                >
+                                    {preset.label}
+                                </Button>
+                            ))}
+                        </div>
                     </div>
                 </div>
 
