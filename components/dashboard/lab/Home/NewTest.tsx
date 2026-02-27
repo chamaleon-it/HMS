@@ -261,7 +261,7 @@ export default function NewTest({
               label="Select a Test"
               value=""
               clearOnSelect={true}
-              onChange={(val) => {
+              onSelect={(val) => {
                 if (!val) return;
 
                 // Check if it's a panel
@@ -287,7 +287,7 @@ export default function NewTest({
                     };
                   });
                 } else {
-                  // Must be a test
+                  // Must be a test (Ensure EXACT match, not partial)
                   const testObj = tests.find((t) => t.name === val);
                   if (testObj) {
                     setPayload((prev) => {

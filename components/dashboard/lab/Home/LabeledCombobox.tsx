@@ -3,7 +3,8 @@ import React, { useRef, useState } from "react";
 type LabeledComboboxProps = {
     label: string;
     value: string;
-    onChange: (v: string) => void;
+    onChange?: (v: string) => void;
+    onSelect?: (v: string) => void;
     options: string[];
     digitsOnly?: boolean; // e.g., for duration
     clearOnSelect?: boolean;
@@ -13,6 +14,7 @@ export default function LabeledCombobox({
     label,
     value,
     onChange,
+    onSelect,
     options,
     digitsOnly,
     clearOnSelect,
@@ -34,7 +36,7 @@ export default function LabeledCombobox({
     const handleChange = (raw: string) => {
         const v = digitsOnly ? raw.replace(/[^0-9]/g, "") : raw;
         setText(v);
-        onChange(v);
+        if (onChange) onChange(v);
         setOpen(true);
     };
 
@@ -44,14 +46,15 @@ export default function LabeledCombobox({
         } else {
             setText(val);
         }
-        onChange(val);
+        if (onChange) onChange(val);
+        if (onSelect) onSelect(val);
         setOpen(false);
         setFocusedIndex(-1);
     };
 
     // Internal filtering to match standard combobox behavior (showing relevant options)
     const filteredOptions = options.filter(opt =>
-        opt.toLowerCase().startsWith(text.toLowerCase())
+        opt.toLowerCase().includes(text.toLowerCase())
     );
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -77,9 +80,15 @@ export default function LabeledCombobox({
                 e.preventDefault();
                 if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
                     commit(filteredOptions[focusedIndex]);
-                } else if (filteredOptions.length === 1) {
-                    // Utility: auto-select the only option on Enter
-                    commit(filteredOptions[0]);
+                } else {
+                    // Utility: if text exactly matches an option, select it immediately
+                    const exactMatch = filteredOptions.find(o => o.toLowerCase() === text.toLowerCase());
+                    if (exactMatch) {
+                        commit(exactMatch);
+                    } else if (filteredOptions.length === 1) {
+                        // Utility: auto-select the only option on Enter
+                        commit(filteredOptions[0]);
+                    }
                 }
                 break;
             case "Escape":
@@ -139,8 +148,8 @@ export default function LabeledCombobox({
                             key={opt}
                             type="button"
                             className={`w-full text-left px-2 py-1.5 rounded-lg text-sm transition-colors ${index === focusedIndex
-                                    ? "bg-emerald-100 text-emerald-800 font-medium"
-                                    : "bg-white hover:bg-emerald-50 hover:text-emerald-700"
+                                ? "bg-emerald-100 text-emerald-800 font-medium"
+                                : "bg-white hover:bg-emerald-50 hover:text-emerald-700"
                                 }`}
                             onMouseDown={(e) => {
                                 e.preventDefault(); // Prevent blur
