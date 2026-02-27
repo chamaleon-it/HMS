@@ -1,7 +1,10 @@
 "use client";
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDownIcon, Loader2, AlertTriangle } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, Loader2, AlertTriangle, IndianRupee, Banknote, QrCode, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import AppShell from "@/components/layout/app-shell";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatINR } from "@/lib/fNumber";
@@ -76,6 +79,13 @@ const Customer: React.FC = () => {
     const [printingBill, setPrintingBill] = useState(false)
     const [printingPrescription, setPrintingPrescription] = useState(false)
     const [showRepeatConfirm, setShowRepeatConfirm] = useState(false)
+    const [showPaymentModal, setShowPaymentModal] = useState(false)
+
+    // Payment States
+    const [paymentMethod, setPaymentMethod] = useState<"Cash" | "UPI" | "Underpaid">("Cash");
+    const [amountPaid, setAmountPaid] = useState("");
+    const [referenceNumber, setReferenceNumber] = useState("");
+    const [updatingPayment, setUpdatingPayment] = useState(false);
 
     const { data: profile } = useSWR<{ data: { pharmacy: { billing: { autoGenerateBill: boolean, prefix: string, defaultGst?: number } } }, message: string }>("/users/profile")
     const autoGenerateBill = profile?.data?.pharmacy?.billing?.autoGenerateBill ?? false
@@ -204,6 +214,57 @@ const Customer: React.FC = () => {
             setPrintingBill(false);
         }
     }
+
+    const calculatedDueAmount = selectedVisit?.type === "sale" && selectedVisit?.items
+        ? selectedVisit.items.reduce((a, b) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice), 0) - (selectedVisit?.discount || 0) - (selectedVisit?.paidAmount || 0)
+        : 0;
+
+    const handlePaymentUpdate = async () => {
+        if (!selectedVisit || selectedVisit.type !== "sale") return;
+
+        const payload = {
+            orderId: selectedVisit._id,
+            paidAmount: 0,
+            paymentStatus: "Partial",
+            paymentReference: referenceNumber
+        }
+
+        const currentPaid = selectedVisit.paidAmount || 0;
+        const totalAmount = selectedVisit.items.reduce((acc, it) => acc + ((it.unitPrice ?? it.name.unitPrice) * it.quantity), 0) - (selectedVisit.discount || 0);
+
+        if (paymentMethod === "UPI" || paymentMethod === "Cash") {
+            payload.paymentStatus = "Paid";
+            payload.paidAmount = currentPaid + calculatedDueAmount;
+        } else {
+            payload.paymentStatus = "Partial";
+            payload.paidAmount = currentPaid + Number(amountPaid);
+        }
+
+        try {
+            setUpdatingPayment(true);
+            await toast.promise(
+                api.patch<{ data: OrderType }>("/pharmacy/orders/update_payment", payload),
+                {
+                    loading: "Updating payment...",
+                    success: "Payment updated successfully",
+                    error: "Failed to update payment"
+                }
+            )
+            mutate()
+            setShowPaymentModal(false);
+            setAmountPaid("");
+            setReferenceNumber("");
+
+            // Refetch or update local selectedVisit to reflect new paidAmount
+            const { data } = await api.get<{ data: OrderType, message: string }>(`/pharmacy/orders/single?q=${selectedVisit.mrn}`)
+            setSelectedVisit({ ...data.data, type: "sale" } as any);
+
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setUpdatingPayment(false);
+        }
+    };
 
     return (
         <AppShell>
@@ -604,9 +665,6 @@ const Customer: React.FC = () => {
                                                     </thead>
                                                     <tbody>
                                                         {selectedVisit.items.map((it, i) => {
-
-                                                            console.log(selectedVisit)
-
                                                             const amount = it.quantity * (it?.unitPrice ?? it.name?.unitPrice);
                                                             return (
                                                                 <tr
@@ -739,10 +797,18 @@ const Customer: React.FC = () => {
 
                                             {selectedVisit?.mrn && <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
                                                 <div className="text-[12px] text-slate-500">
-                                                    Use Print bill to generate a hard copy.
+
                                                 </div>
                                                 <div className="flex items-center gap-2">
 
+                                                    {calculatedDueAmount > 0 && (
+                                                        <Button
+                                                            className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
+                                                            onClick={() => setShowPaymentModal(true)}
+                                                        >
+                                                            Pay Due Amount
+                                                        </Button>
+                                                    )}
 
                                                     <AlertDialog open={showRepeatConfirm} onOpenChange={setShowRepeatConfirm}>
                                                         <Button
@@ -825,6 +891,137 @@ const Customer: React.FC = () => {
             </div>
             {printOrder && <PrintPrescription order={printOrder} />}
             {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} />}
+
+            {/* Payment Modal */}
+            <AlertDialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
+                <AlertDialogContent className="max-w-2xl!">
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Pay Due Amount</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Select payment method and enter the amount collected from the customer.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+
+                    <div className="flex flex-col gap-4 py-4">
+                        <div className="flex items-center justify-between bg-rose-50 border border-rose-100 p-4 rounded-xl">
+                            <span className="text-sm font-bold text-rose-700 uppercase tracking-wider">Total Due</span>
+                            <div className="flex items-center text-rose-900">
+                                <IndianRupee className="w-5 h-5 stroke-[2.5] mr-0.5 text-rose-700" />
+                                <span className="text-3xl font-extrabold leading-none tracking-tight">
+                                    {Math.max(0, calculatedDueAmount)}
+                                </span>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {[
+                                { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50" },
+                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-indigo-600", bg: "bg-indigo-50" },
+                                { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50" },
+                            ].map((method) => {
+                                const active = paymentMethod === method.id;
+                                return (
+                                    <button
+                                        key={method.id}
+                                        type="button"
+                                        onClick={() => setPaymentMethod(method.id as any)}
+                                        className={cn(
+                                            "relative flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left group",
+                                            active
+                                                ? `border-${method.id === "Cash" ? "emerald" : method.id === "UPI" ? "indigo" : "rose"}-500 ${method.bg} shadow-md`
+                                                : "border-slate-200 bg-white hover:border-slate-300 shadow-sm"
+                                        )}
+                                    >
+                                        <div className={cn("p-2 rounded-lg", active ? "bg-white" : "bg-slate-50 group-hover:bg-white")}>
+                                            <method.icon className={cn("h-5 w-5", active ? method.color : "text-slate-400")} />
+                                        </div>
+                                        <div>
+                                            <div className={cn("text-sm font-bold", active ? "text-slate-900" : "text-slate-600")}>{method.label}</div>
+                                        </div>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {paymentMethod === "Cash" && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter amount from customer"
+                                        value={amountPaid}
+                                        onChange={(e) => setAmountPaid(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-emerald-500/20"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance to Return (₹)</Label>
+                                    <div className={cn(
+                                        "h-11 flex items-center px-4 rounded-lg border-2 font-bold text-lg transition-colors",
+                                        (Number(amountPaid) - calculatedDueAmount) >= 0
+                                            ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                                            : "bg-rose-50 border-rose-100 text-rose-700"
+                                    )}>
+                                        {formatINR(Math.max(0, Number(amountPaid) - calculatedDueAmount))}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        {paymentMethod === "Underpaid" && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="0.00"
+                                        value={amountPaid}
+                                        onChange={(e) => setAmountPaid(e.target.value)}
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reference / Bill No.</Label>
+                                    <Input
+                                        placeholder="Enter reference if any"
+                                        value={referenceNumber}
+                                        onChange={(e) => setReferenceNumber(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
+                                    />
+                                </div>
+                            </div>
+                        )}
+
+                        {paymentMethod === "UPI" && (
+                            <div className="space-y-2 pt-2">
+                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
+                                <Input
+                                    placeholder="Enter UPI transaction ID"
+                                    value={referenceNumber}
+                                    onChange={(e) => setReferenceNumber(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
+                                    className="h-11 bg-white border-slate-200 rounded-lg focus:ring-indigo-500/20"
+                                />
+                            </div>
+                        )}
+                    </div>
+
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={updatingPayment}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                            onClick={handlePaymentUpdate}
+                            disabled={updatingPayment}
+                            className="bg-slate-900 text-white hover:bg-slate-800"
+                        >
+                            {updatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Confirm Payment
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </AppShell>
     );
 };

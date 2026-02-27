@@ -329,7 +329,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             // Fetch latest order state for printing, or just use current if sufficient
             // Ideally we should print the completed order.
             // But handlePrintBill mostly uses ID/mrn.
-            handlePrintBill(orderToComplete)
+            handlePrintBill(orderToComplete);
+            setOpen(false); // Close the modal after completing/printing
         } catch (error) {
             console.log(error);
         }
@@ -566,7 +567,10 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                             <Button
                                 variant="outline"
                                 disabled={!!printingOrderId}
-                                onClick={() => handlePrintBill(localOrder)}
+                                onClick={() => {
+                                    handlePrintBill(localOrder);
+                                    setOpen(false);
+                                }}
                             >
                                 {printingOrderId === localOrder._id ? "Printing..." : "Print"}
                             </Button>
