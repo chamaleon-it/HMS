@@ -46,6 +46,7 @@ import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
+import DateTimePicker from "./DateTimePicker";
 
 interface NewTestProps {
   mutate?: () => void;
@@ -77,7 +78,6 @@ export default function NewTest({
   const open = isControlled ? controlledOpen : internalOpen;
   const setOpen = isControlled ? setControlledOpen : setInternalOpen;
 
-  const [openDate, setOpenDate] = useState(false);
   const [bookingType, setBookingType] = useState<"Book Now" | "Schedule">(
     defaultBookingType
   );
@@ -315,64 +315,10 @@ export default function NewTest({
           </div>
 
           {bookingType === "Schedule" && (
-            <>
-              <div className="flex gap-2">
-                <Popover open={openDate} onOpenChange={setOpenDate}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      id="date"
-                      className="w-48 justify-between font-normal"
-                    >
-                      {payload.date ? fDate(payload.date) : "Select date"}
-                      <ChevronDownIcon />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto overflow-hidden p-0"
-                    align="start"
-                  >
-                    <Calendar
-                      mode="single"
-                      selected={payload.date}
-                      captionLayout="dropdown"
-                      startMonth={new Date(2025, 0)}
-                      endMonth={new Date(2027, 0)}
-                      onSelect={(selectedDate) => {
-                        if (!selectedDate) return;
-                        setPayload((prev) => {
-                          const timeStr = prev.date
-                            ? `${prev.date.getHours().toString().padStart(2, "0")}:${prev.date.getMinutes().toString().padStart(2, "0")}`
-                            : `${new Date().getHours().toString().padStart(2, "0")}:${new Date().getMinutes().toString().padStart(2, "0")}`;
-                          return { ...prev, date: combineToIST(selectedDate, timeStr) };
-                        });
-                        setOpenDate(false);
-                      }}
-                      disabled={(date) => {
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        return date < today;
-                      }}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Input
-                  type="time"
-                  id="time-picker"
-                  step="1800"
-                  value={payload.date ? `${payload.date.getHours().toString().padStart(2, "0")}:${payload.date.getMinutes().toString().padStart(2, "0")}` : ""}
-                  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                  onChange={(e) => {
-                    const timeStr = e.target.value;
-                    if (!timeStr) return;
-                    setPayload((prev) => {
-                      const baseDate = prev.date || new Date();
-                      return { ...prev, date: combineToIST(baseDate, timeStr) };
-                    });
-                  }}
-                />
-              </div>
-            </>
+            <DateTimePicker
+              date={payload.date}
+              setDate={(date) => setPayload((prev) => ({ ...prev, date }))}
+            />
           )}
         </div>
 
