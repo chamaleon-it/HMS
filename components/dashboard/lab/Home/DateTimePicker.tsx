@@ -61,7 +61,7 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
     const [isOpen, setIsOpen] = useState(false);
 
     const hours = Array.from({ length: 12 }, (_, i) => i + 1);
-    const minutes = Array.from({ length: 4 }, (_, i) => i * 15); // Using 15min intervals for better UX, can be adjusted
+    const minutes = Array.from({ length: 60 }, (_, i) => i); // Using 15min intervals for better UX, can be adjusted
     const ampm = ["AM", "PM"];
 
     const selectedHour = date ? (date.getHours() % 12 || 12) : 12;
