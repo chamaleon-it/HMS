@@ -54,7 +54,7 @@ export default function LabeledCombobox({
 
     // Internal filtering to match standard combobox behavior (showing relevant options)
     const filteredOptions = options.filter(opt =>
-        opt.toLowerCase().includes(text.toLowerCase())
+        opt.toLowerCase().startsWith(text.toLowerCase())
     );
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
