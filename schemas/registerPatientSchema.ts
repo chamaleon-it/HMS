@@ -17,15 +17,11 @@ export const registerPatientSchema = z.object({
 
   phoneNumber: z
     .string()
-    .min(1, "Phone number is required")
-    .transform((val) => {
-      /* This code snippet is a transformation function for formatting phone numbers. */
-      if (val.length === 10) {
-        return `${val.slice(0, 5)} ${val.slice(5)}`;
-      } else {
-        return `${val.slice(0, 3)} ${val.slice(3, 7)} ${val.slice(7)}`;
-      }
-    }),
+    .optional()
+    .refine(
+      (val) => !val || (val.length === 10 || val.length === 13),
+      "Please provide a valid phone number"
+    ),
 
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
 

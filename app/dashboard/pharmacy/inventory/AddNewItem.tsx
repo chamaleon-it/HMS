@@ -264,6 +264,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
               <SelectItem value="Medicine">Medicine</SelectItem>
               <SelectItem value="Equipment">Equipment</SelectItem>
               <SelectItem value="Consumables">Consumables</SelectItem>
+              <SelectItem value="Surgicals">Surgicals</SelectItem>
             </SelectContent>
           </Select>
           {errors.category && (
@@ -386,7 +387,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Opening Stock Qty *
+            Current Stock Qty *
           </label>
           <Input
             type="number"

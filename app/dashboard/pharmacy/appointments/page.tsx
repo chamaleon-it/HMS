@@ -497,11 +497,11 @@ export default function AppointmentPage() {
         </div>
 
         {/* Statistics - Only show on List view to save space? Or make it collapsible? User requested optimizing blank space. */}
-        {tab === 'list' && <div className="shrink-0 mb-5 px-4 sm:px-0 print:hidden"><Statistics /></div>}
+        {tab === 'list' && <div className="shrink-0  px-4 sm:px-0 print:hidden"><Statistics /></div>}
 
         {/* Filters Row */}
         {tab === 'list' &&
-          <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
+          <div className="shrink-0 mb-2.5 px-4 sm:px-0 print:hidden">
             <Filter
               activeStatuses={activeStatuses}
               query={query}

@@ -209,18 +209,18 @@ export default function MedicineField({
                       ) : null}
                     </div>
 
-                    <div>
-                      {it.quantity <= 0 ? (
-                        <div className="flex items-center gap-1 text-red-600 text-xs font-medium">
-                          <XCircle className="w-3 h-3" />
-                          <span>Out of stock</span>
-                        </div>
-                      ) : it.quantity < 15 ? (
-                        <div className="flex items-center gap-1 text-amber-600 text-xs font-medium">
-                          <AlertTriangle className="w-3 h-3" />
-                          <span>{it.quantity} left - Low stock</span>
-                        </div>
-                      ) : null}
+                    <div className="flex flex-col items-end gap-0.5">
+                      <span className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${it.quantity <= 0
+                        ? "bg-red-50 text-red-600"
+                        : it.quantity < 15
+                          ? "bg-amber-50 text-amber-600"
+                          : "bg-emerald-50 text-emerald-600"
+                        }`}>
+                        {it.quantity <= 0 ? "Out of Stock" : it.quantity < 15 ? "Low Stock" : "In Stock"}
+                      </span>
+                      <span className="text-[11px] font-bold text-slate-500">
+                        {it.quantity} {it.quantity === 1 ? 'unit' : 'units'} available
+                      </span>
                     </div>
                   </div>
                 </li>

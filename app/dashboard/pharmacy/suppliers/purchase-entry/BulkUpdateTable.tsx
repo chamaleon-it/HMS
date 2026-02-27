@@ -480,11 +480,15 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <ItemSearchCell
                                                 selectedItemId={item._id}
                                                 onSelect={(it) => {
+
+                                                    const gst = it?.gst || 0;
                                                     updateNewItem(item.id, "_id", it._id);
                                                     updateNewItem(item.id, "product", it.name);
                                                     updateNewItem(item.id, "unitPrice", it.unitPrice || 0);
                                                     updateNewItem(item.id, "purchasePrice", it.purchasePrice || 0);
                                                     updateNewItem(item.id, "pack", it.packing || 0);
+                                                    updateNewItem(item.id, "cgst_p", gst / 2);
+                                                    updateNewItem(item.id, "sgst_p", gst / 2);
 
                                                     setTimeout(() => {
                                                         const currentRow = document.querySelector(`[data-row-id="${item.id}"]`);

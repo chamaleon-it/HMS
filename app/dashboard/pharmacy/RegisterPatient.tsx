@@ -50,11 +50,12 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
       name: patient?.name || "",
-      phoneNumber: patient?.phoneNumber || "+91",
+      phoneNumber: patient?.phoneNumber || "",
       doctor: patient?.doctor || user?._id,
       gender: patient?.gender || "Prefer not to say",
       dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
       address: patient?.address || "",
+      allergies: patient?.allergies || "",
       mrn: patient?.mrn || undefined
     },
   });
@@ -153,7 +154,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   });
 
   const isExistByPhone = usePatientAlreadyExist({
-    phoneNumber: debouncedPhone?.length > 4 ? debouncedPhone : undefined,
+    phoneNumber: (debouncedPhone?.length || 0) > 4 ? debouncedPhone : undefined,
   });
 
   const alreadyExistPatient = isExistByName?.data?.patient || isExistByPhone?.data?.patient;

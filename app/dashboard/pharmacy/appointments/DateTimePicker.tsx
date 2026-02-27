@@ -133,36 +133,52 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
       (alreadyBooked ?? []).map((d) => new Date(d).getTime())
     );
 
+    // Initial search date should be the server's nextAvailableDate, but we must ensure it's not in the past
     let searchDate = new Date(nextAvailableDate);
+    if (searchDate < today) {
+      searchDate = new Date(today);
+    }
+
     let foundTime = "";
+    let finalSearchDate = new Date(searchDate);
 
     // Search up to 14 days ahead for the first available future slot
     for (let i = 0; i < 14; i++) {
-      const isSearchDayToday = isSameDay(searchDate, today);
-      const cutoffMins = isSearchDayToday
-        ? now.getHours() * 60 + now.getMinutes()
-        : -1;
+      const isSearchDayToday = isSameDay(finalSearchDate, today);
 
-      const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][searchDate.getDay()];
+      // Calculate cutoff: if today, cutoff is 'now'. If future, cutoff is start of day (-1).
+      let currentMinutes = -1;
+      if (isSearchDayToday) {
+        currentMinutes = now.getHours() * 60 + now.getMinutes();
+      }
+
+      const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][finalSearchDate.getDay()];
 
       if (availability.days.includes(dayName)) {
+        // For today's walk-ins, search until nearly midnight to find "Now" slots.
+        // For other days, respect the doctor's standard endTime.
+        const dayEndTime = isSearchDayToday ? "23:45" : (availability.endTime ?? "18:00");
+
         const times = generateTimeSlots(
           availability.startTime ?? "09:00",
-          availability.endTime ?? "18:00",
+          dayEndTime,
           15
         );
 
+        // Filter and find the first available slot
         const firstFree = times.find((time) => {
+          const tm = toMinutes(time);
+
+          // Must be strictly in the future if today
+          if (isSearchDayToday && tm <= currentMinutes) return false;
+
+          // Check if it's within a break/round
           const round = getRoundForTime(time, availability.rounds);
           if (round) return false;
 
-          const tm = toMinutes(time);
-          if (tm <= cutoffMins) return false;
-
-          if (isSameDay(searchDate, new Date(nextAvailableDate))) {
-            const slotDate = combineToIST(searchDate, time);
-            if (bookedSet.has(slotDate.getTime())) return false;
-          }
+          // Check booking status (only for days the server knows about or all days to be safe)
+          const slotDateStr = combineToIST(finalSearchDate, time).getTime();
+          if (bookedSet.has(slotDateStr)) return false;
 
           return true;
         });
@@ -173,16 +189,20 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
         }
       }
 
-      searchDate.setDate(searchDate.getDate() + 1);
-      searchDate = startOfDay(searchDate);
+      // Move to next day
+      finalSearchDate.setDate(finalSearchDate.getDate() + 1);
+      finalSearchDate = startOfDay(finalSearchDate);
     }
 
     if (foundTime) {
-      const foundDateTime = searchDate.getTime();
+      const foundDateTime = startOfDay(finalSearchDate).getTime();
       setSelectedDate((prev) =>
         prev?.getTime() === foundDateTime ? prev : new Date(foundDateTime)
       );
       setSelectedTime((prev) => (prev === foundTime ? prev : foundTime));
+    } else {
+      // Fallback if no slot found in 14 days (unlikely)
+      setSelectedTime("");
     }
   }, [walkIn, doctor, availability, walkInData]);
 
