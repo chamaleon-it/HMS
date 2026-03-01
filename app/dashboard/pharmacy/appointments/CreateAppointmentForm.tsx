@@ -393,25 +393,7 @@ export function CreateAppointmentForm({
               )}
             </div>
           </div>
-          <div>
-            <Label>Internal Note</Label>
-            <Textarea
-              rows={3}
-              placeholder="Visible to staff only"
-              {...register("internalNotes")}
-              className="mt-2.5"
-              ref={(e) => {
-                register("internalNotes").ref(e);
-                refs.internalNotes.current = e;
-              }}
-              onKeyDown={(e) => handleKeyDown(e, refs.submitButton)}
-            />
-            {errors.internalNotes && (
-              <p className="text-red-500 text-xs mt-1.5">
-                {errors.internalNotes.message}
-              </p>
-            )}
-          </div>
+
         </div>
       </section>
 
