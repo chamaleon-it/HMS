@@ -157,12 +157,12 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
       if (availability.days.includes(dayName)) {
         // For today's walk-ins, search until nearly midnight to find "Now" slots.
         // For other days, respect the doctor's standard endTime.
-        const dayEndTime = isSearchDayToday ? "23:45" : (availability.endTime ?? "18:00");
+        const dayEndTime = isSearchDayToday ? "23:59" : (availability.endTime ?? "18:00");
 
         const times = generateTimeSlots(
           availability.startTime ?? "09:00",
           dayEndTime,
-          15
+          1
         );
 
         // Filter and find the first available slot

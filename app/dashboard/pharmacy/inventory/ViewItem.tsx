@@ -262,7 +262,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
-                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Price</TableHead>
+                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">P Price</TableHead>
                 <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Qty</TableHead>
               </TableRow>
             </TableHeader>
