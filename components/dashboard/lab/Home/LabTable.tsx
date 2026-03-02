@@ -123,7 +123,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             {headerCell("Created At")}
             {status === "Sample Collected" && headerCell("Sample Collected")}
             {status !== "Upcoming" && headerCell("Sample Id")}
-            {(status !== "Upcoming" && status !== "Sample Collected") && headerCell("Test Started At")}
+            {(status !== "Upcoming" && status !== "Sample Collected") && headerCell("Test Reported At")}
             {headerCell("Doctor")}
             {/* {headerCell("Status")} */}
             {status === "Waiting For Result" && headerCell("Estimated Time")}
@@ -354,7 +354,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       {status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} />}
 
                       {
-                        status === "Completed" && r.isFlagged === false && <Button
+                        (status === "Completed" || status === "Sample Collected" || status === "Waiting For Result") && r.isFlagged === false && <Button
                           variant={"outline"}
                           size="sm"
                           className="h-8 bg-white text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700 gap-1.5 text-xs font-medium"
