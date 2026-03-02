@@ -10,6 +10,7 @@ import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
 import ResetTimerModal from "./ResetTimerModal";
+import EditTest from "./EditTest";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -176,12 +177,12 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                 <tr
                   key={r._id}
                   className={`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${expired
-                      ? "bg-orange-200/70 hover:bg-orange-200/70"
-                      : r.priority === "Urgent"
-                        ? "bg-amber-100 hover:bg-amber-200/60"
-                        : idx % 2 === 0
-                          ? "bg-white hover:bg-white/60"
-                          : "bg-slate-100 hover:bg-slate-100/60"
+                    ? "bg-orange-200/70 hover:bg-orange-200/70"
+                    : r.priority === "Urgent"
+                      ? "bg-amber-100 hover:bg-amber-200/60"
+                      : idx % 2 === 0
+                        ? "bg-white hover:bg-white/60"
+                        : "bg-slate-100 hover:bg-slate-100/60"
                     }`}
                 >
                   <td className="px-3 py-2 text-sm text-gray-500">
@@ -413,6 +414,8 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       </Button>}
 
                       {(status === "Completed" || status === "Flagged") && <ViewResultModal r={r} />}
+
+                      {status === "Upcoming" && <EditTest report={r} mutate={mutate} />}
 
                       {status !== "Deleted" && <AlertDialog>
                         <AlertDialogTrigger asChild>
