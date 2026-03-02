@@ -52,10 +52,8 @@ export default function LabeledCombobox({
         setFocusedIndex(-1);
     };
 
-    // Internal filtering to match standard combobox behavior (showing relevant options)
-    const filteredOptions = options.filter(opt =>
-        opt.toLowerCase().startsWith(text.toLowerCase())
-    );
+    // Filter options matching the current input exactly as typed
+    const filteredOptions = options.filter(opt => opt.toLowerCase().includes(text.toLowerCase()));
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!open && e.key !== 'Escape') {
@@ -85,9 +83,12 @@ export default function LabeledCombobox({
                     const exactMatch = filteredOptions.find(o => o.toLowerCase() === text.toLowerCase());
                     if (exactMatch) {
                         commit(exactMatch);
-                    } else if (filteredOptions.length === 1) {
+                    } else if (filteredOptions.length === 1 && text.length > 0) {
                         // Utility: auto-select the only option on Enter
                         commit(filteredOptions[0]);
+                    } else if (text.trim() !== "") {
+                        // Allow completely custom free-text entry by committing typed text natively
+                        commit(text);
                     }
                 }
                 break;
@@ -127,7 +128,16 @@ export default function LabeledCombobox({
                 onKeyDown={handleKeyDown}
                 onFocus={() => setOpen(true)}
                 onClick={() => setOpen(true)}
-                onBlur={() => setTimeout(() => setOpen(false), 200)} // Increased timeout slightly to allow click
+                onBlur={() => {
+                    setTimeout(() => {
+                        setOpen(false);
+                        // Ensure what the user typed is actually committed dynamically
+                        // even if they don't explicitly pick an option.
+                        if (text !== value && onChange) {
+                            onChange(text);
+                        }
+                    }, 200);
+                }}
                 placeholder=" "
                 className="peer w-full rounded-xl border border-slate-200 bg-transparent px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 z-20 relative"
             />
@@ -138,10 +148,10 @@ export default function LabeledCombobox({
                 ▾
             </span>
 
-            {open && filteredOptions.length > 0 && (
+            {open && (filteredOptions.length > 0 || (text.trim() !== "" && !options.find(o => o.toLowerCase() === text.trim().toLowerCase()))) && (
                 <div
                     ref={listboxRef}
-                    className="absolute left-0 right-0  z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1"
+                    className="absolute left-0 right-0 z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1"
                 >
                     {filteredOptions.map((opt: string, index: number) => (
                         <button
@@ -160,6 +170,18 @@ export default function LabeledCombobox({
                             {opt}
                         </button>
                     ))}
+                    {text.trim() !== "" && !options.find(o => o.toLowerCase() === text.trim().toLowerCase()) && (
+                        <button
+                            type="button"
+                            className="w-full text-left px-2 py-2 mt-1 rounded-lg text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 font-medium transition-colors flex items-center gap-2"
+                            onMouseDown={(e) => {
+                                e.preventDefault(); // Prevent blur
+                                commit(text.trim());
+                            }}
+                        >
+                            <span className="text-lg leading-none mb-0.5">+</span> Add "{text.trim()}"
+                        </button>
+                    )}
                 </div>
             )}
         </div>
