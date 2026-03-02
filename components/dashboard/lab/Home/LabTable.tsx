@@ -176,13 +176,15 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
               return (
                 <tr
                   key={r._id}
-                  className={`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${expired
-                    ? "bg-orange-200/70 hover:bg-orange-200/70"
-                    : r.priority === "Urgent"
-                      ? "bg-amber-100 hover:bg-amber-200/60"
-                      : idx % 2 === 0
-                        ? "bg-white hover:bg-white/60"
-                        : "bg-slate-100 hover:bg-slate-100/60"
+                  className={`group transition-colors duration-200 last:border-0 relative ${expired && r.priority === "Urgent"
+                    ? "bg-orange-100 hover:bg-orange-200/70 border-[3px] border-emerald-500 z-10"
+                    : expired
+                      ? "bg-green-100/80 hover:bg-green-200/60 border-b border-gray-100"
+                      : r.priority === "Urgent"
+                        ? "bg-orange-100 hover:bg-orange-200/70 border-b border-gray-100"
+                        : idx % 2 === 0
+                          ? "bg-white hover:bg-white/60 border-b border-gray-100"
+                          : "bg-slate-100 hover:bg-slate-100/60 border-b border-gray-100"
                     }`}
                 >
                   <td className="px-3 py-2 text-sm text-gray-500">
