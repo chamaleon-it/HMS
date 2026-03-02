@@ -327,6 +327,8 @@ export default function NewTest({
             <TableRow>
               <TableHead>SL</TableHead>
               <TableHead>Test Name</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Estimate Time</TableHead>
               {/* <TableHead>Min Range</TableHead>
               <TableHead>Max Range</TableHead>
               <TableHead>Unit</TableHead> */}
@@ -338,6 +340,9 @@ export default function NewTest({
               <TableRow key={t}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{t}</TableCell>
+                <TableCell>{panels.find((p) => p.name === t)?.price}</TableCell>
+                <TableCell>-</TableCell>
+
                 {/* <TableCell>-</TableCell>
                 <TableCell>-</TableCell>
                 <TableCell>-</TableCell> */}
@@ -381,6 +386,12 @@ export default function NewTest({
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>
                   {tests.find((test) => test._id === t.name)?.name}
+                </TableCell>
+                <TableCell>
+                  {tests.find((test) => test._id === t.name)?.price}
+                </TableCell>
+                <TableCell>
+                  {tests.find((test) => test._id === t.name)?.estimatedTime}
                 </TableCell>
                 {/* <TableCell>
                   {tests.find((test) => test._id === t.name)?.min}

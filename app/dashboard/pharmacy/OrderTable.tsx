@@ -12,7 +12,7 @@ import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import { AlertTriangle, CheckCircle, Eye, Printer, Trash, View } from "lucide-react";
+import { AlertTriangle, CheckCircle, Eye, Printer, RotateCcw, Trash, View } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +22,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -320,7 +321,8 @@ export default function OrderTable({
                 }}
               >{fDateandTime(r?.createdAt)}</TableCell>
               <TableCell className="py-3 text-right space-x-1 pr-4">
-                <div className="flex justify-end items-center gap-1">
+
+                {r.isDeleted === false && <div className="flex justify-end items-center gap-1">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -419,7 +421,54 @@ export default function OrderTable({
                       </Link>
                     </Button>
                   )}
-                </div>
+                </div>}
+
+                {
+                  r.isDeleted === true && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant={"outline"} size={"icon"}>
+                          <RotateCcw className="h-3.5 w-3.5" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Recover Lab Report?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to recover the lab report for{" "}
+                            <span className="font-bold text-slate-900">
+                              {r.patient?.name}
+                            </span>
+                            ? This will move it back to its previous status.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                            onClick={async () => {
+                              try {
+                                await toast.promise(
+                                  api.post(`pharmacy/orders/recover/${r._id}`),
+                                  {
+                                    loading: "Processing...",
+                                    success: "Recovered",
+                                    error: "Failed to recover",
+                                  }
+                                );
+                                OrderMutate();
+                              } catch (error) {
+                                toast.error(`Failed to recover : ${error}`);
+                              }
+                            }}
+                          >
+                            Recover
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )
+                }
               </TableCell>
             </TableRow>
           ))}

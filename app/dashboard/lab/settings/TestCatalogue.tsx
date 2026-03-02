@@ -276,7 +276,7 @@ export default function TestCatalogue({
                   <SelectContent>
                     <SelectItem value="number">Number</SelectItem>
                     <SelectItem value="text">Text</SelectItem>
-                    <SelectItem value="boolean">Boolean</SelectItem>
+                    <SelectItem value="boolean">Positive/Negative</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

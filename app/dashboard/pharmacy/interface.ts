@@ -14,6 +14,7 @@ export interface OrderType {
     updatedAt?: Date;
     billNo?: string;
     pharmacist?: string
+    isDeleted: boolean;
 }
 
 

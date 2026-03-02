@@ -97,7 +97,7 @@ export default function CreateBill({
       const existingItem = payload.items.find((it) => it.name === nameToAdd);
       if (existingItem) {
         toast.error("Item already exists.");
-        itemRef.current?.focus();
+        // itemRef.current?.focus();
         return;
       }
 
@@ -115,7 +115,7 @@ export default function CreateBill({
         ],
       }));
 
-      itemRef.current?.focus();
+      // itemRef.current?.focus();
       setItem(null);
     },
     [item, payload.items, pharmacyBilling.defaultGst]

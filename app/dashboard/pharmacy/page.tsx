@@ -24,7 +24,7 @@ function RxQueue() {
   };
 
   const [filter, setFilter] = useState<{
-    q: "Pending" | "Filling" | "Ready" | "Completed";
+    q: "Pending" | "Filling" | "Ready" | "Completed" | "Deleted";
     page: number;
     limit: number;
   }>({
