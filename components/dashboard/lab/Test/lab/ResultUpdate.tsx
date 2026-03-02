@@ -83,7 +83,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
     const [payload, setPayload] = useState({
         _id: r._id,
-        test: r.test.filter((item) => item.name.type === "Lab").map((item) => ({
+        test: r.test.filter((item) => item?.name?.type === "Lab").map((item) => ({
             _id: item._id,
             value: item.value !== undefined && item.value !== null ? item.value.toString() : "",
             name: item.name
@@ -146,7 +146,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {r.test.filter(item => item.name.type === "Lab").map((labTest) => (
+                                    {r.test.filter(item => item?.name?.type === "Lab").map((labTest) => (
                                         <TableRow key={labTest._id} className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none">
                                             <TableCell className="pl-6 py-4">
                                                 <div className="flex items-center gap-3">

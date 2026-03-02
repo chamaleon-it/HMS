@@ -132,18 +132,31 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
         <tbody>
           {REPORT
             .sort((a, b) => {
-              if (status !== "Waiting For Result") return 0;
-              const getTargetTime = (item: typeof a) => {
-                if (!item.testStartedAt) return Infinity;
-                const times = item.test
-                  .map((t) => t.name?.estimatedTime)
-                  .filter((time): time is number => typeof time === "number");
-                const maxTime = times.length > 0 ? Math.max(...times) : 0;
-                return (
-                  new Date(item.testStartedAt).getTime() + maxTime * 60000 + (item.extraTime || 0) * 60000
-                );
-              };
-              return getTargetTime(a) - getTargetTime(b);
+              const isAUrgent = a.priority === "Urgent";
+              const isBUrgent = b.priority === "Urgent";
+
+              if (isAUrgent && !isBUrgent) return -1;
+              if (!isAUrgent && isBUrgent) return 1;
+
+              // Existing sort logic by target time for Waiting For Result
+              if (status === "Waiting For Result") {
+                const getTargetTime = (item: typeof a) => {
+                  if (!item.testStartedAt) return Infinity;
+                  const times = item.test
+                    .map((t) => t.name?.estimatedTime)
+                    .filter((time): time is number => typeof time === "number");
+                  const maxTime = times.length > 0 ? Math.max(...times) : 0;
+                  return (
+                    new Date(item.testStartedAt).getTime() + maxTime * 60000 + (item.extraTime || 0) * 60000
+                  );
+                };
+                return getTargetTime(a) - getTargetTime(b);
+              }
+
+              // Chronological order for others (oldest first as per 'chronological order')
+              const dateA = status === "Upcoming" ? new Date(a.date).getTime() : new Date(a.createdAt).getTime();
+              const dateB = status === "Upcoming" ? new Date(b.date).getTime() : new Date(b.createdAt).getTime();
+              return dateA - dateB;
             })
             .map((r, idx) => {
               const maxEstimatedTime = Math.max(
@@ -162,13 +175,14 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
               return (
                 <tr
                   key={r._id}
-                  className={`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${!expired ?
-                    idx % 2 === 0
-                      ? "bg-white hover:bg-white/60"
-                      : "bg-slate-100 hover:bg-slate-100/60" : "bg-orange-200/70 hover:bg-orange-200/70"
-                    } 
-
-                     `}
+                  className={`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${expired
+                      ? "bg-orange-200/70 hover:bg-orange-200/70"
+                      : r.priority === "Urgent"
+                        ? "bg-amber-100 hover:bg-amber-200/60"
+                        : idx % 2 === 0
+                          ? "bg-white hover:bg-white/60"
+                          : "bg-slate-100 hover:bg-slate-100/60"
+                    }`}
                 >
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {String(idx + 1).padStart(2, "0")}

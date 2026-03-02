@@ -24,6 +24,7 @@ import {
   Plus,
   Trash,
   Zap,
+  AlertTriangle,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { motion } from "framer-motion";
@@ -314,12 +315,23 @@ export default function NewTest({
             />
           </div>
 
-          {bookingType === "Schedule" && (
-            <DateTimePicker
-              date={payload.date}
-              setDate={(date) => setPayload((prev) => ({ ...prev, date }))}
-            />
-          )}
+          <div className="flex gap-2 items-center">
+            <Button
+              type="button"
+              variant={payload.priority === "Urgent" ? "default" : "outline"}
+              className={payload.priority === "Urgent" ? "bg-amber-500 hover:bg-amber-600 text-white" : "border-amber-200 text-amber-600 hover:bg-amber-50"}
+              onClick={() => setPayload(prev => ({ ...prev, priority: prev.priority === "Urgent" ? "Normal" : "Urgent" }))}
+            >
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              Urgent
+            </Button>
+            {bookingType === "Schedule" && (
+              <DateTimePicker
+                date={payload.date}
+                setDate={(date) => setPayload((prev) => ({ ...prev, date }))}
+              />
+            )}
+          </div>
         </div>
 
         <Table>
