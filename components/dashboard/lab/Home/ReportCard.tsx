@@ -12,7 +12,8 @@ export default function ReportCard({ report }: ReportCardProps) {
         if (report?.patient?.name && report?.patient?.mrn) {
             const originalTitle = document.title;
             const pid = report.patient.mrn.replace("MRN", "P-");
-            document.title = `${report.patient.name}_${pid}`;
+            const timestamp = fDateandTime(new Date());
+            document.title = `${report.patient.name}_${pid}_${timestamp}`;
             return () => {
                 document.title = originalTitle;
             };

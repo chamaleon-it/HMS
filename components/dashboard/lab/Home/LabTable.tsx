@@ -10,9 +10,20 @@ import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
 import ResetTimerModal from "./ResetTimerModal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface PropsTypes {
-  status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged";
+  status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted";
   mutate: () => void;
   REPORT: {
     _id: string;
@@ -347,7 +358,6 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                           }}
                         >
                           <Flag className="h-3.5 w-3.5" />
-                          Mark Flagged
                         </Button>
                       }
 
@@ -373,7 +383,6 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                           }}
                         >
                           <FlagOff className="h-3.5 w-3.5" />
-                          Unmark Flagged
                         </Button>
                       }
 
@@ -391,28 +400,72 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                       {(status === "Completed" || status === "Flagged") && <ViewResultModal r={r} />}
 
-                      <Button
-                        variant={"outline"}
-                        size="sm"
-                        className="h-8 bg-white text-rose-600 hover:bg-rose-50 hover:text-rose-700 border-rose-100"
-                        onClick={async () => {
-                          try {
-                            await toast.promise(
-                              api.delete(`lab/report/${r._id}`),
-                              {
-                                loading: "Processing...",
-                                success: "Deleted",
-                                error: "Failed to delete",
-                              }
-                            );
-                            mutate();
-                          } catch (error) {
-                            toast.error(`Failed to delete : ${error}`);
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
+                      {status !== "Deleted" && <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant={"outline"}
+                            size="sm"
+                            className="h-8 bg-white text-rose-600 hover:bg-rose-50 hover:text-rose-700 border-rose-100"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone. This will permanently delete the lab report for{" "}
+                              <span className="font-bold text-slate-900">{r.patient?.name}</span>.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-rose-600 hover:bg-rose-700 text-white"
+                              onClick={async () => {
+                                try {
+                                  await toast.promise(
+                                    api.delete(`lab/report/${r._id}`),
+                                    {
+                                      loading: "Processing...",
+                                      success: "Deleted",
+                                      error: "Failed to delete",
+                                    }
+                                  );
+                                  mutate();
+                                } catch (error) {
+                                  toast.error(`Failed to delete : ${error}`);
+                                }
+                              }}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>}
+                      {
+                        status === "Deleted" && <Button
+                          variant={"outline"}
+                          size={"icon"}
+                          onClick={async () => {
+                            try {
+                              await toast.promise(
+                                api.post(`lab/report/recover/${r._id}`),
+                                {
+                                  loading: "Processing...",
+                                  success: "Recovered",
+                                  error: "Failed to recover",
+                                }
+                              );
+                              mutate();
+                            } catch (error) {
+                              toast.error(`Failed to recover : ${error}`);
+                            }
+                          }}
+                        >
+                          <RotateCcw className="h-3.5 w-3.5" />
+                        </Button>
+                      }
                     </div>
                   </td>
                 </tr>

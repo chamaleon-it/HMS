@@ -48,7 +48,7 @@ const StatCard: React.FC<{
 export default function LabResultsPage() {
 
   const [status, setStatus] = useState<
-    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged"
+    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted"
   >("Upcoming");
 
   const { data, mutate } = useSWR<{

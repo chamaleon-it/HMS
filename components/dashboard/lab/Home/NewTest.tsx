@@ -327,9 +327,9 @@ export default function NewTest({
             <TableRow>
               <TableHead>SL</TableHead>
               <TableHead>Test Name</TableHead>
-              <TableHead>Min Range</TableHead>
+              {/* <TableHead>Min Range</TableHead>
               <TableHead>Max Range</TableHead>
-              <TableHead>Unit</TableHead>
+              <TableHead>Unit</TableHead> */}
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -338,9 +338,9 @@ export default function NewTest({
               <TableRow key={t}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{t}</TableCell>
+                {/* <TableCell>-</TableCell>
                 <TableCell>-</TableCell>
-                <TableCell>-</TableCell>
-                <TableCell>-</TableCell>
+                <TableCell>-</TableCell> */}
                 <TableCell>
                   <Button
                     variant="ghost"
@@ -382,7 +382,7 @@ export default function NewTest({
                 <TableCell>
                   {tests.find((test) => test._id === t.name)?.name}
                 </TableCell>
-                <TableCell>
+                {/* <TableCell>
                   {tests.find((test) => test._id === t.name)?.min}
                 </TableCell>
                 <TableCell>
@@ -390,7 +390,7 @@ export default function NewTest({
                 </TableCell>
                 <TableCell>
                   {tests.find((test) => test._id === t.name)?.unit}
-                </TableCell>
+                </TableCell> */}
                 <TableCell>
                   <Button
                     variant={"ghost"}

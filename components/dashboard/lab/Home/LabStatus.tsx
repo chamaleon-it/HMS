@@ -1,16 +1,16 @@
 "use client";
 
 import React, { JSX, useMemo } from "react";
-import { CheckCircle, Eye, Clock, AlertTriangle, TestTube2, FlaskConical } from "lucide-react";
+import { CheckCircle, Eye, Clock, AlertTriangle, TestTube2, FlaskConical, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 export default function LabStatus({
   currenctStatus,
   setCurrenctStatus,
 }: {
-  currenctStatus: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged";
+  currenctStatus: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted";
   setCurrenctStatus: React.Dispatch<
     React.SetStateAction<
-      "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged"
+      "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted"
     >
   >;
 }): JSX.Element {
@@ -18,11 +18,11 @@ export default function LabStatus({
     () => [
 
       { key: "Upcoming", label: "Upcoming", icon: Clock },
-
       { key: "Sample Collected", label: "Sample Collected", icon: TestTube2 },
       { key: "Waiting For Result", label: "Waiting For Result", icon: FlaskConical },
       { key: "Completed", label: "Completed", icon: CheckCircle },
       { key: "Flagged", label: "Flagged", icon: AlertTriangle },
+      { key: "Deleted", label: "Deleted", icon: Trash2 },
     ],
     []
   );
