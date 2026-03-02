@@ -28,13 +28,13 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 // ... existing imports ...
 
 const APPOINTMENT_STATUSES = [
-  { label: "Upcoming", value: "Upcoming", color: "bg-indigo-100 text-indigo-700", key: "U" },
-  { label: "Consulted", value: "Consulted", color: "bg-emerald-100 text-emerald-700", key: "C" },
-  { label: "Observation", value: "Observation", color: "bg-sky-100 text-sky-700", key: "O" },
-  { label: "Not show", value: "Not show", color: "bg-amber-100 text-amber-700", key: "N" },
-  { label: "Completed", value: "Completed", color: "bg-emerald-100 text-emerald-700", key: "P" },
-  { label: "Admit", value: "Admit", color: "bg-rose-100 text-rose-700", key: "A" },
-  { label: "Test", value: "Test", color: "bg-rose-100 text-rose-700", key: "T" },
+  { label: "Upcoming", value: "Upcoming", color: "bg-blue-200 text-blue-800", key: "U" },
+  { label: "Consulted", value: "Consulted", color: "bg-green-1000 text-green-80", key: "C" },
+  { label: "Observation", value: "Observation", color: "bg-purple-100 text-purple-800", key: "O" },
+  { label: "Not show", value: "Not show", color: "bg-yellow-100 text-yellow-800", key: "N" },
+  { label: "Completed", value: "Completed", color: "bg-gray-200 text-gray-800", key: "P" },
+  { label: "Admit", value: "Admit", color: "bg-red-300 text-red-800", key: "A" },
+  { label: "Test", value: "Test", color: "bg-pink-100 text-pink-800", key: "T" },
 ];
 
 function DoctorAvailabilityCard({ doctorId }: { doctorId: string }) {

@@ -33,13 +33,13 @@ const colorMap = {
 // Status-based coloring logic
 const getStatusStyles = (status: ApiStatus) => {
   switch (status) {
-    case "Upcoming": return "bg-indigo-50 border-indigo-200 text-indigo-900";
-    case "Consulted":
-    case "Completed": return "bg-emerald-50 border-emerald-200 text-emerald-900";
-    case "Observation": return "bg-sky-50 border-sky-200 text-sky-900";
-    case "Not show": return "bg-amber-50 border-amber-200 text-amber-900";
-    case "Admit":
-    case "Test": return "bg-rose-50 border-rose-200 text-rose-900";
+    case "Upcoming": return "bg-blue-200 text-blue-800";
+    case "Consulted": return "bg-green-1000 text-green-80";
+    case "Completed": return "bg-gray-200 text-gray-800";
+    case "Observation": return "bg-purple-100 text-purple-800";
+    case "Not show": return "bg-yellow-100 text-yellow-800";
+    case "Admit": return "bg-red-300 text-red-800";
+    case "Test": return "bg-pink-100 text-pink-800";
     default: return "bg-white border-zinc-200 text-zinc-900";
   }
 }
