@@ -484,6 +484,10 @@ export default function AppointmentPage() {
                 </>
               )}
               <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />
+              <PrimaryButton onClick={() => router.push("/dashboard/pharmacy/billing#new")} className="bg-linear-to-br from-indigo-600 to-pink-500 shadow-indigo-200" title="Direct">
+                Direct
+              </PrimaryButton>
+
               <PrimaryButton onClick={() => setOpenCreate(true)} className="bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200" title="New Appointment (N)">
                 <Plus className="h-4 w-4 mr-2" /> Schedule
               </PrimaryButton>
