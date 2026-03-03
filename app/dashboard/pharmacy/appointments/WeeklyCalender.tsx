@@ -34,7 +34,7 @@ const colorMap = {
 const getStatusStyles = (status: ApiStatus) => {
   switch (status) {
     case "Upcoming": return "bg-blue-200 text-blue-800";
-    case "Consulted": return "bg-green-1000 text-green-80";
+    case "Consulted": return "bg-green-100 text-green-800";
     case "Completed": return "bg-gray-200 text-gray-800";
     case "Observation": return "bg-purple-100 text-purple-800";
     case "Not show": return "bg-yellow-100 text-yellow-800";

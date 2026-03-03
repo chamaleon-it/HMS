@@ -8,6 +8,7 @@ import { Clock, ChevronDownIcon } from "lucide-react";
 import { combineToIST, fDate, fTime } from "@/lib/fDateAndTime";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 interface DateTimePickerProps {
     date: Date | undefined;
@@ -15,23 +16,65 @@ interface DateTimePickerProps {
 }
 
 export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
+    const formatToDDMMYY = (d: Date | undefined) => {
+        if (!d) return "";
+        return format(d, "dd/MM/yy");
+    };
+
     const [openDate, setOpenDate] = useState(false);
-    const [inputValue, setInputValue] = useState(date ? fDate(date) : "");
+    const [inputValue, setInputValue] = useState(formatToDDMMYY(date));
 
     useEffect(() => {
-        setInputValue(date ? fDate(date) : "");
+        setInputValue(formatToDDMMYY(date));
     }, [date]);
+
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let val = e.target.value.replace(/\D/g, ""); // Remove non-digits
+        if (val.length > 6) val = val.slice(0, 6); // Max 6 digits
+
+        let formatted = val;
+        if (val.length > 2 && val.length <= 4) {
+            formatted = `${val.slice(0, 2)}/${val.slice(2)}`;
+        } else if (val.length > 4) {
+            formatted = `${val.slice(0, 2)}/${val.slice(2, 4)}/${val.slice(4)}`;
+        }
+        setInputValue(formatted);
+    };
 
     const handleInputBlur = () => {
         if (!inputValue) return;
-        const parsed = new Date(inputValue);
-        if (!isNaN(parsed.getTime())) {
+
+        // Parse DD/MM/YY
+        const match = inputValue.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
+
+        let isValidDate = false;
+        let parsedDate = new Date();
+
+        if (match) {
+            const day = parseInt(match[1], 10);
+            const month = parseInt(match[2], 10) - 1; // 0-indexed
+            const year = parseInt(match[3], 10) + 2000;
+
+            parsedDate = new Date(year, month, day);
+
+            // Validate that Date object didn't wrap around (e.g., 32/01/2026 -> 01/02/2026)
+            if (parsedDate.getDate() === day && parsedDate.getMonth() === month && parsedDate.getFullYear() === year) {
+                // Ensure date is greater than or equal to today
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (parsedDate >= today) {
+                    isValidDate = true;
+                }
+            }
+        }
+
+        if (isValidDate) {
             const timeStr = date
                 ? `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`
                 : `${new Date().getHours().toString().padStart(2, "0")}:${new Date().getMinutes().toString().padStart(2, "0")}`;
-            setDate(combineToIST(parsed, timeStr));
+            setDate(combineToIST(parsedDate, timeStr));
         } else {
-            setInputValue(date ? fDate(date) : "");
+            setInputValue(formatToDDMMYY(date));
         }
     };
 
@@ -43,10 +86,15 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
                         <Input
                             className="pr-8"
                             value={inputValue}
-                            onChange={(e) => setInputValue(e.target.value)}
+                            onChange={handleInputChange}
                             onBlur={handleInputBlur}
-                            onKeyDown={(e) => e.key === "Enter" && handleInputBlur()}
-                            placeholder="DD MMM YYYY"
+                            onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                    handleInputBlur();
+                                    setOpenDate(false);
+                                }
+                            }}
+                            placeholder="DD/MM/YY"
                         />
                         <Button
                             variant="ghost"
@@ -58,7 +106,11 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
                         </Button>
                     </div>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+                <PopoverContent
+                    className="w-auto overflow-hidden p-0"
+                    align="start"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
+                >
                     <Calendar
                         mode="single"
                         selected={date}
@@ -97,6 +149,42 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
     const scrollRefH = useRef<HTMLDivElement>(null);
     const scrollRefM = useRef<HTMLDivElement>(null);
     const scrollRefA = useRef<HTMLDivElement>(null);
+    const isDragging = useRef(false);
+    const startY = useRef(0);
+    const startScrollTop = useRef(0);
+
+    const handleDragStart = (e: React.MouseEvent<HTMLDivElement>) => {
+        isDragging.current = false;
+        const ele = e.currentTarget;
+        ele.dataset.isDown = "true";
+        startY.current = e.pageY - ele.offsetTop;
+        startScrollTop.current = ele.scrollTop;
+    };
+
+    const handleDragEnd = (e: React.MouseEvent<HTMLDivElement>) => {
+        const ele = e.currentTarget;
+        ele.dataset.isDown = "false";
+        setTimeout(() => {
+            isDragging.current = false;
+        }, 50);
+    };
+
+    const handleDragMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const ele = e.currentTarget;
+        if (ele.dataset.isDown !== "true") return;
+
+        const y = e.pageY - ele.offsetTop;
+        const walk = y - startY.current;
+
+        if (Math.abs(walk) > 5) {
+            isDragging.current = true;
+        }
+
+        if (isDragging.current) {
+            e.preventDefault();
+            ele.scrollTop = startScrollTop.current - walk;
+        }
+    };
 
     const selectedHour = date ? (date.getHours() % 12 || 12) : 12;
     const selectedMinute = date ? date.getMinutes() : 0;
@@ -142,8 +230,35 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
         setDate(combineToIST(new Date(date), timeStr));
     };
 
+    const handleTimeInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let val = e.target.value.toUpperCase().replace(/[^0-9APM]/g, "");
+
+        // Extract numbers and letters separately
+        const numbers = val.replace(/\D/g, "").slice(0, 4);
+        const letters = val.replace(/[^APM]/g, "").slice(0, 2);
+
+        let formatted = numbers;
+
+        // Auto colon formatting
+        if (numbers.length > 2) {
+            formatted = `${numbers.slice(0, 2)}:${numbers.slice(2, 4)}`;
+        }
+
+        // Auto append A/P as AM/PM
+        if (letters.includes('A')) {
+            formatted += " AM"
+        } else if (letters.includes('P')) {
+            formatted += " PM"
+        }
+
+        setTimeInputValue(formatted);
+    };
+
     const handleTimeInputBlur = () => {
-        if (!timeInputValue || !date) return;
+        if (!timeInputValue || !date) {
+            setTimeInputValue(date ? fTime(date) : "");
+            return;
+        }
 
         // Simple regex to parse time strings like "10:30 AM", "10:30", "10 AM"
         const match = timeInputValue.match(/^(\d{1,2}):?(\d{2})?\s*(AM|PM)?$/i);
@@ -172,7 +287,7 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
                     <Input
                         className="pr-8 transition-all duration-200 focus:border-primary/50 focus:ring-primary/20"
                         value={timeInputValue}
-                        onChange={(e) => setTimeInputValue(e.target.value)}
+                        onChange={handleTimeInputChange}
                         onBlur={handleTimeInputBlur}
                         onKeyDown={(e) => e.key === "Enter" && handleTimeInputBlur()}
                         placeholder="HH:MM AM"
@@ -196,8 +311,23 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
                     {/* Hours Column */}
                     <div className="flex-1 flex flex-col border-r border-border/50">
                         <div className="text-[10px] uppercase font-bold text-center py-1.5 text-muted-foreground bg-muted/20 border-b">Hrs</div>
-                        <div ref={scrollRefH} className="flex-1 overflow-y-auto scrollbar-hide py-1">
-                            <div className="flex flex-col px-1.5 gap-0.5">
+                        <div
+                            ref={scrollRefH}
+                            className="flex-1 overflow-y-auto overscroll-contain py-1 cursor-grab active:cursor-grabbing scrollbar-hide select-none scroll-smooth"
+                            onMouseDown={handleDragStart}
+                            onMouseUp={handleDragEnd}
+                            onMouseLeave={handleDragEnd}
+                            onMouseMove={handleDragMove}
+                            onWheel={(e) => {
+                                if (scrollRefH.current) {
+                                    scrollRefH.current.scrollBy({
+                                        top: e.deltaY,
+                                        behavior: "smooth"
+                                    });
+                                }
+                            }}
+                        >
+                            <div className="flex flex-col px-1.5 gap-0.5 pointer-events-none *:pointer-events-auto">
                                 {hours.map((h) => (
                                     <Button
                                         key={h}
@@ -210,7 +340,14 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
                                                 ? "bg-primary shadow-sm scale-105 rounded-md"
                                                 : "hover:bg-primary/10 rounded-md"
                                         )}
-                                        onClick={() => handleTimeSelect("hour", h)}
+                                        onClick={(e) => {
+                                            if (isDragging.current) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                return;
+                                            }
+                                            handleTimeSelect("hour", h);
+                                        }}
                                     >
                                         {h}
                                     </Button>
@@ -223,8 +360,23 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
                     {/* Minutes Column */}
                     <div className="flex-1 flex flex-col border-r border-border/50">
                         <div className="text-[10px] uppercase font-bold text-center py-1.5 text-muted-foreground bg-muted/20 border-b">Min</div>
-                        <div ref={scrollRefM} className="flex-1 overflow-y-auto scrollbar-hide py-1">
-                            <div className="flex flex-col px-1.5 gap-0.5">
+                        <div
+                            ref={scrollRefM}
+                            className="flex-1 overflow-y-auto scrollbar-hide py-1 cursor-grab active:cursor-grabbing select-none scroll-smooth"
+                            onMouseDown={handleDragStart}
+                            onMouseUp={handleDragEnd}
+                            onMouseLeave={handleDragEnd}
+                            onMouseMove={handleDragMove}
+                            onWheel={(e) => {
+                                if (scrollRefM.current) {
+                                    scrollRefM.current.scrollBy({
+                                        top: e.deltaY,
+                                        behavior: "smooth"
+                                    });
+                                }
+                            }}
+                        >
+                            <div className="flex flex-col px-1.5 gap-0.5 pointer-events-none *:pointer-events-auto">
                                 {minutes.map((m) => (
                                     <Button
                                         key={m}
@@ -237,7 +389,14 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
                                                 ? "bg-primary shadow-sm scale-105 rounded-md"
                                                 : "hover:bg-primary/10 rounded-md"
                                         )}
-                                        onClick={() => handleTimeSelect("minute", m)}
+                                        onClick={(e) => {
+                                            if (isDragging.current) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                return;
+                                            }
+                                            handleTimeSelect("minute", m);
+                                        }}
                                     >
                                         {m.toString().padStart(2, "0")}
                                     </Button>
@@ -281,7 +440,7 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
                         Done
                     </Button>
                 </div>
-            </PopoverContent>
-        </Popover>
+            </PopoverContent >
+        </Popover >
     );
 }

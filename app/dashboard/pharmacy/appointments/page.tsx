@@ -29,7 +29,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 const APPOINTMENT_STATUSES = [
   { label: "Upcoming", value: "Upcoming", color: "bg-blue-200 text-blue-800", key: "U" },
-  { label: "Consulted", value: "Consulted", color: "bg-green-1000 text-green-80", key: "C" },
+  { label: "Consulted", value: "Consulted", color: "bg-green-100 text-green-800", key: "C" },
   { label: "Observation", value: "Observation", color: "bg-purple-100 text-purple-800", key: "O" },
   { label: "Not show", value: "Not show", color: "bg-yellow-100 text-yellow-800", key: "N" },
   { label: "Completed", value: "Completed", color: "bg-gray-200 text-gray-800", key: "P" },
