@@ -177,11 +177,11 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                 <tr
                   key={r._id}
                   className={`group transition-colors duration-200 last:border-0 relative ${expired && r.priority === "Urgent"
-                    ? "bg-orange-100 hover:bg-orange-200/70 border-[3px] border-emerald-500 z-10"
+                    ? "bg-orange-100 hover:bg-orange-200/70 border-b-2 border-emerald-500"
                     : expired
                       ? "bg-green-100/80 hover:bg-green-200/60 border-b border-gray-100"
                       : r.priority === "Urgent"
-                        ? "bg-orange-100 hover:bg-orange-200/70 border-b border-gray-100"
+                        ? "bg-orange-100 hover:bg-orange-200/70 border-b-2 border-emerald-500"
                         : idx % 2 === 0
                           ? "bg-white hover:bg-white/60 border-b border-gray-100"
                           : "bg-slate-100 hover:bg-slate-100/60 border-b border-gray-100"
@@ -374,7 +374,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                             }
                           }}
                         >
-                          <Flag className="h-3.5 w-3.5" />
+                          Flag <Flag className="h-3.5 w-3.5" />
                         </Button>
                       }
 
@@ -399,7 +399,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                             }
                           }}
                         >
-                          <FlagOff className="h-3.5 w-3.5" />
+                          Unflag <FlagOff className="h-3.5 w-3.5" />
                         </Button>
                       }
 
@@ -422,8 +422,17 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         variant={"outline"}
                         size="sm"
                         className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
-                        onClick={() => {
-
+                        onClick={async () => {
+                          try {
+                            toast.promise(api.post(`/lab/report/repeat/${r._id}`), {
+                              loading: "Processing...",
+                              success: "Report Repeated",
+                              error: "Failed to repeat report",
+                            });
+                            mutate();
+                          } catch (error) {
+                            toast.error(`Failed to repeat report : ${error}`);
+                          }
                         }}
                       >
                         <Repeat className="h-3.5 w-3.5" />

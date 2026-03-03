@@ -21,6 +21,7 @@ export default function useAppointmentList({
     message: string;
     data: {
       _id: string;
+      isDeleted: boolean;
       patient: {
         _id: string;
         mrn: string;

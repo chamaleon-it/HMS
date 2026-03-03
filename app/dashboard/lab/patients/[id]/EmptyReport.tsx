@@ -15,7 +15,7 @@ export function EmptyReport({
     <div className="">
       <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-8 text-center">
         {/* subtle illustration */}
-        <div className="mx-auto mb-6 w-28 h-28 flex items-center justify-center rounded-full bg-gradient-to-br from-purple-100 to-pink-100">
+        <div className="mx-auto mb-6 w-28 h-28 flex items-center justify-center rounded-full bg-linear-to-br from-purple-100 to-pink-100">
           {/* shopping bag / empty icon */}
           <svg className="w-12 h-12 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 11h14l-1.5 9h-11L5 11z" />
@@ -26,7 +26,7 @@ export function EmptyReport({
         <p className="mt-2 text-sm text-gray-500">{description}</p>
 
         <div className="mt-6 flex justify-center gap-3">
-          <Link href={ctaHref} className="inline-flex items-center rounded-md border border-transparent bg-gradient-to-r from-purple-600 to-pink-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-95">
+          <Link href={ctaHref} className="inline-flex items-center rounded-md border border-transparent bg-linear-to-r from-purple-600 to-pink-500 px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-95">
             {ctaText}
           </Link>
 

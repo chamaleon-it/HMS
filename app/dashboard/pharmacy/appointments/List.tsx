@@ -1,5 +1,5 @@
 import { fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock } from "lucide-react";
+import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw } from "lucide-react";
 import React, { useState } from "react";
 import useAppointmentList from "./data/useAppointmentList";
 import Drawer from "@/components/ui/drawer";
@@ -85,8 +85,20 @@ export default function List({
     }
   };
 
+  const handleRecover = async (id: string) => {
+    if (!confirm("Recover this appointment?")) return;
+    try {
+      await toast.promise(api.post(`/appointments/recover/${id}`), {
+        loading: "Recovering...",
+        success: "Recovered",
+        error: "Failed",
+      });
+      mutate();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  console.log(filteredData)
   return (
     <div className="bg-white border text-sm rounded-xl overflow-hidden shadow-sm">
       <Table>
@@ -189,7 +201,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} />
+                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -216,8 +228,7 @@ export default function List({
   );
 }
 
-function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete }: any) {
-  console.log("Hello" + status)
+function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted }: any) {
   return (
     <>
       {status !== "Consulted" && <button
@@ -249,9 +260,17 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete }: any) {
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Not show")} className="text-red-600 focus:text-red-700 focus:bg-red-50">Mark Not Show</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={onDelete} className="text-red-600 focus:text-red-700 focus:bg-red-50">
-            <Trash2 className="w-4 h-4 mr-2" /> Delete
-          </DropdownMenuItem>
+          {
+            isDeleted ? (
+              <DropdownMenuItem onClick={onRecover} className="text-green-600 focus:text-green-700 focus:bg-green-50">
+                <RefreshCw className="w-4 h-4 mr-2" /> Recover
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={onDelete} className="text-red-600 focus:text-red-700 focus:bg-red-50">
+                <Trash2 className="w-4 h-4 mr-2" /> Delete
+              </DropdownMenuItem>
+            )
+          }
         </DropdownMenuContent>
       </DropdownMenu>
     </>

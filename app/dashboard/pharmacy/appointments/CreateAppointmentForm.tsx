@@ -154,16 +154,6 @@ export function CreateAppointmentForm({
 
   const [printData, setPrintData] = React.useState<any>(null);
 
-  useEffect(() => {
-    if (printData) {
-      setTimeout(() => {
-        window.print();
-        setPrintData(null);
-        onClose();
-      }, 500);
-    }
-  }, [printData, onClose]);
-
 
   const createAppointment = handleSubmit(async (data) => {
     try {
@@ -207,7 +197,12 @@ export function CreateAppointmentForm({
             await refreshCalendars();
             if (mutate) mutate();
             reset({ doctor: doctorsData?.data[0]?._id });
-            // Don't close here, wait for print effect
+
+            setTimeout(() => {
+              window.print();
+              setPrintData(null);
+              onClose();
+            }, 500);
             return;
           }
         } catch (err) {

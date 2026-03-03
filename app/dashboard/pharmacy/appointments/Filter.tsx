@@ -19,6 +19,7 @@ export const STATUSES = [
   "Admit",
   "Test",
   "All",
+  "Deleted"
 ] as const;
 
 
