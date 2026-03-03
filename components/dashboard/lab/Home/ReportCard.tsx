@@ -102,22 +102,22 @@ export default function ReportCard({ report }: ReportCardProps) {
                                     // Check if out of range roughly
                                     const value = parseFloat(t.value);
                                     let isAbnormal = false;
-                                    const min = t.name.min;
-                                    const max = t.name.max;
+                                    const min = t.name?.min;
+                                    const max = t.name?.max;
                                     if (!isNaN(value) && ((min !== undefined && value < min) || (max !== undefined && value > max))) {
                                         isAbnormal = true;
                                     }
                                     return (
                                         <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
                                             <td className="px-3 py-3">
-                                                <p className="font-black text-slate-900 text-[12px]">{t.name.name}</p>
+                                                <p className="font-black text-slate-900 text-[12px]">{t.name?.name || "Unknown test"}</p>
                                             </td>
                                             <td className="px-3 py-3 text-center font-bold">
                                                 <span className={isAbnormal ? "text-rose-600 font-black" : "text-slate-700"}>
                                                     {t.value || "—"}
                                                 </span>
                                             </td>
-                                            <td className="px-3 py-3 text-center text-slate-500 text-xs font-medium">{t.name.unit || "—"}</td>
+                                            <td className="px-3 py-3 text-center text-slate-500 text-xs font-medium">{t.name?.unit || "—"}</td>
                                             <td className="px-3 py-3 text-xs font-semibold text-slate-600">
                                                 {min !== undefined && max !== undefined ? `${min} - ${max}` : "—"}
                                             </td>

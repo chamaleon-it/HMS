@@ -5,7 +5,7 @@ import ViewResultModal from "./ViewResultModal";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, Trash2 } from "lucide-react";
+import { Clock, Flag, FlagOff, Play, Printer, Repeat, RotateCcw, Trash2, X } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
@@ -349,9 +349,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         )
                       }
 
-                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Ready"} />}
-                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} />}
-                      {status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} />}
+                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Ready"} handlePrint={handlePrint} />}
+                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} handlePrint={handlePrint} />}
+                      {status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
 
                       {
                         (status === "Completed" || status === "Sample Collected" || status === "Waiting For Result") && r.isFlagged === false && <Button
@@ -416,6 +416,30 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       </Button>}
 
                       {(status === "Completed" || status === "Flagged") && <ViewResultModal r={r} />}
+
+                      {status === "Flagged" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
+                      {status === "Flagged" && <Button
+                        variant={"outline"}
+                        size="sm"
+                        className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
+                        onClick={() => {
+
+                        }}
+                      >
+                        <Repeat className="h-3.5 w-3.5" />
+                        Repeat
+                      </Button>}
+                      {status === "Flagged" && <Button
+                        variant={"outline"}
+                        size="sm"
+                        className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
+                        onClick={() => {
+
+                        }}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        Cancel
+                      </Button>}
 
                       {status === "Upcoming" && <EditTest report={r} mutate={mutate} />}
 
