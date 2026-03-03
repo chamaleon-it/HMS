@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import PatientSelection from "./PatientSelection";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/auth/context/auth-context";
 import {
   Popover,
@@ -48,6 +48,8 @@ import { RegisterPatient } from "./RegisterPatient";
 import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
 import DateTimePicker from "./DateTimePicker";
+import { formatINR } from "@/lib/fNumber";
+
 
 interface NewTestProps {
   mutate?: () => void;
@@ -163,6 +165,28 @@ export default function NewTest({
       console.log(error);
     }
   };
+
+  const grandTotal = useMemo(() => {
+    const panelsTotal = payload.panels.reduce((acc, panelName) => {
+      const panel = panels.find((p) => p.name === panelName);
+      return acc + (panel?.price || 0);
+    }, 0);
+
+    const independentTestsTotal = payload.test
+      .filter((t) => {
+        const testObj = tests.find((test) => test._id === t.name);
+        const belongsToPanel = testObj?.panels?.some((p) =>
+          payload.panels.includes(p.name)
+        );
+        return !belongsToPanel;
+      })
+      .reduce((acc, t) => {
+        const testObj = tests.find((test) => test._id === t.name);
+        return acc + (testObj?.price || 0);
+      }, 0);
+
+    return panelsTotal + independentTestsTotal;
+  }, [payload.panels, payload.test, panels, tests]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -435,6 +459,13 @@ export default function NewTest({
             ))}
           </TableBody>
         </Table>
+
+        <div className="flex justify-end items-center mt-4 pr-4">
+          <div className="text-lg font-semibold text-gray-700">
+            Grand Total: <span className="text-blue-600">{formatINR(grandTotal)}</span>
+          </div>
+        </div>
+
 
         <DialogFooter>
           <DialogClose asChild>
