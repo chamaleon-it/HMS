@@ -23,9 +23,13 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
 
     const [openDate, setOpenDate] = useState(false);
     const [inputValue, setInputValue] = useState(formatToDDMMYY(date));
+    const [month, setMonth] = useState<Date>(date || new Date());
 
     useEffect(() => {
         setInputValue(formatToDDMMYY(date));
+        if (date) {
+            setMonth(date);
+        }
     }, [date]);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,6 +43,34 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
             formatted = `${val.slice(0, 2)}/${val.slice(2, 4)}/${val.slice(4)}`;
         }
         setInputValue(formatted);
+
+        // If a full date is typed, let's parse and update it to the calendar immediately
+        if (formatted.length === 8) {
+            const match = formatted.match(/^(\d{2})\/(\d{2})\/(\d{2})$/);
+            if (match) {
+                const day = parseInt(match[1], 10);
+                const monthIdx = parseInt(match[2], 10) - 1;
+                const year = parseInt(match[3], 10) + 2000;
+
+                const parsedDate = new Date(year, monthIdx, day);
+
+                if (
+                    parsedDate.getDate() === day &&
+                    parsedDate.getMonth() === monthIdx &&
+                    parsedDate.getFullYear() === year
+                ) {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (parsedDate >= today) {
+                        const timeStr = date
+                            ? `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`
+                            : `${new Date().getHours().toString().padStart(2, "0")}:${new Date().getMinutes().toString().padStart(2, "0")}`;
+                        setDate(combineToIST(parsedDate, timeStr));
+                        setMonth(parsedDate); // **UPDATED**: Also set visible month here
+                    }
+                }
+            }
+        }
     };
 
     const handleInputBlur = () => {
@@ -52,13 +84,13 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
 
         if (match) {
             const day = parseInt(match[1], 10);
-            const month = parseInt(match[2], 10) - 1; // 0-indexed
+            const monthIdx = parseInt(match[2], 10) - 1; // 0-indexed
             const year = parseInt(match[3], 10) + 2000;
 
-            parsedDate = new Date(year, month, day);
+            parsedDate = new Date(year, monthIdx, day);
 
             // Validate that Date object didn't wrap around (e.g., 32/01/2026 -> 01/02/2026)
-            if (parsedDate.getDate() === day && parsedDate.getMonth() === month && parsedDate.getFullYear() === year) {
+            if (parsedDate.getDate() === day && parsedDate.getMonth() === monthIdx && parsedDate.getFullYear() === year) {
                 // Ensure date is greater than or equal to today
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
@@ -73,10 +105,13 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
                 ? `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`
                 : `${new Date().getHours().toString().padStart(2, "0")}:${new Date().getMinutes().toString().padStart(2, "0")}`;
             setDate(combineToIST(parsedDate, timeStr));
+            setMonth(parsedDate);
         } else {
             setInputValue(formatToDDMMYY(date));
         }
     };
+
+    const timeInputRef = useRef<HTMLInputElement>(null);
 
     return (
         <div className="flex items-center gap-2">
@@ -92,6 +127,7 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
                                 if (e.key === "Enter") {
                                     handleInputBlur();
                                     setOpenDate(false);
+                                    timeInputRef.current?.focus(); // Jump to time input
                                 }
                             }}
                             placeholder="DD/MM/YY"
@@ -114,16 +150,23 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
                     <Calendar
                         mode="single"
                         selected={date}
+                        month={month}
+                        onMonthChange={setMonth}
                         captionLayout="dropdown"
                         startMonth={new Date(2025, 0)}
-                        endMonth={new Date(2027, 0)}
+                        endMonth={new Date(2030, 11)}
                         onSelect={(selectedDate) => {
                             if (!selectedDate) return;
                             const timeStr = date
                                 ? `${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}`
                                 : `${new Date().getHours().toString().padStart(2, "0")}:${new Date().getMinutes().toString().padStart(2, "0")}`;
                             setDate(combineToIST(selectedDate, timeStr));
+                            setMonth(selectedDate);
                             setOpenDate(false);
+                            // Also focus time input when selecting a date via click
+                            setTimeout(() => {
+                                timeInputRef.current?.focus();
+                            }, 50);
                         }}
                         disabled={(d) => {
                             const today = new Date();
@@ -133,12 +176,12 @@ export default function DateTimePicker({ date, setDate }: DateTimePickerProps) {
                     />
                 </PopoverContent>
             </Popover>
-            <TimePicker date={date} setDate={setDate} />
+            <TimePicker date={date} setDate={setDate} timeInputRef={timeInputRef} />
         </div>
     );
 }
 
-function TimePicker({ date, setDate }: DateTimePickerProps) {
+function TimePicker({ date, setDate, timeInputRef }: DateTimePickerProps & { timeInputRef?: React.RefObject<HTMLInputElement | null> }) {
     const [isOpen, setIsOpen] = useState(false);
     const [timeInputValue, setTimeInputValue] = useState(date ? fTime(date) : "");
 
@@ -234,21 +277,36 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
         let val = e.target.value.toUpperCase().replace(/[^0-9APM]/g, "");
 
         // Extract numbers and letters separately
-        const numbers = val.replace(/\D/g, "").slice(0, 4);
+        const numbersStr = val.replace(/\D/g, "").slice(0, 4);
         const letters = val.replace(/[^APM]/g, "").slice(0, 2);
 
-        let formatted = numbers;
+        let formatted = numbersStr;
+        let isAutoPM = false;
+
+        if (numbersStr.length > 0) {
+            // Check if user typed something like "14" or "20" (24-hour time start)
+            const hoursPart = parseInt(numbersStr.slice(0, 2));
+            if (hoursPart > 12 && hoursPart < 24) {
+                // Convert to 12-hour format automatically
+                const newHours = (hoursPart - 12).toString().padStart(2, "0");
+                formatted = newHours + numbersStr.slice(2, 4);
+                isAutoPM = true;
+            } else if (hoursPart === 0 && numbersStr.length >= 2) {
+                formatted = "12" + numbersStr.slice(2, 4);
+                isAutoPM = false; // Midnight 00:xx -> 12:xx AM
+            }
+        }
 
         // Auto colon formatting
-        if (numbers.length > 2) {
-            formatted = `${numbers.slice(0, 2)}:${numbers.slice(2, 4)}`;
+        if (formatted.length > 2) {
+            formatted = `${formatted.slice(0, 2)}:${formatted.slice(2, 4)}`;
         }
 
         // Auto append A/P as AM/PM
         if (letters.includes('A')) {
-            formatted += " AM"
-        } else if (letters.includes('P')) {
-            formatted += " PM"
+            formatted += " AM";
+        } else if (letters.includes('P') || isAutoPM) {
+            formatted += " PM";
         }
 
         setTimeInputValue(formatted);
@@ -285,6 +343,7 @@ function TimePicker({ date, setDate }: DateTimePickerProps) {
             <PopoverTrigger asChild>
                 <div className="relative w-32 group flex items-center">
                     <Input
+                        ref={timeInputRef}
                         className="pr-8 transition-all duration-200 focus:border-primary/50 focus:ring-primary/20"
                         value={timeInputValue}
                         onChange={handleTimeInputChange}
