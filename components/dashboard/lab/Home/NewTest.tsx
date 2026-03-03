@@ -101,7 +101,7 @@ export default function NewTest({
     test: { name: string }[];
     panels: string[];
     date: Date | undefined;
-    priority: string;
+    priority: "Normal" | "Urgent";
     sampleType: string;
     status: string;
   }>({
