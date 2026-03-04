@@ -124,17 +124,17 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
                                                 value={sample.id}
                                                 className="h-[50px] rounded-xl border-slate-200 bg-white px-3 text-sm focus-visible:border-emerald-400 focus-visible:ring-1 focus-visible:ring-emerald-400"
                                                 onChange={(e) => {
-                                                        const newSamples = [...samples];
+                                                    const newSamples = [...samples];
                                                     newSamples[index].id = e.target.value;
-                                                        setSamples(newSamples);
-                                                    }}
+                                                    setSamples(newSamples);
+                                                }}
                                                 onKeyDown={(e) => {
                                                     if (e.key === "Enter" && index === samples.length - 1) {
                                                         setSamples([...samples, { id: "", specimen: "Blood" }]);
                                                     }
                                                 }}
                                                 autoFocus={index === 0}
-                                                />
+                                            />
                                         </td>
                                         <td className="px-4 py-3">
                                             <div className="w-[200px] z-10">

@@ -23,6 +23,30 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
+const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
+  const [timeLeft, setTimeLeft] = React.useState(5);
+
+  React.useEffect(() => {
+    if (timeLeft <= 0) return;
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  return (
+    <div className="flex items-center justify-between w-full gap-4">
+      <span className="text-sm font-medium text-slate-700">Deleting report in {timeLeft}s...</span>
+      <button
+        onClick={onUndo}
+        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-xs font-semibold transition-colors"
+      >
+        Undo
+      </button>
+    </div>
+  );
+};
+
 interface PropsTypes {
   status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted";
   mutate: () => void;
@@ -258,10 +282,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   )}
 
                   {status === "Completed" && <td className="px-3 py-2 text-sm text-gray-500">
-                      {r.testStartedAt
-                        ? fDateandTime(r.testStartedAt)
-                        : "-"}
-                    </td>}
+                    {r.testStartedAt
+                      ? fDateandTime(r.testStartedAt)
+                      : "-"}
+                  </td>}
 
                   {status === "Sample Collected" && (
                     <td className="px-3 py-2 text-sm text-gray-500">
@@ -489,20 +513,32 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               className="bg-rose-600 hover:bg-rose-700 text-white"
-                              onClick={async () => {
-                                try {
-                                  await toast.promise(
-                                    api.delete(`lab/report/${r._id}`),
-                                    {
-                                      loading: "Processing...",
-                                      success: "Deleted",
-                                      error: "Failed to delete",
-                                    }
-                                  );
-                                  mutate();
-                                } catch (error) {
-                                  toast.error(`Failed to delete : ${error}`);
-                                }
+                              onClick={() => {
+                                const toastId = toast(
+                                  (t) => (
+                                    <CountdownToast
+                                      t={t}
+                                      onUndo={() => {
+                                        toast.dismiss(t.id);
+                                        clearTimeout(timeoutId);
+                                        toast.success("Deletion cancelled");
+                                      }}
+                                    />
+                                  ),
+                                  { duration: 5000 }
+                                );
+
+                                const timeoutId = setTimeout(async () => {
+                                  try {
+                                    toast.dismiss(toastId);
+                                    await api.delete(`lab/report/${r._id}`);
+                                    mutate();
+                                    toast.success("Deleted successfully");
+                                  } catch (error) {
+                                    toast.dismiss(toastId);
+                                    toast.error(`Failed to delete : ${error}`);
+                                  }
+                                }, 5000);
                               }}
                             >
                               Delete
