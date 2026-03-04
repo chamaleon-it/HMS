@@ -32,14 +32,14 @@ const StatCard: React.FC<{
       borderClass
     )}>
       <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />
-      <div className="relative p-4 flex items-center gap-4">
+      <div className="relative p-2 flex items-center gap-2">
         <div className={cn(
-          "h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm border border-white/50 shrink-0",
+          "h-10 w-10 rounded-xl flex items-center justify-center shadow-sm border border-white/50 shrink-0",
           iconBgClass
         )}>{icon}</div>
         <div>
-          <div className="text-2xl font-bold tracking-tight text-zinc-900">{value}</div>
-          <div className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{label}</div>
+          <div className="text-xl font-bold tracking-tight text-zinc-900">{value}</div>
+          <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider">{label}</div>
         </div>
       </div>
     </Card>
@@ -73,14 +73,15 @@ export default function LabResultsPage() {
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-6">
-      <LabHeader
-        title="Lab Investigations"
-        subtitle="Manage and track laboratory and imaging results"
-      >
-        <LabStatus currenctStatus={status} setCurrenctStatus={setStatus} />
-        <NewTest mutate={() => { mutate(); statsMutate(); }} />
-        {<DateFilter />}
-      </LabHeader>
+      <div className="flex flex-col gap-6">
+        <LabHeader
+          title="Lab Investigations"
+          subtitle="Manage and track laboratory and imaging results"
+        >
+          <DateFilter />
+          <NewTest mutate={() => { mutate(); statsMutate(); }} />
+        </LabHeader>
+      </div>
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
@@ -129,6 +130,10 @@ export default function LabResultsPage() {
           iconBgClass="bg-rose-100 text-rose-600"
           borderClass="hover:border-rose-200"
         />
+      </div>
+
+      <div className="flex justify-end">
+        <LabStatus currenctStatus={status} setCurrenctStatus={setStatus} />
       </div>
 
       <motion.div
