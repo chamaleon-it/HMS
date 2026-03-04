@@ -99,6 +99,13 @@ export default function ViewResultModal({ r }: Props) {
                 <div className="bg-white px-6 py-4 border-b border-gray-100">
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-3">
+                            <div>
+                                <h3 className="text-sm font-semibold text-gray-900">Report No.</h3>
+                                {/* @ts-ignore */}
+                                <p className="text-xs text-gray-500">{String(r?.mrn).padStart(4, "0")}</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center gap-3">
                             <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
                                 <User className="w-5 h-5" />
                             </div>

@@ -11,6 +11,7 @@ import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
 import ResetTimerModal from "./ResetTimerModal";
 import EditTest from "./EditTest";
+import RepeatTest from "./RepeatTest";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -457,26 +458,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       {(status === "Completed" || status === "Flagged") && <ViewResultModal r={r} />}
 
                       {status === "Flagged" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
-                      {status === "Flagged" && <Button
-                        variant={"outline"}
-                        size="sm"
-                        className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
-                        onClick={async () => {
-                          try {
-                            toast.promise(api.post(`/lab/report/repeat/${r._id}`), {
-                              loading: "Processing...",
-                              success: "Report Repeated",
-                              error: "Failed to repeat report",
-                            });
-                            mutate();
-                          } catch (error) {
-                            toast.error(`Failed to repeat report : ${error}`);
-                          }
-                        }}
-                      >
-                        <Repeat className="h-3.5 w-3.5" />
-                        Repeat
-                      </Button>}
+                      {status === "Flagged" && <RepeatTest report={r} mutate={mutate} />}
                       {status === "Flagged" && <Button
                         variant={"outline"}
                         size="sm"
