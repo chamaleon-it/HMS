@@ -166,7 +166,12 @@ export function CreateAppointmentForm({
             error: ({ response }) => response.data.message,
           }
         );
-        reset({ doctor: doctorsData?.data[0]?._id });
+        reset({
+          doctor: doctorsData?.data[0]?._id,
+          method: "In clinic",
+          type: "New",
+          isPaid: "false",
+        });
         onClose();
         if (mutate) {
           mutate();
