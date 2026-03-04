@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
@@ -18,6 +19,7 @@ import { DateRange } from "react-day-picker";
 import { DataTypes, Datum } from "./interface";
 import useGetPatient from "./useGetPatient";
 import { motion } from "framer-motion";
+import ReportCard from "@/components/dashboard/lab/Home/ReportCard";
 
 const Customer: React.FC = () => {
   const router = useRouter();
@@ -29,10 +31,19 @@ const Customer: React.FC = () => {
   const { data: patient } = useGetPatient(id as string);
   const reports = reportData?.data;
   const [selectedVisit, setSelectedVisit] = useState<Datum | null>(null);
+  const [selectedTests, setSelectedTests] = useState<string[]>([]);
 
   const [openCalander, setOpenCalander] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
+  const [printReport, setPrintReport] = React.useState<any | null>(null);
 
+  const handlePrint = (report: any) => {
+    setPrintReport(report);
+    setTimeout(() => {
+      window.print();
+      setPrintReport(null);
+    }, 100);
+  };
 
   const [type, setType] = useState<"Lab" | "Imaging" | "All">("All");
 
@@ -216,7 +227,10 @@ const Customer: React.FC = () => {
                         return (
                           <button
                             key={key}
-                            onClick={() => setType(key)}
+                            onClick={() => {
+                              setType(key);
+                              setSelectedTests([]);
+                            }}
                             className={
                               "relative flex items-center gap-2 rounded-full px-2 py-1.5 transition will-change-transform cursor-pointer " +
                               (active ? "text-white" : "text-gray-700")
@@ -276,7 +290,10 @@ const Customer: React.FC = () => {
                           <button
                             key={bill._id}
                             type="button"
-                            onClick={() => setSelectedVisit(bill)}
+                            onClick={() => {
+                              setSelectedVisit(bill);
+                              setSelectedTests([]);
+                            }}
                             className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
                               ? "bg-slate-900 text-slate-50"
                               : "hover:bg-slate-50"
@@ -343,6 +360,26 @@ const Customer: React.FC = () => {
                         <table className="w-full text-[15px]">
                           <thead className="bg-slate-50 text-slate-700 sticky top-0 text-sm">
                             <tr>
+                              <th className="p-2 w-10 text-center font-medium">
+                                {(() => {
+                                  const displayed = selectedVisit?.test?.filter(o => type === "All" || o.name?.type === type) || [];
+                                  const allSelected = displayed.length > 0 && selectedTests.length === displayed.length;
+                                  return (
+                                    <input
+                                      type="checkbox"
+                                      checked={allSelected}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setSelectedTests(displayed.map(t => t._id));
+                                        } else {
+                                          setSelectedTests([]);
+                                        }
+                                      }}
+                                      className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                                    />
+                                  );
+                                })()}
+                              </th>
                               <th className="p-2 text-left font-medium">Sl</th>
                               <th className="p-2 text-left font-medium">
                                 Test
@@ -365,8 +402,23 @@ const Customer: React.FC = () => {
                               return (
                                 <tr
                                   key={t._id}
-                                  className="border-t align-top hover:bg-slate-50/70 transition-colors"
+                                  onClick={() => {
+                                    if (selectedTests.includes(t._id)) {
+                                      setSelectedTests(prev => prev.filter(id => id !== t._id));
+                                    } else {
+                                      setSelectedTests(prev => [...prev, t._id]);
+                                    }
+                                  }}
+                                  className="border-t align-top hover:bg-slate-50/70 transition-colors cursor-pointer"
                                 >
+                                  <td className="p-2 align-top text-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedTests.includes(t._id)}
+                                      readOnly
+                                      className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 pointer-events-none"
+                                    />
+                                  </td>
                                   <td className="p-2 align-top text-slate-500">
                                     {i + 1}
                                   </td>
@@ -441,7 +493,7 @@ const Customer: React.FC = () => {
                               <tr>
                                 <td
                                   className="p-3 text-center text-slate-500"
-                                  colSpan={5}
+                                  colSpan={6}
                                 >
                                   No items.
                                 </td>
@@ -451,7 +503,7 @@ const Customer: React.FC = () => {
                           <tfoot>
                             <tr className="border-t bg-slate-50/80">
                               <td
-                                colSpan={4}
+                                colSpan={5}
                                 className="p-2 text-right text-xs text-slate-600"
                               >
                                 Total
@@ -472,13 +524,25 @@ const Customer: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Button
+                            onClick={() => {
+                              if (selectedTests.length === 0) {
+                                toast.error("Please select at least one item to print.");
+                                return;
+                              }
+
+                              if (selectedVisit && patient) {
+                                const reportToPrint = {
+                                  ...selectedVisit,
+                                  patient: patient,
+                                  test: selectedVisit.test?.filter(t => selectedTests.includes(t._id))
+                                };
+                                handlePrint(reportToPrint);
+                              }
+                            }}
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
 
                           >
                             Print bill
-                          </Button>
-                          <Button className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800">
-                            Refund
                           </Button>
                         </div>
                       </div>
@@ -491,6 +555,7 @@ const Customer: React.FC = () => {
           )}
         </main>
       </div>
+      {printReport && <ReportCard report={printReport} />}
     </AppShell>
   );
 };
