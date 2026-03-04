@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Beaker, FlaskConical, Save, X } from "lucide-react";
+import { Beaker, FlaskConical, Save, Trash2, X } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import LabeledCombobox from "./LabeledCombobox";
@@ -51,10 +51,50 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
             return;
         }
 
-        const finalSampleId = validSamples.map(s => `${s.id.trim()} (${s.specimen.trim()})`).join(", ");
+        // Check for duplicates within the current input list
+        const ids = validSamples.map(s => s.id.trim());
+        const hasDuplicates = new Set(ids).size !== ids.length;
+        if (hasDuplicates) {
+            toast.error("Cannot collect samples. There are identical Sample IDs in the list.", { id: 'duplicate-sample-error' });
+            return;
+        }
 
         setLoading(true);
+
         try {
+            // First pass: Verify none of these Sample IDs exist globally today (UI-side check using existing endpoints)
+            try {
+                const checkRes = await api.get('/lab/report');
+                const allReports = checkRes.data?.data || [];
+
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                for (const sample of validSamples) {
+                    const val = sample.id.trim();
+                    const isGlobalDuplicate = allReports.some((r: any) => {
+                        if (r._id === reportId) return false;
+                        if (!r.sampleId) return false;
+
+                        const reportDate = new Date(r.createdAt);
+                        if (reportDate < today) return false;
+
+                        const regex = new RegExp(`\\b${val}\\b`, 'i');
+                        return regex.test(r.sampleId);
+                    });
+
+                    if (isGlobalDuplicate) {
+                        toast.error(`Warning: Sample ID "${val}" is already assigned to another test today.`, { id: 'duplicate-sample-error' });
+                        setLoading(false);
+                        return; // Halt submission
+                    }
+                }
+            } catch (err) {
+                console.error("Failed to fetch reports for duplicate check", err);
+            }
+
+            const finalSampleId = validSamples.map(s => `${s.id.trim()} (${s.specimen.trim()})`).join(", ");
+
             await toast.promise(
                 api.post(`lab/report/sample_collected/${reportId}`, { sampleId: finalSampleId }),
                 {
@@ -133,6 +173,59 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
                                                         setSamples([...samples, { id: "", specimen: "Blood" }]);
                                                     }
                                                 }}
+                                                onBlur={async (e) => {
+                                                    const val = e.target.value.trim();
+                                                    if (!val) return;
+
+                                                    // 1. Check local duplicates
+                                                    const isDuplicate = samples.some((s, i) => i !== index && s.id.trim() === val);
+                                                    if (isDuplicate) {
+                                                        toast('Warning: Sample ID is already assigned in this list.', {
+                                                            id: 'duplicate-sample-error',
+                                                            icon: '⚠️',
+                                                            style: {
+                                                                background: '#fffbeb',
+                                                                color: '#b45309',
+                                                                border: '1px solid #fcd34d'
+                                                            },
+                                                        });
+                                                        return;
+                                                    }
+
+                                                    // 2. Check global duplicates using the generic reports endpoint
+                                                    try {
+                                                        const res = await api.get('/lab/report');
+                                                        const allReports = res.data?.data || [];
+
+                                                        const today = new Date();
+                                                        today.setHours(0, 0, 0, 0);
+
+                                                        const isGlobalDuplicate = allReports.some((r: any) => {
+                                                            if (r._id === reportId) return false;
+                                                            if (!r.sampleId) return false;
+
+                                                            const reportDate = new Date(r.createdAt);
+                                                            if (reportDate < today) return false;
+
+                                                            const regex = new RegExp(`\\b${val}\\b`, 'i');
+                                                            return regex.test(r.sampleId);
+                                                        });
+
+                                                        if (isGlobalDuplicate) {
+                                                            toast(`Warning: Sample ID "${val}" is already taken today.`, {
+                                                                id: 'duplicate-sample-error',
+                                                                icon: '⚠️',
+                                                                style: {
+                                                                    background: '#fee2e2',
+                                                                    color: '#991b1b',
+                                                                    border: '1px solid #fca5a5'
+                                                                },
+                                                            });
+                                                        }
+                                                    } catch (err) {
+                                                        // Ignore background check errors
+                                                    }
+                                                }}
                                                 autoFocus={index === 0}
                                             />
                                         </td>
@@ -164,21 +257,20 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
                                             </div>
                                         </td>
                                         <td className="px-4 py-3 text-center">
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                onClick={() => {
-                                                    if (samples.length > 1) {
-                                                        setSamples(samples.filter((_, i) => i !== index));
-                                                    } else {
-                                                        setSamples([{ id: "", specimen: "Blood" }]);
-                                                    }
-                                                }}
-                                                className="h-8 w-8 p-0 hover:bg-red-50"
-                                                title="Remove"
-                                            >
-                                                <X className="w-4 h-4 text-red-500 hover:text-red-700" />
-                                            </Button>
+                                            {samples.length > 1 && (
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={() => {
+                                                        const newSamples = samples.filter((_, i) => i !== index);
+                                                        setSamples(newSamples.length ? newSamples : [{ id: "", specimen: "Blood" }]);
+                                                    }}
+                                                    className="text-red-500 hover:text-red-700 transition-[#000000] p-1 rounded-md hover:bg-red-50"
+                                                    title="Remove"
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                            )}
                                         </td>
                                     </tr>
                                 ))}

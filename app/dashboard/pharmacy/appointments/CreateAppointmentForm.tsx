@@ -5,7 +5,7 @@ import api from "@/lib/axios";
 import { createAppointmentSchema } from "@/schemas/createAppointmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CalendarDays, UserRound } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import useSWR, { useSWRConfig } from "swr";
@@ -13,6 +13,8 @@ import DateTimePicker from "./DateTimePicker";
 import PatientSelection from "./PatientSelection";
 import Select from "./AppointmentSelect";
 import BlankPrescription from "./BlankPrescription";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RegisterPatient } from "../RegisterPatient";
 const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({
@@ -166,7 +168,12 @@ export function CreateAppointmentForm({
             error: ({ response }) => response.data.message,
           }
         );
-        reset({ doctor: doctorsData?.data[0]?._id });
+        reset({
+          doctor: doctorsData?.data[0]?._id,
+          method: "In clinic",
+          type: "New",
+          isPaid: "false",
+        });
         onClose();
         if (mutate) {
           mutate();
@@ -242,165 +249,218 @@ export function CreateAppointmentForm({
     }
   };
 
+  const [openCreate, setOpenCreate] = useState(false);
+  const [input, setInput] = useState("");
+  const [selected, setSelected] = useState<any>(null);
+  const [open, setOpen] = useState(false);
+
+  const handleSelect = useCallback(
+    (p: any) => {
+      setSelected(p);
+      setValue("patient", p._id, { shouldValidate: true });
+      setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
+      setOpen(false);
+    },
+    [setValue]
+  );
+
   return (
-    <form className="space-y-5" onSubmit={createAppointment}>
-      <section className="space-y-3 print:hidden">
-        <div className="flex items-center gap-2">
-          <UserRound className="h-4 w-4" />
-          <h3 className="font-medium">Patient</h3>
-        </div>
-        <div className="">
-          <PatientSelection
-            setValue={setValue}
-            values={values}
-            patient={appointment?.patient}
-            ref={refs.patient}
-            onKeyDown={(e) => handleKeyDown(e, refs.doctor)}
-          />
-          {errors.patient && (
-            <p className="text-red-500 text-xs mt-1.5">
-              Please select a patient
-            </p>
-          )}
-        </div>
-      </section>
+    <>
 
-      <section className="space-y-3 print:hidden">
-        <div className="flex items-center gap-2">
-          <CalendarDays className="h-4 w-4" />
-          <h3 className="font-medium">Appointment</h3>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div>
-            <Label>Doctor</Label>
-            <Select
-              value={values.doctor}
-              onChange={(v) => setValue("doctor", v, { shouldValidate: true })}
-              placeholder="Choose doctor"
-              options={
-                doctorsData?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
-              }
-              ref={refs.doctor}
-              onKeyDown={(e) => handleKeyDown(e, refs.method)}
-            />
-            {errors.doctor && (
-              <p className="text-red-500 text-xs mt-1.5">
-                Please select a doctor
-              </p>
-            )}
+      <form className="space-y-5" onSubmit={createAppointment}>
+        <section className="space-y-3 print:hidden">
+          <div className="flex items-center gap-2">
+            <UserRound className="h-4 w-4" />
+            <h3 className="font-medium">Patient</h3>
           </div>
-          <div>
-            <Label>Method</Label>
-            <Select
-              value={values.method}
-              onChange={(v) => setValue("method", v)}
-              placeholder="In-clinic / Video / Phone"
-              options={METHODS.map((s) => ({ label: s, value: s })) ?? []}
-              ref={refs.method}
-              onKeyDown={(e) => handleKeyDown(e, refs.notes)}
-            />
-            {errors.method && (
-              <p className="text-red-500 text-xs mt-1.5">
-                {errors.method.message}
-              </p>
-            )}
-          </div>
-          <div className="w-full col-span-full">
-            <DateTimePicker
+          <div className="">
+            <PatientSelection
+              setOpenCreate={setOpenCreate}
+              openCreate={openCreate}
+              open={open}
+              setOpen={setOpen}
               setValue={setValue}
-              doctor={values.doctor}
-              walkIn={walkIn}
+              values={values}
+              patient={appointment?.patient}
+              ref={refs.patient}
+              onKeyDown={(e) => handleKeyDown(e, refs.doctor)}
+              input={input}
+              setInput={setInput}
+              handleSelect={handleSelect}
+              selected={selected}
+              setSelected={setSelected}
             />
-            {errors.date && (
+            {errors.patient && (
               <p className="text-red-500 text-xs mt-1.5">
-                Please select date and time
+                Please select a patient
               </p>
             )}
           </div>
+        </section>
 
-          <div className="sm:col-span-2">
-            <Label>Reason / Notes</Label>
-            <Textarea
-              rows={3}
-              placeholder="Optional"
-              {...register("notes")}
-              className="mt-2.5"
-              ref={(e) => {
-                register("notes").ref(e);
-                refs.notes.current = e;
-              }}
-              onKeyDown={(e) => handleKeyDown(e, refs.type)}
-            />
-            {errors.notes && (
-              <p className="text-red-500 text-xs mt-1.5">
-                {errors.notes.message}
-              </p>
-            )}
+        <section className="space-y-3 print:hidden">
+          <div className="flex items-center gap-2">
+            <CalendarDays className="h-4 w-4" />
+            <h3 className="font-medium">Appointment</h3>
           </div>
-        </div>
-      </section>
-
-      <section className="space-y-3 print:hidden">
-        <div className="flex items-center justify-between">
-          <h3 className="font-medium">Advanced</h3>
-        </div>
-
-        <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <Label>Appointment Type</Label>
-
+              <Label>Doctor</Label>
               <Select
-                value={values.type || "New"}
-                onChange={(v) => setValue("type", v)}
-                placeholder="Appointment Type"
+                value={values.doctor}
+                onChange={(v) => setValue("doctor", v, { shouldValidate: true })}
+                placeholder="Choose doctor"
                 options={
-                  ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
-                  []
+                  doctorsData?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
                 }
-                ref={refs.type}
-                onKeyDown={(e) => handleKeyDown(e, refs.isPaid)}
+                ref={refs.doctor}
+                onKeyDown={(e) => handleKeyDown(e, refs.method)}
               />
-              {errors.type && (
+              {errors.doctor && (
                 <p className="text-red-500 text-xs mt-1.5">
-                  {errors.type.message}
+                  Please select a doctor
                 </p>
               )}
             </div>
             <div>
-              <Label>Payment Status</Label>
-
+              <Label>Method</Label>
               <Select
-                value={values.isPaid}
-                onChange={(v) => setValue("isPaid", v)}
-                placeholder="Payment Status"
-                options={[
-                  { value: "false", label: "Unpaid" },
-                  { value: "true", label: "Paid" },
-                ]}
-                ref={refs.isPaid}
-                onKeyDown={(e) => handleKeyDown(e, refs.internalNotes)}
+                value={values.method}
+                onChange={(v) => setValue("method", v)}
+                placeholder="In-clinic / Video / Phone"
+                options={METHODS.map((s) => ({ label: s, value: s })) ?? []}
+                ref={refs.method}
+                onKeyDown={(e) => handleKeyDown(e, refs.notes)}
               />
-              {errors.isPaid && (
+              {errors.method && (
                 <p className="text-red-500 text-xs mt-1.5">
-                  {errors.isPaid.message}
+                  {errors.method.message}
+                </p>
+              )}
+            </div>
+            <div className="w-full col-span-full">
+              <DateTimePicker
+                setValue={setValue}
+                doctor={values.doctor}
+                walkIn={walkIn}
+              />
+              {errors.date && (
+                <p className="text-red-500 text-xs mt-1.5">
+                  Please select date and time
+                </p>
+              )}
+            </div>
+
+            <div className="sm:col-span-2">
+              <Label>Reason / Notes</Label>
+              <Textarea
+                rows={3}
+                placeholder="Optional"
+                {...register("notes")}
+                className="mt-2.5"
+                ref={(e) => {
+                  register("notes").ref(e);
+                  refs.notes.current = e;
+                }}
+                onKeyDown={(e) => handleKeyDown(e, refs.type)}
+              />
+              {errors.notes && (
+                <p className="text-red-500 text-xs mt-1.5">
+                  {errors.notes.message}
                 </p>
               )}
             </div>
           </div>
+        </section>
 
+        <section className="space-y-3 print:hidden">
+          <div className="flex items-center justify-between">
+            <h3 className="font-medium">Advanced</h3>
+          </div>
+
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <Label>Appointment Type</Label>
+
+                <Select
+                  value={values.type || "New"}
+                  onChange={(v) => setValue("type", v)}
+                  placeholder="Appointment Type"
+                  options={
+                    ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
+                    []
+                  }
+                  ref={refs.type}
+                  onKeyDown={(e) => handleKeyDown(e, refs.isPaid)}
+                />
+                {errors.type && (
+                  <p className="text-red-500 text-xs mt-1.5">
+                    {errors.type.message}
+                  </p>
+                )}
+              </div>
+              <div>
+                <Label>Payment Status</Label>
+
+                <Select
+                  value={values.isPaid}
+                  onChange={(v) => setValue("isPaid", v)}
+                  placeholder="Payment Status"
+                  options={[
+                    { value: "false", label: "Unpaid" },
+                    { value: "true", label: "Paid" },
+                  ]}
+                  ref={refs.isPaid}
+                  onKeyDown={(e) => handleKeyDown(e, refs.internalNotes)}
+                />
+                {errors.isPaid && (
+                  <p className="text-red-500 text-xs mt-1.5">
+                    {errors.isPaid.message}
+                  </p>
+                )}
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <div className="flex items-center justify-between pt-2 print:hidden">
+          <Button variant="ghost" onClick={onClose} type="button">
+            Close
+          </Button>
+          <Button type="submit" ref={refs.submitButton}>
+            {appointment?._id ? "Save" : "Create"} Appointment
+          </Button>
         </div>
-      </section>
+        {printData && <BlankPrescription data={printData} />}
+      </form>
 
-      <div className="flex items-center justify-between pt-2 print:hidden">
-        <Button variant="ghost" onClick={onClose} type="button">
-          Close
-        </Button>
-        <Button type="submit" ref={refs.submitButton}>
-          {appointment?._id ? "Save" : "Create"} Appointment
-        </Button>
-      </div>
-      {printData && <BlankPrescription data={printData} />}
-    </form>
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            patient={{ name: input }}
+            onClose={async (id?: string, name?: string) => {
+              setOpenCreate(false);
+              if (id && name) {
+                handleSelect({ _id: id, name, mrn: "" });
+                try {
+                  const { data } = await api.get(`/patients/${id}`);
+                  if (data && data.data) {
+                    handleSelect(data.data);
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch full patient details", error);
+                }
+              }
+            }}
+          />
+        </DialogContent>
+      </Dialog>
+
+    </>
   );
 }

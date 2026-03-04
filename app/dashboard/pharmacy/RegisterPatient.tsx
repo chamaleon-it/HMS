@@ -109,7 +109,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     if (patient) {
       reset({
         name: patient?.name || "",
-        phoneNumber: patient?.phoneNumber || "+91",
+        phoneNumber: patient?.phoneNumber || "",
         doctor: patient?.doctor || user?._id,
         gender: patient?.gender || "Prefer not to say",
         dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),

@@ -42,6 +42,15 @@ const Customer: React.FC = () => {
     { key: "Imaging", label: "Imaging", icon: ImageIcon },
   ] as const;
 
+  const totalSpend = React.useMemo(() => {
+    return reports?.reduce((acc, report) => {
+      const reportTotal = report.test?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0;
+      return acc + reportTotal;
+    }, 0) || 0;
+  }, [reports]);
+
+  const avgSpend = reports?.length ? totalSpend / reports.length : 0;
+
   return (
     <AppShell>
       <div className="bg-slate-50 p-5">
@@ -97,7 +106,7 @@ const Customer: React.FC = () => {
                     Total Spend
                   </div>
                   <div className="text-2xl font-semibold text-emerald-900">
-                    {formatINR(0)}
+                    {formatINR(totalSpend)}
                   </div>
                 </div>
                 <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
@@ -121,7 +130,7 @@ const Customer: React.FC = () => {
                     Avg Spend
                   </div>
                   <div className="text-2xl font-semibold text-amber-900">
-                    {formatINR(0)}
+                    {formatINR(avgSpend)}
                   </div>
                 </div>
               </section>
@@ -133,16 +142,16 @@ const Customer: React.FC = () => {
                       <span className="h-7 w-7 rounded-full bg-slate-800 flex items-center justify-center text-[11px]">
                         {reports?.length}
                       </span>
-                      Bills / Visits
+                      Reports / Visits
                     </div>
                     <div className="text-[11px] text-slate-200">
                       {reports?.length !== 0 ? reports?.length : "No"}{" "}
-                      bill
+                      report
                       {reports?.length === 1 ? "" : "s"}
                     </div>
                   </div>
-                  <div className="flex justify-between items-center bg-slate-50 px-2 py-2">
-                    <div className="flex items-center gap-3 text-[12px] text-slate-700">
+                  <div className="flex justify-end items-center bg-slate-50 px-2 py-2">
+                    {/* <div className="flex items-center gap-3 text-[12px] text-slate-700">
                       <span className="font-medium">Filter:</span>
 
                       <Popover open={openCalander} onOpenChange={setOpenCalander}>
@@ -199,7 +208,7 @@ const Customer: React.FC = () => {
                           Clear
                         </Button>
                       )}
-                    </div>
+                    </div> */}
 
                     <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
                       {tabs.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
@@ -248,7 +257,7 @@ const Customer: React.FC = () => {
 
                     {reports?.filter(o => {
 
-                      if (type && type !== "All" && !o.name?.some(s => s.type === type)) return false;
+                      if (type && type !== "All" && !o.test?.some(s => s.name?.type === type)) return false;
 
                       if (date?.from && date?.to) {
                         const created = new Date(o.createdAt);
@@ -278,7 +287,7 @@ const Customer: React.FC = () => {
                                 {fDate(bill.createdAt)}
                               </span>
                               <span className="text-xs font-semibold">
-                                {formatINR(0)}
+                                {formatINR(bill.test?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0)}
                               </span>
                             </div>
                             <div className="flex items-center justify-between gap-2 text-[12px]">
@@ -287,8 +296,8 @@ const Customer: React.FC = () => {
                                   active ? "opacity-80" : "text-slate-500"
                                 }
                               >
-                                {bill?.name?.filter(o => type === "All" || o.type === type).length} item
-                                {bill?.name?.filter(o => type === "All" || o.type === type).length === 1 ? "" : "s"}
+                                {bill?.test?.filter(o => type === "All" || o.name?.type === type).length} item
+                                {bill?.test?.filter(o => type === "All" || o.name?.type === type).length === 1 ? "" : "s"}
                               </span>
                             </div>
                           </button>
@@ -301,8 +310,8 @@ const Customer: React.FC = () => {
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit
-                        ? `Bill Details — ${selectedVisit?.name?.filter(o => type === "All" || o?.type === type).map(e => e?.code).join(", ")}`
-                        : "Bill Details"}
+                        ? `Details — ${String(selectedVisit.mrn).padStart(4, "0")}`
+                        : "Details"}
                     </div>
                     {selectedVisit && (
                       <div className="text-[11px] text-slate-500 flex flex-col items-end">
@@ -315,7 +324,7 @@ const Customer: React.FC = () => {
                         <span>
                           RX ID:{" "}
                           <span className="font-medium text-slate-700">
-                            {selectedVisit._id}
+                            {String(selectedVisit.mrn).padStart(4, "0")}
                           </span>
                         </span>
                       </div>
@@ -344,13 +353,18 @@ const Customer: React.FC = () => {
                               <th className="p-2 text-right font-medium">
                                 Reference
                               </th>
+                              <th className="p-2 text-right font-medium">
+                                Price
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
-                            {selectedVisit?.name?.filter(o => type === "All" || o?.type === type)?.map((it, i) => {
+                            {selectedVisit?.test?.filter(o => type === "All" || o.name?.type === type)?.map((t, i) => {
+                              const it = t.name;
+                              if (!it) return null;
                               return (
                                 <tr
-                                  key={it.name}
+                                  key={t._id}
                                   className="border-t align-top hover:bg-slate-50/70 transition-colors"
                                 >
                                   <td className="p-2 align-top text-slate-500">
@@ -366,25 +380,22 @@ const Customer: React.FC = () => {
                                         )}
                                       </span>
 
-                                      <div className="">
 
-                                        <div className="font-medium text-slate-900 leading-snug">
-                                          {it.name}
-                                        </div>
-                                        <div className="text-[12px] text-slate-600 leading-snug">
-                                          (Gen: {it.code} - {it.panel})
-                                        </div>
+
+                                      <div className="font-medium text-slate-900 leading-snug">
+                                        {it.name}
                                       </div>
+
                                     </div>
                                   </td>
                                   <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
                                     {it.type === "Lab" ? (
                                       <>
-                                        {it.value} {it.unit}
+                                        {t.value} {it.unit}
                                       </>
                                     ) : (
                                       <a
-                                        href={it.value?.toString()}
+                                        href={t.value?.toString()}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
@@ -419,15 +430,18 @@ const Customer: React.FC = () => {
                                       </>
                                     )}
                                   </td>
+                                  <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
+                                    {formatINR(it.price)}
+                                  </td>
                                 </tr>
                               );
                             })}
 
-                            {selectedVisit?.name?.length === 0 && (
+                            {selectedVisit?.test?.length === 0 && (
                               <tr>
                                 <td
                                   className="p-3 text-center text-slate-500"
-                                  colSpan={4}
+                                  colSpan={5}
                                 >
                                   No items.
                                 </td>
@@ -437,14 +451,14 @@ const Customer: React.FC = () => {
                           <tfoot>
                             <tr className="border-t bg-slate-50/80">
                               <td
-                                colSpan={3}
+                                colSpan={4}
                                 className="p-2 text-right text-xs text-slate-600"
                               >
                                 Total
                               </td>
                               <td className="p-2 text-right text-sm font-semibold text-slate-900">
                                 {formatINR(
-                                  0
+                                  selectedVisit?.test?.filter(o => type === "All" || o.name?.type === type)?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0
                                 )}
                               </td>
                             </tr>

@@ -379,7 +379,7 @@ export default function NewTest({
               <TableRow key={t}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{t}</TableCell>
-                <TableCell>{panels.find((p) => p.name === t)?.price}</TableCell>
+                <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
                 <TableCell>-</TableCell>
 
                 {/* <TableCell>-</TableCell>
@@ -427,7 +427,7 @@ export default function NewTest({
                   {tests.find((test) => test._id === t.name)?.name}
                 </TableCell>
                 <TableCell>
-                  {tests.find((test) => test._id === t.name)?.price}
+                  {formatINR(tests.find((test) => test._id === t.name)?.price || 0)}
                 </TableCell>
                 <TableCell>
                   {tests.find((test) => test._id === t.name)?.estimatedTime}
