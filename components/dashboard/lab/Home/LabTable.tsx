@@ -119,13 +119,16 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             {headerCell("Report No.")}
             {headerCell("Patient")}
             {headerCell("Test")}
-            {status === "Upcoming" && headerCell("Sheduled Date")}
-            {headerCell("Created At")}
-            {status === "Sample Collected" && headerCell("Sample Collected")}
+            {status === "Upcoming" && headerCell("Scheduled Date")}
             {status !== "Upcoming" && headerCell("Sample Id")}
-            {(status !== "Upcoming" && status !== "Sample Collected") && headerCell("Test Reported At")}
+            {headerCell("Created At")}
+            {status === "Completed" && headerCell("Collected At")}
+            {status === "Completed" && headerCell("Started At")}
+            {status === "Sample Collected" && headerCell("Sample Collected")}
+            {status === "Completed" && headerCell("Test Reported At")}
             {headerCell("Doctor")}
             {/* {headerCell("Status")} */}
+            {/* {status === "Completed" && headerCell("Collected Time")} */}
             {status === "Waiting For Result" && headerCell("Estimated Time")}
             {headerCell("Actions", "right")}
           </tr>
@@ -238,9 +241,27 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     {fDateandTime(r.date)}
                   </td>}
 
+                  {status !== "Upcoming" && (
+                    <td className="px-3 py-2 text-sm text-gray-500">
+                      {r.sampleId}
+                    </td>
+                  )}
+
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {fDateandTime(r.createdAt)}
                   </td>
+
+                  {status === "Completed" && (
+                    <td className="px-3 py-2 text-sm text-gray-500">
+                      {r.sampleCollectedAt ? fDateandTime(r.sampleCollectedAt) : "-"}
+                    </td>
+                  )}
+
+                  {status === "Completed" && <td className="px-3 py-2 text-sm text-gray-500">
+                      {r.testStartedAt
+                        ? fDateandTime(r.testStartedAt)
+                        : "-"}
+                    </td>}
 
                   {status === "Sample Collected" && (
                     <td className="px-3 py-2 text-sm text-gray-500">
@@ -250,17 +271,11 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     </td>
                   )}
 
-                  {status !== "Upcoming" && (
-                    <td className="px-3 py-2 text-sm text-gray-500">
-                      {r.sampleId}
-                    </td>
-                  )}
 
-
-                  {status !== "Upcoming" && status !== "Sample Collected" && (
+                  {status === "Completed" && (
                     <td className="px-3 py-2 text-sm text-gray-500">
-                      {r.testStartedAt
-                        ? fDateandTime(r.testStartedAt)
+                      {r.sampleCollectedAt
+                        ? fDateandTime(r.sampleCollectedAt)
                         : "-"}
                     </td>
                   )}
