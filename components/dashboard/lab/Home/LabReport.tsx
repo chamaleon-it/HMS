@@ -5,6 +5,7 @@ import useSWR from "swr";
 import LabStatus from "./LabStatus";
 import NewTest from "./NewTest";
 import LabTable from "./LabTable";
+import DateFilter from "./DateFilter";
 import LabHeader from "../LabHeader";
 import { Clock, CheckCircle2, FlaskConical, AlertTriangle, TestTube2 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -78,6 +79,7 @@ export default function LabResultsPage() {
       >
         <LabStatus currenctStatus={status} setCurrenctStatus={setStatus} />
         <NewTest mutate={() => { mutate(); statsMutate(); }} />
+        {<DateFilter />}
       </LabHeader>
 
       {/* Stats Grid */}

@@ -1,0 +1,45 @@
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
+
+const theme = {
+    from: "#4f46e5",
+    to: "#ec4899",
+};
+
+export default function DateFilter() {
+    const [activeDate, setActiveDate] = useState<string>("Today");
+
+    const dates = ["Today", "7 days", "30 days"];
+
+    return (
+        <div className="relative inline-flex items-center gap-1 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+            {dates.map((label) => {
+                const active = activeDate === label;
+                return (
+                    <button
+                        key={label}
+                        onClick={() => setActiveDate(label)}
+                        className={cn(
+                            "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium",
+                            active ? "text-white" : "text-slate-600 hover:bg-slate-50"
+                        )}
+                        type="button"
+                    >
+                        {active && (
+                            <motion.span
+                                layoutId="date-filter-indicator"
+                                className="absolute inset-0 rounded-full"
+                                style={{ background: `linear-gradient(90deg, ${theme.from}, ${theme.to})` }}
+                                transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                            />
+                        )}
+                        <span className="relative z-10 flex items-center gap-2">
+                            {label}
+                        </span>
+                    </button>
+                );
+            })}
+        </div>
+    );
+}
