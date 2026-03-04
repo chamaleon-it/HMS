@@ -1,3 +1,4 @@
+
 export interface DataTypes {
   message: string;
   data: Datum[];
@@ -10,17 +11,25 @@ export interface Datum {
   lab: Lab;
   date: Date;
   priority: string;
-  name: Name[];
+  panels: any[];
+  test: Test[];
   sampleType: string;
+  sampleCollectedAt: Date;
+  testStartedAt: Date;
+  sampleId: string;
+  extraTime: number;
   status: string;
+  isDeleted: boolean;
+  isFlagged: boolean;
   createdAt: Date;
   updatedAt: Date;
+  mrn: number;
 }
 
 export interface Doctor {
   _id: string;
   name: string;
-  specialization: null | string;
+  specialization: null;
 }
 
 export interface Lab {
@@ -28,24 +37,28 @@ export interface Lab {
   name: string;
 }
 
+export interface Test {
+  name: Name;
+  value: string;
+  _id: string;
+}
+
 export interface Name {
+  _id: string;
   code: string;
   name: string;
+  price: number;
+  type: string;
+  estimatedTime: number;
+  dataType: string;
+  min: number;
+  max: number;
+  womenMin: number;
+  womenMax: number;
+  childMin: null;
+  childMax: null;
+  nbMin: null;
+  nbMax: number;
   unit: string;
-  min?: number;
-  max?: number;
-  type: Type;
-  _id: string;
-  value: string;
-  panel?: Panel;
-}
-
-export enum Panel {
-  Cbc = "CBC",
-  Lft = "LFT",
-}
-
-export enum Type {
-  Imaging = "Imaging",
-  Lab = "Lab",
+  panels: string[];
 }
