@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps } from "lucide-react";
+import toast from "react-hot-toast";
+import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
 import { useParams, useRouter } from "next/navigation";
@@ -18,6 +19,7 @@ import { DateRange } from "react-day-picker";
 import { DataTypes, Datum } from "./interface";
 import useGetPatient from "./useGetPatient";
 import { motion } from "framer-motion";
+import ReportCard from "@/components/dashboard/lab/Home/ReportCard";
 
 const Customer: React.FC = () => {
   const router = useRouter();
@@ -29,12 +31,22 @@ const Customer: React.FC = () => {
   const { data: patient } = useGetPatient(id as string);
   const reports = reportData?.data;
   const [selectedVisit, setSelectedVisit] = useState<Datum | null>(null);
+  const [selectedTests, setSelectedTests] = useState<string[]>([]);
 
   const [openCalander, setOpenCalander] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
+  const [printReport, setPrintReport] = React.useState<any | null>(null);
 
+  const handlePrint = (report: any) => {
+    setPrintReport(report);
+    setTimeout(() => {
+      window.print();
+      setPrintReport(null);
+    }, 100);
+  };
 
   const [type, setType] = useState<"Lab" | "Imaging" | "All">("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const tabs = [
     { key: "All", label: "All", },
@@ -209,39 +221,53 @@ const Customer: React.FC = () => {
                         </Button>
                       )}
                     </div> */}
+                    <div className="flex items-center justify-between gap-3 bg-white border-b border-slate-100 p-3 w-full">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Search Report ID"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-3 py-1.5 text-sm rounded-lg border border-slate-200 bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                        />
+                      </div>
 
-                    <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-                      {tabs.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
-                        const active = type === key;
-                        return (
-                          <button
-                            key={key}
-                            onClick={() => setType(key)}
-                            className={
-                              "relative flex items-center gap-2 rounded-full px-2 py-1.5 transition will-change-transform cursor-pointer " +
-                              (active ? "text-white" : "text-gray-700")
-                            }
-                            type="button"
-                          >
-                            {active && (
-                              <motion.span
-                                layoutId="tab-indicator-1"
-                                className="absolute inset-0 rounded-full"
-                                style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
-                                transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                              />
-                            )}
-                            <span className="relative z-10 flex items-center gap-1 text-sm">
-                              {Icon && <Icon size={16} />}
-                              {label}
-                            </span>
-                          </button>
-                        );
-                      })}
+                      <div className="relative inline-flex items-center gap-1 text-[13px] bg-slate-50 border border-slate-200 rounded-full p-1 h-9 shrink-0">
+                        {tabs.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
+                          const active = type === key;
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => {
+                                setType(key);
+                                setSelectedTests([]);
+                              }}
+                              className={
+                                "relative flex items-center justify-center gap-1.5 rounded-full px-3 h-full transition will-change-transform cursor-pointer " +
+                                (active ? "text-white" : "text-slate-600 hover:text-slate-900")
+                              }
+                              type="button"
+                            >
+                              {active && (
+                                <motion.span
+                                  layoutId="tab-indicator-1"
+                                  className="absolute inset-0 rounded-full"
+                                  style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                                  transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                                />
+                              )}
+                              <span className="relative z-10 flex items-center gap-1 font-medium">
+                                {Icon && <Icon size={14} />}
+                                {label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-
-
                   </div>
+
                   <div className="flex-1 overflow-y-auto divide-y">
                     {reports?.length === 0 && (
                       <div className="p-4 text-xs text-slate-500">
@@ -267,6 +293,15 @@ const Customer: React.FC = () => {
                         if (created < start || created > end) return false;
                       }
 
+                      if (searchQuery) {
+                        const query = searchQuery.toLowerCase();
+                        const idDisplay = String(o.mrn).padStart(4, "0").toLowerCase();
+
+                        if (!idDisplay.includes(query)) {
+                          return false;
+                        }
+                      }
+
                       return true;
                     })
                       .map((bill) => {
@@ -276,7 +311,10 @@ const Customer: React.FC = () => {
                           <button
                             key={bill._id}
                             type="button"
-                            onClick={() => setSelectedVisit(bill)}
+                            onClick={() => {
+                              setSelectedVisit(bill);
+                              setSelectedTests([]);
+                            }}
                             className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
                               ? "bg-slate-900 text-slate-50"
                               : "hover:bg-slate-50"
@@ -284,7 +322,7 @@ const Customer: React.FC = () => {
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span className="font-medium">
-                                {fDate(bill.createdAt)}
+                                Report ID: {String(bill.mrn).padStart(4, "0")} - Date: {fDate(bill.createdAt)}
                               </span>
                               <span className="text-xs font-semibold">
                                 {formatINR(bill.test?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0)}
@@ -343,6 +381,26 @@ const Customer: React.FC = () => {
                         <table className="w-full text-[15px]">
                           <thead className="bg-slate-50 text-slate-700 sticky top-0 text-sm">
                             <tr>
+                              <th className="p-2 w-10 text-center font-medium">
+                                {(() => {
+                                  const displayed = selectedVisit?.test?.filter(o => type === "All" || o.name?.type === type) || [];
+                                  const allSelected = displayed.length > 0 && selectedTests.length === displayed.length;
+                                  return (
+                                    <input
+                                      type="checkbox"
+                                      checked={allSelected}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setSelectedTests(displayed.map(t => t._id));
+                                        } else {
+                                          setSelectedTests([]);
+                                        }
+                                      }}
+                                      className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                                    />
+                                  );
+                                })()}
+                              </th>
                               <th className="p-2 text-left font-medium">Sl</th>
                               <th className="p-2 text-left font-medium">
                                 Test
@@ -365,8 +423,23 @@ const Customer: React.FC = () => {
                               return (
                                 <tr
                                   key={t._id}
-                                  className="border-t align-top hover:bg-slate-50/70 transition-colors"
+                                  onClick={() => {
+                                    if (selectedTests.includes(t._id)) {
+                                      setSelectedTests(prev => prev.filter(id => id !== t._id));
+                                    } else {
+                                      setSelectedTests(prev => [...prev, t._id]);
+                                    }
+                                  }}
+                                  className="border-t align-top hover:bg-slate-50/70 transition-colors cursor-pointer"
                                 >
+                                  <td className="p-2 align-top text-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedTests.includes(t._id)}
+                                      readOnly
+                                      className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 pointer-events-none"
+                                    />
+                                  </td>
                                   <td className="p-2 align-top text-slate-500">
                                     {i + 1}
                                   </td>
@@ -441,7 +514,7 @@ const Customer: React.FC = () => {
                               <tr>
                                 <td
                                   className="p-3 text-center text-slate-500"
-                                  colSpan={5}
+                                  colSpan={6}
                                 >
                                   No items.
                                 </td>
@@ -451,7 +524,7 @@ const Customer: React.FC = () => {
                           <tfoot>
                             <tr className="border-t bg-slate-50/80">
                               <td
-                                colSpan={4}
+                                colSpan={5}
                                 className="p-2 text-right text-xs text-slate-600"
                               >
                                 Total
@@ -472,13 +545,25 @@ const Customer: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Button
+                            onClick={() => {
+                              if (selectedTests.length === 0) {
+                                toast.error("Please select at least one item to print.");
+                                return;
+                              }
+
+                              if (selectedVisit && patient) {
+                                const reportToPrint = {
+                                  ...selectedVisit,
+                                  patient: patient,
+                                  test: selectedVisit.test?.filter(t => selectedTests.includes(t._id))
+                                };
+                                handlePrint(reportToPrint);
+                              }
+                            }}
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
 
                           >
                             Print bill
-                          </Button>
-                          <Button className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800">
-                            Refund
                           </Button>
                         </div>
                       </div>
@@ -491,6 +576,7 @@ const Customer: React.FC = () => {
           )}
         </main>
       </div>
+      {printReport && <ReportCard report={printReport} />}
     </AppShell>
   );
 };
