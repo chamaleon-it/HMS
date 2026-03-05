@@ -10,6 +10,7 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState, useEffect, useMemo } from "react";
+import { useAuth } from "@/auth/context/auth-context";
 import {
     AlertTriangle,
     Repeat,
@@ -38,32 +39,48 @@ interface RepeatTestProps {
 }
 
 export default function RepeatTest({ report, mutate }: RepeatTestProps) {
+    const { user } = useAuth();
     const { panels } = useGetPanels();
     const { tests } = useGetTest();
 
     const [open, setOpen] = useState(false);
     const [payload, setPayload] = useState<{
+        patient: string;
+        doctor: string;
+        lab: string;
         test: { name: string }[];
         panels: string[];
         date: Date | undefined;
-        priority: string;
+        priority: "Normal" | "Urgent";
+        sampleType: string;
+        status: string;
     }>({
+        patient: "",
+        doctor: "",
+        lab: "",
         test: [],
         panels: [],
         date: undefined,
         priority: "Normal",
+        sampleType: "Other",
+        status: "Upcoming",
     });
 
     useEffect(() => {
         if (open) {
             setPayload({
+                patient: report.patient?._id || "",
+                doctor: report.doctor?._id || user?._id || "",
+                lab: report.lab?._id || user?._id || "",
                 test: report.test?.map((t: any) => ({ name: t.name?._id || t.name })) || [],
                 panels: report.panels || [],
                 date: new Date(),
                 priority: report.priority || "Normal",
+                sampleType: report.sampleType || "Other",
+                status: "Upcoming",
             });
         }
-    }, [open, report]);
+    }, [open, report, user]);
 
     const handleSubmit = async () => {
         if (!payload.date) {
@@ -75,14 +92,14 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
             return;
         }
 
-        /*
+
         try {
             await toast.promise(
-                api.post(`/lab/report/repeat/${report._id}`, { ...payload, date: payload.date.toISOString() }),
+                api.post(`/lab/report`, { ...payload, date: payload.date?.toISOString() }),
                 {
                     loading: "Repeating lab test order...",
-                    success: (res) => res?.data?.message || "Order repeated successfully",
-                    error: (err) => err?.response?.data?.message || "Failed to repeat order",
+                    success: ({ data }) => data.message,
+                    error: ({ response }) => response.data.message,
                 }
             );
             setOpen(false);
@@ -90,7 +107,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
         } catch (error) {
             console.log(error);
         }
-        */
+
     };
 
     const grandTotal = useMemo(() => {
@@ -228,7 +245,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
                             <TableRow key={t}>
                                 <TableCell>{idx + 1}</TableCell>
                                 <TableCell>{t}</TableCell>
-                                <TableCell>{panels.find((p) => p.name === t)?.price}</TableCell>
+                                <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
                                 <TableCell>-</TableCell>
                                 <TableCell>
                                     <Button
@@ -272,7 +289,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
                                     {tests.find((test) => test._id === t.name)?.name}
                                 </TableCell>
                                 <TableCell>
-                                    {tests.find((test) => test._id === t.name)?.price}
+                                    {formatINR(tests.find((test) => test._id === t.name)?.price || 0)}
                                 </TableCell>
                                 <TableCell>
                                     {tests.find((test) => test._id === t.name)?.estimatedTime}
