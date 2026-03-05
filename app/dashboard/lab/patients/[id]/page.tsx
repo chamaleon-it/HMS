@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
 import { useParams, useRouter } from "next/navigation";
@@ -46,6 +46,7 @@ const Customer: React.FC = () => {
   };
 
   const [type, setType] = useState<"Lab" | "Imaging" | "All">("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const tabs = [
     { key: "All", label: "All", },
@@ -220,42 +221,53 @@ const Customer: React.FC = () => {
                         </Button>
                       )}
                     </div> */}
+                    <div className="flex items-center justify-between gap-3 bg-white border-b border-slate-100 p-3 w-full">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Search Report ID"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-3 py-1.5 text-sm rounded-lg border border-slate-200 bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                        />
+                      </div>
 
-                    <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-                      {tabs.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
-                        const active = type === key;
-                        return (
-                          <button
-                            key={key}
-                            onClick={() => {
-                              setType(key);
-                              setSelectedTests([]);
-                            }}
-                            className={
-                              "relative flex items-center gap-2 rounded-full px-2 py-1.5 transition will-change-transform cursor-pointer " +
-                              (active ? "text-white" : "text-gray-700")
-                            }
-                            type="button"
-                          >
-                            {active && (
-                              <motion.span
-                                layoutId="tab-indicator-1"
-                                className="absolute inset-0 rounded-full"
-                                style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
-                                transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                              />
-                            )}
-                            <span className="relative z-10 flex items-center gap-1 text-sm">
-                              {Icon && <Icon size={16} />}
-                              {label}
-                            </span>
-                          </button>
-                        );
-                      })}
+                      <div className="relative inline-flex items-center gap-1 text-[13px] bg-slate-50 border border-slate-200 rounded-full p-1 h-9 shrink-0">
+                        {tabs.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
+                          const active = type === key;
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => {
+                                setType(key);
+                                setSelectedTests([]);
+                              }}
+                              className={
+                                "relative flex items-center justify-center gap-1.5 rounded-full px-3 h-full transition will-change-transform cursor-pointer " +
+                                (active ? "text-white" : "text-slate-600 hover:text-slate-900")
+                              }
+                              type="button"
+                            >
+                              {active && (
+                                <motion.span
+                                  layoutId="tab-indicator-1"
+                                  className="absolute inset-0 rounded-full"
+                                  style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                                  transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                                />
+                              )}
+                              <span className="relative z-10 flex items-center gap-1 font-medium">
+                                {Icon && <Icon size={14} />}
+                                {label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-
-
                   </div>
+
                   <div className="flex-1 overflow-y-auto divide-y">
                     {reports?.length === 0 && (
                       <div className="p-4 text-xs text-slate-500">
@@ -281,6 +293,15 @@ const Customer: React.FC = () => {
                         if (created < start || created > end) return false;
                       }
 
+                      if (searchQuery) {
+                        const query = searchQuery.toLowerCase();
+                        const idDisplay = String(o.mrn).padStart(4, "0").toLowerCase();
+
+                        if (!idDisplay.includes(query)) {
+                          return false;
+                        }
+                      }
+
                       return true;
                     })
                       .map((bill) => {
@@ -301,7 +322,7 @@ const Customer: React.FC = () => {
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span className="font-medium">
-                                {fDate(bill.createdAt)}
+                                Report ID: {String(bill.mrn).padStart(4, "0")} - Date: {fDate(bill.createdAt)}
                               </span>
                               <span className="text-xs font-semibold">
                                 {formatINR(bill.test?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0)}
