@@ -10,11 +10,19 @@ export interface Datum {
   lab: Lab;
   date: Date;
   priority: string;
-  name: Name[];
+  test: TestItem[];
+  name?: TestItem[];
   sampleType: string;
+  sampleCollectedAt: Date | null;
+  testStartedAt: Date | null;
+  sampleId: string | null;
+  extraTime: number;
   status: string;
+  isDeleted: boolean;
+  isFlagged: boolean;
   createdAt: Date;
   updatedAt: Date;
+  mrn: number;
 }
 
 export interface Doctor {
@@ -28,21 +36,30 @@ export interface Lab {
   name: string;
 }
 
-export interface Name {
-  code: string;
-  name: string;
-  unit: string;
-  min?: number;
-  max?: number;
-  type: Type;
-  _id: string;
+export interface TestItem {
+  name: TestMetadata;
   value: string;
-  panel?: Panel;
+  _id: string;
 }
 
-export enum Panel {
-  Cbc = "CBC",
-  Lft = "LFT",
+export interface TestMetadata {
+  _id: string;
+  code: string;
+  name: string;
+  price: number;
+  type: Type;
+  estimatedTime: number;
+  dataType: string;
+  min: number | null;
+  max: number | null;
+  womenMin: number | null;
+  womenMax: number | null;
+  childMin: number | null;
+  childMax: number | null;
+  nbMin: number | null;
+  nbMax: number | null;
+  unit: string | null;
+  panels: any[];
 }
 
 export enum Type {
