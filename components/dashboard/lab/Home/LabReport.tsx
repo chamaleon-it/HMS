@@ -11,6 +11,7 @@ import { Clock, CheckCircle2, FlaskConical, AlertTriangle, TestTube2 } from "luc
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { startOfDay, endOfDay, subDays } from "date-fns";
 
 const StatCard: React.FC<{
   icon: React.ReactNode;
@@ -52,10 +53,42 @@ export default function LabResultsPage() {
     "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted"
   >("Upcoming");
 
-  const { data, mutate } = useSWR<{
+  // NEW ONES FOR DATE FILTER
+  const [activeDate, setActiveDate] = useState<string>("Today");
+  const [date, setDate] = useState<Date>();
+
+  // Calculate dates for the query
+  let startDateStr = "";
+  let endDateStr = "";
+
+  try {
+    let sd: Date = startOfDay(new Date());
+    let ed: Date = endOfDay(new Date());
+
+    if (activeDate === "Today") {
+      sd = startOfDay(new Date());
+    } else if (activeDate === "7 days") {
+      sd = startOfDay(subDays(new Date(), 7));
+    } else if (activeDate === "30 days") {
+      sd = startOfDay(subDays(new Date(), 30));
+    } else if (activeDate === "Custom" && date) {
+      sd = startOfDay(date);
+      ed = endOfDay(date);
+    }
+
+    startDateStr = sd.toISOString();
+    endDateStr = ed.toISOString();
+  } catch (e) {
+    console.error("Error formatting dates", e);
+  }
+
+  const dateQuery = `startDate=${startDateStr}&endDate=${endDateStr}&status=${status}`;
+
+  // Updated SWR to point to our new backend endpoint and pass the date variables alongside status
+  const { data, mutate, isLoading } = useSWR<{
     message: string;
     data: any[];
-  }>(`/lab/report?status=${status}`);
+  }>(`/lab/report/by_date?${dateQuery}`);
 
 
   const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number, flagged: number } }>("/lab/report/statistics")
@@ -78,7 +111,13 @@ export default function LabResultsPage() {
           title="Lab Investigations"
           subtitle="Manage and track laboratory and imaging results"
         >
-          <DateFilter />
+          <DateFilter
+            activeDate={activeDate}
+            setActiveDate={setActiveDate}
+            date={date}
+            setDate={setDate}
+            isLoading={isLoading}
+          />
           <NewTest mutate={() => { mutate(); statsMutate(); }} />
         </LabHeader>
       </div>

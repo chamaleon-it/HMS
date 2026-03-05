@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -11,14 +11,19 @@ const theme = {
     to: "#ec4899",
 };
 
-export default function DateFilter() {
-    const [activeDate, setActiveDate] = useState<string>("Today");
-    const [date, setDate] = useState<Date>();
+interface DateFilterProps {
+    activeDate: string;
+    setActiveDate: (val: string) => void;
+    date: Date | undefined;
+    setDate: (val: Date | undefined) => void;
+    isLoading?: boolean;
+}
 
+export default function DateFilter({ activeDate, setActiveDate, date, setDate, isLoading = false }: DateFilterProps) {
     const dates = ["Today", "7 days", "30 days", "Custom"];
 
     return (
-        <div className="relative inline-flex items-center gap-1 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+        <div className={cn("relative inline-flex items-center gap-1 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-sm", isLoading && "opacity-70")}>
             {dates.map((label) => {
                 const active = activeDate === label;
                 const isCustom = label === "Custom";
