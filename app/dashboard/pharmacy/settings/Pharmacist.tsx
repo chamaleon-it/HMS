@@ -30,7 +30,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { MoreHorizontal, Plus, Pencil, Trash2, Loader2 } from 'lucide-react'
+import { MoreHorizontal, Plus, Pencil, Trash2, Loader2, Star, CircleCheck } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 
@@ -44,7 +44,8 @@ const pharmacistSchema = z.object({
 type PharmacistValues = z.infer<typeof pharmacistSchema>
 
 export interface PharmacistData extends PharmacistValues {
-    _id: string
+    _id: string,
+    inCharge: boolean
 }
 
 const capitalizeWords = (str: string) => {
@@ -150,6 +151,20 @@ export default function Pharmacist() {
     const openEditDialog = (pharmacist: PharmacistData) => {
         setEditingPharmacist(pharmacist)
         setIsDialogOpen(true)
+    }
+
+
+    const markAsIncharge = async (_id: string) => {
+        try {
+            await toast.promise(api.patch("/pharmacist/incharge/" + _id), {
+                loading: "Marking as incharge...",
+                success: "Pharmacist marked as incharge successfully",
+                error: (err) => err?.response?.data?.message || "Failed to mark as incharge",
+            })
+            pharmacistMutate()
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     return (
@@ -287,7 +302,7 @@ export default function Pharmacist() {
                                         idx % 2 === 0 ? "bg-white hover:bg-white/60" : "bg-slate-50 hover:bg-slate-50/60"
                                     )}
                                 >
-                                    <TableCell className="py-3 pl-4 font-medium text-slate-900">{p.name}</TableCell>
+                                    <TableCell className="py-3 pl-4 font-medium text-slate-900 flex items-center gap-2">{p.name} {p.inCharge && <CircleCheck size={14} className="text-green-500 fill-green-500/20" />}</TableCell>
                                     <TableCell className="py-3 text-slate-600">{p.qualification || <span className="text-slate-400 italic text-[11px]">Not set</span>}</TableCell>
                                     <TableCell className="py-3">
                                         {p.licenseNumber ? (
@@ -307,6 +322,13 @@ export default function Pharmacist() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end" className="w-40 p-1 border-slate-200">
+                                                <DropdownMenuItem
+                                                    onClick={() => { markAsIncharge(p._id) }}
+                                                    className="gap-2 text-slate-700 cursor-pointer"
+                                                >
+                                                    <Star size={14} className="text-amber-500 fill-amber-500/20" />
+                                                    Person In Charge
+                                                </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => openEditDialog(p)}
                                                     className="gap-2 text-slate-700 cursor-pointer"

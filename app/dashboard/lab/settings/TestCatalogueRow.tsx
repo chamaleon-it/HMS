@@ -29,7 +29,7 @@ export default function TestCatalogueRow({
         nbMin?: number;
         nbMax?: number;
         unit?: string;
-        estimatedTime?: number;
+        estimatedTime?: string;
         panels: { name: string }[]
         dataType: "number" | "text" | "boolean"
     };
@@ -53,7 +53,7 @@ export default function TestCatalogueRow({
         nbMin: test.nbMin,
         nbMax: test.nbMax,
         unit: test.unit,
-        estimatedTime: test.estimatedTime,
+        estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
         _id: test._id,
         dataType: test.dataType
     })
@@ -74,10 +74,18 @@ export default function TestCatalogueRow({
             nbMin?: number;
             nbMax?: number;
             unit?: string;
-            estimatedTime?: number;
+            estimatedTime?: string;
         }) => {
             try {
-                await toast.promise(api.patch(`/lab/panels/test/${payload._id}`, data), {
+                let finalPayload = { ...data };
+                if (data.estimatedTime && typeof data.estimatedTime === 'string') {
+                    const [hoursStr, minutesStr] = data.estimatedTime.split(':');
+                    const hours = parseInt(hoursStr || '0', 10);
+                    const minutes = parseInt(minutesStr || '0', 10);
+                    finalPayload.estimatedTime = (hours * 60 + minutes) as any;
+                }
+
+                await toast.promise(api.patch(`/lab/panels/test/${payload._id}`, finalPayload), {
                     loading: "Updating Test",
                     success: "Test Updated Successfully",
                     error: "Failed to Update Test"
@@ -103,7 +111,7 @@ export default function TestCatalogueRow({
                 </span>
             </TableCell>
             <TableCell>{formatINR(test.price)}</TableCell>
-            <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : ""}</TableCell>
+            <TableCell>{test.estimatedTime || ""}</TableCell>
             <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
             <TableCell className="text-slate-500 text-xs">
                 Normal :{test.min} - {test.max}
@@ -238,9 +246,14 @@ export default function TestCatalogueRow({
                             </div>
                             <div className="grid grid-cols-6 items-center gap-4">
                                 <Label htmlFor="estimatedTime" className="text-right col-span-2">
-                                    Estimated Time (min)
+                                    Estimated Duration (HH:MM)
                                 </Label>
-                                <Input id="estimatedTime" type="number" defaultValue={test.estimatedTime} className="col-span-4" onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
+                                <Input id="estimatedTime" type="text" placeholder="HH:MM" value={payload.estimatedTime || ""} className="col-span-4" onChange={(e) => {
+                                    let val = e.target.value.replace(/\D/g, "");
+                                    if (val.length > 4) val = val.slice(0, 4);
+                                    if (val.length >= 3) val = `${val.slice(0, 2)}:${val.slice(2)}`;
+                                    setPayload({ ...payload, estimatedTime: val });
+                                }} />
                             </div>
 
                         </div>

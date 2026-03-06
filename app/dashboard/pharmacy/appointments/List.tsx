@@ -1,5 +1,5 @@
 import { fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock } from "lucide-react";
+import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw } from "lucide-react";
 import React, { useState } from "react";
 import useAppointmentList from "./data/useAppointmentList";
 import Drawer from "@/components/ui/drawer";
@@ -85,10 +85,22 @@ export default function List({
     }
   };
 
+  const handleRecover = async (id: string) => {
+    if (!confirm("Recover this appointment?")) return;
+    try {
+      await toast.promise(api.post(`/appointments/recover/${id}`), {
+        loading: "Recovering...",
+        success: "Recovered",
+        error: "Failed",
+      });
+      mutate();
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  console.log(filteredData)
   return (
-    <div className="bg-white border text-sm rounded-xl overflow-hidden shadow-sm mt-4">
+    <div className="bg-white border text-sm rounded-xl overflow-hidden shadow-sm">
       <Table>
         <TableHeader className="bg-gray-50/50">
           <TableRow className="hover:bg-gray-50/50 border-gray-100">
@@ -97,6 +109,7 @@ export default function List({
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Doctor</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type/Method</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</TableHead>
+            <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Reason / Notes</TableHead>
             <TableHead className="py-3 pr-4 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -183,9 +196,12 @@ export default function List({
                   <TableCell className="py-2.5">
                     <Chip label={row.status} />
                   </TableCell>
+                  <TableCell className="py-2.5">
+                    <span className="text-xs text-gray-500 truncate">{row.notes}</span>
+                  </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ActionButtons id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} />
+                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -212,16 +228,16 @@ export default function List({
   );
 }
 
-function ActionButtons({ id, onStatusUpdate, onEdit, onDelete }: any) {
+function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted }: any) {
   return (
     <>
-      <button
+      {status !== "Consulted" && <button
         onClick={() => onStatusUpdate(id, "Consulted")}
         className="p-1.5 rounded-md hover:bg-emerald-50 text-emerald-600 border border-transparent hover:border-emerald-200 transition-all"
         title="Mark Consulted"
       >
         <CheckCircle2 size={16} />
-      </button>
+      </button>}
       <button
         onClick={onEdit}
         className="p-1.5 rounded-md hover:bg-blue-50 text-blue-600 border border-transparent hover:border-blue-200 transition-all"
@@ -244,9 +260,17 @@ function ActionButtons({ id, onStatusUpdate, onEdit, onDelete }: any) {
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Not show")} className="text-red-600 focus:text-red-700 focus:bg-red-50">Mark Not Show</DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={onDelete} className="text-red-600 focus:text-red-700 focus:bg-red-50">
-            <Trash2 className="w-4 h-4 mr-2" /> Delete
-          </DropdownMenuItem>
+          {
+            isDeleted ? (
+              <DropdownMenuItem onClick={onRecover} className="text-green-600 focus:text-green-700 focus:bg-green-50">
+                <RefreshCw className="w-4 h-4 mr-2" /> Recover
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={onDelete} className="text-red-600 focus:text-red-700 focus:bg-red-50">
+                <Trash2 className="w-4 h-4 mr-2" /> Delete
+              </DropdownMenuItem>
+            )
+          }
         </DropdownMenuContent>
       </DropdownMenu>
     </>

@@ -29,7 +29,13 @@ import useSWR from "swr";
 import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
 import RemoveTestsFromPanelDialog from "./RemoveTestsFromPanelDialog";
 import { formatINR } from "@/lib/fNumber";
-
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function TestCatalogue({
   profile,
@@ -59,6 +65,8 @@ export default function TestCatalogue({
   const [activePanel, setActivePanel] = useState<string | null>(null);
   const [isAddTestsDialogOpen, setIsAddTestsDialogOpen] = useState(false);
   const [isRemoveTestsDialogOpen, setIsRemoveTestsDialogOpen] = useState(false);
+  const [isNewTestModalOpen, setIsNewTestModalOpen] = useState(false);
+  const [isNewPanelModalOpen, setIsNewPanelModalOpen] = useState(false);
 
   const updateCatalogueSettings = async () => {
     try {
@@ -90,7 +98,7 @@ export default function TestCatalogue({
     nbMin?: number;
     nbMax?: number;
     unit?: string;
-    estimatedTime?: number;
+    estimatedTime?: string;
     dataType: "number" | "text" | "boolean"
   }>({
     code: "",
@@ -106,7 +114,15 @@ export default function TestCatalogue({
         toast.error("Please fill all required fields");
         return;
       }
-      await toast.promise(api.post("/lab/panels/create_test", newTest), {
+      let finalPayload = { ...newTest };
+      if (newTest.estimatedTime && typeof newTest.estimatedTime === 'string') {
+        const [hoursStr, minutesStr] = newTest.estimatedTime.split(':');
+        const hours = parseInt(hoursStr || '0', 10);
+        const minutes = parseInt(minutesStr || '0', 10);
+        finalPayload.estimatedTime = (hours * 60 + minutes) as any;
+      }
+
+      await toast.promise(api.post("/lab/panels/create_test", finalPayload), {
         loading: "Adding test...",
         success: "Test added successfully",
         error: ({ response }) => response.data.message,
@@ -121,6 +137,7 @@ export default function TestCatalogue({
         type: "",
         dataType: "number"
       });
+      setIsNewTestModalOpen(false);
 
     } catch (error) {
       console.log(error);
@@ -148,7 +165,7 @@ export default function TestCatalogue({
       nbMin?: number;
       nbMax?: number;
       unit?: string;
-      estimatedTime?: number;
+      estimatedTime?: string;
       panels: {
         name: string;
       }[]
@@ -161,238 +178,262 @@ export default function TestCatalogue({
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
       <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
         <CardContent className="p-6">
-          <SectionHeader
-            title="Master test catalogue"
-            description="Manage all individual tests, panels and profiles."
-            emoji="🧬"
-          />
-
-          <div className="mt-6 grid gap-4">
-            <div className="grid grid-cols-12 gap-4">
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Test Code *</Label>
-                <Input
-                  placeholder="e.g. CBC"
-                  value={newTest.code}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, code: e.target.value }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
-              <div className="col-span-4 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Test Name *</Label>
-                <Input
-                  placeholder="e.g. Complete Blood Count"
-                  value={newTest.name}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
-
-
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Price *</Label>
-                <Input
-                  placeholder="e.g. 100"
-                  value={newTest.price || ""}
-                  onFocus={(e) => e.target.placeholder = ""}
-                  onBlur={(e) => e.target.placeholder = "e.g. 100"}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, price: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
-
-              <div className="col-span-2 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Type *</Label>
-                <Select
-                  value={newTest.type}
-                  onValueChange={(val: "Lab" | "Imaging") => setNewTest(prev => ({ ...prev, type: val, dataType: val === "Lab" ? "number" : "text" }))}
-                >
-                  <SelectTrigger className="h-9 bg-slate-50 w-full">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Lab">Lab Test</SelectItem>
-                    <SelectItem value="Imaging">Imaging</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-
-
-
-
-
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Estimated Time (Minutes)</Label>
-                <Input
-                  placeholder="e.g. 30"
-                  value={newTest.estimatedTime || ""}
-                  type="number"
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, estimatedTime: Number(e.target.value) }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
-
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Unit</Label>
-                <Input
-                  placeholder="e.g. mg/dL"
-                  value={newTest.unit}
-                  onChange={(e) =>
-                    setNewTest((prev) => ({ ...prev, unit: e.target.value }))
-                  }
-                  className="h-9 bg-slate-50"
-                />
-              </div>
-
-              <div className="col-span-3 space-y-1.5">
-                <Label className="text-xs font-medium text-slate-700">Data Type *</Label>
-                <Select
-                  value={newTest.dataType}
-                  onValueChange={(val: "number" | "text" | "boolean") => setNewTest(prev => ({ ...prev, dataType: val }))}
-                >
-                  <SelectTrigger className="h-9 bg-slate-50 w-full">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="number">Number</SelectItem>
-                    <SelectItem value="text">Text</SelectItem>
-                    <SelectItem value="boolean">Boolean</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              {newTest.dataType === "number" && <>
-
-                <div className="col-span-3 space-y-1.5">
-                  <Label className="text-xs font-medium text-slate-700">Range Min</Label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={newTest.min || ""}
-                    onChange={(e) =>
-                      setNewTest((prev) => ({ ...prev, min: Number(e.target.value) }))
-                    }
-                    className="h-9 bg-slate-50"
-                  />
-                </div>
-
-
-
-                <div className="col-span-3 space-y-1.5">
-                  <Label className="text-xs font-medium text-slate-700">Range Max</Label>
-                  <Input
-                    type="number"
-                    placeholder="100"
-                    value={newTest.max || ""}
-                    onChange={(e) =>
-                      setNewTest((prev) => ({ ...prev, max: Number(e.target.value) }))
-                    }
-                    className="h-9 bg-slate-50"
-                  />
-                </div>
-
-
-
-
-                <div className="col-span-3 space-y-1.5">
-                  <Label className="text-xs font-medium text-slate-700">Women Range Min</Label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={newTest.womenMin || ""}
-                    onChange={(e) =>
-                      setNewTest((prev) => ({ ...prev, womenMin: Number(e.target.value) }))
-                    }
-                    className="h-9 bg-slate-50"
-                  />
-                </div>
-                <div className="col-span-3 space-y-1.5">
-                  <Label className="text-xs font-medium text-slate-700">Women Range Max</Label>
-                  <Input
-                    type="number"
-                    placeholder="100"
-                    value={newTest.womenMax || ""}
-                    onChange={(e) =>
-                      setNewTest((prev) => ({ ...prev, womenMax: Number(e.target.value) }))
-                    }
-                    className="h-9 bg-slate-50"
-                  />
-                </div>
-
-                <div className="col-span-3 space-y-1.5">
-                  <Label className="text-xs font-medium text-slate-700">Child Range Min</Label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={newTest.childMin || ""}
-                    onChange={(e) =>
-                      setNewTest((prev) => ({ ...prev, childMin: Number(e.target.value) }))
-                    }
-                    className="h-9 bg-slate-50"
-                  />
-                </div>
-                <div className="col-span-3 space-y-1.5">
-                  <Label className="text-xs font-medium text-slate-700">Child Range Max</Label>
-                  <Input
-                    type="number"
-                    placeholder="100"
-                    value={newTest.childMax || ""}
-                    onChange={(e) =>
-                      setNewTest((prev) => ({ ...prev, childMax: Number(e.target.value) }))
-                    }
-                    className="h-9 bg-slate-50"
-                  />
-                </div>
-
-
-                <div className="col-span-3 space-y-1.5">
-                  <Label className="text-xs font-medium text-slate-700">Newborn Range Min</Label>
-                  <Input
-                    type="number"
-                    placeholder="0"
-                    value={newTest.nbMin || ""}
-                    onChange={(e) =>
-                      setNewTest((prev) => ({ ...prev, nbMin: Number(e.target.value) }))
-                    }
-                    className="h-9 bg-slate-50"
-                  />
-                </div>
-                <div className="col-span-3 space-y-1.5">
-                  <Label className="text-xs font-medium text-slate-700">Newborn Range Max</Label>
-                  <Input
-                    type="number"
-                    placeholder="100"
-                    value={newTest.nbMax || ""}
-                    onChange={(e) =>
-                      setNewTest((prev) => ({ ...prev, nbMax: Number(e.target.value) }))
-                    }
-                    className="h-9 bg-slate-50"
-                  />
-
-                </div>
-              </>}
-
-              <div className="grid grid-cols-12 gap-4 col-span-full">
-
-                <div className="col-span-full flex justify-end items-end w-full">
-                  <Button
-                    className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
-                    onClick={addNewTest}
-                  >
-                    Add Test
-                  </Button>
-                </div>
-              </div>
-            </div>
+          <div className="flex justify-between items-start">
+            <SectionHeader
+              title="Master test catalogue"
+              description="Manage all individual tests, panels and profiles."
+              emoji="🧬"
+            />
+            <Button
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={() => setIsNewTestModalOpen(true)}
+            >
+              Add New Test
+            </Button>
           </div>
+
+          <Dialog open={isNewTestModalOpen} onOpenChange={setIsNewTestModalOpen}>
+            <DialogContent className="sm:max-w-[800px] max-h-[85vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Add New Test</DialogTitle>
+                <DialogDescription>Create a new lab or imaging test in the catalogue.</DialogDescription>
+              </DialogHeader>
+              <div className="mt-2 grid gap-4">
+                <div className="grid grid-cols-12 gap-4">
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Test Code *</Label>
+                    <Input
+                      placeholder="e.g. CBC"
+                      value={newTest.code}
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, code: e.target.value }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
+                  <div className="col-span-4 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Test Name *</Label>
+                    <Input
+                      placeholder="e.g. Complete Blood Count"
+                      value={newTest.name}
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, name: e.target.value }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
+
+
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Price *</Label>
+                    <Input
+                      placeholder="e.g. 100"
+                      value={newTest.price || ""}
+                      onFocus={(e) => e.target.placeholder = ""}
+                      onBlur={(e) => e.target.placeholder = "e.g. 100"}
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, price: Number(e.target.value) }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
+
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Type *</Label>
+                    <Select
+                      value={newTest.type}
+                      onValueChange={(val: "Lab" | "Imaging") => setNewTest(prev => ({ ...prev, type: val, dataType: val === "Lab" ? "number" : "text" }))}
+                    >
+                      <SelectTrigger className="h-9 bg-slate-50 w-full">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Lab">Lab Test</SelectItem>
+                        <SelectItem value="Imaging">Imaging</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+
+
+
+
+
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Estimated Duration (HH:MM)</Label>
+                    <Input
+                      placeholder="HH:MM"
+                      value={newTest.estimatedTime || ""}
+                      type="text"
+                      onChange={(e) => {
+                        let val = e.target.value.replace(/\D/g, "");
+                        if (val.length > 4) val = val.slice(0, 4);
+                        if (val.length >= 3) val = `${val.slice(0, 2)}:${val.slice(2)}`;
+                        setNewTest((prev) => ({ ...prev, estimatedTime: val }));
+                      }}
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
+
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Unit</Label>
+                    <Input
+                      placeholder="e.g. mg/dL"
+                      value={newTest.unit}
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, unit: e.target.value }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
+
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Data Type *</Label>
+                    <Select
+                      value={newTest.dataType}
+                      onValueChange={(val: "number" | "text" | "boolean") => setNewTest(prev => ({ ...prev, dataType: val }))}
+                    >
+                      <SelectTrigger className="h-9 bg-slate-50 w-full">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="number">Number</SelectItem>
+                        <SelectItem value="text">Text</SelectItem>
+                        <SelectItem value="boolean">Positive/Negative</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {newTest.dataType === "number" && <>
+
+                    <div className="col-span-3 space-y-1.5">
+                      <Label className="text-xs font-medium text-slate-700">Range Min</Label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        value={newTest.min || ""}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, min: Number(e.target.value) }))
+                        }
+                        className="h-9 bg-slate-50"
+                      />
+                    </div>
+
+
+
+                    <div className="col-span-3 space-y-1.5">
+                      <Label className="text-xs font-medium text-slate-700">Range Max</Label>
+                      <Input
+                        type="number"
+                        placeholder="100"
+                        value={newTest.max || ""}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, max: Number(e.target.value) }))
+                        }
+                        className="h-9 bg-slate-50"
+                      />
+                    </div>
+
+
+
+
+                    <div className="col-span-3 space-y-1.5">
+                      <Label className="text-xs font-medium text-slate-700">Women Range Min</Label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        value={newTest.womenMin || ""}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, womenMin: Number(e.target.value) }))
+                        }
+                        className="h-9 bg-slate-50"
+                      />
+                    </div>
+                    <div className="col-span-3 space-y-1.5">
+                      <Label className="text-xs font-medium text-slate-700">Women Range Max</Label>
+                      <Input
+                        type="number"
+                        placeholder="100"
+                        value={newTest.womenMax || ""}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, womenMax: Number(e.target.value) }))
+                        }
+                        className="h-9 bg-slate-50"
+                      />
+                    </div>
+
+                    <div className="col-span-3 space-y-1.5">
+                      <Label className="text-xs font-medium text-slate-700">Child Range Min</Label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        value={newTest.childMin || ""}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, childMin: Number(e.target.value) }))
+                        }
+                        className="h-9 bg-slate-50"
+                      />
+                    </div>
+                    <div className="col-span-3 space-y-1.5">
+                      <Label className="text-xs font-medium text-slate-700">Child Range Max</Label>
+                      <Input
+                        type="number"
+                        placeholder="100"
+                        value={newTest.childMax || ""}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, childMax: Number(e.target.value) }))
+                        }
+                        className="h-9 bg-slate-50"
+                      />
+                    </div>
+
+
+                    <div className="col-span-3 space-y-1.5">
+                      <Label className="text-xs font-medium text-slate-700">Newborn Range Min</Label>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        value={newTest.nbMin || ""}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, nbMin: Number(e.target.value) }))
+                        }
+                        className="h-9 bg-slate-50"
+                      />
+                    </div>
+                    <div className="col-span-3 space-y-1.5">
+                      <Label className="text-xs font-medium text-slate-700">Newborn Range Max</Label>
+                      <Input
+                        type="number"
+                        placeholder="100"
+                        value={newTest.nbMax || ""}
+                        onChange={(e) =>
+                          setNewTest((prev) => ({ ...prev, nbMax: Number(e.target.value) }))
+                        }
+                        className="h-9 bg-slate-50"
+                      />
+
+                    </div>
+                  </>}
+
+                  <div className="grid grid-cols-12 gap-4 col-span-full mt-4">
+                    <div className="col-span-full flex justify-end items-end w-full gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setIsNewTestModalOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
+                        onClick={addNewTest}
+                      >
+                        Save Test
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
 
           <div className="mt-8">
             <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Tests</h4>
@@ -438,56 +479,81 @@ export default function TestCatalogue({
 
         <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
           <CardContent className="p-6">
-            <SectionHeader
-              title="Add New Panel"
-              description=""
-            />
+            <div className="flex justify-between items-start mb-4">
+              <SectionHeader
+                title="Panels & Profiles"
+                description="Manage all panels and group tests together."
+                emoji="📦"
+              />
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                onClick={() => setIsNewPanelModalOpen(true)}
+              >
+                Add New Panel
+              </Button>
+            </div>
 
-            <AddPanelForm onSuccess={() => panelMutate()} />
+            <Dialog open={isNewPanelModalOpen} onOpenChange={setIsNewPanelModalOpen}>
+              <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                  <DialogTitle>Add New Panel</DialogTitle>
+                  <DialogDescription>Create a new panel in the catalogue.</DialogDescription>
+                </DialogHeader>
+                <AddPanelForm onSuccess={() => {
+                  panelMutate();
+                  setIsNewPanelModalOpen(false);
+                }} onCancel={() => setIsNewPanelModalOpen(false)} />
+              </DialogContent>
+            </Dialog>
 
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>SL</TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead align="right" className="text-right">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
+            <div className="mt-8">
+              <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Panels</h4>
+              <div className="rounded-lg border border-slate-200 overflow-hidden">
+                <Table>
+                  <TableHeader className="bg-slate-50">
+                    <TableRow>
+                      <TableHead>SL</TableHead>
+                      <TableHead>Name</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead align="right" className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
 
-                {panels.map((panel, idx) => (
-                  <TableRow key={idx}>
-                    <TableCell>{idx + 1}</TableCell>
-                    <TableCell>{panel.name}</TableCell>
-                    <TableCell>{formatINR(panel.price)}</TableCell>
-                    <TableCell align="right" className="flex gap-2 justify-end">
-                      <Button
-                        variant="outline"
-                        className="h-9 bg-slate-50"
-                        onClick={() => {
-                          setActivePanel(panel.name);
-                          setIsAddTestsDialogOpen(true);
-                        }}
-                      >
-                        Add Tests
-                      </Button>
+                    {panels.map((panel, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>{idx + 1}</TableCell>
+                        <TableCell>{panel.name}</TableCell>
+                        <TableCell>{formatINR(panel.price)}</TableCell>
+                        <TableCell align="right" className="flex gap-2 justify-end">
+                          <Button
+                            variant="outline"
+                            className="h-9 bg-slate-50"
+                            onClick={() => {
+                              setActivePanel(panel.name);
+                              setIsAddTestsDialogOpen(true);
+                            }}
+                          >
+                            Add Tests
+                          </Button>
 
-                      <Button
-                        variant="outline"
-                        className="h-9 bg-slate-50"
-                        onClick={() => {
-                          setActivePanel(panel.name);
-                          setIsRemoveTestsDialogOpen(true);
-                        }}
-                      >
-                        Remove Tests
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                          <Button
+                            variant="outline"
+                            className="h-9 bg-slate-50"
+                            onClick={() => {
+                              setActivePanel(panel.name);
+                              setIsRemoveTestsDialogOpen(true);
+                            }}
+                          >
+                            Remove Tests
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           </CardContent>
 
         </Card>
@@ -621,7 +687,7 @@ const FieldRow = ({
 
 
 
-const AddPanelForm = ({ onSuccess }: { onSuccess: () => void }) => {
+const AddPanelForm = ({ onSuccess, onCancel }: { onSuccess: () => void; onCancel: () => void }) => {
 
 
   const [payload, setPayload] = useState({
@@ -632,6 +698,10 @@ const AddPanelForm = ({ onSuccess }: { onSuccess: () => void }) => {
 
   const addPanel = async () => {
     try {
+      if (!payload.name) {
+        toast.error("Please enter a name");
+        return;
+      }
       setLoading(true)
       await toast.promise(api.post("/lab/panels", payload), {
         loading: "Adding panel...",
@@ -650,19 +720,19 @@ const AddPanelForm = ({ onSuccess }: { onSuccess: () => void }) => {
     }
   }
 
-  return <div className="col-span-3 space-y-1.5 mt-5">
-    <div className="flex justify-between items-center gap-5">
-      <div className="">
+  return <div className="mt-4 grid gap-4">
+    <div className="grid grid-cols-12 gap-4">
+      <div className="col-span-12 md:col-span-6 space-y-1.5">
         <Label className="text-xs font-medium text-slate-700">Name *</Label>
-        <Input className="h-9 bg-slate-50" placeholder="CBC" value={payload.name} onChange={(e) => setPayload({ ...payload, name: e.target.value })} />
+        <Input className="h-9 bg-slate-50" placeholder="e.g. CBC Panel" value={payload.name} onChange={(e) => setPayload({ ...payload, name: e.target.value })} />
       </div>
-      <div className="">
+      <div className="col-span-12 md:col-span-6 space-y-1.5">
         <Label className="text-xs font-medium text-slate-700">Price *</Label>
-        <Input type="number" className="h-9 bg-slate-50" placeholder="Price" value={payload.price || ""} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} />
+        <Input type="number" className="h-9 bg-slate-50" placeholder="e.g. 500" value={payload.price || ""} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} />
       </div>
-      <div className="">
-        <Label className="text-xs font-medium text-slate-700 invisible">Button</Label>
-        <Button className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer" onClick={addPanel} disabled={loading}>{loading ? "Adding" : "Add panel"}</Button>
+      <div className="col-span-full flex justify-end items-end w-full gap-2 mt-4">
+        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white" onClick={addPanel} disabled={loading}>{loading ? "Adding..." : "Save Panel"}</Button>
       </div>
     </div>
   </div>

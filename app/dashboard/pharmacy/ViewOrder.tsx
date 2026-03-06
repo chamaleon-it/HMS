@@ -63,8 +63,6 @@ function Barcode({ value }: { value: string }) {
 
 function OrderHeader({ order }: { order: OrderType }) {
 
-    console.log(order?.patient?.allergies)
-
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start mb-4">
             {/* Patient card */}
@@ -109,6 +107,9 @@ function OrderHeader({ order }: { order: OrderType }) {
                     </div>
                     <div className="text-xs text-slate-600">
                         RX ID: <span className="font-medium">{order?.mrn}</span>
+                    </div>
+                    <div className="text-xs text-slate-600">
+                        Pharmacist: <span className="font-medium">{order?.pharmacist}</span>
                     </div>
                 </div>
                 <div className="ml-3 bg-white p-1 rounded border">
@@ -328,7 +329,8 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             // Fetch latest order state for printing, or just use current if sufficient
             // Ideally we should print the completed order.
             // But handlePrintBill mostly uses ID/mrn.
-            handlePrintBill(orderToComplete)
+            handlePrintBill(orderToComplete);
+            setOpen(false); // Close the modal after completing/printing
         } catch (error) {
             console.log(error);
         }
@@ -565,7 +567,10 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                             <Button
                                 variant="outline"
                                 disabled={!!printingOrderId}
-                                onClick={() => handlePrintBill(localOrder)}
+                                onClick={() => {
+                                    handlePrintBill(localOrder);
+                                    setOpen(false);
+                                }}
                             >
                                 {printingOrderId === localOrder._id ? "Printing..." : "Print"}
                             </Button>

@@ -99,7 +99,7 @@ export default function Statistics() {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 my-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 mb-4">
       {statItems.map((item, idx) => {
         const config = STAT_CONFIG[item.key as keyof typeof STAT_CONFIG];
         return (
@@ -147,7 +147,7 @@ function StatTile({
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
       <Card className={cn(
-        "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-sm hover:shadow-md",
+        "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-sm hover:shadow-md py-2.5!",
         borderClass
       )}>
         <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />

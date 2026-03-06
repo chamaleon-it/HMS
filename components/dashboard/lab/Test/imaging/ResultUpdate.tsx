@@ -79,7 +79,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
     const [payload, setPayload] = useState({
         _id: r._id,
-        test: r.test.filter((item) => item.name.type === "Imaging").map((item) => ({ _id: item._id, value: item?.value?.toString(), name: item.name })),
+        test: r.test.filter((item) => item.name?.type === "Imaging").map((item) => ({ _id: item._id, value: item?.value?.toString(), name: item.name })),
     })
 
     const [open, setOpen] = useState(false)
@@ -87,7 +87,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
     const updateResult = async () => {
         for (const item of payload.test) {
             if (!item.value || item?.value?.toString().trim() === "") {
-                toast.error(`Please provide a report/image for ${item.name}`);
+                toast.error(`Please provide a report/image for ${item.name?.name || 'test'}`);
                 return;
             }
         }
@@ -133,7 +133,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
 
                 <div className="p-6 bg-gray-50/30 max-h-[60vh] overflow-y-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {r.test.filter(item => item.name.type === "Imaging").map((test) => (
+                        {r.test.filter(item => item.name?.type === "Imaging").map((test) => (
                             <div key={test._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-purple-200 transition-all duration-200 group">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-3">
@@ -141,8 +141,8 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                             <ImageIcon className="w-4 h-4" />
                                         </div>
                                         <div>
-                                            <h4 className="font-semibold text-gray-900 text-sm">{test.name.name}</h4>
-                                            <p className="text-xs text-gray-400 font-mono mt-0.5">{test.name.code}</p>
+                                            <h4 className="font-semibold text-gray-900 text-sm">{test.name?.name}</h4>
+                                            <p className="text-xs text-gray-400 font-mono mt-0.5">{test.name?.code}</p>
                                         </div>
                                     </div>
                                 </div>

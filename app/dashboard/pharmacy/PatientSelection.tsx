@@ -21,10 +21,11 @@ type Patient = {
   dateOfBirth?: string | Date;
   address?: string;
   mrn?: string;
+  allergies?: string;
 };
 
 interface Props {
-  setValue: (id: string) => void;
+  setValue: (id: string, allergies?: string) => void;
   register: () => void;
   patientName: string;
 }
@@ -85,7 +86,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
   const handleSelect = useCallback(
     (p: Patient) => {
       setSelected(p);
-      setValue(p._id);
+      setValue(p._id, p.allergies);
       setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
       setOpen(false);
     },

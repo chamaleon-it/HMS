@@ -47,8 +47,8 @@ export const pharmacyItemAddSchema = z.object({
     .optional(),
 
   openingStockQuantity: z.coerce
-    .number({ error: "Opening stock must be a number" })
-    .int({ error: "Opening stock must be an integer" })
+    .number({ error: "Current stock must be a number" })
+    .int({ error: "Current stock must be an integer" })
     .optional(),
 
   quantity: z.coerce

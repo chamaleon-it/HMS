@@ -16,6 +16,7 @@ export interface TestItemType {
     name: string;
     type?: "Lab" | "Imaging" | "Panel";
     estimatedTime?: number;
+    price?: number;
     min?: number;
     max?: number;
     unit?: string;

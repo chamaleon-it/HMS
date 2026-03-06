@@ -36,6 +36,15 @@ type Patient = {
 };
 
 interface Props {
+  input: string,
+  setInput: (input: string) => void,
+  handleSelect: (p: any) => void,
+  selected: any,
+  setSelected: (p: any) => void,
+  openCreate: any,
+  setOpenCreate: any
+  open: any,
+  setOpen: (open: boolean) => void,
   patient?: {
     _id: string;
     mrn: string;
@@ -75,12 +84,10 @@ const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?: (e: React.KeyboardEvent) => void }>(({ setValue, values, patient, onKeyDown: parentOnKeyDown }, ref) => {
-  const [input, setInput] = useState("");
-  const [open, setOpen] = useState(false);
+const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?: (e: React.KeyboardEvent) => void }>(({ setValue, values, patient, onKeyDown: parentOnKeyDown, openCreate, setOpenCreate, input, setInput, handleSelect, selected, setSelected, open, setOpen }, ref) => {
+
+
   const [activeIdx, setActiveIdx] = useState<number>(-1);
-  const [selected, setSelected] = useState<Patient | null>(null);
-  const [openCreate, setOpenCreate] = useState(false);
 
   // Close on outside click
   const rootRef = useRef<HTMLDivElement>(null);
@@ -125,15 +132,6 @@ const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?
 
 
 
-  const handleSelect = useCallback(
-    (p: Patient) => {
-      setSelected(p);
-      setValue("patient", p._id, { shouldValidate: true });
-      setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
-      setOpen(false);
-    },
-    [setValue]
-  );
 
   // Reset input if form value cleared externally
   useEffect(() => {
@@ -288,6 +286,7 @@ const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?
                     p={p}
                     isActive={activeIdx === idx}
                     isSelected={selected?._id === p._id}
+                    searchQuery={debounced}
                   />
                 </li>
               ))}
@@ -297,33 +296,7 @@ const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?
       )}
 
       {/* Modal for Registering New Patient */}
-      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
-        <DialogContent className="max-w-3xl!">
-          <DialogHeader>
-            <DialogTitle>Customer Register</DialogTitle>
-          </DialogHeader>
-          <RegisterPatient
-            patient={{ name: input }}
-            onClose={async (id?: string, name?: string) => {
-              setOpenCreate(false);
-              if (id && name) {
-                // Immediately select with available data
-                handleSelect({ _id: id, name, mrn: "" });
 
-                // Fetch full details (MRN, etc.) in background
-                try {
-                  const { data } = await api.get(`/patients/${id}`);
-                  if (data && data.data) {
-                    handleSelect(data.data);
-                  }
-                } catch (error) {
-                  console.error("Failed to fetch full patient details", error);
-                }
-              }
-            }}
-          />
-        </DialogContent>
-      </Dialog>
     </div>
   );
 });
@@ -363,7 +336,8 @@ const PatientCard: React.FC<{
   p: Patient;
   isActive: boolean;
   isSelected: boolean;
-}> = ({ p, isActive, isSelected }) => {
+  searchQuery?: string;
+}> = ({ p, isActive, isSelected, searchQuery = "" }) => {
   const hue = hashHue(p._id ?? p.name ?? p.mrn ?? "hue");
   const ringGradient = `bg-[conic-gradient(from_180deg,oklch(0.92_0.04_${hue})_0%,oklch(0.94_0.05_${(hue + 40) % 360
     })_50%,oklch(0.92_0.04_${(hue + 80) % 360})_100%)]`;
@@ -425,11 +399,11 @@ const PatientCard: React.FC<{
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <p className="truncate font-semibold text-zinc-900 dark:text-zinc-100">
-                  {p.name}
+                  <HighlightText text={p.name} highlight={searchQuery} />
                 </p>
                 {p.mrn ? (
                   <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-400">
-                    ({p.mrn})
+                    (<HighlightText text={p.mrn} highlight={searchQuery} />)
                   </span>
                 ) : null}
               </div>
@@ -462,7 +436,9 @@ const PatientCard: React.FC<{
                 aria-label={`Call ${p.name}`}
               >
                 <Phone className="h-3.5 w-3.5" />
-                <span className="tabular-nums">{p.phoneNumber}</span>
+                <span className="tabular-nums">
+                  <HighlightText text={p.phoneNumber} highlight={searchQuery} />
+                </span>
               </a>
             ) : null}
           </div>
@@ -471,7 +447,9 @@ const PatientCard: React.FC<{
           {p.address ? (
             <div className="mt-2 flex items-start gap-1.5 text-xs text-zinc-500 dark:text-zinc-400">
               <MapPin className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-              <p className="line-clamp-1">{p.address}</p>
+              <p className="line-clamp-1">
+                <HighlightText text={p.address} highlight={searchQuery} />
+              </p>
             </div>
           ) : null}
         </div>
@@ -489,5 +467,38 @@ const PatientCard: React.FC<{
         </div>
       </div>
     </div>
+  );
+};
+
+const HighlightText = ({
+  text,
+  highlight,
+}: {
+  text: string;
+  highlight: string;
+}) => {
+  if (!highlight.trim() || !text) {
+    return <span>{text}</span>;
+  }
+  const regex = new RegExp(
+    `(${highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
+    "gi"
+  );
+  const parts = text.split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <span
+            key={i}
+            className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5"
+          >
+            {part}
+          </span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
   );
 };

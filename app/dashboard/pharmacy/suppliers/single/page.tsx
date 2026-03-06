@@ -5,7 +5,7 @@ import AppShell from "@/components/layout/app-shell";
 import PharmacyHeader from "../../components/PharmacyHeader";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeft, Loader2, ChevronDownIcon, Phone, MapPin, FileText, ShieldCheck, RefreshCw } from "lucide-react";
+import { ArrowLeft, Loader2, ChevronDownIcon, Phone, MapPin, FileText, ShieldCheck, RefreshCw, User, Mail, CreditCard, CalendarDays } from "lucide-react";
 import { Supplier, SupplierOrder } from "../interface";
 import { formatINR } from "@/lib/fNumber";
 import { fDate } from "@/lib/fDateAndTime";
@@ -218,24 +218,26 @@ const SingleSupplierPage: React.FC = () => {
                     </PharmacyHeader>
 
                     {/* Stats Section */}
-                    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                        <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                            <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide ">
-                                Total Purchase Value
+                    <section className="grid gap-4 lg:grid-cols-3 items-stretch">
+                        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 lg:flex lg:flex-col">
+                            <div className="border rounded-2xl p-5 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col justify-center gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px] flex-1">
+                                <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide ">
+                                    Total Purchase Value
+                                </div>
+                                <div className="text-[28px] font-semibold text-emerald-900 truncate mt-1">
+                                    {formatINR(totalPurchaseValue)}
+                                </div>
                             </div>
-                            <div className="text-2xl font-semibold text-emerald-900 ">
-                                {formatINR(totalPurchaseValue)}
+                            <div className="border rounded-2xl p-5 bg-rose-50/50 border-rose-100 flex flex-col justify-center gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px] flex-1">
+                                <div className="text-xs font-medium text-rose-700 uppercase tracking-wide ">
+                                    Total Due Amount
+                                </div>
+                                <div className="text-[28px] font-semibold text-rose-900 truncate mt-1">
+                                    {formatINR(totalDueAmount)}
+                                </div>
                             </div>
                         </div>
-                        <div className="border rounded-2xl p-4 bg-rose-50/50 border-rose-100 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                            <div className="text-xs font-medium text-rose-700 uppercase tracking-wide ">
-                                Total Due Amount
-                            </div>
-                            <div className="text-3xl font-semibold text-rose-900 ">
-                                {formatINR(totalDueAmount)}
-                            </div>
-                        </div>
-                        <div className="border rounded-2xl p-4 bg-white flex flex-col gap-1 shadow-sm col-span-2 transition-transform duration-150 hover:-translate-y-[2px]">
+                        <div className="border rounded-2xl p-5 bg-white flex flex-col gap-1 shadow-sm lg:col-span-2 transition-transform duration-150 hover:-translate-y-[2px]">
                             <div className="text-xs font-medium text-slate-500 uppercase tracking-wide ">
                                 Details
                             </div>
@@ -262,9 +264,9 @@ const SingleSupplierPage: React.FC = () => {
                                     <div className="p-2 bg-indigo-100 rounded-lg">
                                         <MapPin className="w-3.5 h-3.5 text-indigo-600" />
                                     </div>
-                                    <div>
+                                    <div className="min-w-0">
                                         <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">Address</p>
-                                        <p className="font-medium text-slate-700 text-sm leading-snug  truncate max-w-[200px]" title={`${supplier.address.line1}${supplier.address.line2 ? `, ${supplier.address.line2}` : ""}${supplier.address.city ? `, ${supplier.address.city}` : ""}`}>
+                                        <p className="font-medium text-slate-700 text-sm leading-snug truncate" title={`${supplier.address.line1}${supplier.address.line2 ? `, ${supplier.address.line2}` : ""}${supplier.address.city ? `, ${supplier.address.city}` : ""}`}>
                                             {supplier.address.line1}
                                             {supplier.address.line2 && <span className="text-slate-500">, {supplier.address.line2}</span>}
                                             {supplier.address.city && <span className="text-slate-500">, {supplier.address.city}</span>}
@@ -278,6 +280,42 @@ const SingleSupplierPage: React.FC = () => {
                                     <div>
                                         <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">DL Number</p>
                                         <p className="font-semibold text-slate-900 text-sm leading-none ">{supplier.dlNo || "N/A"}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div className="p-2 bg-purple-100 rounded-lg">
+                                        <User className="w-3.5 h-3.5 text-purple-600" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">Contact Person</p>
+                                        <p className="font-semibold text-slate-900 text-sm leading-none truncate" title={supplier.contactPerson}>{supplier.contactPerson || "N/A"}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div className="p-2 bg-blue-100 rounded-lg">
+                                        <Mail className="w-3.5 h-3.5 text-blue-600" />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">Email</p>
+                                        <p className="font-semibold text-slate-900 text-sm leading-none truncate" title={supplier.email}>{supplier.email || "N/A"}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div className="p-2 bg-orange-100 rounded-lg">
+                                        <CreditCard className="w-3.5 h-3.5 text-orange-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">PAN</p>
+                                        <p className="font-semibold text-slate-900 text-sm leading-none ">{supplier.pan || "N/A"}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div className="p-2 bg-teal-100 rounded-lg">
+                                        <CalendarDays className="w-3.5 h-3.5 text-teal-600" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">Payment Terms</p>
+                                        <p className="font-semibold text-slate-900 text-sm leading-none ">{supplier.paymentTerms ? `${supplier.paymentTerms} Days` : "N/A"}</p>
                                     </div>
                                 </div>
                             </div>

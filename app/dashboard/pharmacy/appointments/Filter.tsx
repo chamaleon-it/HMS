@@ -19,6 +19,7 @@ export const STATUSES = [
   "Admit",
   "Test",
   "All",
+  "Deleted"
 ] as const;
 
 
@@ -41,7 +42,7 @@ export default function Filter({
 
 
   return (
-    <Card className="border-zinc-200/60 shadow-sm">
+    <Card className="border-zinc-200/60 shadow-sm py-2.5!">
       <CardContent className="p-3">
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
           <div className="flex-1 flex flex-col sm:flex-row gap-3">

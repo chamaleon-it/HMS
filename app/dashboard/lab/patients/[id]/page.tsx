@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
-import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps } from "lucide-react";
+import toast from "react-hot-toast";
+import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
 import { useParams, useRouter } from "next/navigation";
@@ -18,6 +19,7 @@ import { DateRange } from "react-day-picker";
 import { DataTypes, Datum } from "./interface";
 import useGetPatient from "./useGetPatient";
 import { motion } from "framer-motion";
+import ReportCard from "@/components/dashboard/lab/Home/ReportCard";
 
 const Customer: React.FC = () => {
   const router = useRouter();
@@ -29,18 +31,37 @@ const Customer: React.FC = () => {
   const { data: patient } = useGetPatient(id as string);
   const reports = reportData?.data;
   const [selectedVisit, setSelectedVisit] = useState<Datum | null>(null);
+  const [selectedTests, setSelectedTests] = useState<string[]>([]);
 
   const [openCalander, setOpenCalander] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
+  const [printReport, setPrintReport] = React.useState<any | null>(null);
 
+  const handlePrint = (report: any) => {
+    setPrintReport(report);
+    setTimeout(() => {
+      window.print();
+      setPrintReport(null);
+    }, 100);
+  };
 
   const [type, setType] = useState<"Lab" | "Imaging" | "All">("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const tabs = [
     { key: "All", label: "All", },
     { key: "Lab", label: "Lab", icon: FlaskConical },
     { key: "Imaging", label: "Imaging", icon: ImageIcon },
   ] as const;
+
+  const totalSpend = React.useMemo(() => {
+    return reports?.reduce((acc, report) => {
+      const reportTotal = report.test?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0;
+      return acc + reportTotal;
+    }, 0) || 0;
+  }, [reports]);
+
+  const avgSpend = reports?.length ? totalSpend / reports.length : 0;
 
   return (
     <AppShell>
@@ -92,15 +113,15 @@ const Customer: React.FC = () => {
               </div>
 
               <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
                     Total Spend
                   </div>
                   <div className="text-2xl font-semibold text-emerald-900">
-                    {formatINR(0)}
+                    {formatINR(totalSpend)}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
                     Total Visits
                   </div>
@@ -108,7 +129,7 @@ const Customer: React.FC = () => {
                     {reports?.length}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-violet-700 uppercase tracking-wide">
                     Last Visit
                   </div>
@@ -116,12 +137,12 @@ const Customer: React.FC = () => {
                     {fDate(reports?.[0]?.createdAt)}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-gradient-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
                   <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
                     Avg Spend
                   </div>
                   <div className="text-2xl font-semibold text-amber-900">
-                    {formatINR(0)}
+                    {formatINR(avgSpend)}
                   </div>
                 </div>
               </section>
@@ -133,16 +154,16 @@ const Customer: React.FC = () => {
                       <span className="h-7 w-7 rounded-full bg-slate-800 flex items-center justify-center text-[11px]">
                         {reports?.length}
                       </span>
-                      Bills / Visits
+                      Reports / Visits
                     </div>
                     <div className="text-[11px] text-slate-200">
                       {reports?.length !== 0 ? reports?.length : "No"}{" "}
-                      bill
+                      report
                       {reports?.length === 1 ? "" : "s"}
                     </div>
                   </div>
-                  <div className="flex justify-between items-center bg-slate-50 px-2 py-2">
-                    <div className="flex items-center gap-3 text-[12px] text-slate-700">
+                  <div className="flex justify-end items-center bg-slate-50 px-2 py-2">
+                    {/* <div className="flex items-center gap-3 text-[12px] text-slate-700">
                       <span className="font-medium">Filter:</span>
 
                       <Popover open={openCalander} onOpenChange={setOpenCalander}>
@@ -199,40 +220,54 @@ const Customer: React.FC = () => {
                           Clear
                         </Button>
                       )}
+                    </div> */}
+                    <div className="flex items-center justify-between gap-3 bg-white border-b border-slate-100 p-3 w-full">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <input
+                          type="text"
+                          placeholder="Search Report ID"
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          className="w-full pl-9 pr-3 py-1.5 text-sm rounded-lg border border-slate-200 bg-slate-50 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-transparent transition-all"
+                        />
+                      </div>
+
+                      <div className="relative inline-flex items-center gap-1 text-[13px] bg-slate-50 border border-slate-200 rounded-full p-1 h-9 shrink-0">
+                        {tabs.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
+                          const active = type === key;
+                          return (
+                            <button
+                              key={key}
+                              onClick={() => {
+                                setType(key);
+                                setSelectedTests([]);
+                              }}
+                              className={
+                                "relative flex items-center justify-center gap-1.5 rounded-full px-3 h-full transition will-change-transform cursor-pointer " +
+                                (active ? "text-white" : "text-slate-600 hover:text-slate-900")
+                              }
+                              type="button"
+                            >
+                              {active && (
+                                <motion.span
+                                  layoutId="tab-indicator-1"
+                                  className="absolute inset-0 rounded-full"
+                                  style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                                  transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                                />
+                              )}
+                              <span className="relative z-10 flex items-center gap-1 font-medium">
+                                {Icon && <Icon size={14} />}
+                                {label}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-
-                    <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-                      {tabs.map(({ key, label, icon: Icon }: { key: "Lab" | "Imaging" | "All"; label: string; icon?: React.ForwardRefExoticComponent<Omit<LucideProps, "ref"> & React.RefAttributes<SVGSVGElement>> }) => {
-                        const active = type === key;
-                        return (
-                          <button
-                            key={key}
-                            onClick={() => setType(key)}
-                            className={
-                              "relative flex items-center gap-2 rounded-full px-2 py-1.5 transition will-change-transform cursor-pointer " +
-                              (active ? "text-white" : "text-gray-700")
-                            }
-                            type="button"
-                          >
-                            {active && (
-                              <motion.span
-                                layoutId="tab-indicator-1"
-                                className="absolute inset-0 rounded-full"
-                                style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
-                                transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                              />
-                            )}
-                            <span className="relative z-10 flex items-center gap-1 text-sm">
-                              {Icon && <Icon size={16} />}
-                              {label}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-
-
                   </div>
+
                   <div className="flex-1 overflow-y-auto divide-y">
                     {reports?.length === 0 && (
                       <div className="p-4 text-xs text-slate-500">
@@ -248,7 +283,7 @@ const Customer: React.FC = () => {
 
                     {reports?.filter(o => {
 
-                      if (type && type !== "All" && !o.name?.some(s => s.type === type)) return false;
+                      if (type && type !== "All" && !o.test?.some(s => s.name?.type === type)) return false;
 
                       if (date?.from && date?.to) {
                         const created = new Date(o.createdAt);
@@ -256,6 +291,15 @@ const Customer: React.FC = () => {
                         const end = new Date(date.to);
                         end.setHours(23, 59, 59, 999);
                         if (created < start || created > end) return false;
+                      }
+
+                      if (searchQuery) {
+                        const query = searchQuery.toLowerCase();
+                        const idDisplay = String(o.mrn).padStart(4, "0").toLowerCase();
+
+                        if (!idDisplay.includes(query)) {
+                          return false;
+                        }
                       }
 
                       return true;
@@ -267,7 +311,10 @@ const Customer: React.FC = () => {
                           <button
                             key={bill._id}
                             type="button"
-                            onClick={() => setSelectedVisit(bill)}
+                            onClick={() => {
+                              setSelectedVisit(bill);
+                              setSelectedTests([]);
+                            }}
                             className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
                               ? "bg-slate-900 text-slate-50"
                               : "hover:bg-slate-50"
@@ -275,10 +322,10 @@ const Customer: React.FC = () => {
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span className="font-medium">
-                                {fDate(bill.createdAt)}
+                                Report ID: {String(bill.mrn).padStart(4, "0")} - Date: {fDate(bill.createdAt)}
                               </span>
                               <span className="text-xs font-semibold">
-                                {formatINR(0)}
+                                {formatINR(bill.test?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0)}
                               </span>
                             </div>
                             <div className="flex items-center justify-between gap-2 text-[12px]">
@@ -287,8 +334,8 @@ const Customer: React.FC = () => {
                                   active ? "opacity-80" : "text-slate-500"
                                 }
                               >
-                                {bill.name.filter(o => type === "All" || o.type === type).length} item
-                                {bill.name.filter(o => type === "All" || o.type === type).length === 1 ? "" : "s"}
+                                {bill?.test?.filter(o => type === "All" || o.name?.type === type).length} item
+                                {bill?.test?.filter(o => type === "All" || o.name?.type === type).length === 1 ? "" : "s"}
                               </span>
                             </div>
                           </button>
@@ -301,8 +348,8 @@ const Customer: React.FC = () => {
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit
-                        ? `Bill Details — ${selectedVisit?.name.filter(o => type === "All" || o.type === type).map(e => e.code).join(", ")}`
-                        : "Bill Details"}
+                        ? `Details — ${String(selectedVisit.mrn).padStart(4, "0")}`
+                        : "Details"}
                     </div>
                     {selectedVisit && (
                       <div className="text-[11px] text-slate-500 flex flex-col items-end">
@@ -315,7 +362,7 @@ const Customer: React.FC = () => {
                         <span>
                           RX ID:{" "}
                           <span className="font-medium text-slate-700">
-                            {selectedVisit._id}
+                            {String(selectedVisit.mrn).padStart(4, "0")}
                           </span>
                         </span>
                       </div>
@@ -334,6 +381,26 @@ const Customer: React.FC = () => {
                         <table className="w-full text-[15px]">
                           <thead className="bg-slate-50 text-slate-700 sticky top-0 text-sm">
                             <tr>
+                              <th className="p-2 w-10 text-center font-medium">
+                                {(() => {
+                                  const displayed = selectedVisit?.test?.filter(o => type === "All" || o.name?.type === type) || [];
+                                  const allSelected = displayed.length > 0 && selectedTests.length === displayed.length;
+                                  return (
+                                    <input
+                                      type="checkbox"
+                                      checked={allSelected}
+                                      onChange={(e) => {
+                                        if (e.target.checked) {
+                                          setSelectedTests(displayed.map(t => t._id));
+                                        } else {
+                                          setSelectedTests([]);
+                                        }
+                                      }}
+                                      className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 cursor-pointer"
+                                    />
+                                  );
+                                })()}
+                              </th>
                               <th className="p-2 text-left font-medium">Sl</th>
                               <th className="p-2 text-left font-medium">
                                 Test
@@ -344,15 +411,35 @@ const Customer: React.FC = () => {
                               <th className="p-2 text-right font-medium">
                                 Reference
                               </th>
+                              <th className="p-2 text-right font-medium">
+                                Price
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
-                            {selectedVisit.name.filter(o => type === "All" || o.type === type).map((it, i) => {
+                            {selectedVisit?.test?.filter(o => type === "All" || o.name?.type === type)?.map((t, i) => {
+                              const it = t.name;
+                              if (!it) return null;
                               return (
                                 <tr
-                                  key={it.name}
-                                  className="border-t align-top hover:bg-slate-50/70 transition-colors"
+                                  key={t._id}
+                                  onClick={() => {
+                                    if (selectedTests.includes(t._id)) {
+                                      setSelectedTests(prev => prev.filter(id => id !== t._id));
+                                    } else {
+                                      setSelectedTests(prev => [...prev, t._id]);
+                                    }
+                                  }}
+                                  className="border-t align-top hover:bg-slate-50/70 transition-colors cursor-pointer"
                                 >
+                                  <td className="p-2 align-top text-center">
+                                    <input
+                                      type="checkbox"
+                                      checked={selectedTests.includes(t._id)}
+                                      readOnly
+                                      className="h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-900 pointer-events-none"
+                                    />
+                                  </td>
                                   <td className="p-2 align-top text-slate-500">
                                     {i + 1}
                                   </td>
@@ -366,25 +453,22 @@ const Customer: React.FC = () => {
                                         )}
                                       </span>
 
-                                      <div className="">
 
-                                        <div className="font-medium text-slate-900 leading-snug">
-                                          {it.name}
-                                        </div>
-                                        <div className="text-[12px] text-slate-600 leading-snug">
-                                          (Gen: {it.code} - {it.panel})
-                                        </div>
+
+                                      <div className="font-medium text-slate-900 leading-snug">
+                                        {it.name}
                                       </div>
+
                                     </div>
                                   </td>
                                   <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
                                     {it.type === "Lab" ? (
                                       <>
-                                        {it.value} {it.unit}
+                                        {t.value} {it.unit}
                                       </>
                                     ) : (
                                       <a
-                                        href={it.value?.toString()}
+                                        href={t.value?.toString()}
                                         target="_blank"
                                         rel="noopener noreferrer"
                                         className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
@@ -419,15 +503,18 @@ const Customer: React.FC = () => {
                                       </>
                                     )}
                                   </td>
+                                  <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
+                                    {formatINR(it.price)}
+                                  </td>
                                 </tr>
                               );
                             })}
 
-                            {selectedVisit.name.length === 0 && (
+                            {selectedVisit?.test?.length === 0 && (
                               <tr>
                                 <td
                                   className="p-3 text-center text-slate-500"
-                                  colSpan={4}
+                                  colSpan={6}
                                 >
                                   No items.
                                 </td>
@@ -437,14 +524,14 @@ const Customer: React.FC = () => {
                           <tfoot>
                             <tr className="border-t bg-slate-50/80">
                               <td
-                                colSpan={3}
+                                colSpan={5}
                                 className="p-2 text-right text-xs text-slate-600"
                               >
                                 Total
                               </td>
                               <td className="p-2 text-right text-sm font-semibold text-slate-900">
                                 {formatINR(
-                                  0
+                                  selectedVisit?.test?.filter(o => type === "All" || o.name?.type === type)?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0
                                 )}
                               </td>
                             </tr>
@@ -458,13 +545,25 @@ const Customer: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                           <Button
+                            onClick={() => {
+                              if (selectedTests.length === 0) {
+                                toast.error("Please select at least one item to print.");
+                                return;
+                              }
+
+                              if (selectedVisit && patient) {
+                                const reportToPrint = {
+                                  ...selectedVisit,
+                                  patient: patient,
+                                  test: selectedVisit.test?.filter(t => selectedTests.includes(t._id))
+                                };
+                                handlePrint(reportToPrint);
+                              }
+                            }}
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
 
                           >
                             Print bill
-                          </Button>
-                          <Button className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800">
-                            Refund
                           </Button>
                         </div>
                       </div>
@@ -477,6 +576,7 @@ const Customer: React.FC = () => {
           )}
         </main>
       </div>
+      {printReport && <ReportCard report={printReport} />}
     </AppShell>
   );
 };

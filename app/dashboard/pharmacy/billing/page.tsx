@@ -115,8 +115,8 @@ export default function BillingPage() {
         <div
           className="min-h-[calc(100vh-80px)] w-full p-5 text-slate-900 dark:text-slate-100"
         >
-          <div className="flex flex-col gap-6">
-            <Header setTab={setTab} filter={filter} setFilter={setFilter} />
+          <div className="flex flex-col gap-5">
+            <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} />
 
             <Tabs
               defaultValue="all"
@@ -124,37 +124,6 @@ export default function BillingPage() {
               onValueChange={(e) => setTab(e as "all" | "new")}
               value={tab}
             >
-              <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
-                {[
-                  { key: "all", label: "All Bills", icon: ReceiptIndianRupee },
-                  { key: "new", label: "Create Bill", icon: PlusCircle },
-                ].map(({ key, label, icon: Icon }) => {
-                  const active = tab === key;
-                  return (
-                    <button
-                      key={key}
-                      onClick={() => setTab(key as "all" | "new")}
-                      className={
-                        "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
-                        (active ? "text-white" : "text-gray-700")
-                      }
-                      type="button"
-                    >
-                      {active && (
-                        <motion.span
-                          layoutId="billing-tab-indicator-1"
-                          className="absolute inset-0 rounded-full"
-                          style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
-                          transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                        />
-                      )}
-                      <span className="relative z-10 flex items-center gap-2">
-                        <Icon size={16} /> {label}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
               <TabsContent value="all">
                 <Filters filter={filter} setFilter={setFilter} />
                 {isLoadingBilling ? (

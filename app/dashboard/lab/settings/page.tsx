@@ -45,14 +45,14 @@ const LabSettingsPage: React.FC = () => {
           options={[
             { label: "General", value: "general" },
             { label: "Billing", value: "billing" },
-            { label: "Test Catalogue", value: "catalogue" },
+            // { label: "Test Catalogue", value: "catalogue" },
             { label: "Notifications", value: "notifications" },
             { label: "Security", value: "security" },
           ]}
           value={activeSection}
           onChange={setActiveSection}
           layoutId="settings-tabs"
-          className="w-full grid grid-cols-5"
+          className="w-full grid grid-cols-4"
         />
       </div>
       <div className="flex flex-col gap-6 p-5 w-full text-slate-900">
@@ -63,9 +63,9 @@ const LabSettingsPage: React.FC = () => {
         {activeSection === "billing" && (
           <Billing profile={profile} profileMutate={profileMutate} />
         )}
-        {activeSection === "catalogue" && (
+        {/* activeSection === "catalogue" && (
           <TestCatalogue profile={profile} profileMutate={profileMutate} />
-        )}
+        ) */}
         {activeSection === "notifications" && (
           <Notifications profile={profile} profileMutate={profileMutate} />
         )}

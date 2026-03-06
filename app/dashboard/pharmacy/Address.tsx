@@ -9,7 +9,7 @@ export default function Address({
 }: {
   setValue: UseFormSetValue<{
     name: string;
-    phoneNumber: string;
+    phoneNumber?: string;
     email?: string;
     doctor: string;
     gender: "Male" | "Female" | "Other" | "Prefer not to say";
@@ -94,10 +94,10 @@ export default function Address({
         />
       </div>
       <div className="grid gap-2">
-        <Label>City</Label>
+        <Label>Locality/Place</Label>
         <Input
           ref={refs.city}
-          placeholder="City"
+          placeholder="Locality/Place"
           value={address.city ?? ""}
           onKeyDown={(e) => handleKeyDown(e, refs.state)}
           onChange={(e) =>

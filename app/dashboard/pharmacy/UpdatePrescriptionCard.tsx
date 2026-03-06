@@ -149,7 +149,7 @@ export default function UpdatePrescriptionCard({
                               <AlertTriangle className="h-3.5 w-3.5 text-rose-600 animate-pulse cursor-help" />
                             </TooltipTrigger>
                             <TooltipContent className="bg-rose-600 text-white border-none shadow-lg">
-                              <p className="font-semibold">Medicine is allergic to this patient</p>
+                              <p className="font-semibold">The patient is allergic to this medicine</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>

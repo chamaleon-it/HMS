@@ -132,6 +132,7 @@ export default function Lab() {
           <AnimatedTabs
             options={[
               { label: "All time", value: "All time" },
+              { label: "Today", value: "Today" },
               { label: "7 days", value: "7 days" },
               { label: "30 days", value: "30 days" },
             ]}
@@ -166,7 +167,11 @@ export default function Lab() {
           REPORT={REPORT.filter((r) => {
             const patientMatch = r?.patient?.name.toLowerCase().includes(filter.patient.toLowerCase()) || r?.patient?.mrn.toLowerCase().includes(filter.patient.toLowerCase());
             const statusMatch = filter.status === "All" || r.status === filter.status;
-            const dateMatch = filter.date === "All time" || r.createdAt >= new Date(Date.now() - (filter.date === "7 days" ? 7 : 30) * 24 * 60 * 60 * 1000);
+            const dateMatch =
+              filter.date === "All time" ||
+              (filter.date === "Today"
+                ? new Date(r.createdAt).toDateString() === new Date().toDateString()
+                : new Date(r.createdAt) >= new Date(Date.now() - (filter.date === "7 days" ? 7 : 30) * 24 * 60 * 60 * 1000));
             return patientMatch && statusMatch && dateMatch;
           })}
           status={filter.status}

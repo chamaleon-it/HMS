@@ -35,11 +35,12 @@ import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { z } from "zod"
 import { ItemType } from './interface'
+import TypableExpiryInput from "../suppliers/purchase-entry/components/TypableExpiryInput"
 
 // Schema for adding a batch
 const addBatchSchema = z.object({
     batchNumber: z.string().min(1, "Batch number is required"),
-    expiryDate: z.date(),
+    expiryDate: z.coerce.date(),
     quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
     purchasePrice: z.coerce.number().min(0, "Price must be positive"),
     supplier: z.string().min(1, "Supplier is required"),
@@ -162,7 +163,13 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         register("batchNumber").ref(e);
                                         refs.batchNumber.current = e;
                                     }}
-                                    onKeyDown={(e) => handleKeyDown(e, refs.expiryDate)}
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            const el = document.querySelector('input[data-field="expiryDate"]') as HTMLInputElement;
+                                            if (el) el.focus();
+                                        }
+                                    }}
                                     autoFocus
                                 />
                                 {errors.batchNumber && <p className="text-xs text-red-500 mt-1">{errors.batchNumber.message}</p>}
@@ -170,36 +177,11 @@ export default function UpdateBatch({ item, mutate }: Props) {
 
                             <div className="col-span-1">
                                 <label className="text-xs font-medium text-gray-600">Expiry Date *</label>
-                                <Popover open={openCalander} onOpenChange={setOpenCalander}>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant="outline"
-                                            className="w-full justify-between font-normal mt-1 h-9"
-                                            ref={refs.expiryDate}
-                                            onKeyDown={(e) => handleKeyDown(e, refs.quantity)}
-                                        >
-                                            {expiryDate ? fDate(expiryDate) : "Select date"}
-                                            <ChevronDownIcon className="h-4 w-4 opacity-50" />
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar
-                                            startMonth={new Date(2025, 0)}
-                                            endMonth={new Date(2030, 0)}
-                                            captionLayout="dropdown"
-                                            disabled={{ before: new Date() }}
-                                            mode="single"
-                                            selected={expiryDate}
-                                            onSelect={(date) => {
-                                                if (date) setValue("expiryDate", date);
-                                                setOpenCalander(false);
-                                                // Move focus to next field after selection
-                                                refs.quantity.current?.focus();
-                                            }}
-                                            initialFocus
-                                        />
-                                    </PopoverContent>
-                                </Popover>
+                                <TypableExpiryInput
+                                    value={expiryDate ? (expiryDate instanceof Date ? expiryDate.toISOString() : expiryDate as any) : ""}
+                                    onChange={(dt) => setValue("expiryDate", dt as any, { shouldValidate: true })}
+                                    onKeyDown={(e) => handleKeyDown(e, refs.quantity)}
+                                />
                                 {errors.expiryDate && <p className="text-xs text-red-500 mt-1">{errors.expiryDate.message}</p>}
                             </div>
 
@@ -270,7 +252,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         <TableHead>Batch No</TableHead>
                                         <TableHead>Expiry</TableHead>
                                         <TableHead>Supplier</TableHead>
-                                        <TableHead className="text-right">Price</TableHead>
+                                        <TableHead className="text-right">P Price</TableHead>
                                         <TableHead className="text-right">Qty</TableHead>
                                     </TableRow>
                                 </TableHeader>

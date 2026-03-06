@@ -21,6 +21,7 @@ import { Plus, RefreshCw, Users, ShoppingBag, BarChart3, CreditCard, ArrowUpDown
 
 import Drawer from "@/components/ui/drawer";
 import { AddSupplier } from "./AddSupplier";
+import { EditSupplier } from "./EditSupplier";
 import { Supplier } from "./interface";
 import useSWR from "swr";
 import api from "@/lib/axios";
@@ -30,6 +31,8 @@ const fetcher = (url: string) => api.get(url).then((res) => res.data.data);
 const SuppliersPage: React.FC = () => {
     const router = useRouter();
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
+    const [isEditDrawerOpen, setIsEditDrawerOpen] = useState(false);
+    const [selectedSupplier, setSelectedSupplier] = useState<Supplier | null>(null);
 
     const { data: suppliers = [], error, isLoading, mutate } = useSWR<Supplier[]>("/suppliers", fetcher);
     const [sortBy, setSortBy] = useState<keyof Supplier | null>(null);
@@ -147,6 +150,8 @@ const SuppliersPage: React.FC = () => {
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Phone Number</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">GSTIN</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">DL No</TableHead>
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Action</TableHead>
+
 
                                     <SortableHeader
                                         label="Total Purchase Count"
@@ -220,6 +225,30 @@ const SuppliersPage: React.FC = () => {
                                             <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
                                                 {formatINR(supplier.totalDue || 0)}
                                             </TableCell>
+                                            <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4 space-x-2">
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        router.push(`/dashboard/pharmacy/suppliers/single?id=${supplier._id}`);
+                                                    }}
+                                                >
+                                                    View
+                                                </Button>
+
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedSupplier(supplier);
+                                                        setIsEditDrawerOpen(true);
+                                                    }}
+                                                >
+                                                    Edit
+                                                </Button>
+                                            </TableCell>
                                         </TableRow>
                                     ))
                                 )}
@@ -248,6 +277,26 @@ const SuppliersPage: React.FC = () => {
                     onClose={() => setIsAddDrawerOpen(false)}
                     onRefresh={() => mutate()}
                 />
+            </Drawer>
+
+            <Drawer
+                open={isEditDrawerOpen}
+                onClose={() => {
+                    setIsEditDrawerOpen(false);
+                    setTimeout(() => setSelectedSupplier(null), 300); // clear after animation
+                }}
+                title="Edit Supplier"
+            >
+                {selectedSupplier && (
+                    <EditSupplier
+                        supplier={selectedSupplier}
+                        onClose={() => {
+                            setIsEditDrawerOpen(false);
+                            setTimeout(() => setSelectedSupplier(null), 300);
+                        }}
+                        onRefresh={() => mutate()}
+                    />
+                )}
             </Drawer>
         </AppShell>
     );

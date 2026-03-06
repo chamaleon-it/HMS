@@ -86,6 +86,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                     <th className="px-3 py-3 text-center w-10">SL</th>
                                     <th className="px-3 py-3 text-left">Medicine / Strength</th>
                                     <th className="px-3 py-3 text-center">Dosage</th>
+                                    <th className="px-3 py-3 text-center">Frequency</th>
                                     <th className="px-3 py-3 text-center">Duration</th>
                                     <th className="px-3 py-3 text-left">Instructions</th>
                                 </tr>
@@ -99,6 +100,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                             <p className="text-[10px] text-slate-500 font-medium tracking-tight mt-0.5">(GEN: {m.name.generic || "—"})</p>
                                         </td>
                                         <td className="px-3 py-3 text-center font-bold text-slate-700">{m.dosage || "—"}</td>
+                                        <td className="px-3 py-3 text-center font-bold text-slate-700">{m.frequency || "—"}</td>
                                         <td className="px-3 py-3 text-center font-bold text-slate-700">{m.duration || "—"}</td>
                                         <td className="px-3 py-3 text-xs font-semibold text-slate-600 italic">
                                             {m.food || "—"}

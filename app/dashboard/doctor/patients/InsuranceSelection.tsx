@@ -19,10 +19,11 @@ import { X } from "lucide-react";
 
 interface FormType {
   name: string;
-  phoneNumber: string;
   doctor: string;
   gender: "Male" | "Female" | "Other" | "Prefer not to say";
   dateOfBirth: string;
+  mrn?: string | undefined;
+  phoneNumber?: string | undefined;
   email?: string | undefined;
   conditions?: string[] | undefined;
   blood?: string | undefined;
@@ -32,6 +33,9 @@ interface FormType {
   uhid?: string | undefined;
   emergencyContactNumber?: string | undefined;
   address?: string | undefined;
+  guardian?: string | undefined;
+  guardianPhoneNumber?: string | undefined;
+  guardianRelation?: string | undefined;
   notes?: string | undefined;
 }
 

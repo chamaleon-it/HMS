@@ -1,33 +1,34 @@
 "use client";
 
 import React, { JSX, useMemo } from "react";
-import { CheckCircle, Eye, Clock, AlertTriangle } from "lucide-react";
+import { CheckCircle, Clock, AlertTriangle, TestTube2, FlaskConical, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 export default function LabStatus({
   currenctStatus,
   setCurrenctStatus,
 }: {
-  currenctStatus: "Pending" | "In Progress" | "Completed" | "Flagged";
+  currenctStatus: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted";
   setCurrenctStatus: React.Dispatch<
     React.SetStateAction<
-      "Pending" | "In Progress" | "Completed" | "Flagged"
+      "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted"
     >
   >;
 }): JSX.Element {
   const tabs = useMemo(
     () => [
 
-      { key: "Pending", label: "Upcoming", icon: Clock },
-
-      { key: "In Progress", label: "In Progress", icon: Eye },
+      { key: "Upcoming", label: "Upcoming", icon: Clock },
+      { key: "Sample Collected", label: "Sample Collected", icon: TestTube2 },
+      { key: "Waiting For Result", label: "Waiting For Result", icon: FlaskConical },
       { key: "Completed", label: "Completed", icon: CheckCircle },
       { key: "Flagged", label: "Flagged", icon: AlertTriangle },
+      { key: "Deleted", label: "Deleted", icon: Trash2 },
     ],
     []
   );
 
   return (
-    <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
+    <div className="relative inline-flex flex-wrap items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
       {tabs.map(({ key, label, icon: Icon }) => {
         const active = currenctStatus === key;
         return (
@@ -35,7 +36,7 @@ export default function LabStatus({
             key={key}
             onClick={() =>
               setCurrenctStatus(
-                key as "Pending" | "In Progress" | "Completed" | "Flagged"
+                key as "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted"
               )
             }
             className={

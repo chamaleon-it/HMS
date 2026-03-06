@@ -10,7 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import PatientSelection from "./PatientSelection";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/auth/context/auth-context";
 import {
   Popover,
@@ -24,6 +24,7 @@ import {
   Plus,
   Trash,
   Zap,
+  AlertTriangle,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { motion } from "framer-motion";
@@ -46,6 +47,9 @@ import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
+import DateTimePicker from "./DateTimePicker";
+import { formatINR } from "@/lib/fNumber";
+
 
 interface NewTestProps {
   mutate?: () => void;
@@ -77,17 +81,16 @@ export default function NewTest({
   const open = isControlled ? controlledOpen : internalOpen;
   const setOpen = isControlled ? setControlledOpen : setInternalOpen;
 
-  const [openDate, setOpenDate] = useState(false);
   const [bookingType, setBookingType] = useState<"Book Now" | "Schedule">(
     defaultBookingType
   );
 
-  // // Update booking type when default changes or dialog opens
-  // useEffect(() => {
-  //   if (open && defaultBookingType) {
-  //     setBookingType(defaultBookingType);
-  //   }
-  // }, [open, defaultBookingType]);
+  // Update booking type when default changes or dialog opens
+  useEffect(() => {
+    if (open && isControlled && defaultBookingType) {
+      setBookingType(defaultBookingType);
+    }
+  }, [open, isControlled, defaultBookingType]);
 
   const tabs = [
     { key: "Book Now", label: "Book Now", icon: Zap },
@@ -100,7 +103,7 @@ export default function NewTest({
     test: { name: string }[];
     panels: string[];
     date: Date | undefined;
-    priority: string;
+    priority: "Normal" | "Urgent";
     sampleType: string;
     status: string;
   }>({
@@ -112,12 +115,10 @@ export default function NewTest({
     date: new Date(),
     priority: "Normal",
     sampleType: "Other",
-    status: "Pending",
+    status: "Upcoming",
   });
 
   const { tests } = useGetTest();
-
-  const Tests = tests;
 
   const handleSubmit = async () => {
     if (!payload.patient) {
@@ -140,7 +141,7 @@ export default function NewTest({
 
     try {
       await toast.promise(
-        api.post("/lab/report", { ...payload, date: submitDate }),
+        api.post("/lab/report", { ...payload, date: submitDate.toISOString() }),
         {
           loading: "We are create new lab test order",
           success: ({ data }) => data.message,
@@ -158,39 +159,71 @@ export default function NewTest({
         date: new Date(),
         priority: "Normal",
         sampleType: "Other",
-        status: "Pending",
+        status: "Upcoming",
       });
     } catch (error) {
       console.log(error);
     }
   };
 
+  const grandTotal = useMemo(() => {
+    const panelsTotal = payload.panels.reduce((acc, panelName) => {
+      const panel = panels.find((p) => p.name === panelName);
+      return acc + (panel?.price || 0);
+    }, 0);
+
+    const independentTestsTotal = payload.test
+      .filter((t) => {
+        const testObj = tests.find((test) => test._id === t.name);
+        const belongsToPanel = testObj?.panels?.some((p) =>
+          payload.panels.includes(p.name)
+        );
+        return !belongsToPanel;
+      })
+      .reduce((acc, t) => {
+        const testObj = tests.find((test) => test._id === t.name);
+        return acc + (testObj?.price || 0);
+      }, 0);
+
+    return panelsTotal + independentTestsTotal;
+  }, [payload.panels, payload.test, panels, tests]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {!isControlled && (
-        <div className="flex items-center gap-2">
-          <Button
-            className="text-white gap-2 shadow-md hover:brightness-110 border-0 transition-all active:scale-95"
-            style={{
-              backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-            }}
-            onClick={() => {
-              setBookingType("Book Now");
-              setOpen?.(true);
-            }}
-          >
-            <Plus className="h-4 w-4 stroke-[2.5]" /> Book now
-          </Button>
-          <Button
-            variant="outline"
-            className="gap-2"
-            onClick={() => {
-              setBookingType("Schedule");
-              setOpen?.(true);
-            }}
-          >
-            <CalendarIcon className="h-4 w-4" /> Schedule
-          </Button>
+        <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+          {[
+            { key: "Book Now", label: "Book now", icon: Zap },
+            { key: "Schedule", label: "Schedule", icon: CalendarIcon },
+          ].map(({ key, label, icon: Icon }) => {
+            const active = bookingType === key;
+            return (
+              <button
+                key={key}
+                onClick={() => {
+                  setBookingType(key as "Book Now" | "Schedule");
+                  setOpen?.(true);
+                }}
+                className={
+                  "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium " +
+                  (active ? "text-white" : "text-slate-600 hover:bg-slate-50")
+                }
+                type="button"
+              >
+                {active && (
+                  <motion.span
+                    layoutId="external-booking-indicator"
+                    className="absolute inset-0 rounded-full"
+                    style={{ background: `linear-gradient(90deg, ${theme.from}, ${theme.to})` }}
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-2">
+                  <Icon size={16} /> {label}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
 
@@ -252,7 +285,8 @@ export default function NewTest({
             <LabeledCombobox
               label="Select a Test"
               value=""
-              onChange={(val) => {
+              clearOnSelect={true}
+              onSelect={(val) => {
                 if (!val) return;
 
                 // Check if it's a panel
@@ -278,7 +312,7 @@ export default function NewTest({
                     };
                   });
                 } else {
-                  // Must be a test
+                  // Must be a test (Ensure EXACT match, not partial)
                   const testObj = tests.find((t) => t.name === val);
                   if (testObj) {
                     setPayload((prev) => {
@@ -305,59 +339,26 @@ export default function NewTest({
             />
           </div>
 
-          {bookingType === "Schedule" && (
-            <>
-              <div className="flex gap-2">
-                <Popover open={openDate} onOpenChange={setOpenDate}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      id="date"
-                      className="w-48 justify-between font-normal"
-                    >
-                      {payload.date ? fDate(payload.date) : "Select date"}
-                      <ChevronDownIcon />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-auto overflow-hidden p-0"
-                    align="start"
-                  >
-                    <Calendar
-                      mode="single"
-                      selected={payload.date}
-                      captionLayout="dropdown"
-                      startMonth={new Date(2025, 0)}
-                      endMonth={new Date(2027, 0)}
-                      onSelect={(date) => {
-                        setPayload((prev) => ({ ...prev, date }));
-                        setOpenDate(false);
-                      }}
-                      disabled={(date) => date < new Date()}
-                    />
-                  </PopoverContent>
-                </Popover>
-                <Input
-                  type="time"
-                  id="time-picker"
-                  step="1800"
-                  defaultValue={`${new Date().getHours()}:${new Date().getMinutes()}`}
-                  className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
-                  onChange={(e) => {
-                    if (payload.date) {
-                      const newDate = combineToIST(
-                        payload.date,
-                        e.target.value
-                      );
-                      setPayload((prev) => ({ ...prev, date: newDate }));
-                    } else {
-                      toast.error("Select date first");
-                    }
-                  }}
-                />
-              </div>
-            </>
-          )}
+          <div className="flex gap-2 items-center">
+            <Button
+              type="button"
+              variant={payload.priority === "Urgent" ? "default" : "outline"}
+              className={payload.priority === "Urgent" ? "bg-amber-500 hover:bg-amber-600 text-white" : "border-amber-200 text-amber-600 hover:bg-amber-50"}
+              onClick={(e) => {
+                e.preventDefault();
+                setPayload(prev => ({ ...prev, priority: prev.priority === "Urgent" ? "Normal" : "Urgent" }));
+              }}
+            >
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              Urgent
+            </Button>
+            {bookingType === "Schedule" && (
+              <DateTimePicker
+                date={payload.date}
+                setDate={(date) => setPayload((prev) => ({ ...prev, date }))}
+              />
+            )}
+          </div>
         </div>
 
         <Table>
@@ -365,9 +366,11 @@ export default function NewTest({
             <TableRow>
               <TableHead>SL</TableHead>
               <TableHead>Test Name</TableHead>
-              <TableHead>Min Range</TableHead>
+              <TableHead>Price</TableHead>
+              <TableHead>Estimate Time</TableHead>
+              {/* <TableHead>Min Range</TableHead>
               <TableHead>Max Range</TableHead>
-              <TableHead>Unit</TableHead>
+              <TableHead>Unit</TableHead> */}
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -376,9 +379,12 @@ export default function NewTest({
               <TableRow key={t}>
                 <TableCell>{idx + 1}</TableCell>
                 <TableCell>{t}</TableCell>
+                <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
                 <TableCell>-</TableCell>
+
+                {/* <TableCell>-</TableCell>
                 <TableCell>-</TableCell>
-                <TableCell>-</TableCell>
+                <TableCell>-</TableCell> */}
                 <TableCell>
                   <Button
                     variant="ghost"
@@ -387,7 +393,6 @@ export default function NewTest({
                       setPayload((prev) => {
                         if (!prev.panels.includes(t)) return prev;
 
-                        // collect test ids related to this panel
                         const relatedTestIds = new Set(
                           tests
                             .filter((test) =>
@@ -422,6 +427,12 @@ export default function NewTest({
                   {tests.find((test) => test._id === t.name)?.name}
                 </TableCell>
                 <TableCell>
+                  {formatINR(tests.find((test) => test._id === t.name)?.price || 0)}
+                </TableCell>
+                <TableCell>
+                  {tests.find((test) => test._id === t.name)?.estimatedTime}
+                </TableCell>
+                {/* <TableCell>
                   {tests.find((test) => test._id === t.name)?.min}
                 </TableCell>
                 <TableCell>
@@ -429,7 +440,7 @@ export default function NewTest({
                 </TableCell>
                 <TableCell>
                   {tests.find((test) => test._id === t.name)?.unit}
-                </TableCell>
+                </TableCell> */}
                 <TableCell>
                   <Button
                     variant={"ghost"}
@@ -449,6 +460,13 @@ export default function NewTest({
           </TableBody>
         </Table>
 
+        <div className="flex justify-end items-center mt-4 pr-4">
+          <div className="text-lg font-semibold text-gray-700">
+            Grand Total: <span className="text-blue-600">{formatINR(grandTotal)}</span>
+          </div>
+        </div>
+
+
         <DialogFooter>
           <DialogClose asChild>
             <Button variant="outline">Cancel</Button>
@@ -457,7 +475,7 @@ export default function NewTest({
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
             onClick={handleSubmit}
           >
-            New Test
+            Book Test
           </Button>
         </DialogFooter>
       </DialogContent>
