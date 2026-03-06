@@ -53,11 +53,11 @@ export function CreateAppointmentForm({
     internalNotes: string | null;
     type: "New" | "Follow up";
     status:
-      | "Upcoming"
-      | "Consulted"
-      | "Observation"
-      // | "Completed"
-      | "Not show";
+    | "Upcoming"
+    | "Consulted"
+    | "Observation"
+    // | "Completed"
+    | "Not show";
     isPaid: boolean;
     createdAt: Date;
     visitCount: number;
@@ -70,8 +70,8 @@ export function CreateAppointmentForm({
       email: string;
     }[];
     message: string;
-  }>("/users/doctors",{
-    revalidateIfStale:false
+  }>("/users/doctors", {
+    revalidateIfStale: false
   });
 
   const {
@@ -103,7 +103,7 @@ export function CreateAppointmentForm({
         type: appointment.type,
       });
     }
-  }, [appointment,reset]);
+  }, [appointment, reset]);
 
   const values = watch();
 
@@ -118,7 +118,11 @@ export function CreateAppointmentForm({
             error: ({ response }) => response.data.message,
           }
         );
-        reset();
+        reset({
+          method: "In clinic",
+          type: "New",
+          isPaid: "false",
+        });
         onClose();
         if (mutate) {
           mutate();
@@ -131,7 +135,11 @@ export function CreateAppointmentForm({
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
-      reset();
+      reset({
+        method: "In clinic",
+        type: "New",
+        isPaid: "false",
+      });
       onClose();
       if (mutate) {
         mutate();

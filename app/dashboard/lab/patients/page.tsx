@@ -42,8 +42,8 @@ const Patients: React.FC = () => {
                 <main className="space-y-6">
                     <div className="flex items-center justify-between gap-3 w-full">
                         <LabHeader
-                            title="Patients"
-                            subtitle="Click a row to open full lab history for that patient."
+                            title="Customers"
+                            subtitle="Click a row to open full lab history for that Customers."
                         >
                         </LabHeader>
                         <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
@@ -58,7 +58,7 @@ const Patients: React.FC = () => {
                             <TableHeader className="">
                                 <TableRow className="bg-slate-700 hover:bg-slate-700 text-white uppercase">
                                     <TableHead className="text-white py-3">Sl</TableHead>
-                                    <TableHead className="text-white py-3">Patient</TableHead>
+                                    <TableHead className="text-white py-3">Customer</TableHead>
                                     <TableHead className="text-white py-3">PID</TableHead>
                                     <TableHead className="text-white py-3">
                                         Age / Gender
@@ -98,7 +98,7 @@ const Patients: React.FC = () => {
                                                     <span className="text-[15px] text-slate-900">
                                                         {p.name}
                                                     </span>
-                                                    <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
+                                                    <span className="text-[12px] text-slate-500 truncate max-w-65">
                                                         {p.address}
                                                     </span>
                                                     <div className="flex flex-wrap gap-1 mt-0.5">
