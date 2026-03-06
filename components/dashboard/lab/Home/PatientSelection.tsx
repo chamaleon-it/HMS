@@ -91,7 +91,6 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
     [setValue]
   );
 
-
   // Keyboard navigation within the listbox
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!open) return;
