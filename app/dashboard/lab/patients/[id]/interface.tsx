@@ -1,4 +1,3 @@
-
 export interface DataTypes {
   message: string;
   data: Datum[];
@@ -11,12 +10,12 @@ export interface Datum {
   lab: Lab;
   date: Date;
   priority: string;
-  panels: any[];
-  test: Test[];
+  test: TestItem[];
+  name?: TestItem[];
   sampleType: string;
-  sampleCollectedAt: Date;
-  testStartedAt: Date;
-  sampleId: string;
+  sampleCollectedAt: Date | null;
+  testStartedAt: Date | null;
+  sampleId: string | null;
   extraTime: number;
   status: string;
   isDeleted: boolean;
@@ -29,7 +28,7 @@ export interface Datum {
 export interface Doctor {
   _id: string;
   name: string;
-  specialization: null;
+  specialization: null | string;
 }
 
 export interface Lab {
@@ -37,28 +36,33 @@ export interface Lab {
   name: string;
 }
 
-export interface Test {
-  name: Name;
+export interface TestItem {
+  name: TestMetadata;
   value: string;
   _id: string;
 }
 
-export interface Name {
+export interface TestMetadata {
   _id: string;
   code: string;
   name: string;
   price: number;
-  type: string;
+  type: Type;
   estimatedTime: number;
   dataType: string;
-  min: number;
-  max: number;
-  womenMin: number;
-  womenMax: number;
-  childMin: null;
-  childMax: null;
-  nbMin: null;
-  nbMax: number;
-  unit: string;
-  panels: string[];
+  min: number | null;
+  max: number | null;
+  womenMin: number | null;
+  womenMax: number | null;
+  childMin: number | null;
+  childMax: number | null;
+  nbMin: number | null;
+  nbMax: number | null;
+  unit: string | null;
+  panels: any[];
+}
+
+export enum Type {
+  Imaging = "Imaging",
+  Lab = "Lab",
 }

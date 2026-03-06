@@ -22,7 +22,6 @@ export default function LabeledCombobox({
     const [open, setOpen] = useState(false);
     const [text, setText] = useState(value ?? "");
     const [focusedIndex, setFocusedIndex] = useState(-1);
-    const [isTyping, setIsTyping] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     React.useEffect(() => {
@@ -37,7 +36,6 @@ export default function LabeledCombobox({
     const handleChange = (raw: string) => {
         const v = digitsOnly ? raw.replace(/[^0-9]/g, "") : raw;
         setText(v);
-        setIsTyping(true);
         if (onChange) onChange(v);
         setOpen(true);
     };
@@ -48,7 +46,6 @@ export default function LabeledCombobox({
         } else {
             setText(val);
         }
-        setIsTyping(false);
         if (onChange) onChange(val);
         if (onSelect) onSelect(val);
         setOpen(false);
@@ -56,10 +53,7 @@ export default function LabeledCombobox({
     };
 
     // Filter options matching the current input exactly as typed
-    // If not actively typing, show all options.
-    const filteredOptions = isTyping
-        ? options.filter(opt => opt.toLowerCase().includes(text.toLowerCase()))
-        : options;
+    const filteredOptions = options.filter(opt => opt.toLowerCase().includes(text.toLowerCase()));
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (!open && e.key !== 'Escape') {
@@ -132,8 +126,8 @@ export default function LabeledCombobox({
                 value={text}
                 onChange={(e) => handleChange(e.target.value)}
                 onKeyDown={handleKeyDown}
-                onFocus={() => { setOpen(true); setIsTyping(false); }}
-                onClick={() => { setOpen(true); setIsTyping(false); }}
+                onFocus={() => setOpen(true)}
+                onClick={() => setOpen(true)}
                 onBlur={() => {
                     setTimeout(() => {
                         setOpen(false);

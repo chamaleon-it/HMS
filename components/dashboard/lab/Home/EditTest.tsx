@@ -225,7 +225,7 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                             <TableRow key={t}>
                                 <TableCell>{idx + 1}</TableCell>
                                 <TableCell>{t}</TableCell>
-                                <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
+                                <TableCell>{panels.find((p) => p.name === t)?.price}</TableCell>
                                 <TableCell>-</TableCell>
                                 <TableCell>
                                     <Button
@@ -269,7 +269,7 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                                     {tests.find((test) => test._id === t.name)?.name}
                                 </TableCell>
                                 <TableCell>
-                                    {formatINR(tests.find((test) => test._id === t.name)?.price || 0)}
+                                    {tests.find((test) => test._id === t.name)?.price}
                                 </TableCell>
                                 <TableCell>
                                     {tests.find((test) => test._id === t.name)?.estimatedTime}

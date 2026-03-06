@@ -36,15 +36,6 @@ type Patient = {
 };
 
 interface Props {
-  input: string,
-  setInput: (input: string) => void,
-  handleSelect: (p: any) => void,
-  selected: any,
-  setSelected: (p: any) => void,
-  openCreate: any,
-  setOpenCreate: any
-  open: any,
-  setOpen: (open: boolean) => void,
   patient?: {
     _id: string;
     mrn: string;
@@ -84,10 +75,12 @@ const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?: (e: React.KeyboardEvent) => void }>(({ setValue, values, patient, onKeyDown: parentOnKeyDown, openCreate, setOpenCreate, input, setInput, handleSelect, selected, setSelected, open, setOpen }, ref) => {
-
-
+const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?: (e: React.KeyboardEvent) => void }>(({ setValue, values, patient, onKeyDown: parentOnKeyDown }, ref) => {
+  const [input, setInput] = useState("");
+  const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
+  const [selected, setSelected] = useState<Patient | null>(null);
+  const [openCreate, setOpenCreate] = useState(false);
 
   // Close on outside click
   const rootRef = useRef<HTMLDivElement>(null);
@@ -132,6 +125,15 @@ const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?
 
 
 
+  const handleSelect = useCallback(
+    (p: Patient) => {
+      setSelected(p);
+      setValue("patient", p._id, { shouldValidate: true });
+      setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
+      setOpen(false);
+    },
+    [setValue]
+  );
 
   // Reset input if form value cleared externally
   useEffect(() => {
@@ -296,7 +298,33 @@ const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?
       )}
 
       {/* Modal for Registering New Patient */}
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            patient={{ name: input }}
+            onClose={async (id?: string, name?: string) => {
+              setOpenCreate(false);
+              if (id && name) {
+                // Immediately select with available data
+                handleSelect({ _id: id, name, mrn: "" });
 
+                // Fetch full details (MRN, etc.) in background
+                try {
+                  const { data } = await api.get(`/patients/${id}`);
+                  if (data && data.data) {
+                    handleSelect(data.data);
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch full patient details", error);
+                }
+              }
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 });

@@ -19,7 +19,7 @@ export const registerPatientSchema = z.object({
     .string()
     .optional()
     .refine(
-      (val) => !val || (!val.includes("+") && val.replace(/\D/g, "").length === 10 || (val.includes("+") && val.replace(/\D/g, "").length === 12)),
+      (val) => !val || (val.length === 10 || val.length === 13),
       "Please provide a valid phone number"
     ),
 

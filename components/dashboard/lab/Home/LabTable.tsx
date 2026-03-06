@@ -11,7 +11,6 @@ import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
 import ResetTimerModal from "./ResetTimerModal";
 import EditTest from "./EditTest";
-import RepeatTest from "./RepeatTest";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -23,30 +22,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
-const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
-  const [timeLeft, setTimeLeft] = React.useState(5);
-
-  React.useEffect(() => {
-    if (timeLeft <= 0) return;
-    const timer = setInterval(() => {
-      setTimeLeft((prev) => prev - 1);
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [timeLeft]);
-
-  return (
-    <div className="flex items-center justify-between w-full gap-4">
-      <span className="text-sm font-medium text-slate-700">Deleting report in {timeLeft}s...</span>
-      <button
-        onClick={onUndo}
-        className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-md text-xs font-semibold transition-colors"
-      >
-        Undo
-      </button>
-    </div>
-  );
-};
 
 interface PropsTypes {
   status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted";
@@ -144,16 +119,13 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             {headerCell("Report No.")}
             {headerCell("Patient")}
             {headerCell("Test")}
-            {status === "Upcoming" && headerCell("Scheduled Date")}
-            {status !== "Upcoming" && headerCell("Sample Id")}
+            {status === "Upcoming" && headerCell("Sheduled Date")}
             {headerCell("Created At")}
-            {status === "Completed" && headerCell("Collected At")}
-            {status === "Completed" && headerCell("Started At")}
             {status === "Sample Collected" && headerCell("Sample Collected")}
-            {status === "Completed" && headerCell("Test Reported At")}
+            {status !== "Upcoming" && headerCell("Sample Id")}
+            {(status !== "Upcoming" && status !== "Sample Collected") && headerCell("Test Reported At")}
             {headerCell("Doctor")}
             {/* {headerCell("Status")} */}
-            {/* {status === "Completed" && headerCell("Collected Time")} */}
             {status === "Waiting For Result" && headerCell("Estimated Time")}
             {headerCell("Actions", "right")}
           </tr>
@@ -266,27 +238,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     {fDateandTime(r.date)}
                   </td>}
 
-                  {status !== "Upcoming" && (
-                    <td className="px-3 py-2 text-sm text-gray-500">
-                      {r.sampleId}
-                    </td>
-                  )}
-
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {fDateandTime(r.createdAt)}
                   </td>
-
-                  {status === "Completed" && (
-                    <td className="px-3 py-2 text-sm text-gray-500">
-                      {r.sampleCollectedAt ? fDateandTime(r.sampleCollectedAt) : "-"}
-                    </td>
-                  )}
-
-                  {status === "Completed" && <td className="px-3 py-2 text-sm text-gray-500">
-                    {r.testStartedAt
-                      ? fDateandTime(r.testStartedAt)
-                      : "-"}
-                  </td>}
 
                   {status === "Sample Collected" && (
                     <td className="px-3 py-2 text-sm text-gray-500">
@@ -296,11 +250,17 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     </td>
                   )}
 
-
-                  {status === "Completed" && (
+                  {status !== "Upcoming" && (
                     <td className="px-3 py-2 text-sm text-gray-500">
-                      {r.sampleCollectedAt
-                        ? fDateandTime(r.sampleCollectedAt)
+                      {r.sampleId}
+                    </td>
+                  )}
+
+
+                  {status !== "Upcoming" && status !== "Sample Collected" && (
+                    <td className="px-3 py-2 text-sm text-gray-500">
+                      {r.testStartedAt
+                        ? fDateandTime(r.testStartedAt)
                         : "-"}
                     </td>
                   )}
@@ -458,7 +418,26 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       {(status === "Completed" || status === "Flagged") && <ViewResultModal r={r} />}
 
                       {status === "Flagged" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
-                      {status === "Flagged" && <RepeatTest report={r} mutate={mutate} />}
+                      {status === "Flagged" && <Button
+                        variant={"outline"}
+                        size="sm"
+                        className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
+                        onClick={async () => {
+                          try {
+                            toast.promise(api.post(`/lab/report/repeat/${r._id}`), {
+                              loading: "Processing...",
+                              success: "Report Repeated",
+                              error: "Failed to repeat report",
+                            });
+                            mutate();
+                          } catch (error) {
+                            toast.error(`Failed to repeat report : ${error}`);
+                          }
+                        }}
+                      >
+                        <Repeat className="h-3.5 w-3.5" />
+                        Repeat
+                      </Button>}
                       {status === "Flagged" && <Button
                         variant={"outline"}
                         size="sm"
@@ -495,32 +474,20 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction
                               className="bg-rose-600 hover:bg-rose-700 text-white"
-                              onClick={() => {
-                                const toastId = toast(
-                                  (t) => (
-                                    <CountdownToast
-                                      t={t}
-                                      onUndo={() => {
-                                        toast.dismiss(t.id);
-                                        clearTimeout(timeoutId);
-                                        toast.success("Deletion cancelled");
-                                      }}
-                                    />
-                                  ),
-                                  { duration: 5000 }
-                                );
-
-                                const timeoutId = setTimeout(async () => {
-                                  try {
-                                    toast.dismiss(toastId);
-                                    await api.delete(`lab/report/${r._id}`);
-                                    mutate();
-                                    toast.success("Deleted successfully");
-                                  } catch (error) {
-                                    toast.dismiss(toastId);
-                                    toast.error(`Failed to delete : ${error}`);
-                                  }
-                                }, 5000);
+                              onClick={async () => {
+                                try {
+                                  await toast.promise(
+                                    api.delete(`lab/report/${r._id}`),
+                                    {
+                                      loading: "Processing...",
+                                      success: "Deleted",
+                                      error: "Failed to delete",
+                                    }
+                                  );
+                                  mutate();
+                                } catch (error) {
+                                  toast.error(`Failed to delete : ${error}`);
+                                }
                               }}
                             >
                               Delete

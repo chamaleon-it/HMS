@@ -1,7 +1,7 @@
 "use client";
 
 import React, { JSX, useMemo } from "react";
-import { CheckCircle, Clock, AlertTriangle, TestTube2, FlaskConical, Trash2 } from "lucide-react";
+import { CheckCircle, Eye, Clock, AlertTriangle, TestTube2, FlaskConical, Trash2 } from "lucide-react";
 import { motion } from "framer-motion";
 export default function LabStatus({
   currenctStatus,
@@ -28,7 +28,7 @@ export default function LabStatus({
   );
 
   return (
-    <div className="relative inline-flex flex-wrap items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
+    <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
       {tabs.map(({ key, label, icon: Icon }) => {
         const active = currenctStatus === key;
         return (
@@ -36,7 +36,7 @@ export default function LabStatus({
             key={key}
             onClick={() =>
               setCurrenctStatus(
-                key as "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted"
+                key as "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged"
               )
             }
             className={
