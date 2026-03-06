@@ -33,7 +33,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-7 rounded-xl shadow-sm border border-slate-200"
+      className="bg-white p-3 rounded-xl shadow-sm border border-slate-200"
     >
       <div className="flex flex-wrap items-end gap-6">
         {/* Search */}
@@ -49,7 +49,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
                 setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
               }
               placeholder="Invoice no..."
-              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+              className="pl-9 h-8 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -66,7 +66,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
                 setFilter((prev) => ({ ...prev, method: value, page: 1 }))
               }
             >
-              <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all">
+              <SelectTrigger className="h-8 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all">
                 <div className="flex items-center gap-2">
                   <FilterIcon className="h-4 w-4 text-slate-400" />
                   <SelectValue placeholder="Select method" />
@@ -94,7 +94,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
-                className="h-11 w-full bg-slate-50/50 border-slate-200 rounded-lg justify-between font-semibold text-slate-700 hover:bg-slate-100 transition-all px-4"
+                className="h-8 w-full bg-slate-50/50 border-slate-200 rounded-lg justify-between font-semibold text-slate-700 hover:bg-slate-100 transition-all px-4"
               >
                 <div className="flex items-center gap-2">
                   <span className="text-xs">
@@ -122,7 +122,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
         <div className="ml-auto">
           <Button
             variant="outline"
-            className="h-11 px-6 border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold rounded-lg flex items-center gap-2 transition-all active:scale-95 shadow-sm"
+            className="h-8 px-6 border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold rounded-lg flex items-center gap-2 transition-all active:scale-95 shadow-sm"
             onClick={handleReset}
           >
             <RefreshCcw className="h-4 w-4" />

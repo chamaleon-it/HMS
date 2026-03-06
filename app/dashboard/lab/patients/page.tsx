@@ -56,10 +56,10 @@ const Patients: React.FC = () => {
                     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
                         <Table>
                             <TableHeader className="">
-                                <TableRow className="bg-slate-700 hover:bg-slate-700 text-white">
+                                <TableRow className="bg-slate-700 hover:bg-slate-700 text-white uppercase">
                                     <TableHead className="text-white py-3">Sl</TableHead>
-                                    <TableHead className="text-white py-3">Patients</TableHead>
-                                    <TableHead className="text-white py-3">UHID</TableHead>
+                                    <TableHead className="text-white py-3">Patient</TableHead>
+                                    <TableHead className="text-white py-3">PID</TableHead>
                                     <TableHead className="text-white py-3">
                                         Age / Gender
                                     </TableHead>

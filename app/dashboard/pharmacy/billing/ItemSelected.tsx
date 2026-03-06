@@ -1,6 +1,6 @@
 import api from "@/lib/axios";
 import { Plus, Search, Trash2, Tag, CreditCard } from "lucide-react";
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import useSWR from "swr";
 import { formatINR } from "@/lib/fNumber";
 
@@ -25,7 +25,12 @@ export default function ItemSelected({
   setItem,
   onOpenCustomModal,
 }: PropsType) {
-  const query = item?.trim() ? `/billing/billing_items?item=${encodeURIComponent(item.trim())}` : null;
+  const [isFocused, setIsFocused] = useState(false);
+
+  const query = isFocused || item?.trim()
+    ? `/billing/billing_items${item?.trim() ? `?item=${encodeURIComponent(item.trim())}` : ""}`
+    : null;
+
   const { data: billingItemsData, mutate } = useSWR<{ message: string; data: { item: string, code: string, price: number, _id: string }[] }>(
     query
   );
@@ -71,27 +76,18 @@ export default function ItemSelected({
 
   return (
     <div className="col-span-12 md:col-span-4 ">
-      <div className="text-sm font-medium mb-2 flex items-center gap-2">
-        <span
-          className="inline-flex h-6 w-6 items-center justify-center rounded-md text-white"
-          style={{
-            backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-          }}
-        >
-          <Search className="h-4 w-4" />
-        </span>
-        Add Item
-      </div>
       <div className="flex items-center gap-2">
         <div className="relative w-full">
           <input
             placeholder="Search services / tests / items…"
             ref={itemRef}
             className={
-              "h-12 w-full rounded-lg border border-slate-200 bg-white/70 px-4 text-[15px] font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/50 transition-all shadow-sm"
+              "h-[42px] w-full rounded-lg border border-slate-200 bg-white/70 px-4 text-[13px] font-medium outline-none focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-400 dark:border-slate-700 dark:bg-slate-900/50 transition-all shadow-sm"
             }
             value={item ?? ""}
             onChange={(e) => setItem(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             onKeyDown={(e) => {
               if (e.code === "Enter" || e.code === "Tab") {
                 e.preventDefault();
@@ -99,8 +95,8 @@ export default function ItemSelected({
               }
             }}
           />
-          {billingItems.length > 0 && (
-            <div className="absolute w-full mt-2 p-1.5 rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 top-full flex flex-col gap-1 z-50 shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+          {isFocused && billingItems.length > 0 && (
+            <div className="absolute w-full mt-2 p-1.5 max-h-64 overflow-y-auto rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 top-full flex flex-col gap-1 z-50 shadow-xl animate-in fade-in zoom-in-95 duration-200">
               {billingItems.map((i) => (
                 <div
                   key={i._id}
@@ -148,8 +144,8 @@ export default function ItemSelected({
             </div>
           )}
         </div>
-        <PrimaryButton onClick={onAddClick} className="h-12 w-16 sm:w-20 flex items-center justify-center p-0 shrink-0">
-          <Plus className="h-6 w-6 stroke-[2.5]" />
+        <PrimaryButton onClick={onAddClick} className="h-[42px] w-12 sm:w-14 flex items-center justify-center p-0 shrink-0">
+          <Plus className="h-5 w-5 stroke-[2.5]" />
         </PrimaryButton>
       </div>
     </div>

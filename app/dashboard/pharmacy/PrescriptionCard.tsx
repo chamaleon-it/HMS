@@ -109,7 +109,7 @@ export default function PrescriptionCard({
     <div className="border rounded-xl p-4  max-h-[50vh] overflow-y-auto overflow-x-hidden">
       <div className="flex flex-col gap-3 min-w-[800px]">
         <div
-          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-8"}
             } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
         >
           <div className="col-span-3">Drug</div>
@@ -117,20 +117,21 @@ export default function PrescriptionCard({
             <>
               <div className="col-span-1">Dosage</div>
               <div className="col-span-1">Frequency</div>
-              <div className="col-span-2">Food</div>
+              <div className="col-span-1">Food</div>
               <div className="col-span-1">Duration</div>
             </>
           )}
+          <div className="col-span-1">Available</div>
           <div className="col-span-1">Quantity</div>
-          <div className="col-span-1">Unit Price</div>
-          <div className="col-span-1">Total Price</div>
+          <div className="col-span-1">Price</div>
+          <div className="col-span-1">Total</div>
           <div className="col-span-1 text-right">Actions</div>
         </div>
 
         {data.items.map((m, i) => (
           <div
             key={i}
-            className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+            className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-8"
               } gap-2 mt-2 items-start`}
           >
             <div className="col-span-3">
@@ -190,7 +191,7 @@ export default function PrescriptionCard({
                   />
                 </div>
 
-                <div className="col-span-2">
+                <div className="col-span-1">
                   <LabeledCombobox
                     options={[
                       "After food",
@@ -229,6 +230,19 @@ export default function PrescriptionCard({
               </>
             )}
             <div className="col-span-1">
+              <div className="relative w-full">
+                <input
+                  placeholder="0"
+                  disabled
+                  className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
+                  value={m.availableQuantity || 0}
+                />
+                <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
+                  Available
+                </label>
+              </div>
+            </div>
+            <div className="col-span-1">
               <QuantityInput
                 updateField={updateField}
                 i={i}
@@ -252,16 +266,11 @@ export default function PrescriptionCard({
                 <input
                   placeholder="0"
                   disabled
-                  inputMode={"numeric"}
-                  className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
+                  className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
                   value={m.unitPrice === 0 ? "" : m.unitPrice}
-                  onFocus={(e) => (e.target.placeholder = "")}
-                  onBlur={(e) => {
-                    e.target.placeholder = "0";
-                  }}
                 />
-                <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
-                  Unit Price
+                <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
+                  Price
                 </label>
               </div>
             </div>
@@ -271,19 +280,10 @@ export default function PrescriptionCard({
                 <input
                   placeholder="0"
                   disabled
-                  inputMode={"numeric"}
-                  className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
-                  value={
-                    m.unitPrice * m.quantity === 0
-                      ? ""
-                      : m.unitPrice * m.quantity
-                  }
-                  onFocus={(e) => (e.target.placeholder = "")}
-                  onBlur={(e) => {
-                    e.target.placeholder = "0";
-                  }}
+                  className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
+                  value={m.unitPrice * m.quantity === 0 ? "" : m.unitPrice * m.quantity}
                 />
-                <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
+                <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
                   Total
                 </label>
               </div>

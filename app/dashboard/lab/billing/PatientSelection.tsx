@@ -11,7 +11,7 @@ import useSWR from "swr";
 import { Input } from "@/components/ui/input";
 import { fAge } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import { ChevronRight, MapPin, Phone, X } from "lucide-react";
+import { ChevronRight, MapPin, Phone, UserPlus, X } from "lucide-react";
 
 type Patient = {
   _id: string;
@@ -292,7 +292,7 @@ export default PatientSelection;
 /* ------------------ helpers & patient card ------------------ */
 
 const getInitials = (name?: string) => {
-  if (!name) return "👤";
+  if (!name) return <UserPlus className="w-4 h-4" />;
   const parts = name.trim().split(/\s+/);
   const first = parts[0]?.[0] ?? "";
   const last = parts.length > 1 ? parts[parts.length - 1][0] : "";

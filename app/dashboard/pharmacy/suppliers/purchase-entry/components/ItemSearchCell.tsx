@@ -43,6 +43,7 @@ interface Item {
     unitPrice?: number;
     purchasePrice?: number;
     packing?: number;
+    gst?: number
     // Add other fields as necessary from the API response
 }
 

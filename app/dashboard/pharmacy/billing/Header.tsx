@@ -1,16 +1,18 @@
-import { FilePlus2 } from 'lucide-react';
+import { FilePlus2, PlusCircle, ReceiptIndianRupee } from 'lucide-react';
 import React from 'react'
 import { FilterType } from './page';
 import BillingStatusFilter from './BillingStatusFilter';
 import PharmacyHeader from '../components/PharmacyHeader';
+import { motion } from 'framer-motion';
 
 interface PropsType {
-  setTab: (v: "new") => void;
+  tab: "all" | "new";
+  setTab: (v: "all" | "new") => void;
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 }
 
-export default function Header({ setTab, filter, setFilter }: PropsType) {
+export default function Header({ tab, setTab, filter, setFilter }: PropsType) {
   return (
     <PharmacyHeader
       title="Billing"
@@ -20,9 +22,38 @@ export default function Header({ setTab, filter, setFilter }: PropsType) {
         currentStatus={filter.status || "all"}
         setStatus={(status) => setFilter((prev) => ({ ...prev, status }))}
       />
-      <PrimaryButton onClick={() => setTab("new")}>
-        <FilePlus2 className="mr-2 inline h-4 w-4" /> New Invoice
-      </PrimaryButton>
+
+      <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 print:hidden w-fit">
+        {[
+          { key: "all", label: "All Bills", icon: ReceiptIndianRupee },
+          { key: "new", label: "Create Bill", icon: PlusCircle },
+        ].map(({ key, label, icon: Icon }) => {
+          const active = tab === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setTab(key as "all" | "new")}
+              className={
+                "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium " +
+                (active ? "text-white" : "text-slate-600 hover:bg-slate-50")
+              }
+              type="button"
+            >
+              {active && (
+                <motion.span
+                  layoutId="billing-tab-indicator-1"
+                  className="absolute inset-0 rounded-full"
+                  style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                  transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                />
+              )}
+              <span className="relative z-10 flex items-center gap-2">
+                <Icon size={16} /> {label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
     </PharmacyHeader>
   )
 }

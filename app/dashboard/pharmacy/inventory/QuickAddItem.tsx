@@ -149,6 +149,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
                             <SelectItem value="Medicine">Medicine</SelectItem>
                             <SelectItem value="Equipment">Equipment</SelectItem>
                             <SelectItem value="Consumables">Consumables</SelectItem>
+                            <SelectItem value="Surgicals">Surgicals</SelectItem>
                         </SelectContent>
                     </Select>
                     {errors.category && (

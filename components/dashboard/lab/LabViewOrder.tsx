@@ -10,18 +10,10 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, Banknote, QrCode, AlertCircle, IndianRupee, Printer, CheckCircle, TestTube2, FlaskConical, ClipboardCheck } from "lucide-react";
+import { fDateandTime } from "@/lib/fDateAndTime";
+import { formatINR } from "@/lib/fNumber";
 
-// Helper functions (inlined to avoid dependency issues if paths differ)
-const formatINR = (value: number) =>
-    new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-    }).format(value);
 
-const fDateandTime = (date: string | Date | undefined) => {
-    if (!date) return "";
-    return new Date(date).toLocaleString();
-};
 
 function Barcode({ value }: { value: string }) {
     const bars = Array.from(value || "").map(

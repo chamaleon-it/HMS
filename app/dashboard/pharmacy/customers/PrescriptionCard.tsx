@@ -13,6 +13,7 @@ interface Medicine {
   food: string;
   duration: string;
   quantity: number;
+  availableQuantity: number;
 }
 
 export default function PrescriptionCard({
@@ -47,6 +48,7 @@ export default function PrescriptionCard({
           food: "After food",
           frequency: "",
           quantity: 0,
+          availableQuantity: 0,
         },
       ],
     }));
@@ -69,11 +71,12 @@ export default function PrescriptionCard({
             {showAllFields && (
               <>
                 <div className="col-span-1">Dosage</div>
-                <div className="col-span-2">Frequency</div>
-                <div className="col-span-2">Food</div>
-                <div className="col-span-2">Duration</div>
+                <div className="col-span-1">Frequency</div>
+                <div className="col-span-1">Food</div>
+                <div className="col-span-1">Duration</div>
               </>
             )}
+            <div className="col-span-1">Available</div>
             <div className="col-span-1">Quantity</div>
             <div className="col-span-1 text-right">Actions</div>
           </div>
@@ -140,6 +143,19 @@ export default function PrescriptionCard({
                   />
                 </div>
               </>}
+              <div className="col-span-1">
+                <div className="relative w-full">
+                  <input
+                    placeholder="0"
+                    disabled
+                    className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
+                    value={m.availableQuantity || 0}
+                  />
+                  <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
+                    Stock
+                  </label>
+                </div>
+              </div>
               <div className="col-span-1">
                 <QuantityInput updateField={updateField} i={i} m={m} />
               </div>

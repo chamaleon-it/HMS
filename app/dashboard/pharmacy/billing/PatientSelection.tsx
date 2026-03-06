@@ -216,7 +216,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, value, orderPatient, onSe
             setActiveIdx(-1);
           }}
           onKeyDown={onKeyDown}
-          className="w-full h-11 border-slate-200 bg-slate-50/50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-lg transition-all"
+          className="w-full h-8 border-slate-200 bg-slate-50/50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 rounded-lg transition-all"
         />
 
         {input && (
@@ -340,7 +340,7 @@ const PatientCard: React.FC<{
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border bg-white/80 supports-[backdrop-filter]:bg-white/70 transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md dark:bg-zinc-900/70 dark:border-zinc-800"
+        "group relative rounded-2xl border bg-white/80 supports-backdrop-filter:bg-white/70 transition-all duration-200 hover:-translate-y-px hover:shadow-md dark:bg-zinc-900/70 dark:border-zinc-800"
       )}
     >
       {/* Soft highlight when active/selected */}

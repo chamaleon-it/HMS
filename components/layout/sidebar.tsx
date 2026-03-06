@@ -174,17 +174,17 @@ export function Sidebar() {
     ]) ||
     (user?.role === "Lab" && [
       {
+        key: "appointments",
+        label: "Appointments",
+        icon: CalendarClock,
+        badge: appointmentStatistics.today.toFixed(0),
+        link: "/dashboard/lab/appointments/",
+      },
+      {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,
         link: "/dashboard/lab/",
-      },
-
-      {
-        key: "collection-report",
-        label: "Sample Collection",
-        icon: FileBarChart,
-        link: "/dashboard/lab/collection-report/",
       },
       {
         key: "tests",

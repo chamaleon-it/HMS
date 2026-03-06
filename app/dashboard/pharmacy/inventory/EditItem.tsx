@@ -16,8 +16,7 @@ import { pharmacyItemAddSchema } from "@/schemas/pharmacyItemAddSchema";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { useAuth } from "@/auth/context/auth-context";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { ChevronDownIcon } from "lucide-react";
+import TypableExpiryInput from "../suppliers/purchase-entry/components/TypableExpiryInput";
 
 const months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -278,6 +277,7 @@ export function EditItem({
               <SelectItem value="Medicine">Medicine</SelectItem>
               <SelectItem value="Equipment">Equipment</SelectItem>
               <SelectItem value="Consumables">Consumables</SelectItem>
+              <SelectItem value="Surgicals">Surgicals</SelectItem>
             </SelectContent>
           </Select>
           {errors.category && (
@@ -400,7 +400,7 @@ export function EditItem({
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Opening Stock Qty *
+            Current Stock Qty *
           </label>
           <Input
             type="number"
@@ -411,7 +411,13 @@ export function EditItem({
               register("openingStockQuantity").ref(e);
               refs.openingStockQuantity.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.expiryDate)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                const el = document.querySelector('input[data-field="expiryDate"]') as HTMLInputElement;
+                if (el) el.focus();
+              }
+            }}
           />
           {errors.openingStockQuantity && (
             <p className="text-xs text-red-600 my-1">
@@ -425,79 +431,11 @@ export function EditItem({
             Expiry Date *
           </label>
 
-          <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                id="date"
-                className="w-full justify-between font-normal"
-                ref={refs.expiryDate}
-                onKeyDown={(e) => handleKeyDown(e, refs.status)}
-              >
-                {values.expiryDate ? (() => {
-                  const d = new Date(values.expiryDate);
-                  return `${months[d.getMonth()]} / ${d.getFullYear()}`;
-                })() : "Select Expiry"}
-                <ChevronDownIcon className="h-4 w-4 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-64 p-3" align="start">
-              <div className="space-y-3">
-                <div className="text-xs font-medium text-gray-500 uppercase tracking-wider px-1">Select Month & Year</div>
-
-                <div className="grid grid-cols-3 gap-1">
-                  {months.map((m: string, idx: number) => (
-                    <button
-                      key={m}
-                      type="button"
-                      className={`px-2 py-1.5 text-xs rounded-md transition-colors ${values.expiryDate && new Date(values.expiryDate).getMonth() === idx
-                        ? "bg-indigo-600 text-white font-medium"
-                        : "hover:bg-gray-100 text-gray-700"
-                        }`}
-                      onClick={() => {
-                        const current = values.expiryDate ? new Date(values.expiryDate) : new Date();
-                        const newDate = new Date(current.getFullYear(), idx, 1);
-                        setValue("expiryDate", newDate.toISOString());
-                      }}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-
-                <div className="border-t pt-3">
-                  <Select
-                    value={values.expiryDate ? String(new Date(values.expiryDate).getFullYear()) : String(new Date().getFullYear())}
-                    onValueChange={(y) => {
-                      const current = values.expiryDate ? new Date(values.expiryDate) : new Date();
-                      const newDate = new Date(Number(y), current.getMonth(), 1);
-                      setValue("expiryDate", newDate.toISOString());
-                    }}
-                  >
-                    <SelectTrigger className="w-full h-8 text-xs">
-                      <SelectValue placeholder="Year" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {years.map((y: number) => (
-                        <SelectItem key={y} value={String(y)} className="text-xs">
-                          {y}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <Button
-                  type="button"
-                  size="sm"
-                  className="w-full h-8 text-xs bg-indigo-600 hover:bg-indigo-700"
-                  onClick={() => setOpenCalendar(false)}
-                >
-                  Confirm
-                </Button>
-              </div>
-            </PopoverContent>
-          </Popover>
+          <TypableExpiryInput
+            value={values.expiryDate || ""}
+            onChange={(date) => setValue("expiryDate", date, { shouldValidate: true })}
+            onKeyDown={(e) => handleKeyDown(e, refs.status)}
+          />
 
           {errors.expiryDate && (
             <p className="text-xs text-red-600 my-1">

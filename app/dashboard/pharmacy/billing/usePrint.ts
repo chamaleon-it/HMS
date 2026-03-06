@@ -3,10 +3,19 @@ import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
 import toast from 'react-hot-toast';
 
-export default function usePrint() {
+export default function usePrint({ onAfterPrint }: { onAfterPrint?: () => void } = {}) {
     const onClick = () => {
         window.print();
     };
+
+    React.useEffect(() => {
+        if (!onAfterPrint) return;
+        const handleAfterPrint = () => {
+            onAfterPrint();
+        };
+        window.addEventListener('afterprint', handleAfterPrint);
+        return () => window.removeEventListener('afterprint', handleAfterPrint);
+    }, [onAfterPrint]);
 
     const downloadPdf = async () => {
         const printElement = document.querySelector('.print-receipt') as HTMLElement;

@@ -28,13 +28,13 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 // ... existing imports ...
 
 const APPOINTMENT_STATUSES = [
-  { label: "Upcoming", value: "Upcoming", color: "bg-indigo-100 text-indigo-700", key: "U" },
-  { label: "Consulted", value: "Consulted", color: "bg-emerald-100 text-emerald-700", key: "C" },
-  { label: "Observation", value: "Observation", color: "bg-sky-100 text-sky-700", key: "O" },
-  { label: "Not show", value: "Not show", color: "bg-amber-100 text-amber-700", key: "N" },
-  { label: "Completed", value: "Completed", color: "bg-emerald-100 text-emerald-700", key: "P" },
-  { label: "Admit", value: "Admit", color: "bg-rose-100 text-rose-700", key: "A" },
-  { label: "Test", value: "Test", color: "bg-rose-100 text-rose-700", key: "T" },
+  { label: "Upcoming", value: "Upcoming", color: "bg-blue-200 text-blue-800", key: "U" },
+  { label: "Consulted", value: "Consulted", color: "bg-green-100 text-green-800", key: "C" },
+  { label: "Observation", value: "Observation", color: "bg-purple-100 text-purple-800", key: "O" },
+  { label: "Not show", value: "Not show", color: "bg-yellow-100 text-yellow-800", key: "N" },
+  { label: "Completed", value: "Completed", color: "bg-gray-200 text-gray-800", key: "P" },
+  { label: "Admit", value: "Admit", color: "bg-red-300 text-red-800", key: "A" },
+  { label: "Test", value: "Test", color: "bg-pink-100 text-pink-800", key: "T" },
 ];
 
 function DoctorAvailabilityCard({ doctorId }: { doctorId: string }) {
@@ -484,6 +484,10 @@ export default function AppointmentPage() {
                 </>
               )}
               <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />
+              <PrimaryButton onClick={() => router.push("/dashboard/pharmacy/billing#new")} className="bg-linear-to-br from-indigo-600 to-pink-500 shadow-indigo-200" title="Direct">
+                Direct
+              </PrimaryButton>
+
               <PrimaryButton onClick={() => setOpenCreate(true)} className="bg-emerald-600 hover:bg-emerald-700 shadow-emerald-200" title="New Appointment (N)">
                 <Plus className="h-4 w-4 mr-2" /> Schedule
               </PrimaryButton>
@@ -497,11 +501,11 @@ export default function AppointmentPage() {
         </div>
 
         {/* Statistics - Only show on List view to save space? Or make it collapsible? User requested optimizing blank space. */}
-        {tab === 'list' && <div className="shrink-0 mb-5 px-4 sm:px-0 print:hidden"><Statistics /></div>}
+        {tab === 'list' && <div className="shrink-0  px-4 sm:px-0 print:hidden"><Statistics /></div>}
 
         {/* Filters Row */}
         {tab === 'list' &&
-          <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
+          <div className="shrink-0 mb-2.5 px-4 sm:px-0 print:hidden">
             <Filter
               activeStatuses={activeStatuses}
               query={query}

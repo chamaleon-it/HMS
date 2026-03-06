@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -34,6 +35,7 @@ export default function CreateBill({
     prefix: string;
   }
 }) {
+  const router = useRouter();
 
 
   const defaultPayload = useMemo(() => ({
@@ -95,7 +97,7 @@ export default function CreateBill({
       const existingItem = payload.items.find((it) => it.name === nameToAdd);
       if (existingItem) {
         toast.error("Item already exists.");
-        itemRef.current?.focus();
+        // itemRef.current?.focus();
         return;
       }
 
@@ -113,7 +115,7 @@ export default function CreateBill({
         ],
       }));
 
-      itemRef.current?.focus();
+      // itemRef.current?.focus();
       setItem(null);
     },
     [item, payload.items, pharmacyBilling.defaultGst]
@@ -285,7 +287,9 @@ export default function CreateBill({
 
 
 
-  const { onClick, downloadPdf } = usePrint()
+  const { onClick, downloadPdf } = usePrint({
+    onAfterPrint: () => router.push("/dashboard/pharmacy")
+  })
 
   const {
     subtotal,

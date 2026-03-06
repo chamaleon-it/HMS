@@ -26,6 +26,7 @@ export interface Item {
     food: string;
     duration: string;
     quantity: number;
+    availableQuantity: number;
     isPacked: boolean
 }
 
@@ -85,6 +86,7 @@ export interface DataType {
         food: string;
         duration: string;
         quantity: number;
+        availableQuantity: number;
     }[];
     priority: string;
     status: string;

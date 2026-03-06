@@ -13,6 +13,8 @@ export interface OrderType {
     createdAt?: Date;
     updatedAt?: Date;
     billNo?: string;
+    pharmacist?: string
+    isDeleted: boolean;
 }
 
 
@@ -96,6 +98,6 @@ export interface DataType {
     discount: number;
     priority: string;
     status: string;
-    pharmacists?: string;
+    pharmacist?: string;
     allergies?: string;
 }

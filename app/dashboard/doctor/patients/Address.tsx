@@ -8,15 +8,23 @@ export default function Address({
 }: {
   setValue: UseFormSetValue<{
     name: string;
-    phoneNumber: string;
-    email?: string;
     doctor: string;
     gender: "Male" | "Female" | "Other" | "Prefer not to say";
     dateOfBirth: string;
+    mrn?: string | undefined;
+    phoneNumber?: string | undefined;
+    email?: string | undefined;
     conditions?: string[] | undefined;
     blood?: string | undefined;
     allergies?: string | undefined;
+    insurance?: string | undefined;
+    insuranceValidity?: string | undefined;
+    uhid?: string | undefined;
+    emergencyContactNumber?: string | undefined;
     address?: string | undefined;
+    guardian?: string | undefined;
+    guardianPhoneNumber?: string | undefined;
+    guardianRelation?: string | undefined;
     notes?: string | undefined;
   }>;
 }) {
