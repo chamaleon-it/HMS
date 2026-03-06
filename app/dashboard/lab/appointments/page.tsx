@@ -21,7 +21,7 @@ export default function AppointmentPage() {
         <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
           <LabHeader
             title="Appointments"
-            subtitle="Manage patient appointments and schedules"
+            subtitle="Manage customer appointments and schedules"
           />
         </div>
 
