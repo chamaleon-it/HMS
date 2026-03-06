@@ -193,7 +193,7 @@ export default function TestCatalogue({
           </div>
 
           <Dialog open={isNewTestModalOpen} onOpenChange={setIsNewTestModalOpen}>
-            <DialogContent className="sm:max-w-[800px] max-h-[85vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-200 max-h-[85vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Test</DialogTitle>
                 <DialogDescription>Create a new lab or imaging test in the catalogue.</DialogDescription>
@@ -441,11 +441,11 @@ export default function TestCatalogue({
               <Table>
                 <TableHeader className="bg-slate-50">
                   <TableRow>
-                    <TableHead className="w-[100px]">Code</TableHead>
+                    <TableHead >Code</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Price</TableHead>
-                    <TableHead>Estimated Time (Minutes)</TableHead>
+                    <TableHead>ETA (Minutes)</TableHead>
                     <TableHead>Panels</TableHead>
                     <TableHead>Range</TableHead>
                     <TableHead>Unit</TableHead>
@@ -494,7 +494,7 @@ export default function TestCatalogue({
             </div>
 
             <Dialog open={isNewPanelModalOpen} onOpenChange={setIsNewPanelModalOpen}>
-              <DialogContent className="sm:max-w-[600px]">
+              <DialogContent className="sm:max-w-150">
                 <DialogHeader>
                   <DialogTitle>Add New Panel</DialogTitle>
                   <DialogDescription>Create a new panel in the catalogue.</DialogDescription>

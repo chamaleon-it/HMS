@@ -349,7 +349,7 @@ const PatientCard: React.FC<{
         <div className="shrink-0">
           <div
             className={cn(
-              "rounded-2xl p-[2px] transition-transform duration-200 group-hover:scale-[1.02]",
+              "rounded-2xl p-0.5 transition-transform duration-200 group-hover:scale-[1.02]",
               isSelected ? "bg-primary/15" : "bg-zinc-100 dark:bg-zinc-800"
             )}
           >

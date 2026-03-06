@@ -113,8 +113,8 @@ export default function TestCatalogueRow({
             <TableCell>{formatINR(test.price)}</TableCell>
             <TableCell>{test.estimatedTime || ""}</TableCell>
             <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
-            <TableCell className="text-slate-500 text-xs">
-                Normal :{test.min} - {test.max}
+            <TableCell className="text-slate-500 text-sm">
+                Normal : {test.min} {test.max&& "-"} {test.max}
                 <br />
                 Women : {test.womenMin} - {test.womenMax}
                 <br />
@@ -133,7 +133,7 @@ export default function TestCatalogueRow({
                             <Pencil className='h-4 w-4 text-slate-500' />
                         </Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[425px] lg:max-w-[500px]">
+                    <DialogContent className="sm:max-w-106.25 lg:max-w-125">
                         <DialogHeader>
                             <DialogTitle>Edit Test</DialogTitle>
                             <DialogDescription>

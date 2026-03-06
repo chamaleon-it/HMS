@@ -75,7 +75,7 @@ const Customer: React.FC = () => {
               onClick={() => router.push("/dashboard/lab/patients")}
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to patients
+              Back to customer
             </Button>
           </div>
           {error && <EmptyReport />}
@@ -85,7 +85,7 @@ const Customer: React.FC = () => {
                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white text-lg font-semibold">
                   {patient?.name?.charAt(0)}
                 </div>
-                <div className="flex-1 min-w-[220px]">
+                <div className="flex-1 min-w-55">
                   <div className="flex flex-wrap items-center gap-2">
                     <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
                       {patient?.name}
@@ -113,7 +113,7 @@ const Customer: React.FC = () => {
               </div>
 
               <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                   <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
                     Total Spend
                   </div>
@@ -121,7 +121,7 @@ const Customer: React.FC = () => {
                     {formatINR(totalSpend)}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                   <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
                     Total Visits
                   </div>
@@ -129,7 +129,7 @@ const Customer: React.FC = () => {
                     {reports?.length}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                   <div className="text-xs font-medium text-violet-700 uppercase tracking-wide">
                     Last Visit
                   </div>
@@ -137,7 +137,7 @@ const Customer: React.FC = () => {
                     {fDate(reports?.[0]?.createdAt)}
                   </div>
                 </div>
-                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                   <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
                     Avg Spend
                   </div>
@@ -148,7 +148,7 @@ const Customer: React.FC = () => {
               </section>
 
               <section className="grid gap-5 md:grid-cols-5 items-start">
-                <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
+                <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
                   <div className="px-4 py-3 bg-slate-900 text-slate-50 flex items-center justify-between">
                     <div className="text-sm font-medium flex items-center gap-2">
                       <span className="h-7 w-7 rounded-full bg-slate-800 flex items-center justify-center text-[11px]">
@@ -344,7 +344,7 @@ const Customer: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
+                <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit

@@ -211,7 +211,7 @@ export function Sidebar() {
       },
       {
         key: "patients",
-        label: "Patients",
+        label: "Customers",
         icon: Users2,
         link: "/dashboard/lab/patients/",
       },
