@@ -136,7 +136,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
   };
 
   return (
-    <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
+    <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-x-scroll">
       <table className="w-full whitespace-nowrap  overflow-scroll">
         <thead className="bg-slate-700 hover:bg-slate-700">
           <tr className="bg-slate-700 hover:bg-slate-700 border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
