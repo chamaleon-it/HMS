@@ -64,7 +64,7 @@ function Barcode({ value }: { value: string }) {
 function OrderHeader({ order }: { order: OrderType }) {
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
             {/* Patient card */}
             <div className="border rounded-lg p-3 md:col-span-2">
                 <div className="text-xs uppercase tracking-wide text-slate-500">
@@ -82,10 +82,7 @@ function OrderHeader({ order }: { order: OrderType }) {
                 <div className="text-sm text-slate-700">
                     Address: {order?.patient?.address}
                 </div>
-                <div className="mt-2 text-xs text-slate-500">
-                    Doctor: {order?.doctor?.name} • Specialization:{" "}
-                    {order?.doctor?.specialization}
-                </div>
+
                 {order?.patient?.allergies && (
                     <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 shadow-sm">
                         <AlertTriangle className="h-4 w-4 shrink-0" />
@@ -107,6 +104,10 @@ function OrderHeader({ order }: { order: OrderType }) {
                     </div>
                     <div className="text-xs text-slate-600">
                         RX ID: <span className="font-medium">{order?.mrn}</span>
+                    </div>
+                    <div className="mt-2 text-xs text-slate-500">
+                        Doctor: {order?.doctor?.name} • Specialization:{" "}
+                        {order?.doctor?.specialization}
                     </div>
                     <div className="text-xs text-slate-600">
                         Pharmacist: <span className="font-medium">{order?.pharmacist}</span>
@@ -385,14 +386,14 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
 
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogContent className="w-[98vw]! max-w-7xl! h-[90vh] flex flex-col print:hidden">
+            <DialogContent className="w-[98vw]! max-w-7xl! h-[95vh] flex flex-col print:hidden">
                 <DialogHeader>
                     <DialogTitle className="text-xl flex items-center justify-between pr-8">
                         <span>Order — {localOrder.mrn}</span>
                     </DialogTitle>
                 </DialogHeader>
 
-                <div className="flex-1 overflow-auto flex flex-col gap-4">
+                <div className="flex-1 overflow-auto flex flex-col gap-2">
                     <OrderHeader order={localOrder} />
 
                     <UpdatePrescriptionCard
@@ -403,10 +404,10 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     />
 
                     {/* Payment Details Section */}
-                    {localOrder?.paymentStatus !== "Paid" && <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
+                    {localOrder?.paymentStatus !== "Paid" && <div className="border rounded-xl p-2.5 bg-slate-50/50 space-y-2">
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Payment Details</h3>
-                            <div className="flex flex-col items-end justify-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm min-w-[140px]">
+                            <div className="flex flex-col items-end justify-center bg-white px-4 py-1 rounded-xl border border-slate-200 shadow-sm ">
                                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Total Amount</span>
                                 <div className="flex items-center text-slate-900">
                                     <IndianRupee className="w-5 h-5 stroke-[2.5] mr-0.5 text-slate-400" />
@@ -417,7 +418,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
                             {[
                                 { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50", shortcut: "C" },
                                 { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-indigo-600", bg: "bg-indigo-50", shortcut: "U" },
@@ -430,7 +431,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         type="button"
                                         onClick={() => setPaymentMethod(method.id as any)}
                                         className={cn(
-                                            "relative flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left group",
+                                            "relative flex items-center gap-3 p-2.5 rounded-xl border-2 transition-all text-left group",
                                             active
                                                 ? `border-${method.id === "Cash" ? "emerald" : method.id === "UPI" ? "indigo" : "rose"}-500 ${method.bg} shadow-md`
                                                 : "border-slate-200 bg-white hover:border-slate-300 shadow-sm"
@@ -457,91 +458,93 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                 );
                             })}
                         </div>
+                        <div className="flex gap-5 items-end">
 
-                        {paymentMethod === "Cash" && (
-                            <div
-                                className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
-                            >
-                                <div className="space-y-2">
-                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
-                                    <Input
-                                        id="cash-amount-input"
-                                        type="number"
-                                        placeholder="Enter amount from customer"
-                                        value={amountPaid}
-                                        onChange={(e) => setAmountPaid(e.target.value)}
-                                        onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
-                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-emerald-500/20"
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance to Return (₹)</Label>
-                                    <div className={cn(
-                                        "h-11 flex items-center px-4 rounded-lg border-2 font-bold text-lg transition-colors",
-                                        (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)) >= 0
-                                            ? "bg-emerald-50 border-emerald-100 text-emerald-700"
-                                            : "bg-rose-50 border-rose-100 text-rose-700"
-                                    )}>
-                                        {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)))}
+                            {paymentMethod === "Cash" && (
+                                <div
+                                    className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 w-full"
+                                >
+                                    <div className="space-y-2">
+                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
+                                        <Input
+                                            id="cash-amount-input"
+                                            type="number"
+                                            placeholder="Enter amount from customer"
+                                            value={amountPaid}
+                                            onChange={(e) => setAmountPaid(e.target.value)}
+                                            onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
+                                            className="h-11 bg-white border-slate-200 rounded-lg focus:ring-emerald-500/20"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance to Return (₹)</Label>
+                                        <div className={cn(
+                                            "h-11 flex items-center px-4 rounded-lg border-2 font-bold text-lg transition-colors",
+                                            (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)) >= 0
+                                                ? "bg-emerald-50 border-emerald-100 text-emerald-700"
+                                                : "bg-rose-50 border-rose-100 text-rose-700"
+                                        )}>
+                                            {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)))}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {paymentMethod === "Underpaid" && (
-                            <div
-                                className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"
-                            >
-                                <div className="space-y-2">
-                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
-                                    <Input
-                                        id="partial-amount-input"
-                                        type="number"
-                                        placeholder="0.00"
-                                        value={amountPaid}
-                                        onChange={(e) => setAmountPaid(e.target.value)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter") {
-                                                document.getElementById("partial-reference-input")?.focus();
-                                            }
-                                        }}
-                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
-                                    />
+                            {paymentMethod === "Underpaid" && (
+                                <div
+                                    className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 w-full"
+                                >
+                                    <div className="space-y-2">
+                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
+                                        <Input
+                                            id="partial-amount-input"
+                                            type="number"
+                                            placeholder="0.00"
+                                            value={amountPaid}
+                                            onChange={(e) => setAmountPaid(e.target.value)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter") {
+                                                    document.getElementById("partial-reference-input")?.focus();
+                                                }
+                                            }}
+                                            className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reference / Bill No.</Label>
+                                        <Input
+                                            id="partial-reference-input"
+                                            placeholder="Enter reference if any"
+                                            value={referenceNumber}
+                                            onChange={(e) => setReferenceNumber(e.target.value)}
+                                            onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
+                                            className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
+                                        />
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reference / Bill No.</Label>
+                            )}
+
+                            {paymentMethod === "UPI" && (
+                                <div className="space-y-2 pt-2 w-full">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
                                     <Input
-                                        id="partial-reference-input"
-                                        placeholder="Enter reference if any"
+                                        id="upi-ref-input"
+                                        placeholder="Enter UPI transaction ID"
                                         value={referenceNumber}
                                         onChange={(e) => setReferenceNumber(e.target.value)}
                                         onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
-                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-indigo-500/20"
                                     />
                                 </div>
-                            </div>
-                        )}
+                            )}
 
-                        {paymentMethod === "UPI" && (
-                            <div className="space-y-2 pt-2">
-                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
-                                <Input
-                                    id="upi-ref-input"
-                                    placeholder="Enter UPI transaction ID"
-                                    value={referenceNumber}
-                                    onChange={(e) => setReferenceNumber(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
-                                    className="h-11 bg-white border-slate-200 rounded-lg focus:ring-indigo-500/20"
-                                />
-                            </div>
-                        )}
-                        <div className="flex justify-end">
 
                             <Button
                                 onClick={handlePaymentUpdate}
-                                className="bg-emerald-600 hover:bg-emerald-700 text-white">
+                                className="bg-emerald-600 hover:bg-emerald-700 text-white h-10">
                                 Update Payment
                             </Button>
+
                         </div>
                     </div>}
 
