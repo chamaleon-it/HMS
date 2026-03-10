@@ -37,7 +37,7 @@ const consultedStyles = {
 } as const;
 
 export default function MonthlyCalender({
-  selectedDate=new Date(),
+  selectedDate = new Date(),
 }: {
   selectedDate: Date | undefined;
 }) {
@@ -54,7 +54,7 @@ export default function MonthlyCalender({
     }[];
   }>(`/appointments/calender-monthly?date=${selectedDate}`);
 
- 
+
 
   return (
     <TabsContent
@@ -81,17 +81,16 @@ export default function MonthlyCalender({
         </div>
       </div>
       <div className="grid grid-cols-7 gap-2">
-          {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(e=><p key={e} className="text-center p-2.5 border rounded-lg">{e}</p>)}
-        {Array(new Date(new Date(selectedDate).getFullYear(), new Date(selectedDate).getMonth(), 1).getDay()).fill(0).map((_,idx)=><div key={idx}></div>)}
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(e => <p key={e} className="text-center p-2.5 border rounded-lg">{e}</p>)}
+        {Array(new Date(new Date(selectedDate).getFullYear(), new Date(selectedDate).getMonth(), 1).getDay()).fill(0).map((_, idx) => <div key={idx}></div>)}
 
         {[...Array(31)].map((_, i) => {
-          const date = `${
-            selectedDate?.getFullYear() || new Date().getFullYear()
-          }-${(selectedDate?.getMonth() ?? 0) + 1}-${String(i + 1).padStart(
-            2,
-            "0"
-          )}`;
-          const events = data?.data.filter((b) => b.date === date) || [];
+          const date = `${selectedDate?.getFullYear() || new Date().getFullYear()
+            }-${(selectedDate?.getMonth() ?? 0) + 1}-${String(i + 1).padStart(
+              2,
+              "0"
+            )}`;
+          const events = data?.data?.filter((b) => b.date === date) || [];
 
           return (
             <motion.div
@@ -101,7 +100,7 @@ export default function MonthlyCalender({
             >
               <p className="text-xs text-gray-500">{i + 1}</p>
               {events.length > 0 && (
-                <span className="absolute top-1 right-1 text-[10px] bg-gray-900 text-white rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">
+                <span className="absolute top-1 right-1 text-[10px] bg-gray-900 text-white rounded-full min-w-5 h-5 px-1 flex items-center justify-center">
                   {events.length}
                 </span>
               )}
@@ -120,8 +119,8 @@ export default function MonthlyCalender({
                         ev.status === "Consulted" && "bg-gray-200",
                         ev.status === "Test" && "bg-[#fe9a00]",
                       )
-                      
-                      }
+
+                    }
                   >
                     {ev?.patient?.name}{" • " + ev.status}
                   </div>

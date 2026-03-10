@@ -57,7 +57,7 @@ export default function MonthlyCalender({
     }[];
   }>(`/appointments/calender-monthly?date=${selectedDate.toString()}`);
 
-  
+
 
   const firstDayOFTheMonth = new Date(
     new Date(selectedDate).getFullYear(),
@@ -101,10 +101,9 @@ export default function MonthlyCalender({
             <div key={idx}></div>
           ))}
         {[...Array(31)].map((_, i) => {
-          const date = `${selectedDate.getFullYear()}-${
-            selectedDate.getMonth() + 1
-          }-${String(i + 1).padStart(2, "0")}`;
-          const events = data?.data.filter((b) => b.date === date) || [];
+          const date = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1
+            }-${String(i + 1).padStart(2, "0")}`;
+          const events = data?.data?.filter((b) => b.date === date) || [];
 
           return (
             <motion.div
@@ -114,7 +113,7 @@ export default function MonthlyCalender({
             >
               <p className="text-xs text-gray-500">{i + 1}</p>
               {events.length > 0 && (
-                <span className="absolute top-1 right-1 text-[10px] bg-gray-900 text-white rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">
+                <span className="absolute top-1 right-1 text-[10px] bg-gray-900 text-white rounded-full min-w-5 h-5 px-1 flex items-center justify-center">
                   {events.length}
                 </span>
               )}

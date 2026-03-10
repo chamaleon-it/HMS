@@ -64,7 +64,7 @@ export default function List({
     visitCount: number;
   }>(null);
 
-  const filteredData = data?.data.filter((a) => {
+  const filteredData = data?.data?.filter((a) => {
     if (!query) return true;
 
     const q = query.toLowerCase();

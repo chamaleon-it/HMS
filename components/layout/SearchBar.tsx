@@ -57,9 +57,9 @@ export default function SearchBar() {
         <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 rounded-lg border border-slate-200 bg-white/80 px-2 py-1 text-[10px] text-slate-500">
           ⌘K
         </kbd>
-        {Boolean(data?.data.length) && (
+        {Boolean(data?.data?.length) && (
           <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5">
-            {data?.data.map((p) => (
+            {data?.data?.map((p) => (
               <Link href={generateLink(p._id)} className="block" key={p._id}>
                 <PatientCard p={p} searchQuery={q ?? ""} />
               </Link>
@@ -106,8 +106,8 @@ const PatientCard: React.FC<{
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70",
-        "transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md",
+        "group relative rounded-2xl border bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/70",
+        "transition-all duration-200 hover:-translate-y-px hover:shadow-md",
         "dark:bg-zinc-900/70 dark:border-zinc-800"
       )}
     >

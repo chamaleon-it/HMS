@@ -27,7 +27,7 @@ export default function PurchaseEntryPage() {
         };
     }>("/users/profile");
 
-    const pharmacyInventory = data?.data.pharmacy.inventory ?? {
+    const pharmacyInventory = data?.data?.pharmacy?.inventory ?? {
         lowStockThreshold: 20,
     };
 

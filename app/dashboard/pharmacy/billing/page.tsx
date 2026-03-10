@@ -96,7 +96,7 @@ export default function BillingPage() {
     }
   }>("/users/profile")
 
-  const pharmacyBilling = data?.data.pharmacy.billing ?? {
+  const pharmacyBilling = data?.data?.pharmacy?.billing ?? {
     autoPrintAfterSave: false,
     roundOff: false,
     prefix: "INV"

@@ -102,7 +102,7 @@ export default function MonthlyCalender({
           const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
           const day = String(i + 1).padStart(2, "0");
           const dateStr = `${selectedDate.getFullYear()}-${month}-${day}`;
-          const events = data?.data.filter((b) => b.date === dateStr) || [];
+          const events = data?.data?.filter((b) => b.date === dateStr) || [];
 
           return (
             <motion.div

@@ -101,7 +101,7 @@ export default function PatientTable({
                   variant={"destructive"}
                 >
                   <Trash className="h-4 w-4" strokeWidth={3} />
-                  Delete {selectedIds.length === data?.data.length && "All"}
+                  Delete {selectedIds.length === data?.data?.length && "All"}
                 </Button>
               </DialogTrigger>
 
@@ -146,10 +146,10 @@ export default function PatientTable({
               <th className="w-14  px-4 py-2.5">
                 <Checkbox
                   className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700"
-                  checked={selectedIds.length === data?.data.length}
+                  checked={selectedIds.length === data?.data?.length}
                   onCheckedChange={(checked: boolean) =>
                     checked
-                      ? setSelectedIds(data?.data.map((e) => e._id) ?? [])
+                      ? setSelectedIds(data?.data?.map((e) => e._id) ?? [])
                       : setSelectedIds([])
                   }
                 />
@@ -168,7 +168,7 @@ export default function PatientTable({
             </tr>
           </thead>
           <tbody>
-            {data?.data.map((r, idx) => {
+            {data?.data?.map((r, idx) => {
               const serial = (0 - 1) * 0 + idx + 1; // serial number after filters & sort
               return (
                 <tr
@@ -281,7 +281,7 @@ export default function PatientTable({
               );
             })}
 
-            {data?.data.length === 0 && (
+            {data?.data?.length === 0 && (
               <tr>
                 <td
                   colSpan={11}

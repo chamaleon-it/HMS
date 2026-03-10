@@ -183,7 +183,7 @@ export function CreateAppointmentForm({
               onChange={(v) => setValue("doctor", v)}
               placeholder="Choose doctor"
               options={
-                data?.data.map((s) => ({ label: s.name, value: s._id })) ?? []
+                data?.data?.map((s) => ({ label: s.name, value: s._id })) ?? []
               }
             />
             {errors.doctor && (
