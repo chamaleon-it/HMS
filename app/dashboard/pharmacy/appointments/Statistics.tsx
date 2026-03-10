@@ -147,11 +147,11 @@ function StatTile({
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
     >
       <Card className={cn(
-        "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-sm hover:shadow-md py-2.5!",
+        "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-sm hover:shadow-md py-0!",
         borderClass
       )}>
         <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />
-        <div className="relative p-4">
+        <div className="relative p-2">
           <div className="flex flex-col gap-3">
             <div className={cn(
               "h-10 w-10 rounded-xl flex items-center justify-center shadow-sm border border-white/50",

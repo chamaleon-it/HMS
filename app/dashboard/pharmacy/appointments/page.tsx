@@ -455,34 +455,14 @@ export default function AppointmentPage() {
 
   return (
     <AppShell>
-      <div className="p-0 sm:p-5 h-[calc(100vh-80px)] overflow-hidden flex flex-col">
+      <div className="p-0 sm:p-5 min-h-[calc(100vh-80px)] overflow-hidden flex flex-col">
         <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
           <PharmacyHeader
             title="Appointments"
             subtitle="Manage patient appointments and schedules"
           >
             <div className="flex gap-3 items-center">
-              {tab === 'calendar' && (
-                <>
-                  <div className="flex items-center bg-white rounded-lg border border-gray-200 p-0.5 shadow-sm mr-2 transition-all hover:border-gray-300">
-                    <button onClick={handlePrevWeek} title="Prev Week (Shift + Left)" className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500"><ChevronLeft size={16} /></button>
-                    <span className="text-xs font-semibold px-2 min-w-22.5 text-center text-gray-700">
-                      {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                    </span>
-                    <button onClick={handleNextWeek} title="Next Week (Shift + Right)" className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500"><ChevronRight size={16} /></button>
-                  </div>
 
-                  <div className="w-45">
-                    <Select
-                      value={selectedDoctorId}
-                      onChange={setSelectedDoctorId}
-                      options={doctors.map((d: any) => ({ label: `Dr. ${d.name}`, value: d._id }))}
-                      placeholder="Select Doctor"
-                      className="mt-0"
-                    />
-                  </div>
-                </>
-              )}
               <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />
               <PrimaryButton onClick={() => router.push("/dashboard/pharmacy/billing#new")} className="bg-linear-to-br from-indigo-600 to-pink-500 shadow-indigo-200" title="Direct">
                 Direct
