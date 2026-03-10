@@ -9,9 +9,9 @@
   "private": true,
   "main": "main.js",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --turbopack -p 4000",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 4000",
     "pack": "next build && electron-builder",
     "lint": "next lint",
     "electron:dev": "concurrently \"next dev\" \"wait-on tcp:3000 && electron .\"",
