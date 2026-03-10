@@ -48,7 +48,7 @@ export const tokenStore = {
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
       sameSite: "lax" as const,
-      secure: process.env.NODE_ENV === "production",
+      secure: false // process.env.NODE_ENV === "production",
     };
     setCookie(ctx, ACCESS_COOKIE, access, cookieOptions);
     setCookie(ctx, REFRESH_COOKIE, refresh, cookieOptions);
@@ -65,7 +65,7 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
 
   const api = axios.create({
     baseURL,
-    withCredentials: true, 
+    withCredentials: true,
   });
 
   /** Attach Authorization header from cookie before each request */
@@ -102,7 +102,7 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
           enqueueRefresh((newAccess) => {
             if (!newAccess) return reject(error);
             original.headers = original.headers ?? {};
-            (original.headers ).Authorization = `Bearer ${newAccess}`;
+            (original.headers).Authorization = `Bearer ${newAccess}`;
             resolve(api(original));
           });
         });
@@ -162,7 +162,7 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
 }
 
 const api = createApi({
-    baseURL:configuration().backendUrl
+  baseURL: configuration().backendUrl
 })
 
 export default api
