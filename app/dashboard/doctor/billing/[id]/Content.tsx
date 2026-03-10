@@ -2,6 +2,7 @@
 
 import AppShell from "@/components/layout/app-shell";
 import { Separator } from "@/components/ui/separator";
+import configuration from "@/config/configuration";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import useSWR from "swr";
@@ -51,7 +52,7 @@ export default function InvoiceView({ id }: { id: string }) {
     <AppShell>
       <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden m-5">
         {/* Header Section */}
-        <div className="flex justify-between items-center bg-gradient-to-r from-purple-600 to-blue-500 text-white px-8 py-6 border-b">
+        <div className="flex justify-between items-center bg-linear-to-r from-purple-600 to-blue-500 text-white px-8 py-6 border-b">
           <div className="flex items-center space-x-3">
             <h2 className="text-lg font-semibold">Synapse HMS</h2>
           </div>
@@ -122,11 +123,9 @@ export default function InvoiceView({ id }: { id: string }) {
           <div className="p-8">
             <h3 className="text-sm text-gray-500 mb-2">Clinic Details</h3>
             <div className="text-sm text-gray-700">
-              <p className="font-semibold text-gray-800">Mark Hospital</p>
-              <p>contact@synapsehms.com</p>
-              <p className="mt-1">Pothukallu, Nilambur, Kerala</p>
-              <p>+91 98765 43210</p>
-              <p className="mt-1">Booking No: BK2025-00921</p>
+              <p className="font-semibold text-gray-800">{configuration().hospitalName}</p>
+              <p className="mt-1">{configuration().hospitalAddress}</p>
+              <p>{configuration().hospitalPhone}</p>
 
             </div>
           </div>
@@ -144,7 +143,7 @@ export default function InvoiceView({ id }: { id: string }) {
         {/* Table */}
         <div className="overflow-hidden border-t border-gray-100">
           <table className="w-full text-sm border-collapse">
-            <thead className="bg-gradient-to-r from-gray-100 to-gray-200 border-b">
+            <thead className="bg-linear-to-r from-gray-100 to-gray-200 border-b">
               <tr>
                 <th className="text-left p-4 font-semibold text-gray-700">
                   Description
@@ -258,10 +257,10 @@ export default function InvoiceView({ id }: { id: string }) {
           </div> */}
         </div>
         <Separator /> {/* Footer */}
-        <div className="relative text-center text-xs text-gray-500 py-6 bg-gradient-to-r from-gray-50 to-gray-100">
+        <div className="relative text-center text-xs text-gray-500 py-6 bg-linear-to-r from-gray-50 to-gray-100">
           <p>
-            Mark Hospital, Pothukallu, Nilambur, Kerala | GSTIN: 32ABCDE1234F1Z5
-            | Contact: +91 98765 43210
+            {configuration().hospitalName}, {configuration().hospitalAddress}
+            | Contact: {configuration().hospitalPhone}
           </p>
           <p>
             All prices are inclusive of GST as per Government of India norms.

@@ -2,6 +2,7 @@ import { fDateandTime } from "@/lib/fDateAndTime";
 import { OrderType } from "../interface";
 import Watermark from "@/components/print/Watermark";
 import HospitalName from "@/components/print/HospitalName";
+import configuration from "@/config/configuration";
 
 interface PrintPrescriptionProps {
     order: OrderType | null;
@@ -134,7 +135,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                     <div className="space-y-1">
                         <p className="text-slate-700 font-bold">This prescription is valid only if signed by registered medical practitioner</p>
                         <p className="text-slate-500 font-medium">
-                            For Appointments / Booking: <span className="text-slate-700 font-bold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
+                            For Appointments / Booking: <span className="text-slate-700 font-bold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
                         </p>
                     </div>
                     <p className="text-slate-500 font-medium">

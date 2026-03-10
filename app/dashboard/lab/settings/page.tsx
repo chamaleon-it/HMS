@@ -14,6 +14,7 @@ import useSWR from "swr";
 import { ProfileType } from "./interface";
 import TestCatalogue from "./TestCatalogue";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
+import configuration from "@/config/configuration";
 
 const LabSettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
@@ -34,7 +35,7 @@ const LabSettingsPage: React.FC = () => {
           icon={<Shield className="h-5 w-5" />}
         >
           <div className="hidden md:flex items-center gap-2">
-            <Badge className="bg-emerald-600 text-white">Mark Hospital</Badge>
+            <Badge className="bg-emerald-600 text-white">{configuration().hospitalName}</Badge>
             <Badge variant="secondary">HIPAA-ready</Badge>
             <Badge variant="outline">ISO 27001-minded</Badge>
           </div>

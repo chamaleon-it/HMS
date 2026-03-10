@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft } from "lucide-react";
 import PharmacyHeader from "../components/PharmacyHeader";
+import configuration from "@/config/configuration";
 
 export default function ViewBill({ id }: { id: string }) {
 
@@ -220,7 +221,7 @@ export default function ViewBill({ id }: { id: string }) {
                         <div className="space-y-1 text-left">
                             <p className="text-slate-300 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
                             <p className="text-slate-500">
-                                For Appointments / Booking: <span className="text-slate-400 font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
+                                For Appointments / Booking: <span className="text-slate-400 font-semibold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
                             </p>
                         </div>
                         <p className="text-slate-500">
