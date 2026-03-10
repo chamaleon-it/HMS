@@ -5,6 +5,7 @@ import HospitalName from "@/components/print/HospitalName";
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import configuration from "@/config/configuration";
+import IsoCertification from "@/components/print/iso-certification";
 
 interface BlankPrescriptionProps {
     data: {
@@ -76,9 +77,10 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                         </div>
                     </div>
                 </div>
+                <IsoCertification />
 
                 {/* BODY */}
-                <div className="px-8 py-4 flex-1 flex flex-col gap-4 text-[12px]">
+                <div className="p-5 pt-2 flex-1 flex flex-col gap-4 text-[12px]">
                     {/* PATIENT STRIP - Single Row */}
                     <div className="border border-slate-200 rounded-lg px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50/50">
                         <div className="flex-1 min-w-0">

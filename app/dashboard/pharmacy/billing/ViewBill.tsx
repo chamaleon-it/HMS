@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft } from "lucide-react";
 import PharmacyHeader from "../components/PharmacyHeader";
 import configuration from "@/config/configuration";
+import IsoCertification from "@/components/print/iso-certification";
 
 export default function ViewBill({ id }: { id: string }) {
 
@@ -128,6 +129,8 @@ export default function ViewBill({ id }: { id: string }) {
                             </div>
                         </div>
                     </div>
+
+                    <IsoCertification />
 
                     {/* BODY */}
                     <div className="p-10 flex-1 flex flex-col gap-6 text-[13px]">

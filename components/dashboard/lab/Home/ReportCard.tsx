@@ -3,6 +3,7 @@ import { fDateandTime } from "@/lib/fDateAndTime";
 import Watermark from "@/components/print/Watermark";
 import HospitalName from "@/components/print/HospitalName";
 import configuration from "@/config/configuration";
+import IsoCertification from "@/components/print/iso-certification";
 
 interface ReportCardProps {
     report: any | null;
@@ -73,9 +74,10 @@ export default function ReportCard({ report }: ReportCardProps) {
                         </div>
                     </div>
                 </div>
+                <IsoCertification />
 
                 {/* BODY */}
-                <div className="p-5 flex-1 flex flex-col gap-3 text-[13px]">
+                <div className="p-5 pt-2 flex-1 flex flex-col gap-3 text-[13px]">
                     {/* PATIENT STRIP */}
                     <div className="border border-slate-200 rounded-lg px-6 py-4 flex flex-wrap gap-x-5 gap-y-2 bg-slate-50/50">
                         <Info label="Patient" value={patient?.name || "—"} />

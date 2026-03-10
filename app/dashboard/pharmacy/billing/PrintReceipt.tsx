@@ -6,6 +6,7 @@ import HospitalName from "@/components/print/HospitalName";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import configuration from "@/config/configuration";
+import IsoCertification from "@/components/print/iso-certification";
 
 interface PrintReceiptProps {
     payload?: {
@@ -100,8 +101,10 @@ export default function PrintReceipt({
                     </div>
                 </div>
 
+                <IsoCertification />
+
                 {/* BODY */}
-                <div className="p-10 flex-1 flex flex-col gap-6 text-[13px]">
+                <div className="p-5 pt-2 flex-1 flex flex-col gap-6 text-[13px]">
                     {/* PATIENT STRIP - 4 COL COMPACT */}
                     <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
                         <Compact label="Patient" value={patient.name} />
