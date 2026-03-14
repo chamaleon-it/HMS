@@ -203,7 +203,12 @@ export function CreateAppointmentForm({
             setPrintData(printPayload);
             await refreshCalendars();
             if (mutate) mutate();
-            reset({ doctor: doctorsData?.data[0]?._id });
+            reset({
+              doctor: doctorsData?.data[0]?._id,
+              method: "In clinic",
+              type: "New",
+              isPaid: "false",
+            });
 
             setTimeout(() => {
               window.print();
@@ -218,7 +223,12 @@ export function CreateAppointmentForm({
         }
       }
 
-      reset({ doctor: doctorsData?.data[0]?._id });
+      reset({
+        doctor: doctorsData?.data[0]?._id,
+        method: "In clinic",
+        type: "New",
+        isPaid: "false",
+      });
       onClose();
       if (mutate) {
         mutate();

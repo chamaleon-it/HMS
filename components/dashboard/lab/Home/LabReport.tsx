@@ -88,7 +88,7 @@ export default function LabResultsPage() {
   const { data, mutate, isLoading } = useSWR<{
     message: string;
     data: any[];
-  }>(`/lab/report/by_date?${dateQuery}`);
+  }>(`/lab/report?${dateQuery}`);
 
 
   const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number, flagged: number } }>("/lab/report/statistics")

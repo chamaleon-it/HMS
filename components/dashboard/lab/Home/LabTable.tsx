@@ -5,7 +5,7 @@ import ViewResultModal from "./ViewResultModal";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Clock, Flag, FlagOff, Play, Printer, Repeat, RotateCcw, Trash2, X } from "lucide-react";
+import { Clock, Flag, FlagOff, Play, Printer,  RotateCcw, Trash2, X } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
@@ -136,7 +136,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
   };
 
   return (
-    <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
+    <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-x-scroll">
       <table className="w-full whitespace-nowrap  overflow-scroll">
         <thead className="bg-slate-700 hover:bg-slate-700">
           <tr className="bg-slate-700 hover:bg-slate-700 border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
@@ -309,7 +309,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     <div className="flex items-center gap-2">
                       {r.doctor._id !== user?._id ? (
                         <span
-                          className="truncate max-w-[100px]"
+                          className="truncate max-w-25"
                           title={r.doctor.name}
                         >
                           Dr. {r.doctor.name}
@@ -592,49 +592,8 @@ function headerCell(
   return <th className={`text-${align} px-3 py-2`}>{label}</th>;
 }
 
-const statusTone = (s: string): "green" | "gray" | "red" | "blue" | "amber" =>
-  s === "Completed"
-    ? "green"
-    : s === "Waiting For Result"
-      ? "blue"
-      : s === "Upcoming"
-        ? "gray"
-        : s === "Sample Collected"
-          ? "amber"
-          : "red";
 
-// ----- Small UI helpers -----
-const Chip: React.FC<{
-  label: string;
-  tone?: "green" | "gray" | "red" | "blue" | "amber";
-}> = ({ label, tone = "gray" }) => {
-  const tones: Record<string, string> = {
-    green: "bg-emerald-50 text-emerald-700 ring-emerald-200/50",
-    gray: "bg-slate-50 text-slate-600 ring-slate-200/50",
-    red: "bg-rose-50 text-rose-700 ring-rose-200/50",
-    blue: "bg-sky-50 text-sky-700 ring-sky-200/50",
-    amber: "bg-amber-50 text-amber-700 ring-amber-200/50",
-  };
-  return (
-    <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${tones[tone]}`}
-    >
-      <span
-        className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === "gray"
-          ? "bg-slate-400"
-          : tone === "green"
-            ? "bg-emerald-500"
-            : tone === "amber"
-              ? "bg-amber-500"
-              : tone === "blue"
-                ? "bg-sky-500"
-                : "bg-rose-500"
-          }`}
-      ></span>
-      {label}
-    </span>
-  );
-};
+
 
 const Countdown = ({ targetDate }: { targetDate?: Date }) => {
 
@@ -704,7 +663,7 @@ const Countdown = ({ targetDate }: { targetDate?: Date }) => {
 
   return (
     <div
-      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ring-1 ring-inset ${colors[statusColor]} transition-all duration-300 font-mono tabular-nums min-w-[90px] justify-center`}
+      className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ring-1 ring-inset ${colors[statusColor]} transition-all duration-300 font-mono tabular-nums min-w-22.5 justify-center`}
     >
       <Clock
         className={`h-3.5 w-3.5 ${statusColor === "red" ? "animate-pulse" : ""

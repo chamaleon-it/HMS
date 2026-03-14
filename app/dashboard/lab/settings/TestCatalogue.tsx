@@ -179,6 +179,10 @@ export default function TestCatalogue({
   }>("/lab/panels/tests");
 
   const tests = data?.data ?? [];
+  const filteredTests = tests.filter((test) =>
+    test.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    test.code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
@@ -190,16 +194,24 @@ export default function TestCatalogue({
               description="Manage all individual tests, panels and profiles."
               emoji="🧬"
             />
-            <Button
-              className="bg-emerald-600 hover:bg-emerald-700 text-white"
-              onClick={() => setIsNewTestModalOpen(true)}
-            >
-              Add New Test
-            </Button>
+            <div className="flex items-center gap-3">
+              <Input
+                placeholder="Search tests..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-9 w-64 bg-slate-50"
+              />
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
+                onClick={() => setIsNewTestModalOpen(true)}
+              >
+                Add New Test
+              </Button>
+            </div>
           </div>
 
           <Dialog open={isNewTestModalOpen} onOpenChange={setIsNewTestModalOpen}>
-            <DialogContent className="sm:max-w-[800px] max-h-[85vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-200 max-h-[85vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Test</DialogTitle>
                 <DialogDescription>Create a new lab or imaging test in the catalogue.</DialogDescription>
@@ -443,15 +455,15 @@ export default function TestCatalogue({
 
           <div className="mt-8">
             <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Tests</h4>
-            <div className="rounded-lg border border-slate-200 overflow-hidden">
+            <div className="rounded-lg border border-slate-200 overflow-y-auto max-h-[calc(100vh-270px)]">
               <Table>
-                <TableHeader className="bg-slate-50">
+                <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                   <TableRow>
-                    <TableHead className="w-[100px]">Code</TableHead>
+                    <TableHead >Code</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Price</TableHead>
-                    <TableHead>Estimated Time (Minutes)</TableHead>
+                    <TableHead>ETA (Minutes)</TableHead>
                     <TableHead>Panels</TableHead>
                     <TableHead>Range</TableHead>
                     <TableHead>Unit</TableHead>
@@ -459,14 +471,14 @@ export default function TestCatalogue({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {tests.length === 0 ? (
+                  {filteredTests.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-slate-500 text-xs">
-                        No tests configured yet. Add one above.
+                      <TableCell colSpan={9} className="text-center py-8 text-slate-500 text-xs">
+                        {searchQuery ? "No tests found matching search criteria." : "No tests configured yet. Add one above."}
                       </TableCell>
                     </TableRow>
                   ) : (
-                    tests.map((test, idx) => (
+                    filteredTests.map((test, idx) => (
                       <TestCatalogueRow
                         key={idx}
                         test={test}
@@ -508,7 +520,7 @@ export default function TestCatalogue({
             </div>
 
             <Dialog open={isNewPanelModalOpen} onOpenChange={setIsNewPanelModalOpen}>
-              <DialogContent className="sm:max-w-[600px]">
+              <DialogContent className="sm:max-w-150">
                 <DialogHeader>
                   <DialogTitle>Add New Panel</DialogTitle>
                   <DialogDescription>Create a new panel in the catalogue.</DialogDescription>

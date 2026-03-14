@@ -466,13 +466,13 @@ export default function AppointmentPage() {
                 <>
                   <div className="flex items-center bg-white rounded-lg border border-gray-200 p-0.5 shadow-sm mr-2 transition-all hover:border-gray-300">
                     <button onClick={handlePrevWeek} title="Prev Week (Shift + Left)" className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500"><ChevronLeft size={16} /></button>
-                    <span className="text-xs font-semibold px-2 min-w-[90px] text-center text-gray-700">
+                    <span className="text-xs font-semibold px-2 min-w-22.5 text-center text-gray-700">
                       {date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </span>
                     <button onClick={handleNextWeek} title="Next Week (Shift + Right)" className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500"><ChevronRight size={16} /></button>
                   </div>
 
-                  <div className="w-[180px]">
+                  <div className="w-45">
                     <Select
                       value={selectedDoctorId}
                       onChange={setSelectedDoctorId}

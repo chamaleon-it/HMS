@@ -206,7 +206,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
             {buttonText || "Update Result"}
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden gap-0">
+        <DialogContent className="sm:max-w-200 p-0 overflow-hidden gap-0">
           <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-blue-100/50 text-blue-600 rounded-xl">
@@ -309,7 +309,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                           </div>
                         </TableCell>
                         <TableCell className="py-4">
-                          <div className="relative max-w-[240px]">
+                          <div className="relative max-w-60">
                             {labTest.name?.type === "Lab" ? (
                               <Input
                                 value={
@@ -392,9 +392,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                         <TableCell className="pr-6 py-4 text-right">
                           <div className="flex flex-col items-end gap-0.5">
                             <span className="text-sm font-medium text-gray-700">
-                              {labTest.name?.min ?? "0"} -{" "}
-                              {labTest.name?.unit ? labTest.name?.unit : ""}{" "}
-                              {labTest.name?.max ?? "N/A"}
+                              {labTest.name?.min ?? "N/A"}{labTest.name?.unit ? labTest.name?.unit : ""} - {labTest.name?.max ?? "N/A"}{labTest.name?.unit ? labTest.name?.unit : ""}
                             </span>
                             <span className="text-[10px] text-gray-400 uppercase tracking-wide">
                               Normal Range
