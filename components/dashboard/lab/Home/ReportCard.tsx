@@ -98,32 +98,80 @@ export default function ReportCard({ report }: ReportCardProps) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {report.test.map((t: any, i: number) => {
-                                    // Check if out of range roughly
-                                    const value = parseFloat(t.value);
-                                    let isAbnormal = false;
-                                    const min = t.name?.min;
-                                    const max = t.name?.max;
-                                    if (!isNaN(value) && ((min !== undefined && value < min) || (max !== undefined && value > max))) {
-                                        isAbnormal = true;
-                                    }
-                                    return (
-                                        <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
-                                            <td className="px-3 py-3">
-                                                <p className="font-black text-slate-900 text-[12px]">{t.name?.name || "Unknown test"}</p>
-                                            </td>
-                                            <td className="px-3 py-3 text-center font-bold">
-                                                <span className={isAbnormal ? "text-rose-600 font-black" : "text-slate-700"}>
-                                                    {t.value || "—"}
-                                                </span>
-                                            </td>
-                                            <td className="px-3 py-3 text-center text-slate-500 text-xs font-medium">{t.name?.unit || "—"}</td>
-                                            <td className="px-3 py-3 text-xs font-semibold text-slate-600">
-                                                {min !== undefined && max !== undefined ? `${min} - ${max}` : "—"}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
+                                {(() => {
+                                    // First, let's create a map from test ID to order index based on the panels
+                                    const testOrderMap = new Map<string, number>();
+                                    let orderIndex = 0;
+                                    
+                                    // We need to fetch panel definitions from the first tests, but report.panels just gives strings.
+                                    // So we'll iterate the panels specified on the report, and look inside the populated test's panel definitions to define an order
+                                    (report.panels || []).forEach((panelIdStr: string) => {
+                                        const panelId = panelIdStr.toString();
+                                        // find tests that belong to this panel to get panel info
+                                        const panelTests = (report.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
+                                        
+                                        // Get the ordered test list from the panel
+                                        let orderedIds: string[] = [];
+                                        for (const t of panelTests) {
+                                            const panelDef = t.name?.panels?.find((p: any) => p.name === panelId);
+                                            if (panelDef?.tests?.length) {
+                                                orderedIds = panelDef.tests.map((testObj: any) => testObj?._id ? testObj._id.toString() : testObj.toString());
+                                                break;
+                                            }
+                                        }
+
+                                        if (orderedIds.length > 0) {
+                                            orderedIds.forEach(id => {
+                                                if (!testOrderMap.has(id.toString())) {
+                                                    testOrderMap.set(id.toString(), orderIndex++);
+                                                }
+                                            });
+                                        } else {
+                                            // Fallback if panel order doesn't exist
+                                            panelTests.forEach((t: any) => {
+                                                if (!testOrderMap.has(t.name?._id?.toString() || "")) {
+                                                    testOrderMap.set(t.name?._id?.toString() || "", orderIndex++);
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                    // Sort report tests based on the map
+                                    const sortedTests = [...(report.test || [])].sort((a: any, b: any) => {
+                                        const aId = a.name?._id?.toString() || "";
+                                        const bId = b.name?._id?.toString() || "";
+                                        const aOrder = testOrderMap.has(aId) ? testOrderMap.get(aId)! : 999999;
+                                        const bOrder = testOrderMap.has(bId) ? testOrderMap.get(bId)! : 999999;
+                                        return aOrder - bOrder;
+                                    });
+
+                                    return sortedTests.map((t: any, i: number) => {
+                                        // Check if out of range roughly
+                                        const value = parseFloat(t.value);
+                                        let isAbnormal = false;
+                                        const min = t.name?.min;
+                                        const max = t.name?.max;
+                                        if (!isNaN(value) && ((min !== undefined && value < min) || (max !== undefined && value > max))) {
+                                            isAbnormal = true;
+                                        }
+                                        return (
+                                            <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                                                <td className="px-3 py-3">
+                                                    <p className="font-black text-slate-900 text-[12px]">{t.name?.name || "Unknown test"}</p>
+                                                </td>
+                                                <td className="px-3 py-3 text-center font-bold">
+                                                    <span className={isAbnormal ? "text-rose-600 font-black" : "text-slate-700"}>
+                                                        {t.value || "—"}
+                                                    </span>
+                                                </td>
+                                                <td className="px-3 py-3 text-center text-slate-500 text-xs font-medium">{t.name?.unit || "—"}</td>
+                                                <td className="px-3 py-3 text-xs font-semibold text-slate-600">
+                                                    {min !== undefined && max !== undefined ? `${min} - ${max}` : "—"}
+                                                </td>
+                                            </tr>
+                                        );
+                                    });
+                                })()}
                             </tbody>
                         </table>
                     </div>

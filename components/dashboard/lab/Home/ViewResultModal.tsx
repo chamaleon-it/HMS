@@ -58,6 +58,13 @@ interface Props {
                 nbMin?: number;
                 nbMax?: number;
                 _id: string;
+                panels?: {
+                    _id: string;
+                    name: string;
+                    status: string;
+                    user: string;
+                    tests?: string[];
+                }[];
             }
             value?: string | number
             _id: string;
@@ -66,6 +73,7 @@ interface Props {
         status: string;
         createdAt: Date;
         updatedAt: Date;
+        panels?: string[];
     }
 }
 
@@ -159,7 +167,47 @@ export default function ViewResultModal({ r }: Props) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {r?.test?.map((test) => (
+                                {(() => {
+                                    const testOrderMap = new Map<string, number>();
+                                    let orderIndex = 0;
+                                    
+                                    (r.panels || []).forEach((panelIdStr: string) => {
+                                        const panelId = panelIdStr.toString();
+                                        const panelTests = (r.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
+                                        
+                                        let orderedIds: string[] = [];
+                                        for (const t of panelTests) {
+                                            const panelDef = t.name?.panels?.find((p: any) => p.name === panelId);
+                                            if (panelDef?.tests?.length) {
+                                                orderedIds = panelDef.tests.map((testObj: any) => testObj?._id ? testObj._id.toString() : testObj.toString());
+                                                break;
+                                            }
+                                        }
+
+                                        if (orderedIds.length > 0) {
+                                            orderedIds.forEach(id => {
+                                                if (!testOrderMap.has(id.toString())) {
+                                                    testOrderMap.set(id.toString(), orderIndex++);
+                                                }
+                                            });
+                                        } else {
+                                            panelTests.forEach((t: any) => {
+                                                if (!testOrderMap.has(t.name?._id?.toString() || "")) {
+                                                    testOrderMap.set(t.name?._id?.toString() || "", orderIndex++);
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                    const sortedTests = [...(r?.test || [])].sort((a: any, b: any) => {
+                                        const aId = a.name?._id?.toString() || "";
+                                        const bId = b.name?._id?.toString() || "";
+                                        const aOrder = testOrderMap.has(aId) ? testOrderMap.get(aId)! : 999999;
+                                        const bOrder = testOrderMap.has(bId) ? testOrderMap.get(bId)! : 999999;
+                                        return aOrder - bOrder;
+                                    });
+
+                                    return sortedTests.map((test) => (
                                     <TableRow
                                         key={test._id}
                                         className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none"
@@ -218,7 +266,8 @@ export default function ViewResultModal({ r }: Props) {
                                             )}
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                ))
+                                })()}
                             </TableBody>
                         </Table>
                     </div>
