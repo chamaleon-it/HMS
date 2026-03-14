@@ -1,10 +1,13 @@
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import api from "@/lib/axios";
+
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { TableCell, TableRow, Table, TableHeader, TableHead, TableBody } from '@/components/ui/table'
 import { formatINR } from '@/lib/fNumber';
-import { Eye, Pencil, Trash2, Plus, Search } from 'lucide-react';
+import { Eye, Pencil, Trash2, Plus, Search, GripVertical, Check } from 'lucide-react';
 import React, { useCallback, useState, useEffect } from 'react'
 import toast from 'react-hot-toast';
 import {
@@ -20,6 +23,59 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
+
+function SortableTableRow({ id, children, className }: { id: string, children: React.ReactNode, className?: string }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 50 : undefined,
+        position: isDragging ? 'relative' as const : undefined,
+    };
+
+    return (
+        <TableRow
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className={cn(className, "cursor-grab active:cursor-grabbing", isDragging && "bg-slate-100 opacity-80 shadow-lg z-50 relative")}
+        >
+            <TableCell className="w-8 p-0 text-center">
+                <div className="p-2 text-slate-400 hover:text-slate-600">
+                    <GripVertical className="h-4 w-4" />
+                </div>
+            </TableCell>
+            {children}
+        </TableRow>
+    );
+}
+
 
 export default function PanelCatalogueRow({
     panel,
@@ -29,7 +85,7 @@ export default function PanelCatalogueRow({
     onRemoveTests,
     panelMutate,
 }: {
-    panel: { name: string; price: number };
+    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number };
     idx: number;
     tests: any[];
     onAddTests: () => void;
@@ -37,7 +93,7 @@ export default function PanelCatalogueRow({
     panelMutate: () => void;
 }) {
 
-    const initialPanelTests = tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
+    const initialPanelTests = panel.tests || tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
     
     // Default estimated time derived from sum of test estimated times
     const defaultEstimatedTime = initialPanelTests.reduce((sum, t) => sum + (Number(t.estimatedTime) || 0), 0);
@@ -57,6 +113,42 @@ export default function PanelCatalogueRow({
     const [searchTestQuery, setSearchTestQuery] = useState("");
     const [addTestDropdownOpen, setAddTestDropdownOpen] = useState(false);
 
+    const sensors = useSensors(
+        useSensor(PointerSensor),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
+
+    const handleDragEnd = (event: any) => {
+        const { active, over } = event;
+
+        if (active.id !== over.id) {
+            setSelectedTests((items) => {
+                const oldIndex = items.findIndex(t => t._id === active.id);
+                const newIndex = items.findIndex(t => t._id === over.id);
+                return arrayMove(items, oldIndex, newIndex);
+            });
+        }
+    };
+
+    const handleSlNoChange = (testId: string, newSlNo: string) => {
+        if (!newSlNo || newSlNo.trim() === "") return;
+        const index = parseInt(newSlNo) - 1;
+        if (isNaN(index)) return;
+
+        setSelectedTests((prev) => {
+            const oldIndex = prev.findIndex(t => t._id === testId);
+            if (oldIndex === -1) return prev;
+            
+            const targetIndex = Math.max(0, Math.min(index, prev.length - 1));
+            if (oldIndex === targetIndex) return prev; 
+            
+            return arrayMove(prev, oldIndex, targetIndex);
+        });
+    };
+
+
     // Sync Edit State when modal opens
     useEffect(() => {
         if (editOpen) {
@@ -71,9 +163,27 @@ export default function PanelCatalogueRow({
     }, [editOpen, initialPanelTests.length, panel.name, panel.price, defaultEstimatedTime]);
 
     const updatePanel = useCallback(async () => {
-        toast.error("Panel update action triggered (Backend update disabled/not implemented)");
-        setEditOpen(false);
-    }, []);
+        try {
+            const updatePayload = {
+                ...payload,
+                tests: selectedTests.map(t => t._id)
+            };
+            
+            /*
+            await toast.promise(api.patch(`/lab/panels/${panel.name}`, updatePayload), {
+                loading: "Updating panel...",
+                success: "Panel updated successfully",
+                error: ({ response }) => response.data.message,
+            });
+            */
+           
+            toast.error("Order saving is currently disabled (Backend call commented)");
+            panelMutate();
+            setEditOpen(false);
+        } catch (error) {
+            console.error(error);
+        }
+    }, [payload, selectedTests, panel.name, panelMutate]);
 
     const deletePanel = useCallback(async () => {
         toast.success("Panel delete action triggered (Backend deletion disabled/not implemented)");
@@ -204,32 +314,77 @@ export default function PanelCatalogueRow({
                                     <Label className="text-slate-800 font-bold mb-2 block border-b pb-2">Modify Tests in Panel</Label>
                                     <div className="rounded-md border border-slate-200 overflow-hidden">
                                         <div 
-                                            className="max-h-[300px] overflow-y-auto w-full"
+                                            className="max-h-[400px] overflow-y-auto w-full"
                                             onWheel={(e) => e.stopPropagation()}
                                         >
-                                            <Table>
-                                                <TableHeader className="bg-slate-50 sticky top-0 z-10">
-                                                    <TableRow>
-                                                        <TableHead className="w-[100px] bg-slate-50">Code</TableHead>
-                                                        <TableHead className="bg-slate-50">Test Name</TableHead>
-                                                        <TableHead className="w-[150px] text-right bg-slate-50">Action</TableHead>
-                                                    </TableRow>
-                                                </TableHeader>
-                                                <TableBody>
-                                                    {selectedTests.map(t => (
-                                                        <TableRow key={t._id}>
-                                                            <TableCell className="text-xs text-slate-500">{t.code}</TableCell>
-                                                            <TableCell className="font-medium text-sm">{t.name}</TableCell>
-                                                            <TableCell className="text-right py-1">
-                                                                <Button size="sm" variant="ghost" onClick={() => setSelectedTests(selectedTests.filter(st => st._id !== t._id))}>
-                                                                    <Trash2 className='h-4 w-4 text-red-500' />
-                                                                </Button>
-                                                            </TableCell>
+                                            <DndContext
+                                                sensors={sensors}
+                                                collisionDetection={closestCenter}
+                                                onDragEnd={handleDragEnd}
+                                                modifiers={[restrictToVerticalAxis, restrictToWindowEdges]}
+                                            >
+                                                <Table>
+                                                    <TableHeader className="bg-slate-50 sticky top-0 z-10">
+                                                        <TableRow>
+                                                            <TableHead className="w-8 p-0 bg-slate-50"></TableHead>
+                                                            <TableHead className="w-[80px] bg-slate-50">SL No</TableHead>
+                                                            <TableHead className="w-[100px] bg-slate-50">Code</TableHead>
+                                                            <TableHead className="bg-slate-50">Test Name</TableHead>
+                                                            <TableHead className="w-[100px] text-right bg-slate-50">Action</TableHead>
                                                         </TableRow>
-                                                    ))}
-                                                </TableBody>
-                                            </Table>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        <SortableContext
+                                                            items={selectedTests.map(t => t._id)}
+                                                            strategy={verticalListSortingStrategy}
+                                                        >
+                                                            {selectedTests.map((t, sIdx) => (
+                                                                <SortableTableRow key={t._id} id={t._id}>
+                                                                    <TableCell className="py-2">
+                                                                        <Input 
+                                                                            className="h-8 w-14 text-center px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                                            type="number"
+                                                                            defaultValue={sIdx + 1}
+                                                                            key={`sl-${t._id}-${sIdx}-${selectedTests.length}`}
+                                                                            onPointerDown={(e) => e.stopPropagation()}
+                                                                            onWheel={(e) => (e.target as HTMLInputElement).blur()}
+                                                                            onKeyDown={(e) => {
+                                                                                if (e.key === 'Enter') {
+                                                                                    e.preventDefault();
+                                                                                    handleSlNoChange(t._id, (e.target as HTMLInputElement).value);
+                                                                                    (e.target as HTMLInputElement).blur();
+                                                                                }
+                                                                            }}
+                                                                            onBlur={(e) => {
+                                                                                const val = e.target.value;
+                                                                                if (val && parseInt(val) !== sIdx + 1) {
+                                                                                    handleSlNoChange(t._id, val);
+                                                                                }
+                                                                            }}
+                                                                            min={1}
+                                                                            max={selectedTests.length}
+                                                                        />
+                                                                    </TableCell>
+                                                                    <TableCell className="text-xs text-slate-500">{t.code}</TableCell>
+                                                                    <TableCell className="font-medium text-sm">{t.name}</TableCell>
+                                                                    <TableCell className="text-right py-1">
+                                                                        <Button 
+                                                                            size="sm" 
+                                                                            variant="ghost" 
+                                                                            onPointerDown={(e) => e.stopPropagation()}
+                                                                            onClick={() => setSelectedTests(selectedTests.filter(st => st._id !== t._id))}
+                                                                        >
+                                                                            <Trash2 className='h-4 w-4 text-red-500' />
+                                                                        </Button>
+                                                                    </TableCell>
+                                                                </SortableTableRow>
+                                                            ))}
+                                                        </SortableContext>
+                                                    </TableBody>
+                                                </Table>
+                                            </DndContext>
                                         </div>
+
                                         <div className="border-t bg-slate-50/30">
                                             <Table>
                                                 <TableBody>
@@ -254,25 +409,38 @@ export default function PanelCatalogueRow({
                                                                             <CommandEmpty>No test found.</CommandEmpty>
                                                                             <CommandGroup>
                                                                                 {tests
-                                                                                    .filter(t => !selectedTests.find(st => st._id === t._id))
-                                                                                    .map((t) => (
-                                                                                    <CommandItem
-                                                                                        key={t._id}
-                                                                                        value={t.name + " " + t.code}
-                                                                                        onSelect={() => {
-                                                                                            handleAddTest(t);
-                                                                                        }}
-                                                                                        className="flex justify-between items-center cursor-pointer py-2 px-3"
-                                                                                    >
-                                                                                        <div className="flex flex-col">
-                                                                                            <span className="font-medium">{t.name}</span>
-                                                                                            <span className="text-xs text-muted-foreground">{t.code} | {t.unit || 'No unit'}</span>
-                                                                                        </div>
-                                                                                        <Plus className="h-4 w-4 text-emerald-500 opacity-70" />
-                                                                                    </CommandItem>
-                                                                                ))}
+                                                                                    .map((t) => {
+                                                                                        const isSelected = selectedTests.find(st => st._id === t._id);
+                                                                                        return (
+                                                                                            <CommandItem
+                                                                                                key={t._id}
+                                                                                                value={t.name + " " + (t.code || '')}
+                                                                                                onSelect={() => {
+                                                                                                    if (!isSelected) handleAddTest(t);
+                                                                                                }}
+                                                                                                className={cn(
+                                                                                                    "flex justify-between items-center py-2 px-3",
+                                                                                                    isSelected ? "opacity-60 cursor-default" : "cursor-pointer"
+                                                                                                )}
+                                                                                            >
+                                                                                                <div className="flex flex-col">
+                                                                                                    <div className="flex items-center gap-2">
+                                                                                                        <span className="font-medium">{t.name}</span>
+                                                                                                        {isSelected && (
+                                                                                                            <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full flex items-center gap-1">
+                                                                                                                <Check className="h-2 w-2" /> Added
+                                                                                                            </span>
+                                                                                                        )}
+                                                                                                    </div>
+                                                                                                    <span className="text-xs text-muted-foreground">{t.code} | {t.unit || 'No unit'}</span>
+                                                                                                </div>
+                                                                                                {!isSelected && <Plus className="h-4 w-4 text-emerald-500 opacity-70" />}
+                                                                                            </CommandItem>
+                                                                                        );
+                                                                                    })}
                                                                             </CommandGroup>
                                                                         </CommandList>
+
                                                                     </Command>
                                                                 </PopoverContent>
                                                             </Popover>
