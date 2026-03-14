@@ -93,7 +93,7 @@ export default function PanelCatalogueRow({
     panelMutate: () => void;
 }) {
 
-    const initialPanelTests = panel.tests || tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
+    const initialPanelTests = panel.tests?.length ? panel.tests : tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
     
     // Default estimated time derived from sum of test estimated times
     const defaultEstimatedTime = initialPanelTests.reduce((sum, t) => sum + (Number(t.estimatedTime) || 0), 0);
@@ -169,15 +169,13 @@ export default function PanelCatalogueRow({
                 tests: selectedTests.map(t => t._id)
             };
             
-            /*
+            
             await toast.promise(api.patch(`/lab/panels/${panel.name}`, updatePayload), {
                 loading: "Updating panel...",
                 success: "Panel updated successfully",
                 error: ({ response }) => response.data.message,
             });
-            */
-           
-            toast.error("Order saving is currently disabled (Backend call commented)");
+            
             panelMutate();
             setEditOpen(false);
         } catch (error) {

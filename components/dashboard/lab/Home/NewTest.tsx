@@ -296,9 +296,15 @@ export default function NewTest({
                     const panelExists = prev.panels.includes(val);
                     if (panelExists) return prev; // Should not happen if filtered, but safe guard
 
-                    const newTests = tests
-                      .filter((t) => t.panels?.some((p) => p.name === val))
-                      .map((t) => ({ name: t._id }));
+                    // Safely get all tests ordered exactly as defined in the panel object
+                    let newTests: { name: string }[] = [];
+                    if (isPanel.tests && isPanel.tests.length) {
+                        newTests = isPanel.tests.map((t: any) => ({ name: t._id }));
+                    } else {
+                        newTests = tests
+                            .filter((t) => t.panels?.some((p) => p.name === val))
+                            .map((t) => ({ name: t._id }));
+                    }
 
                     return {
                       ...prev,

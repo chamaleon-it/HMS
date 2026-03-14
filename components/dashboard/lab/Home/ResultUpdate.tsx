@@ -87,6 +87,7 @@ interface Props {
           name: string;
           status: string;
           user: string;
+          tests?: string[];
         }[];
       };
       value?: string | number;
@@ -96,6 +97,7 @@ interface Props {
     status: string;
     createdAt: Date;
     updatedAt: Date;
+    panels?: string[];
   };
   mutate: () => void;
   buttonText?: "Ready" | "Completed" | "Update";
@@ -246,7 +248,47 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {r?.test?.map((labTest) => (
+                    {(() => {
+                      const testOrderMap = new Map<string, number>();
+                      let orderIndex = 0;
+                      
+                      (r.panels || []).forEach((panelIdStr: string) => {
+                          const panelId = panelIdStr.toString();
+                          const panelTests = (r.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
+                          
+                          let orderedIds: string[] = [];
+                          for (const t of panelTests) {
+                              const panelDef = t.name?.panels?.find((p: any) => p.name === panelId);
+                              if (panelDef?.tests?.length) {
+                                  orderedIds = panelDef.tests.map((testObj: any) => testObj?._id ? testObj._id.toString() : testObj.toString());
+                                  break;
+                              }
+                          }
+
+                          if (orderedIds.length > 0) {
+                              orderedIds.forEach(id => {
+                                  if (!testOrderMap.has(id.toString())) {
+                                      testOrderMap.set(id.toString(), orderIndex++);
+                                  }
+                              });
+                          } else {
+                              panelTests.forEach((t: any) => {
+                                  if (!testOrderMap.has(t.name?._id?.toString() || "")) {
+                                      testOrderMap.set(t.name?._id?.toString() || "", orderIndex++);
+                                  }
+                              });
+                          }
+                      });
+
+                      const sortedTests = [...(r?.test || [])].sort((a: any, b: any) => {
+                          const aId = a.name?._id?.toString() || "";
+                          const bId = b.name?._id?.toString() || "";
+                          const aOrder = testOrderMap.has(aId) ? testOrderMap.get(aId)! : 999999;
+                          const bOrder = testOrderMap.has(bId) ? testOrderMap.get(bId)! : 999999;
+                          return aOrder - bOrder;
+                      });
+
+                      return sortedTests.map((labTest) => (
                       <TableRow
                         key={labTest._id}
                         className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none"
@@ -360,7 +402,8 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                           </div>
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ))
+                    })()}
                   </TableBody>
                 </Table>
               </div>
