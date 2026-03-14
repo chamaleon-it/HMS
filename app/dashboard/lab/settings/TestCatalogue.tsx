@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import TestCatalogueRow from "./TestCatalogueRow";
+import PanelCatalogueRow from "./PanelCatalogueRow";
 import useGetPanels from "@/data/useGetPanels";
 import useSWR from "swr";
 import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
@@ -67,6 +68,8 @@ export default function TestCatalogue({
   const [isRemoveTestsDialogOpen, setIsRemoveTestsDialogOpen] = useState(false);
   const [isNewTestModalOpen, setIsNewTestModalOpen] = useState(false);
   const [isNewPanelModalOpen, setIsNewPanelModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [panelSearchQuery, setPanelSearchQuery] = useState("");
 
   const updateCatalogueSettings = async () => {
     try {
@@ -145,6 +148,9 @@ export default function TestCatalogue({
   };
 
   const { panels, mutate: panelMutate } = useGetPanels();
+  const filteredPanels = panels.filter((panel) =>
+    panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase())
+  );
 
 
   const { data, mutate: testMutate } = useSWR<{
@@ -485,12 +491,20 @@ export default function TestCatalogue({
                 description="Manage all panels and group tests together."
                 emoji="📦"
               />
-              <Button
-                className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                onClick={() => setIsNewPanelModalOpen(true)}
-              >
-                Add New Panel
-              </Button>
+              <div className="flex items-center gap-3">
+                <Input
+                  placeholder="Search panels..."
+                  value={panelSearchQuery}
+                  onChange={(e) => setPanelSearchQuery(e.target.value)}
+                  className="h-9 w-64 bg-slate-50"
+                />
+                <Button
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
+                  onClick={() => setIsNewPanelModalOpen(true)}
+                >
+                  Add New Panel
+                </Button>
+              </div>
             </div>
 
             <Dialog open={isNewPanelModalOpen} onOpenChange={setIsNewPanelModalOpen}>
@@ -508,48 +522,44 @@ export default function TestCatalogue({
 
             <div className="mt-8">
               <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Panels</h4>
-              <div className="rounded-lg border border-slate-200 overflow-hidden">
+              <div className="rounded-lg border border-slate-200 overflow-y-auto max-h-[calc(100vh-270px)]">
                 <Table>
-                  <TableHeader className="bg-slate-50">
+                  <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                     <TableRow>
                       <TableHead>SL</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Price</TableHead>
+                      <TableHead>Estimated Time</TableHead>
                       <TableHead align="right" className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
 
-                    {panels.map((panel, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell>{idx + 1}</TableCell>
-                        <TableCell>{panel.name}</TableCell>
-                        <TableCell>{formatINR(panel.price)}</TableCell>
-                        <TableCell align="right" className="flex gap-2 justify-end">
-                          <Button
-                            variant="outline"
-                            className="h-9 bg-slate-50"
-                            onClick={() => {
-                              setActivePanel(panel.name);
-                              setIsAddTestsDialogOpen(true);
-                            }}
-                          >
-                            Add Tests
-                          </Button>
-
-                          <Button
-                            variant="outline"
-                            className="h-9 bg-slate-50"
-                            onClick={() => {
-                              setActivePanel(panel.name);
-                              setIsRemoveTestsDialogOpen(true);
-                            }}
-                          >
-                            Remove Tests
-                          </Button>
+                    {filteredPanels.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8 text-slate-500 text-xs">
+                          {panelSearchQuery ? "No panels found matching search criteria." : "No panels configured yet. Add one above."}
                         </TableCell>
                       </TableRow>
-                    ))}
+                    ) : (
+                      filteredPanels.map((panel, idx) => (
+                        <PanelCatalogueRow
+                            key={idx}
+                            idx={idx}
+                            panel={panel}
+                            tests={tests}
+                            panelMutate={panelMutate}
+                            onAddTests={() => {
+                                setActivePanel(panel.name);
+                                setIsAddTestsDialogOpen(true);
+                            }}
+                            onRemoveTests={() => {
+                                setActivePanel(panel.name);
+                                setIsRemoveTestsDialogOpen(true);
+                            }}
+                        />
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>
