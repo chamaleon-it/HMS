@@ -94,21 +94,21 @@ export default function PanelCatalogueRow({
 }) {
 
     const initialPanelTests = panel.tests?.length ? panel.tests : tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
-    
+
     // Default estimated time derived from sum of test estimated times
     const defaultEstimatedTime = initialPanelTests.reduce((sum, t) => sum + (Number(t.estimatedTime) || 0), 0);
 
     const [editOpen, setEditOpen] = useState(false);
     const [viewOpen, setViewOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
-    
+
     // Edit Modal State
     const [payload, setPayload] = useState({
         name: panel.name,
         price: panel.price,
         estimatedTime: defaultEstimatedTime
     });
-    
+
     const [selectedTests, setSelectedTests] = useState<any[]>(initialPanelTests);
     const [searchTestQuery, setSearchTestQuery] = useState("");
     const [addTestDropdownOpen, setAddTestDropdownOpen] = useState(false);
@@ -140,10 +140,10 @@ export default function PanelCatalogueRow({
         setSelectedTests((prev) => {
             const oldIndex = prev.findIndex(t => t._id === testId);
             if (oldIndex === -1) return prev;
-            
+
             const targetIndex = Math.max(0, Math.min(index, prev.length - 1));
-            if (oldIndex === targetIndex) return prev; 
-            
+            if (oldIndex === targetIndex) return prev;
+
             return arrayMove(prev, oldIndex, targetIndex);
         });
     };
@@ -168,14 +168,14 @@ export default function PanelCatalogueRow({
                 ...payload,
                 tests: selectedTests.map(t => t._id)
             };
-            
-            
+
+
             await toast.promise(api.patch(`/lab/panels/${panel.name}`, updatePayload), {
                 loading: "Updating panel...",
                 success: "Panel updated successfully",
                 error: ({ response }) => response.data.message,
             });
-            
+
             panelMutate();
             setEditOpen(false);
         } catch (error) {
@@ -206,7 +206,7 @@ export default function PanelCatalogueRow({
         if (t.womenMin !== null || t.womenMax !== null) ranges.push(`F: ${t.womenMin || 0}-${t.womenMax || 0}`);
         if (t.childMin !== null || t.childMax !== null) ranges.push(`C: ${t.childMin || 0}-${t.childMax || 0}`);
         if (t.nbMin !== null || t.nbMax !== null) ranges.push(`NB: ${t.nbMin || 0}-${t.nbMax || 0}`);
-        
+
         return ranges.length > 0 ? ranges.join(' | ') : 'N/A';
     }
 
@@ -218,7 +218,7 @@ export default function PanelCatalogueRow({
             <TableCell>{defaultEstimatedTime > 0 ? `${defaultEstimatedTime} Minutes` : "N/A"}</TableCell>
             <TableCell align="right">
                 <div className="flex gap-2 items-center justify-end">
-                    
+
                     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
                         <DialogTrigger asChild>
                             <Button size="sm" variant="ghost">
@@ -247,7 +247,7 @@ export default function PanelCatalogueRow({
                                         <p className="font-medium text-sm">{defaultEstimatedTime > 0 ? `${defaultEstimatedTime} Minutes` : "N/A"}</p>
                                     </div>
                                 </div>
-                                
+
                                 <div className="space-y-1 mt-2">
                                     <Label className="text-slate-800 font-bold mb-2 block">Included Tests ({initialPanelTests.length})</Label>
                                     <div className="rounded-md border border-slate-200 overflow-hidden">
@@ -311,7 +311,7 @@ export default function PanelCatalogueRow({
                                 <div className="space-y-2">
                                     <Label className="text-slate-800 font-bold mb-2 block border-b pb-2">Modify Tests in Panel</Label>
                                     <div className="rounded-md border border-slate-200 overflow-hidden">
-                                        <div 
+                                        <div
                                             className="max-h-[400px] overflow-y-auto w-full"
                                             onWheel={(e) => e.stopPropagation()}
                                         >
@@ -339,7 +339,7 @@ export default function PanelCatalogueRow({
                                                             {selectedTests.map((t, sIdx) => (
                                                                 <SortableTableRow key={t._id} id={t._id}>
                                                                     <TableCell className="py-2">
-                                                                        <Input 
+                                                                        <Input
                                                                             className="h-8 w-14 text-center px-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                                             type="number"
                                                                             defaultValue={sIdx + 1}
@@ -366,9 +366,9 @@ export default function PanelCatalogueRow({
                                                                     <TableCell className="text-xs text-slate-500">{t.code}</TableCell>
                                                                     <TableCell className="font-medium text-sm">{t.name}</TableCell>
                                                                     <TableCell className="text-right py-1">
-                                                                        <Button 
-                                                                            size="sm" 
-                                                                            variant="ghost" 
+                                                                        <Button
+                                                                            size="sm"
+                                                                            variant="ghost"
                                                                             onPointerDown={(e) => e.stopPropagation()}
                                                                             onClick={() => setSelectedTests(selectedTests.filter(st => st._id !== t._id))}
                                                                         >
@@ -458,7 +458,7 @@ export default function PanelCatalogueRow({
                         </DialogContent>
                     </Dialog>
 
-                    <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    {/* <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                         <AlertDialogTrigger asChild>
                             <Button size="sm" variant="ghost">
                                 <Trash2 className='h-4 w-4 text-slate-500 hover:text-red-500' />
@@ -478,7 +478,7 @@ export default function PanelCatalogueRow({
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog>
+                    </AlertDialog> */}
                 </div>
             </TableCell>
         </TableRow>

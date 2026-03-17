@@ -47,15 +47,15 @@ const StatCard: React.FC<{
             borderClass
         )}>
             <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />
-            <div className="relative p-5 flex items-center gap-5">
+            <div className="relative p-3 flex items-center gap-5">
                 <div className={cn(
                     "h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border border-white/50 shrink-0",
                     iconBgClass
                 )}>{icon}</div>
                 <div>
-                    <div className="text-3xl font-bold tracking-tight text-zinc-900">{value}</div>
+                    <div className="text-xl font-bold tracking-tight text-zinc-900">{value}</div>
                     <div className="text-sm font-medium text-zinc-500 uppercase tracking-wider">{label}</div>
-                    {subtext && <div className="text-xs text-zinc-400 mt-1">{subtext}</div>}
+                    {/* {subtext && <div className="text-xs text-zinc-400 mt-1">{subtext}</div>} */}
                 </div>
             </div>
         </Card>

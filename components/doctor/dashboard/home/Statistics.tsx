@@ -99,7 +99,7 @@ export default function Statistics() {
       border: "hover:border-blue-200",
     },
     {
-      label: "Pending/Observation",
+      label: "Pending",
       value: appointmentStatistics.observation + appointmentStatistics.upcoming,
       icon: <ListChecks />,
       color: "from-purple-500/10 to-purple-500/5",
