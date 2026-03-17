@@ -71,10 +71,10 @@ export default function ConsultationDetails({
                             <CardContent className="space-y-4">
                                 <div>
                                     <p className="text-lg font-medium text-foreground">
-                                        {selectedRow.doctor?.name ?? "—"}
+                                        {selectedRow?.doctor?.name ?? "—"}
                                     </p>
                                     <p className="text-sm text-muted-foreground">
-                                        {selectedRow.doctor?.specialization ?? "—"}
+                                        {selectedRow?.doctor?.specialization ?? "—"}
                                     </p>
                                 </div>
                                 <Separator />
@@ -84,7 +84,7 @@ export default function ConsultationDetails({
                                             Method
                                         </p>
                                         <p className="font-medium">
-                                            {selectedRow.appointment?.method ?? "—"}
+                                            {selectedRow?.appointment?.method ?? "—"}
                                         </p>
                                     </div>
                                     <div>
@@ -92,7 +92,7 @@ export default function ConsultationDetails({
                                             Status
                                         </p>
                                         <Badge variant="secondary" className="font-normal">
-                                            {selectedRow.appointment?.status ?? "—"}
+                                            {selectedRow?.appointment?.status ?? "—"}
                                         </Badge>
                                     </div>
                                     <div>
@@ -101,12 +101,12 @@ export default function ConsultationDetails({
                                         </p>
                                         <p
                                             className={
-                                                selectedRow.appointment?.isPaid
+                                                selectedRow?.appointment?.isPaid
                                                     ? "text-green-600 font-medium"
                                                     : "text-muted-foreground"
                                             }
                                         >
-                                            {selectedRow.appointment?.isPaid ? "Paid" : "Unpaid"}
+                                            {selectedRow?.appointment?.isPaid ? "Paid" : "Unpaid"}
                                         </p>
                                     </div>
                                 </div>
@@ -127,63 +127,63 @@ export default function ConsultationDetails({
                                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                                     <VitalItem
                                         label="BP"
-                                        value={selectedRow.examinationNote?.bp}
+                                        value={selectedRow?.examinationNote?.bp}
                                         unit="mmHg"
                                     />
                                     <VitalItem
                                         label="Heart Rate"
-                                        value={selectedRow.examinationNote?.hr}
+                                        value={selectedRow?.examinationNote?.hr}
                                         unit="bpm"
                                     />
                                     <VitalItem
                                         label="SpO2"
-                                        value={selectedRow.examinationNote?.spo2}
+                                        value={selectedRow?.examinationNote?.spo2}
                                         unit="%"
                                     />
                                     <VitalItem
                                         label="Temp"
-                                        value={selectedRow.examinationNote?.temp}
-                                        unit={selectedRow.examinationNote?.tempUnit}
+                                        value={selectedRow?.examinationNote?.temp}
+                                        unit={selectedRow?.examinationNote?.tempUnit}
                                     />
                                     <VitalItem
                                         label="Resp. Rate"
-                                        value={selectedRow.examinationNote?.rs}
+                                        value={selectedRow?.examinationNote?.rs}
                                         unit="/min"
                                     />
                                     <VitalItem
                                         label="CVS"
-                                        value={selectedRow.examinationNote?.cvs}
+                                        value={selectedRow?.examinationNote?.cvs}
                                     />
                                 </div>
-                                {(selectedRow.examinationNote?.pa ||
-                                    selectedRow.examinationNote?.cns ||
-                                    selectedRow.examinationNote?.otherNotes) && (
+                                {(selectedRow?.examinationNote?.pa ||
+                                    selectedRow?.examinationNote?.cns ||
+                                    selectedRow?.examinationNote?.otherNotes) && (
                                         <>
                                             <Separator className="my-4" />
                                             <div className="space-y-3 text-sm">
-                                                {selectedRow.examinationNote?.pa && (
+                                                {selectedRow?.examinationNote?.pa && (
                                                     <div>
                                                         <span className="font-medium text-muted-foreground mr-2">
                                                             PA:
                                                         </span>
-                                                        {selectedRow.examinationNote.pa}
+                                                        {selectedRow?.examinationNote?.pa}
                                                     </div>
                                                 )}
-                                                {selectedRow.examinationNote?.cns && (
+                                                {selectedRow?.examinationNote?.cns && (
                                                     <div>
                                                         <span className="font-medium text-muted-foreground mr-2">
                                                             CNS:
                                                         </span>
-                                                        {selectedRow.examinationNote.cns}
+                                                        {selectedRow?.examinationNote?.cns}
                                                     </div>
                                                 )}
-                                                {selectedRow.examinationNote?.otherNotes && (
+                                                {selectedRow?.examinationNote?.otherNotes && (
                                                     <div className="bg-muted/30 p-3 rounded-md mt-2">
                                                         <p className="text-xs font-medium text-muted-foreground mb-1 uppercase">
                                                             Other Notes
                                                         </p>
                                                         <p className="whitespace-pre-wrap">
-                                                            {selectedRow.examinationNote.otherNotes}
+                                                            {selectedRow?.examinationNote?.otherNotes}
                                                         </p>
                                                     </div>
                                                 )}

@@ -455,7 +455,7 @@ export default function AppointmentPage() {
 
   return (
     <AppShell>
-      <div className="p-0 sm:p-5 h-[calc(100vh-80px)] overflow-hidden flex flex-col">
+      <div className="p-0 sm:p-5 min-h-[calc(100vh-80px)] overflow-hidden flex flex-col">
         <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
           <PharmacyHeader
             title="Appointments"
