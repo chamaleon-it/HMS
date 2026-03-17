@@ -131,9 +131,9 @@ function PatientFullDetailContent() {
 
   return (
     <AppShell>
-      <div className="min-h-screen w-full bg-gradient-to-b from-background to-muted/30">
+      <div className="min-h-screen w-full bg-linear-to-b from-background to-muted/30">
         {/* Sticky Header */}
-        <div className="border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="border-b bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
           <Header
             mask={mask}
             blurIDsClass={blurIDsClass}
@@ -563,7 +563,7 @@ export default function PatientFullDetailPage() {
   return (
     <Suspense fallback={
       <AppShell>
-        <div className="min-h-screen w-full bg-gradient-to-b from-background to-muted/30">
+        <div className="min-h-screen w-full bg-linear-to-b from-background to-muted/30">
           Loading...
         </div>
       </AppShell>

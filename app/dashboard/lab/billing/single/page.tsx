@@ -57,7 +57,7 @@ function InvoiceViewContent() {
     <AppShell>
       <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden m-5">
         {/* Header Section */}
-        <div className="flex justify-between items-center bg-gradient-to-r from-purple-600 to-blue-500 text-white px-8 py-6 border-b">
+        <div className="flex justify-between items-center bg-linear-to-r from-purple-600 to-blue-500 text-white px-8 py-6 border-b">
           <div className="flex items-center space-x-3">
             <h2 className="text-lg font-semibold">Synapse HMS</h2>
           </div>
@@ -75,11 +75,11 @@ function InvoiceViewContent() {
               <p>
                 {billing?.createdAt
                   ? fDate(
-                      new Date(
-                        new Date(billing.createdAt).getTime() +
-                          10 * 24 * 60 * 60 * 1000
-                      )
+                    new Date(
+                      new Date(billing.createdAt).getTime() +
+                      10 * 24 * 60 * 60 * 1000
                     )
+                  )
                   : ""}
               </p>
             </div>
@@ -133,7 +133,7 @@ function InvoiceViewContent() {
               <p className="mt-1">Pothukallu, Nilambur, Kerala</p>
               <p>+91 98765 43210</p>
               <p className="mt-1">Booking No: BK2025-00921</p>
-             
+
             </div>
           </div>
           <div className="p-8">
@@ -150,7 +150,7 @@ function InvoiceViewContent() {
         {/* Table */}
         <div className="overflow-hidden border-t border-gray-100">
           <table className="w-full text-sm border-collapse">
-            <thead className="bg-gradient-to-r from-gray-100 to-gray-200 border-b">
+            <thead className="bg-linear-to-r from-gray-100 to-gray-200 border-b">
               <tr>
                 <th className="text-left p-4 font-semibold text-gray-700">
                   Description
@@ -226,7 +226,7 @@ function InvoiceViewContent() {
                 {formatINR(
                   billing?.items?.reduce(
                     (acc, { total }) =>
-                      acc +total,
+                      acc + total,
                     0
                   ) ?? 0
                 )}
@@ -237,12 +237,12 @@ function InvoiceViewContent() {
             </div>
             <div className="flex justify-between py-1 text-sm text-red-600">
               <span>Due</span> <span>{formatINR(
-                  (billing?.items?.reduce(
-                    (acc, { total }) =>
-                      acc +total,
-                    0
-                  ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
-                )}</span>
+                (billing?.items?.reduce(
+                  (acc, { total }) =>
+                    acc + total,
+                  0
+                ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
+              )}</span>
             </div>
           </div>
         </div>
@@ -264,7 +264,7 @@ function InvoiceViewContent() {
           </div> */}
         </div>
         <Separator /> {/* Footer */}
-        <div className="relative text-center text-xs text-gray-500 py-6 bg-gradient-to-r from-gray-50 to-gray-100">
+        <div className="relative text-center text-xs text-gray-500 py-6 bg-linear-to-r from-gray-50 to-gray-100">
           <p>
             Mark Hospital, Pothukallu, Nilambur, Kerala | GSTIN: 32ABCDE1234F1Z5
             | Contact: +91 98765 43210

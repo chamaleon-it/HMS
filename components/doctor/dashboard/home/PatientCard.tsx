@@ -75,7 +75,7 @@ export function ActionButton({
   return (
     <button
       className={`${base} ${variants[variant]} ${className} flex gap-0.5 items-center justify-center cursor-pointer ${ring &&
-        "!bg-green-600 !text-white !ring-2 !ring-green-400 shadow-lg animate-pulse"
+        "bg-green-600! text-white! ring-2! ring-green-400! shadow-lg animate-pulse"
         }`}
       onClick={onClick}
     >
@@ -119,7 +119,7 @@ export function PatientCard({
       )}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+          <div className="shrink-0 w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
