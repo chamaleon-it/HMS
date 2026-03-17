@@ -111,7 +111,7 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                         })()}
                       />
                       <Link
-                        href={`/dashboard/doctor/billing/${b._id}`}
+                        href={`/dashboard/doctor/billing/single?id=${b._id}`}
                         className="ml-2 inline-flex items-center rounded-md border border-slate-200 bg-white px-2 py-1 text-xs hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
                       >
                         <Eye className="mr-1 h-3.5 w-3.5" /> View

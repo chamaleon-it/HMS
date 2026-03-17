@@ -6,10 +6,12 @@ import { Separator } from "@/components/ui/separator";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import { Download, Printer } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import useSWR from "swr";
-export default function InvoiceView() {
-  const { id } = useParams();
+function InvoiceViewContent() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
 
   const { data: billingData } = useSWR<{
     message: string;
@@ -281,5 +283,19 @@ export default function InvoiceView() {
         </div>
       </div>
     </AppShell>
+  );
+}
+
+export default function InvoiceView() {
+  return (
+    <Suspense fallback={
+      <AppShell>
+        <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden m-5 p-8 flex justify-center">
+          <p>Loading...</p>
+        </div>
+      </AppShell>
+    }>
+      <InvoiceViewContent />
+    </Suspense>
   );
 }

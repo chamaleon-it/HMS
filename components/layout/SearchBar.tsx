@@ -37,7 +37,7 @@ export default function SearchBar() {
     if (user?.role === "Pharmacy") {
       return `/dashboard/pharmacy/customers/single?id=${id}`
     } else {
-      return `/dashboard/doctor/patients/${id}`
+      return `/dashboard/doctor/patients/single?id=${id}`
     }
   }
 

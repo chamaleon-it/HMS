@@ -153,7 +153,7 @@ export function PatientCard({
                 // ring={ring}
                 variant="outline"
                 onClick={() => {
-                  router.push(`/dashboard/doctor/consulting/${a._id}`);
+                  router.push(`/dashboard/doctor/consulting/single?id=${a._id}`);
                 }}
               >
                 <>
