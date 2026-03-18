@@ -9,6 +9,8 @@ import { formatINR } from '@/lib/fNumber';
 import { Eye, Pencil, Trash2 } from 'lucide-react';
 import React, { useCallback, useState } from 'react'
 import toast from 'react-hot-toast';
+import configuration from '@/config/configuration';
+
 import {
     AlertDialog,
     AlertDialogAction,
@@ -115,10 +117,23 @@ export default function TestCatalogueRow({
 
     const deleteTest = useCallback(
         async () => {
-            toast.success("Test delete action triggered (Backend deletion disabled/not implemented)");
-            setDeleteOpen(false);
+            try {
+                setIsDeleting(true);
+                await toast.promise(api.delete(`/lab/panels/test/${test._id}`), {
+                    loading: "Deleting Test...",
+                    success: "Test Deleted Successfully",
+                    error: (err) => err?.response?.data?.message || "Failed to Delete Test"
+                });
+                
+                setDeleteOpen(false);
+                testMutate();
+            } catch (error) {
+                console.error("Delete error:", error);
+            } finally {
+                setIsDeleting(false);
+            }
         },
-        [],
+        [test._id, testMutate],
     )
 
 
@@ -328,7 +343,7 @@ export default function TestCatalogueRow({
                         </DialogContent>
                     </Dialog>
 
-                    {/* <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    { <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                         <AlertDialogTrigger asChild>
                             <Button size="sm" variant="ghost">
                                 <Trash2 className='h-4 w-4 text-slate-500 hover:text-red-500' />
@@ -348,7 +363,7 @@ export default function TestCatalogueRow({
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog> */}
+                    </AlertDialog> }
                 </div>
             </TableCell>
         </TableRow>
