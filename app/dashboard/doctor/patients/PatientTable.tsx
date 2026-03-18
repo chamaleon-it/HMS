@@ -199,7 +199,7 @@ export default function PatientTable({
                     {serial}
                   </td>
                   <td className="px-2 py-3">
-                    <Link href={`/dashboard/doctor/patients/${r._id}`}>
+                    <Link href={`/dashboard/doctor/patients/single?id=${r._id}`}>
                       <div className="font-medium text-gray-900">
                         {r.name}{" "}
                         <span className="text-sm text-gray-500">

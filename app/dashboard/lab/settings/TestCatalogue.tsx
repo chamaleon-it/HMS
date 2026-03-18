@@ -188,13 +188,13 @@ export default function TestCatalogue({
     <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
       <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
         <CardContent className="p-6">
-          <div className="flex justify-between items-start">
+          <div className="flex flex-col items-start">
             <SectionHeader
               title="Master test catalogue"
               description="Manage all individual tests, panels and profiles."
               emoji="🧬"
             />
-            <div className="flex items-center gap-3">
+            <div className="flex justify-end w-full gap-3">
               <Input
                 placeholder="Search tests..."
                 value={searchQuery}
@@ -497,13 +497,13 @@ export default function TestCatalogue({
 
         <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
           <CardContent className="p-6">
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col gap-4 justify-between items-start mb-4">
               <SectionHeader
                 title="Panels & Profiles"
                 description="Manage all panels and group tests together."
                 emoji="📦"
               />
-              <div className="flex items-center gap-3">
+              <div className="flex items-center justify-end gap-3 w-full">
                 <Input
                   placeholder="Search panels..."
                   value={panelSearchQuery}
@@ -556,19 +556,19 @@ export default function TestCatalogue({
                     ) : (
                       filteredPanels.map((panel, idx) => (
                         <PanelCatalogueRow
-                            key={idx}
-                            idx={idx}
-                            panel={panel}
-                            tests={tests}
-                            panelMutate={panelMutate}
-                            onAddTests={() => {
-                                setActivePanel(panel.name);
-                                setIsAddTestsDialogOpen(true);
-                            }}
-                            onRemoveTests={() => {
-                                setActivePanel(panel.name);
-                                setIsRemoveTestsDialogOpen(true);
-                            }}
+                          key={idx}
+                          idx={idx}
+                          panel={panel}
+                          tests={tests}
+                          panelMutate={panelMutate}
+                          onAddTests={() => {
+                            setActivePanel(panel.name);
+                            setIsAddTestsDialogOpen(true);
+                          }}
+                          onRemoveTests={() => {
+                            setActivePanel(panel.name);
+                            setIsRemoveTestsDialogOpen(true);
+                          }}
                         />
                       ))
                     )}

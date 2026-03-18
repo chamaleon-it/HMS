@@ -86,7 +86,7 @@ const Patients: React.FC = () => {
                                                 } hover:-translate-y-px hover:shadow-sm`}
                                             onClick={() =>
                                                 router.push(
-                                                    `/dashboard/lab/patients/${p._id}`
+                                                    `/dashboard/lab/patients/single?id=${p._id}`
                                                 )
                                             }
                                         >

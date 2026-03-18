@@ -1,7 +1,7 @@
 import { useParams } from "next/navigation";
 import React from "react";
 import useSWR from "swr";
-import { Consultations } from "../../consulting/[id]/History";
+import { Consultations } from "../../consulting/single/History";
 import { fDate } from "@/lib/fDateAndTime";
 
 export default function Visit() {

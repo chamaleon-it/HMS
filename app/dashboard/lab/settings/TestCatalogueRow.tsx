@@ -136,7 +136,7 @@ export default function TestCatalogueRow({
             <TableCell>{test.estimatedTime || ""}</TableCell>
             <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
             <TableCell className="text-slate-500 text-sm">
-                Normal : {test.min} {test.max&& "-"} {test.max}
+                Normal : {test.min} {test.max && "-"} {test.max}
                 <br />
                 Women : {test.womenMin} - {test.womenMax}
                 <br />
@@ -328,7 +328,7 @@ export default function TestCatalogueRow({
                         </DialogContent>
                     </Dialog>
 
-                    <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    {/* <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                         <AlertDialogTrigger asChild>
                             <Button size="sm" variant="ghost">
                                 <Trash2 className='h-4 w-4 text-slate-500 hover:text-red-500' />
@@ -348,7 +348,7 @@ export default function TestCatalogueRow({
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog>
+                    </AlertDialog> */}
                 </div>
             </TableCell>
         </TableRow>
