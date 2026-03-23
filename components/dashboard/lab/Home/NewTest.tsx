@@ -383,47 +383,53 @@ export default function NewTest({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {payload.panels.map((t, idx) => (
-              <TableRow key={t}>
-                <TableCell>{idx + 1}</TableCell>
-                <TableCell>{t}</TableCell>
-                <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
-                <TableCell>-</TableCell>
+            {payload.panels.map((t, idx) => {
+              const panelTests = tests.filter((test) =>
+                test.panels?.some((panel) => panel.name === t)
+              );
+              const totalTime = panelTests.reduce((acc, curr) => acc + (Number(curr.estimatedTime) || 0), 0);
+              return (
+                <TableRow key={t}>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell>{t}</TableCell>
+                  <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
+                  <TableCell>{totalTime || "-"}</TableCell>
 
-                {/* <TableCell>-</TableCell>
-                <TableCell>-</TableCell>
-                <TableCell>-</TableCell> */}
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setPayload((prev) => {
-                        if (!prev.panels.includes(t)) return prev;
+                  {/* <TableCell>-</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>-</TableCell> */}
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setPayload((prev) => {
+                          if (!prev.panels.includes(t)) return prev;
 
-                        const relatedTestIds = new Set(
-                          tests
-                            .filter((test) =>
-                              test.panels?.some((panel) => panel.name === t)
-                            )
-                            .map((test) => test._id)
-                        );
+                          const relatedTestIds = new Set(
+                            tests
+                              .filter((test) =>
+                                test.panels?.some((panel) => panel.name === t)
+                              )
+                              .map((test) => test._id)
+                          );
 
-                        return {
-                          ...prev,
-                          panels: prev.panels.filter((panel) => panel !== t),
-                          test: prev.test.filter(
-                            (testItem) => !relatedTestIds.has(testItem.name)
-                          ),
-                        };
-                      });
-                    }}
-                  >
-                    <Trash className="h-2 w-2 text-red-500" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+                          return {
+                            ...prev,
+                            panels: prev.panels.filter((panel) => panel !== t),
+                            test: prev.test.filter(
+                              (testItem) => !relatedTestIds.has(testItem.name)
+                            ),
+                          };
+                        });
+                      }}
+                    >
+                      <Trash className="h-2 w-2 text-red-500" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
             {payload.test.filter(t => {
               const found = tests.find((test) => test._id === t.name)
               const panelExist = found?.panels?.find(p => payload.panels.includes(p.name))
