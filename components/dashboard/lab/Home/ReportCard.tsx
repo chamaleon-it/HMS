@@ -102,14 +102,14 @@ export default function ReportCard({ report }: ReportCardProps) {
                                     // First, let's create a map from test ID to order index based on the panels
                                     const testOrderMap = new Map<string, number>();
                                     let orderIndex = 0;
-                                    
+
                                     // We need to fetch panel definitions from the first tests, but report.panels just gives strings.
                                     // So we'll iterate the panels specified on the report, and look inside the populated test's panel definitions to define an order
                                     (report.panels || []).forEach((panelIdStr: string) => {
                                         const panelId = panelIdStr.toString();
                                         // find tests that belong to this panel to get panel info
                                         const panelTests = (report.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
-                                        
+
                                         // Get the ordered test list from the panel
                                         let orderedIds: string[] = [];
                                         for (const t of panelTests) {
@@ -187,9 +187,9 @@ export default function ReportCard({ report }: ReportCardProps) {
                     {/* SIGNATURE */}
                     <div className="mt-10 flex justify-end">
                         <div className="text-center w-64">
-                            <div className="border-b-2 border-black mb-2 w-full"></div>
-                            <p className="font-black text-black uppercase leading-none tracking-tighter">LAB IN-CHARGE</p>
-                            <p className="text-[10px] font-bold text-black mt-1 uppercase tracking-widest">{report.lab?.name || "LABORATORY"}</p>
+                            <div className="border-b-2 border-slate-900 mb-2 w-full"></div>
+                            <p className="font-black text-slate-900 uppercase leading-none tracking-tighter">LAB IN-CHARGE</p>
+                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p>
                         </div>
                     </div>
                 </div>

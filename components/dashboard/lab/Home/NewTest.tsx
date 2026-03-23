@@ -48,6 +48,7 @@ import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
 import DateTimePicker from "./DateTimePicker";
 import { formatINR } from "@/lib/fNumber";
+import TechnicianSelection from "./PharmacistSelection";
 
 
 interface NewTestProps {
@@ -106,6 +107,7 @@ export default function NewTest({
     priority: "Normal" | "Urgent";
     sampleType: string;
     status: string;
+    technician: string;
   }>({
     patient: "",
     doctor: user?._id ?? "",
@@ -116,6 +118,7 @@ export default function NewTest({
     priority: "Normal",
     sampleType: "Other",
     status: "Upcoming",
+    technician: "",
   });
 
   const { tests } = useGetTest();
@@ -160,6 +163,7 @@ export default function NewTest({
         priority: "Normal",
         sampleType: "Other",
         status: "Upcoming",
+        technician: "",
       });
     } catch (error) {
       console.log(error);
@@ -282,6 +286,14 @@ export default function NewTest({
           </div>
         </div>
 
+        <TechnicianSelection
+          className="max-w-72"
+          setValue={(id: string) => {
+            setPayload((prev) => ({ ...prev, technician: id }));
+          }}
+          technicianName={payload.technician}
+        />
+
         <div className="flex gap-2 justify-between w-full">
           <div className="w-[300px]">
             <LabeledCombobox
@@ -301,11 +313,11 @@ export default function NewTest({
                     // Safely get all tests ordered exactly as defined in the panel object
                     let newTests: { name: string }[] = [];
                     if (isPanel.tests && isPanel.tests.length) {
-                        newTests = isPanel.tests.map((t: any) => ({ name: t._id }));
+                      newTests = isPanel.tests.map((t: any) => ({ name: t._id }));
                     } else {
-                        newTests = tests
-                            .filter((t) => t.panels?.some((p) => p.name === val))
-                            .map((t) => ({ name: t._id }));
+                      newTests = tests
+                        .filter((t) => t.panels?.some((p) => p.name === val))
+                        .map((t) => ({ name: t._id }));
                     }
 
                     return {
