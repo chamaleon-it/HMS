@@ -38,6 +38,63 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+const useDragScroll = () => {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    let isDown = false;
+    let startX: number;
+    let scrollLeft: number;
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return; // Only left click
+      isDown = true;
+      el.style.cursor = "grabbing";
+      el.style.userSelect = "none";
+      startX = e.pageX - el.offsetLeft;
+      scrollLeft = el.scrollLeft;
+    };
+
+    const onMouseLeave = () => {
+      isDown = false;
+      el.style.cursor = "grab";
+      el.style.userSelect = "";
+    };
+
+    const onMouseUp = () => {
+      isDown = false;
+      el.style.cursor = "grab";
+      el.style.userSelect = "";
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      const walk = (x - startX) * 1.5; // Scroll speed
+      el.scrollLeft = scrollLeft - walk;
+    };
+
+    el.style.cursor = "grab";
+    el.addEventListener("mousedown", onMouseDown);
+    el.addEventListener("mouseleave", onMouseLeave);
+    el.addEventListener("mouseup", onMouseUp);
+    el.addEventListener("mousemove", onMouseMove);
+
+    return () => {
+      el.removeEventListener("mousedown", onMouseDown);
+      el.removeEventListener("mouseleave", onMouseLeave);
+      el.removeEventListener("mouseup", onMouseUp);
+      el.removeEventListener("mousemove", onMouseMove);
+    };
+  }, []);
+
+  return ref;
+};
+
 export default function TestCatalogue({
   profile,
   profileMutate,
@@ -49,8 +106,6 @@ export default function TestCatalogue({
     showProfilesOnPatientBill: false,
     allowEditingPanelComposition: false,
   });
-
-
 
   useEffect(() => {
     setPayload((prev) => ({
@@ -70,6 +125,9 @@ export default function TestCatalogue({
   const [isNewPanelModalOpen, setIsNewPanelModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [panelSearchQuery, setPanelSearchQuery] = useState("");
+
+  const testsRef = useDragScroll();
+  const panelsRef = useDragScroll();
 
   const updateCatalogueSettings = async () => {
     try {
@@ -151,7 +209,6 @@ export default function TestCatalogue({
   const filteredPanels = panels.filter((panel) =>
     panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase())
   );
-
 
   const { data, mutate: testMutate } = useSWR<{
     message: string;
@@ -241,7 +298,6 @@ export default function TestCatalogue({
                     />
                   </div>
 
-
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Price *</Label>
                     <Input
@@ -271,11 +327,6 @@ export default function TestCatalogue({
                       </SelectContent>
                     </Select>
                   </div>
-
-
-
-
-
 
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Estimated Duration (HH:MM)</Label>
@@ -336,8 +387,6 @@ export default function TestCatalogue({
                       />
                     </div>
 
-
-
                     <div className="col-span-3 space-y-1.5">
                       <Label className="text-xs font-medium text-slate-700">Range Max</Label>
                       <Input
@@ -350,9 +399,6 @@ export default function TestCatalogue({
                         className="h-9 bg-slate-50"
                       />
                     </div>
-
-
-
 
                     <div className="col-span-3 space-y-1.5">
                       <Label className="text-xs font-medium text-slate-700">Women Range Min</Label>
@@ -404,7 +450,6 @@ export default function TestCatalogue({
                       />
                     </div>
 
-
                     <div className="col-span-3 space-y-1.5">
                       <Label className="text-xs font-medium text-slate-700">Newborn Range Min</Label>
                       <Input
@@ -428,7 +473,6 @@ export default function TestCatalogue({
                         }
                         className="h-9 bg-slate-50"
                       />
-
                     </div>
                   </>}
 
@@ -455,7 +499,10 @@ export default function TestCatalogue({
 
           <div className="mt-8">
             <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Tests</h4>
-            <div className="rounded-lg border border-slate-200 overflow-y-auto max-h-[calc(100vh-270px)]">
+            <div 
+              ref={testsRef}
+              className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] [&_[data-slot=table-container]]:overflow-visible custom-scrollbar"
+            >
               <Table>
                 <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                   <TableRow>
@@ -534,7 +581,10 @@ export default function TestCatalogue({
 
             <div className="mt-8">
               <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Panels</h4>
-              <div className="rounded-lg border border-slate-200 overflow-y-auto max-h-[calc(100vh-270px)]">
+              <div 
+                ref={panelsRef}
+                className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] [&_[data-slot=table-container]]:overflow-visible custom-scrollbar"
+              >
                 <Table>
                   <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                     <TableRow>

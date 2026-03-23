@@ -25,15 +25,25 @@ type Patient = {
 
 interface Props {
   setValue: (id: string) => void;
-  register: () => void
+  register: () => void;
+  input?: string;
+  setInput?: (val: string) => void;
 }
 
 const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
-  const [input, setInput] = useState("");
+const PatientSelection: React.FC<Props> = ({
+  setValue,
+  register,
+  input: externalInput,
+  setInput: setExternalInput,
+}) => {
+  const [internalInput, setInternalInput] = useState("");
+  const input = externalInput !== undefined ? externalInput : internalInput;
+  const setInput = setExternalInput || setInternalInput;
+
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);

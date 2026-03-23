@@ -43,7 +43,6 @@ import api from "@/lib/axios";
 import { cn } from "@/lib/utils";
 
 import useGetTest from "@/data/useGetTest";
-import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
@@ -76,6 +75,7 @@ export default function NewTest({
 
   const [openCreate, setOpenCreate] = useState(false);
   const [internalOpen, setInternalOpen] = useState(false);
+  const [input, setInput] = useState("");
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -234,6 +234,8 @@ export default function NewTest({
         </DialogHeader>
         <div className="flex justify-between items-center">
           <PatientSelection
+            input={input}
+            setInput={setInput}
             setValue={(id: string) => {
               setPayload((prev) => ({ ...prev, patient: id }));
             }}
@@ -486,13 +488,17 @@ export default function NewTest({
         </DialogFooter>
       </DialogContent>
 
-      <Drawer
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        title="Patient Register"
-      >
-        <RegisterPatient onClose={() => setOpenCreate(false)} />
-      </Drawer>
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            patient={{ name: input }}
+            onClose={() => setOpenCreate(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }
