@@ -14,6 +14,7 @@ import useSWR from "swr";
 import { ProfileType } from "./interface";
 import TestCatalogue from "./TestCatalogue";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
+import Technician from "./Technician";
 
 const LabSettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
@@ -45,14 +46,14 @@ const LabSettingsPage: React.FC = () => {
           options={[
             { label: "General", value: "general" },
             { label: "Billing", value: "billing" },
-            // { label: "Test Catalogue", value: "catalogue" },
+            { label: "Technicians", value: "technician" },
             { label: "Notifications", value: "notifications" },
             { label: "Security", value: "security" },
           ]}
           value={activeSection}
           onChange={setActiveSection}
           layoutId="settings-tabs"
-          className="w-full grid grid-cols-4"
+          className="w-full grid grid-cols-5"
         />
       </div>
       <div className="flex flex-col gap-6 p-5 w-full text-slate-900">
@@ -63,9 +64,11 @@ const LabSettingsPage: React.FC = () => {
         {activeSection === "billing" && (
           <Billing profile={profile} profileMutate={profileMutate} />
         )}
-        {/* activeSection === "catalogue" && (
-          <TestCatalogue profile={profile} profileMutate={profileMutate} />
-        ) */}
+
+
+        {activeSection === "technician" &&
+          <Technician />
+        }
         {activeSection === "notifications" && (
           <Notifications profile={profile} profileMutate={profileMutate} />
         )}
