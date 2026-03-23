@@ -58,14 +58,23 @@ interface Props {
                 nbMin?: number;
                 nbMax?: number;
                 _id: string;
+                panels?: {
+                    _id: string;
+                    name: string;
+                    status: string;
+                    user: string;
+                    tests?: string[];
+                }[];
             }
             value?: string | number
             _id: string;
         }[];
         sampleType: string;
         status: string;
+        technician: string;
         createdAt: Date;
         updatedAt: Date;
+        panels?: string[];
     }
 }
 
@@ -122,7 +131,7 @@ export default function ViewResultModal({ r }: Props) {
                             </div>
                         </div>
                         <div className="h-8 w-px bg-gray-200"></div>
-                        <div className="grid grid-cols-3 gap-x-8 gap-y-1">
+                        <div className="grid grid-cols-4 gap-x-8 gap-y-1">
                             <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Gender</p>
                                 <p className="text-sm font-medium text-gray-700">{r?.patient?.gender}</p>
@@ -134,6 +143,10 @@ export default function ViewResultModal({ r }: Props) {
                             <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Blood Type</p>
                                 <p className="text-sm font-medium text-gray-700">{r?.patient?.blood || "N/A"}</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Technician</p>
+                                <p className="text-sm font-medium text-gray-700">{r?.technician || "N/A"}</p>
                             </div>
                         </div>
                     </div>
@@ -159,66 +172,107 @@ export default function ViewResultModal({ r }: Props) {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {r?.test?.map((test) => (
-                                    <TableRow
-                                        key={test._id}
-                                        className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none"
-                                    >
-                                        <TableCell className="pl-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className={`p-2 bg-white border border-gray-100 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all ${test.name?.type === 'Lab' ? 'text-blue-600' : 'text-purple-600'}`}>
-                                                    {test.name?.type === 'Lab' ? <FlaskConical className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
-                                                </div>
-                                                <span className="font-medium text-gray-900">
-                                                    {test.name?.name}
-                                                </span>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="py-4">
-                                            <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-mono text-gray-500">
-                                                {test.name?.code}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="py-4">
-                                            {test.name?.type === 'Lab' ? (
-                                                <div className="flex items-baseline gap-1">
-                                                    <span className="text-sm font-semibold text-gray-900">{test.value || "-"}</span>
-                                                    <span className="text-xs font-medium text-gray-500">{test.name?.unit}</span>
-                                                </div>
-                                            ) : (
-                                                <div>
-                                                    {test.value ? (
-                                                        <a
-                                                            href={test.value.toString()}
-                                                            target="_blank"
-                                                            rel="noopener noreferrer"
-                                                            className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-blue-600 hover:text-blue-700 hover:border-blue-200 hover:shadow-sm transition-all"
-                                                        >
-                                                            <FileText className="w-3.5 h-3.5" />
-                                                            View Report / Image
-                                                        </a>
-                                                    ) : (
-                                                        <span className="text-sm text-gray-400 italic">No file uploaded</span>
-                                                    )}
-                                                </div>
-                                            )}
-                                        </TableCell>
-                                        <TableCell className="pr-6 py-4 text-right">
-                                            {test.name?.type === 'Lab' && (
-                                                <div className="flex flex-col items-end gap-0.5">
-                                                    <span className="text-sm font-medium text-gray-700">
-                                                        {test.name?.min ?? "0"} -{" "}
-                                                        {test.name?.unit ? test.name?.unit + " " : ""}
-                                                        {test.name?.max ?? "N/A"}
-                                                    </span>
-                                                    <span className="text-[10px] text-gray-400 uppercase tracking-wide">
-                                                        Normal Range
+                                {(() => {
+                                    const testOrderMap = new Map<string, number>();
+                                    let orderIndex = 0;
+
+                                    (r.panels || []).forEach((panelIdStr: string) => {
+                                        const panelId = panelIdStr.toString();
+                                        const panelTests = (r.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
+
+                                        let orderedIds: string[] = [];
+                                        for (const t of panelTests) {
+                                            const panelDef = t.name?.panels?.find((p: any) => p.name === panelId);
+                                            if (panelDef?.tests?.length) {
+                                                orderedIds = panelDef.tests.map((testObj: any) => testObj?._id ? testObj._id.toString() : testObj.toString());
+                                                break;
+                                            }
+                                        }
+
+                                        if (orderedIds.length > 0) {
+                                            orderedIds.forEach(id => {
+                                                if (!testOrderMap.has(id.toString())) {
+                                                    testOrderMap.set(id.toString(), orderIndex++);
+                                                }
+                                            });
+                                        } else {
+                                            panelTests.forEach((t: any) => {
+                                                if (!testOrderMap.has(t.name?._id?.toString() || "")) {
+                                                    testOrderMap.set(t.name?._id?.toString() || "", orderIndex++);
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                    const sortedTests = [...(r?.test || [])].sort((a: any, b: any) => {
+                                        const aId = a.name?._id?.toString() || "";
+                                        const bId = b.name?._id?.toString() || "";
+                                        const aOrder = testOrderMap.has(aId) ? testOrderMap.get(aId)! : 999999;
+                                        const bOrder = testOrderMap.has(bId) ? testOrderMap.get(bId)! : 999999;
+                                        return aOrder - bOrder;
+                                    });
+
+                                    return sortedTests.map((test) => (
+                                        <TableRow
+                                            key={test._id}
+                                            className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none"
+                                        >
+                                            <TableCell className="pl-6 py-4">
+                                                <div className="flex items-center gap-3">
+                                                    <div className={`p-2 bg-white border border-gray-100 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all ${test.name?.type === 'Lab' ? 'text-blue-600' : 'text-purple-600'}`}>
+                                                        {test.name?.type === 'Lab' ? <FlaskConical className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
+                                                    </div>
+                                                    <span className="font-medium text-gray-900">
+                                                        {test.name?.name}
                                                     </span>
                                                 </div>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
+                                            </TableCell>
+                                            <TableCell className="py-4">
+                                                <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-mono text-gray-500">
+                                                    {test.name?.code}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="py-4">
+                                                {test.name?.type === 'Lab' ? (
+                                                    <div className="flex items-baseline gap-1">
+                                                        <span className="text-sm font-semibold text-gray-900">{test.value || "-"}</span>
+                                                        <span className="text-xs font-medium text-gray-500">{test.name?.unit}</span>
+                                                    </div>
+                                                ) : (
+                                                    <div>
+                                                        {test.value ? (
+                                                            <a
+                                                                href={test.value.toString()}
+                                                                target="_blank"
+                                                                rel="noopener noreferrer"
+                                                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-blue-600 hover:text-blue-700 hover:border-blue-200 hover:shadow-sm transition-all"
+                                                            >
+                                                                <FileText className="w-3.5 h-3.5" />
+                                                                View Report / Image
+                                                            </a>
+                                                        ) : (
+                                                            <span className="text-sm text-gray-400 italic">No file uploaded</span>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </TableCell>
+                                            <TableCell className="pr-6 py-4 text-right">
+                                                {test.name?.type === 'Lab' && (
+                                                    <div className="flex flex-col items-end gap-0.5">
+                                                        <span className="text-sm font-medium text-gray-700">
+                                                            {test.name?.min ?? "0"} -{" "}
+                                                            {test.name?.unit ? test.name?.unit + " " : ""}
+                                                            {test.name?.max ?? "N/A"}
+                                                        </span>
+                                                        <span className="text-[10px] text-gray-400 uppercase tracking-wide">
+                                                            Normal Range
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                })()}
                             </TableBody>
                         </Table>
                     </div>

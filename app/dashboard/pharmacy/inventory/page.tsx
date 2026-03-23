@@ -39,7 +39,7 @@ export default function InventoryPage() {
     };
   }>("/users/profile");
 
-  const pharmacyInventory = data?.data.pharmacy.inventory ?? {
+  const pharmacyInventory = data?.data?.pharmacy?.inventory ?? {
     lowStockThreshold: 20,
     expiryAlert: 90,
     allowNegativeStock: false,

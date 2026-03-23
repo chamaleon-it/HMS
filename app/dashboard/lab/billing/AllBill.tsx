@@ -176,7 +176,7 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                             asChild
                             className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                           >
-                            <Link href={`/dashboard/lab/billing/${b._id}`}>
+                            <Link href={`/dashboard/lab/billing/single?id=${b._id}`}>
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>

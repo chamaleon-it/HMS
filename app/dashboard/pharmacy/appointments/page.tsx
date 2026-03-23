@@ -323,6 +323,23 @@ export default function AppointmentPage() {
     setSelectedAppointment(null);
   }, [tab, selectedDoctorId]);
 
+  // Handle auto-open for new appointment from customer list
+  React.useEffect(() => {
+    const id = searchParams.get("id");
+    const name = searchParams.get("name");
+    const mrn = searchParams.get("mrn");
+
+    if (window.location.hash === "#newAppointment" && id && name) {
+      setOpenCreate({
+        patient: { _id: id, name, mrn: mrn || "" },
+        doctor: selectedDoctorId,
+        type: "New",
+        status: "Upcoming",
+        walkIn: true
+      });
+    }
+  }, [searchParams, doctors, selectedDoctorId]);
+
   // Global Keyboard Shortcuts
   React.useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
@@ -455,7 +472,7 @@ export default function AppointmentPage() {
 
   return (
     <AppShell>
-      <div className="p-0 sm:p-5 h-[calc(100vh-80px)] overflow-hidden flex flex-col">
+      <div className="p-0 sm:p-5 min-h-[calc(100vh-80px)] overflow-hidden flex flex-col">
         <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
           <PharmacyHeader
             title="Appointments"
@@ -624,12 +641,12 @@ export default function AppointmentPage() {
         <Drawer
           open={!!openCreate}
           onClose={() => setOpenCreate(false)}
-          title={typeof openCreate === 'object' ? "Edit Appointment" : "Create Appointment"}
+          title={openCreate?._id ? "Edit Appointment" : "Create Appointment"}
         >
           <CreateAppointmentForm
             onClose={() => setOpenCreate(false)}
             mutate={mutate}
-            walkIn={openCreate === "walk-in"}
+            walkIn={openCreate === "walk-in" || openCreate?.walkIn}
             appointment={typeof openCreate === 'object' ? openCreate : undefined}
           />
         </Drawer>

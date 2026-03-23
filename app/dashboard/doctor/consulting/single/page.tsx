@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import AppShell from "@/components/layout/app-shell";
 import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
-import { redirect, useParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import FollowUpTime from "./FollowUpTime";
 import History from "./History";
 import AllergyAlert from "./AllergyAlert";
@@ -18,9 +19,9 @@ import { AppointmentType, DataType } from "./interface";
 import Test from "./Test";
 import Report from "./Report";
 
-export default function ConsultingMenu() {
-  const params = useParams();
-  const { id: appointmentId } = params;
+function ConsultingMenuContent() {
+  const searchParams = useSearchParams();
+  const appointmentId = searchParams.get("id") as string;
   const [testIsOK, setTestIsOK] = useState(false)
   const [activeTab, setActiveTab] = useState<"consultation" | "history" | "report">(
     "consultation"
@@ -149,5 +150,19 @@ export default function ConsultingMenu() {
         </div>
       </div>
     </AppShell>
+  );
+}
+
+export default function ConsultingMenu() {
+  return (
+    <Suspense fallback={
+      <AppShell>
+        <div className="min-h-screen bg-linear-to-b from-slate-50 via-white to-slate-50">
+          Loading...!
+        </div>
+      </AppShell>
+    }>
+      <ConsultingMenuContent />
+    </Suspense>
   );
 }

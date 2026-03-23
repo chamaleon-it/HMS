@@ -168,14 +168,14 @@ export default function List({
                   <TableCell className="py-2.5">
                     <div className="flex items-center gap-2.5">
                       <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold ring-1 ring-indigo-100">
-                        {row.doctor.name.charAt(0)}
+                        {row?.doctor?.name?.charAt(0)}
                       </div>
                       <div className="min-w-0 max-w-[180px]">
                         <div className="truncate text-sm font-medium text-gray-900">
-                          Dr. {row.doctor.name}
+                          Dr. {row?.doctor?.name}
                         </div>
                         <div className="text-xs text-gray-500 truncate">
-                          {row.doctor.email}
+                          {row?.doctor?.email}
                         </div>
                       </div>
                     </div>

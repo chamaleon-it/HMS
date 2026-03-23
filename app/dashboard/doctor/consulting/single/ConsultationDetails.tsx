@@ -21,12 +21,14 @@ import {
     Stethoscope,
 } from "lucide-react";
 import React from "react";
-import { ConsultationType } from "./interface";
+import { Consultations } from "./History";
+
+
 
 interface ConsultationDetailsProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    selectedRow: ConsultationType | null;
+    selectedRow: Consultations | null;
     onClose: () => void;
 }
 
@@ -71,10 +73,10 @@ export default function ConsultationDetails({
                             <CardContent className="space-y-4">
                                 <div>
                                     <p className="text-lg font-medium text-foreground">
-                                        {selectedRow.doctor?.name ?? "—"}
+                                        {selectedRow?.doctor?.name ?? "—"}
                                     </p>
                                     <p className="text-sm text-muted-foreground">
-                                        {selectedRow.doctor?.specialization ?? "—"}
+                                        {selectedRow?.doctor?.specialization ?? "—"}
                                     </p>
                                 </div>
                                 <Separator />
@@ -84,7 +86,7 @@ export default function ConsultationDetails({
                                             Method
                                         </p>
                                         <p className="font-medium">
-                                            {selectedRow.appointment?.method ?? "—"}
+                                            {selectedRow?.appointment?.method ?? "—"}
                                         </p>
                                     </div>
                                     <div>

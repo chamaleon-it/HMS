@@ -30,7 +30,8 @@ import Overview from "./Overview";
 import Med from "./Med";
 import Visit from "./Visit";
 import useSWR from "swr";
-import { useParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { ConsultationType, PatientType } from "./interface";
 import { cn } from "@/lib/utils";
 import Clinical from "./Clinical";
@@ -59,8 +60,11 @@ function Stat({
   );
 }
 
-export default function PatientFullDetailPage() {
-  const ACCENT_CLASS = "bg-[#6E59F9] hover:bg-[#5b46f4]"; // HMS purple
+const ACCENT_CLASS = "bg-[#6E59F9] hover:bg-[#5b46f4]"; // HMS purple
+
+function PatientFullDetailContent() {
+  const searchParams = useSearchParams();
+  const patientId = searchParams.get("id");
 
   // ---- STATE ----
   const [tab, setTab] = useState("clinical");
@@ -105,8 +109,7 @@ export default function PatientFullDetailPage() {
 
   const blurIDsClass = maskIDs ? "blur-sm" : "";
 
-  const params = useParams();
-  const { id: patientId } = params;
+
 
   const { data: patientData, mutate: mutatePatient } = useSWR<{
     message: string;
@@ -128,9 +131,9 @@ export default function PatientFullDetailPage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen w-full bg-gradient-to-b from-background to-muted/30">
+      <div className="min-h-screen w-full bg-linear-to-b from-background to-muted/30">
         {/* Sticky Header */}
-        <div className="border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="border-b bg-background/80 backdrop-blur supports-backdrop-filter:bg-background/60">
           <Header
             mask={mask}
             blurIDsClass={blurIDsClass}
@@ -553,5 +556,19 @@ export default function PatientFullDetailPage() {
         </Dialog>
       </div>
     </AppShell>
+  );
+}
+
+export default function PatientFullDetailPage() {
+  return (
+    <Suspense fallback={
+      <AppShell>
+        <div className="min-h-screen w-full bg-linear-to-b from-background to-muted/30">
+          Loading...
+        </div>
+      </AppShell>
+    }>
+      <PatientFullDetailContent />
+    </Suspense>
   );
 }

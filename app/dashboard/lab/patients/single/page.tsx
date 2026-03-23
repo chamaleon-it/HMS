@@ -4,7 +4,8 @@ import toast from "react-hot-toast";
 import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
-import { useParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
+import { Suspense } from "react";
 import { formatINR } from "@/lib/fNumber";
 import { fAge, fDate } from "@/lib/fDateAndTime";
 import useSWR from "swr";
@@ -21,9 +22,10 @@ import useGetPatient from "./useGetPatient";
 import { motion } from "framer-motion";
 import ReportCard from "@/components/dashboard/lab/Home/ReportCard";
 
-const Customer: React.FC = () => {
+const CustomerContent: React.FC = () => {
   const router = useRouter();
-  const { id } = useParams();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
   const { data: reportData, error } = useSWR<DataTypes>(
     `/lab/report/patient/${id}`
   );
@@ -563,7 +565,7 @@ const Customer: React.FC = () => {
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
 
                           >
-                            Print bill
+                            Print Report
                           </Button>
                         </div>
                       </div>
@@ -578,6 +580,20 @@ const Customer: React.FC = () => {
       </div>
       {printReport && <ReportCard report={printReport} />}
     </AppShell>
+  );
+};
+
+const Customer: React.FC = () => {
+  return (
+    <Suspense fallback={
+      <AppShell>
+        <div className="bg-slate-50 p-5 min-h-screen">
+          <p>Loading...</p>
+        </div>
+      </AppShell>
+    }>
+      <CustomerContent />
+    </Suspense>
   );
 };
 

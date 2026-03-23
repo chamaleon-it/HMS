@@ -13,7 +13,7 @@ interface BillRow {
 
 interface PropsType {
   filter: FilterType;
-   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
+  setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
     mrn: string;
     _id: string;
@@ -30,14 +30,14 @@ interface PropsType {
     };
   }[];
 }
-export default function AllBill({ billing,filter,setFilter }: PropsType) {
+export default function AllBill({ billing, filter, setFilter }: PropsType) {
   return (
     <div className="space-y-4">
-      <Filters filter={filter} setFilter={setFilter}/>
+      <Filters filter={filter} setFilter={setFilter} />
 
       <div
         className={
-          "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
+          "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900"
         }
       >
         <div className="mb-2 flex items-center justify-between">
@@ -91,7 +91,7 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                   <td className="py-2 pr-2 text-right tabular-nums">
                     {formatINR(
                       b.items.reduce((a, b) => a + b.total, 0) -
-                        (b.insurance + b.cash + b.online)
+                      (b.insurance + b.cash + b.online)
                     )}
                   </td>
                   <td className="py-2 px-2 text-center">
@@ -106,12 +106,12 @@ export default function AllBill({ billing,filter,setFilter }: PropsType) {
                           return total <= paid
                             ? "Paid"
                             : paid === 0
-                            ? "Unpaid"
-                            : "Partial";
+                              ? "Unpaid"
+                              : "Partial";
                         })()}
                       />
                       <Link
-                        href={`/dashboard/doctor/billing/${b._id}`}
+                        href={`/dashboard/doctor/billing/single?id=${b._id}`}
                         className="ml-2 inline-flex items-center rounded-md border border-slate-200 bg-white px-2 py-1 text-xs hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
                       >
                         <Eye className="mr-1 h-3.5 w-3.5" /> View
@@ -163,8 +163,8 @@ const StatusPill: React.FC<{ s: BillRow["status"] }> = ({ s }) => {
     s === "Paid"
       ? "bg-emerald-50 text-emerald-700 border-emerald-200"
       : s === "Partial"
-      ? "bg-amber-50 text-amber-800 border-amber-200"
-      : "bg-rose-50 text-rose-700 border-rose-200";
+        ? "bg-amber-50 text-amber-800 border-amber-200"
+        : "bg-rose-50 text-rose-700 border-rose-200";
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}

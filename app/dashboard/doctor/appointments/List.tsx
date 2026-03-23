@@ -129,27 +129,27 @@ export default function List({
                 </TableCell>
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
-                    <Initials text={row.doctor.name} />
+                    <Initials text={row?.doctor?.name} />
                     <div className="">
                       <div className="truncate text-sm font-medium text-slate-900">
-                        {row.doctor.name}
+                        {row?.doctor?.name}
                       </div>
                       <div className="text-[11px] text-zinc-500 truncate">
-                        {row.doctor.email}
+                        {row?.doctor?.email}
                       </div>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="py-3">
                   <span className="inline-flex items-center gap-2 text-xs text-slate-600">
-                    {row.method === "In clinic" && <MapPin className="h-3.5 w-3.5 text-slate-400" />}
-                    {row.method === "Video" && <Video className="h-3.5 w-3.5 text-slate-400" />}
-                    {row.method === "Phone" && <Phone className="h-3.5 w-3.5 text-slate-400" />}
-                    {row.method}
+                    {row?.method === "In clinic" && <MapPin className="h-3.5 w-3.5 text-slate-400" />}
+                    {row?.method === "Video" && <Video className="h-3.5 w-3.5 text-slate-400" />}
+                    {row?.method === "Phone" && <Phone className="h-3.5 w-3.5 text-slate-400" />}
+                    {row?.method}
                   </span>
                 </TableCell>
                 <TableCell className="py-3">
-                  <Chip label={row.status} tone={row.status || "gray"} />
+                  <Chip label={row?.status} tone={row?.status || "gray"} />
                 </TableCell>
                 <TableCell className="py-3 pr-4">
                   <div className="flex items-center justify-end gap-2">

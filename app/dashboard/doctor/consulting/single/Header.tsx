@@ -44,7 +44,7 @@ export default function Header({
             className="cursor-pointer text-slate-600 hover:text-slate-900"
             onClick={() =>
               window.open(
-                `/dashboard/doctor/patients/${appointment.patient._id}`,
+                `/dashboard/doctor/patients/single?id=${appointment.patient._id}`,
                 "_blank"
               )
             }
