@@ -25,7 +25,7 @@ export default function ReportCard({ report }: ReportCardProps) {
     const doctor = report.doctor;
 
     return (
-        <div className="print-prescription hidden print:block bg-white text-slate-900 font-sans leading-relaxed overflow-visible">
+        <div className="print-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-visible">
             <style dangerouslySetInnerHTML={{
                 __html: `
         @media print {
@@ -58,16 +58,16 @@ export default function ReportCard({ report }: ReportCardProps) {
 
             <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col">
                 {/* HEADER */}
-                <div className="bg-white text-slate-900 border-b border-slate-200 px-10 py-8">
+                <div className="bg-white text-black border-b border-slate-200 px-10 py-8">
                     <div className="flex justify-between items-start">
                         <HospitalName />
                         <div className="text-right space-y-2">
-                            <span className="inline-block bg-slate-900 text-white text-[10px] px-3 py-1 rounded-full font-black tracking-widest uppercase hover:bg-slate-800 transition-colors">
+                            <span className="inline-block bg-black text-white text-[10px] px-3 py-1 rounded-full font-black tracking-widest uppercase hover:bg-slate-800 transition-colors">
                                 LAB REPORT
                             </span>
                             <div className="space-y-0.5">
-                                <p className="text-[11px] font-bold text-slate-700 tracking-widest uppercase">Report No: {String(report.mrn).padStart(4, "0")}</p>
-                                <p className="text-[10px] text-slate-500 tracking-widest font-semibold">LABORATORY INVESTIGATION</p>
+                                <p className="text-[11px] font-bold text-black tracking-widest uppercase">Report No: {String(report.mrn).padStart(4, "0")}</p>
+                                <p className="text-[10px] text-black tracking-widest font-semibold">LABORATORY INVESTIGATION</p>
                             </div>
                         </div>
                     </div>
@@ -89,7 +89,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                     {/* TEST DETAILS */}
                     <div className="border border-slate-200 rounded-lg overflow-hidden flex-1 box-border">
                         <table className="w-full border-collapse">
-                            <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 border-b border-slate-200 uppercase tracking-wider">
+                            <thead className="bg-slate-50 text-[11px] font-bold text-black border-b border-slate-200 uppercase tracking-wider">
                                 <tr>
                                     <th className="px-3 py-3 text-left w-1/3">Investigation</th>
                                     <th className="px-3 py-3 text-center">Result</th>
@@ -157,15 +157,15 @@ export default function ReportCard({ report }: ReportCardProps) {
                                         return (
                                             <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
                                                 <td className="px-3 py-3">
-                                                    <p className="font-black text-slate-900 text-[12px]">{t.name?.name || "Unknown test"}</p>
+                                                    <p className="font-black text-black text-[12px]">{t.name?.name || "Unknown test"}</p>
                                                 </td>
                                                 <td className="px-3 py-3 text-center font-bold">
-                                                    <span className={isAbnormal ? "text-rose-600 font-black" : "text-slate-700"}>
+                                                    <span className={isAbnormal ? "text-rose-600 font-black" : "text-black"}>
                                                         {t.value || "—"}
                                                     </span>
                                                 </td>
-                                                <td className="px-3 py-3 text-center text-slate-500 text-xs font-medium">{t.name?.unit || "—"}</td>
-                                                <td className="px-3 py-3 text-xs font-semibold text-slate-600">
+                                                <td className="px-3 py-3 text-center text-black text-xs font-medium">{t.name?.unit || "—"}</td>
+                                                <td className="px-3 py-3 text-xs font-semibold text-black">
                                                     {min !== undefined && max !== undefined ? `${min} - ${max}` : "—"}
                                                 </td>
                                             </tr>
@@ -177,9 +177,9 @@ export default function ReportCard({ report }: ReportCardProps) {
                     </div>
 
                     {/* ADDITIONAL INFORMATION */}
-                    <div className="border-2 border-slate-900 rounded-lg p-5 bg-slate-50">
-                        <p className="font-black text-[10px] uppercase tracking-widest text-slate-400 mb-2">Note</p>
-                        <p className="text-slate-700 leading-relaxed font-bold italic text-[11px]">
+                    <div className="border-2 border-black rounded-lg p-5 bg-slate-50">
+                        <p className="font-black text-[10px] uppercase tracking-widest text-black mb-2">Note</p>
+                        <p className="text-black leading-relaxed font-bold italic text-[11px]">
                             {"This is a computer generated report and does not require a physical signature. The results should be correlated clinically."}
                         </p>
                     </div>
@@ -187,23 +187,23 @@ export default function ReportCard({ report }: ReportCardProps) {
                     {/* SIGNATURE */}
                     <div className="mt-10 flex justify-end">
                         <div className="text-center w-64">
-                            <div className="border-b-2 border-slate-900 mb-2 w-full"></div>
-                            <p className="font-black text-slate-900 uppercase leading-none tracking-tighter">LAB IN-CHARGE</p>
-                            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.lab?.name || "LABORATORY"}</p>
+                            <div className="border-b-2 border-black mb-2 w-full"></div>
+                            <p className="font-black text-black uppercase leading-none tracking-tighter">LAB IN-CHARGE</p>
+                            <p className="text-[10px] font-bold text-black mt-1 uppercase tracking-widest">{report.lab?.name || "LABORATORY"}</p>
                         </div>
                     </div>
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 text-[10px] text-slate-500 flex justify-between items-center normal-case">
+                <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 text-[10px] text-black flex justify-between items-center normal-case">
                     <div className="space-y-1">
-                        <p className="text-slate-700 font-bold">Please consult your physician with this report.</p>
-                        <p className="text-slate-500 font-medium">
-                            For Appointments / Booking: <span className="text-slate-700 font-bold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
+                        <p className="text-black font-bold">Please consult your physician with this report.</p>
+                        <p className="text-black font-medium">
+                            For Appointments / Booking: <span className="text-black font-bold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
                         </p>
                     </div>
-                    <p className="text-slate-500 font-medium">
-                        Powered by <span className="font-bold text-slate-700 tracking-tight uppercase">Synapse IT Services LLP</span>
+                    <p className="text-black font-medium">
+                        Powered by <span className="font-bold text-black tracking-tight uppercase">Synapse IT Services LLP</span>
                     </p>
                 </div>
             </div>
@@ -215,8 +215,8 @@ export default function ReportCard({ report }: ReportCardProps) {
 function Info({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex gap-2 min-h-6 items-center">
-            <span className="text-slate-400 font-medium uppercase text-[10px] mt-0.5">{label}:</span>
-            <span className="font-bold text-slate-900 line-clamp-2 leading-tight uppercase">{value}</span>
+            <span className="text-black font-medium uppercase text-[10px] mt-0.5">{label}:</span>
+            <span className="font-bold text-black line-clamp-2 leading-tight uppercase">{value}</span>
         </div>
     );
 }

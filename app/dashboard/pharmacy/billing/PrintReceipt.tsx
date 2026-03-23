@@ -53,7 +53,7 @@ export default function PrintReceipt({
     const paymentMethod = payload.insurance ? "Insurance" : payload.online ? "Online" : "Cash";
 
     return (
-        <div className="print-receipt hidden print:block bg-white text-slate-900 font-sans leading-relaxed overflow-visible">
+        <div className="print-receipt hidden print:block bg-white text-black font-sans leading-relaxed overflow-visible">
             <style dangerouslySetInnerHTML={{
                 __html: `
         @media print {
@@ -86,14 +86,14 @@ export default function PrintReceipt({
 
             <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col">
                 {/* HEADER */}
-                <div className="bg-white text-slate-900 border-b border-slate-200 px-10 py-8">
+                <div className="bg-white text-black border-b border-slate-200 px-10 py-8">
                     <div className="flex justify-between items-start">
                         <HospitalName />
                         <div className="text-right space-y-2">
-                            <Badge className="bg-slate-900 text-white border-none px-3 py-1 font-bold text-xs hover:bg-slate-800">CASH RECEIPT</Badge>
+                            <Badge className="bg-black text-white border-none px-3 py-1 font-bold text-xs hover:bg-slate-800">CASH RECEIPT</Badge>
                             <div className="space-y-0.5">
                                 <p className="text-sm font-medium">Invoice No: <span className="font-bold">{invoiceNo}</span></p>
-                                <p className="text-[11px] text-slate-500">{fDateandTime(new Date())}</p>
+                                <p className="text-[11px] text-black">{fDateandTime(new Date())}</p>
                             </div>
                         </div>
                     </div>
@@ -116,7 +116,7 @@ export default function PrintReceipt({
                     {/* MEDICINES TABLE */}
                     <div className="border border-slate-200 rounded-lg overflow-hidden flex-1 box-border">
                         <table className="w-full border-collapse">
-                            <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 border-b border-slate-200">
+                            <thead className="bg-slate-50 text-[11px] font-bold text-black border-b border-slate-200">
                                 <tr>
                                     <th className="px-3 py-3 text-center w-10">SL</th>
                                     <th className="px-3 py-3 text-left">Medicine Description</th>
@@ -129,15 +129,15 @@ export default function PrintReceipt({
                             <tbody>
                                 {payload.items.map((item, index) => (
                                     <tr key={index} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
-                                        <td className="px-3 py-2.5 text-center font-medium text-slate-400 text-xs">{index + 1}</td>
+                                        <td className="px-3 py-2.5 text-center font-medium text-black text-xs">{index + 1}</td>
                                         <td className="px-3 py-2.5">
-                                            <p className="font-bold text-slate-900 uppercase text-[12px]">{item.name}</p>
-                                            <p className="text-[10px] text-slate-500 font-medium tracking-tight">B‑7721 · 12/26 · HSN 3004</p>
+                                            <p className="font-bold text-black uppercase text-[12px]">{item.name}</p>
+                                            <p className="text-[10px] text-black font-medium tracking-tight">B‑7721 · 12/26 · HSN 3004</p>
                                         </td>
-                                        <td className="px-3 py-2.5 text-center font-bold text-slate-700">{item.quantity}</td>
-                                        <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(item.unitPrice)}</td>
-                                        <td className="px-3 py-2.5 text-right font-medium text-slate-500">{item.gst}%</td>
-                                        <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
+                                        <td className="px-3 py-2.5 text-center font-bold text-black">{item.quantity}</td>
+                                        <td className="px-3 py-2.5 text-right font-medium text-black">{formatINR(item.unitPrice)}</td>
+                                        <td className="px-3 py-2.5 text-right font-medium text-black">{item.gst}%</td>
+                                        <td className="px-3 py-2.5 text-right font-bold text-black">{formatINR(item.total)}</td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -148,14 +148,14 @@ export default function PrintReceipt({
                     <div className="flex justify-end gap-10 items-start">
                         {/* T&C - Right aligned next to totals as requested */}
                         <div className="flex-1 max-w-[400px] text-left">
-                            <h4 className="text-[11px] font-bold uppercase text-slate-900 mb-2">Terms & Conditions</h4>
-                            <ul className="text-[10px] text-slate-600 space-y-1 font-medium italic">
+                            <h4 className="text-[11px] font-bold uppercase text-black mb-2">Terms & Conditions</h4>
+                            <ul className="text-[10px] text-black space-y-1 font-medium italic">
                                 <li>Invoice once generated cannot be cancelled.</li>
-                                <li className="text-slate-900 font-bold not-italic">Check medicines before leaving (Returns within 24H with original invoice).</li>
+                                <li className="text-black font-bold not-italic">Check medicines before leaving (Returns within 24H with original invoice).</li>
                                 <li>Refrigerated items will not be accepted for return.</li>
                             </ul>
                             {payload.note && (
-                                <div className="mt-4 text-xs text-slate-500">
+                                <div className="mt-4 text-xs text-black">
                                     <span className="font-bold uppercase text-[9px]">Note:</span> {payload.note}
                                 </div>
                             )}
@@ -187,15 +187,15 @@ export default function PrintReceipt({
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 text-[10px] text-slate-500 flex justify-between items-center">
+                <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 text-[10px] text-black flex justify-between items-center">
                     <div className="space-y-1">
-                        <p className="text-slate-700 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
-                        <p className="text-slate-500">
-                            For Appointments / Booking: <span className="text-slate-700 font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
+                        <p className="text-black font-medium">This prescription is valid only if signed by registered medical practitioner</p>
+                        <p className="text-black">
+                            For Appointments / Booking: <span className="text-black font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
                         </p>
                     </div>
-                    <p className="text-slate-500">
-                        Powered by <span className="font-bold text-slate-700 tracking-tight uppercase">Synapse IT Services LLP</span>
+                    <p className="text-black">
+                        Powered by <span className="font-bold text-black tracking-tight uppercase">Synapse IT Services LLP</span>
                     </p>
                 </div>
             </div>
@@ -207,8 +207,8 @@ export default function PrintReceipt({
 function Compact({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex gap-2 min-h-6 items-start">
-            <span className="text-slate-400 font-medium uppercase text-[10px] min-w-[50px] mt-0.5">{label}:</span>
-            <span className="font-bold text-slate-900 line-clamp-2 leading-tight">{value}</span>
+            <span className="text-black font-medium uppercase text-[10px] min-w-[50px] mt-0.5">{label}:</span>
+            <span className="font-bold text-black line-clamp-2 leading-tight">{value}</span>
         </div>
     );
 }
@@ -216,8 +216,8 @@ function Compact({ label, value }: { label: string; value: string }) {
 function Line({ label, value, bold, large }: { label: string; value: string; bold?: boolean; large?: boolean }) {
     return (
         <div className={`flex justify-between items-center ${large ? "text-base mt-2" : "text-[12px]"}`}>
-            <span className={bold ? "font-bold text-slate-900" : "text-slate-500 font-medium"}>{label}</span>
-            <span className={bold ? "font-black text-slate-900 text-lg" : "font-bold text-slate-800"}>{value}</span>
+            <span className={bold ? "font-bold text-black" : "text-black font-medium"}>{label}</span>
+            <span className={bold ? "font-black text-black text-lg" : "font-bold text-black"}>{value}</span>
         </div>
     );
 }
