@@ -56,7 +56,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
       address: patient?.address || "",
       allergies: patient?.allergies || "",
-      mrn: patient?.mrn || undefined,
+      mrn: patient?.mrn || "",
       guardian: patient?.guardian || "",
       guardianPhoneNumber: patient?.guardianPhoneNumber || "",
       guardianRelation: patient?.guardianRelation || "",
@@ -114,7 +114,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         gender: patient?.gender || "Prefer not to say",
         dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
         address: patient?.address || "",
-        mrn: patient?.mrn || undefined
+        mrn: patient?.mrn || ""
       });
     }
   }, [patient]);
@@ -215,7 +215,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               placeholder="PID"
               {...register("mrn")}
               ref={mergeRefs(refs.mrn, register("mrn").ref)}
-              value={values.mrn}
+              value={values.mrn ?? ""}
               disabled={patient?._id}
               onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
             />
@@ -232,7 +232,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               placeholder="+91"
               {...register("phoneNumber")}
               ref={mergeRefs(refs.phoneNumber, register("phoneNumber").ref)}
-              value={values.phoneNumber}
+              value={values.phoneNumber ?? ""}
               onKeyDown={(e) => handleKeyDown(e, refs.gender)}
             />
             {errors.phoneNumber && (
