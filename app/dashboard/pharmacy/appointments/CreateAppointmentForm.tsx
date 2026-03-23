@@ -4,7 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import api from "@/lib/axios";
 import { createAppointmentSchema } from "@/schemas/createAppointmentSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CalendarDays, UserRound } from "lucide-react";
+import { CalendarDays, UserPlus, UserRound } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
@@ -279,9 +279,21 @@ export function CreateAppointmentForm({
 
       <form className="space-y-5" onSubmit={createAppointment}>
         <section className="space-y-3 print:hidden">
-          <div className="flex items-center gap-2">
-            <UserRound className="h-4 w-4" />
-            <h3 className="font-medium">Patient</h3>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <UserRound className="h-4 w-4" />
+              <h3 className="font-medium">Patient</h3>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setOpenCreate(true)}
+              className="h-8 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+            >
+              <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+              Create Patient
+            </Button>
           </div>
           <div className="">
             <PatientSelection
