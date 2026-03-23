@@ -150,15 +150,15 @@ export default function TestCatalogue({
     name: string;
     price: number;
     type: "Lab" | "Imaging" | "";
-    min?: number;
-    max?: number;
-    womenMin?: number;
-    womenMax?: number;
-    childMin?: number;
-    childMax?: number;
-    nbMin?: number;
-    nbMax?: number;
-    unit?: string;
+    min: number | null | undefined;
+    max: number | null | undefined;
+    womenMin: number | null | undefined;
+    womenMax: number | null | undefined;
+    childMin: number | null | undefined;
+    childMax: number | null | undefined;
+    nbMin: number | null | undefined;
+    nbMax: number | null | undefined;
+    unit: string | null | undefined;
     estimatedTime?: string;
     dataType: "number" | "text" | "boolean"
   }>({
@@ -166,7 +166,16 @@ export default function TestCatalogue({
     name: "",
     price: 0,
     type: "",
-    dataType: "number"
+    dataType: "number",
+    min: null,
+    max: null,
+    womenMin: null,
+    womenMax: null,
+    childMin: null,
+    childMax: null,
+    nbMin: null,
+    nbMax: null,
+    unit: null
   });
 
   const addNewTest = async () => {
@@ -176,6 +185,21 @@ export default function TestCatalogue({
         return;
       }
       let finalPayload = { ...newTest };
+
+      if (newTest.dataType !== "number") {
+        finalPayload.min = null;
+        finalPayload.max = null;
+        finalPayload.womenMin = null;
+        finalPayload.womenMax = null;
+        finalPayload.childMin = null;
+        finalPayload.childMax = null;
+        finalPayload.nbMin = null;
+        finalPayload.nbMax = null;
+        if (newTest.dataType === "boolean") {
+          finalPayload.unit = null;
+        }
+      }
+
       if (newTest.estimatedTime && typeof newTest.estimatedTime === 'string') {
         const [hoursStr, minutesStr] = newTest.estimatedTime.split(':');
         const hours = parseInt(hoursStr || '0', 10);
@@ -196,7 +220,16 @@ export default function TestCatalogue({
         name: "",
         price: 0,
         type: "",
-        dataType: "number"
+        dataType: "number",
+        min: null,
+        max: null,
+        womenMin: null,
+        womenMax: null,
+        childMin: null,
+        childMax: null,
+        nbMin: null,
+        nbMax: null,
+        unit: null
       });
       setIsNewTestModalOpen(false);
 
@@ -348,7 +381,7 @@ export default function TestCatalogue({
                     <Label className="text-xs font-medium text-slate-700">Unit</Label>
                     <Input
                       placeholder="e.g. mg/dL"
-                      value={newTest.unit}
+                      value={newTest.unit ?? ""}
                       onChange={(e) =>
                         setNewTest((prev) => ({ ...prev, unit: e.target.value }))
                       }
@@ -360,7 +393,9 @@ export default function TestCatalogue({
                     <Label className="text-xs font-medium text-slate-700">Data Type *</Label>
                     <Select
                       value={newTest.dataType}
-                      onValueChange={(val: "number" | "text" | "boolean") => setNewTest(prev => ({ ...prev, dataType: val }))}
+                      onValueChange={(val: "number" | "text" | "boolean") => {
+                        setNewTest((prev) => ({ ...prev, dataType: val }));
+                      }}
                     >
                       <SelectTrigger className="h-9 bg-slate-50 w-full">
                         <SelectValue placeholder="Select type" />
@@ -379,9 +414,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="0"
-                        value={newTest.min || ""}
+                        value={newTest.min ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, min: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, min: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -392,9 +427,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="100"
-                        value={newTest.max || ""}
+                        value={newTest.max ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, max: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, max: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -405,9 +440,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="0"
-                        value={newTest.womenMin || ""}
+                        value={newTest.womenMin ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, womenMin: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, womenMin: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -417,9 +452,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="100"
-                        value={newTest.womenMax || ""}
+                        value={newTest.womenMax ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, womenMax: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, womenMax: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -430,9 +465,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="0"
-                        value={newTest.childMin || ""}
+                        value={newTest.childMin ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, childMin: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, childMin: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -442,9 +477,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="100"
-                        value={newTest.childMax || ""}
+                        value={newTest.childMax ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, childMax: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, childMax: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -455,9 +490,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="0"
-                        value={newTest.nbMin || ""}
+                        value={newTest.nbMin ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, nbMin: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, nbMin: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -467,9 +502,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="100"
-                        value={newTest.nbMax || ""}
+                        value={newTest.nbMax ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, nbMax: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, nbMax: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />

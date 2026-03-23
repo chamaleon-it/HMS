@@ -54,7 +54,25 @@ export default function TestCatalogueRow({
     const [viewOpen, setViewOpen] = React.useState(false);
     const [deleteOpen, setDeleteOpen] = React.useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
-    const [payload, setPayload] = useState({
+    const [payload, setPayload] = useState<{
+        code: string;
+        name: string;
+        type: "Lab" | "Imaging";
+        price: number;
+        panel: { name: string }[];
+        min: number | null | undefined;
+        max: number | null | undefined;
+        womenMin: number | null | undefined;
+        womenMax: number | null | undefined;
+        childMin: number | null | undefined;
+        childMax: number | null | undefined;
+        nbMin: number | null | undefined;
+        nbMax: number | null | undefined;
+        unit: string | null | undefined;
+        estimatedTime?: string;
+        _id: string;
+        dataType: "number" | "text" | "boolean"
+    }>({
         code: test.code,
         name: test.name,
         type: test.type,
@@ -74,6 +92,31 @@ export default function TestCatalogueRow({
         dataType: test.dataType
     })
 
+    // Reset payload when modal opens to avoid state persistence bug
+    React.useEffect(() => {
+        if (editOpen) {
+            setPayload({
+                code: test.code,
+                name: test.name,
+                type: test.type,
+                price: test.price,
+                panel: test.panels,
+                min: test.min,
+                max: test.max,
+                womenMin: test.womenMin,
+                womenMax: test.womenMax,
+                childMin: test.childMin,
+                childMax: test.childMax,
+                nbMin: test.nbMin,
+                nbMax: test.nbMax,
+                unit: test.unit,
+                estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
+                _id: test._id,
+                dataType: test.dataType
+            });
+        }
+    }, [editOpen, test]);
+
 
     const updateTest = useCallback(
         async (data: {
@@ -81,19 +124,36 @@ export default function TestCatalogueRow({
             name: string;
             price: number;
             type: "" | "Lab" | "Imaging";
-            min?: number;
-            max?: number;
-            womenMin?: number;
-            womenMax?: number;
-            childMin?: number;
-            childMax?: number;
-            nbMin?: number;
-            nbMax?: number;
-            unit?: string;
+            dataType: "number" | "text" | "boolean";
+            min?: number | null;
+            max?: number | null;
+            womenMin?: number | null;
+            womenMax?: number | null;
+            childMin?: number | null;
+            childMax?: number | null;
+            nbMin?: number | null;
+            nbMax?: number | null;
+            unit?: string | null;
             estimatedTime?: string;
         }) => {
             try {
                 let finalPayload = { ...data };
+
+                // Defer clearing fields until save if data type is not number
+                if (data.dataType !== "number") {
+                    finalPayload.min = null;
+                    finalPayload.max = null;
+                    finalPayload.womenMin = null;
+                    finalPayload.womenMax = null;
+                    finalPayload.childMin = null;
+                    finalPayload.childMax = null;
+                    finalPayload.nbMin = null;
+                    finalPayload.nbMax = null;
+                    if (data.dataType === "boolean") {
+                        finalPayload.unit = null;
+                    }
+                }
+
                 if (data.estimatedTime && typeof data.estimatedTime === 'string') {
                     const [hoursStr, minutesStr] = data.estimatedTime.split(':');
                     const hours = parseInt(hoursStr || '0', 10);
@@ -276,53 +336,59 @@ export default function TestCatalogueRow({
 
                                 <div className="grid grid-cols-6 items-center gap-4">
                                     <Label htmlFor={`dataType-${test._id}`} className="text-right col-span-2">Data Type</Label>
-                                    <Select defaultValue={test.dataType} onValueChange={(value: "number" | "text" | "boolean") => setPayload({ ...payload, dataType: value })}>
+                                    <Select value={payload.dataType} onValueChange={(value: "number" | "text" | "boolean") => {
+                                        setPayload({ ...payload, dataType: value });
+                                    }}>
                                         <SelectTrigger id={`dataType-${test._id}`} className="col-span-4 w-full">
                                             <SelectValue placeholder="Select a data type" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="number">Number</SelectItem>
                                             <SelectItem value="text">Text</SelectItem>
-                                            <SelectItem value="boolean">Boolean</SelectItem>
+                                            <SelectItem value="boolean">Positive/Negative</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`min-${test._id}`} className="text-right col-span-2">Min Value</Label>
-                                    <Input id={`min-${test._id}`} type="number" defaultValue={test.min} className="col-span-4" onChange={(e) => setPayload({ ...payload, min: Number(e.target.value) })} />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`max-${test._id}`} className="text-right col-span-2">Max Value</Label>
-                                    <Input id={`max-${test._id}`} type="number" defaultValue={test.max} className="col-span-4" onChange={(e) => setPayload({ ...payload, max: Number(e.target.value) })} />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`womenMin-${test._id}`} className="text-right col-span-2">Women Min</Label>
-                                    <Input id={`womenMin-${test._id}`} type="number" defaultValue={test.womenMin} className="col-span-4" onChange={(e) => setPayload({ ...payload, womenMin: Number(e.target.value) })} />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`womenMax-${test._id}`} className="text-right col-span-2">Women Max</Label>
-                                    <Input id={`womenMax-${test._id}`} type="number" defaultValue={test.womenMax} className="col-span-4" onChange={(e) => setPayload({ ...payload, womenMax: Number(e.target.value) })} />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`childMin-${test._id}`} className="text-right col-span-2">Child Min</Label>
-                                    <Input id={`childMin-${test._id}`} type="number" defaultValue={test.childMin} className="col-span-4" onChange={(e) => setPayload({ ...payload, childMin: Number(e.target.value) })} />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`childMax-${test._id}`} className="text-right col-span-2">Child Max</Label>
-                                    <Input id={`childMax-${test._id}`} type="number" defaultValue={test.childMax} className="col-span-4" onChange={(e) => setPayload({ ...payload, childMax: Number(e.target.value) })} />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`nbMin-${test._id}`} className="text-right col-span-2">Newborn Min</Label>
-                                    <Input id={`nbMin-${test._id}`} type="number" defaultValue={test.nbMin} className="col-span-4" onChange={(e) => setPayload({ ...payload, nbMin: Number(e.target.value) })} />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`nbMax-${test._id}`} className="text-right col-span-2">Newborn Max</Label>
-                                    <Input id={`nbMax-${test._id}`} type="number" defaultValue={test.nbMax} className="col-span-4" onChange={(e) => setPayload({ ...payload, nbMax: Number(e.target.value) })} />
-                                </div>
+                                {payload.dataType === "number" && (
+                                    <>
+                                        <div className="grid grid-cols-6 items-center gap-4">
+                                            <Label htmlFor={`min-${test._id}`} className="text-right col-span-2">Min Value</Label>
+                                            <Input id={`min-${test._id}`} type="number" value={payload.min ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, min: e.target.value === "" ? null : Number(e.target.value) })} />
+                                        </div>
+                                        <div className="grid grid-cols-6 items-center gap-4">
+                                            <Label htmlFor={`max-${test._id}`} className="text-right col-span-2">Max Value</Label>
+                                            <Input id={`max-${test._id}`} type="number" value={payload.max ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, max: e.target.value === "" ? null : Number(e.target.value) })} />
+                                        </div>
+                                        <div className="grid grid-cols-6 items-center gap-4">
+                                            <Label htmlFor={`womenMin-${test._id}`} className="text-right col-span-2">Women Min</Label>
+                                            <Input id={`womenMin-${test._id}`} type="number" value={payload.womenMin ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, womenMin: e.target.value === "" ? null : Number(e.target.value) })} />
+                                        </div>
+                                        <div className="grid grid-cols-6 items-center gap-4">
+                                            <Label htmlFor={`womenMax-${test._id}`} className="text-right col-span-2">Women Max</Label>
+                                            <Input id={`womenMax-${test._id}`} type="number" value={payload.womenMax ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, womenMax: e.target.value === "" ? null : Number(e.target.value) })} />
+                                        </div>
+                                        <div className="grid grid-cols-6 items-center gap-4">
+                                            <Label htmlFor={`childMin-${test._id}`} className="text-right col-span-2">Child Min</Label>
+                                            <Input id={`childMin-${test._id}`} type="number" value={payload.childMin ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, childMin: e.target.value === "" ? null : Number(e.target.value) })} />
+                                        </div>
+                                        <div className="grid grid-cols-6 items-center gap-4">
+                                            <Label htmlFor={`childMax-${test._id}`} className="text-right col-span-2">Child Max</Label>
+                                            <Input id={`childMax-${test._id}`} type="number" value={payload.childMax ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, childMax: e.target.value === "" ? null : Number(e.target.value) })} />
+                                        </div>
+                                        <div className="grid grid-cols-6 items-center gap-4">
+                                            <Label htmlFor={`nbMin-${test._id}`} className="text-right col-span-2">Newborn Min</Label>
+                                            <Input id={`nbMin-${test._id}`} type="number" value={payload.nbMin ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, nbMin: e.target.value === "" ? null : Number(e.target.value) })} />
+                                        </div>
+                                        <div className="grid grid-cols-6 items-center gap-4">
+                                            <Label htmlFor={`nbMax-${test._id}`} className="text-right col-span-2">Newborn Max</Label>
+                                            <Input id={`nbMax-${test._id}`} type="number" value={payload.nbMax ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, nbMax: e.target.value === "" ? null : Number(e.target.value) })} />
+                                        </div>
+                                    </>
+                                )}
                                 <div className="grid grid-cols-6 items-center gap-4">
                                     <Label htmlFor={`unit-${test._id}`} className="text-right col-span-2">Unit</Label>
-                                    <Input id={`unit-${test._id}`} defaultValue={test.unit} className="col-span-4" onChange={(e) => setPayload({ ...payload, unit: e.target.value })} />
+                                    <Input id={`unit-${test._id}`} value={payload.unit ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, unit: e.target.value })} />
                                 </div>
                                 <div className="grid grid-cols-6 items-center gap-4">
                                     <Label htmlFor={`estimatedTime-${test._id}`} className="text-right col-span-2">Estimated Duration (HH:MM)</Label>
