@@ -5,7 +5,7 @@ import ViewResultModal from "./ViewResultModal";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Clock, Flag, FlagOff, Play, Printer,  RotateCcw, Trash2, X } from "lucide-react";
+import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, Trash2, X } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
@@ -118,6 +118,7 @@ interface PropsTypes {
     panels: string[];
     sampleCollectedAt: Date | null;
     status: string;
+    technician?: string;
     createdAt: Date;
     updatedAt: Date;
   }[];

@@ -71,7 +71,7 @@ interface Props {
         }[];
         sampleType: string;
         status: string;
-        technician: string;
+        technician?: string;
         createdAt: Date;
         updatedAt: Date;
         panels?: string[];
@@ -144,10 +144,10 @@ export default function ViewResultModal({ r }: Props) {
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Blood Type</p>
                                 <p className="text-sm font-medium text-gray-700">{r?.patient?.blood || "N/A"}</p>
                             </div>
-                            <div>
+                            {r?.technician && <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Technician</p>
                                 <p className="text-sm font-medium text-gray-700">{r?.technician || "N/A"}</p>
-                            </div>
+                            </div>}
                         </div>
                     </div>
                 </div>
