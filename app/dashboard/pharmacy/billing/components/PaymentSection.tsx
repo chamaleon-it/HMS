@@ -44,7 +44,6 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
     const {
         finalTotal,
         totalPaid,
-        dueAmount
     } = useBillCalculations({
         items: payload.items,
         discount: payload.discount,
