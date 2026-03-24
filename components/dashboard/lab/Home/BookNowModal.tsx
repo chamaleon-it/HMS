@@ -33,13 +33,14 @@ import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
 import DateTimePicker from "./DateTimePicker";
 import { formatINR } from "@/lib/fNumber";
+import TechnicianSelection from "./PharmacistSelection";
 
 interface BookNowModalProps {
     patient: any;
     open: boolean;
     onOpenChange: (open: boolean) => void;
     mutate?: () => void;
-    doctor?:string | null
+    doctor?: string | null
 }
 
 const theme = {
@@ -72,6 +73,7 @@ export default function BookNowModal({
         priority: "Normal" | "Urgent";
         sampleType: string;
         status: string;
+        technician: string;
     }>({
         patient: "",
         doctor: user?._id ?? "",
@@ -82,6 +84,7 @@ export default function BookNowModal({
         priority: "Normal",
         sampleType: "Other",
         status: "Upcoming",
+        technician: "",
     });
 
     useEffect(() => {
@@ -89,12 +92,13 @@ export default function BookNowModal({
             setPayload((prev) => ({
                 ...prev,
                 patient: patient._id,
-                doctor: doctor ||  user?._id || "",
+                doctor: doctor || user?._id || "",
                 lab: user?._id ?? "",
                 test: [],
                 panels: [],
                 date: new Date(),
                 priority: "Normal",
+                technician: "",
             }));
         }
     }, [patient, open, user]);
@@ -217,6 +221,14 @@ export default function BookNowModal({
                         </div>
                     </div>
                 </div>
+
+                <TechnicianSelection
+                    className="max-w-72"
+                    setValue={(id: string) => {
+                        setPayload((prev) => ({ ...prev, technician: id }));
+                    }}
+                    technicianName={payload.technician}
+                />
 
                 <div className="flex gap-4 justify-between w-full">
                     <div className="flex-1 max-w-[400px]">
@@ -415,7 +427,7 @@ export default function BookNowModal({
                         <Button variant="outline" className="px-10 h-11">Cancel</Button>
                     </DialogClose>
                     <Button
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-10 h-11 font-bold shadow-md shadow-emerald-100 transition-all hover:translate-y-[-1px] active:translate-y-[0px]"
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white px-10 h-11 font-bold shadow-md shadow-emerald-100 transition-all hover:-translate-y-px active:translate-y-0"
                         onClick={handleSubmit}
                     >
                         Confirm Booking

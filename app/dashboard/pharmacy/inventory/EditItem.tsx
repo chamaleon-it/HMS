@@ -16,6 +16,7 @@ import { pharmacyItemAddSchema } from "@/schemas/pharmacyItemAddSchema";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { useAuth } from "@/auth/context/auth-context";
+import useSWR from "swr";
 import TypableExpiryInput from "../suppliers/purchase-entry/components/TypableExpiryInput";
 
 const months = [
@@ -40,6 +41,26 @@ export function EditItem({
     setValue,
   } = useForm({
     resolver: zodResolver(pharmacyItemAddSchema),
+    defaultValues: {
+      category: item.category,
+      expiryDate: item.expiryDate
+        ? new Date(item.expiryDate).toISOString()
+        : undefined,
+      generic: item.generic,
+      hsnCode: String(item.hsnCode),
+      manufacturer: item.manufacturer,
+      name: item.name,
+      openingStockQuantity: item.openingStockQuantity,
+      purchasePrice: item.purchasePrice,
+      quantity: item.quantity,
+      sku: item.sku,
+      status: item.status as "Active" | "Inactive" | undefined,
+      supplier: item.supplier,
+      unitPrice: item.unitPrice,
+      rackLocation: item.rackLocation,
+      packing: item.packing,
+      gst: item.gst,
+    }
   });
 
   useEffect(() => {
@@ -66,6 +87,8 @@ export function EditItem({
   }, [item, reset]);
 
   const values = watch();
+  const { data: suppliersData } = useSWR<{ message: string; data: { _id: string; name: string }[] }>("/suppliers/get_id_and_name");
+  const suppliers = suppliersData?.data || [];
 
 
 
@@ -100,7 +123,7 @@ export function EditItem({
     hsnCode: useRef<HTMLInputElement>(null),
     sku: useRef<HTMLInputElement>(null),
     category: useRef<HTMLButtonElement>(null),
-    supplier: useRef<HTMLInputElement>(null),
+    supplier: useRef<HTMLButtonElement>(null),
     manufacturer: useRef<HTMLInputElement>(null),
     purchasePrice: useRef<HTMLInputElement>(null),
     unitPrice: useRef<HTMLInputElement>(null),
@@ -267,8 +290,8 @@ export function EditItem({
             Category
           </label>
           <Select
+            value={watch("category")}
             onValueChange={(value) => setValue("category", value)}
-            defaultValue={item.category}
           >
             <SelectTrigger className="mt-1 w-full" ref={refs.category} onKeyDown={(e) => handleKeyDown(e, refs.supplier)}>
               <SelectValue placeholder="Select" />
@@ -291,16 +314,22 @@ export function EditItem({
           <label className="text-[12px] text-gray-600 font-medium">
             Supplier
           </label>
-          <Input
-            placeholder="e.g. ABC Pharma"
-            className="mt-1"
-            {...register("supplier")}
-            ref={(e) => {
-              register("supplier").ref(e);
-              refs.supplier.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.manufacturer)}
-          />
+          <Select value={watch("supplier")} onValueChange={(value) => setValue("supplier", value)}>
+            <SelectTrigger
+              className="mt-1 w-full"
+              ref={refs.supplier}
+              onKeyDown={(e) => handleKeyDown(e, refs.manufacturer)}
+            >
+              <SelectValue placeholder="Select Supplier" />
+            </SelectTrigger>
+            <SelectContent className="rounded-lg border-slate-200">
+              {suppliers.map((s: { _id: string; name: string }) => (
+                <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-indigo-50">
+                  {s.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {errors.supplier && (
             <p className="text-xs text-red-600 my-1">
               {errors.supplier.message}
@@ -433,8 +462,8 @@ export function EditItem({
 
           <TypableExpiryInput
             value={values.expiryDate || ""}
-            onChange={(date) => setValue("expiryDate", date, { shouldValidate: true })}
-            onKeyDown={(e) => handleKeyDown(e, refs.status)}
+            onChange={(date: string) => setValue("expiryDate", date, { shouldValidate: true })}
+            onKeyDown={(e: React.KeyboardEvent) => handleKeyDown(e, refs.status)}
           />
 
           {errors.expiryDate && (
@@ -449,7 +478,7 @@ export function EditItem({
             Status
           </label>
           <Select
-            defaultValue={item.status}
+            value={watch("status")}
             onValueChange={(value: "Active" | "Inactive") =>
               setValue("status", value)
             }
