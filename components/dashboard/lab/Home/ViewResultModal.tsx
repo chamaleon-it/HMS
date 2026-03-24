@@ -146,7 +146,7 @@ export default function ViewResultModal({ r }: Props) {
                             </div>
                             {r?.technician && <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Technician</p>
-                                <p className="text-sm font-medium text-gray-700">{r?.technician || "N/A"}</p>
+                                <p className="text-sm font-medium text-gray-700">{r?.technician}</p>
                             </div>}
                         </div>
                     </div>
