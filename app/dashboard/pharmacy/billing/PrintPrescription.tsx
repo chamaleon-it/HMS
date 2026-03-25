@@ -47,7 +47,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
 
             <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col">
                 {/* HEADER */}
-                <div className="bg-white text-black border-b border-slate-200 px-10 py-8">
+                <div className="bg-white text-black border-b border-slate-500 px-10 py-8">
                     <div className="flex justify-between items-start">
                         <HospitalName />
                         <div className="text-right space-y-2">
@@ -65,7 +65,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                 {/* BODY */}
                 <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                     {/* PATIENT STRIP */}
-                    <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
+                    <div className="border border-slate-500 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
                         <Info label="Patient" value={patient?.name || "—"} />
                         <Info label="Age / G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / ${patient?.gender || "—"}`} />
                         <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
@@ -79,9 +79,9 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                     </div>
 
                     {/* MEDICINES */}
-                    <div className="border border-slate-200 rounded-lg overflow-hidden flex-1 box-border">
+                    <div className="border border-slate-500 rounded-lg overflow-hidden flex-1 box-border">
                         <table className="w-full border-collapse">
-                            <thead className="bg-slate-50 text-[11px] font-bold text-black border-b border-slate-200 uppercase tracking-wider">
+                            <thead className="bg-slate-50 text-[11px] font-bold text-black border-b border-slate-500 uppercase tracking-wider">
                                 <tr>
                                     <th className="px-3 py-3 text-center w-10">SL</th>
                                     <th className="px-3 py-3 text-left">Medicine / Strength</th>
@@ -130,7 +130,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 text-[10px] text-black flex justify-between items-center normal-case">
+                <div className="bg-slate-50 border-t border-slate-500 px-10 py-6 text-[10px] text-black flex justify-between items-center normal-case">
                     <div className="space-y-1">
                         <p className="text-black font-bold">This prescription is valid only if signed by registered medical practitioner</p>
                         <p className="text-black font-medium">
