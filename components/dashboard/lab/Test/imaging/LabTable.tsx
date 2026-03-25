@@ -99,9 +99,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     </tr>
                 </thead>
                 <tbody>
-                    {REPORT.filter(
-                        (r) => status === "All" || r.status === status
-                    )
+                    {REPORT
                         .sort((a, b) => {
                             const isAUrgent = a.priority === "Urgent";
                             const isBUrgent = b.priority === "Urgent";

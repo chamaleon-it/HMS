@@ -62,7 +62,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
 
             <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col relative z-20 bg-white">
                 {/* HEADER */}
-                <div className="bg-white text-black border-b border-slate-200 px-10 py-8">
+                <div className="bg-white text-black border-b border-slate-500 px-10 py-8">
                     <div className="flex justify-between items-start">
                         <HospitalName />
                         <div className="text-right space-y-2">
@@ -77,9 +77,9 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                 </div>
 
                 {/* BODY */}
-                <div className="px-8 py-4 flex-1 flex flex-col gap-4 text-[12px]">
+                <div className="p-5 flex-1 flex flex-col gap-4 text-[12px]">
                     {/* PATIENT STRIP - Single Row */}
-                    <div className="border border-slate-200 rounded-lg px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50/50">
+                    <div className="border border-slate-500 rounded-lg px-4 py-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 bg-slate-50/50">
                         <div className="flex-1 min-w-0">
                             <Info label="Patient" value={patient?.name || "—"} />
                         </div>
@@ -98,13 +98,13 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                     </div>
 
                     {/* EMPTY SPACE for writing */}
-                    <div className="flex-1 border border-slate-200 rounded-lg bg-slate-50/5 text-slate-100 flex flex-col items-center justify-center min-h-[500px]">
+                    <div className="flex-1 border border-slate-500 rounded-lg bg-slate-50/5 text-slate-100 flex flex-col items-center justify-center min-h-[500px]">
                         <p className="text-4xl font-black opacity-10 uppercase tracking-[1em]">Rx Prescription</p>
                     </div>
                 </div>
 
                 {/* FOOTER */}
-                <div className="bg-slate-50 border-t border-slate-200 px-10 py-3 text-[10px] text-black flex justify-between items-center normal-case mt-auto">
+                <div className="bg-slate-50 border-t border-slate-500 px-10 py-3 text-[10px] text-black flex justify-between items-center normal-case mt-auto">
                     <div className="space-y-1">
                         <p className="text-black font-bold">This prescription is valid only if signed by registered medical practitioner</p>
                         <p className="text-black font-medium">
