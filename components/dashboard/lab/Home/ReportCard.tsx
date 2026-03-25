@@ -58,7 +58,7 @@ export default function ReportCard({ report }: ReportCardProps) {
 
             <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col">
                 {/* HEADER */}
-                <div className="bg-white text-black border-b border-slate-200 px-10 py-8">
+                <div className="bg-white text-black border-b border-slate-200 px-10 py-8 invisible">
                     <div className="flex justify-between items-start">
                         <HospitalName />
                         <div className="text-right space-y-2">

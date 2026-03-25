@@ -63,7 +63,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                 </div>
 
                 {/* BODY */}
-                <div className="p-10 flex-1 flex flex-col gap-6 text-[13px]">
+                <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                     {/* PATIENT STRIP */}
                     <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
                         <Info label="Patient" value={patient?.name || "—"} />
