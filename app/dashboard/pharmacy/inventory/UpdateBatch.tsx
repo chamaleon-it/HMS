@@ -10,6 +10,13 @@ import {
     DialogTitle,
     DialogTrigger
 } from '@/components/ui/dialog'
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import {
@@ -21,6 +28,7 @@ import {
     TableRow,
 } from "@/components/ui/table"
 import api from "@/lib/axios"
+import useSWR from 'swr'
 import { fDate } from "@/lib/fDateAndTime"
 import { formatINR } from "@/lib/fNumber"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -74,6 +82,9 @@ export default function UpdateBatch({ item, mutate }: Props) {
         }
     });
 
+    const { data: suppliersData } = useSWR<{ message: string; data: { _id: string; name: string }[] }>("/suppliers/get_id_and_name");
+    const suppliers = suppliersData?.data || [];
+
     const expiryDate = watch("expiryDate");
 
     // Refs for keyboard navigation
@@ -82,7 +93,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
         expiryDate: useRef<HTMLButtonElement>(null),
         quantity: useRef<HTMLInputElement>(null),
         purchasePrice: useRef<HTMLInputElement>(null),
-        supplier: useRef<HTMLInputElement>(null),
+        supplier: useRef<HTMLButtonElement>(null),
         addButton: useRef<HTMLButtonElement>(null),
     };
 
@@ -220,16 +231,22 @@ export default function UpdateBatch({ item, mutate }: Props) {
 
                             <div className="col-span-2">
                                 <label className="text-xs font-medium text-gray-600">Supplier</label>
-                                <Input
-                                    {...register("supplier")}
-                                    placeholder="e.g. ABC Pharma"
-                                    className="mt-1 h-9"
-                                    ref={(e) => {
-                                        register("supplier").ref(e);
-                                        refs.supplier.current = e;
-                                    }}
-                                    onKeyDown={(e) => handleKeyDown(e, refs.addButton)}
-                                />
+                                <Select value={watch("supplier")} onValueChange={(value) => setValue("supplier", value)}>
+                                    <SelectTrigger
+                                        className="mt-1 h-9 w-full"
+                                        ref={refs.supplier}
+                                        onKeyDown={(e) => handleKeyDown(e, refs.addButton)}
+                                    >
+                                        <SelectValue placeholder="Select Supplier" />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-lg border-slate-200">
+                                        {suppliers.map((s: { _id: string; name: string }) => (
+                                            <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-indigo-50">
+                                                {s.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
 
                             <div className="col-span-2 flex justify-end mt-2">

@@ -101,6 +101,7 @@ export default function PanelCatalogueRow({
     const [editOpen, setEditOpen] = useState(false);
     const [viewOpen, setViewOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Edit Modal State
     const [payload, setPayload] = useState({
@@ -184,9 +185,21 @@ export default function PanelCatalogueRow({
     }, [payload, selectedTests, panel.name, panelMutate]);
 
     const deletePanel = useCallback(async () => {
-        toast.success("Panel delete action triggered (Backend deletion disabled/not implemented)");
-        setDeleteOpen(false);
-    }, []);
+        try {
+            setIsDeleting(true);
+            await toast.promise(api.delete(`/lab/panels/${panel.name}`), {
+                loading: "Deleting Panel...",
+                success: "Panel deleted successfully",
+                error: ({ response }) => response.data.message,
+            });
+            panelMutate();
+            setDeleteOpen(false);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsDeleting(false);
+        }
+    }, [panel.name, panelMutate]);
 
     const handleAddTest = (test: any) => {
         if (!selectedTests.find(t => t._id === test._id)) {
@@ -458,7 +471,7 @@ export default function PanelCatalogueRow({
                         </DialogContent>
                     </Dialog>
 
-                    {/* <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                         <AlertDialogTrigger asChild>
                             <Button size="sm" variant="ghost">
                                 <Trash2 className='h-4 w-4 text-slate-500 hover:text-red-500' />
@@ -473,12 +486,12 @@ export default function PanelCatalogueRow({
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={deletePanel} className="bg-red-600 hover:bg-red-700 text-white">
-                                    Delete
+                                <AlertDialogAction onClick={deletePanel} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+                                    {isDeleting ? "Deleting..." : "Delete"}
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog> */}
+                    </AlertDialog>
                 </div>
             </TableCell>
         </TableRow>
