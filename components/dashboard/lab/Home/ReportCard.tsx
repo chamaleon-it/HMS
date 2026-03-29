@@ -180,7 +180,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                     <div className="border-2 border-black rounded-lg p-5 bg-slate-50">
                         <p className="font-black text-[10px] uppercase tracking-widest text-black mb-2">Note</p>
                         <p className="text-black leading-relaxed font-bold italic text-[11px]">
-                            {"This is a computer generated report and does not require a physical signature. The results should be correlated clinically."}
+                            {"The results should be correlated clinically."}
                         </p>
                     </div>
 
