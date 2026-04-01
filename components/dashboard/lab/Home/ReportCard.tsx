@@ -251,7 +251,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                 )}
 
                                 <div className="flex w-full gap-4 relative">
-                                    <div className={`border border-slate-500 rounded-lg overflow-hidden ${pageHasCBC ? "w-[65%]" : "w-full"}`}>
+                                    <div className={`border border-slate-500 rounded-lg overflow-hidden ${pageHasCBC ? 'w-[65%]' : 'w-full'}`}>
                                         <table className="results-table">
                                         <thead className="bg-slate-50 text-[11px] font-bold text-black border-b border-slate-500 uppercase tracking-wider">
                                             <tr>
@@ -309,20 +309,59 @@ export default function ReportCard({ report }: ReportCardProps) {
                                 </div>
 
                                 {pageHasCBC && (
-                                    <div className="w-[35%] flex flex-col gap-3 py-2 px-2 border-l-2 border-slate-100 relative right-0">
-                                        {/* CBC Graph Spaces */}
-                                        <div className="flex flex-col items-center flex-1">
-                                            <div className="text-[10px] font-bold text-slate-500 mb-0.5 self-start ml-2">WBC Histogram</div>
-                                            <div className="w-full h-[150px] border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">WBC Graph Area</div>
-                                        </div>
-                                        <div className="flex flex-col items-center flex-1">
-                                            <div className="text-[10px] font-bold text-slate-500 mb-0.5 self-start ml-2">RBC Histogram</div>
-                                            <div className="w-full h-[150px] border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">RBC Graph Area</div>
-                                        </div>
-                                        <div className="flex flex-col items-center flex-1">
-                                            <div className="text-[10px] font-bold text-slate-500 mb-0.5 self-start ml-2">PLT Histogram</div>
-                                            <div className="w-full h-[150px] border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">PLT Graph Area</div>
-                                        </div>
+                                    <div className="w-[35%] flex flex-col gap-2 py-0 px-2 pl-4 border-l-2 border-slate-100 relative right-0">
+                                        <div className="text-[12px] font-bold text-black border-b border-slate-300 pb-1 mb-2 uppercase tracking-wider">Histograms</div>
+                                        
+                                        {/* WBC Graph */}
+                                        {report?.graphs?.['WBC Histogram. BMP'] ? (
+                                            <div className="flex flex-col items-center flex-1">
+                                                <div className="text-[10px] font-bold text-slate-600 mb-0.5 self-start tracking-widest">WBC</div>
+                                                <img 
+                                                    src={`data:image/png;base64,${report.graphs['WBC Histogram. BMP']}`} 
+                                                    alt="WBC Histogram" 
+                                                    className="w-[95%] h-[120px] object-contain border border-slate-200 rounded-md bg-black"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center flex-1">
+                                                <div className="text-[10px] font-bold text-slate-500 mb-0.5 self-start ml-2">WBC Histogram</div>
+                                                <div className="w-[95%] h-[120px] border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">WBC Graph Area</div>
+                                            </div>
+                                        )}
+
+                                        {/* RBC Graph */}
+                                        {report?.graphs?.['RBC Histogram. BMP'] ? (
+                                            <div className="flex flex-col items-center flex-1 mt-1">
+                                                <div className="text-[10px] font-bold text-slate-600 mb-0.5 self-start tracking-widest">RBC</div>
+                                                <img 
+                                                    src={`data:image/png;base64,${report.graphs['RBC Histogram. BMP']}`} 
+                                                    alt="RBC Histogram" 
+                                                    className="w-[95%] h-[120px] object-contain border border-slate-200 rounded-md bg-black"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center flex-1">
+                                                <div className="text-[10px] font-bold text-slate-500 mb-0.5 self-start ml-2">RBC Histogram</div>
+                                                <div className="w-[95%] h-[120px] border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">RBC Graph Area</div>
+                                            </div>
+                                        )}
+
+                                        {/* PLT Graph */}
+                                        {report?.graphs?.['PLT Histogram. BMP'] ? (
+                                            <div className="flex flex-col items-center flex-1 mt-1">
+                                                <div className="text-[10px] font-bold text-slate-600 mb-0.5 self-start tracking-widest">PLT</div>
+                                                <img 
+                                                    src={`data:image/png;base64,${report.graphs['PLT Histogram. BMP']}`} 
+                                                    alt="PLT Histogram" 
+                                                    className="w-[95%] h-[120px] object-contain border border-slate-200 rounded-md bg-black"
+                                                />
+                                            </div>
+                                        ) : (
+                                            <div className="flex flex-col items-center flex-1">
+                                                <div className="text-[10px] font-bold text-slate-500 mb-0.5 self-start ml-2">PLT Histogram</div>
+                                                <div className="w-[95%] h-[120px] border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">PLT Graph Area</div>
+                                            </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
