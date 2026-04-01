@@ -29,7 +29,7 @@ export default function ReportCard({ report }: ReportCardProps) {
     const doctor = report.doctor;
 
     const content = (
-        <div className="print-prescription hidden print:flex print:flex-col bg-white text-black font-sans leading-relaxed overflow-visible">
+        <div className="print-prescription hidden print:flex print:flex-col bg-white text-black font-sans leading-tight overflow-visible">
             <style dangerouslySetInnerHTML={{
                 __html: `
         @media print {
@@ -146,7 +146,7 @@ export default function ReportCard({ report }: ReportCardProps) {
       `}} />
  
             {(() => {
-                const FIRST_PAGE_LIMIT = 24;
+                const FIRST_PAGE_LIMIT = 28;
                 const SUBSEQUENT_PAGE_LIMIT = 30;
 
                 // 1. Prepare All Rows (Panel Headers + Tests)
@@ -239,7 +239,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                             {/* BODY */}
                             <div className="report-body">
                                 {isFirstPage && (
-                                    <div className="mb-2 border border-slate-500 rounded-lg px-4 py-2 flex flex-wrap gap-x-4 gap-y-0.5 bg-slate-50/50">
+                                    <div className="mb-1 border border-slate-500 rounded-lg px-4 py-1.5 flex flex-wrap gap-x-4 gap-y-0.5 bg-slate-50/50">
                                         <Info label="Patient" value={patient?.name || "—"} />
                                         <Info label="Age / G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / ${patient?.gender || "—"}`} />
                                         <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
@@ -253,12 +253,12 @@ export default function ReportCard({ report }: ReportCardProps) {
                                 <div className="flex w-full gap-4 relative">
                                     <div className={`border border-slate-500 rounded-lg overflow-hidden ${pageHasCBC ? 'w-[65%]' : 'w-full'}`}>
                                         <table className="results-table">
-                                        <thead className="bg-slate-50 text-[11px] font-bold text-black border-b border-slate-500 uppercase tracking-wider">
+                                        <thead className="bg-slate-50 text-[10px] font-bold text-black border-b border-slate-500 uppercase tracking-wider">
                                             <tr>
-                                                <th className="px-2 py-1.5 text-left col-investigation">Investigation</th>
-                                                <th className="px-2 py-1.5 text-right col-result">Result</th>
-                                                <th className="px-2 py-1.5 text-center col-unit">Unit</th>
-                                                <th className="px-2 py-1.5 text-left col-ref">Reference Value</th>
+                                                <th className="px-2 py-1 text-left col-investigation">Investigation</th>
+                                                <th className="px-2 py-1 text-right col-result">Result</th>
+                                                <th className="px-2 py-1 text-center col-unit">Unit</th>
+                                                <th className="px-2 py-1 text-left col-ref">Reference Value</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -266,8 +266,8 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                 if (row.type === "PANEL") {
                                                     return (
                                                         <tr key={`panel-${rowIdx}`} className="bg-slate-100/50">
-                                                            <td colSpan={4} className="px-3 py-1.5 border-b border-slate-200">
-                                                                <p className="font-black text-black text-[11px] uppercase tracking-widest">{row.name}</p>
+                                                            <td colSpan={4} className="px-3 py-1 border-b border-slate-200">
+                                                                <p className="font-black text-black text-[10px] uppercase tracking-widest">{row.name}</p>
                                                             </td>
                                                         </tr>
                                                     );
@@ -282,23 +282,23 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                 return (
                                                     <tr key={`test-${rowIdx}`} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/10">
                                                         <td className="px-2 py-[1px]">
-                                                            <p className="font-black text-black text-[12px]">
+                                                            <p className="font-bold text-black text-[11px] leading-tight">
                                                                 {row.name?.name || "Unknown test"}
                                                             </p>
                                                         </td>
-                                                        <td className="px-2 py-[1px] text-right font-bold">
+                                                        <td className="px-2 py-[1px] text-right font-bold text-[11px] leading-tight">
                                                             <span className={isAbnormal ? "text-rose-600 font-black" : "text-black"}>
                                                                 {row.value || "—"}
                                                             </span>
                                                         </td>
-                                                        <td className="px-2 py-[1px] text-center text-black text-xs font-medium">
+                                                        <td className="px-2 py-[1px] text-center text-black text-[10px] font-medium leading-tight">
                                                             {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
                                                                 <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
                                                             ) : (
                                                                 "—"
                                                             )}
                                                         </td>
-                                                        <td className="px-2 py-[1px] text-xs font-semibold text-black">
+                                                        <td className="px-2 py-[1px] text-[10px] font-semibold text-black leading-tight">
                                                             {min !== undefined && max !== undefined ? `${min} - ${max}` : "—"}
                                                         </td>
                                                     </tr>
