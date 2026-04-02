@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import Watermark from "@/components/print/Watermark";
-import HospitalName from "@/components/print/HospitalName";
+import LabName from "@/components/print/LabName";
 import { Badge } from "@/components/ui/badge";
 
 interface ReportCardProps {
@@ -69,7 +69,7 @@ export default function ReportCard({ report }: ReportCardProps) {
           }
           .a4-page {
             width: 21cm;
-            height: 29.4cm !important; /* 📏 3mm SAFETY MARGIN TO strictly PREVENT EXTRA PAGE */
+            height: 29.7cm !important; /* 📏 FULL A4 HEIGHT */
             padding: 0;
             margin: 0;
             display: flex;
@@ -130,7 +130,7 @@ export default function ReportCard({ report }: ReportCardProps) {
             display: flex;
             flex-direction: column;
             gap: 4px;
-            padding: 5px 40px 15px 40px;
+            padding: 5px 0 0 0;
             width: 100%;
             box-sizing: border-box;
             position: relative;
@@ -238,18 +238,52 @@ export default function ReportCard({ report }: ReportCardProps) {
                             </div>
 
                             {/* 🏥 DIGITAL HEADER */}
-                            <div className="bg-white text-black px-10 py-8">
-                                <div className="flex justify-between items-start">
-                                    <HospitalName />
-                                    <div className="text-right space-y-2">
-                                        <Badge className="bg-black text-white border-none px-3 py-1 font-bold text-xs hover:bg-slate-800 tracking-widest uppercase">Lab Report</Badge>
-                                        <div className="space-y-0.5">
-                                            {/* <p className="text-sm font-medium">Report ID: <span className="font-bold">{report._id?.toString().slice(-8).toUpperCase() || "—"}</span></p> */}
-                                            <p className="text-[11px] text-black">{fDateandTime(new Date())}</p>
-                                        </div>
+                            <div className="relative w-full bg-white text-black mb-4 flex flex-col pt-0 break-inside-avoid">
+                                {/* Top Bar */}
+                                <div className="w-full h-[20px]" style={{ backgroundColor: '#f2cdbf' }}></div>
+                                
+                                {/* Content Wrapper */}
+                                <div className="w-full relative flex justify-between items-start pt-[16px] pb-[5px] px-10">
+                                    <div className="relative z-10 w-[60%]">
+                                        <LabName />
+                                    </div>
+                                    
+                                    {/* Date */}
+                                    <div className="absolute right-10 top-[112px] z-10">
+                                        <p className="text-[12px] text-black font-semibold tracking-wide">
+                                            Date : {(() => {
+                                                const d = new Date();
+                                                return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+                                            })()}
+                                        </p>
                                     </div>
                                 </div>
+                                
+                                {/* Ribbon Wrapper */}
+                                <div className="absolute right-0 top-[20px] w-[50%] z-[1] flex flex-col items-end">
+                                    {/* Darker coral upper shape */}
+                                    <div 
+                                        className="h-[56px] w-[340px] flex items-center justify-end"
+                                        style={{ 
+                                            backgroundColor: '#d66a54', 
+                                            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 37px 100%)' 
+                                        }}
+                                    >
+                                        <span className="text-white text-[26px] font-sans font-medium tracking-wide pr-[45px]">
+                                            LAB REPORT
+                                        </span>
+                                    </div>
+                                    {/* Lighter coral lower shape */}
+                                    <div 
+                                        className="h-[24px] w-[200px]"
+                                        style={{ 
+                                            backgroundColor: '#e6a69a', 
+                                            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 16px 100%)' 
+                                        }}
+                                    ></div>
+                                </div>
                             </div>
+
 
                             {/* BODY */}
                             <div className="report-body">
@@ -272,7 +306,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                 )}
 
                                 {/* UNIFIED HEADER ROW */}
-                                <div className="flex w-full bg-slate-200/50 border-y border-slate-300 text-[11px] font-bold text-black items-stretch relative z-8">
+                                <div className="flex w-full bg-[#f4c3b9] border-y border-[#f4c3b9] text-[11px] font-bold text-black items-stretch relative z-8">
                                     <div className={`${pageHasCBC ? 'w-[65%]' : 'w-full'} pr-2`}>
                                         <table className="results-table w-full h-full border-none m-0">
                                             <colgroup>
@@ -292,7 +326,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                         </table>
                                     </div>
                                     {pageHasCBC && (
-                                        <div className="w-[35%] flex items-center pl-6">
+                                        <div className="w-[35%] flex items-center pl-4">
                                             <div className="uppercase tracking-wider">Histograms</div>
                                         </div>
                                     )}
@@ -331,7 +365,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                         isAbnormal = true;
                                                     }
                                                     const isMainTest = ["WBC", "HGB", "RBC", "PLT", "ESR"].some(main => typeof row.name?.name === 'string' && row.name.name.startsWith(main));
-                                                    
+
                                                     // Add space before main tests to separate groups visually, unless it's the very first test below a panel heading
                                                     const renderSpacer = isMainTest && rowIdx > 0 && pageRows[rowIdx - 1]?.type !== "PANEL";
 
@@ -348,22 +382,22 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                                         {row.name?.name || "Unknown test"}
                                                                     </p>
                                                                 </td>
-                                                            <td className="px-2 py-1 text-right font-bold text-[11px] leading-tight">
-                                                                <span className={isAbnormal ? "text-rose-600 font-black" : "text-black"}>
-                                                                    {row.value || "—"}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-2 py-1 text-center text-black text-[10px] font-medium leading-tight">
-                                                                {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
-                                                                    <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
-                                                                ) : (
-                                                                    "—"
-                                                                )}
-                                                            </td>
-                                                            <td className="px-2 py-1 text-[10px] font-semibold text-black leading-tight">
-                                                                {min !== undefined && max !== undefined ? `${min} - ${max}` : "—"}
-                                                            </td>
-                                                        </tr>
+                                                                <td className="px-2 py-1 text-right font-bold text-[11px] leading-tight">
+                                                                    <span className={isAbnormal ? "text-rose-600 font-black" : "text-black"}>
+                                                                        {row.value || "—"}
+                                                                    </span>
+                                                                </td>
+                                                                <td className="px-2 py-1 text-center text-black text-[10px] font-medium leading-tight">
+                                                                    {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
+                                                                        <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
+                                                                    ) : (
+                                                                        "—"
+                                                                    )}
+                                                                </td>
+                                                                <td className="px-2 py-1 text-[10px] font-semibold text-black leading-tight">
+                                                                    {min !== undefined && max !== undefined ? `${min} - ${max}` : "—"}
+                                                                </td>
+                                                            </tr>
                                                         </React.Fragment>
                                                     );
                                                 })}
@@ -437,14 +471,14 @@ export default function ReportCard({ report }: ReportCardProps) {
                             <div className="bottom-grouping">
                                 {isLastPage && (
                                     <>
-                                        <div className="border-2 border-black rounded-lg p-2 bg-slate-50 note-section">
+                                        <div className="border-2 border-black-light rounded-lg p-2 bg-slate-50 note-section mx-10">
                                             <p className="font-black text-[10px] uppercase tracking-widest text-black mb-1">Note</p>
                                             <p className="text-black leading-relaxed font-bold italic text-[11px]">
                                                 {"The results should be correlated clinically."}
                                             </p>
                                         </div>
 
-                                        <div className="flex justify-end signature-section pb-0">
+                                        <div className="flex justify-end signature-section pb-2 px-10">
                                             <div className="text-center w-64 mt-5">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
                                                 <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[11px]">LAB IN-CHARGE</p>
@@ -454,12 +488,12 @@ export default function ReportCard({ report }: ReportCardProps) {
                                     </>
                                 )}
 
-                                <div className="bg-slate-50 border-t border-slate-500 px-2 py-0 text-[10px] text-black flex justify-between items-center footer">
-                                    <div className="space-y-0">
-                                        <p className="text-black font-bold text-[9px]">Please consult your physician with this report.</p>
-                                        <p className="text-black font-medium text-[9px]">For Appointments: <span className="font-bold">+91 83019 26155 · 04931 240077</span></p>
+                                <div className="px-10 py-3 text-black flex justify-between items-center footer mt-2" style={{ backgroundColor: '#f2cdbf' }}>
+                                    <div className="space-y-0.5">
+                                        <p className="text-black font-bold text-[11px]">Please consult your physician with this report.</p>
+                                        <p className="text-black font-medium text-[11px]">For Appointments: <span className="font-bold">+91 83019 26155 · 04931 240077</span></p>
                                     </div>
-                                    <p className="text-black font-medium text-[9px]">Powered by <span className="font-bold">Synapse IT Services LLP</span></p>
+                                    <p className="text-black font-medium text-[11px]">Powered by <span className="font-bold">Synapse IT Services LLP</span></p>
                                 </div>
                             </div>
                         </div>
