@@ -12,11 +12,13 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { ReceiptIndianRupee, PlusCircle } from "lucide-react";
 import { motion } from "framer-motion";
 import Filters from "./Filter";
+import { endOfDay, startOfDay, subDays } from "date-fns";
 
 export interface FilterType {
   q: null | string;
   status: string;
   method: string;
+  activeDate: string;
   date: undefined | Date;
   page: number;
   limit: number;
@@ -28,6 +30,7 @@ export default function BillingPage() {
     q: null,
     status: "",
     method: "",
+    activeDate: "Today",
     date: undefined,
     page: 1,
     limit: 10,
@@ -46,9 +49,24 @@ export default function BillingPage() {
   if (filter.method !== "all") {
     params.set("method", filter.method);
   }
-  if (filter.date) {
-    params.set("date", filter.date.toISOString());
+
+  let sd: Date = startOfDay(new Date());
+  let ed: Date = endOfDay(new Date());
+
+  if (filter.activeDate === "Today") {
+    sd = startOfDay(new Date());
+  } else if (filter.activeDate === "7 days") {
+    sd = startOfDay(subDays(new Date(), 7));
+  } else if (filter.activeDate === "30 days") {
+    sd = startOfDay(subDays(new Date(), 30));
+  } else if (filter.activeDate === "Custom" && filter.date) {
+    sd = startOfDay(filter.date);
+    ed = endOfDay(filter.date);
   }
+
+  params.set("startDate", sd.toISOString());
+  params.set("endDate", ed.toISOString());
+  params.set("activeDate", filter.activeDate);
 
   params.set("page", String(filter.page));
   params.set("limit", String(filter.limit));
