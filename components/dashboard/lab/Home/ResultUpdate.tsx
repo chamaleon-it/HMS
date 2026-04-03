@@ -251,6 +251,9 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                       <TableHead className="w-[30%] py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         Result Value
                       </TableHead>
+                      <TableHead className="w-[30%] py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        Unit
+                      </TableHead>
                       <TableHead className="w-[25%] pr-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         Reference Range
                       </TableHead>
@@ -441,12 +444,19 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                                 }}
                               />
                             )}
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
+                            {/* <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
                               <span className="text-xs font-medium text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
                                 {labTest.name?.unit}
                               </span>
-                            </div>
+                            </div> */}
                           </div>
+                        </TableCell>
+                        <TableCell className="pr-6 py-4 text-right">
+                          <div className="flex flex-col items-end gap-0.5">
+                              <span className="text-sm font-medium text-gray-700">
+                                {labTest.name?.unit}
+                              </span>
+                            </div>
                         </TableCell>
                         <TableCell className="pr-6 py-4 text-right">
                           <div className="flex flex-col items-end gap-0.5">

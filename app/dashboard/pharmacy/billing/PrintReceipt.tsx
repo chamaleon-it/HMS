@@ -195,7 +195,7 @@ export default function PrintReceipt({
                         </p>
                     </div>
                     <p className="text-black">
-                        Powered by <span className="font-bold text-black tracking-tight uppercase">Synapse IT Services LLP</span>
+                        Powered by <span className="font-bold text-black tracking-tight uppercase">Caresoft Innovations LLP</span>
                     </p>
                 </div>
             </div>
