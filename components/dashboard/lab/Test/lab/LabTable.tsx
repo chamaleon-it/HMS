@@ -197,7 +197,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                     </td>
                                     <td className="px-3 py-2 text-sm text-gray-600">
                                         <div className="flex items-center gap-2">
-                                            {r.doctor._id !== user?._id ? <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name}</span> : <span>Direct</span>}
+                                            {r?.doctor?._id ? <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name}</span> : <span>Self</span>}
                                         </div>
                                     </td>
 

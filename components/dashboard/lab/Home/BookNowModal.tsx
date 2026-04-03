@@ -33,7 +33,7 @@ import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
 import DateTimePicker from "./DateTimePicker";
 import { formatINR } from "@/lib/fNumber";
-import TechnicianSelection from "./PharmacistSelection";
+import TechnicianSelection from "./TechnicianSelection";
 
 interface BookNowModalProps {
     patient: any;

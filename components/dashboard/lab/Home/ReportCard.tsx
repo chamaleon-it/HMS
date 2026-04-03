@@ -241,13 +241,13 @@ export default function ReportCard({ report }: ReportCardProps) {
                             <div className="relative w-full bg-white text-black mb-4 flex flex-col pt-0 break-inside-avoid">
                                 {/* Top Bar */}
                                 <div className="w-full h-[20px]" style={{ backgroundColor: '#f2cdbf' }}></div>
-                                
+
                                 {/* Content Wrapper */}
                                 <div className="w-full relative flex justify-between items-start pt-[16px] pb-[5px] px-10">
                                     <div className="relative z-10 w-[60%]">
                                         <HospitalName />
                                     </div>
-                                    
+
                                     {/* Date */}
                                     <div className="absolute right-10 top-[112px] z-10">
                                         <p className="text-[12px] text-black font-semibold tracking-wide">
@@ -258,15 +258,15 @@ export default function ReportCard({ report }: ReportCardProps) {
                                         </p>
                                     </div>
                                 </div>
-                                
+
                                 {/* Ribbon Wrapper */}
-                                <div className="absolute right-0 top-[20px] w-[50%] z-[1] flex flex-col items-end">
+                                <div className="absolute right-0 top-[20px] w-[50%] z-1 flex flex-col items-end">
                                     {/* Darker coral upper shape */}
-                                    <div 
+                                    <div
                                         className="h-[56px] w-[340px] flex items-center justify-end"
-                                        style={{ 
-                                            backgroundColor: '#d66a54', 
-                                            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 37px 100%)' 
+                                        style={{
+                                            backgroundColor: '#d66a54',
+                                            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 37px 100%)'
                                         }}
                                     >
                                         <span className="text-white text-[26px] font-sans font-medium tracking-wide pr-[45px]">
@@ -274,11 +274,11 @@ export default function ReportCard({ report }: ReportCardProps) {
                                         </span>
                                     </div>
                                     {/* Lighter coral lower shape */}
-                                    <div 
+                                    <div
                                         className="h-[24px] w-[200px]"
-                                        style={{ 
-                                            backgroundColor: '#e6a69a', 
-                                            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 16px 100%)' 
+                                        style={{
+                                            backgroundColor: '#e6a69a',
+                                            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 16px 100%)'
                                         }}
                                     ></div>
                                 </div>
@@ -293,8 +293,8 @@ export default function ReportCard({ report }: ReportCardProps) {
                                             <div className="space-y-1">
                                                 <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Name</span><span className="font-bold text-slate-900">: {patient?.name || "—"}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Age/Sex</span><span className="font-bold text-slate-900">: {`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "—"} / ${patient?.gender || "—"}`}</span></div>
-                                                {/* <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: {doctor?.name ? `Dr. ${doctor.name}` : "DIRECT"}</span></div> */}
-                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: Dr. Nader Shah</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
+                                                {/* <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: Dr. Nader Shah</span></div> */}
                                             </div>
                                             <div className="space-y-1">
                                                 <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Sample Collected Date</span><span className="font-bold text-slate-900">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
@@ -361,7 +361,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                     let isAbnormal = false;
                                                     const min = row.name?.min;
                                                     const max = row.name?.max;
-                                                    if (!isNaN(value) && ((min !== undefined && min!==null && value < min) || (max !== undefined && max!==null && value > max))) {
+                                                    if (!isNaN(value) && ((min !== undefined && min !== null && value < min) || (max !== undefined && max !== null && value > max))) {
                                                         isAbnormal = true;
                                                     }
                                                     const isMainTest = ["WBC", "HGB", "RBC", "PLT", "ESR"].some(main => typeof row.name?.name === 'string' && row.name.name.startsWith(main));
@@ -482,7 +482,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                             <div className="text-center w-64">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
                                                 <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[11px]">LAB IN-CHARGE</p>
-                                                {/* <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p> */}
+                                                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p>
                                             </div>
                                             <div className="text-center w-64">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
