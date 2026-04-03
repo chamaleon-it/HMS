@@ -411,7 +411,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                                   type="text"
                                   id={`result-input-${labTest._id}`}
                                   placeholder="Enter result"
-                                  className="pl-3 pr-12 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
+                                  className="pl-2 pr-2 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
                                 />
                               )
                             ) : (
@@ -444,11 +444,6 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                                 }}
                               />
                             )}
-                            {/* <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-                              <span className="text-xs font-medium text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
-                                {labTest.name?.unit}
-                              </span>
-                            </div> */}
                           </div>
                         </TableCell>
                         <TableCell className="pr-6 py-4 text-right">
