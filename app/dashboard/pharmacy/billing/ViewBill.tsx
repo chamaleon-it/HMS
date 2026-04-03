@@ -242,7 +242,7 @@ export default function ViewBill({ id }: { id: string }) {
                             </p>
                         </div>
                         <p className="text-slate-500">
-                            Powered by <span className="font-bold text-slate-300 tracking-tight uppercase">Synapse IT Services LLP</span>
+                            Powered by <span className="font-bold text-slate-300 tracking-tight uppercase">Caresoft Innovations LLP</span>
                         </p>
                     </div>
                 </div>

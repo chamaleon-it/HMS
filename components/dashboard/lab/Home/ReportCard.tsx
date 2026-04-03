@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import Watermark from "@/components/print/Watermark";
-import LabName from "@/components/print/LabName";
+import HospitalName from "@/components/print/HospitalName";
 import { Badge } from "@/components/ui/badge";
 
 interface ReportCardProps {
@@ -245,7 +245,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                 {/* Content Wrapper */}
                                 <div className="w-full relative flex justify-between items-start pt-[16px] pb-[5px] px-10">
                                     <div className="relative z-10 w-[60%]">
-                                        <LabName />
+                                        <HospitalName />
                                     </div>
                                     
                                     {/* Date */}
@@ -294,12 +294,12 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                 <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Name</span><span className="font-bold text-slate-900">: {patient?.name || "—"}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Age/Sex</span><span className="font-bold text-slate-900">: {`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "—"} / ${patient?.gender || "—"}`}</span></div>
                                                 {/* <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: {doctor?.name ? `Dr. ${doctor.name}` : "DIRECT"}</span></div> */}
-                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: Dr. Nadirsha</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: Dr. Nader Shah</span></div>
                                             </div>
                                             <div className="space-y-1">
-                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Collected Date</span><span className="font-bold text-slate-900">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Reported Date</span><span className="font-bold text-slate-900">: {report.createdAt ? fDateandTime(report.createdAt).split(",")[0] : "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Printed Date</span><span className="font-bold text-slate-900">: {fDateandTime(new Date()).split(",")[0]}</span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Sample Collected Date</span><span className="font-bold text-slate-900">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Result Reported Date</span><span className="font-bold text-slate-900">: {report.createdAt ? fDateandTime(report.createdAt).split(",")[0] : "—"}</span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Result Printed Date</span><span className="font-bold text-slate-900">: {fDateandTime(new Date()).split(",")[0]}</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -349,7 +349,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                             <tr key={`panel-${rowIdx}`}>
                                                                 <td colSpan={4} className="px-2 pt-3 pb-3">
                                                                     {row.name.toUpperCase() === "CBC" ? (
-                                                                        <p className="font-black text-black text-[12px] uppercase tracking-widest mt-1">HEMATOLOGY ANALYSIS REPORT</p>
+                                                                        <p className="font-black text-black text-[12px] uppercase tracking-widest mt-1">HAEMATOLOGY ANALYSIS REPORT</p>
                                                                     ) : (
                                                                         <p className="font-black text-black text-[10px] uppercase tracking-widest mt-1">{row.name}</p>
                                                                     )}
@@ -361,7 +361,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                     let isAbnormal = false;
                                                     const min = row.name?.min;
                                                     const max = row.name?.max;
-                                                    if (!isNaN(value) && ((min !== undefined && value < min) || (max !== undefined && value > max))) {
+                                                    if (!isNaN(value) && ((min !== undefined && min!==null && value < min) || (max !== undefined && max!==null && value > max))) {
                                                         isAbnormal = true;
                                                     }
                                                     const isMainTest = ["WBC", "HGB", "RBC", "PLT", "ESR"].some(main => typeof row.name?.name === 'string' && row.name.name.startsWith(main));
@@ -382,20 +382,20 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                                         {row.name?.name || "Unknown test"}
                                                                     </p>
                                                                 </td>
-                                                                <td className="px-2 py-1 text-right font-bold text-[11px] leading-tight">
-                                                                    <span className={isAbnormal ? "text-rose-600 font-black" : "text-black"}>
-                                                                        {row.value || "—"}
+                                                                <td className="px-2 py-1 text-right text-[11px] leading-tight">
+                                                                    <span className={isAbnormal ? "font-bold" : "text-black"}>
+                                                                        {row.value || " "}
                                                                     </span>
                                                                 </td>
                                                                 <td className="px-2 py-1 text-center text-black text-[10px] font-medium leading-tight">
                                                                     {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
                                                                         <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
                                                                     ) : (
-                                                                        "—"
+                                                                        " "
                                                                     )}
                                                                 </td>
                                                                 <td className="px-2 py-1 text-[10px] font-semibold text-black leading-tight">
-                                                                    {min !== undefined && max !== undefined ? `${min} - ${max}` : "—"}
+                                                                    {min != null && min !== "" && max != null && max !== "" ? `${min} - ${max}` : "\u00A0"}
                                                                 </td>
                                                             </tr>
                                                         </React.Fragment>
@@ -416,7 +416,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                             src={`data:image/png;base64,${report.graphs['WBC Histogram. BMP']}`}
                                                             alt="WBC Histogram"
                                                             className="w-full h-[120px] object-contain object-left mix-blend-multiply"
-                                                            style={{ filter: "url(#edge-detect-hms) invert(1) contrast(500%) grayscale(100%)" }}
+                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                         />
                                                     </div>
                                                 ) : (
@@ -434,7 +434,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                             src={`data:image/png;base64,${report.graphs['RBC Histogram. BMP']}`}
                                                             alt="RBC Histogram"
                                                             className="w-full h-[120px] object-contain object-left mix-blend-multiply"
-                                                            style={{ filter: "url(#edge-detect-hms) invert(1) contrast(500%) grayscale(100%)" }}
+                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                         />
                                                     </div>
                                                 ) : (
@@ -452,7 +452,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                             src={`data:image/png;base64,${report.graphs['PLT Histogram. BMP']}`}
                                                             alt="PLT Histogram"
                                                             className="w-full h-[120px] object-contain object-left mix-blend-multiply"
-                                                            style={{ filter: "url(#edge-detect-hms) invert(1) contrast(500%) grayscale(100%)" }}
+                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                         />
                                                     </div>
                                                 ) : (
@@ -478,11 +478,16 @@ export default function ReportCard({ report }: ReportCardProps) {
                                             </p>
                                         </div>
 
-                                        <div className="flex justify-end signature-section pb-2 px-10">
-                                            <div className="text-center w-64 mt-5">
+                                        <div className="flex justify-between signature-section pb-2 px-10 mt-5">
+                                            <div className="text-center w-64">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
                                                 <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[11px]">LAB IN-CHARGE</p>
-                                                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p>
+                                                {/* <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p> */}
+                                            </div>
+                                            <div className="text-center w-64">
+                                                {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
+                                                <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[11px]">LAB TECHNICIAN</p>
+                                                {/* <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p> */}
                                             </div>
                                         </div>
                                     </>
@@ -493,7 +498,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                         <p className="text-black font-bold text-[11px]">Please consult your physician with this report.</p>
                                         <p className="text-black font-medium text-[11px]">For Appointments: <span className="font-bold">+91 83019 26155 · 04931 240077</span></p>
                                     </div>
-                                    <p className="text-black font-medium text-[11px]">Powered by <span className="font-bold">Synapse IT Services LLP</span></p>
+                                    <p className="text-black font-medium text-[11px]">Powered by <span className="font-bold">Caresoft Innovations LLP</span></p>
                                 </div>
                             </div>
                         </div>
