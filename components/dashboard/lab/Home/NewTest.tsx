@@ -43,13 +43,13 @@ import api from "@/lib/axios";
 import { cn } from "@/lib/utils";
 
 import useGetTest from "@/data/useGetTest";
-import Drawer from "@/components/ui/drawer";
 import { RegisterPatient } from "./RegisterPatient";
 import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
 import DateTimePicker from "./DateTimePicker";
 import { formatINR } from "@/lib/fNumber";
-import TechnicianSelection from "./PharmacistSelection";
+import TechnicianSelection from "./TechnicianSelection";
+import DoctorSelection from "./DoctorSelection";
 
 
 interface NewTestProps {
@@ -77,6 +77,7 @@ export default function NewTest({
 
   const [openCreate, setOpenCreate] = useState(false);
   const [internalOpen, setInternalOpen] = useState(false);
+  const [input, setInput] = useState("");
 
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
@@ -99,7 +100,7 @@ export default function NewTest({
   ] as const;
   const [payload, setPayload] = useState<{
     patient: string;
-    doctor: string;
+    doctor?: string;
     lab: string;
     test: { name: string }[];
     panels: string[];
@@ -110,7 +111,6 @@ export default function NewTest({
     technician: string;
   }>({
     patient: "",
-    doctor: user?._id ?? "",
     lab: user?._id ?? "",
     test: [],
     panels: [],
@@ -238,6 +238,8 @@ export default function NewTest({
         </DialogHeader>
         <div className="flex justify-between items-center">
           <PatientSelection
+            input={input}
+            setInput={setInput}
             setValue={(id: string) => {
               setPayload((prev) => ({ ...prev, patient: id }));
             }}
@@ -284,15 +286,42 @@ export default function NewTest({
           </div>
         </div>
 
-        <TechnicianSelection
-          className="max-w-72"
-          setValue={(id: string) => {
-            setPayload((prev) => ({ ...prev, technician: id }));
-          }}
-          technicianName={payload.technician}
-        />
-
         <div className="flex gap-2 justify-between w-full">
+          <DoctorSelection
+            className="max-w-72"
+            setValue={(id: string) => {
+              setPayload((prev) => ({ ...prev, doctor: id }));
+            }}
+            doctor={payload.doctor}
+          />
+
+          <TechnicianSelection
+            className="max-w-72"
+            setValue={(id: string) => {
+              setPayload((prev) => ({ ...prev, technician: id }));
+            }}
+            technicianName={payload.technician}
+          />
+
+          <div className="flex items-end gap-2 ">
+
+            <Button
+              type="button"
+              variant={payload.priority === "Urgent" ? "default" : "outline"}
+              className={payload.priority === "Urgent" ? "bg-amber-500 hover:bg-amber-600 text-white" : "border-amber-200 text-amber-600 hover:bg-amber-50"}
+              onClick={(e) => {
+                e.preventDefault();
+                setPayload(prev => ({ ...prev, priority: prev.priority === "Urgent" ? "Normal" : "Urgent" }));
+              }}
+            >
+              <AlertTriangle className="w-4 h-4 mr-2" />
+              Urgent
+            </Button>
+          </div>
+        </div>
+        <div className="flex gap-2 justify-between w-full">
+
+
           <div className="w-[300px]">
             <LabeledCombobox
               label="Select a Test"
@@ -358,18 +387,7 @@ export default function NewTest({
           </div>
 
           <div className="flex gap-2 items-center">
-            <Button
-              type="button"
-              variant={payload.priority === "Urgent" ? "default" : "outline"}
-              className={payload.priority === "Urgent" ? "bg-amber-500 hover:bg-amber-600 text-white" : "border-amber-200 text-amber-600 hover:bg-amber-50"}
-              onClick={(e) => {
-                e.preventDefault();
-                setPayload(prev => ({ ...prev, priority: prev.priority === "Urgent" ? "Normal" : "Urgent" }));
-              }}
-            >
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              Urgent
-            </Button>
+
             {bookingType === "Schedule" && (
               <DateTimePicker
                 date={payload.date}
@@ -393,47 +411,53 @@ export default function NewTest({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {payload.panels.map((t, idx) => (
-              <TableRow key={t}>
-                <TableCell>{idx + 1}</TableCell>
-                <TableCell>{t}</TableCell>
-                <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
-                <TableCell>-</TableCell>
+            {payload.panels.map((t, idx) => {
+              const panelTests = tests.filter((test) =>
+                test.panels?.some((panel) => panel.name === t)
+              );
+              const totalTime = panelTests.reduce((acc, curr) => acc + (Number(curr.estimatedTime) || 0), 0);
+              return (
+                <TableRow key={t}>
+                  <TableCell>{idx + 1}</TableCell>
+                  <TableCell>{t}</TableCell>
+                  <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
+                  <TableCell>{totalTime || "-"}</TableCell>
 
-                {/* <TableCell>-</TableCell>
-                <TableCell>-</TableCell>
-                <TableCell>-</TableCell> */}
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setPayload((prev) => {
-                        if (!prev.panels.includes(t)) return prev;
+                  {/* <TableCell>-</TableCell>
+                  <TableCell>-</TableCell>
+                  <TableCell>-</TableCell> */}
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      className="cursor-pointer"
+                      onClick={() => {
+                        setPayload((prev) => {
+                          if (!prev.panels.includes(t)) return prev;
 
-                        const relatedTestIds = new Set(
-                          tests
-                            .filter((test) =>
-                              test.panels?.some((panel) => panel.name === t)
-                            )
-                            .map((test) => test._id)
-                        );
+                          const relatedTestIds = new Set(
+                            tests
+                              .filter((test) =>
+                                test.panels?.some((panel) => panel.name === t)
+                              )
+                              .map((test) => test._id)
+                          );
 
-                        return {
-                          ...prev,
-                          panels: prev.panels.filter((panel) => panel !== t),
-                          test: prev.test.filter(
-                            (testItem) => !relatedTestIds.has(testItem.name)
-                          ),
-                        };
-                      });
-                    }}
-                  >
-                    <Trash className="h-2 w-2 text-red-500" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+                          return {
+                            ...prev,
+                            panels: prev.panels.filter((panel) => panel !== t),
+                            test: prev.test.filter(
+                              (testItem) => !relatedTestIds.has(testItem.name)
+                            ),
+                          };
+                        });
+                      }}
+                    >
+                      <Trash className="h-2 w-2 text-red-500" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
             {payload.test.filter(t => {
               const found = tests.find((test) => test._id === t.name)
               const panelExist = found?.panels?.find(p => payload.panels.includes(p.name))
@@ -498,13 +522,17 @@ export default function NewTest({
         </DialogFooter>
       </DialogContent>
 
-      <Drawer
-        open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        title="Patient Register"
-      >
-        <RegisterPatient onClose={() => setOpenCreate(false)} />
-      </Drawer>
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            patient={{ name: input }}
+            onClose={() => setOpenCreate(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

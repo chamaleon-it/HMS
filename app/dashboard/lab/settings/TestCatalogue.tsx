@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Save } from "lucide-react";
+import { Plus, Save } from "lucide-react";
 import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -38,6 +38,63 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+const useDragScroll = () => {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    let isDown = false;
+    let startX: number;
+    let scrollLeft: number;
+
+    const onMouseDown = (e: MouseEvent) => {
+      if (e.button !== 0) return; // Only left click
+      isDown = true;
+      el.style.cursor = "grabbing";
+      el.style.userSelect = "none";
+      startX = e.pageX - el.offsetLeft;
+      scrollLeft = el.scrollLeft;
+    };
+
+    const onMouseLeave = () => {
+      isDown = false;
+      el.style.cursor = "grab";
+      el.style.userSelect = "";
+    };
+
+    const onMouseUp = () => {
+      isDown = false;
+      el.style.cursor = "grab";
+      el.style.userSelect = "";
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDown) return;
+      e.preventDefault();
+      const x = e.pageX - el.offsetLeft;
+      const walk = (x - startX) * 1.5; // Scroll speed
+      el.scrollLeft = scrollLeft - walk;
+    };
+
+    el.style.cursor = "grab";
+    el.addEventListener("mousedown", onMouseDown);
+    el.addEventListener("mouseleave", onMouseLeave);
+    el.addEventListener("mouseup", onMouseUp);
+    el.addEventListener("mousemove", onMouseMove);
+
+    return () => {
+      el.removeEventListener("mousedown", onMouseDown);
+      el.removeEventListener("mouseleave", onMouseLeave);
+      el.removeEventListener("mouseup", onMouseUp);
+      el.removeEventListener("mousemove", onMouseMove);
+    };
+  }, []);
+
+  return ref;
+};
+
 export default function TestCatalogue({
   profile,
   profileMutate,
@@ -49,8 +106,6 @@ export default function TestCatalogue({
     showProfilesOnPatientBill: false,
     allowEditingPanelComposition: false,
   });
-
-
 
   useEffect(() => {
     setPayload((prev) => ({
@@ -70,6 +125,9 @@ export default function TestCatalogue({
   const [isNewPanelModalOpen, setIsNewPanelModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [panelSearchQuery, setPanelSearchQuery] = useState("");
+
+  const testsRef = useDragScroll();
+  const panelsRef = useDragScroll();
 
   const updateCatalogueSettings = async () => {
     try {
@@ -92,23 +150,34 @@ export default function TestCatalogue({
     name: string;
     price: number;
     type: "Lab" | "Imaging" | "";
-    min?: number;
-    max?: number;
-    womenMin?: number;
-    womenMax?: number;
-    childMin?: number;
-    childMax?: number;
-    nbMin?: number;
-    nbMax?: number;
-    unit?: string;
+    min: number | null | undefined;
+    max: number | null | undefined;
+    womenMin: number | null | undefined;
+    womenMax: number | null | undefined;
+    childMin: number | null | undefined;
+    childMax: number | null | undefined;
+    nbMin: number | null | undefined;
+    nbMax: number | null | undefined;
+    unit: string | null | undefined;
     estimatedTime?: string;
-    dataType: "number" | "text" | "boolean"
+    dataType: "number" | "text" | "boolean" | "options";
+    options: string[];
   }>({
     code: "",
     name: "",
     price: 0,
     type: "",
-    dataType: "number"
+    dataType: "number",
+    min: null,
+    max: null,
+    womenMin: null,
+    womenMax: null,
+    childMin: null,
+    childMax: null,
+    nbMin: null,
+    nbMax: null,
+    unit: null,
+    options: []
   });
 
   const addNewTest = async () => {
@@ -118,12 +187,29 @@ export default function TestCatalogue({
         return;
       }
       let finalPayload = { ...newTest };
+
+      if (newTest.dataType !== "number") {
+        finalPayload.min = null;
+        finalPayload.max = null;
+        finalPayload.womenMin = null;
+        finalPayload.womenMax = null;
+        finalPayload.childMin = null;
+        finalPayload.childMax = null;
+        finalPayload.nbMin = null;
+        finalPayload.nbMax = null;
+        if (newTest.dataType === "boolean" || newTest.dataType === "options") {
+          delete finalPayload.unit;
+        }
+      }
+
       if (newTest.estimatedTime && typeof newTest.estimatedTime === 'string') {
         const [hoursStr, minutesStr] = newTest.estimatedTime.split(':');
         const hours = parseInt(hoursStr || '0', 10);
         const minutes = parseInt(minutesStr || '0', 10);
         finalPayload.estimatedTime = (hours * 60 + minutes) as any;
       }
+
+      console.log(finalPayload);
 
       await toast.promise(api.post("/lab/panels/create_test", finalPayload), {
         loading: "Adding test...",
@@ -138,7 +224,17 @@ export default function TestCatalogue({
         name: "",
         price: 0,
         type: "",
-        dataType: "number"
+        dataType: "number",
+        min: null,
+        max: null,
+        womenMin: null,
+        womenMax: null,
+        childMin: null,
+        childMax: null,
+        nbMin: null,
+        nbMax: null,
+        unit: null,
+        options: []
       });
       setIsNewTestModalOpen(false);
 
@@ -151,7 +247,6 @@ export default function TestCatalogue({
   const filteredPanels = panels.filter((panel) =>
     panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase())
   );
-
 
   const { data, mutate: testMutate } = useSWR<{
     message: string;
@@ -172,6 +267,7 @@ export default function TestCatalogue({
       nbMax?: number;
       unit?: string;
       estimatedTime?: string;
+      options: string[];
       panels: {
         name: string;
       }[]
@@ -241,7 +337,6 @@ export default function TestCatalogue({
                     />
                   </div>
 
-
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Price *</Label>
                     <Input
@@ -272,11 +367,6 @@ export default function TestCatalogue({
                     </Select>
                   </div>
 
-
-
-
-
-
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Estimated Duration (HH:MM)</Label>
                     <Input
@@ -297,7 +387,7 @@ export default function TestCatalogue({
                     <Label className="text-xs font-medium text-slate-700">Unit</Label>
                     <Input
                       placeholder="e.g. mg/dL"
-                      value={newTest.unit}
+                      value={newTest.unit ?? ""}
                       onChange={(e) =>
                         setNewTest((prev) => ({ ...prev, unit: e.target.value }))
                       }
@@ -309,7 +399,9 @@ export default function TestCatalogue({
                     <Label className="text-xs font-medium text-slate-700">Data Type *</Label>
                     <Select
                       value={newTest.dataType}
-                      onValueChange={(val: "number" | "text" | "boolean") => setNewTest(prev => ({ ...prev, dataType: val }))}
+                      onValueChange={(val: "number" | "text" | "boolean" | "options") => {
+                        setNewTest((prev) => ({ ...prev, dataType: val }));
+                      }}
                     >
                       <SelectTrigger className="h-9 bg-slate-50 w-full">
                         <SelectValue placeholder="Select type" />
@@ -318,9 +410,62 @@ export default function TestCatalogue({
                         <SelectItem value="number">Number</SelectItem>
                         <SelectItem value="text">Text</SelectItem>
                         <SelectItem value="boolean">Positive/Negative</SelectItem>
+                        <SelectItem value="options">Options</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
+                  {newTest.dataType === "options" && <>
+                    <div className="col-span-4 space-y-1.5 ">
+                      <Label className="text-xs font-medium text-slate-700">Add Options</Label>
+                      <div className="flex gap-2">
+                        <Input
+                          type="text"
+                          className="h-9 bg-slate-50 flex-1"
+                          placeholder="Enter Option"
+                          id="option-input"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              const input = e.currentTarget;
+                              const value = input.value.trim();
+                              if (value) {
+                                setNewTest(prev => ({ ...prev, options: [...prev.options, value] }));
+                                input.value = '';
+                              }
+                            }
+                          }}
+                        />
+                        <Button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            const input = document.getElementById('option-input') as HTMLInputElement;
+                            const value = input.value.trim();
+                            if (value) {
+                              setNewTest(prev => ({ ...prev, options: [...prev.options, value] }));
+                              input.value = '';
+                            }
+                          }}
+                          className="h-9 w-9 p-0 bg-slate-50 shrink-0"
+                        >
+                          <Plus className="h-4 w-4" color="grey"/>
+                        </Button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {newTest.options.map((opt, i) => (
+                          <div key={i} className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">
+                            <span>{opt}</span>
+                            <button 
+                              onClick={() => setNewTest(prev => ({ ...prev, options: prev.options.filter((_, idx) => idx !== i) }))}
+                              className="text-slate-400 hover:text-red-500"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>}
+
                   {newTest.dataType === "number" && <>
 
                     <div className="col-span-3 space-y-1.5">
@@ -328,40 +473,35 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="0"
-                        value={newTest.min || ""}
+                        value={newTest.min ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, min: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, min: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
                     </div>
-
-
 
                     <div className="col-span-3 space-y-1.5">
                       <Label className="text-xs font-medium text-slate-700">Range Max</Label>
                       <Input
                         type="number"
                         placeholder="100"
-                        value={newTest.max || ""}
+                        value={newTest.max ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, max: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, max: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
                     </div>
-
-
-
 
                     <div className="col-span-3 space-y-1.5">
                       <Label className="text-xs font-medium text-slate-700">Women Range Min</Label>
                       <Input
                         type="number"
                         placeholder="0"
-                        value={newTest.womenMin || ""}
+                        value={newTest.womenMin ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, womenMin: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, womenMin: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -371,9 +511,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="100"
-                        value={newTest.womenMax || ""}
+                        value={newTest.womenMax ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, womenMax: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, womenMax: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -384,9 +524,9 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="0"
-                        value={newTest.childMin || ""}
+                        value={newTest.childMin ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, childMin: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, childMin: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -396,23 +536,22 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="100"
-                        value={newTest.childMax || ""}
+                        value={newTest.childMax ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, childMax: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, childMax: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
                     </div>
-
 
                     <div className="col-span-3 space-y-1.5">
                       <Label className="text-xs font-medium text-slate-700">Newborn Range Min</Label>
                       <Input
                         type="number"
                         placeholder="0"
-                        value={newTest.nbMin || ""}
+                        value={newTest.nbMin ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, nbMin: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, nbMin: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
@@ -422,13 +561,12 @@ export default function TestCatalogue({
                       <Input
                         type="number"
                         placeholder="100"
-                        value={newTest.nbMax || ""}
+                        value={newTest.nbMax ?? ""}
                         onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, nbMax: Number(e.target.value) }))
+                          setNewTest((prev) => ({ ...prev, nbMax: e.target.value === "" ? null : Number(e.target.value) }))
                         }
                         className="h-9 bg-slate-50"
                       />
-
                     </div>
                   </>}
 
@@ -455,7 +593,10 @@ export default function TestCatalogue({
 
           <div className="mt-8">
             <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Tests</h4>
-            <div className="rounded-lg border border-slate-200 overflow-y-auto max-h-[calc(100vh-270px)]">
+            <div
+              ref={testsRef}
+              className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] **:data-[slot=table-container]:overflow-visible custom-scrollbar"
+            >
               <Table>
                 <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                   <TableRow>
@@ -534,7 +675,10 @@ export default function TestCatalogue({
 
             <div className="mt-8">
               <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Panels</h4>
-              <div className="rounded-lg border border-slate-200 overflow-y-auto max-h-[calc(100vh-270px)]">
+              <div
+                ref={panelsRef}
+                className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] **:data-[slot=table-container]:overflow-visible custom-scrollbar"
+              >
                 <Table>
                   <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                     <TableRow>

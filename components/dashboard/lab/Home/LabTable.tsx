@@ -5,7 +5,7 @@ import ViewResultModal from "./ViewResultModal";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Clock, Flag, FlagOff, Play, Printer,  RotateCcw, Trash2, X } from "lucide-react";
+import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, Trash2, X } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
@@ -118,6 +118,7 @@ interface PropsTypes {
     panels: string[];
     sampleCollectedAt: Date | null;
     status: string;
+    technician?: string;
     createdAt: Date;
     updatedAt: Date;
   }[];
@@ -307,7 +308,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                   <td className="px-3 py-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      {r.doctor._id !== user?._id ? (
+                      {r?.doctor?._id ? (
                         <span
                           className="truncate max-w-25"
                           title={r.doctor.name}
@@ -315,7 +316,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                           Dr. {r.doctor.name}
                         </span>
                       ) : (
-                        <span>Direct</span>
+                        <span>Self</span>
                       )}
                     </div>
                   </td>

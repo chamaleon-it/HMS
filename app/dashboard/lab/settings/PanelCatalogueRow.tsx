@@ -101,6 +101,7 @@ export default function PanelCatalogueRow({
     const [editOpen, setEditOpen] = useState(false);
     const [viewOpen, setViewOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Edit Modal State
     const [payload, setPayload] = useState({
@@ -184,9 +185,21 @@ export default function PanelCatalogueRow({
     }, [payload, selectedTests, panel.name, panelMutate]);
 
     const deletePanel = useCallback(async () => {
-        toast.success("Panel delete action triggered (Backend deletion disabled/not implemented)");
-        setDeleteOpen(false);
-    }, []);
+        try {
+            setIsDeleting(true);
+            await toast.promise(api.delete(`/lab/panels/${panel.name}`), {
+                loading: "Deleting Panel...",
+                success: "Panel deleted successfully",
+                error: ({ response }) => response.data.message,
+            });
+            panelMutate();
+            setDeleteOpen(false);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsDeleting(false);
+        }
+    }, [panel.name, panelMutate]);
 
     const handleAddTest = (test: any) => {
         if (!selectedTests.find(t => t._id === test._id)) {
@@ -312,7 +325,7 @@ export default function PanelCatalogueRow({
                                     <Label className="text-slate-800 font-bold mb-2 block border-b pb-2">Modify Tests in Panel</Label>
                                     <div className="rounded-md border border-slate-200 overflow-hidden">
                                         <div
-                                            className="max-h-[400px] overflow-y-auto w-full"
+                                            className="max-h-100 overflow-y-auto w-full"
                                             onWheel={(e) => e.stopPropagation()}
                                         >
                                             <DndContext
@@ -325,10 +338,10 @@ export default function PanelCatalogueRow({
                                                     <TableHeader className="bg-slate-50 sticky top-0 z-10">
                                                         <TableRow>
                                                             <TableHead className="w-8 p-0 bg-slate-50"></TableHead>
-                                                            <TableHead className="w-[80px] bg-slate-50">SL No</TableHead>
-                                                            <TableHead className="w-[100px] bg-slate-50">Code</TableHead>
+                                                            <TableHead className="w-20 bg-slate-50">SL No</TableHead>
+                                                            <TableHead className="w-25 bg-slate-50">Code</TableHead>
                                                             <TableHead className="bg-slate-50">Test Name</TableHead>
-                                                            <TableHead className="w-[100px] text-right bg-slate-50">Action</TableHead>
+                                                            <TableHead className="w-25 text-right bg-slate-50">Action</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -400,7 +413,7 @@ export default function PanelCatalogueRow({
                                                                         {selectedTests.length === tests.length ? "All tests added to panel..." : "Search and add test to panel..."}
                                                                     </Button>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-[800px] p-0" align="start">
+                                                                <PopoverContent className="w-200 p-0" align="start">
                                                                     <Command>
                                                                         <CommandInput placeholder="Type test name or code..." className="h-11" />
                                                                         <CommandList onWheel={(e) => e.stopPropagation()}>
@@ -458,7 +471,7 @@ export default function PanelCatalogueRow({
                         </DialogContent>
                     </Dialog>
 
-                    {/* <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                         <AlertDialogTrigger asChild>
                             <Button size="sm" variant="ghost">
                                 <Trash2 className='h-4 w-4 text-slate-500 hover:text-red-500' />
@@ -473,12 +486,12 @@ export default function PanelCatalogueRow({
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={deletePanel} className="bg-red-600 hover:bg-red-700 text-white">
-                                    Delete
+                                <AlertDialogAction onClick={deletePanel} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+                                    {isDeleting ? "Deleting..." : "Delete"}
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog> */}
+                    </AlertDialog>
                 </div>
             </TableCell>
         </TableRow>

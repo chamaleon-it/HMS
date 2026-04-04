@@ -71,7 +71,7 @@ export default function Header() {
 
         {/* Bottom divider (slimmer) */}
         <div
-          className="h-[3px] bg-linear-to-r from-indigo-600/15 via-fuchsia-600/15 to-indigo-600/15"
+          className="h-0.75 bg-linear-to-r from-indigo-600/15 via-fuchsia-600/15 to-indigo-600/15"
           data-testid="header-divider"
         />
       </header>
