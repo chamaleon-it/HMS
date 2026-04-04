@@ -75,6 +75,7 @@ export function EditItem({
       name: item.name,
       openingStockQuantity: item.openingStockQuantity,
       purchasePrice: item.purchasePrice,
+      mrp: item.mrp,
       quantity: item.quantity,
       sku: item.sku,
       status: item.status as "Active" | "Inactive" | undefined,
@@ -127,6 +128,7 @@ export function EditItem({
     manufacturer: useRef<HTMLInputElement>(null),
     purchasePrice: useRef<HTMLInputElement>(null),
     unitPrice: useRef<HTMLInputElement>(null),
+    mrp: useRef<HTMLInputElement>(null),
     gst: useRef<HTMLInputElement>(null),
     openingStockQuantity: useRef<HTMLInputElement>(null),
     expiryDate: useRef<HTMLButtonElement>(null),
@@ -215,32 +217,11 @@ export function EditItem({
               register("rackLocation").ref(e);
               refs.rackLocation.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.packing)}
+            onKeyDown={(e) => handleKeyDown(e, refs.hsnCode)}
           />
           {errors.rackLocation && (
             <p className="text-xs text-red-600 my-1">
               {errors.rackLocation.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Packing
-          </label>
-          <Input
-            placeholder="e.g. 100"
-            className="mt-1"
-            {...register("packing")}
-            ref={(e) => {
-              register("packing").ref(e);
-              refs.packing.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.hsnCode)}
-          />
-          {errors.packing && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.packing.message}
             </p>
           )}
         </div>
@@ -257,7 +238,7 @@ export function EditItem({
               register("hsnCode").ref(e);
               refs.hsnCode.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.sku)}
+            onKeyDown={(e) => handleKeyDown(e, refs.packing)}
           />
           {errors.hsnCode && (
             <p className="text-xs text-red-600 my-1">
@@ -265,6 +246,99 @@ export function EditItem({
             </p>
           )}
         </div>
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            Packing
+          </label>
+          <Input
+            placeholder="e.g. 100"
+            className="mt-1"
+            {...register("packing")}
+            ref={(e) => {
+              register("packing").ref(e);
+              refs.packing.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
+          />
+          {errors.packing && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.packing.message}
+            </p>
+          )}
+        </div>
+
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            Purchase Price (₹) *
+          </label>
+          <Input
+            type="number"
+            step="0.01"
+            placeholder="e.g. 2.50"
+            className="mt-1"
+            {...register("purchasePrice")}
+            ref={(e) => {
+              register("purchasePrice").ref(e);
+              refs.purchasePrice.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
+          />
+          {errors.purchasePrice && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.purchasePrice.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            Unit Price (₹) *
+          </label>
+          <Input
+            type="number"
+            step="0.01"
+            placeholder="e.g. 2.50"
+            className="mt-1"
+            {...register("unitPrice")}
+            ref={(e) => {
+              register("unitPrice").ref(e);
+              refs.unitPrice.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.mrp)}
+          />
+          {errors.unitPrice && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.unitPrice.message}
+            </p>
+          )}
+        </div>
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            MRP (₹) *
+          </label>
+          <Input
+            type="number"
+            step="0.01"
+            placeholder="e.g. 2.50"
+            className="mt-1"
+            {...register("mrp")}
+            ref={(e) => {
+              register("mrp").ref(e);
+              refs.mrp.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.sku)}
+          />
+          {errors.mrp && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.mrp.message}
+            </p>
+          )}
+        </div>
+
+
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
@@ -349,7 +423,7 @@ export function EditItem({
               register("manufacturer").ref(e);
               refs.manufacturer.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
+            onKeyDown={(e) => handleKeyDown(e, refs.gst)}
           />
           {errors.manufacturer && (
             <p className="text-xs text-red-600 my-1">
@@ -358,51 +432,7 @@ export function EditItem({
           )}
         </div>
 
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Purchase Price (₹) *
-          </label>
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="e.g. 2.50"
-            className="mt-1"
-            {...register("purchasePrice")}
-            ref={(e) => {
-              register("purchasePrice").ref(e);
-              refs.purchasePrice.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
-          />
-          {errors.purchasePrice && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.purchasePrice.message}
-            </p>
-          )}
-        </div>
 
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Unit Price (₹) *
-          </label>
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="e.g. 2.50"
-            className="mt-1"
-            {...register("unitPrice")}
-            ref={(e) => {
-              register("unitPrice").ref(e);
-              refs.unitPrice.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.gst)}
-          />
-          {errors.unitPrice && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.unitPrice.message}
-            </p>
-          )}
-        </div>
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">

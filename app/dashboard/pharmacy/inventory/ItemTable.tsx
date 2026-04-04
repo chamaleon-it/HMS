@@ -114,6 +114,7 @@ export default function ItemTable({
                 />
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">P.Price</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Unit Price (₹)</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">MRP (₹)</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Expiry Date</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Supplier</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Status</TableHead>
@@ -164,6 +165,7 @@ export default function ItemTable({
                   </TableCell>
                   <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
                   <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
+                  <TableCell className="py-3">{formatINR(item.mrp)}</TableCell>
                   <TableCell className="py-3">
                     {new Date(item.expiryDate) < new Date() ? (
                       <div className="flex items-center gap-1.5 text-red-600 font-medium">
