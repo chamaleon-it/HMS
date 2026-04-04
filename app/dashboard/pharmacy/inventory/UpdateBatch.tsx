@@ -269,7 +269,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         <TableHead>Batch No</TableHead>
                                         <TableHead>Expiry</TableHead>
                                         <TableHead>Supplier</TableHead>
-                                        <TableHead className="text-right">P Price</TableHead>
+                                        <TableHead className="text-right">Purchase Rate</TableHead>
                                         <TableHead className="text-right">Qty</TableHead>
                                     </TableRow>
                                 </TableHeader>

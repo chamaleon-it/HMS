@@ -259,7 +259,7 @@ export function EditItem({
               register("packing").ref(e);
               refs.packing.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
+            onKeyDown={(e) => handleKeyDown(e, refs.mrp)}
           />
           {errors.packing && (
             <p className="text-xs text-red-600 my-1">
@@ -268,56 +268,9 @@ export function EditItem({
           )}
         </div>
 
-
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Purchase Price (₹) *
-          </label>
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="e.g. 2.50"
-            className="mt-1"
-            {...register("purchasePrice")}
-            ref={(e) => {
-              register("purchasePrice").ref(e);
-              refs.purchasePrice.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
-          />
-          {errors.purchasePrice && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.purchasePrice.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            Unit Price (₹) *
-          </label>
-          <Input
-            type="number"
-            step="0.01"
-            placeholder="e.g. 2.50"
-            className="mt-1"
-            {...register("unitPrice")}
-            ref={(e) => {
-              register("unitPrice").ref(e);
-              refs.unitPrice.current = e;
-            }}
-            onKeyDown={(e) => handleKeyDown(e, refs.mrp)}
-          />
-          {errors.unitPrice && (
-            <p className="text-xs text-red-600 my-1">
-              {errors.unitPrice.message}
-            </p>
-          )}
-        </div>
-
-        <div>
-          <label className="text-[12px] text-gray-600 font-medium">
-            MRP (₹) *
+            MRP (Pack Price) (₹) *
           </label>
           <Input
             type="number"
@@ -329,7 +282,7 @@ export function EditItem({
               register("mrp").ref(e);
               refs.mrp.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.sku)}
+            onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
           />
           {errors.mrp && (
             <p className="text-xs text-red-600 my-1">
@@ -337,6 +290,58 @@ export function EditItem({
             </p>
           )}
         </div>
+
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            Unit Price (MRP ÷ Packing) (₹) *
+          </label>
+          <Input
+            type="number"
+            step="0.01"
+            placeholder="e.g. 2.50"
+            className="mt-1"
+            {...register("unitPrice")}
+            ref={(e) => {
+              register("unitPrice").ref(e);
+              refs.unitPrice.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.purchasePrice)}
+          />
+          {errors.unitPrice && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.unitPrice.message}
+            </p>
+          )}
+        </div>
+
+
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            Purchase Price (Rate, P.Price) (₹) *
+          </label>
+          <Input
+            type="number"
+            step="0.01"
+            placeholder="e.g. 2.50"
+            className="mt-1"
+            {...register("purchasePrice")}
+            ref={(e) => {
+              register("purchasePrice").ref(e);
+              refs.purchasePrice.current = e;
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.sku)}
+          />
+          {errors.purchasePrice && (
+            <p className="text-xs text-red-600 my-1">
+              {errors.purchasePrice.message}
+            </p>
+          )}
+        </div>
+
+
+
+
 
 
 
