@@ -201,7 +201,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
                     <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} />
+                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -228,7 +228,7 @@ export default function List({
   );
 }
 
-function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted }: any) {
+function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder }: any) {
   return (
     <>
       {status !== "Consulted" && <button
@@ -251,6 +251,7 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuLabel>Change Status</DropdownMenuLabel>
+          <DropdownMenuItem onClick={onPlaceOrder}>Place Order</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Upcoming")}>Mark Upcoming</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Consulted")}>Mark Consulted</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Observation")}>Mark Observation</DropdownMenuItem>

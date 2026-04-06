@@ -240,42 +240,39 @@ export default function ReportCard({ report }: ReportCardProps) {
                             {/* 🏥 DIGITAL HEADER */}
                             <div className="relative w-full bg-white text-black mb-4 flex flex-col pt-0 break-inside-avoid">
                                 {/* Top Bar */}
-                                <div className="w-full h-[20px]" style={{ backgroundColor: '#f2cdbf' }}></div>
+                                <div className="w-full h-5" style={{ backgroundColor: '#f2cdbf' }}></div>
 
                                 {/* Content Wrapper */}
-                                <div className="w-full relative flex justify-between items-start pt-[16px] pb-[5px] px-10">
+                                <div className="w-full relative flex justify-between items-start pt-4 pb-1.25 px-10">
                                     <div className="relative z-10 w-[60%]">
                                         <HospitalName />
                                     </div>
 
                                     {/* Date */}
-                                    <div className="absolute right-10 top-[112px] z-10">
+                                    <div className="absolute right-10 top-28 z-10">
                                         <p className="text-[12px] text-black font-semibold tracking-wide">
-                                            Date : {(() => {
-                                                const d = new Date();
-                                                return `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
-                                            })()}
+                                            Report No : {String(report.mrn).padStart(4, "0")}
                                         </p>
                                     </div>
                                 </div>
 
                                 {/* Ribbon Wrapper */}
-                                <div className="absolute right-0 top-[20px] w-[50%] z-1 flex flex-col items-end">
+                                <div className="absolute right-0 top-5 w-[50%] z-1 flex flex-col items-end">
                                     {/* Darker coral upper shape */}
                                     <div
-                                        className="h-[56px] w-[340px] flex items-center justify-end"
+                                        className="h-14 w-85 flex items-center justify-end"
                                         style={{
                                             backgroundColor: '#d66a54',
                                             clipPath: 'polygon(0 0, 100% 0, 100% 100%, 37px 100%)'
                                         }}
                                     >
-                                        <span className="text-white text-[26px] font-sans font-medium tracking-wide pr-[45px]">
+                                        <span className="text-white text-[26px] font-sans font-medium tracking-wide pr-11.25">
                                             LAB REPORT
                                         </span>
                                     </div>
                                     {/* Lighter coral lower shape */}
                                     <div
-                                        className="h-[24px] w-[200px]"
+                                        className="h-6 w-50"
                                         style={{
                                             backgroundColor: '#e6a69a',
                                             clipPath: 'polygon(0 0, 100% 0, 100% 100%, 16px 100%)'
@@ -298,7 +295,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                             </div>
                                             <div className="space-y-1">
                                                 <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Sample Collected Date</span><span className="font-bold text-slate-900">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Result Reported Date</span><span className="font-bold text-slate-900">: {report.createdAt ? fDateandTime(report.createdAt).split(",")[0] : "—"}</span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Result Reported Date</span><span className="font-bold text-slate-900">: {report.testStartedAt ? fDateandTime(report.testStartedAt).split(",")[0] : "—"}</span></div>
                                                 <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Result Printed Date</span><span className="font-bold text-slate-900">: {fDateandTime(new Date()).split(",")[0]}</span></div>
                                             </div>
                                         </div>
@@ -415,14 +412,14 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                         <img
                                                             src={`data:image/png;base64,${report.graphs['WBC Histogram. BMP']}`}
                                                             alt="WBC Histogram"
-                                                            className="w-full h-[120px] object-contain object-left mix-blend-multiply"
+                                                            className="w-full h-30 object-contain object-left mix-blend-multiply"
                                                             style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                         />
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col flex-1">
                                                         <div className="text-[10px] font-bold text-slate-400 self-start">WBC</div>
-                                                        <div className="w-full h-[120px] border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">WBC Graph Area</div>
+                                                        <div className="w-full h-30 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">WBC Graph Area</div>
                                                     </div>
                                                 )}
 
@@ -433,14 +430,14 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                         <img
                                                             src={`data:image/png;base64,${report.graphs['RBC Histogram. BMP']}`}
                                                             alt="RBC Histogram"
-                                                            className="w-full h-[120px] object-contain object-left mix-blend-multiply"
+                                                            className="w-full h-30 object-contain object-left mix-blend-multiply"
                                                             style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                         />
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col flex-1 mt-1">
                                                         <div className="text-[10px] font-bold text-slate-400 self-start">RBC</div>
-                                                        <div className="w-full h-[120px] border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">RBC Graph Area</div>
+                                                        <div className="w-full h-30 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">RBC Graph Area</div>
                                                     </div>
                                                 )}
 
@@ -451,14 +448,14 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                         <img
                                                             src={`data:image/png;base64,${report.graphs['PLT Histogram. BMP']}`}
                                                             alt="PLT Histogram"
-                                                            className="w-full h-[120px] object-contain object-left mix-blend-multiply"
+                                                            className="w-full h-30 object-contain object-left mix-blend-multiply"
                                                             style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                         />
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col flex-1 mt-1">
                                                         <div className="text-[10px] font-bold text-slate-400 self-start">PLT</div>
-                                                        <div className="w-full h-[120px] border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">PLT Graph Area</div>
+                                                        <div className="w-full h-30 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">PLT Graph Area</div>
                                                     </div>
                                                 )}
                                             </div>
@@ -482,7 +479,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                             <div className="text-center w-64">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
                                                 <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[11px]">LAB IN-CHARGE</p>
-                                                <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p>
+                                                <p className="text-[10px] font-bold text-slate-900 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p>
                                             </div>
                                             <div className="text-center w-64">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
@@ -514,7 +511,7 @@ export default function ReportCard({ report }: ReportCardProps) {
 
 function Info({ label, value }: { label: string; value: string }) {
     return (
-        <div className="flex gap-1.5 min-h-[18px] items-center">
+        <div className="flex gap-1.5 min-h-4.5 items-center">
             <span className="text-black font-medium uppercase text-[10px] mt-0.5">{label}:</span>
             <span className="font-bold text-black text-[11px] line-clamp-2 leading-tight uppercase">{value}</span>
         </div>
