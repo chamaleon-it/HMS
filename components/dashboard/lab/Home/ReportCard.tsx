@@ -288,15 +288,15 @@ export default function ReportCard({ report }: ReportCardProps) {
                                     <div className="mb-3 pt-3 pb-3 border-y border-slate-300">
                                         <div className="grid grid-cols-2 gap-x-8 text-[12px] font-semibold text-slate-800 tracking-tight px-2">
                                             <div className="space-y-1">
-                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Name</span><span className="font-bold text-slate-900">: {patient?.name || "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Age/Sex</span><span className="font-bold text-slate-900">: {`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "—"} / ${patient?.gender || "—"}`}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
-                                                {/* <div className="flex gap-2"><span className="w-20 text-slate-500 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: Dr. Nader Shah</span></div> */}
+                                                <div className="flex gap-2"><span className="w-20 text-slate-900 font-medium">Name</span><span className="font-bold text-slate-900">: {patient?.name || "—"}</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-slate-900 font-medium">Age/Sex</span><span className="font-bold text-slate-900">: {`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "—"} / ${patient?.gender || "—"}`}</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-slate-900 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
+                                                {/* <div className="flex gap-2"><span className="w-20 text-slate-900 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: Dr. Nader Shah</span></div> */}
                                             </div>
                                             <div className="space-y-1">
-                                                <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Sample Collected Date</span><span className="font-bold text-slate-900">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Result Reported Date</span><span className="font-bold text-slate-900">: {report.testStartedAt ? fDateandTime(report.testStartedAt).split(",")[0] : "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-slate-500 font-medium">Result Printed Date</span><span className="font-bold text-slate-900">: {fDateandTime(new Date()).split(",")[0]}</span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Sample Collected Date</span><span className="font-bold text-slate-900">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Result Reported Date</span><span className="font-bold text-slate-900">: {report.testStartedAt ? fDateandTime(report.testStartedAt).split(",")[0] : "—"}</span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Result Printed Date</span><span className="font-bold text-slate-900">: {fDateandTime(new Date()).split(",")[0]}</span></div>
                                             </div>
                                         </div>
                                     </div>
@@ -436,8 +436,8 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col flex-1 mt-1">
-                                                        <div className="text-[10px] font-bold text-slate-400 self-start">RBC</div>
-                                                        <div className="w-full h-30 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">RBC Graph Area</div>
+                                                        <div className="text-[10px] font-bold text-slate-900 self-start">RBC</div>
+                                                        <div className="w-full h-30 border border-dashed border-slate-900 rounded flex items-center justify-center text-slate-300 text-[10px]">RBC Graph Area</div>
                                                     </div>
                                                 )}
 
@@ -454,8 +454,8 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col flex-1 mt-1">
-                                                        <div className="text-[10px] font-bold text-slate-400 self-start">PLT</div>
-                                                        <div className="w-full h-30 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">PLT Graph Area</div>
+                                                        <div className="text-[10px] font-bold text-slate-900 self-start">PLT</div>
+                                                        <div className="w-full h-30 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-900 text-[10px]">PLT Graph Area</div>
                                                     </div>
                                                 )}
                                             </div>
