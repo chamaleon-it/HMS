@@ -447,14 +447,14 @@ export default function TestCatalogue({
                           }}
                           className="h-9 w-9 p-0 bg-slate-50 shrink-0"
                         >
-                          <Plus className="h-4 w-4" color="grey"/>
+                          <Plus className="h-4 w-4" color="grey" />
                         </Button>
                       </div>
                       <div className="flex flex-wrap gap-2 mt-2">
                         {newTest.options.map((opt, i) => (
                           <div key={i} className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">
                             <span>{opt}</span>
-                            <button 
+                            <button
                               onClick={() => setNewTest(prev => ({ ...prev, options: prev.options.filter((_, idx) => idx !== i) }))}
                               className="text-slate-400 hover:text-red-500"
                             >

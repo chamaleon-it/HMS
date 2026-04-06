@@ -56,7 +56,7 @@ export default function LabResultsPage() {
   // NEW ONES FOR DATE FILTER
   const [activeDate, setActiveDate] = useState<string>("Today");
   const [date, setDate] = useState<Date>();
-  // const [showSampleId, setShowSampleId] = useState<boolean>(false);
+  const [showSampleId, setShowSampleId] = useState<boolean>(true);
 
   const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/technician");
   const inChargeTechnician = labResponse?.data?.find((p) => p.inCharge);
@@ -115,40 +115,53 @@ export default function LabResultsPage() {
           title="Lab Investigations"
           subtitle="Manage and track laboratory and imaging results"
         >
-          {/*           
-        <div className="relative inline-flex items-center gap-1 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-sm">
-          <button
-            id="sample-id-toggle"
-            type="button"
-            onClick={() => setShowSampleId((prev) => !prev)}
-            className={cn(
-              "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium",
-              showSampleId ? "text-white" : "text-slate-600 hover:bg-slate-50"
-            )}
-          >
-            {showSampleId && (
-              <motion.span
-                layoutId="sample-id-indicator"
-                className="absolute inset-0 rounded-full"
-                style={{ background: "linear-gradient(90deg, #4f46e5, #ec4899)" }}
-                transition={{ type: "spring", stiffness: 500, damping: 40 }}
-              />
-            )}
-            <span className="relative z-10">Sample ID</span>
-          </button>
-        </div> */}
+                    
+        
 
-          <div className="flex items-center justify-end gap-4 mb-4">
-            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white shadow-sm">
-              <div className="flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-blue-500">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-              </div>
-              <div className="flex flex-col leading-tight py-1 px-1">
-                <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Lab In-charge</span>
-                <span className="text-sm font-semibold text-slate-700 text-left">{inChargeTechnician?.name ?? "—"}</span>
-              </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Lab In-charge Status */}
+          <div className="flex items-center gap-3 px-3 py-2 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xs transition-all duration-200 hover:shadow-sm">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-500 shadow-inner">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+            </div>
+            <div className="flex flex-col leading-tight pr-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Lab In-charge</span>
+              <span className="text-sm font-bold text-slate-800">{inChargeTechnician?.name ?? "—"}</span>
             </div>
           </div>
+
+          {/* Auto ID Generation Toggle */}
+          <div className="flex items-center gap-4 px-3 py-2 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xs transition-all duration-200 hover:shadow-sm">
+            <div className="flex flex-col leading-tight pl-1">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Auto Generate</span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Sample ID</span>
+            </div>
+            <button
+              onClick={() => setShowSampleId(!showSampleId)}
+              className={cn(
+                "relative flex items-center w-16 h-8 rounded-full p-1 transition-all duration-300 cursor-pointer shadow-inner ring-1 ring-slate-200/50",
+                showSampleId ? "bg-linear-to-r from-indigo-600 to-fuchsia-600" : "bg-slate-100"
+              )}
+            >
+              <span className={cn(
+                "absolute left-2.5 text-[9px] font-black text-white transition-all duration-300 uppercase tracking-tighter",
+                showSampleId ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
+              )}>YES</span>
+              <span className={cn(
+                "absolute right-3 text-[9px] font-black text-slate-400 transition-all duration-300 uppercase tracking-tighter",
+                showSampleId ? "opacity-0 translate-x-2" : "opacity-100 translate-x-0"
+              )}>NO</span>
+              <motion.div
+                className="z-10 h-6 w-6 rounded-full bg-white shadow-md flex items-center justify-center border border-slate-200"
+                animate={{ x: showSampleId ? 32 : 0 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              >
+                <div className="w-4 h-4 rounded-full border border-slate-100 shadow-inner" />
+              </motion.div>
+            </button>
+          </div>
+        </div>
+
           <DateFilter
             activeDate={activeDate}
             setActiveDate={setActiveDate}
@@ -218,7 +231,7 @@ export default function LabResultsPage() {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, delay: 0.5 }}
       >
-        <LabTable REPORT={REPORT} status={status} mutate={() => { mutate(); statsMutate(); }} />
+        <LabTable REPORT={REPORT} status={status} mutate={() => { mutate(); statsMutate(); }} autoGenerateSampleId={showSampleId} />
       </motion.div>
     </div>
   );

@@ -51,6 +51,7 @@ const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
 interface PropsTypes {
   status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted";
   mutate: () => void;
+  autoGenerateSampleId?: boolean;
   REPORT: {
     _id: string;
     mrn: number;
@@ -124,7 +125,7 @@ interface PropsTypes {
   }[];
 }
 
-export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
+export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId }: PropsTypes) {
   const { user } = useAuth();
   const [printReport, setPrintReport] = React.useState<any | null>(null);
 
@@ -348,6 +349,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                           reportId={r._id}
                           patientName={r.patient?.name}
                           mutate={mutate}
+                          autoGenerateSampleId={autoGenerateSampleId}
                         />
                       )}
 

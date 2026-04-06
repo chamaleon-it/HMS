@@ -23,11 +23,22 @@ interface Props {
     reportId: string;
     patientName: string;
     mutate: () => void;
+    autoGenerateSampleId?: boolean;
 }
 
-export default function SampleCollectionModal({ reportId, patientName, mutate }: Props) {
+const generateAutoNumber = () => {
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const sequence = Math.floor(Math.random() * 90) + 10;
+    return `${day}${hours}${minutes}${sequence}`;
+};
+
+export default function SampleCollectionModal({ reportId, patientName, mutate, autoGenerateSampleId }: Props) {
+    const getNewId = () => autoGenerateSampleId ? generateAutoNumber() : "";
     const [open, setOpen] = useState(false);
-    const [samples, setSamples] = useState<{ id: string; specimen: string }[]>([{ id: "", specimen: "Blood" }]);
+    const [samples, setSamples] = useState<{ id: string; specimen: string }[]>([{ id: getNewId(), specimen: "Blood" }]);
     const [loading, setLoading] = useState(false);
 
     const defaultSpecimens = ["Blood", "Urine", "Stool", "Sputum", "Saliva", "Swab", "Semen"];
@@ -43,6 +54,13 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
             console.error(error);
         }
     }, [open]);
+
+    // Keep hidden rows synchronised with the toggle state updates
+    useEffect(() => {
+        if (!open) {
+            setSamples([{ id: getNewId(), specimen: "Blood" }]);
+        }
+    }, [autoGenerateSampleId, open]);
 
     const handleCollect = async () => {
         const validSamples = samples.filter(s => s.id.trim() !== "");
@@ -105,7 +123,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
             );
             mutate();
             setOpen(false);
-            setSamples([{ id: "", specimen: "Blood" }]);
+            setSamples([{ id: getNewId(), specimen: "Blood" }]);
         } catch (error: any) {
             console.error(error);
         } finally {
@@ -116,7 +134,9 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
     return (
         <Dialog open={open} onOpenChange={(val) => {
             setOpen(val);
-            if (!val) setSamples([{ id: "", specimen: "Blood" }]);
+            if (!val) {
+                setSamples([{ id: getNewId(), specimen: "Blood" }]);
+            }
         }}>
             <DialogTrigger asChild>
                 <Button
@@ -170,7 +190,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
                                                 }}
                                                 onKeyDown={(e) => {
                                                     if (e.key === "Enter" && index === samples.length - 1) {
-                                                        setSamples([...samples, { id: "", specimen: "Blood" }]);
+                                                        setSamples([...samples, { id: getNewId(), specimen: "Blood" }]);
                                                     }
                                                 }}
                                                 onBlur={async (e) => {
@@ -263,7 +283,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
                                                     variant="ghost"
                                                     onClick={() => {
                                                         const newSamples = samples.filter((_, i) => i !== index);
-                                                        setSamples(newSamples.length ? newSamples : [{ id: "", specimen: "Blood" }]);
+                                                        setSamples(newSamples.length ? newSamples : [{ id: getNewId(), specimen: "Blood" }]);
                                                     }}
                                                     className="text-red-500 hover:text-red-700 transition-[#000000] p-1 rounded-md hover:bg-red-50"
                                                     title="Remove"
@@ -281,7 +301,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate }:
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => setSamples([...samples, { id: "", specimen: "Blood" }])}
+                        onClick={() => setSamples([...samples, { id: getNewId(), specimen: "Blood" }])}
                         className="mt-4 w-full border-dashed text-blue-600 border-blue-200 hover:bg-blue-50 hover:text-blue-700 h-9 font-medium"
                     >
                         + Add Another Sample
