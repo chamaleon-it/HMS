@@ -56,6 +56,10 @@ export default function LabResultsPage() {
   // NEW ONES FOR DATE FILTER
   const [activeDate, setActiveDate] = useState<string>("Today");
   const [date, setDate] = useState<Date>();
+  // const [showSampleId, setShowSampleId] = useState<boolean>(false);
+
+  const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/technician");
+  const inChargeTechnician = labResponse?.data?.find((p) => p.inCharge);
 
   // Calculate dates for the query
   let startDateStr = "";
@@ -111,6 +115,40 @@ export default function LabResultsPage() {
           title="Lab Investigations"
           subtitle="Manage and track laboratory and imaging results"
         >
+          {/*           
+        <div className="relative inline-flex items-center gap-1 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+          <button
+            id="sample-id-toggle"
+            type="button"
+            onClick={() => setShowSampleId((prev) => !prev)}
+            className={cn(
+              "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium",
+              showSampleId ? "text-white" : "text-slate-600 hover:bg-slate-50"
+            )}
+          >
+            {showSampleId && (
+              <motion.span
+                layoutId="sample-id-indicator"
+                className="absolute inset-0 rounded-full"
+                style={{ background: "linear-gradient(90deg, #4f46e5, #ec4899)" }}
+                transition={{ type: "spring", stiffness: 500, damping: 40 }}
+              />
+            )}
+            <span className="relative z-10">Sample ID</span>
+          </button>
+        </div> */}
+
+          <div className="flex items-center justify-end gap-4 mb-4">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="flex items-center justify-center w-7 h-7 rounded-full bg-blue-50 text-blue-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+              </div>
+              <div className="flex flex-col leading-tight py-1 px-1">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-400">Lab In-charge</span>
+                <span className="text-sm font-semibold text-slate-700 text-left">{inChargeTechnician?.name ?? "—"}</span>
+              </div>
+            </div>
+          </div>
           <DateFilter
             activeDate={activeDate}
             setActiveDate={setActiveDate}

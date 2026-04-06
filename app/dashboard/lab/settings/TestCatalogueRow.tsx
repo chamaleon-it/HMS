@@ -217,7 +217,7 @@ export default function TestCatalogueRow({
 
     return (
         <TableRow>
-            <TableCell className="font-medium">{test.code}</TableCell>
+            <TableCell className="font-medium w-[100px]">{test.code}</TableCell>
             <TableCell>{test.name}</TableCell>
             <TableCell>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>

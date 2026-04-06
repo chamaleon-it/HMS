@@ -600,7 +600,7 @@ export default function TestCatalogue({
               <Table>
                 <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                   <TableRow>
-                    <TableHead >Code</TableHead>
+                    <TableHead className="w-[100px]">Code</TableHead>
                     <TableHead>Name</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Price</TableHead>
