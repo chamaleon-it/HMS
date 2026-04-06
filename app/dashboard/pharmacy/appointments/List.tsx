@@ -104,7 +104,7 @@ export default function List({
       <Table>
         <TableHeader className="bg-gray-50/50">
           <TableRow className="hover:bg-gray-50/50 border-gray-100">
-            <TableHead className="py-3 pl-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-[100px]">Time</TableHead>
+            <TableHead className="py-3 pl-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-25">Time</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Patient</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Doctor</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type/Method</TableHead>
@@ -152,7 +152,7 @@ export default function List({
                           <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[9px] font-bold px-1 py-0 rounded-full ring-2 ring-white">R</span>
                         )}
                       </div>
-                      <div className="min-w-0 max-w-[200px]">
+                      <div className="min-w-0 max-w-50">
                         <div className="flex items-center gap-1.5">
                           <span className="truncate font-semibold text-gray-900 block">{row.patient.name}</span>
                           {row.visitCount > 0 && <span className="bg-gray-100 text-gray-500 text-[10px] px-1 rounded border border-gray-200" title="Visit Count">{row.visitCount}</span>}
@@ -170,7 +170,7 @@ export default function List({
                       <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold ring-1 ring-indigo-100">
                         {row?.doctor?.name?.charAt(0)}
                       </div>
-                      <div className="min-w-0 max-w-[180px]">
+                      <div className="min-w-0 max-w-45">
                         <div className="truncate text-sm font-medium text-gray-900">
                           Dr. {row?.doctor?.name}
                         </div>
