@@ -314,6 +314,19 @@ export default function TestCatalogue({
               </DialogHeader>
               <div className="mt-2 grid gap-4">
                 <div className="grid grid-cols-12 gap-4">
+
+                  <div className="col-span-4 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Test Name *</Label>
+                    <Input
+                      placeholder="e.g. Complete Blood Count"
+                      value={newTest.name}
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, name: e.target.value }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
+
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Test Code *</Label>
                     <Input
@@ -322,17 +335,6 @@ export default function TestCatalogue({
                       value={newTest.code}
                       onChange={(e) =>
                         setNewTest((prev) => ({ ...prev, code: e.target.value.slice(0, 5) }))
-                      }
-                      className="h-9 bg-slate-50"
-                    />
-                  </div>
-                  <div className="col-span-4 space-y-1.5">
-                    <Label className="text-xs font-medium text-slate-700">Test Name *</Label>
-                    <Input
-                      placeholder="e.g. Complete Blood Count"
-                      value={newTest.name}
-                      onChange={(e) =>
-                        setNewTest((prev) => ({ ...prev, name: e.target.value }))
                       }
                       className="h-9 bg-slate-50"
                     />
@@ -352,7 +354,7 @@ export default function TestCatalogue({
                     />
                   </div>
 
-                  <div className="col-span-2 space-y-1.5">
+                  <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Type *</Label>
                     <Select
                       value={newTest.type}
