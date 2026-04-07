@@ -406,36 +406,50 @@ export default function PanelCatalogueRow({
                                                                         className="w-full justify-start text-muted-foreground font-normal hover:bg-white bg-white h-10 shadow-sm"
                                                                     >
                                                                         <Search className="mr-2 h-4 w-4 opacity-50" />
-                                                                        {selectedTests.length === tests.length ? "All tests added to panel..." : "Search and add test to panel..."}
+                                                                        {selectedTests.length === tests.length
+                                                                            ? "All tests added to panel..."
+                                                                            : "Search and add test to panel..."}
                                                                     </Button>
                                                                 </PopoverTrigger>
                                                                 <PopoverContent className="w-200 p-0" align="start">
-                                                                    <Command>
+                                                                    <Command filter={(value, search) => {
+                                                                        if (!search) return 1;
+                                                                        const v = value.toLowerCase();
+                                                                        const s = search.toLowerCase().trim();
+                                                                        const words = s.split(/\s+/);
+                                                                        return words.every(w => v.includes(w)) ? 1 : 0;
+                                                                    }}>
                                                                         <CommandInput placeholder="Type test name or code..." className="h-11" />
-                                                                        <CommandList onWheel={(e) => e.stopPropagation()}>
+                                                                        <CommandList className="max-h-[350px]" onWheel={(e) => e.stopPropagation()}>
                                                                             <CommandEmpty>No test found.</CommandEmpty>
                                                                             <CommandGroup>
-                                                                                {tests
+                                                                                {[...tests]
+                                                                                    .sort((a, b) => {
+                                                                                        const aSelected = selectedTests.some(st => st._id === a._id);
+                                                                                        const bSelected = selectedTests.some(st => st._id === b._id);
+                                                                                        if (aSelected === bSelected) return 0;
+                                                                                        return aSelected ? 1 : -1;
+                                                                                    })
                                                                                     .map((t) => {
                                                                                         const isSelected = selectedTests.find(st => st._id === t._id);
                                                                                         return (
                                                                                             <CommandItem
                                                                                                 key={t._id}
-                                                                                                value={t.name + " " + (t.code || '')}
+                                                                                                value={`${t.name} ${t.code || ''} ${t.unit || ''}`}
                                                                                                 onSelect={() => {
                                                                                                     if (!isSelected) handleAddTest(t);
                                                                                                 }}
                                                                                                 className={cn(
-                                                                                                    "flex justify-between items-center py-2 px-3",
-                                                                                                    isSelected ? "opacity-60 cursor-default" : "cursor-pointer"
+                                                                                                    "flex justify-between items-center py-2.5 px-3",
+                                                                                                    isSelected ? "opacity-50 cursor-default" : "cursor-pointer"
                                                                                                 )}
                                                                                             >
                                                                                                 <div className="flex flex-col">
                                                                                                     <div className="flex items-center gap-2">
                                                                                                         <span className="font-medium">{t.name}</span>
                                                                                                         {isSelected && (
-                                                                                                            <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                                                                                                                <Check className="h-2 w-2" /> Added
+                                                                                                            <span className="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-200">
+                                                                                                                <Check className="h-2.5 w-2.5" /> Added
                                                                                                             </span>
                                                                                                         )}
                                                                                                     </div>
@@ -447,7 +461,6 @@ export default function PanelCatalogueRow({
                                                                                     })}
                                                                             </CommandGroup>
                                                                         </CommandList>
-
                                                                     </Command>
                                                                 </PopoverContent>
                                                             </Popover>
@@ -457,7 +470,7 @@ export default function PanelCatalogueRow({
                                             </Table>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-slate-400 mt-2 italic">Select tests from the combobox to add them to this panel. Hit enter on search to add the top result.</p>
+                                    <p className="text-xs text-slate-400 mt-2 italic">Search by test name, code, or unit. Already added tests appear at the bottom.</p>
                                 </div>
 
                             </div>

@@ -2,24 +2,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React, { useEffect, useState } from "react";
 import { UseFormSetValue } from "react-hook-form";
+import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 
 export default function Address({
   setValue,
   refs,
 }: {
-  setValue: UseFormSetValue<{
-    name: string;
-    phoneNumber?: string;
-    email?: string;
-    doctor: string;
-    gender: "Male" | "Female" | "Other" | "Prefer not to say";
-    dateOfBirth: string;
-    conditions?: string[] | undefined;
-    blood?: string | undefined;
-    allergies?: string | undefined;
-    address?: string | undefined;
-    notes?: string | undefined;
-  }>;
+  setValue: UseFormSetValue<RegisterPatientSchema>;
   refs: {
     line1: React.RefObject<HTMLInputElement | null>;
     line2: React.RefObject<HTMLInputElement | null>;
