@@ -294,9 +294,9 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                 {/* <div className="flex gap-2"><span className="w-20 text-slate-900 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: Dr. Nader Shah</span></div> */}
                                             </div>
                                             <div className="space-y-1">
-                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Sample Collected Date</span><span className="font-bold text-slate-900">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Result Reported Date</span><span className="font-bold text-slate-900">: {report.testStartedAt ? fDateandTime(report.testStartedAt).split(",")[0] : "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Result Printed Date</span><span className="font-bold text-slate-900">: {fDateandTime(new Date()).split(",")[0]}</span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Sample Collected On</span><span className="font-bold text-slate-900">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Result Reported On</span><span className="font-bold text-slate-900">: {report.testStartedAt ? fDateandTime(report.testStartedAt).split(",")[0] : "—"}</span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Result Printed On</span><span className="font-bold text-slate-900">: {fDateandTime(new Date()).split(",")[0]}</span></div>
                                             </div>
                                         </div>
                                     </div>
