@@ -32,6 +32,7 @@ import Address from "./Address";
 import { useDebounce } from "@/hooks/useDebounce";
 import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
 import ExistingPatientCard from "./ExistingPatientCard";
+import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 
 export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string) => void, patient?: any, mutate?: () => void }) {
   const capitalizeFirstLetter = (str: string) => {
@@ -46,14 +47,15 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     setValue,
     reset,
     watch,
-  } = useForm({
+  } = useForm<RegisterPatientSchema>({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
       name: patient?.name || "",
       phoneNumber: patient?.phoneNumber || "",
       doctor: patient?.doctor || user?._id,
       gender: patient?.gender || "Prefer not to say",
-      dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
+      dateOfBirth: patient?.dateOfBirth || "",
+      age: patient?.age || "",
       address: patient?.address || "",
       allergies: patient?.allergies || "",
       mrn: patient?.mrn || "",
@@ -112,7 +114,8 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         phoneNumber: patient?.phoneNumber || "",
         doctor: patient?.doctor || user?._id,
         gender: patient?.gender || "Prefer not to say",
-        dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
+        dateOfBirth: patient?.dateOfBirth || "",
+        age: patient?.age || "",
         address: patient?.address || "",
         mrn: patient?.mrn || ""
       });
@@ -295,7 +298,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   className="w-full justify-between font-normal"
                   onKeyDown={(e) => handleKeyDown(e, refs.age)}
                 >
-                  {dateOfBirth
+                  {dateOfBirth && dateOfBirth !== ""
                     ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
                       day: "2-digit",
                       month: "short",
@@ -312,13 +315,15 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                 <Calendar
                   disabled={{ after: new Date() }}
                   mode="single"
-                  selected={new Date(dateOfBirth)}
+                  selected={dateOfBirth ? new Date(dateOfBirth) : undefined}
                   captionLayout="dropdown"
                   onSelect={(date) => {
-                    setValue(
-                      "dateOfBirth",
-                      date?.toISOString() ?? new Date().toISOString()
-                    );
+                    if (date) {
+                      setValue("dateOfBirth", date.toISOString());
+                      setValue("age", fAge(date).toString());
+                    } else {
+                      setValue("dateOfBirth", "");
+                    }
                     setOpenCalander(false);
                   }}
                 />
@@ -335,30 +340,11 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           <div className="grid gap-2">
             <Label>Age </Label>
             <Input
-              ref={refs.age}
+              {...register("age")}
+              ref={mergeRefs(refs.age, register("age").ref)}
               type="number"
               placeholder="0"
               onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
-              value={
-                dateOfBirth
-                  ? (new Date().getFullYear() -
-                    new Date(dateOfBirth).getFullYear() || "")
-                  : ""
-              }
-              onChange={(e) => {
-                const age = parseInt(e.target.value);
-                if (!isNaN(age)) {
-                  const today = new Date();
-                  const newDob = new Date(
-                    today.getFullYear() - age,
-                    today.getMonth(),
-                    today.getDate()
-                  );
-                  setValue("dateOfBirth", newDob.toISOString());
-                } else {
-                  setValue("dateOfBirth", new Date().toISOString());
-                }
-              }}
             />
           </div>
 

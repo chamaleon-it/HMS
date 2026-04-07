@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Save, Trash2, Search, GripVertical, Check, Mars, Venus, Baby } from "lucide-react";
+import { Plus, Save, Trash2, Search, GripVertical, Check, Mars, Venus, Baby, Smile } from "lucide-react";
 import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -533,7 +533,7 @@ export default function TestCatalogue({
                   {newTest.dataType === "number" && <>
 
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700"><Mars className="h-3.5 w-3.5" />Range Min</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Mars className="h-4.5 w-4.5" color="#2563eb" size={48} strokeWidth={2.5}/>Range Min</Label>
                       <Input
                         type="number"
                         placeholder="0"
@@ -546,7 +546,7 @@ export default function TestCatalogue({
                     </div>
 
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700"><Mars className="h-3.5 w-3.5" />Range Max</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Mars className="h-4.5 w-4.5" color="#2563eb" size={48} strokeWidth={2.5}/>Range Max</Label>
                       <Input
                         type="number"
                         placeholder="100"
@@ -559,7 +559,7 @@ export default function TestCatalogue({
                     </div>
 
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700"><Venus className="h-3.5 w-3.5" />Women Range Min</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Venus className="h-4.5 w-4.5" color="#e91e63" size={48} strokeWidth={2.5}/>Women Range Min</Label>
                       <Input
                         type="number"
                         placeholder="0"
@@ -571,7 +571,7 @@ export default function TestCatalogue({
                       />
                     </div>
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700"><Venus className="h-3.5 w-3.5" />Women Range Max</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Venus className="h-4.5 w-4.5" color="#e91e63" size={48} strokeWidth={2.5}/>Women Range Max</Label>
                       <Input
                         type="number"
                         placeholder="100"
@@ -584,7 +584,7 @@ export default function TestCatalogue({
                     </div>
 
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700">Child Range Min</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Smile className="h-4.5 w-4.5" color="#f59e0b" size={48} strokeWidth={2.5} />Child Range Min</Label>
                       <Input
                         type="number"
                         placeholder="0"
@@ -596,7 +596,7 @@ export default function TestCatalogue({
                       />
                     </div>
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700">Child Range Max</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Smile className="h-4.5 w-4.5" color="#f59e0b" size={48} strokeWidth={2.5} />Child Range Max</Label>
                       <Input
                         type="number"
                         placeholder="100"
@@ -609,7 +609,7 @@ export default function TestCatalogue({
                     </div>
 
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Baby className="h-3.5 w-3.5" /> Newborn Min</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Baby className="h-4.5 w-4.5" color="#10b981" size={48} strokeWidth={2.5}/> Newborn Min</Label>
                       <Input
                         type="number"
                         placeholder="0"
@@ -621,7 +621,7 @@ export default function TestCatalogue({
                       />
                     </div>
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Baby className="h-3.5 w-3.5" /> Newborn Max</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Baby className="h-4.5 w-4.5" color="#10b981" size={48} strokeWidth={2.5}/> Newborn Max</Label>
                       <Input
                         type="number"
                         placeholder="100"
