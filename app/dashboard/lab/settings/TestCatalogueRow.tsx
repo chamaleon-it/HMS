@@ -4,13 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table'
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import api from '@/lib/axios';
 import { formatINR } from '@/lib/fNumber';
 import { Eye, Pencil, Trash2, Plus } from 'lucide-react';
 import React, { useCallback, useState } from 'react'
 import toast from 'react-hot-toast';
-import configuration from '@/config/configuration';
 
 import {
     AlertDialog,
@@ -219,12 +217,10 @@ export default function TestCatalogueRow({
 
 
     return (
-        <ContextMenu>
-            <ContextMenuTrigger asChild>
-                <TableRow>
+        <TableRow>
             <TableCell>{idx + 1}</TableCell>
             <TableCell className='whitespace-break-spaces max-w-52'>{test.name}</TableCell>
-            <TableCell className="font-medium max-w-36!"> <p className='whitespace-break-spaces'>{test.code}</p></TableCell>
+            <TableCell className="font-medium max-w-36"> <p className='whitespace-break-spaces'>{test.code}</p></TableCell>
             <TableCell className="text-slate-500 text-sm">
                 Normal : {test.min} {test.max && "-"} {test.max}
                 <br />
@@ -244,7 +240,7 @@ export default function TestCatalogueRow({
                 </span>
             </TableCell>
             <TableCell className="text-right">
-                <div className="flex flex-row gap-2 items-center justify-end">
+                <div className="flex flex-row items-center justify-end">
                     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
                         <DialogTrigger asChild>
                             <Button size="sm" variant="ghost">
@@ -260,13 +256,14 @@ export default function TestCatalogueRow({
                             </DialogHeader>
                             <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1">
-                                        <Label className="text-slate-500">Code</Label>
-                                        <p className="font-medium text-sm">{test.code}</p>
-                                    </div>
+
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Name</Label>
                                         <p className="font-medium text-sm">{test.name}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-slate-500">Code</Label>
+                                        <p className="font-medium text-sm">{test.code}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Type</Label>
@@ -632,18 +629,6 @@ export default function TestCatalogueRow({
                 </div>
             </TableCell>
         </TableRow>
-            </ContextMenuTrigger>
-            <ContextMenuContent>
-                <ContextMenuItem onClick={() => setViewOpen(true)}>
-                    <Eye className="mr-2 h-4 w-4 text-slate-500" /> View Details
-                </ContextMenuItem>
-                <ContextMenuItem onClick={() => setEditOpen(true)}>
-                    <Pencil className="mr-2 h-4 w-4 text-slate-500" /> Edit Test
-                </ContextMenuItem>
-                <ContextMenuItem onClick={() => setDeleteOpen(true)} className="text-red-500">
-                    <Trash2 className="mr-2 h-4 w-4" /> Delete Test
-                </ContextMenuItem>
-            </ContextMenuContent>
-        </ContextMenu>
+
     )
 }

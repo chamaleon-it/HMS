@@ -348,7 +348,7 @@ export default function TestCatalogue({
   return (
     <div className="grid gap-3">
       <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
-        <CardContent className="p-6">
+        <CardContent className="px-3 py-6">
           <div className="flex items-center justify-between">
             <SectionHeader
               title="Master test catalogue"
