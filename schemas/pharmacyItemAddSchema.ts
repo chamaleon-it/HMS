@@ -42,6 +42,10 @@ export const pharmacyItemAddSchema = z.object({
     .number({ error: "Purchase price must be a number" })
     .optional(),
 
+  mrp: z.coerce
+    .number({ error: "MRP must be a number" })
+    .optional(),
+
   unitPrice: z.coerce
     .number({ error: "Unit price must be a number" })
     .optional(),

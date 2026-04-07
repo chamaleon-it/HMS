@@ -595,20 +595,20 @@ export default function TestCatalogue({
             <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Tests</h4>
             <div
               ref={testsRef}
-              className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] [&_[data-slot=table-container]]:overflow-visible custom-scrollbar"
+              className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] **:data-[slot=table-container]:overflow-visible custom-scrollbar"
             >
               <Table>
                 <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                   <TableRow>
-                    <TableHead className="w-[100px]">Code</TableHead>
+                    <TableHead className="w-20">Code</TableHead>
                     <TableHead>Name</TableHead>
+                    <TableHead>Range</TableHead>
+                    <TableHead>Actions</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>ETA (Minutes)</TableHead>
                     <TableHead>Panels</TableHead>
-                    <TableHead>Range</TableHead>
                     <TableHead>Unit</TableHead>
-                    <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -677,7 +677,7 @@ export default function TestCatalogue({
               <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Panels</h4>
               <div
                 ref={panelsRef}
-                className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] [&_[data-slot=table-container]]:overflow-visible custom-scrollbar"
+                className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] **:data-[slot=table-container]:overflow-visible custom-scrollbar"
               >
                 <Table>
                   <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">

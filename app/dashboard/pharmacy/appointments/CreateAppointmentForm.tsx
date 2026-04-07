@@ -451,7 +451,7 @@ export function CreateAppointmentForm({
           <Button variant="ghost" onClick={onClose} type="button">
             Close
           </Button>
-          <Button type="submit" ref={refs.submitButton}>
+          <Button type="submit" ref={refs.submitButton} className="bg-[#171717] text-white hover:bg-[#171717] hover:text-white">
             {appointment?._id ? "Save" : "Create"} Appointment
           </Button>
         </div>

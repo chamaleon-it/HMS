@@ -19,6 +19,7 @@ export interface ItemType {
   supplier: string;
   manufacturer: string;
   unitPrice: number;
+  mrp: number;
   purchasePrice: number;
   openingStockQuantity: number;
   quantity: number;

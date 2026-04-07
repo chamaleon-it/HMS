@@ -309,7 +309,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
 
                   <td className="px-3 py-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      {r.doctor._id !== user?._id ? (
+                      {r?.doctor?._id ? (
                         <span
                           className="truncate max-w-25"
                           title={r.doctor.name}
@@ -317,7 +317,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                           Dr. {r.doctor.name}
                         </span>
                       ) : (
-                        <span>Direct</span>
+                        <span>Self</span>
                       )}
                     </div>
                   </td>

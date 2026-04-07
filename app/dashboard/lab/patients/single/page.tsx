@@ -35,7 +35,6 @@ const CustomerContent: React.FC = () => {
   const [selectedVisit, setSelectedVisit] = useState<Datum | null>(null);
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
 
-  const [openCalander, setOpenCalander] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
   const [printReport, setPrintReport] = React.useState<any | null>(null);
 

@@ -201,7 +201,7 @@ export default function TestCatalogueRow({
                     success: "Test Deleted Successfully",
                     error: (err) => err?.response?.data?.message || "Failed to Delete Test"
                 });
-                
+
                 setDeleteOpen(false);
                 testMutate();
             } catch (error) {
@@ -217,16 +217,8 @@ export default function TestCatalogueRow({
 
     return (
         <TableRow>
-            <TableCell className="font-medium w-[100px]">{test.code}</TableCell>
+            <TableCell className="font-medium max-w-36!"> <p className='line-clamp-3'>{test.code}</p></TableCell>
             <TableCell>{test.name}</TableCell>
-            <TableCell>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
-                    {test.type}
-                </span>
-            </TableCell>
-            <TableCell>{formatINR(test.price)}</TableCell>
-            <TableCell>{test.estimatedTime || ""}</TableCell>
-            <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
             <TableCell className="text-slate-500 text-sm">
                 Normal : {test.min} {test.max && "-"} {test.max}
                 <br />
@@ -236,9 +228,8 @@ export default function TestCatalogueRow({
                 <br />
                 NB : {test.nbMin} - {test.nbMax}
             </TableCell>
-            <TableCell className="text-slate-500">{test.unit}</TableCell>
             <TableCell>
-                <div className="flex gap-2 items-center justify-end">
+                <div className="flex flex-col gap-1 items-center justify-end">
                     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
                         <DialogTrigger asChild>
                             <Button size="sm" variant="ghost">
@@ -458,7 +449,7 @@ export default function TestCatalogueRow({
                                                             }
                                                         }}
                                                     >
-                                                        <Plus className="h-4 w-4"  />
+                                                        <Plus className="h-4 w-4" />
                                                     </Button>
                                                 </div>
                                                 <div className="flex flex-wrap gap-2">
@@ -502,7 +493,7 @@ export default function TestCatalogueRow({
                         </DialogContent>
                     </Dialog>
 
-                    { <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    {<AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                         <AlertDialogTrigger asChild>
                             <Button size="sm" variant="ghost">
                                 <Trash2 className='h-4 w-4 text-slate-500 hover:text-red-500' />
@@ -522,9 +513,20 @@ export default function TestCatalogueRow({
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog> }
+                    </AlertDialog>}
                 </div>
             </TableCell>
+            <TableCell>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
+                    {test.type}
+                </span>
+            </TableCell>
+            <TableCell>{formatINR(test.price)}</TableCell>
+            <TableCell>{test.estimatedTime || ""}</TableCell>
+            <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
+
+            <TableCell className="text-slate-500">{test.unit}</TableCell>
+
         </TableRow>
     )
 }
