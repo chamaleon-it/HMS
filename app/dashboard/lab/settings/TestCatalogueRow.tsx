@@ -217,8 +217,8 @@ export default function TestCatalogueRow({
 
     return (
         <TableRow>
-            <TableCell className="font-medium max-w-36!"> <p className='line-clamp-3'>{test.code}</p></TableCell>
-            <TableCell>{test.name}</TableCell>
+            <TableCell className="font-medium max-w-36!"> <p className='whitespace-break-spaces'>{test.code}</p></TableCell>
+            <TableCell className='whitespace-break-spaces max-w-52'>{test.name}</TableCell>
             <TableCell className="text-slate-500 text-sm">
                 Normal : {test.min} {test.max && "-"} {test.max}
                 <br />

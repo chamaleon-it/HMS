@@ -317,10 +317,11 @@ export default function TestCatalogue({
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Test Code *</Label>
                     <Input
+                      type="text"
                       placeholder="e.g. CBC"
                       value={newTest.code}
                       onChange={(e) =>
-                        setNewTest((prev) => ({ ...prev, code: e.target.value }))
+                        setNewTest((prev) => ({ ...prev, code: e.target.value.slice(0, 5) }))
                       }
                       className="h-9 bg-slate-50"
                     />
