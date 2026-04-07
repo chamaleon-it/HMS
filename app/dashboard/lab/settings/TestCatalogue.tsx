@@ -700,11 +700,11 @@ export default function TestCatalogue({
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3">
 
         <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
           <CardContent className="p-6">
-            <div className="flex flex-col gap-4 justify-between items-start mb-4">
+            <div className="flex gap-3 justify-between items-center">
               <SectionHeader
                 title="Panels & Profiles"
                 description="Manage all panels and group tests together."
@@ -836,7 +836,7 @@ export default function TestCatalogue({
                 disabled={loading}
               >
                 <Save className="h-4 w-4" />
-                {loading ? "Updating" : "Save Catalogue"}
+                {loading ? "Updating" : "Save Settings"}
               </Button>
             </div>
           </CardContent>
