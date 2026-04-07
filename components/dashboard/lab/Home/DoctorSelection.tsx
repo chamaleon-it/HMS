@@ -15,7 +15,7 @@ import { TechnicianData } from "@/app/dashboard/lab/settings/Technician";
 
 
 interface Props {
-    setValue: (id: string) => void;
+    setValue: (id: string | undefined) => void;
     doctor?: string;
     hideLabel?: boolean;
     className?: string;
@@ -38,8 +38,7 @@ const DoctorSelection: React.FC<Props> = ({ setValue, doctor, hideLabel, classNa
             {!hideLabel && <Label className="block mb-1.5">Doctor Name</Label>}
             <Select
                 onValueChange={(val) => {
-
-                    setValue(val === "self" ? "" : val);
+                    setValue(val);
                 }}
                 value={doctor}
             >

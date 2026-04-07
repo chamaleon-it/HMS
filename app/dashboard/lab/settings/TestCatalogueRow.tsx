@@ -217,8 +217,8 @@ export default function TestCatalogueRow({
 
     return (
         <TableRow>
-            <TableCell className="font-medium max-w-36!"> <p className='line-clamp-3'>{test.code}</p></TableCell>
-            <TableCell>{test.name}</TableCell>
+            <TableCell className="font-medium max-w-36!"> <p className='whitespace-break-spaces'>{test.code}</p></TableCell>
+            <TableCell className='whitespace-break-spaces max-w-52'>{test.name}</TableCell>
             <TableCell className="text-slate-500 text-sm">
                 Normal : {test.min} {test.max && "-"} {test.max}
                 <br />
@@ -330,166 +330,266 @@ export default function TestCatalogueRow({
                                 <Pencil className='h-4 w-4 text-slate-500' />
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-106.25 lg:max-w-125">
+                        <DialogContent className="sm:max-w-200 max-h-[85vh] overflow-y-auto">
                             <DialogHeader>
                                 <DialogTitle>Edit Test</DialogTitle>
                                 <DialogDescription>
-                                    Make changes to the test here. Click save when you&apos;re done.
+                                    Make changes to the test here. Click save when you're done.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`code-${test._id}`} className="text-right col-span-2">Code</Label>
-                                    <Input id={`code-${test._id}`} defaultValue={test.code} className="col-span-4" disabled />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`name-${test._id}`} className="text-right col-span-2">Name</Label>
-                                    <Input id={`name-${test._id}`} defaultValue={test.name} className="col-span-4" onChange={(e) => setPayload({ ...payload, name: e.target.value })} />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`type-${test._id}`} className="text-right col-span-2">Type</Label>
-                                    <Select defaultValue={test.type} onValueChange={(value: "Lab" | "Imaging") => setPayload({ ...payload, type: value })}>
-                                        <SelectTrigger id={`type-${test._id}`} className="col-span-4 w-full">
-                                            <SelectValue placeholder="Select a type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Lab">Lab</SelectItem>
-                                            <SelectItem value="Imaging">Imaging</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`price-${test._id}`} className="text-right col-span-2">Price</Label>
-                                    <Input id={`price-${test._id}`} type="number" defaultValue={test.price} className="col-span-4" onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} />
-                                </div>
+                            <div className="mt-2 grid gap-4">
+                                <div className="grid grid-cols-12 gap-4">
 
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`dataType-${test._id}`} className="text-right col-span-2">Data Type</Label>
-                                    <Select value={payload.dataType} onValueChange={(value: "number" | "text" | "boolean") => {
-                                        setPayload({ ...payload, dataType: value });
-                                    }}>
-                                        <SelectTrigger id={`dataType-${test._id}`} className="col-span-4 w-full">
-                                            <SelectValue placeholder="Select a data type" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="number">Number</SelectItem>
-                                            <SelectItem value="text">Text</SelectItem>
-                                            <SelectItem value="boolean">Positive/Negative</SelectItem>
-                                            <SelectItem value="options">Options</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
+                                    <div className="col-span-4 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Test Name *</Label>
+                                        <Input
+                                            defaultValue={test.name}
+                                            onChange={(e) => setPayload({ ...payload, name: e.target.value })}
+                                            className="h-9 bg-slate-50"
+                                        />
+                                    </div>
 
-                                {payload.dataType === "number" && (
-                                    <>
-                                        <div className="grid grid-cols-6 items-center gap-4">
-                                            <Label htmlFor={`min-${test._id}`} className="text-right col-span-2">Min Value</Label>
-                                            <Input id={`min-${test._id}`} type="number" value={payload.min ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, min: e.target.value === "" ? null : Number(e.target.value) })} />
-                                        </div>
-                                        <div className="grid grid-cols-6 items-center gap-4">
-                                            <Label htmlFor={`max-${test._id}`} className="text-right col-span-2">Max Value</Label>
-                                            <Input id={`max-${test._id}`} type="number" value={payload.max ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, max: e.target.value === "" ? null : Number(e.target.value) })} />
-                                        </div>
-                                        <div className="grid grid-cols-6 items-center gap-4">
-                                            <Label htmlFor={`womenMin-${test._id}`} className="text-right col-span-2">Women Min</Label>
-                                            <Input id={`womenMin-${test._id}`} type="number" value={payload.womenMin ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, womenMin: e.target.value === "" ? null : Number(e.target.value) })} />
-                                        </div>
-                                        <div className="grid grid-cols-6 items-center gap-4">
-                                            <Label htmlFor={`womenMax-${test._id}`} className="text-right col-span-2">Women Max</Label>
-                                            <Input id={`womenMax-${test._id}`} type="number" value={payload.womenMax ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, womenMax: e.target.value === "" ? null : Number(e.target.value) })} />
-                                        </div>
-                                        <div className="grid grid-cols-6 items-center gap-4">
-                                            <Label htmlFor={`childMin-${test._id}`} className="text-right col-span-2">Child Min</Label>
-                                            <Input id={`childMin-${test._id}`} type="number" value={payload.childMin ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, childMin: e.target.value === "" ? null : Number(e.target.value) })} />
-                                        </div>
-                                        <div className="grid grid-cols-6 items-center gap-4">
-                                            <Label htmlFor={`childMax-${test._id}`} className="text-right col-span-2">Child Max</Label>
-                                            <Input id={`childMax-${test._id}`} type="number" value={payload.childMax ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, childMax: e.target.value === "" ? null : Number(e.target.value) })} />
-                                        </div>
-                                        <div className="grid grid-cols-6 items-center gap-4">
-                                            <Label htmlFor={`nbMin-${test._id}`} className="text-right col-span-2">Newborn Min</Label>
-                                            <Input id={`nbMin-${test._id}`} type="number" value={payload.nbMin ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, nbMin: e.target.value === "" ? null : Number(e.target.value) })} />
-                                        </div>
-                                        <div className="grid grid-cols-6 items-center gap-4">
-                                            <Label htmlFor={`nbMax-${test._id}`} className="text-right col-span-2">Newborn Max</Label>
-                                            <Input id={`nbMax-${test._id}`} type="number" value={payload.nbMax ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, nbMax: e.target.value === "" ? null : Number(e.target.value) })} />
-                                        </div>
-                                    </>
-                                )}
-                                {payload.dataType === "options" && (
-                                    <>
-                                        <div className="grid grid-cols-6 items-center gap-4">
-                                            <Label className="text-right col-span-2">Options</Label>
-                                            <div className="col-span-4 space-y-2">
-                                                <div className="flex gap-2">
-                                                    <Input
-                                                        id={`new-option-${test._id}`}
-                                                        placeholder="Enter option"
-                                                        className="h-9"
-                                                        onKeyDown={(e) => {
-                                                            if (e.key === 'Enter') {
-                                                                e.preventDefault();
-                                                                const val = e.currentTarget.value.trim();
-                                                                if (val) {
-                                                                    setPayload({ ...payload, options: [...payload.options, val] });
-                                                                    e.currentTarget.value = "";
-                                                                }
+                                    <div className="col-span-3 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Test Code *</Label>
+                                        <Input
+                                            type="text"
+                                            defaultValue={test.code}
+                                            disabled
+                                            className="h-9 bg-slate-50"
+                                        />
+                                    </div>
+
+                                    <div className="col-span-3 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Price *</Label>
+                                        <Input
+                                            type="number"
+                                            defaultValue={test.price}
+                                            onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })}
+                                            className="h-9 bg-slate-50"
+                                        />
+                                    </div>
+
+                                    <div className="col-span-3 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Type *</Label>
+                                        <Select
+                                            value={payload.type}
+                                            onValueChange={(val: "Lab" | "Imaging") => setPayload(prev => ({ ...prev, type: val, dataType: val === "Lab" ? "number" : "text" }))}
+                                        >
+                                            <SelectTrigger className="h-9 bg-slate-50 w-full">
+                                                <SelectValue placeholder="Select type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Lab">Lab Test</SelectItem>
+                                                <SelectItem value="Imaging">Imaging</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="col-span-3 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Estimated Duration (HH:MM)</Label>
+                                        <Input
+                                            placeholder="HH:MM"
+                                            value={payload.estimatedTime || ""}
+                                            type="text"
+                                            onChange={(e) => {
+                                                let val = e.target.value.replace(/\D/g, "");
+                                                if (val.length > 4) val = val.slice(0, 4);
+                                                if (val.length >= 3) val = `${val.slice(0, 2)}:${val.slice(2)}`;
+                                                setPayload((prev) => ({ ...prev, estimatedTime: val }));
+                                            }}
+                                            className="h-9 bg-slate-50"
+                                        />
+                                    </div>
+
+                                    <div className="col-span-3 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Unit</Label>
+                                        <Input
+                                            placeholder="e.g. mg/dL"
+                                            value={payload.unit ?? ""}
+                                            onChange={(e) => setPayload((prev) => ({ ...prev, unit: e.target.value }))}
+                                            className="h-9 bg-slate-50"
+                                        />
+                                    </div>
+
+                                    <div className="col-span-3 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Data Type *</Label>
+                                        <Select
+                                            value={payload.dataType}
+                                            onValueChange={(val: "number" | "text" | "boolean" | "options") => {
+                                                setPayload((prev) => ({ ...prev, dataType: val }));
+                                            }}
+                                        >
+                                            <SelectTrigger className="h-9 bg-slate-50 w-full">
+                                                <SelectValue placeholder="Select type" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="number">Number</SelectItem>
+                                                <SelectItem value="text">Text</SelectItem>
+                                                <SelectItem value="boolean">Positive/Negative</SelectItem>
+                                                <SelectItem value="options">Options</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    {payload.dataType === "options" && <>
+                                        <div className="col-span-4 space-y-1.5 ">
+                                            <Label className="text-xs font-medium text-slate-700">Add Options</Label>
+                                            <div className="flex gap-2">
+                                                <Input
+                                                    type="text"
+                                                    className="h-9 bg-slate-50 flex-1"
+                                                    placeholder="Enter Option"
+                                                    id={`edit-option-input-${test._id}`}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            const input = e.currentTarget;
+                                                            const value = input.value.trim();
+                                                            if (value) {
+                                                                setPayload(prev => ({ ...prev, options: [...prev.options, value] }));
+                                                                input.value = '';
                                                             }
-                                                        }}
-                                                    />
-                                                    <Button
-                                                        type="button"
-                                                        size="sm"
-                                                        onClick={() => {
-                                                            const input = document.getElementById(`new-option-${test._id}`) as HTMLInputElement;
-                                                            const val = input.value.trim();
-                                                            if (val) {
-                                                                setPayload({ ...payload, options: [...payload.options, val] });
-                                                                input.value = "";
-                                                            }
-                                                        }}
-                                                    >
-                                                        <Plus className="h-4 w-4" />
-                                                    </Button>
-                                                </div>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {payload.options.map((option, index) => (
-                                                        <div key={index} className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-md text-xs border border-slate-200">
-                                                            <span>{option}</span>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => setPayload({ ...payload, options: payload.options.filter((_, i) => i !== index) })}
-                                                                className="text-slate-400 hover:text-red-500"
-                                                            >
-                                                                ×
-                                                            </button>
-                                                        </div>
-                                                    ))}
-                                                </div>
+                                                        }
+                                                    }}
+                                                />
+                                                <Button
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        const input = document.getElementById(`edit-option-input-${test._id}`) as HTMLInputElement;
+                                                        const value = input.value.trim();
+                                                        if (value) {
+                                                            setPayload(prev => ({ ...prev, options: [...prev.options, value] }));
+                                                            input.value = '';
+                                                        }
+                                                    }}
+                                                    className="h-9 w-9 p-0 bg-slate-50 shrink-0"
+                                                >
+                                                    <Plus className="h-4 w-4" color="grey" />
+                                                </Button>
+                                            </div>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {payload.options.map((opt, i) => (
+                                                    <div key={i} className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200">
+                                                        <span>{opt}</span>
+                                                        <button
+                                                            onClick={() => setPayload(prev => ({ ...prev, options: prev.options.filter((_, idx) => idx !== i) }))}
+                                                            className="text-slate-400 hover:text-red-500"
+                                                        >
+                                                            ×
+                                                        </button>
+                                                    </div>
+                                                ))}
                                             </div>
                                         </div>
-                                    </>
-                                )}
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`unit-${test._id}`} className="text-right col-span-2">Unit</Label>
-                                    <Input id={`unit-${test._id}`} value={payload.unit ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, unit: e.target.value })} />
-                                </div>
-                                <div className="grid grid-cols-6 items-center gap-4">
-                                    <Label htmlFor={`estimatedTime-${test._id}`} className="text-right col-span-2">Estimated Duration (HH:MM)</Label>
-                                    <Input id={`estimatedTime-${test._id}`} type="text" placeholder="HH:MM" value={payload.estimatedTime || ""} className="col-span-4" onChange={(e) => {
-                                        let val = e.target.value.replace(/\D/g, "");
-                                        if (val.length > 4) val = val.slice(0, 4);
-                                        if (val.length >= 3) val = `${val.slice(0, 2)}:${val.slice(2)}`;
-                                        setPayload({ ...payload, estimatedTime: val });
-                                    }} />
+                                    </>}
+
+                                    {payload.dataType === "number" && <>
+                                        <div className="col-span-3 space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-700">Range Min</Label>
+                                            <Input
+                                                type="number"
+                                                placeholder="0"
+                                                value={payload.min ?? ""}
+                                                onChange={(e) => setPayload((prev) => ({ ...prev, min: e.target.value === "" ? null : Number(e.target.value) }))}
+                                                className="h-9 bg-slate-50"
+                                            />
+                                        </div>
+
+                                        <div className="col-span-3 space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-700">Range Max</Label>
+                                            <Input
+                                                type="number"
+                                                placeholder="100"
+                                                value={payload.max ?? ""}
+                                                onChange={(e) => setPayload((prev) => ({ ...prev, max: e.target.value === "" ? null : Number(e.target.value) }))}
+                                                className="h-9 bg-slate-50"
+                                            />
+                                        </div>
+
+                                        <div className="col-span-3 space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-700">Women Range Min</Label>
+                                            <Input
+                                                type="number"
+                                                placeholder="0"
+                                                value={payload.womenMin ?? ""}
+                                                onChange={(e) => setPayload((prev) => ({ ...prev, womenMin: e.target.value === "" ? null : Number(e.target.value) }))}
+                                                className="h-9 bg-slate-50"
+                                            />
+                                        </div>
+                                        <div className="col-span-3 space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-700">Women Range Max</Label>
+                                            <Input
+                                                type="number"
+                                                placeholder="100"
+                                                value={payload.womenMax ?? ""}
+                                                onChange={(e) => setPayload((prev) => ({ ...prev, womenMax: e.target.value === "" ? null : Number(e.target.value) }))}
+                                                className="h-9 bg-slate-50"
+                                            />
+                                        </div>
+
+                                        <div className="col-span-3 space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-700">Child Range Min</Label>
+                                            <Input
+                                                type="number"
+                                                placeholder="0"
+                                                value={payload.childMin ?? ""}
+                                                onChange={(e) => setPayload((prev) => ({ ...prev, childMin: e.target.value === "" ? null : Number(e.target.value) }))}
+                                                className="h-9 bg-slate-50"
+                                            />
+                                        </div>
+                                        <div className="col-span-3 space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-700">Child Range Max</Label>
+                                            <Input
+                                                type="number"
+                                                placeholder="100"
+                                                value={payload.childMax ?? ""}
+                                                onChange={(e) => setPayload((prev) => ({ ...prev, childMax: e.target.value === "" ? null : Number(e.target.value) }))}
+                                                className="h-9 bg-slate-50"
+                                            />
+                                        </div>
+
+                                        <div className="col-span-3 space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-700">Newborn Range Min</Label>
+                                            <Input
+                                                type="number"
+                                                placeholder="0"
+                                                value={payload.nbMin ?? ""}
+                                                onChange={(e) => setPayload((prev) => ({ ...prev, nbMin: e.target.value === "" ? null : Number(e.target.value) }))}
+                                                className="h-9 bg-slate-50"
+                                            />
+                                        </div>
+                                        <div className="col-span-3 space-y-1.5">
+                                            <Label className="text-xs font-medium text-slate-700">Newborn Range Max</Label>
+                                            <Input
+                                                type="number"
+                                                placeholder="100"
+                                                value={payload.nbMax ?? ""}
+                                                onChange={(e) => setPayload((prev) => ({ ...prev, nbMax: e.target.value === "" ? null : Number(e.target.value) }))}
+                                                className="h-9 bg-slate-50"
+                                            />
+                                        </div>
+                                    </>}
+
+                                    <div className="grid grid-cols-12 gap-4 col-span-full mt-4">
+                                        <div className="col-span-full flex justify-end items-end w-full gap-2">
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => setEditOpen(false)}
+                                            >
+                                                Cancel
+                                            </Button>
+                                            <Button
+                                                className="h-9 bg-emerald-600 hover:bg-emerald-700 text-white"
+                                                onClick={() => {
+                                                    updateTest(payload as any);
+                                                }}
+                                            >
+                                                Save Changes
+                                            </Button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <DialogFooter>
-                                <Button onClick={() => {
-                                    updateTest(payload);
-                                    setEditOpen(false);
-                                }}>Save changes</Button>
-                            </DialogFooter>
                         </DialogContent>
                     </Dialog>
 

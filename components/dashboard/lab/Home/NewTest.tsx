@@ -100,7 +100,7 @@ export default function NewTest({
   ] as const;
   const [payload, setPayload] = useState<{
     patient: string;
-    doctor?: string;
+    doctor?: string | null;
     lab: string;
     test: { name: string }[];
     panels: string[];
@@ -144,7 +144,7 @@ export default function NewTest({
 
     try {
       await toast.promise(
-        api.post("/lab/report", { ...payload, date: submitDate.toISOString() }),
+        api.post("/lab/report", { ...payload, date: submitDate.toISOString(), doctor: payload.doctor === "self" ? null : payload.doctor }),
         {
           loading: "We are create new lab test order",
           success: ({ data }) => data.message,
@@ -155,7 +155,7 @@ export default function NewTest({
       mutate?.();
       setPayload({
         patient: "",
-        doctor: user?._id ?? "",
+        doctor: user?._id ?? null,
         lab: user?._id ?? "",
         test: [],
         panels: [],
@@ -289,10 +289,10 @@ export default function NewTest({
         <div className="flex gap-2 justify-between w-full">
           <DoctorSelection
             className="max-w-72"
-            setValue={(id: string) => {
+            setValue={(id: string | undefined) => {
               setPayload((prev) => ({ ...prev, doctor: id }));
             }}
-            doctor={payload.doctor}
+            doctor={payload.doctor ?? undefined}
           />
 
           <TechnicianSelection
