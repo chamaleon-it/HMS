@@ -93,10 +93,9 @@ export default function PanelCatalogueRow({
     panelMutate: () => void;
 }) {
 
-    const initialPanelTests = panel.tests?.length ? panel.tests : tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
+    console.log(panel)
 
-    // Default estimated time derived from sum of test estimated times
-    const defaultEstimatedTime = initialPanelTests.reduce((sum, t) => sum + (Number(t.estimatedTime) || 0), 0);
+    const initialPanelTests = panel.tests?.length ? panel.tests : tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
 
     const [editOpen, setEditOpen] = useState(false);
     const [viewOpen, setViewOpen] = useState(false);
@@ -107,7 +106,7 @@ export default function PanelCatalogueRow({
     const [payload, setPayload] = useState({
         name: panel.name,
         price: panel.price,
-        estimatedTime: defaultEstimatedTime
+        estimatedTime: panel.estimatedTime
     });
 
     const [selectedTests, setSelectedTests] = useState<any[]>(initialPanelTests);
@@ -157,11 +156,11 @@ export default function PanelCatalogueRow({
             setPayload({
                 name: panel.name,
                 price: panel.price,
-                estimatedTime: defaultEstimatedTime
+                estimatedTime: panel.estimatedTime
             });
             setSearchTestQuery("");
         }
-    }, [editOpen, initialPanelTests.length, panel.name, panel.price, defaultEstimatedTime]);
+    }, [editOpen, initialPanelTests.length, panel.name, panel.price, panel.estimatedTime]);
 
     const updatePanel = useCallback(async () => {
         try {
@@ -209,9 +208,6 @@ export default function PanelCatalogueRow({
         setAddTestDropdownOpen(false);
     }
 
-    const availableTestsToAdd = tests
-        .filter(t => !selectedTests.find(st => st._id === t._id))
-        .filter(t => t.name.toLowerCase().includes(searchTestQuery.toLowerCase()) || t.code?.toLowerCase().includes(searchTestQuery.toLowerCase()));
 
     const formatRange = (t: any) => {
         const ranges = [];
@@ -228,7 +224,7 @@ export default function PanelCatalogueRow({
             <TableCell>{idx + 1}</TableCell>
             <TableCell className="font-medium">{panel.name}</TableCell>
             <TableCell>{formatINR(panel.price)}</TableCell>
-            <TableCell>{defaultEstimatedTime > 0 ? `${defaultEstimatedTime} Minutes` : "N/A"}</TableCell>
+            <TableCell>{panel.estimatedTime ? `${panel.estimatedTime} Minutes` : "N/A"}</TableCell>
             <TableCell align="right">
                 <div className="flex gap-2 items-center justify-end">
 
@@ -257,7 +253,7 @@ export default function PanelCatalogueRow({
                                     </div>
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Estimated Duration</Label>
-                                        <p className="font-medium text-sm">{defaultEstimatedTime > 0 ? `${defaultEstimatedTime} Minutes` : "N/A"}</p>
+                                        {panel?.estimatedTime ? <p className="font-medium text-sm">{panel?.estimatedTime > 0 ? `${panel?.estimatedTime} Minutes` : "N/A"}</p> : <p className="font-medium text-sm">N/A</p>}
                                     </div>
                                 </div>
 
