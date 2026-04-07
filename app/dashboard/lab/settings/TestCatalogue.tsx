@@ -393,7 +393,7 @@ export default function TestCatalogue({
                   </div>
 
                   <div className="col-span-3 space-y-1.5">
-                    <Label className="text-xs font-medium text-slate-700">Test Code *</Label>
+                    <Label className="text-xs font-medium text-slate-700">Test Code</Label>
                     <Input
                       type="text"
                       placeholder="e.g. CBC"
