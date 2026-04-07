@@ -22,6 +22,13 @@ import {
 import { Beaker, CheckCircle2, Edit, FileCheck2, FlaskConical, Save, Printer, X, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import {
@@ -72,6 +79,8 @@ interface Props {
         code: string;
         name: string;
         type: string;
+        dataType?: "number" | "text" | "boolean" | "options";
+        options?: string[];
         unit?: string;
         min?: number;
         max?: number;
@@ -242,6 +251,9 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                       <TableHead className="w-[30%] py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         Result Value
                       </TableHead>
+                      <TableHead className="w-[30%] py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        Unit
+                      </TableHead>
                       <TableHead className="w-[25%] pr-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         Reference Range
                       </TableHead>
@@ -311,33 +323,83 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                         <TableCell className="py-4">
                           <div className="relative max-w-60">
                             {labTest.name?.type === "Lab" ? (
-                              <Input
-                                value={
-                                  payload.test.find(
-                                    (item) => item._id === labTest._id
-                                  )?.value
-                                }
-                                onChange={(e) =>
-                                  setPayload({
-                                    ...payload,
-                                    test: payload.test.map((item) =>
-                                      item._id === labTest._id
-                                        ? { ...item, value: e.target.value }
-                                        : item
-                                    ),
-                                  })
-                                }
-                                onKeyDown={(e) => {
-                                  if (e.key === "Enter") {
-                                    e.preventDefault();
+                              labTest.name?.dataType === "options" ? (
+                                <Select
+                                  value={
+                                    payload.test.find(
+                                      (item) => item._id === labTest._id
+                                    )?.value?.toString() || ""
+                                  }
+                                  onValueChange={(val) =>
+                                    setPayload({
+                                      ...payload,
+                                      test: payload.test.map((item) =>
+                                        item._id === labTest._id
+                                          ? { ...item, value: val }
+                                          : item
+                                      ),
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger
+                                    id={`result-input-${labTest._id}`}
+                                    className="h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900"
+                                    onKeyDown={(e) => {
+                                      if (e.key === "Enter") {
+                                        e.preventDefault();
 
-                                    // Find current index in payload
-                                    const idx = r?.test?.findIndex(t => t._id === labTest._id) ?? -1;
+                                        // Find current index in payload
+                                        const idx = r?.test?.findIndex(t => t._id === labTest._id) ?? -1;
 
-                                    // Try to focus the next text input
-                                    if (idx >= 0 && r?.test && idx + 1 < r.test.length) {
-                                      const nextTest = r.test[idx + 1];
-                                      if (nextTest.name?.type === "Lab") {
+                                        // Try to focus the next tool
+                                        if (idx >= 0 && r?.test && idx + 1 < r.test.length) {
+                                          const nextTest = r.test[idx + 1];
+                                          // give a small tick for any React renders to finish
+                                          setTimeout(() => {
+                                            const nextInput = document.getElementById(`result-input-${nextTest._id}`);
+                                            if (nextInput) nextInput.focus();
+                                          }, 10);
+                                        }
+                                      }
+                                    }}
+                                  >
+                                    <SelectValue placeholder="Select result" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {(labTest.name?.options || []).map((opt: string) => (
+                                      <SelectItem key={opt} value={opt}>
+                                        {opt}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              ) : (
+                                <Input
+                                  value={
+                                    payload.test.find(
+                                      (item) => item._id === labTest._id
+                                    )?.value
+                                  }
+                                  onChange={(e) =>
+                                    setPayload({
+                                      ...payload,
+                                      test: payload.test.map((item) =>
+                                        item._id === labTest._id
+                                          ? { ...item, value: e.target.value }
+                                          : item
+                                      ),
+                                    })
+                                  }
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.preventDefault();
+
+                                      // Find current index in payload
+                                      const idx = r?.test?.findIndex(t => t._id === labTest._id) ?? -1;
+
+                                      // Try to focus the next text input
+                                      if (idx >= 0 && r?.test && idx + 1 < r.test.length) {
+                                        const nextTest = r.test[idx + 1];
                                         // give a small tick for any React renders to finish
                                         setTimeout(() => {
                                           const nextInput = document.getElementById(`result-input-${nextTest._id}`);
@@ -345,13 +407,13 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                                         }, 10);
                                       }
                                     }
-                                  }
-                                }}
-                                type="text"
-                                id={`result-input-${labTest._id}`}
-                                placeholder="Enter result"
-                                className="pl-3 pr-12 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
-                              />
+                                  }}
+                                  type="text"
+                                  id={`result-input-${labTest._id}`}
+                                  placeholder="Enter result"
+                                  className="pl-2 pr-2 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
+                                />
+                              )
                             ) : (
                               <Input
                                 type="file"
@@ -382,12 +444,14 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                                 }}
                               />
                             )}
-                            <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center pointer-events-none">
-                              <span className="text-xs font-medium text-gray-400 bg-gray-50 px-1.5 py-0.5 rounded border border-gray-100">
+                          </div>
+                        </TableCell>
+                        <TableCell className="pr-6 py-4 text-right">
+                          <div className="flex flex-col items-end gap-0.5">
+                              <span className="text-sm font-medium text-gray-700">
                                 {labTest.name?.unit}
                               </span>
                             </div>
-                          </div>
                         </TableCell>
                         <TableCell className="pr-6 py-4 text-right">
                           <div className="flex flex-col items-end gap-0.5">

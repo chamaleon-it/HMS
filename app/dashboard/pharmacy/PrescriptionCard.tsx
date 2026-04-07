@@ -123,7 +123,7 @@ export default function PrescriptionCard({
           )}
           <div className="col-span-1">Available</div>
           <div className="col-span-1">Quantity</div>
-          <div className="col-span-1">Price</div>
+          <div className="col-span-1">Unit Price</div>
           <div className="col-span-1">Total</div>
           <div className="col-span-1 text-right">Actions</div>
         </div>

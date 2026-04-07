@@ -129,6 +129,16 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
+                <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+              </div>
+              MRP
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.mrp}</div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
               <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
                 <Calendar className="w-3.5 h-3.5 text-red-600" />
               </div>
@@ -262,7 +272,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
-                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">P Price</TableHead>
+                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Purchase Rate</TableHead>
                 <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Qty</TableHead>
               </TableRow>
             </TableHeader>

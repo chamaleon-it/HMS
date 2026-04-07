@@ -325,7 +325,7 @@ export default function PanelCatalogueRow({
                                     <Label className="text-slate-800 font-bold mb-2 block border-b pb-2">Modify Tests in Panel</Label>
                                     <div className="rounded-md border border-slate-200 overflow-hidden">
                                         <div
-                                            className="max-h-[400px] overflow-y-auto w-full"
+                                            className="max-h-100 overflow-y-auto w-full"
                                             onWheel={(e) => e.stopPropagation()}
                                         >
                                             <DndContext
@@ -338,10 +338,10 @@ export default function PanelCatalogueRow({
                                                     <TableHeader className="bg-slate-50 sticky top-0 z-10">
                                                         <TableRow>
                                                             <TableHead className="w-8 p-0 bg-slate-50"></TableHead>
-                                                            <TableHead className="w-[80px] bg-slate-50">SL No</TableHead>
-                                                            <TableHead className="w-[100px] bg-slate-50">Code</TableHead>
+                                                            <TableHead className="w-20 bg-slate-50">SL No</TableHead>
+                                                            <TableHead className="w-25 bg-slate-50">Code</TableHead>
                                                             <TableHead className="bg-slate-50">Test Name</TableHead>
-                                                            <TableHead className="w-[100px] text-right bg-slate-50">Action</TableHead>
+                                                            <TableHead className="w-25 text-right bg-slate-50">Action</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -413,7 +413,7 @@ export default function PanelCatalogueRow({
                                                                         {selectedTests.length === tests.length ? "All tests added to panel..." : "Search and add test to panel..."}
                                                                     </Button>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-[800px] p-0" align="start">
+                                                                <PopoverContent className="w-200 p-0" align="start">
                                                                     <Command>
                                                                         <CommandInput placeholder="Type test name or code..." className="h-11" />
                                                                         <CommandList onWheel={(e) => e.stopPropagation()}>

@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { TableCell, TableRow } from '@/components/ui/table'
 import api from '@/lib/axios';
 import { formatINR } from '@/lib/fNumber';
-import { Eye, Pencil, Trash2 } from 'lucide-react';
+import { Eye, Pencil, Trash2, Plus } from 'lucide-react';
 import React, { useCallback, useState } from 'react'
 import toast from 'react-hot-toast';
 import configuration from '@/config/configuration';
@@ -44,7 +44,8 @@ export default function TestCatalogueRow({
         unit?: string;
         estimatedTime?: string;
         panels: { name: string }[]
-        dataType: "number" | "text" | "boolean"
+        dataType: "number" | "text" | "boolean" | "options";
+        options: string[];
     };
     testMutate: () => void
 }) {
@@ -71,7 +72,8 @@ export default function TestCatalogueRow({
         unit: string | null | undefined;
         estimatedTime?: string;
         _id: string;
-        dataType: "number" | "text" | "boolean"
+        dataType: "number" | "text" | "boolean" | "options";
+        options: string[];
     }>({
         code: test.code,
         name: test.name,
@@ -89,7 +91,8 @@ export default function TestCatalogueRow({
         unit: test.unit,
         estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
         _id: test._id,
-        dataType: test.dataType
+        dataType: test.dataType,
+        options: test.options || []
     })
 
     // Reset payload when modal opens to avoid state persistence bug
@@ -112,7 +115,8 @@ export default function TestCatalogueRow({
                 unit: test.unit,
                 estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
                 _id: test._id,
-                dataType: test.dataType
+                dataType: test.dataType,
+                options: test.options || []
             });
         }
     }, [editOpen, test]);
@@ -124,7 +128,7 @@ export default function TestCatalogueRow({
             name: string;
             price: number;
             type: "" | "Lab" | "Imaging";
-            dataType: "number" | "text" | "boolean";
+            dataType: "number" | "text" | "boolean" | "options";
             min?: number | null;
             max?: number | null;
             womenMin?: number | null;
@@ -135,9 +139,22 @@ export default function TestCatalogueRow({
             nbMax?: number | null;
             unit?: string | null;
             estimatedTime?: string;
+            options?: string[];
         }) => {
             try {
                 let finalPayload = { ...data };
+
+                if (data.dataType === "options") {
+                    finalPayload.min = null;
+                    finalPayload.max = null;
+                    finalPayload.womenMin = null;
+                    finalPayload.womenMax = null;
+                    finalPayload.childMin = null;
+                    finalPayload.childMax = null;
+                    finalPayload.nbMin = null;
+                    finalPayload.nbMax = null;
+                    finalPayload.unit = null;
+                }
 
                 // Defer clearing fields until save if data type is not number
                 if (data.dataType !== "number") {
@@ -184,7 +201,7 @@ export default function TestCatalogueRow({
                     success: "Test Deleted Successfully",
                     error: (err) => err?.response?.data?.message || "Failed to Delete Test"
                 });
-                
+
                 setDeleteOpen(false);
                 testMutate();
             } catch (error) {
@@ -200,16 +217,8 @@ export default function TestCatalogueRow({
 
     return (
         <TableRow>
-            <TableCell className="font-medium">{test.code}</TableCell>
-            <TableCell>{test.name}</TableCell>
-            <TableCell>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
-                    {test.type}
-                </span>
-            </TableCell>
-            <TableCell>{formatINR(test.price)}</TableCell>
-            <TableCell>{test.estimatedTime || ""}</TableCell>
-            <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
+            <TableCell className="font-medium max-w-36!"> <p className='whitespace-break-spaces'>{test.code}</p></TableCell>
+            <TableCell className='whitespace-break-spaces max-w-52'>{test.name}</TableCell>
             <TableCell className="text-slate-500 text-sm">
                 Normal : {test.min} {test.max && "-"} {test.max}
                 <br />
@@ -219,9 +228,8 @@ export default function TestCatalogueRow({
                 <br />
                 NB : {test.nbMin} - {test.nbMax}
             </TableCell>
-            <TableCell className="text-slate-500">{test.unit}</TableCell>
             <TableCell>
-                <div className="flex gap-2 items-center justify-end">
+                <div className="flex flex-col gap-1 items-center justify-end">
                     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
                         <DialogTrigger asChild>
                             <Button size="sm" variant="ghost">
@@ -266,6 +274,27 @@ export default function TestCatalogueRow({
                                         <p className="font-medium text-sm">{test.estimatedTime ? `${test.estimatedTime} Minutes` : "N/A"}</p>
                                     </div>
                                 </div>
+
+                                {test.dataType === 'options' && (
+                                    <>
+                                        <div className="my-2 border-t border-slate-200" />
+                                        <h4 className="font-semibold text-sm">Predefined Options</h4>
+                                        <div className="flex flex-wrap gap-2 mt-2">
+                                            {test.options?.length > 0 ? (
+                                                test.options.map((option, idx) => (
+                                                    <span
+                                                        key={option}
+                                                        className="bg-slate-100 px-2 py-1 rounded-md text-xs border border-slate-200"
+                                                    >
+                                                        {option}
+                                                    </span>
+                                                ))
+                                            ) : (
+                                                <p className="text-xs text-slate-500 italic">No options defined.</p>
+                                            )}
+                                        </div>
+                                    </>
+                                )}
 
                                 {test.dataType === 'number' && (
                                     <>
@@ -346,6 +375,7 @@ export default function TestCatalogueRow({
                                             <SelectItem value="number">Number</SelectItem>
                                             <SelectItem value="text">Text</SelectItem>
                                             <SelectItem value="boolean">Positive/Negative</SelectItem>
+                                            <SelectItem value="options">Options</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -386,6 +416,60 @@ export default function TestCatalogueRow({
                                         </div>
                                     </>
                                 )}
+                                {payload.dataType === "options" && (
+                                    <>
+                                        <div className="grid grid-cols-6 items-center gap-4">
+                                            <Label className="text-right col-span-2">Options</Label>
+                                            <div className="col-span-4 space-y-2">
+                                                <div className="flex gap-2">
+                                                    <Input
+                                                        id={`new-option-${test._id}`}
+                                                        placeholder="Enter option"
+                                                        className="h-9"
+                                                        onKeyDown={(e) => {
+                                                            if (e.key === 'Enter') {
+                                                                e.preventDefault();
+                                                                const val = e.currentTarget.value.trim();
+                                                                if (val) {
+                                                                    setPayload({ ...payload, options: [...payload.options, val] });
+                                                                    e.currentTarget.value = "";
+                                                                }
+                                                            }
+                                                        }}
+                                                    />
+                                                    <Button
+                                                        type="button"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            const input = document.getElementById(`new-option-${test._id}`) as HTMLInputElement;
+                                                            const val = input.value.trim();
+                                                            if (val) {
+                                                                setPayload({ ...payload, options: [...payload.options, val] });
+                                                                input.value = "";
+                                                            }
+                                                        }}
+                                                    >
+                                                        <Plus className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {payload.options.map((option, index) => (
+                                                        <div key={index} className="flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-md text-xs border border-slate-200">
+                                                            <span>{option}</span>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => setPayload({ ...payload, options: payload.options.filter((_, i) => i !== index) })}
+                                                                className="text-slate-400 hover:text-red-500"
+                                                            >
+                                                                ×
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
                                 <div className="grid grid-cols-6 items-center gap-4">
                                     <Label htmlFor={`unit-${test._id}`} className="text-right col-span-2">Unit</Label>
                                     <Input id={`unit-${test._id}`} value={payload.unit ?? ""} className="col-span-4" onChange={(e) => setPayload({ ...payload, unit: e.target.value })} />
@@ -409,7 +493,7 @@ export default function TestCatalogueRow({
                         </DialogContent>
                     </Dialog>
 
-                    { <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    {<AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                         <AlertDialogTrigger asChild>
                             <Button size="sm" variant="ghost">
                                 <Trash2 className='h-4 w-4 text-slate-500 hover:text-red-500' />
@@ -429,9 +513,20 @@ export default function TestCatalogueRow({
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog> }
+                    </AlertDialog>}
                 </div>
             </TableCell>
+            <TableCell>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
+                    {test.type}
+                </span>
+            </TableCell>
+            <TableCell>{formatINR(test.price)}</TableCell>
+            <TableCell>{test.estimatedTime || ""}</TableCell>
+            <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
+
+            <TableCell className="text-slate-500">{test.unit}</TableCell>
+
         </TableRow>
     )
 }

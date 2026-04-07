@@ -199,7 +199,7 @@ export default function CreateBill({
       return;
     }
     try {
-      await toast.promise(api.post("/billing", payload), {
+      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)) }), {
         loading: "We are generating this bill.",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
