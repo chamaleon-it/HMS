@@ -28,6 +28,7 @@ import PanelCatalogueRow from "./PanelCatalogueRow";
 import useGetPanels from "@/data/useGetPanels";
 import useSWR from "swr";
 import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
+import { Search } from "lucide-react";
 import RemoveTestsFromPanelDialog from "./RemoveTestsFromPanelDialog";
 import { formatINR } from "@/lib/fNumber";
 import {
@@ -247,7 +248,7 @@ export default function TestCatalogue({
 
   const addNewTest = async () => {
     try {
-      if (!newTest.code || !newTest.name || !newTest.type || !newTest.price) {
+      if ( !newTest.name || !newTest.type ) {
         toast.error("Please fill all required fields");
         return;
       }
@@ -406,7 +407,7 @@ export default function TestCatalogue({
                   </div>
 
                   <div className="col-span-3 space-y-1.5">
-                    <Label className="text-xs font-medium text-slate-700">Price *</Label>
+                    <Label className="text-xs font-medium text-slate-700">Price</Label>
                     <Input
                       placeholder="e.g. 100"
                       value={newTest.price || ""}
@@ -453,13 +454,9 @@ export default function TestCatalogue({
 
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Unit</Label>
-                    <Input
-                      placeholder="e.g. mg/dL"
+                    <UnitAutoInput
                       value={newTest.unit ?? ""}
-                      onChange={(e) =>
-                        setNewTest((prev) => ({ ...prev, unit: e.target.value }))
-                      }
-                      className="h-9 bg-slate-50"
+                      onChange={(val) => setNewTest((prev) => ({ ...prev, unit: val }))}
                     />
                   </div>
 
@@ -537,7 +534,7 @@ export default function TestCatalogue({
                   {newTest.dataType === "number" && <>
 
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700">Range Min</Label>
+                      <Label className="text-xs font-medium text-slate-700"><Mars className="h-3.5 w-3.5" />Range Min</Label>
                       <Input
                         type="number"
                         placeholder="0"
@@ -550,7 +547,7 @@ export default function TestCatalogue({
                     </div>
 
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700">Range Max</Label>
+                      <Label className="text-xs font-medium text-slate-700"><Mars className="h-3.5 w-3.5" />Range Max</Label>
                       <Input
                         type="number"
                         placeholder="100"
@@ -563,7 +560,7 @@ export default function TestCatalogue({
                     </div>
 
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700">Women Range Min</Label>
+                      <Label className="text-xs font-medium text-slate-700"><Venus className="h-3.5 w-3.5" />Women Range Min</Label>
                       <Input
                         type="number"
                         placeholder="0"
@@ -575,7 +572,7 @@ export default function TestCatalogue({
                       />
                     </div>
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700">Women Range Max</Label>
+                      <Label className="text-xs font-medium text-slate-700"><Venus className="h-3.5 w-3.5" />Women Range Max</Label>
                       <Input
                         type="number"
                         placeholder="100"
@@ -613,7 +610,7 @@ export default function TestCatalogue({
                     </div>
 
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700">Newborn Range Min</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Baby className="h-3.5 w-3.5" /> Newborn Min</Label>
                       <Input
                         type="number"
                         placeholder="0"
@@ -625,7 +622,7 @@ export default function TestCatalogue({
                       />
                     </div>
                     <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700">Newborn Range Max</Label>
+                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Baby className="h-3.5 w-3.5" /> Newborn Max</Label>
                       <Input
                         type="number"
                         placeholder="100"
@@ -1211,3 +1208,93 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     </div>
   )
 }
+
+const UnitAutoInput = ({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (val: string) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+
+  const defaultOptions = ["mg/dL", "fL", "g/dL", "pg", "10^3/µL", "10^6/µL", "%"];
+  const [options, setOptions] = useState<string[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem("customUnits") || "null") || defaultOptions;
+    } catch {
+      return defaultOptions;
+    }
+  });
+
+  const saveOption = (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) return;
+
+    onChange(trimmed);
+
+    if (!options.some(o => o.toLowerCase() === trimmed.toLowerCase())) {
+      const newOptions = [...options, trimmed];
+      setOptions(newOptions);
+      localStorage.setItem("customUnits", JSON.stringify(newOptions));
+    }
+  };
+
+  const filtered = options.filter(
+    opt => !value || opt.toLowerCase().includes(value.toLowerCase())
+  );
+
+  const isNew = value && !options.some(opt => opt.toLowerCase() === value.toLowerCase());
+
+  return (
+    <div className="relative">
+      <Input
+        value={value}
+        onChange={(e) => {
+          onChange(e.target.value);
+          setOpen(true);
+        }}
+        onFocus={() => setOpen(true)}
+        onBlur={() =>
+          setTimeout(() => {
+            setOpen(false);
+            saveOption(value);
+          }, 150)
+        }
+        placeholder="e.g. mg/dL"
+        className="h-9 bg-slate-50 relative z-10"
+      />
+
+      {open && (
+        <div className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+          {filtered.map((opt) => (
+            <div
+              key={opt}
+              className="px-3 py-2 text-xs text-slate-700 hover:bg-slate-100 cursor-pointer"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                saveOption(opt);
+                setOpen(false);
+              }}
+            >
+              {opt}
+            </div>
+          ))}
+
+          {isNew && (
+            <div
+              className="px-3 py-2 text-xs italic bg-sky-50 text-sky-700 cursor-pointer hover:bg-sky-100"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                saveOption(value);
+                setOpen(false);
+              }}
+            >
+              + Add custom unit: "{value}"
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};

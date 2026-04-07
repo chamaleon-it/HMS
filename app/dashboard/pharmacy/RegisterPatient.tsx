@@ -450,7 +450,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         <Button variant="ghost" onClick={() => onClose()} type="button">
           Close
         </Button>
-        <Button type="submit">{patient?._id ? "Update Customer" : "Register Customer"}</Button>
+        <Button type="submit" className="bg-black hover:bg-gray-900 text-white hover:text-white transition-colors shadow-sm">{patient?._id ? "Update Customer" : "Register Customer"}</Button>
       </div>
     </form>
   );
