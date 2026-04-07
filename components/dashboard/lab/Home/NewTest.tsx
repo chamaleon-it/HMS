@@ -155,7 +155,7 @@ export default function NewTest({
       mutate?.();
       setPayload({
         patient: "",
-        doctor: user?._id ?? undefined,
+        doctor: user?._id ?? null,
         lab: user?._id ?? "",
         test: [],
         panels: [],
