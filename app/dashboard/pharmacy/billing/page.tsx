@@ -44,7 +44,7 @@ export default function BillingPage() {
     params.set("q", filter.q);
   }
 
-  if (filter.qEnd) {
+  if (filter.qEnd && filter.qEnd.length >= 7) {
     params.set("qEnd", filter.qEnd);
   }
 
