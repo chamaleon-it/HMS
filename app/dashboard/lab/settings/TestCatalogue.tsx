@@ -658,7 +658,7 @@ export default function TestCatalogue({
                   className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
                   onClick={() => setIsNewPanelModalOpen(true)}
                 >
-                  Add New Panel
+                  Create New Panel
                 </Button>
               </div>
             </div>
@@ -666,7 +666,7 @@ export default function TestCatalogue({
             <Dialog open={isNewPanelModalOpen} onOpenChange={setIsNewPanelModalOpen}>
               <DialogContent className="sm:max-w-150">
                 <DialogHeader>
-                  <DialogTitle>Add New Panel</DialogTitle>
+                  <DialogTitle>Create New Panel</DialogTitle>
                   <DialogDescription>Create a new panel in the catalogue.</DialogDescription>
                 </DialogHeader>
                 <AddPanelForm onSuccess={() => {
