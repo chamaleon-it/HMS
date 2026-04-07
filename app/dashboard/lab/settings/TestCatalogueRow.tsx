@@ -181,12 +181,12 @@ export default function TestCatalogueRow({
                 await toast.promise(api.patch(`/lab/panels/test/${payload._id}`, finalPayload), {
                     loading: "Updating Test",
                     success: "Test Updated Successfully",
-                    error: "Failed to Update Test"
+                    error: (err) => err?.response?.data?.message || "Failed to Update Test"
                 })
                 setEditOpen(false)
                 testMutate()
             } catch (error) {
-                toast.error(`Failed to Update Test : ${error}`)
+
             }
         },
         [testMutate, payload._id],
@@ -354,7 +354,7 @@ export default function TestCatalogueRow({
                                         <Input
                                             type="text"
                                             defaultValue={test.code}
-                                            disabled
+                                            onChange={(e) => setPayload({ ...payload, code: e.target.value })}
                                             className="h-9 bg-slate-50"
                                         />
                                     </div>
