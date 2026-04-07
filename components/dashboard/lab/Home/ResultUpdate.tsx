@@ -61,11 +61,11 @@ function TimePicker({ date, onChange, disabled }: { date: Date | undefined; onCh
     if (ampm === "AM" && rawHour === 12) rawHour = 0;
     onChange(rawHour, minutes);
   };
-  
+
   const handleMinuteChange = (v: string) => {
     onChange(hours24, parseInt(v));
   };
-  
+
   const handleAmpmChange = (v: string) => {
     let newHour = hours24;
     if (v === "PM" && hours24 < 12) newHour += 12;
@@ -76,28 +76,28 @@ function TimePicker({ date, onChange, disabled }: { date: Date | undefined; onCh
   return (
     <div className="flex gap-1.5 items-center justify-end">
       <Select value={hours12.toString().padStart(2, '0')} onValueChange={handleHourChange} disabled={disabled}>
-         <SelectTrigger className="w-[55px] h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
-         <SelectContent>
-           {Array.from({length: 12}, (_, i) => i + 1).map(h => (
-             <SelectItem key={h} value={h.toString().padStart(2, '0')} className="text-xs font-medium cursor-pointer">{h.toString().padStart(2, '0')}</SelectItem>
-           ))}
-         </SelectContent>
+        <SelectTrigger className="w-[55px] h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
+            <SelectItem key={h} value={h.toString().padStart(2, '0')} className="text-xs font-medium cursor-pointer">{h.toString().padStart(2, '0')}</SelectItem>
+          ))}
+        </SelectContent>
       </Select>
       <span className="text-xs font-bold text-gray-500 pb-0.5">:</span>
       <Select value={minutes.toString().padStart(2, '0')} onValueChange={handleMinuteChange} disabled={disabled}>
-         <SelectTrigger className="w-[55px] h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
-         <SelectContent>
-           {Array.from({length: 60}, (_, i) => i).map(m => (
-             <SelectItem key={m} value={m.toString().padStart(2, '0')} className="text-xs font-medium cursor-pointer">{m.toString().padStart(2, '0')}</SelectItem>
-           ))}
-         </SelectContent>
+        <SelectTrigger className="w-[55px] h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          {Array.from({ length: 60 }, (_, i) => i).map(m => (
+            <SelectItem key={m} value={m.toString().padStart(2, '0')} className="text-xs font-medium cursor-pointer">{m.toString().padStart(2, '0')}</SelectItem>
+          ))}
+        </SelectContent>
       </Select>
       <Select value={ampm} onValueChange={handleAmpmChange} disabled={disabled}>
-         <SelectTrigger className="w-[60px] h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
-         <SelectContent>
-           <SelectItem value="AM" className="text-xs font-medium cursor-pointer">AM</SelectItem>
-           <SelectItem value="PM" className="text-xs font-medium cursor-pointer">PM</SelectItem>
-         </SelectContent>
+        <SelectTrigger className="w-[60px] h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
+        <SelectContent>
+          <SelectItem value="AM" className="text-xs font-medium cursor-pointer">AM</SelectItem>
+          <SelectItem value="PM" className="text-xs font-medium cursor-pointer">PM</SelectItem>
+        </SelectContent>
       </Select>
     </div>
   );
@@ -168,8 +168,8 @@ interface Props {
     status: string;
     createdAt: Date;
     updatedAt: Date;
-    sampleCollectedAt?: Date;
-    testStartedAt?: Date;
+    sampleCollectedAt?: Date | null;
+    testStartedAt?: Date | null;
     panels?: string[];
   };
   mutate: () => void;
@@ -209,19 +209,19 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
   const handleDateSelect = (type: "collected" | "reported", newDate: Date | undefined) => {
     const current = type === "collected" ? collectedDate : reportedDate;
     const setFunc = type === "collected" ? setCollectedDate : setReportedDate;
-    
+
     if (!newDate) {
-       setFunc(undefined);
-       return;
+      setFunc(undefined);
+      return;
     }
-    
+
     if (current) {
-       newDate.setHours(current.getHours());
-       newDate.setMinutes(current.getMinutes());
-       newDate.setSeconds(current.getSeconds());
+      newDate.setHours(current.getHours());
+      newDate.setMinutes(current.getMinutes());
+      newDate.setSeconds(current.getSeconds());
     } else {
-       const now = new Date();
-       newDate.setHours(now.getHours(), now.getMinutes());
+      const now = new Date();
+      newDate.setHours(now.getHours(), now.getMinutes());
     }
     setFunc(newDate);
   };
@@ -365,7 +365,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                             !collectedDate && "text-muted-foreground"
                           )}
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
                           {collectedDate ? <span className="truncate">{fDateandTime(collectedDate).split(",")[0]}</span> : <span>Select</span>}
                         </Button>
                       </PopoverTrigger>
@@ -379,10 +379,10 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                         />
                         <div className="p-2.5 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between relative z-10 w-full">
                           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">Time</span>
-                          <TimePicker 
-                             date={collectedDate} 
-                             disabled={!collectedDate} 
-                             onChange={(h, m) => updateTime("collected", h, m)} 
+                          <TimePicker
+                            date={collectedDate}
+                            disabled={!collectedDate}
+                            onChange={(h, m) => updateTime("collected", h, m)}
                           />
                         </div>
                       </PopoverContent>
@@ -399,7 +399,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                             !reportedDate && "text-muted-foreground"
                           )}
                         >
-                          <CalendarIcon className="mr-2 h-4 w-4 flex-shrink-0" />
+                          <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
                           {reportedDate ? <span className="truncate">{fDateandTime(reportedDate).split(",")[0]}</span> : <span>Select</span>}
                         </Button>
                       </PopoverTrigger>
@@ -413,10 +413,10 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                         />
                         <div className="p-2.5 border-t border-gray-100 bg-gray-50/50 flex items-center justify-between relative z-10 w-full">
                           <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider ml-1">Time</span>
-                          <TimePicker 
-                             date={reportedDate} 
-                             disabled={!reportedDate} 
-                             onChange={(h, m) => updateTime("reported", h, m)} 
+                          <TimePicker
+                            date={reportedDate}
+                            disabled={!reportedDate}
+                            onChange={(h, m) => updateTime("reported", h, m)}
                           />
                         </div>
                       </PopoverContent>
@@ -454,87 +454,133 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                     {(() => {
                       const testOrderMap = new Map<string, number>();
                       let orderIndex = 0;
-                      
-                      (r.panels || []).forEach((panelIdStr: string) => {
-                          const panelId = panelIdStr.toString();
-                          const panelTests = (r.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
-                          
-                          let orderedIds: string[] = [];
-                          for (const t of panelTests) {
-                              const panelDef = t.name?.panels?.find((p: any) => p.name === panelId);
-                              if (panelDef?.tests?.length) {
-                                  orderedIds = panelDef.tests.map((testObj: any) => testObj?._id ? testObj._id.toString() : testObj.toString());
-                                  break;
-                              }
-                          }
 
-                          if (orderedIds.length > 0) {
-                              orderedIds.forEach(id => {
-                                  if (!testOrderMap.has(id.toString())) {
-                                      testOrderMap.set(id.toString(), orderIndex++);
-                                  }
-                              });
-                          } else {
-                              panelTests.forEach((t: any) => {
-                                  if (!testOrderMap.has(t.name?._id?.toString() || "")) {
-                                      testOrderMap.set(t.name?._id?.toString() || "", orderIndex++);
-                                  }
-                              });
+                      (r.panels || []).forEach((panelIdStr: string) => {
+                        const panelId = panelIdStr.toString();
+                        const panelTests = (r.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
+
+                        let orderedIds: string[] = [];
+                        for (const t of panelTests) {
+                          const panelDef = t.name?.panels?.find((p: any) => p.name === panelId);
+                          if (panelDef?.tests?.length) {
+                            orderedIds = panelDef.tests.map((testObj: any) => testObj?._id ? testObj._id.toString() : testObj.toString());
+                            break;
                           }
+                        }
+
+                        if (orderedIds.length > 0) {
+                          orderedIds.forEach(id => {
+                            if (!testOrderMap.has(id.toString())) {
+                              testOrderMap.set(id.toString(), orderIndex++);
+                            }
+                          });
+                        } else {
+                          panelTests.forEach((t: any) => {
+                            if (!testOrderMap.has(t.name?._id?.toString() || "")) {
+                              testOrderMap.set(t.name?._id?.toString() || "", orderIndex++);
+                            }
+                          });
+                        }
                       });
 
                       const sortedTests = [...(r?.test || [])].sort((a: any, b: any) => {
-                          const aId = a.name?._id?.toString() || "";
-                          const bId = b.name?._id?.toString() || "";
-                          const aOrder = testOrderMap.has(aId) ? testOrderMap.get(aId)! : 999999;
-                          const bOrder = testOrderMap.has(bId) ? testOrderMap.get(bId)! : 999999;
-                          return aOrder - bOrder;
+                        const aId = a.name?._id?.toString() || "";
+                        const bId = b.name?._id?.toString() || "";
+                        const aOrder = testOrderMap.has(aId) ? testOrderMap.get(aId)! : 999999;
+                        const bOrder = testOrderMap.has(bId) ? testOrderMap.get(bId)! : 999999;
+                        return aOrder - bOrder;
                       });
 
                       return sortedTests.map((labTest) => (
-                      <TableRow
-                        key={labTest._id}
-                        className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none"
-                      >
-                        <TableCell className="pl-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 bg-white border border-gray-100 text-blue-600 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all">
-                              <Beaker className="w-4 h-4" />
+                        <TableRow
+                          key={labTest._id}
+                          className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none"
+                        >
+                          <TableCell className="pl-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 bg-white border border-gray-100 text-blue-600 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all">
+                                <Beaker className="w-4 h-4" />
+                              </div>
+                              <span className="font-medium text-gray-900">
+                                {labTest.name?.name}
+                              </span>
                             </div>
-                            <span className="font-medium text-gray-900">
-                              {labTest.name?.name}
-                            </span>
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-4">
-                          <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-mono text-gray-500">
-                            {labTest.name?.code}
-                          </div>
-                        </TableCell>
-                        <TableCell className="py-4">
-                          <div className="relative max-w-60">
-                            {labTest.name?.type === "Lab" ? (
-                              labTest.name?.dataType === "options" ? (
-                                <Select
-                                  value={
-                                    payload.test.find(
-                                      (item) => item._id === labTest._id
-                                    )?.value?.toString() || ""
-                                  }
-                                  onValueChange={(val) =>
-                                    setPayload({
-                                      ...payload,
-                                      test: payload.test.map((item) =>
-                                        item._id === labTest._id
-                                          ? { ...item, value: val }
-                                          : item
-                                      ),
-                                    })
-                                  }
-                                >
-                                  <SelectTrigger
-                                    id={`result-input-${labTest._id}`}
-                                    className="h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900"
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-mono text-gray-500">
+                              {labTest.name?.code}
+                            </div>
+                          </TableCell>
+                          <TableCell className="py-4">
+                            <div className="relative max-w-60">
+                              {labTest.name?.type === "Lab" ? (
+                                labTest.name?.dataType === "options" ? (
+                                  <Select
+                                    value={
+                                      payload.test.find(
+                                        (item) => item._id === labTest._id
+                                      )?.value?.toString() || ""
+                                    }
+                                    onValueChange={(val) =>
+                                      setPayload({
+                                        ...payload,
+                                        test: payload.test.map((item) =>
+                                          item._id === labTest._id
+                                            ? { ...item, value: val }
+                                            : item
+                                        ),
+                                      })
+                                    }
+                                  >
+                                    <SelectTrigger
+                                      id={`result-input-${labTest._id}`}
+                                      className="h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900"
+                                      onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                          e.preventDefault();
+
+                                          // Find current index in payload
+                                          const idx = r?.test?.findIndex(t => t._id === labTest._id) ?? -1;
+
+                                          // Try to focus the next tool
+                                          if (idx >= 0 && r?.test && idx + 1 < r.test.length) {
+                                            const nextTest = r.test[idx + 1];
+                                            // give a small tick for any React renders to finish
+                                            setTimeout(() => {
+                                              const nextInput = document.getElementById(`result-input-${nextTest._id}`);
+                                              if (nextInput) nextInput.focus();
+                                            }, 10);
+                                          }
+                                        }
+                                      }}
+                                    >
+                                      <SelectValue placeholder="Select result" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {(labTest.name?.options || []).map((opt: string) => (
+                                        <SelectItem key={opt} value={opt}>
+                                          {opt}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                ) : (
+                                  <Input
+                                    value={
+                                      payload.test.find(
+                                        (item) => item._id === labTest._id
+                                      )?.value
+                                    }
+                                    onChange={(e) =>
+                                      setPayload({
+                                        ...payload,
+                                        test: payload.test.map((item) =>
+                                          item._id === labTest._id
+                                            ? { ...item, value: e.target.value }
+                                            : item
+                                        ),
+                                      })
+                                    }
                                     onKeyDown={(e) => {
                                       if (e.key === "Enter") {
                                         e.preventDefault();
@@ -542,7 +588,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                                         // Find current index in payload
                                         const idx = r?.test?.findIndex(t => t._id === labTest._id) ?? -1;
 
-                                        // Try to focus the next tool
+                                        // Try to focus the next text input
                                         if (idx >= 0 && r?.test && idx + 1 < r.test.length) {
                                           const nextTest = r.test[idx + 1];
                                           // give a small tick for any React renders to finish
@@ -553,109 +599,63 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                                         }
                                       }
                                     }}
-                                  >
-                                    <SelectValue placeholder="Select result" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {(labTest.name?.options || []).map((opt: string) => (
-                                      <SelectItem key={opt} value={opt}>
-                                        {opt}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
+                                    type="text"
+                                    id={`result-input-${labTest._id}`}
+                                    placeholder="Enter result"
+                                    className="pl-2 pr-2 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
+                                  />
+                                )
                               ) : (
                                 <Input
-                                  value={
-                                    payload.test.find(
-                                      (item) => item._id === labTest._id
-                                    )?.value
-                                  }
-                                  onChange={(e) =>
-                                    setPayload({
-                                      ...payload,
-                                      test: payload.test.map((item) =>
-                                        item._id === labTest._id
-                                          ? { ...item, value: e.target.value }
-                                          : item
-                                      ),
-                                    })
-                                  }
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      e.preventDefault();
-
-                                      // Find current index in payload
-                                      const idx = r?.test?.findIndex(t => t._id === labTest._id) ?? -1;
-
-                                      // Try to focus the next text input
-                                      if (idx >= 0 && r?.test && idx + 1 < r.test.length) {
-                                        const nextTest = r.test[idx + 1];
-                                        // give a small tick for any React renders to finish
-                                        setTimeout(() => {
-                                          const nextInput = document.getElementById(`result-input-${nextTest._id}`);
-                                          if (nextInput) nextInput.focus();
-                                        }, 10);
-                                      }
+                                  type="file"
+                                  onChange={async (e) => {
+                                    const file = e.target.files?.[0];
+                                    if (file) {
+                                      const formData = new FormData();
+                                      formData.append("file", file);
+                                      const { data } = await toast.promise(
+                                        api.post("/uploads", formData),
+                                        {
+                                          loading: "Uploading...",
+                                          success: "Uploaded successfully",
+                                          error: "Failed to upload",
+                                        }
+                                      );
+                                      const url =
+                                        configuration().backendUrl + data.data.url;
+                                      setPayload({
+                                        ...payload,
+                                        test: payload.test.map((item) =>
+                                          item._id === labTest._id
+                                            ? { ...item, value: url }
+                                            : item
+                                        ),
+                                      });
                                     }
                                   }}
-                                  type="text"
-                                  id={`result-input-${labTest._id}`}
-                                  placeholder="Enter result"
-                                  className="pl-2 pr-2 h-10 bg-white border-gray-200 focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-gray-900 placeholder:text-gray-400"
                                 />
-                              )
-                            ) : (
-                              <Input
-                                type="file"
-                                onChange={async (e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) {
-                                    const formData = new FormData();
-                                    formData.append("file", file);
-                                    const { data } = await toast.promise(
-                                      api.post("/uploads", formData),
-                                      {
-                                        loading: "Uploading...",
-                                        success: "Uploaded successfully",
-                                        error: "Failed to upload",
-                                      }
-                                    );
-                                    const url =
-                                      configuration().backendUrl + data.data.url;
-                                    setPayload({
-                                      ...payload,
-                                      test: payload.test.map((item) =>
-                                        item._id === labTest._id
-                                          ? { ...item, value: url }
-                                          : item
-                                      ),
-                                    });
-                                  }
-                                }}
-                              />
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell className="pr-6 py-4 text-right">
-                          <div className="flex flex-col items-end gap-0.5">
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell className="pr-6 py-4 text-right">
+                            <div className="flex flex-col items-end gap-0.5">
                               <span className="text-sm font-medium text-gray-700">
                                 {labTest.name?.unit}
                               </span>
                             </div>
-                        </TableCell>
-                        <TableCell className="pr-6 py-4 text-right">
-                          <div className="flex flex-col items-end gap-0.5">
-                            <span className="text-sm font-medium text-gray-700">
-                              {labTest.name?.min ?? "N/A"}{labTest.name?.unit ? labTest.name?.unit : ""} - {labTest.name?.max ?? "N/A"}{labTest.name?.unit ? labTest.name?.unit : ""}
-                            </span>
-                            <span className="text-[10px] text-gray-400 uppercase tracking-wide">
-                              Normal Range
-                            </span>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))
+                          </TableCell>
+                          <TableCell className="pr-6 py-4 text-right">
+                            <div className="flex flex-col items-end gap-0.5">
+                              <span className="text-sm font-medium text-gray-700">
+                                {labTest.name?.min ?? "N/A"}{labTest.name?.unit ? labTest.name?.unit : ""} - {labTest.name?.max ?? "N/A"}{labTest.name?.unit ? labTest.name?.unit : ""}
+                              </span>
+                              <span className="text-[10px] text-gray-400 uppercase tracking-wide">
+                                Normal Range
+                              </span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
                     })()}
                   </TableBody>
                 </Table>
