@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Save, Trash2, Search, GripVertical, Check } from "lucide-react";
+import { Plus, Save, Trash2, Search, GripVertical, Check, Mars, Venus, Baby } from "lucide-react";
 import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -28,7 +28,6 @@ import PanelCatalogueRow from "./PanelCatalogueRow";
 import useGetPanels from "@/data/useGetPanels";
 import useSWR from "swr";
 import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
-import { Search } from "lucide-react";
 import RemoveTestsFromPanelDialog from "./RemoveTestsFromPanelDialog";
 import { formatINR } from "@/lib/fNumber";
 import {
@@ -248,7 +247,7 @@ export default function TestCatalogue({
 
   const addNewTest = async () => {
     try {
-      if ( !newTest.name || !newTest.type ) {
+      if (!newTest.name || !newTest.type) {
         toast.error("Please fill all required fields");
         return;
       }
