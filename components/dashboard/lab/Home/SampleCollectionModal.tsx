@@ -63,14 +63,10 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
     }, [autoGenerateSampleId, open]);
 
     const handleCollect = async () => {
-        const validSamples = samples.filter(s => s.id.trim() !== "");
-        if (validSamples.length === 0) {
-            toast.error("Please enter at least one Sample ID");
-            return;
-        }
+        const samplesToProcess = samples;
 
-        // Check for duplicates within the current input list
-        const ids = validSamples.map(s => s.id.trim());
+        // Check for duplicates within the current input list (ignoring empty strings)
+        const ids = samplesToProcess.map(s => s.id.trim()).filter(id => id !== "");
         const hasDuplicates = new Set(ids).size !== ids.length;
         if (hasDuplicates) {
             toast.error("Cannot collect samples. There are identical Sample IDs in the list.", { id: 'duplicate-sample-error' });
@@ -88,8 +84,10 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
-                for (const sample of validSamples) {
+                for (const sample of samplesToProcess) {
                     const val = sample.id.trim();
+                    if (!val) continue;
+
                     const isGlobalDuplicate = allReports.some((r: any) => {
                         if (r._id === reportId) return false;
                         if (!r.sampleId) return false;
@@ -111,7 +109,10 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                 console.error("Failed to fetch reports for duplicate check", err);
             }
 
-            const finalSampleId = validSamples.map(s => `${s.id.trim()} (${s.specimen.trim()})`).join(", ");
+            const finalSampleId = samplesToProcess.map(s => {
+                const idStr = s.id.trim();
+                return idStr ? `${idStr} (${s.specimen.trim()})` : s.specimen.trim();
+            }).join(", ");
 
             await toast.promise(
                 api.post(`lab/report/sample_collected/${reportId}`, { sampleId: finalSampleId }),
