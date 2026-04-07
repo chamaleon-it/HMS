@@ -15,7 +15,7 @@ export default function Inventory() {
         <div className="min-h-[calc(100vh-80px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-6">
             <LabHeader
                 title="Lab Inventory"
-                subtitle="Manage reagents, kits, and consumables"
+                subtitle="Manage reagents, kits and consumables."
             />
 
             <TestCatalogue profile={profile} profileMutate={profileMutate} />

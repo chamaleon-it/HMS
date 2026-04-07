@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow } from '@/components/ui/table'
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from "@/components/ui/context-menu";
 import api from '@/lib/axios';
 import { formatINR } from '@/lib/fNumber';
 import { Eye, Pencil, Trash2, Plus } from 'lucide-react';
@@ -25,8 +26,10 @@ import {
 
 export default function TestCatalogueRow({
     test,
+    idx,
     testMutate,
 }: {
+    idx: number;
     test: {
         _id: string
         code: string;
@@ -216,9 +219,12 @@ export default function TestCatalogueRow({
 
 
     return (
-        <TableRow>
-            <TableCell className="font-medium max-w-36!"> <p className='whitespace-break-spaces'>{test.code}</p></TableCell>
+        <ContextMenu>
+            <ContextMenuTrigger asChild>
+                <TableRow>
+            <TableCell>{idx + 1}</TableCell>
             <TableCell className='whitespace-break-spaces max-w-52'>{test.name}</TableCell>
+            <TableCell className="font-medium max-w-36!"> <p className='whitespace-break-spaces'>{test.code}</p></TableCell>
             <TableCell className="text-slate-500 text-sm">
                 Normal : {test.min} {test.max && "-"} {test.max}
                 <br />
@@ -228,8 +234,17 @@ export default function TestCatalogueRow({
                 <br />
                 NB : {test.nbMin} - {test.nbMax}
             </TableCell>
+            <TableCell className="text-slate-500">{test.unit}</TableCell>
+            <TableCell>{formatINR(test.price)}</TableCell>
+            <TableCell>{test.estimatedTime || ""}</TableCell>
+            <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
             <TableCell>
-                <div className="flex flex-col gap-1 items-center justify-end">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
+                    {test.type}
+                </span>
+            </TableCell>
+            <TableCell className="text-right">
+                <div className="flex flex-row gap-2 items-center justify-end">
                     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
                         <DialogTrigger asChild>
                             <Button size="sm" variant="ghost">
@@ -616,17 +631,19 @@ export default function TestCatalogueRow({
                     </AlertDialog>}
                 </div>
             </TableCell>
-            <TableCell>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
-                    {test.type}
-                </span>
-            </TableCell>
-            <TableCell>{formatINR(test.price)}</TableCell>
-            <TableCell>{test.estimatedTime || ""}</TableCell>
-            <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
-
-            <TableCell className="text-slate-500">{test.unit}</TableCell>
-
         </TableRow>
+            </ContextMenuTrigger>
+            <ContextMenuContent>
+                <ContextMenuItem onClick={() => setViewOpen(true)}>
+                    <Eye className="mr-2 h-4 w-4 text-slate-500" /> View Details
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => setEditOpen(true)}>
+                    <Pencil className="mr-2 h-4 w-4 text-slate-500" /> Edit Test
+                </ContextMenuItem>
+                <ContextMenuItem onClick={() => setDeleteOpen(true)} className="text-red-500">
+                    <Trash2 className="mr-2 h-4 w-4" /> Delete Test
+                </ContextMenuItem>
+            </ContextMenuContent>
+        </ContextMenu>
     )
 }

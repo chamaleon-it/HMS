@@ -346,13 +346,13 @@ export default function TestCatalogue({
   );
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
-      <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
+    <div className="grid gap-3">
+      <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
         <CardContent className="p-6">
-          <div className="flex flex-col items-start">
+          <div className="flex items-center justify-between">
             <SectionHeader
               title="Master test catalogue"
-              description="Manage all individual tests, panels and profiles."
+              description="Manage all individual tests."
               emoji="🧬"
             />
             <div className="flex justify-end w-full gap-3">
@@ -655,30 +655,31 @@ export default function TestCatalogue({
             </DialogContent>
           </Dialog>
 
-          <div className="mt-8">
+          <div className="mt-4">
             <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Tests</h4>
             <div
               ref={testsRef}
-              className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] **:data-[slot=table-container]:overflow-visible custom-scrollbar"
+              className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-370px)] 2xl:max-h-[calc(100vh-470px)] **:data-[slot=table-container]:overflow-visible custom-scrollbar"
             >
               <Table>
                 <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                   <TableRow>
-                    <TableHead className="w-20">Code</TableHead>
+                    <TableHead className="w-16">Sl No</TableHead>
                     <TableHead>Name</TableHead>
+                    <TableHead className="w-20">Code</TableHead>
                     <TableHead>Range</TableHead>
-                    <TableHead>Actions</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead>Unit</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>ETA (Minutes)</TableHead>
                     <TableHead>Panels</TableHead>
-                    <TableHead>Unit</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredTests.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-slate-500 text-xs">
+                      <TableCell colSpan={10} className="text-center py-8 text-slate-500 text-xs">
                         {searchQuery ? "No tests found matching search criteria." : "No tests configured yet. Add one above."}
                       </TableCell>
                     </TableRow>
@@ -686,6 +687,7 @@ export default function TestCatalogue({
                     filteredTests.map((test, idx) => (
                       <TestCatalogueRow
                         key={idx}
+                        idx={idx}
                         test={test}
                         testMutate={testMutate}
                       />
@@ -698,9 +700,9 @@ export default function TestCatalogue({
         </CardContent>
       </Card>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-2 gap-3">
 
-        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
+        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
           <CardContent className="p-6">
             <div className="flex flex-col gap-4 justify-between items-start mb-4">
               <SectionHeader
@@ -789,7 +791,7 @@ export default function TestCatalogue({
         </Card>
 
 
-        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
+        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
           <CardContent className="p-6">
             <SectionHeader
               title="Panels & profiles"
@@ -877,7 +879,7 @@ const SectionHeader = ({
   description: string;
   emoji?: string;
 }) => (
-  <div className="flex items-start gap-3">
+  <div className="flex items-start gap-3 shrink-0">
     {emoji && <div className="mt-1 rounded-2xl bg-cyan-50 p-2 flex items-center justify-center">
       <span className="text-lg">{emoji || "🧪"}</span>
     </div>}
