@@ -40,6 +40,16 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   DndContext,
   closestCenter,
   KeyboardSensor,
@@ -922,6 +932,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
   const [selectedTests, setSelectedTests] = useState<any[]>([]);
   const [searchTestQuery, setSearchTestQuery] = useState("");
   const [addTestDropdownOpen, setAddTestDropdownOpen] = useState(false);
+  const [cancelAlertOpen, setCancelAlertOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -1167,9 +1178,36 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
       </div>
 
       <div className="flex justify-end gap-2 mt-4">
-        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        {selectedTests.length > 0 ? (
+          <Button variant="outline" onClick={() => setCancelAlertOpen(true)}>Cancel</Button>
+        ) : (
+          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        )}
         <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={addPanel} disabled={loading}>{loading ? "Adding..." : "Save Panel"}</Button>
       </div>
+
+      <AlertDialog open={cancelAlertOpen} onOpenChange={setCancelAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have added tests to this panel. If you cancel, your changes will be lost.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Go back</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={() => {
+                setCancelAlertOpen(false);
+                onCancel();
+              }}
+            >
+              Cancel creation
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
