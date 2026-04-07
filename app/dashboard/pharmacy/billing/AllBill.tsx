@@ -226,7 +226,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                 ))
               )}
             </TableBody>
-            {filter.activeDate === "Today" && billing.length > 0 && (
+            {(filter.activeDate === "Today" || filter.activeDate === "Custom" || (filter.q && filter.qEnd)) && billing.length > 0 && (
               <TableFooter className="bg-emerald-50/50 font-extrabold text-[15px] text-slate-900 border-t-2 border-slate-300">
                 <TableRow className="hover:bg-emerald-50/50">
                   <TableCell colSpan={5} className="py-4 px-4 text-right uppercase tracking-wider text-sm font-black text-slate-800">
@@ -245,10 +245,10 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     {formatINR(billing.reduce((acc, b) => acc + b.insurance + b.cash + b.online, 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-rose-700 font-black">
-                    {formatINR(billing.reduce((acc, b) => 
+                    {formatINR(billing.reduce((acc, b) =>
                       acc + (b.items.reduce((a, x) => a + x.total, 0) -
-                      (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0) -
-                      (b.insurance + b.cash + b.online + (b.discount ?? 0))), 0
+                        (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0) -
+                        (b.insurance + b.cash + b.online + (b.discount ?? 0))), 0
                     ))}
                   </TableCell>
                   <TableCell colSpan={2} />
