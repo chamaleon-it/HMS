@@ -375,11 +375,11 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                             )}
                                                             <tr key={`test-${rowIdx}`}>
                                                                 <td className="px-2 py-1">
-                                                                    <p className={`text-[11px] leading-tight ${isMainTest ? 'font-bold text-black' : 'font-medium text-slate-700 pl-4'}`}>
+                                                                    <p className={`text-[12px] leading-tight ${isMainTest ? 'font-bold text-black' : 'font-medium text-slate-700 pl-4'}`}>
                                                                         {row.name?.name || "Unknown test"}
                                                                     </p>
                                                                 </td>
-                                                                <td className="px-2 py-1 text-right text-[11px] leading-tight">
+                                                                <td className="px-2 py-1 text-right text-[12px] leading-tight">
                                                                     <span className={isAbnormal ? "font-bold" : "text-black"}>
                                                                         {row.value || " "}
                                                                     </span>
@@ -408,7 +408,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                 {/* WBC Graph */}
                                                 {report?.graphs?.['WBC Histogram. BMP'] ? (
                                                     <div className="flex flex-col flex-1">
-                                                        <div className="text-[11px] font-bold text-black self-start tracking-widest">WBC</div>
+                                                        <div className="text-[12px] font-bold text-black self-start tracking-widest">WBC</div>
                                                         <img
                                                             src={`data:image/png;base64,${report.graphs['WBC Histogram. BMP']}`}
                                                             alt="WBC Histogram"
@@ -426,7 +426,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                 {/* RBC Graph */}
                                                 {report?.graphs?.['RBC Histogram. BMP'] ? (
                                                     <div className="flex flex-col flex-1 mt-1 py-8">
-                                                        <div className="text-[11px] font-bold text-black self-start tracking-widest">RBC</div>
+                                                        <div className="text-[12px] font-bold text-black self-start tracking-widest">RBC</div>
                                                         <img
                                                             src={`data:image/png;base64,${report.graphs['RBC Histogram. BMP']}`}
                                                             alt="RBC Histogram"
@@ -444,7 +444,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                 {/* PLT Graph */}
                                                 {report?.graphs?.['PLT Histogram. BMP'] ? (
                                                     <div className="flex flex-col flex-1 mt-1 py-8">
-                                                        <div className="text-[11px] font-bold text-black self-start tracking-widest">PLT</div>
+                                                        <div className="text-[12px] font-bold text-black self-start tracking-widest">PLT</div>
                                                         <img
                                                             src={`data:image/png;base64,${report.graphs['PLT Histogram. BMP']}`}
                                                             alt="PLT Histogram"
@@ -470,7 +470,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                     <>
                                         <div className="border-2 border-black-light rounded-lg p-2 bg-slate-50 note-section mx-10">
                                             <p className="font-black text-[10px] uppercase tracking-widest text-black mb-1">Note</p>
-                                            <p className="text-black leading-relaxed font-bold italic text-[11px]">
+                                            <p className="text-black leading-relaxed font-bold italic text-[12px]">
                                                 {"The results should be correlated clinically."}
                                             </p>
                                         </div>
@@ -478,12 +478,12 @@ export default function ReportCard({ report }: ReportCardProps) {
                                         <div className="flex justify-between signature-section pb-2 px-10 mt-5">
                                             <div className="text-center w-64">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
-                                                <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[11px]">LAB IN-CHARGE</p>
+                                                <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[12px]">LAB IN-CHARGE</p>
                                                 <p className="text-[10px] font-bold text-slate-900 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p>
                                             </div>
                                             <div className="text-center w-64">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
-                                                <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[11px]">LAB TECHNICIAN</p>
+                                                <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[12px]">LAB TECHNICIAN</p>
                                                 {/* <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p> */}
                                             </div>
                                         </div>
