@@ -147,6 +147,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   });
 
   const [openCalander, setOpenCalander] = useState(false);
+  const [dobSetFromAge, setDobSetFromAge] = useState(false);
 
   const searchParams = useSearchParams();
   const name = searchParams.get("name");
@@ -299,11 +300,13 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   onKeyDown={(e) => handleKeyDown(e, refs.age)}
                 >
                   {dateOfBirth && dateOfBirth !== ""
-                    ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}`
+                     ? dobSetFromAge
+                      ? `${new Date(dateOfBirth).getFullYear()}`
+                      : `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}`
                     : "Select date of birth"}
                   <ChevronDownIcon />
                 </Button>
@@ -321,6 +324,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                     if (date) {
                       setValue("dateOfBirth", date.toISOString());
                       setValue("age", fAge(date).toString());
+                      setDobSetFromAge(false);
                     } else {
                       setValue("dateOfBirth", "");
                     }
@@ -345,6 +349,20 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               type="number"
               placeholder="0"
               onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
+              onChange={(e) => {
+                const ageValue = e.target.value;
+                setValue("age", ageValue);
+                if (ageValue && Number(ageValue) > 0) {
+                  const birthYear = new Date().getFullYear() - Number(ageValue);
+                  const today = new Date();
+                  const estimatedDob = new Date(birthYear, today.getMonth(), today.getDate());
+                  setValue("dateOfBirth", estimatedDob.toISOString());
+                  setDobSetFromAge(true);
+                } else {
+                  setValue("dateOfBirth", "");
+                  setDobSetFromAge(false);
+                }
+              }}
             />
           </div>
 
