@@ -431,6 +431,8 @@ export default function Test({
                         name: panel,
                         code: panel,
                         type: "Panel",
+                        range: [],
+                        note: "",
                       }}
                       onToggle={(t) => {
                         setSelectedPanel((prev) => [...prev, t.code]);
@@ -480,6 +482,8 @@ export default function Test({
                         name: panel.name,
                         code: panel.name,
                         type: "Panel",
+                        range: [],
+                        note: "",
                       }}
                       onToggle={(t) => {
                         setSelectedPanel((prev) => [...prev, t.code]);
@@ -687,6 +691,8 @@ export default function Test({
                             name: panel,
                             code: panel,
                             type: "Panel",
+                            range: [],
+                            note: "",
                           }}
                           toggleTest={() => {
                             tests

@@ -96,14 +96,17 @@ interface PropsTypes {
         type: string;
         unit?: string;
         estimatedTime?: number;
-        min?: number;
-        max?: number;
-        womenMin?: number;
-        womenMax?: number;
-        childMin?: number;
-        childMax?: number;
-        nbMin?: number;
-        nbMax?: number;
+        range: {
+          name: string;
+          min: number | null | undefined;
+          max: number | null | undefined;
+          fromAge: number | null | undefined;
+          toAge: number | null | undefined;
+          gender: "Both" | "Male" | "Female";
+          dateType: "Year" | "Month" | "Day";
+
+        }[],
+        note: string
         _id: string;
         panels: {
           _id: string;

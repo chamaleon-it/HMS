@@ -42,14 +42,17 @@ interface Props {
                 name: string;
                 type: string;
                 unit?: string;
-                min?: number;
-                max?: number;
-                womenMin?: number;
-                womenMax?: number;
-                childMin?: number;
-                childMax?: number;
-                nbMin?: number;
-                nbMax?: number;
+                range: {
+                    name: string;
+                    min: number | null | undefined;
+                    max: number | null | undefined;
+                    fromAge: number | null | undefined;
+                    toAge: number | null | undefined;
+                    gender: "Both" | "Male" | "Female";
+                    dateType: "Year" | "Month" | "Day";
+
+                }[],
+                note: string
                 _id: string;
                 panels: {
                     _id: string;
@@ -177,7 +180,7 @@ export default function ViewResultModal({ r }: Props) {
                                             {test.name.type === 'Lab' && (
                                                 <div className="text-right">
                                                     <p className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 mb-1">Reference Range</p>
-                                                    <p className="text-sm font-mono text-gray-600">{test.name.min ?? "0"} - {test.name.max ?? "N/A"}</p>
+                                                    <p className="text-sm font-mono text-gray-600">{test.name.range?.[0]?.min ?? "0"} - {test.name.range?.[0]?.max ?? "N/A"}</p>
                                                 </div>
                                             )}
                                         </div>
