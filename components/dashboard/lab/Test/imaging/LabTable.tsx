@@ -46,14 +46,17 @@ interface PropsTypes {
                 name: string;
                 type: string;
                 unit?: string;
-                min?: number;
-                max?: number;
-                womenMin?: number;
-                womenMax?: number;
-                childMin?: number;
-                childMax?: number;
-                nbMin?: number;
-                nbMax?: number;
+                range: {
+                    name: string;
+                    min: number | null | undefined;
+                    max: number | null | undefined;
+                    fromAge: number | null | undefined;
+                    toAge: number | null | undefined;
+                    gender: "Both" | "Male" | "Female";
+                    dateType: "Year" | "Month" | "Day";
+
+                }[],
+                note: string
                 _id: string;
                 panels: {
                     _id: string;
@@ -178,7 +181,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                                         <span
                                                             key={e._id}
                                                             className="text-gray-600 font-mono h-5"
-                                                        >{`${e?.name?.min ?? ""} - ${e?.name?.max ?? ""} ${e?.name?.min ? e.name?.unit : ""}`}</span>
+                                                        >{`${e?.name?.range?.[0]?.min ?? ""} - ${e?.name?.range?.[0]?.max ?? ""} ${e?.name?.range?.[0]?.min ? e.name?.unit : ""}`}</span>
                                                     )
                                             )}
                                         </div>

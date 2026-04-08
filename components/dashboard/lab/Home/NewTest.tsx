@@ -475,10 +475,10 @@ export default function NewTest({
                   {tests.find((test) => test._id === t.name)?.estimatedTime}
                 </TableCell>
                 {/* <TableCell>
-                  {tests.find((test) => test._id === t.name)?.min}
+                  {tests.find((test) => test._id === t.name)?.range?.[0]?.min}
                 </TableCell>
                 <TableCell>
-                  {tests.find((test) => test._id === t.name)?.max}
+                  {tests.find((test) => test._id === t.name)?.range?.[0]?.max}
                 </TableCell>
                 <TableCell>
                   {tests.find((test) => test._id === t.name)?.unit}

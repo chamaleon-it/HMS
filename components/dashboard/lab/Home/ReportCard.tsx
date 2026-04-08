@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import Watermark from "@/components/print/Watermark";
 import HospitalName from "@/components/print/HospitalName";
-import { Badge } from "@/components/ui/badge";
+
 
 interface ReportCardProps {
     report: any | null;
@@ -120,10 +119,11 @@ export default function ReportCard({ report }: ReportCardProps) {
             width: 100%;
             border-collapse: collapse;
           }
-          .col-investigation { width: 40%; }
-          .col-result { width: 22%; }
-          .col-unit { width: 13%; }
-          .col-ref { width: 25%; }
+          .col-investigation { width: 35%; }
+          .col-result { width: 15%; }
+          .col-unit { width: 10%; }
+          .col-ref { width: 20%; }
+          .col-note { width: 20%; }
 
           .bottom-grouping {
             margin-top: auto; /* ⚡ PINNED TO PAGE BOTTOM */
@@ -311,6 +311,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                 <col className="col-result" />
                                                 <col className="col-unit" />
                                                 <col className="col-ref" />
+                                                <col className="col-note" />
                                             </colgroup>
                                             <thead className="bg-transparent border-none">
                                                 <tr>
@@ -318,6 +319,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                     <th className="px-2 py-[5.5px] text-right">Result</th>
                                                     <th className="px-2 py-[5.5px] text-center">Unit</th>
                                                     <th className="px-2 py-[5.5px] text-left">Ref. Range</th>
+                                                    <th className="px-2 py-[5.5px] text-left">Note</th>
                                                 </tr>
                                             </thead>
                                         </table>
@@ -338,13 +340,14 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                 <col className="col-result" />
                                                 <col className="col-unit" />
                                                 <col className="col-ref" />
+                                                <col className="col-note" />
                                             </colgroup>
                                             <tbody>
                                                 {pageRows.map((row, rowIdx) => {
                                                     if (row.type === "PANEL") {
                                                         return (
                                                             <tr key={`panel-${rowIdx}`}>
-                                                                <td colSpan={4} className="px-2 pt-3 pb-3">
+                                                                <td colSpan={5} className="px-2 pt-3 pb-3">
                                                                     {row.name.toUpperCase() === "CBC" ? (
                                                                         <p className="font-black text-black text-[12px] uppercase tracking-widest mt-1">HAEMATOLOGY ANALYSIS REPORT</p>
                                                                     ) : (
@@ -356,23 +359,18 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                     }
                                                     const value = parseFloat(row.value);
                                                     let isAbnormal = false;
-                                                    const min = row.name?.min;
-                                                    const max = row.name?.max;
+                                                    const min = row.name?.range?.[0]?.min;
+                                                    const max = row.name?.range?.[0]?.max;
                                                     if (!isNaN(value) && ((min !== undefined && min !== null && value < min) || (max !== undefined && max !== null && value > max))) {
                                                         isAbnormal = true;
                                                     }
                                                     const isMainTest = ["WBC", "HGB", "RBC", "PLT", "ESR"].some(main => typeof row.name?.name === 'string' && row.name.name.startsWith(main));
 
-                                                    // Add space before main tests to separate groups visually, unless it's the very first test below a panel heading
-                                                    const renderSpacer = isMainTest && rowIdx > 0 && pageRows[rowIdx - 1]?.type !== "PANEL";
+
 
                                                     return (
                                                         <React.Fragment key={`test-wrap-${rowIdx}`}>
-                                                            {renderSpacer && (
-                                                                <tr className="h-2">
-                                                                    <td colSpan={4}></td>
-                                                                </tr>
-                                                            )}
+
                                                             <tr key={`test-${rowIdx}`}>
                                                                 <td className="px-2 py-1">
                                                                     <p className={`text-[12px] leading-tight ${isMainTest ? 'font-bold text-black' : 'font-medium text-slate-700 pl-4'}`}>
@@ -392,7 +390,24 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                                     )}
                                                                 </td>
                                                                 <td className="px-2 py-1 text-[10px] font-semibold text-black leading-tight">
-                                                                    {min != null && min !== "" && max != null && max !== "" ? `${min} - ${max}` : "\u00A0"}
+                                                                    {row.name?.range && row.name.range.length > 0 ? (
+                                                                        row.name.range.map((r: any, idx: number) => {
+                                                                            const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
+                                                                            const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
+                                                                            if (!hasMin && !hasMax) return null;
+                                                                            return (
+                                                                                <div key={idx} className="whitespace-nowrap pb-[2px]">
+                                                                                    {r.name && (row.name.range.length > 1 || r.name.toLowerCase() !== "normal") ? (
+                                                                                        <span className="font-medium opacity-80 pr-1">{r.name}:</span>
+                                                                                    ) : null}
+                                                                                    {hasMin ? r.min : "0"} - {hasMax ? r.max : "N/A"}
+                                                                                </div>
+                                                                            );
+                                                                        })
+                                                                    ) : "\u00A0"}
+                                                                </td>
+                                                                <td className="px-2 py-1 text-[10px] text-black leading-tight whitespace-pre-wrap">
+                                                                    {row.name?.note}
                                                                 </td>
                                                             </tr>
                                                         </React.Fragment>
@@ -507,13 +522,4 @@ export default function ReportCard({ report }: ReportCardProps) {
 
     if (!mounted) return null;
     return createPortal(content, document.body);
-}
-
-function Info({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex gap-1.5 min-h-4.5 items-center">
-            <span className="text-black font-medium uppercase text-[10px] mt-0.5">{label}:</span>
-            <span className="font-bold text-black text-[11px] line-clamp-2 leading-tight uppercase">{value}</span>
-        </div>
-    );
 }

@@ -493,14 +493,14 @@ const CustomerContent: React.FC = () => {
                                     )}
                                   </td>
                                   <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
-                                    {it.type === "Lab" && it.min ? (
+                                    {it.type === "Lab" && it.range?.[0]?.min ? (
                                       <>
-                                        {it.min} {it.unit} - {it.max}{" "}
+                                        {it.range?.[0]?.min} {it.unit} - {it.range?.[0]?.max}{" "}
                                         {it.unit}
                                       </>
                                     ) : (
                                       <>
-                                        {it.min} - {it.max}
+                                        {it.range?.[0]?.min} - {it.range?.[0]?.max}
                                       </>
                                     )}
                                   </td>

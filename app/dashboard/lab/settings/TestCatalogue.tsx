@@ -225,8 +225,8 @@ export default function TestCatalogue({
       max: number | null | undefined;
       fromAge: number | null | undefined;
       toAge: number | null | undefined;
-      gender: string;
-      dateType: "Year" | "Month" | "Day",
+      gender: "Both" | "Male" | "Female";
+      dateType: "Year" | "Month" | "Day";
 
     }[],
     note: string
@@ -556,8 +556,8 @@ export default function TestCatalogue({
                           <TableHead>Range Name</TableHead>
                           <TableHead className="w-26">Min</TableHead>
                           <TableHead className="w-26">Max</TableHead>
-                          <TableHead className="w-20">From Age <br /> <span className="font-normal text-xs text-slate-500">(Optional)</span></TableHead>
-                          <TableHead className="w-20">To Age <br /> <span className="font-normal text-xs text-slate-500">(Optional)</span></TableHead>
+                          <TableHead className="w-24">From Age</TableHead>
+                          <TableHead className="w-24">To Age</TableHead>
                           <TableHead className="w-20">Gender</TableHead>
                           <TableHead className="w-20">Y/M/D</TableHead>
                           <TableHead className="w-20">Actions</TableHead>
@@ -596,19 +596,19 @@ export default function TestCatalogue({
                             <TableCell>
                               <Input
                                 type="number"
-                                placeholder="From"
+                                placeholder="Optional"
                                 value={r.fromAge ?? ""}
                                 onChange={(e) => handleRangeChange(i, "fromAge", e.target.value ? Number(e.target.value) : undefined)}
-                                className="h-8 shadow-none bg-slate-50 px-2"
+                                className="h-8 shadow-none bg-slate-50 px-1"
                               />
                             </TableCell>
                             <TableCell>
                               <Input
                                 type="number"
-                                placeholder="To"
+                                placeholder="Optional"
                                 value={r.toAge ?? ""}
                                 onChange={(e) => handleRangeChange(i, "toAge", e.target.value ? Number(e.target.value) : undefined)}
-                                className="h-8 shadow-none bg-slate-50 px-2"
+                                className="h-8 shadow-none bg-slate-50 px-1"
                               />
                             </TableCell>
                             <TableCell>
@@ -693,7 +693,7 @@ export default function TestCatalogue({
                       <Label className="font-medium text-slate-700">Alert</Label>
                       <p className="text-sm text-slate-500">When only a minimum value is specified, all values greater than that are considered normal. When only a maximum value is specified, all values less than that are considered normal. If no value is specified or only a note is given, then the system will not highlight abnormal values automatically.
                         <br /> <br />
-                        When only a from age is specified, all ages greater than that are considered. When only a top age is specified, all ages less than that are considered normal. If no age is specified, then the system will consider all ages.
+                        When only a from age is specified, all ages greater than that are considered. When only a to age is specified, all ages less than that are considered. If no age is specified, then the system will consider all ages.
                       </p>
                     </div>
 
