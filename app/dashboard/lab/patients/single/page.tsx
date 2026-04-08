@@ -21,6 +21,7 @@ import { DataTypes, Datum } from "./interface";
 import useGetPatient from "./useGetPatient";
 import { motion } from "framer-motion";
 import ReportCard from "@/components/dashboard/lab/Home/ReportCard";
+import useGetPanels from "@/data/useGetPanels";
 
 const CustomerContent: React.FC = () => {
   const router = useRouter();
@@ -31,6 +32,7 @@ const CustomerContent: React.FC = () => {
   );
 
   const { data: patient } = useGetPatient(id as string);
+  const { panels } = useGetPanels();
   const reports = reportData?.data;
   const [selectedVisit, setSelectedVisit] = useState<Datum | null>(null);
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
@@ -577,7 +579,7 @@ const CustomerContent: React.FC = () => {
           )}
         </main>
       </div>
-      {printReport && <ReportCard report={printReport} />}
+      {printReport && <ReportCard report={printReport} panels={panels} />}
     </AppShell>
   );
 };

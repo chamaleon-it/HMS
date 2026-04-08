@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import useGetPanels from "@/data/useGetPanels";
 
 const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
   const [timeLeft, setTimeLeft] = React.useState(5);
@@ -130,6 +131,7 @@ interface PropsTypes {
 
 export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId }: PropsTypes) {
   const { user } = useAuth();
+  const { panels } = useGetPanels();
   const [printReport, setPrintReport] = React.useState<any | null>(null);
 
   const handlePrint = (report: any) => {
@@ -586,7 +588,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
             })}
         </tbody>
       </table>
-      {printReport && <ReportCard report={printReport} />}
+      {printReport && <ReportCard report={printReport} panels={panels} />}
     </div>
   );
 }
