@@ -205,7 +205,7 @@ export function Sidebar() {
       },
       {
         key: "inventory",
-        label: "Inventory",
+        label: "Catalogue",
         icon: Warehouse,
         link: "/dashboard/lab/inventory/",
       },

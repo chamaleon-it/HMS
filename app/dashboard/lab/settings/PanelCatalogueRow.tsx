@@ -222,13 +222,13 @@ export default function PanelCatalogueRow({
     }
 
     return (
-        <TableRow>
+        <TableRow onContextMenu={(e) => { e.preventDefault(); setViewOpen(true); }} className="cursor-context-menu">
             <TableCell>{idx + 1}</TableCell>
             <TableCell className="font-medium">{panel.name}</TableCell>
             <TableCell>{formatINR(panel.price)}</TableCell>
             <TableCell>{panel.estimatedTime ? `${panel.estimatedTime} Minutes` : "N/A"}</TableCell>
-            <TableCell align="right">
-                <div className="flex gap-2 items-center justify-end">
+            <TableCell align="left">
+                <div className="flex gap-1 items-center justify-end">
 
                     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
                         <DialogTrigger asChild>
@@ -287,6 +287,17 @@ export default function PanelCatalogueRow({
                                     </div>
                                 </div>
                             </div>
+                            <DialogFooter className="flex flex-col sm:flex-row sm:justify-between items-center pt-4 border-t mt-4 gap-2 w-full">
+                                <Button variant="destructive" size="sm" onClick={() => { setViewOpen(false); setDeleteOpen(true); }} className="w-full sm:w-auto">
+                                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                </Button>
+                                <div className="flex gap-2 w-full sm:w-auto justify-end">
+                                    <Button variant="outline" size="sm" onClick={() => setViewOpen(false)}>Close</Button>
+                                    <Button size="sm" onClick={() => { setViewOpen(false); setEditOpen(true); }}>
+                                        <Pencil className="w-4 h-4 mr-2" /> Edit Panel
+                                    </Button>
+                                </div>
+                            </DialogFooter>
                         </DialogContent>
                     </Dialog>
 
@@ -516,5 +527,6 @@ export default function PanelCatalogueRow({
                 </div>
             </TableCell>
         </TableRow>
+
     )
 }

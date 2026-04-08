@@ -29,7 +29,6 @@ import useGetPanels from "@/data/useGetPanels";
 import useSWR from "swr";
 import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
 import RemoveTestsFromPanelDialog from "./RemoveTestsFromPanelDialog";
-import { formatINR } from "@/lib/fNumber";
 import {
   Dialog,
   DialogContent,
@@ -67,6 +66,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { cn } from '@/lib/utils';
+import { Textarea } from "@/components/ui/textarea";
 
 function SortableTableRow({ id, children, className }: { id: string, children: React.ReactNode, className?: string }) {
   const {
@@ -215,35 +215,65 @@ export default function TestCatalogue({
     name: string;
     price: number;
     type: "Lab" | "Imaging" | "";
-    min: number | null | undefined;
-    max: number | null | undefined;
-    womenMin: number | null | undefined;
-    womenMax: number | null | undefined;
-    childMin: number | null | undefined;
-    childMax: number | null | undefined;
-    nbMin: number | null | undefined;
-    nbMax: number | null | undefined;
     unit: string | null | undefined;
     estimatedTime?: string;
     dataType: "number" | "text" | "boolean" | "options";
     options: string[];
+    range: {
+      name: string;
+      min: number | null | undefined;
+      max: number | null | undefined;
+      fromAge: number | null | undefined;
+      toAge: number | null | undefined;
+      gender: string;
+      dateType: "Year" | "Month" | "Day",
+
+    }[],
+    note: string
   }>({
     code: "",
     name: "",
     price: 0,
     type: "",
     dataType: "number",
-    min: null,
-    max: null,
-    womenMin: null,
-    womenMax: null,
-    childMin: null,
-    childMax: null,
-    nbMin: null,
-    nbMax: null,
     unit: null,
-    options: []
+    options: [],
+    range: [{
+      name: "Normal",
+      min: undefined,
+      max: undefined,
+      fromAge: undefined,
+      toAge: undefined,
+      gender: "Both",
+      dateType: "Year"
+    }],
+    note: ""
   });
+
+  const handleRangeChange = (index: number, field: string, value: any) => {
+    setNewTest((prev) => {
+      const updatedRange = [...(prev.range || [])];
+      updatedRange[index] = { ...updatedRange[index], [field]: value };
+      return { ...prev, range: updatedRange };
+    });
+  };
+
+  const addRange = () => {
+    setNewTest((prev) => ({
+      ...prev,
+      range: [
+        ...(prev.range || []),
+        { name: "", min: undefined, max: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year" }
+      ]
+    }));
+  };
+
+  const removeRange = (index: number) => {
+    setNewTest((prev) => ({
+      ...prev,
+      range: (prev.range || []).filter((_, i) => i !== index)
+    }));
+  };
 
   const addNewTest = async () => {
     try {
@@ -254,14 +284,6 @@ export default function TestCatalogue({
       let finalPayload = { ...newTest };
 
       if (newTest.dataType !== "number") {
-        finalPayload.min = null;
-        finalPayload.max = null;
-        finalPayload.womenMin = null;
-        finalPayload.womenMax = null;
-        finalPayload.childMin = null;
-        finalPayload.childMax = null;
-        finalPayload.nbMin = null;
-        finalPayload.nbMax = null;
         if (newTest.dataType === "boolean" || newTest.dataType === "options") {
           delete finalPayload.unit;
         }
@@ -290,16 +312,18 @@ export default function TestCatalogue({
         price: 0,
         type: "",
         dataType: "number",
-        min: null,
-        max: null,
-        womenMin: null,
-        womenMax: null,
-        childMin: null,
-        childMax: null,
-        nbMin: null,
-        nbMax: null,
         unit: null,
-        options: []
+        options: [],
+        range: [{
+          name: "",
+          min: undefined,
+          max: undefined,
+          fromAge: undefined,
+          toAge: undefined,
+          gender: "Both",
+          dateType: "Year"
+        }],
+        note: ""
       });
       setIsNewTestModalOpen(false);
 
@@ -323,14 +347,6 @@ export default function TestCatalogue({
       type: "Lab" | "Imaging";
       dataType: "number" | "text" | "boolean"
       price: number;
-      min?: number;
-      max?: number;
-      womenMin?: number;
-      womenMax?: number;
-      childMin?: number;
-      childMax?: number;
-      nbMin?: number;
-      nbMax?: number;
       unit?: string;
       estimatedTime?: string;
       options: string[];
@@ -347,13 +363,13 @@ export default function TestCatalogue({
   );
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1.2fr)]">
-      <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
-        <CardContent className="p-6">
-          <div className="flex flex-col items-start">
+    <div className="grid gap-3">
+      <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
+        <CardContent className="px-3 py-6">
+          <div className="flex items-center justify-between">
             <SectionHeader
               title="Master test catalogue"
-              description="Manage all individual tests, panels and profiles."
+              description="Manage all individual tests."
               emoji="🧬"
             />
             <div className="flex justify-end w-full gap-3">
@@ -373,7 +389,7 @@ export default function TestCatalogue({
           </div>
 
           <Dialog open={isNewTestModalOpen} onOpenChange={setIsNewTestModalOpen}>
-            <DialogContent className="sm:max-w-200 max-h-[85vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Test</DialogTitle>
                 <DialogDescription>Create a new lab or imaging test in the catalogue.</DialogDescription>
@@ -531,109 +547,172 @@ export default function TestCatalogue({
                     </div>
                   </>}
 
-                  {newTest.dataType === "number" && <>
+                  {newTest.dataType === "number" && <div className="col-span-full w-full">
 
-                    <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Mars className="h-4.5 w-4.5" color="#2563eb" size={48} strokeWidth={2.5}/>Range Min</Label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        value={newTest.min ?? ""}
-                        onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, min: e.target.value === "" ? null : Number(e.target.value) }))
-                        }
-                        className="h-9 bg-slate-50"
-                      />
+                    <Table className="">
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-12">Sl No</TableHead>
+                          <TableHead>Range Name</TableHead>
+                          <TableHead className="w-26">Min</TableHead>
+                          <TableHead className="w-26">Max</TableHead>
+                          <TableHead className="w-20">From Age <br /> <span className="font-normal text-xs text-slate-500">(Optional)</span></TableHead>
+                          <TableHead className="w-20">To Age <br /> <span className="font-normal text-xs text-slate-500">(Optional)</span></TableHead>
+                          <TableHead className="w-20">Gender</TableHead>
+                          <TableHead className="w-20">Y/M/D</TableHead>
+                          <TableHead className="w-20">Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {(newTest.range || []).map((r, i) => (
+                          <TableRow key={i}>
+                            <TableCell>{i + 1}</TableCell>
+                            <TableCell>
+                              <Input
+                                placeholder="e.g. Normal"
+                                value={r.name}
+                                onChange={(e) => handleRangeChange(i, "name", e.target.value)}
+                                className="h-8 shadow-none bg-slate-50"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                placeholder="Min"
+                                value={r.min ?? ""}
+                                onChange={(e) => handleRangeChange(i, "min", e.target.value ? Number(e.target.value) : undefined)}
+                                className="h-8 shadow-none bg-slate-50 px-2"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                placeholder="Max"
+                                value={r.max ?? ""}
+                                onChange={(e) => handleRangeChange(i, "max", e.target.value ? Number(e.target.value) : undefined)}
+                                className="h-8 shadow-none bg-slate-50 px-2"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                placeholder="From"
+                                value={r.fromAge ?? ""}
+                                onChange={(e) => handleRangeChange(i, "fromAge", e.target.value ? Number(e.target.value) : undefined)}
+                                className="h-8 shadow-none bg-slate-50 px-2"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                placeholder="To"
+                                value={r.toAge ?? ""}
+                                onChange={(e) => handleRangeChange(i, "toAge", e.target.value ? Number(e.target.value) : undefined)}
+                                className="h-8 shadow-none bg-slate-50 px-2"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Select
+                                value={r.gender}
+                                onValueChange={(v) => handleRangeChange(i, "gender", v)}
+                              >
+                                <SelectTrigger className="h-8 shadow-none bg-slate-50 px-2">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Both">Both</SelectItem>
+                                  <SelectItem value="Male">Male</SelectItem>
+                                  <SelectItem value="Female">Female</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell>
+                              <Select
+                                value={r.dateType}
+                                onValueChange={(v) => handleRangeChange(i, "dateType", v)}
+                              >
+                                <SelectTrigger className="h-8 shadow-none bg-slate-50 px-2">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Year">Year</SelectItem>
+                                  <SelectItem value="Month">Month</SelectItem>
+                                  <SelectItem value="Day">Day</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-1 items-center h-full">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-red-500 hover:text-red-600 hover:bg-red-50"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    removeRange(i);
+                                  }}
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    addRange();
+                                  }}
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                </Button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                        {(!newTest.range || newTest.range.length === 0) && (
+                          <TableRow>
+                            <TableCell colSpan={9} className="text-center py-4">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  addRange();
+                                }}
+                                className="text-slate-600"
+                              >
+                                <Plus className="h-4 w-4 mr-2" /> Add Range
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                      </TableBody>
+                    </Table>
+
+                    <div className="space-y-2 mt-3">
+                      <Label className="font-medium text-slate-700">Alert</Label>
+                      <p className="text-sm text-slate-500">When only a minimum value is specified, all values greater than that are considered normal. When only a maximum value is specified, all values less than that are considered normal. If no value is specified or only a note is given, then the system will not highlight abnormal values automatically.
+                        <br /> <br />
+                        When only a from age is specified, all ages greater than that are considered. When only a top age is specified, all ages less than that are considered normal. If no age is specified, then the system will consider all ages.
+                      </p>
                     </div>
 
-                    <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Mars className="h-4.5 w-4.5" color="#2563eb" size={48} strokeWidth={2.5}/>Range Max</Label>
-                      <Input
-                        type="number"
-                        placeholder="100"
-                        value={newTest.max ?? ""}
-                        onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, max: e.target.value === "" ? null : Number(e.target.value) }))
-                        }
-                        className="h-9 bg-slate-50"
-                      />
-                    </div>
+                  </div>
+                  }
 
-                    <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Venus className="h-4.5 w-4.5" color="#e91e63" size={48} strokeWidth={2.5}/>Women Range Min</Label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        value={newTest.womenMin ?? ""}
-                        onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, womenMin: e.target.value === "" ? null : Number(e.target.value) }))
-                        }
-                        className="h-9 bg-slate-50"
-                      />
-                    </div>
-                    <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Venus className="h-4.5 w-4.5" color="#e91e63" size={48} strokeWidth={2.5}/>Women Range Max</Label>
-                      <Input
-                        type="number"
-                        placeholder="100"
-                        value={newTest.womenMax ?? ""}
-                        onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, womenMax: e.target.value === "" ? null : Number(e.target.value) }))
-                        }
-                        className="h-9 bg-slate-50"
-                      />
-                    </div>
 
-                    <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Smile className="h-4.5 w-4.5" color="#f59e0b" size={48} strokeWidth={2.5} />Child Range Min</Label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        value={newTest.childMin ?? ""}
-                        onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, childMin: e.target.value === "" ? null : Number(e.target.value) }))
-                        }
-                        className="h-9 bg-slate-50"
-                      />
-                    </div>
-                    <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Smile className="h-4.5 w-4.5" color="#f59e0b" size={48} strokeWidth={2.5} />Child Range Max</Label>
-                      <Input
-                        type="number"
-                        placeholder="100"
-                        value={newTest.childMax ?? ""}
-                        onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, childMax: e.target.value === "" ? null : Number(e.target.value) }))
-                        }
-                        className="h-9 bg-slate-50"
-                      />
-                    </div>
+                  <div className="col-span-full space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Notes</Label>
+                    <Textarea
+                      placeholder="Note"
+                      value={newTest.note || ""}
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, note: e.target.value }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
 
-                    <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Baby className="h-4.5 w-4.5" color="#10b981" size={48} strokeWidth={2.5}/> Newborn Min</Label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        value={newTest.nbMin ?? ""}
-                        onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, nbMin: e.target.value === "" ? null : Number(e.target.value) }))
-                        }
-                        className="h-9 bg-slate-50"
-                      />
-                    </div>
-                    <div className="col-span-3 space-y-1.5">
-                      <Label className="text-xs font-medium text-slate-700 flex items-center gap-1.5"><Baby className="h-4.5 w-4.5" color="#10b981" size={48} strokeWidth={2.5}/> Newborn Max</Label>
-                      <Input
-                        type="number"
-                        placeholder="100"
-                        value={newTest.nbMax ?? ""}
-                        onChange={(e) =>
-                          setNewTest((prev) => ({ ...prev, nbMax: e.target.value === "" ? null : Number(e.target.value) }))
-                        }
-                        className="h-9 bg-slate-50"
-                      />
-                    </div>
-                  </>}
 
                   <div className="grid grid-cols-12 gap-4 col-span-full mt-4">
                     <div className="col-span-full flex justify-end items-end w-full gap-2">
@@ -656,30 +735,31 @@ export default function TestCatalogue({
             </DialogContent>
           </Dialog>
 
-          <div className="mt-8">
+          <div className="mt-4">
             <h4 className="text-sm font-medium text-slate-900 mb-4">Configured Tests</h4>
             <div
               ref={testsRef}
-              className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-270px)] **:data-[slot=table-container]:overflow-visible custom-scrollbar"
+              className="rounded-lg border border-slate-200 overflow-auto max-h-[calc(100vh-370px)] 2xl:max-h-[calc(100vh-470px)] **:data-[slot=table-container]:overflow-visible custom-scrollbar"
             >
               <Table>
                 <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-[0_1px_0_0_#e2e8f0]">
                   <TableRow>
-                    <TableHead className="w-20">Code</TableHead>
+                    <TableHead className="w-16">Sl No</TableHead>
                     <TableHead>Name</TableHead>
+                    <TableHead className="w-20">Code</TableHead>
                     <TableHead>Range</TableHead>
-                    <TableHead>Actions</TableHead>
-                    <TableHead>Type</TableHead>
+                    <TableHead>Unit</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>ETA (Minutes)</TableHead>
                     <TableHead>Panels</TableHead>
-                    <TableHead>Unit</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredTests.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={9} className="text-center py-8 text-slate-500 text-xs">
+                      <TableCell colSpan={10} className="text-center py-8 text-slate-500 text-xs">
                         {searchQuery ? "No tests found matching search criteria." : "No tests configured yet. Add one above."}
                       </TableCell>
                     </TableRow>
@@ -687,6 +767,7 @@ export default function TestCatalogue({
                     filteredTests.map((test, idx) => (
                       <TestCatalogueRow
                         key={idx}
+                        idx={idx}
                         test={test}
                         testMutate={testMutate}
                       />
@@ -699,11 +780,11 @@ export default function TestCatalogue({
         </CardContent>
       </Card>
 
-      <div className="space-y-6">
+      <div className="grid grid-cols-1 gap-3">
 
-        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
+        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
           <CardContent className="p-6">
-            <div className="flex flex-col gap-4 justify-between items-start mb-4">
+            <div className="flex gap-3 justify-between items-center">
               <SectionHeader
                 title="Panels & Profiles"
                 description="Manage all panels and group tests together."
@@ -790,7 +871,7 @@ export default function TestCatalogue({
         </Card>
 
 
-        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl">
+        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
           <CardContent className="p-6">
             <SectionHeader
               title="Panels & profiles"
@@ -835,7 +916,7 @@ export default function TestCatalogue({
                 disabled={loading}
               >
                 <Save className="h-4 w-4" />
-                {loading ? "Updating" : "Save Catalogue"}
+                {loading ? "Updating" : "Save Settings"}
               </Button>
             </div>
           </CardContent>
@@ -878,7 +959,7 @@ const SectionHeader = ({
   description: string;
   emoji?: string;
 }) => (
-  <div className="flex items-start gap-3">
+  <div className="flex items-start gap-3 shrink-0">
     {emoji && <div className="mt-1 rounded-2xl bg-cyan-50 p-2 flex items-center justify-center">
       <span className="text-lg">{emoji || "🧪"}</span>
     </div>}

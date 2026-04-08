@@ -23,7 +23,6 @@ interface PropsType {
 }
 
 export default function Filters({ filter, setFilter }: PropsType) {
-  const [openCalander, setOpenCalander] = useState(false);
 
   const handleReset = () => {
     setFilter({ q: null, qEnd: null, status: "all", method: "all", activeDate: "Today", date: undefined, page: 1, limit: 10 });
