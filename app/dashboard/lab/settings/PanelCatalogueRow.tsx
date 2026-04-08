@@ -85,7 +85,7 @@ export default function PanelCatalogueRow({
     onRemoveTests,
     panelMutate,
 }: {
-    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number };
+    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string };
     idx: number;
     tests: any[];
     onAddTests: () => void;
@@ -106,7 +106,8 @@ export default function PanelCatalogueRow({
     const [payload, setPayload] = useState({
         name: panel.name,
         price: panel.price,
-        estimatedTime: panel.estimatedTime
+        estimatedTime: panel.estimatedTime,
+        mainHeading: panel.mainHeading ?? ""
     });
 
     const [selectedTests, setSelectedTests] = useState<any[]>(initialPanelTests);
@@ -156,11 +157,12 @@ export default function PanelCatalogueRow({
             setPayload({
                 name: panel.name,
                 price: panel.price,
-                estimatedTime: panel.estimatedTime
+                estimatedTime: panel.estimatedTime,
+                mainHeading: panel.mainHeading ?? ""
             });
             setSearchTestQuery("");
         }
-    }, [editOpen, initialPanelTests.length, panel.name, panel.price, panel.estimatedTime]);
+    }, [editOpen, initialPanelTests.length, panel.name, panel.price, panel.estimatedTime, panel.mainHeading]);
 
     const updatePanel = useCallback(async () => {
         try {
@@ -311,11 +313,21 @@ export default function PanelCatalogueRow({
                                         <Label htmlFor={`panel-price-${idx}`}>Price (₹)</Label>
                                         <Input id={`panel-price-${idx}`} type="number" value={payload.price} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} />
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 col-span-1">
                                         <Label htmlFor={`panel-eta-${idx}`}>ETA (Minutes)</Label>
                                         <Input id={`panel-eta-${idx}`} type="number" value={payload.estimatedTime} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
                                     </div>
+                                    <div className="space-y-2 col-span-2">
+                                        <Label htmlFor={`panel-main-heading-${idx}`}>Main Heading</Label>
+                                        <Input
+                                            id={`panel-main-heading-${idx}`}
+                                            placeholder="e.g. Haematology"
+                                            value={payload.mainHeading}
+                                            onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
+                                        />
+                                    </div>
                                 </div>
+
 
                                 <div className="space-y-2">
                                     <Label className="text-slate-800 font-bold mb-2 block border-b pb-2">Modify Tests in Panel</Label>

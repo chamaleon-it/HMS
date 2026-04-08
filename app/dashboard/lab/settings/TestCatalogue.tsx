@@ -310,7 +310,8 @@ export default function TestCatalogue({
 
   const { panels, mutate: panelMutate } = useGetPanels();
   const filteredPanels = panels.filter((panel) =>
-    panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase())
+    panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase()) ||
+    panel.mainHeading?.toLowerCase().includes(panelSearchQuery.toLowerCase())
   );
 
   const { data, mutate: testMutate } = useSWR<{
@@ -923,6 +924,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     name: "",
     price: 0,
     estimatedTime: 0,
+    mainHeading: "",
   });
   const [loading, setLoading] = useState(false);
   const [selectedTests, setSelectedTests] = useState<any[]>([]);
@@ -983,7 +985,8 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
 
       const finalPayload = {
         ...payload,
-        tests: selectedTests.map(t => t._id)
+        tests: selectedTests.map(t => t._id),
+        mainHeading: payload.mainHeading || undefined,
       };
 
       await toast.promise(api.post("/lab/panels", finalPayload), {
@@ -996,6 +999,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         name: "",
         price: 0,
         estimatedTime: 0,
+        mainHeading: "",
       });
       setSelectedTests([]);
       onSuccess();
@@ -1021,6 +1025,16 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
           <Label htmlFor="add-panel-eta">ETA (Minutes)</Label>
           <Input id="add-panel-eta" type="number" placeholder="e.g. 60" value={payload.estimatedTime || ""} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
         </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="add-panel-main-heading" className="text-slate-800 font-bold mb-2 block border-b pb-2">Main Heading</Label>
+        <Input
+          id="add-panel-main-heading"
+          placeholder="e.g. Haematology"
+          value={payload.mainHeading}
+          onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
+        />
       </div>
 
       <div className="space-y-2">
