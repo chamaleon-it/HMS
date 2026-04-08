@@ -873,7 +873,7 @@ export default function TestCatalogue({
         <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
           <CardContent className="p-6">
             <SectionHeader
-              title="Panels & profiles"
+              title="Settings"
               description="Group common tests together for quick ordering."
               emoji="📦"
             />
