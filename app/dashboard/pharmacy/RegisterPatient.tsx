@@ -469,7 +469,7 @@ type Props = {
     phoneNumber: string;
     email: string;
     gender: "Male" | "Female" | "Other";
-    age: unknown;
+    age?: unknown;
     conditions?: string[] | undefined;
     blood?: string | undefined;
     allergies?: string | undefined;

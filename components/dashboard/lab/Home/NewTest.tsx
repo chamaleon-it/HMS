@@ -231,7 +231,7 @@ export default function NewTest({
         </div>
       )}
 
-      <DialogContent className="min-w-4xl">
+      <DialogContent className="min-w-5xl">
         <DialogHeader>
           <DialogTitle>Add new test</DialogTitle>
           <DialogDescription>Create a new test</DialogDescription>
@@ -248,6 +248,7 @@ export default function NewTest({
               setOpen?.(false);
             }}
           />
+          <Button variant={"outline"} onClick={() => setOpenCreate(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
           <div className="flex flex-col gap-3">
             <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
               {tabs.map(({ key, label, icon: Icon }) => {
