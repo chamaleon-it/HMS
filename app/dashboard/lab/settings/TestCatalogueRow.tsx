@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/textarea';
 import api from '@/lib/axios';
 import { formatINR } from '@/lib/fNumber';
-import { Eye, Pencil, Trash2, Plus } from 'lucide-react';
+import { Plus, Save, Trash2, Eye, Pencil, Search, GripVertical, Check, Mars, Venus, Baby, Smile } from "lucide-react";
 import React, { useCallback, useState } from 'react'
 import toast from 'react-hot-toast';
 

@@ -6,9 +6,10 @@ import HospitalName from "@/components/print/HospitalName";
 
 interface ReportCardProps {
     report: any | null;
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[] }[];
 }
 
-export default function ReportCard({ report }: ReportCardProps) {
+export default function ReportCard({ report, panels }: ReportCardProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -119,11 +120,11 @@ export default function ReportCard({ report }: ReportCardProps) {
             width: 100%;
             border-collapse: collapse;
           }
-          .col-investigation { width: 35%; }
-          .col-result { width: 15%; }
-          .col-unit { width: 10%; }
-          .col-ref { width: 20%; }
-          .col-note { width: 20%; }
+          .col-investigation { width: 40%; }
+          .col-result { width: 10%; }
+          .col-unit { width: 14%; }
+          .col-ref { width: 22%; }
+          .col-note { width: 14%; }
 
           .bottom-grouping {
             margin-top: auto; /* ⚡ PINNED TO PAGE BOTTOM */
@@ -150,20 +151,30 @@ export default function ReportCard({ report }: ReportCardProps) {
       `}} />
 
             {(() => {
-                const FIRST_PAGE_LIMIT = 28;
+                const FIRST_PAGE_LIMIT = 30;
                 const SUBSEQUENT_PAGE_LIMIT = 30;
 
                 // 1. Prepare All Rows (Panel Headers + Tests)
-                const testOrderMap = new Map<string, number>();
-                const testToPanelMap = new Map<string, string>();
-                let orderIndex = 0;
+                const allRows: any[] = [];
+                const testMap = new Map<string, any>();
+                (report.test || []).forEach((t: any) => {
+                    testMap.set(t.name?._id?.toString() || "", t);
+                });
+
+                const processedTestIds = new Set<string>();
 
                 (report.panels || []).forEach((panelIdStr: string) => {
                     const panelId = panelIdStr.toString();
                     const panelTests = (report.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
-                    panelTests.forEach((t: any) => {
-                        const id = t.name?._id?.toString() || "";
-                        if (!testToPanelMap.has(id)) testToPanelMap.set(id, panelId);
+                    if (panelTests.length === 0) return;
+
+                    const panelConfig = panels?.find(p => p.name === panelId);
+
+                    allRows.push({
+                        type: "PANEL",
+                        name: panelId,
+                        activePanel: panelId,
+                        mainHeading: panelConfig?.mainHeading
                     });
 
                     let orderedIds: string[] = [];
@@ -175,35 +186,36 @@ export default function ReportCard({ report }: ReportCardProps) {
                         }
                     }
 
-                    if (orderedIds.length > 0) {
-                        orderedIds.forEach(id => {
-                            if (!testOrderMap.has(id.toString())) testOrderMap.set(id.toString(), orderIndex++);
-                        });
-                    } else {
-                        panelTests.forEach((t: any) => {
-                            if (!testOrderMap.has(t.name?._id?.toString() || "")) testOrderMap.set(t.name?._id?.toString() || "", orderIndex++);
-                        });
+                    if (orderedIds.length === 0) {
+                        orderedIds = panelTests.map((t: any) => t.name?._id?.toString() || "");
                     }
+
+                    const subheadings = panelConfig?.subheadings || [];
+                    const testSubheadings = panelConfig?.testSubheadings || {};
+
+                    subheadings.forEach(sub => {
+                        const subTestIds = orderedIds.filter(id => testSubheadings[id] === sub && testMap.has(id));
+                        if (subTestIds.length > 0) {
+                            allRows.push({ type: "SUBHEADING", name: sub, activePanel: panelId });
+                            subTestIds.forEach(id => {
+                                allRows.push({ type: "TEST", ...testMap.get(id), activePanel: panelId, hasSubheading: true });
+                                processedTestIds.add(id);
+                                testMap.delete(id);
+                            });
+                        }
+                    });
+
+                    orderedIds.forEach(id => {
+                        if (!processedTestIds.has(id) && testMap.has(id)) {
+                            allRows.push({ type: "TEST", ...testMap.get(id), activePanel: panelId, hasSubheading: false });
+                            processedTestIds.add(id);
+                            testMap.delete(id);
+                        }
+                    });
                 });
 
-                const sortedTests = [...(report.test || [])].sort((a: any, b: any) => {
-                    const aId = a.name?._id?.toString() || "";
-                    const bId = b.name?._id?.toString() || "";
-                    const aOrder = testOrderMap.has(aId) ? testOrderMap.get(aId)! : 999999;
-                    const bOrder = testOrderMap.has(bId) ? testOrderMap.get(bId)! : 999999;
-                    return aOrder - bOrder;
-                });
-
-                const allRows: any[] = [];
-                let lastPanelId = "";
-                sortedTests.forEach((t: any) => {
-                    const tId = t.name?._id?.toString() || "";
-                    const currentPanelId = testToPanelMap.get(tId) || "";
-                    if (currentPanelId && currentPanelId !== lastPanelId) {
-                        allRows.push({ type: "PANEL", name: currentPanelId, activePanel: currentPanelId });
-                        lastPanelId = currentPanelId;
-                    }
-                    allRows.push({ type: "TEST", ...t, activePanel: lastPanelId });
+                Array.from(testMap.values()).forEach((t: any) => {
+                    allRows.push({ type: "TEST", ...t, activePanel: "" });
                 });
 
                 // 2. Chunk Into Pages
@@ -304,7 +316,7 @@ export default function ReportCard({ report }: ReportCardProps) {
 
                                 {/* UNIFIED HEADER ROW */}
                                 <div className="flex w-full bg-[#f4c3b9] border-y border-[#f4c3b9] text-[11px] font-bold text-black items-stretch relative z-8">
-                                    <div className={`${pageHasCBC ? 'w-[65%]' : 'w-full'} pr-2`}>
+                                    <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} pr-2`}>
                                         <table className="results-table w-full h-full border-none m-0">
                                             <colgroup>
                                                 <col className="col-investigation" />
@@ -316,7 +328,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                             <thead className="bg-transparent border-none">
                                                 <tr>
                                                     <th className="px-2 py-[5.5px] text-left">Parameter</th>
-                                                    <th className="px-2 py-[5.5px] text-right">Result</th>
+                                                    <th className="px-2 py-[5.5px] text-center">Result</th>
                                                     <th className="px-2 py-[5.5px] text-center">Unit</th>
                                                     <th className="px-2 py-[5.5px] text-left">Ref. Range</th>
                                                     <th className="px-2 py-[5.5px] text-left">Note</th>
@@ -325,7 +337,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                         </table>
                                     </div>
                                     {pageHasCBC && (
-                                        <div className="w-[35%] flex items-center pl-4">
+                                        <div className="w-[30%] flex items-center px-4">
                                             <div className="uppercase tracking-wider">Histograms</div>
                                         </div>
                                     )}
@@ -333,7 +345,7 @@ export default function ReportCard({ report }: ReportCardProps) {
 
                                 {/* CONTENT BODY */}
                                 <div className="flex w-full gap-2 relative">
-                                    <div className={`${pageHasCBC ? 'w-[65%]' : 'w-full'} pr-2`}>
+                                    <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} pr-2`}>
                                         <table className="results-table">
                                             <colgroup>
                                                 <col className="col-investigation" />
@@ -347,12 +359,21 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                     if (row.type === "PANEL") {
                                                         return (
                                                             <tr key={`panel-${rowIdx}`}>
-                                                                <td colSpan={5} className="px-2 pt-3 pb-3">
-                                                                    {row.name.toUpperCase() === "CBC" ? (
-                                                                        <p className="font-black text-black text-[12px] uppercase tracking-widest mt-1">HAEMATOLOGY ANALYSIS REPORT</p>
+                                                                <td colSpan={5} className="px-2 pt-4 pb-1">
+                                                                    {row.mainHeading ? (
+                                                                        <p className="font-black text-black text-[12px] uppercase tracking-widest mt-1">{row.mainHeading}</p>
                                                                     ) : (
                                                                         <p className="font-black text-black text-[10px] uppercase tracking-widest mt-1">{row.name}</p>
                                                                     )}
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    }
+                                                    if (row.type === "SUBHEADING") {
+                                                        return (
+                                                            <tr key={`subheading-${rowIdx}`}>
+                                                                <td colSpan={5} className="px-2 pt-2.5 pb-0.5">
+                                                                    <p className="font-bold text-black text-[12px]">{row.name}</p>
                                                                 </td>
                                                             </tr>
                                                         );
@@ -364,32 +385,30 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                     if (!isNaN(value) && ((min !== undefined && min !== null && value < min) || (max !== undefined && max !== null && value > max))) {
                                                         isAbnormal = true;
                                                     }
-                                                    const isMainTest = ["WBC", "HGB", "RBC", "PLT", "ESR"].some(main => typeof row.name?.name === 'string' && row.name.name.startsWith(main));
-
 
 
                                                     return (
                                                         <React.Fragment key={`test-wrap-${rowIdx}`}>
 
                                                             <tr key={`test-${rowIdx}`}>
-                                                                <td className="px-2 py-1">
-                                                                    <p className={`text-[12px] leading-tight ${isMainTest ? 'font-bold text-black' : 'font-medium text-slate-700 pl-4'}`}>
+                                                                <td className="px-2 py-[2px]">
+                                                                    <p className={`text-[12px] leading-tight ${row.hasSubheading ? 'font-medium text-slate-700 pl-4' : 'font-bold text-black'}`}>
                                                                         {row.name?.name || "Unknown test"}
                                                                     </p>
                                                                 </td>
-                                                                <td className="px-2 py-1 text-right text-[12px] leading-tight">
+                                                                <td className="px-2 py-[2px] text-center text-[12px] leading-tight">
                                                                     <span className={isAbnormal ? "font-bold" : "text-black"}>
                                                                         {row.value || " "}
                                                                     </span>
                                                                 </td>
-                                                                <td className="px-2 py-1 text-center text-black text-[10px] font-medium leading-tight">
+                                                                <td className="px-2 py-[2px] text-center text-black text-[10px] font-medium leading-tight">
                                                                     {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
                                                                         <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
                                                                     ) : (
                                                                         " "
                                                                     )}
                                                                 </td>
-                                                                <td className="px-2 py-1 text-[10px] font-semibold text-black leading-tight">
+                                                                <td className="px-2 py-[2px] text-[10px] font-semibold text-black leading-tight">
                                                                     {row.name?.range && row.name.range.length > 0 ? (
                                                                         row.name.range.map((r: any, idx: number) => {
                                                                             const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
@@ -406,7 +425,7 @@ export default function ReportCard({ report }: ReportCardProps) {
                                                                         })
                                                                     ) : "\u00A0"}
                                                                 </td>
-                                                                <td className="px-2 py-1 text-[10px] text-black leading-tight whitespace-pre-wrap">
+                                                                <td className="px-2 py-[2px] text-[10px] text-black leading-tight whitespace-pre-wrap">
                                                                     {row.name?.note}
                                                                 </td>
                                                             </tr>
@@ -418,59 +437,59 @@ export default function ReportCard({ report }: ReportCardProps) {
                                     </div>
 
                                     {pageHasCBC && (
-                                        <div className="w-[35%] flex flex-col pt-0 pl-2 relative right-0">
-                                            <div className="flex flex-col gap-3 px-2 py-13">
+                                        <div className="w-[30%] flex flex-col pt-6 px-4 relative right-0">
+                                            <div className="flex flex-col gap-6 w-full">
                                                 {/* WBC Graph */}
                                                 {report?.graphs?.['WBC Histogram. BMP'] ? (
-                                                    <div className="flex flex-col flex-1">
-                                                        <div className="text-[12px] font-bold text-black self-start tracking-widest">WBC</div>
+                                                    <div className="flex flex-col w-full pt-7">
+                                                        <div className="text-[11px] font-bold text-black tracking-widest pl-1">WBC</div>
                                                         <img
                                                             src={`data:image/png;base64,${report.graphs['WBC Histogram. BMP']}`}
                                                             alt="WBC Histogram"
-                                                            className="w-full h-30 object-contain object-left mix-blend-multiply"
+                                                            className="w-full h-24 object-contain object-left mix-blend-multiply"
                                                             style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <div className="flex flex-col flex-1">
-                                                        <div className="text-[10px] font-bold text-slate-400 self-start">WBC</div>
-                                                        <div className="w-full h-30 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">WBC Graph Area</div>
+                                                    <div className="flex flex-col w-full">
+                                                        <div className="text-[10px] font-bold text-slate-400 pl-1">WBC</div>
+                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">WBC Graph Area</div>
                                                     </div>
                                                 )}
 
                                                 {/* RBC Graph */}
                                                 {report?.graphs?.['RBC Histogram. BMP'] ? (
-                                                    <div className="flex flex-col flex-1 mt-1 py-8">
-                                                        <div className="text-[12px] font-bold text-black self-start tracking-widest">RBC</div>
+                                                    <div className="flex flex-col w-full pt-1">
+                                                        <div className="text-[11px] font-bold text-black tracking-widest pl-1">RBC</div>
                                                         <img
                                                             src={`data:image/png;base64,${report.graphs['RBC Histogram. BMP']}`}
                                                             alt="RBC Histogram"
-                                                            className="w-full h-30 object-contain object-left mix-blend-multiply"
+                                                            className="w-full h-24 object-contain object-left mix-blend-multiply"
                                                             style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <div className="flex flex-col flex-1 mt-1">
-                                                        <div className="text-[10px] font-bold text-slate-900 self-start">RBC</div>
-                                                        <div className="w-full h-30 border border-dashed border-slate-900 rounded flex items-center justify-center text-slate-300 text-[10px]">RBC Graph Area</div>
+                                                    <div className="flex flex-col w-full">
+                                                        <div className="text-[10px] font-bold text-slate-400 pl-1">RBC</div>
+                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">RBC Graph Area</div>
                                                     </div>
                                                 )}
 
                                                 {/* PLT Graph */}
                                                 {report?.graphs?.['PLT Histogram. BMP'] ? (
-                                                    <div className="flex flex-col flex-1 mt-1 py-8">
-                                                        <div className="text-[12px] font-bold text-black self-start tracking-widest">PLT</div>
+                                                    <div className="flex flex-col w-full pt-28">
+                                                        <div className="text-[11px] font-bold text-black tracking-widest pl-1">PLT</div>
                                                         <img
                                                             src={`data:image/png;base64,${report.graphs['PLT Histogram. BMP']}`}
                                                             alt="PLT Histogram"
-                                                            className="w-full h-30 object-contain object-left mix-blend-multiply"
+                                                            className="w-full h-24 object-contain object-left mix-blend-multiply"
                                                             style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                         />
                                                     </div>
                                                 ) : (
-                                                    <div className="flex flex-col flex-1 mt-1">
-                                                        <div className="text-[10px] font-bold text-slate-900 self-start">PLT</div>
-                                                        <div className="w-full h-30 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-900 text-[10px]">PLT Graph Area</div>
+                                                    <div className="flex flex-col w-full">
+                                                        <div className="text-[10px] font-bold text-slate-400 pl-1">PLT</div>
+                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">PLT Graph Area</div>
                                                     </div>
                                                 )}
                                             </div>

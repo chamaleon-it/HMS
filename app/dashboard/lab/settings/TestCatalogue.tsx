@@ -334,7 +334,8 @@ export default function TestCatalogue({
 
   const { panels, mutate: panelMutate } = useGetPanels();
   const filteredPanels = panels.filter((panel) =>
-    panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase())
+    panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase()) ||
+    panel.mainHeading?.toLowerCase().includes(panelSearchQuery.toLowerCase())
   );
 
   const { data, mutate: testMutate } = useSWR<{
@@ -1000,10 +1001,20 @@ const FieldRow = ({
 
 const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; onCancel: () => void; tests: any[] }) => {
 
-  const [payload, setPayload] = useState({
+  const [payload, setPayload] = useState<{
+    name: string;
+    price: number;
+    estimatedTime: number;
+    mainHeading: string;
+    subheadings: string[];
+    testSubheadings: Record<string, string>;
+  }>({
     name: "",
     price: 0,
     estimatedTime: 0,
+    mainHeading: "",
+    subheadings: [],
+    testSubheadings: {},
   });
   const [loading, setLoading] = useState(false);
   const [selectedTests, setSelectedTests] = useState<any[]>([]);
@@ -1064,7 +1075,10 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
 
       const finalPayload = {
         ...payload,
-        tests: selectedTests.map(t => t._id)
+        tests: selectedTests.map(t => t._id),
+        mainHeading: payload.mainHeading || undefined,
+        subheadings: payload.subheadings.filter(s => s.trim() !== ""),
+        testSubheadings: payload.testSubheadings,
       };
 
       await toast.promise(api.post("/lab/panels", finalPayload), {
@@ -1077,6 +1091,9 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         name: "",
         price: 0,
         estimatedTime: 0,
+        mainHeading: "",
+        subheadings: [],
+        testSubheadings: {},
       });
       setSelectedTests([]);
       onSuccess();
@@ -1102,6 +1119,65 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
           <Label htmlFor="add-panel-eta">ETA (Minutes)</Label>
           <Input id="add-panel-eta" type="number" placeholder="e.g. 60" value={payload.estimatedTime || ""} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
         </div>
+        <div className="space-y-2 col-span-2">
+          <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report)</span></Label>
+            <Input
+              id="add-panel-main-heading"
+              placeholder="e.g. Haematology"
+              value={payload.mainHeading}
+              onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
+            />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label className="text-slate-800 font-bold mb-2 block border-b pb-2">Subheadings <span className="text-slate-500 font-normal text-xs">(Ordered)</span></Label>
+        <div className="space-y-2">
+          {payload.subheadings.map((sh, idx) => (
+            <div key={idx} className="flex gap-2 items-center">
+              <Input
+                placeholder="e.g. RBC"
+                value={sh}
+                className="h-9 w-64"
+                onChange={(e) => {
+                  const newSh = [...payload.subheadings];
+                  newSh[idx] = e.target.value;
+                  setPayload({ ...payload, subheadings: newSh });
+                }}
+              />
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 px-2 text-red-500 hover:text-red-700"
+                onClick={() => {
+                  const newSh = payload.subheadings.filter((_, i) => i !== idx);
+                  setPayload({ ...payload, subheadings: newSh });
+                }}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+              <div className="flex flex-col ml-2">
+                <Button variant="ghost" size="sm" className="h-4 w-4 p-0" disabled={idx === 0} onClick={() => {
+                  const newSh = [...payload.subheadings];
+                  [newSh[idx - 1], newSh[idx]] = [newSh[idx], newSh[idx - 1]];
+                  setPayload({ ...payload, subheadings: newSh });
+                }}>↑</Button>
+                <Button variant="ghost" size="sm" className="h-4 w-4 p-0" disabled={idx === payload.subheadings.length - 1} onClick={() => {
+                  const newSh = [...payload.subheadings];
+                  [newSh[idx + 1], newSh[idx]] = [newSh[idx], newSh[idx + 1]];
+                  setPayload({ ...payload, subheadings: newSh });
+                }}>↓</Button>
+              </div>
+            </div>
+          ))}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setPayload({ ...payload, subheadings: [...payload.subheadings, ""] })}
+          >
+            + Add Subheading
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-2">
@@ -1124,6 +1200,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
                     <TableHead className="w-20 bg-slate-50">SL No</TableHead>
                     <TableHead className="w-25 bg-slate-50">Code</TableHead>
                     <TableHead className="bg-slate-50">Test Name</TableHead>
+                    <TableHead className="w-40 bg-slate-50">Subheading</TableHead>
                     <TableHead className="w-25 text-right bg-slate-50">Action</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -1162,6 +1239,30 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
                           </TableCell>
                           <TableCell className="text-xs text-slate-500">{t.code}</TableCell>
                           <TableCell className="font-medium text-sm">{t.name}</TableCell>
+                          <TableCell>
+                            <Select
+                              value={payload.testSubheadings[t._id] || "none"}
+                              onValueChange={(val) => {
+                                const newTs = { ...payload.testSubheadings };
+                                if (val === "none") {
+                                  delete newTs[t._id];
+                                } else {
+                                  newTs[t._id] = val;
+                                }
+                                setPayload({ ...payload, testSubheadings: newTs });
+                              }}
+                            >
+                              <SelectTrigger className="h-8 shadow-none bg-slate-50">
+                                <SelectValue placeholder="None" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="none" className="text-slate-400 italic">None</SelectItem>
+                                {payload.subheadings.filter(s => s.trim() !== "").map((sh, idx) => (
+                                  <SelectItem key={idx} value={sh}>{sh}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
                           <TableCell className="text-right py-1">
                             <Button
                               size="sm"
@@ -1176,7 +1277,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-4 text-xs text-slate-400">
+                        <TableCell colSpan={6} className="text-center py-4 text-xs text-slate-400">
                           No tests added yet. Search and add below.
                         </TableCell>
                       </TableRow>
