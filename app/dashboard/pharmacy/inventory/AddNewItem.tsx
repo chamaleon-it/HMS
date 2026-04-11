@@ -203,7 +203,11 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
           <Input
             placeholder="e.g. 100"
             className="mt-1"
-            {...register("packing")}
+            value={values.packing as string || ""}
+            onChange={e=>{
+              setValue("packing",Number(e.target.value))
+              setValue("unitPrice",(Number(values.mrp) || 0 )/(e.target.value ? Number(e.target.value) : 1))}
+            }
             ref={(e) => {
               register("packing").ref(e);
               refs.packing.current = e;
@@ -228,12 +232,17 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             step="0.01"
             placeholder="e.g. 2.50"
             className="mt-1"
-            {...register("mrp")}
+            // {...register("mrp")}
+            value={values.mrp as string || ""}
             ref={(e) => {
               register("mrp").ref(e);
               refs.mrp.current = e;
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
+            onChange={e=>{
+              setValue("mrp",Number(e.target.value))
+              setValue("unitPrice",(Number(e.target.value) || 0 )/(values?.packing ? Number(values.packing) : 1))}
+            }
           />
           {errors.mrp && (
             <p className="text-xs text-red-600 my-1">
