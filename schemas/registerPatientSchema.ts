@@ -29,7 +29,8 @@ export const registerPatientSchema = z.object({
 
   gender: z.enum(["Male", "Female", "Other", "Prefer not to say"]),
 
-  dateOfBirth: z.string(),
+  dateOfBirth: z.string().optional().or(z.literal("")),
+  age: z.union([z.string(), z.number()]).optional(),
 
   conditions: z.array(z.string().max(100)).optional(),
 
@@ -81,5 +82,6 @@ export const registerPatientSchema = z.object({
 });
 
 export type RegisterPatientInput = z.infer<typeof registerPatientSchema>;
+export type RegisterPatientSchema = z.input<typeof registerPatientSchema>;
 
 export default registerPatientSchema;

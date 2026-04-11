@@ -5,6 +5,7 @@ import api from "@/lib/axios";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { TableCell, TableRow, Table, TableHeader, TableHead, TableBody } from '@/components/ui/table'
 import { formatINR } from '@/lib/fNumber';
 import { Eye, Pencil, Trash2, Plus, Search, GripVertical, Check } from 'lucide-react';
@@ -85,7 +86,7 @@ export default function PanelCatalogueRow({
     onRemoveTests,
     panelMutate,
 }: {
-    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number };
+    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; };
     idx: number;
     tests: any[];
     onAddTests: () => void;
@@ -93,20 +94,30 @@ export default function PanelCatalogueRow({
     panelMutate: () => void;
 }) {
 
-    const initialPanelTests = panel.tests?.length ? panel.tests : tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
+    console.log(panel)
 
-    // Default estimated time derived from sum of test estimated times
-    const defaultEstimatedTime = initialPanelTests.reduce((sum, t) => sum + (Number(t.estimatedTime) || 0), 0);
+    const initialPanelTests = panel.tests?.length ? panel.tests : tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
 
     const [editOpen, setEditOpen] = useState(false);
     const [viewOpen, setViewOpen] = useState(false);
     const [deleteOpen, setDeleteOpen] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     // Edit Modal State
-    const [payload, setPayload] = useState({
+    const [payload, setPayload] = useState<{
+        name: string;
+        price: number;
+        estimatedTime: number;
+        mainHeading: string;
+        subheadings: string[];
+        testSubheadings: Record<string, string>;
+    }>({
         name: panel.name,
         price: panel.price,
-        estimatedTime: defaultEstimatedTime
+        estimatedTime: panel.estimatedTime || 0,
+        mainHeading: panel.mainHeading ?? "",
+        subheadings: panel.subheadings || [],
+        testSubheadings: panel.testSubheadings || {}
     });
 
     const [selectedTests, setSelectedTests] = useState<any[]>(initialPanelTests);
@@ -156,17 +167,22 @@ export default function PanelCatalogueRow({
             setPayload({
                 name: panel.name,
                 price: panel.price,
-                estimatedTime: defaultEstimatedTime
+                estimatedTime: panel.estimatedTime || 0,
+                mainHeading: panel.mainHeading ?? "",
+                subheadings: panel.subheadings || [],
+                testSubheadings: panel.testSubheadings || {}
             });
             setSearchTestQuery("");
         }
-    }, [editOpen, initialPanelTests.length, panel.name, panel.price, defaultEstimatedTime]);
+    }, [editOpen, initialPanelTests.length, panel.name, panel.price, panel.estimatedTime, panel.mainHeading, panel.subheadings, panel.testSubheadings]);
 
     const updatePanel = useCallback(async () => {
         try {
             const updatePayload = {
                 ...payload,
-                tests: selectedTests.map(t => t._id)
+                tests: selectedTests.map(t => t._id),
+                subheadings: payload.subheadings.filter(s => s.trim() !== ""),
+                testSubheadings: payload.testSubheadings
             };
 
 
@@ -184,9 +200,21 @@ export default function PanelCatalogueRow({
     }, [payload, selectedTests, panel.name, panelMutate]);
 
     const deletePanel = useCallback(async () => {
-        toast.success("Panel delete action triggered (Backend deletion disabled/not implemented)");
-        setDeleteOpen(false);
-    }, []);
+        try {
+            setIsDeleting(true);
+            await toast.promise(api.delete(`/lab/panels/${panel.name}`), {
+                loading: "Deleting Panel...",
+                success: "Panel deleted successfully",
+                error: ({ response }) => response.data.message,
+            });
+            panelMutate();
+            setDeleteOpen(false);
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsDeleting(false);
+        }
+    }, [panel.name, panelMutate]);
 
     const handleAddTest = (test: any) => {
         if (!selectedTests.find(t => t._id === test._id)) {
@@ -196,9 +224,6 @@ export default function PanelCatalogueRow({
         setAddTestDropdownOpen(false);
     }
 
-    const availableTestsToAdd = tests
-        .filter(t => !selectedTests.find(st => st._id === t._id))
-        .filter(t => t.name.toLowerCase().includes(searchTestQuery.toLowerCase()) || t.code?.toLowerCase().includes(searchTestQuery.toLowerCase()));
 
     const formatRange = (t: any) => {
         const ranges = [];
@@ -211,13 +236,13 @@ export default function PanelCatalogueRow({
     }
 
     return (
-        <TableRow>
+        <TableRow onContextMenu={(e) => { e.preventDefault(); setViewOpen(true); }} className="cursor-context-menu">
             <TableCell>{idx + 1}</TableCell>
             <TableCell className="font-medium">{panel.name}</TableCell>
             <TableCell>{formatINR(panel.price)}</TableCell>
-            <TableCell>{defaultEstimatedTime > 0 ? `${defaultEstimatedTime} Minutes` : "N/A"}</TableCell>
-            <TableCell align="right">
-                <div className="flex gap-2 items-center justify-end">
+            <TableCell>{panel.estimatedTime ? `${panel.estimatedTime} Minutes` : "N/A"}</TableCell>
+            <TableCell align="left">
+                <div className="flex gap-1 items-center justify-end">
 
                     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
                         <DialogTrigger asChild>
@@ -244,7 +269,7 @@ export default function PanelCatalogueRow({
                                     </div>
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Estimated Duration</Label>
-                                        <p className="font-medium text-sm">{defaultEstimatedTime > 0 ? `${defaultEstimatedTime} Minutes` : "N/A"}</p>
+                                        {panel?.estimatedTime ? <p className="font-medium text-sm">{panel?.estimatedTime > 0 ? `${panel?.estimatedTime} Minutes` : "N/A"}</p> : <p className="font-medium text-sm">N/A</p>}
                                     </div>
                                 </div>
 
@@ -276,6 +301,17 @@ export default function PanelCatalogueRow({
                                     </div>
                                 </div>
                             </div>
+                            <DialogFooter className="flex flex-col sm:flex-row sm:justify-between items-center pt-4 border-t mt-4 gap-2 w-full">
+                                <Button variant="destructive" size="sm" onClick={() => { setViewOpen(false); setDeleteOpen(true); }} className="w-full sm:w-auto">
+                                    <Trash2 className="w-4 h-4 mr-2" /> Delete
+                                </Button>
+                                <div className="flex gap-2 w-full sm:w-auto justify-end">
+                                    <Button variant="outline" size="sm" onClick={() => setViewOpen(false)}>Close</Button>
+                                    <Button size="sm" onClick={() => { setViewOpen(false); setEditOpen(true); }}>
+                                        <Pencil className="w-4 h-4 mr-2" /> Edit Panel
+                                    </Button>
+                                </div>
+                            </DialogFooter>
                         </DialogContent>
                     </Dialog>
 
@@ -302,17 +338,77 @@ export default function PanelCatalogueRow({
                                         <Label htmlFor={`panel-price-${idx}`}>Price (₹)</Label>
                                         <Input id={`panel-price-${idx}`} type="number" value={payload.price} onChange={(e) => setPayload({ ...payload, price: Number(e.target.value) })} />
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="space-y-2 col-span-1">
                                         <Label htmlFor={`panel-eta-${idx}`}>ETA (Minutes)</Label>
                                         <Input id={`panel-eta-${idx}`} type="number" value={payload.estimatedTime} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
                                     </div>
+                                    <div className="space-y-2 col-span-2">
+                                        <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report)</span></Label>
+                                        <Input
+                                            id={`panel-main-heading-${idx}`}
+                                            placeholder="e.g. Haematology"
+                                            value={payload.mainHeading}
+                                            onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
+                                        />
+                                    </div>
                                 </div>
+
+                                <div className="space-y-2">
+                                    <Label className="text-slate-800 font-bold mb-2 block border-b pb-2">Subheadings <span className="text-slate-500 font-normal text-xs">(Ordered)</span></Label>
+                                    <div className="space-y-2">
+                                        {payload.subheadings.map((sh, sIdx) => (
+                                            <div key={sIdx} className="flex gap-2 items-center">
+                                                <Input
+                                                    placeholder="e.g. RBC"
+                                                    value={sh}
+                                                    className="h-9 w-64"
+                                                    onChange={(e) => {
+                                                        const newSh = [...payload.subheadings];
+                                                        newSh[sIdx] = e.target.value;
+                                                        setPayload({ ...payload, subheadings: newSh });
+                                                    }}
+                                                />
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    className="h-9 px-2 text-red-500 hover:text-red-700"
+                                                    onClick={() => {
+                                                        const newSh = payload.subheadings.filter((_, i) => i !== sIdx);
+                                                        setPayload({ ...payload, subheadings: newSh });
+                                                    }}
+                                                >
+                                                    <Trash2 className="w-4 h-4" />
+                                                </Button>
+                                                <div className="flex flex-col ml-2">
+                                                    <Button variant="ghost" size="sm" className="h-4 w-4 p-0" disabled={sIdx === 0} onClick={() => {
+                                                        const newSh = [...payload.subheadings];
+                                                        [newSh[sIdx - 1], newSh[sIdx]] = [newSh[sIdx], newSh[sIdx - 1]];
+                                                        setPayload({ ...payload, subheadings: newSh });
+                                                    }}>↑</Button>
+                                                    <Button variant="ghost" size="sm" className="h-4 w-4 p-0" disabled={sIdx === payload.subheadings.length - 1} onClick={() => {
+                                                        const newSh = [...payload.subheadings];
+                                                        [newSh[sIdx + 1], newSh[sIdx]] = [newSh[sIdx], newSh[sIdx + 1]];
+                                                        setPayload({ ...payload, subheadings: newSh });
+                                                    }}>↓</Button>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setPayload({ ...payload, subheadings: [...payload.subheadings, ""] })}
+                                        >
+                                            + Add Subheading
+                                        </Button>
+                                    </div>
+                                </div>
+
 
                                 <div className="space-y-2">
                                     <Label className="text-slate-800 font-bold mb-2 block border-b pb-2">Modify Tests in Panel</Label>
                                     <div className="rounded-md border border-slate-200 overflow-hidden">
                                         <div
-                                            className="max-h-[400px] overflow-y-auto w-full"
+                                            className="max-h-100 overflow-y-auto w-full"
                                             onWheel={(e) => e.stopPropagation()}
                                         >
                                             <DndContext
@@ -325,10 +421,11 @@ export default function PanelCatalogueRow({
                                                     <TableHeader className="bg-slate-50 sticky top-0 z-10">
                                                         <TableRow>
                                                             <TableHead className="w-8 p-0 bg-slate-50"></TableHead>
-                                                            <TableHead className="w-[80px] bg-slate-50">SL No</TableHead>
-                                                            <TableHead className="w-[100px] bg-slate-50">Code</TableHead>
+                                                            <TableHead className="w-20 bg-slate-50">SL No</TableHead>
+                                                            <TableHead className="w-25 bg-slate-50">Code</TableHead>
                                                             <TableHead className="bg-slate-50">Test Name</TableHead>
-                                                            <TableHead className="w-[100px] text-right bg-slate-50">Action</TableHead>
+                                                            <TableHead className="w-40 bg-slate-50">Subheading</TableHead>
+                                                            <TableHead className="w-25 text-right bg-slate-50">Action</TableHead>
                                                         </TableRow>
                                                     </TableHeader>
                                                     <TableBody>
@@ -365,6 +462,30 @@ export default function PanelCatalogueRow({
                                                                     </TableCell>
                                                                     <TableCell className="text-xs text-slate-500">{t.code}</TableCell>
                                                                     <TableCell className="font-medium text-sm">{t.name}</TableCell>
+                                                                    <TableCell>
+                                                                        <Select
+                                                                            value={payload.testSubheadings[t._id] || "none"}
+                                                                            onValueChange={(val) => {
+                                                                                const newTs = { ...payload.testSubheadings };
+                                                                                if (val === "none") {
+                                                                                    delete newTs[t._id];
+                                                                                } else {
+                                                                                    newTs[t._id] = val;
+                                                                                }
+                                                                                setPayload({ ...payload, testSubheadings: newTs });
+                                                                            }}
+                                                                        >
+                                                                            <SelectTrigger className="h-8 shadow-none bg-slate-50">
+                                                                                <SelectValue placeholder="None" />
+                                                                            </SelectTrigger>
+                                                                            <SelectContent>
+                                                                                <SelectItem value="none" className="text-slate-400 italic">None</SelectItem>
+                                                                                {payload.subheadings.filter(s => s.trim() !== "").map((sh, shIdx) => (
+                                                                                    <SelectItem key={shIdx} value={sh}>{sh}</SelectItem>
+                                                                                ))}
+                                                                            </SelectContent>
+                                                                        </Select>
+                                                                    </TableCell>
                                                                     <TableCell className="text-right py-1">
                                                                         <Button
                                                                             size="sm"
@@ -397,36 +518,50 @@ export default function PanelCatalogueRow({
                                                                         className="w-full justify-start text-muted-foreground font-normal hover:bg-white bg-white h-10 shadow-sm"
                                                                     >
                                                                         <Search className="mr-2 h-4 w-4 opacity-50" />
-                                                                        {selectedTests.length === tests.length ? "All tests added to panel..." : "Search and add test to panel..."}
+                                                                        {selectedTests.length === tests.length
+                                                                            ? "All tests added to panel..."
+                                                                            : "Search and add test to panel..."}
                                                                     </Button>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-[800px] p-0" align="start">
-                                                                    <Command>
+                                                                <PopoverContent className="w-200 p-0" align="start">
+                                                                    <Command filter={(value, search) => {
+                                                                        if (!search) return 1;
+                                                                        const v = value.toLowerCase();
+                                                                        const s = search.toLowerCase().trim();
+                                                                        const words = s.split(/\s+/);
+                                                                        return words.every(w => v.includes(w)) ? 1 : 0;
+                                                                    }}>
                                                                         <CommandInput placeholder="Type test name or code..." className="h-11" />
-                                                                        <CommandList onWheel={(e) => e.stopPropagation()}>
+                                                                        <CommandList className="max-h-[350px]" onWheel={(e) => e.stopPropagation()}>
                                                                             <CommandEmpty>No test found.</CommandEmpty>
                                                                             <CommandGroup>
-                                                                                {tests
+                                                                                {[...tests]
+                                                                                    .sort((a, b) => {
+                                                                                        const aSelected = selectedTests.some(st => st._id === a._id);
+                                                                                        const bSelected = selectedTests.some(st => st._id === b._id);
+                                                                                        if (aSelected === bSelected) return 0;
+                                                                                        return aSelected ? 1 : -1;
+                                                                                    })
                                                                                     .map((t) => {
                                                                                         const isSelected = selectedTests.find(st => st._id === t._id);
                                                                                         return (
                                                                                             <CommandItem
                                                                                                 key={t._id}
-                                                                                                value={t.name + " " + (t.code || '')}
+                                                                                                value={`${t.name} ${t.code || ''} ${t.unit || ''}`}
                                                                                                 onSelect={() => {
                                                                                                     if (!isSelected) handleAddTest(t);
                                                                                                 }}
                                                                                                 className={cn(
-                                                                                                    "flex justify-between items-center py-2 px-3",
-                                                                                                    isSelected ? "opacity-60 cursor-default" : "cursor-pointer"
+                                                                                                    "flex justify-between items-center py-2.5 px-3",
+                                                                                                    isSelected ? "opacity-50 cursor-default" : "cursor-pointer"
                                                                                                 )}
                                                                                             >
                                                                                                 <div className="flex flex-col">
                                                                                                     <div className="flex items-center gap-2">
                                                                                                         <span className="font-medium">{t.name}</span>
                                                                                                         {isSelected && (
-                                                                                                            <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                                                                                                                <Check className="h-2 w-2" /> Added
+                                                                                                            <span className="text-[10px] bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-200">
+                                                                                                                <Check className="h-2.5 w-2.5" /> Added
                                                                                                             </span>
                                                                                                         )}
                                                                                                     </div>
@@ -438,7 +573,6 @@ export default function PanelCatalogueRow({
                                                                                     })}
                                                                             </CommandGroup>
                                                                         </CommandList>
-
                                                                     </Command>
                                                                 </PopoverContent>
                                                             </Popover>
@@ -448,7 +582,7 @@ export default function PanelCatalogueRow({
                                             </Table>
                                         </div>
                                     </div>
-                                    <p className="text-xs text-slate-400 mt-2 italic">Select tests from the combobox to add them to this panel. Hit enter on search to add the top result.</p>
+                                    <p className="text-xs text-slate-400 mt-2 italic">Search by test name, code, or unit. Already added tests appear at the bottom.</p>
                                 </div>
 
                             </div>
@@ -458,7 +592,7 @@ export default function PanelCatalogueRow({
                         </DialogContent>
                     </Dialog>
 
-                    {/* <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                    <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                         <AlertDialogTrigger asChild>
                             <Button size="sm" variant="ghost">
                                 <Trash2 className='h-4 w-4 text-slate-500 hover:text-red-500' />
@@ -473,14 +607,15 @@ export default function PanelCatalogueRow({
                             </AlertDialogHeader>
                             <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={deletePanel} className="bg-red-600 hover:bg-red-700 text-white">
-                                    Delete
+                                <AlertDialogAction onClick={deletePanel} disabled={isDeleting} className="bg-red-600 hover:bg-red-700 text-white">
+                                    {isDeleting ? "Deleting..." : "Delete"}
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
-                    </AlertDialog> */}
+                    </AlertDialog>
                 </div>
             </TableCell>
         </TableRow>
+
     )
 }

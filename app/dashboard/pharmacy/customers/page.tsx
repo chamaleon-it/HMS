@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { RegisterPatient } from "../RegisterPatient";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, Plus, ClipboardPlus, CalendarPlus } from "lucide-react";
 const Customers: React.FC = () => {
   const router = useRouter();
   const [editCustomer, setEditCustomer] = useState<any>(null);
@@ -74,6 +74,7 @@ const Customers: React.FC = () => {
         address: string;
         mrn: string;
         doctor: string;
+        allergies: string;
       };
       lastPurchase: Date;
     }[];
@@ -245,6 +246,50 @@ const Customers: React.FC = () => {
                                   <p>Edit Customer</p>
                                 </TooltipContent>
                               </Tooltip>
+
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    onClick={(e: React.MouseEvent) => {
+                                      e.stopPropagation();
+                                      router.push(
+                                        `/dashboard/pharmacy?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}&allergies=${p.patient.allergies || ""}#newOrder`
+                                      )
+                                    }}
+                                  >
+                                    <ClipboardPlus className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>New Order</p>
+                                </TooltipContent>
+                              </Tooltip>
+
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    onClick={(e: React.MouseEvent) => {
+                                      e.stopPropagation();
+                                      router.push(
+                                        `/dashboard/pharmacy/appointments?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}#newAppointment`
+                                      )
+                                    }}
+                                  >
+                                    <CalendarPlus className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>New Appointment</p>
+                                </TooltipContent>
+                              </Tooltip>
+
+
                             </div>
                           </TableCell>
                         </TableRow>

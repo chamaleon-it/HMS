@@ -378,7 +378,7 @@ export function RegisterPatient({
                 <Calendar
                   disabled={{ after: new Date() }}
                   mode="single"
-                  selected={new Date(dateOfBirth)}
+                  selected={dateOfBirth ? new Date(dateOfBirth) : undefined}
                   captionLayout="dropdown"
                   onSelect={(date) => {
                     setValue(
