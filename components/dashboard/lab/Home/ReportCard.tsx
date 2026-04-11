@@ -51,6 +51,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            font-family: 'Roboto', sans-serif;
           }
           .print-prescription { 
             visibility: visible !important;
@@ -243,19 +244,19 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                     const pageHasCBC = pageIdx === firstCBCPageIdx;
 
                     return (
-                        <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
+                        <div key={pageIdx} className={`a4-page shadow-none bg-white font-roboto ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
                             {/* 🏥 ATOMIC WATERMARK (DIRECT INLINE) */}
                             <div className="watermark-print">
                                 <img src="/print/logo.png" alt="watermark" className="w-[12cm] grayscale object-contain" style={{ opacity: 0.50 }} />
                             </div>
 
                             {/* 🏥 DIGITAL HEADER */}
-                            <div className="relative w-full bg-white text-black mb-4 flex flex-col pt-0 break-inside-avoid">
+                            <div className="relative w-full bg-white text-black flex flex-col pt-0 break-inside-avoid">
                                 {/* Top Bar */}
-                                <div className="w-full h-5" style={{ backgroundColor: '#f2cdbf' }}></div>
+
 
                                 {/* Content Wrapper */}
-                                <div className="w-full relative flex justify-between items-start pt-4 pb-1.25 px-10">
+                                <div className="w-full relative flex justify-between items-start pt-1 pb-1.25 px-10">
                                     <div className="relative z-10 w-[60%]">
                                         <HospitalName />
                                     </div>
@@ -269,7 +270,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                 </div>
 
                                 {/* Ribbon Wrapper */}
-                                <div className="absolute right-0 top-5 w-[50%] z-1 flex flex-col items-end">
+                                <div className="absolute right-0 top-0 w-[50%] z-1 flex flex-col items-end">
                                     {/* Darker coral upper shape */}
                                     <div
                                         className="h-14 w-85 flex items-center justify-end"
@@ -298,21 +299,40 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                             <div className="report-body">
                                 {isFirstPage && (
                                     <div className="mb-3 pt-3 pb-3 border-y border-slate-300">
-                                        <div className="grid grid-cols-2 gap-x-8 text-[12px] font-semibold text-slate-800 tracking-tight px-2">
+                                        <div className="grid grid-cols-2 gap-x-8 text-[12px] font-semibold text-black tracking-tight px-2">
                                             <div className="space-y-1">
-                                                <div className="flex gap-2"><span className="w-20 text-slate-900 font-medium">Name</span><span className="font-bold text-slate-900">: {patient?.name || "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-slate-900 font-medium">Age/Sex</span><span className="font-bold text-slate-900">: {`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "—"} / ${patient?.gender || "—"}`}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-slate-900 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
-                                                {/* <div className="flex gap-2"><span className="w-20 text-slate-900 font-medium">Ref. By.</span><span className="font-bold text-slate-900">: Dr. Nader Shah</span></div> */}
+                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Name</span><span className="font-bold text-black">: {patient?.name || "—"}</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "—"} / ${patient?.gender || "—"}`}</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Ref. By.</span><span className="font-bold text-black">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
+                                                {/* <div className="flex gap-2"><span className="w-20 text-black font-medium">Ref. By.</span><span className="font-bold text-black">: Dr. Nader Shah</span></div> */}
                                             </div>
                                             <div className="space-y-1">
-                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Sample Collected On</span><span className="font-bold text-slate-900">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Result Reported On</span><span className="font-bold text-slate-900">: {report.testStartedAt ? fDateandTime(report.testStartedAt).split(",")[0] : "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-slate-900 font-medium">Result Printed On</span><span className="font-bold text-slate-900">: {fDateandTime(new Date()).split(",")[0]}</span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-black font-medium">Sample Collected On</span><span className="font-bold text-black">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-black font-medium">Result Reported On</span><span className="font-bold text-black">: {report.testStartedAt ? fDateandTime(report.testStartedAt).split(",")[0] : "—"}</span></div>
+                                                <div className="flex gap-2"><span className="w-35 text-black font-medium">Result Printed On</span><span className="font-bold text-black">: {fDateandTime(new Date()).split(",")[0]}</span></div>
                                             </div>
                                         </div>
                                     </div>
                                 )}
+
+                                {/* PANEL HEADINGS (Moved above the table headings) */}
+                                {(() => {
+                                    const pagePanels = Array.from(new Set(pageRows.map(r => r.activePanel).filter(Boolean)));
+                                    if (pagePanels.length === 0) return null;
+
+                                    const panelTitles = pagePanels.map(pId => {
+                                        const panelConf = panels?.find(p => p.name === pId);
+                                        return panelConf?.mainHeading || pId;
+                                    });
+
+                                    return (
+                                        <div className="w-full text-center pb-2 pt-1">
+                                            <p className="font-bold text-black text-[17px] uppercase">
+                                                {panelTitles.join(" / ")}
+                                            </p>
+                                        </div>
+                                    );
+                                })()}
 
                                 {/* UNIFIED HEADER ROW */}
                                 <div className="flex w-full bg-[#f4c3b9] border-y border-[#f4c3b9] text-[11px] font-bold text-black items-stretch relative z-8">
@@ -357,23 +377,13 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                             <tbody>
                                                 {pageRows.map((row, rowIdx) => {
                                                     if (row.type === "PANEL") {
-                                                        return (
-                                                            <tr key={`panel-${rowIdx}`}>
-                                                                <td colSpan={5} className="px-2 pt-4 pb-1">
-                                                                    {row.mainHeading ? (
-                                                                        <p className="font-black text-black text-[12px] uppercase tracking-widest mt-1">{row.mainHeading}</p>
-                                                                    ) : (
-                                                                        <p className="font-black text-black text-[10px] uppercase tracking-widest mt-1">{row.name}</p>
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        );
+                                                        return null;
                                                     }
                                                     if (row.type === "SUBHEADING") {
                                                         return (
                                                             <tr key={`subheading-${rowIdx}`}>
                                                                 <td colSpan={5} className="px-2 pt-2.5 pb-0.5">
-                                                                    <p className="font-bold text-black text-[12px]">{row.name}</p>
+                                                                    <p className="font-semibold text-black text-[15px]">{row.name}</p>
                                                                 </td>
                                                             </tr>
                                                         );
@@ -391,12 +401,13 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                         <React.Fragment key={`test-wrap-${rowIdx}`}>
 
                                                             <tr key={`test-${rowIdx}`}>
-                                                                <td className="px-2 py-[2px]">
-                                                                    <p className={`text-[12px] leading-tight ${row.hasSubheading ? 'font-medium text-slate-700 pl-4' : 'font-bold text-black'}`}>
+                                                                <td className="px-2 py-[5.5px]">
+                                                                    <p className={`text-[13px] font-semibold text-black pl-4`}>
                                                                         {row.name?.name || "Unknown test"}
                                                                     </p>
+                                                                    {/* <p className="text-[8px] text-black pl-4">Method: {row.name?.method}</p> */}
                                                                 </td>
-                                                                <td className="px-2 py-[2px] text-center text-[12px] leading-tight">
+                                                                <td className="px-2 py-[2px] text-center text-[12px] leading-tight whitespace-nowrap">
                                                                     <span className={isAbnormal ? "font-bold" : "text-black"}>
                                                                         {row.value || " "}
                                                                     </span>
@@ -452,8 +463,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col w-full">
-                                                        <div className="text-[10px] font-bold text-slate-400 pl-1">WBC</div>
-                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">WBC Graph Area</div>
+                                                        <div className="text-[10px] font-bold text-black pl-1">WBC</div>
+                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">WBC Graph Area</div>
                                                     </div>
                                                 )}
 
@@ -470,8 +481,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col w-full">
-                                                        <div className="text-[10px] font-bold text-slate-400 pl-1">RBC</div>
-                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">RBC Graph Area</div>
+                                                        <div className="text-[10px] font-bold text-black pl-1">RBC</div>
+                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">RBC Graph Area</div>
                                                     </div>
                                                 )}
 
@@ -488,8 +499,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                     </div>
                                                 ) : (
                                                     <div className="flex flex-col w-full">
-                                                        <div className="text-[10px] font-bold text-slate-400 pl-1">PLT</div>
-                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-slate-300 text-[10px]">PLT Graph Area</div>
+                                                        <div className="text-[10px] font-bold text-black pl-1">PLT</div>
+                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">PLT Graph Area</div>
                                                     </div>
                                                 )}
                                             </div>
@@ -502,29 +513,29 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                             <div className="bottom-grouping">
                                 {isLastPage && (
                                     <>
-                                        <div className="border-2 border-black-light rounded-lg p-2 bg-slate-50 note-section mx-10">
+                                        {/* <div className="border-2 border-black-light rounded-lg p-2 bg-slate-50 note-section mx-10">
                                             <p className="font-black text-[10px] uppercase tracking-widest text-black mb-1">Note</p>
                                             <p className="text-black leading-relaxed font-bold italic text-[12px]">
                                                 {"The results should be correlated clinically."}
                                             </p>
-                                        </div>
+                                        </div> */}
 
-                                        <div className="flex justify-between signature-section pb-2 px-10 mt-5">
+                                        <div className="flex justify-between signature-section pb-2 px-10 mt-2.5">
                                             <div className="text-center w-64">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
-                                                <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[12px]">LAB IN-CHARGE</p>
-                                                <p className="text-[10px] font-bold text-slate-900 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p>
+                                                <p className="font-black text-black uppercase leading-none tracking-tighter text-[12px]">LAB IN-CHARGE</p>
+                                                <p className="text-[10px] font-bold text-black mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p>
                                             </div>
                                             <div className="text-center w-64">
                                                 {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
-                                                <p className="font-black text-slate-900 uppercase leading-none tracking-tighter text-[12px]">LAB TECHNICIAN</p>
-                                                {/* <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p> */}
+                                                <p className="font-black text-black uppercase leading-none tracking-tighter text-[12px]">LAB TECHNICIAN</p>
+                                                {/* <p className="text-[10px] font-bold text-black mt-1 uppercase tracking-widest">{report.technician || "LABORATORY"}</p> */}
                                             </div>
                                         </div>
                                     </>
                                 )}
 
-                                <div className="px-10 py-3 text-black flex justify-between items-center footer mt-2" style={{ backgroundColor: '#f2cdbf' }}>
+                                <div className="px-10 py-3 text-black flex justify-between items-center footer" style={{ backgroundColor: '#f2cdbf' }}>
                                     <div className="space-y-0.5">
                                         <p className="text-black font-bold text-[11px]">Please consult your physician with this report.</p>
                                         <p className="text-black font-medium text-[11px]">For Appointments: <span className="font-bold">+91 83019 26155 · 04931 240077</span></p>
