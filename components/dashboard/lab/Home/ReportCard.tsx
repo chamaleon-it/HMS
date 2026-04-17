@@ -317,23 +317,34 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                 )}
 
                                 {/* PANEL HEADINGS (Moved above the table headings) */}
-                                {/* {(() => {
+                                {(() => {
                                     const pagePanels = Array.from(new Set(pageRows.map(r => r.activePanel).filter(Boolean)));
-                                    if (pagePanels.length === 0) return null;
 
-                                    const panelTitles = pagePanels.map(pId => {
-                                        const panelConf = panels?.find(p => p.name === pId);
-                                        return panelConf?.mainHeading || pId;
-                                    });
+                                    if (pagePanels.length === 0) return <div className="w-full text-center pb-2 pt-1">
+                                        <p className="font-bold text-black text-[17px]">
+                                            Biochemistry
+                                        </p>
+                                    </div>;
 
-                                    return (
-                                        <div className="w-full text-center pb-2 pt-1">
-                                            <p className="font-bold text-black text-[17px] uppercase">
-                                                {panelTitles.join(" / ")}
-                                            </p>
-                                        </div>
-                                    );
-                                })()} */}
+                                    // const panelTitles = pagePanels.map(pId => {
+                                    //     const panelConf = panels?.find(p => p.name === pId);
+                                    //     return panelConf?.mainHeading || pId;
+                                    // });
+
+                                    // return (
+                                    //     <div className="w-full text-center pb-2 pt-1">
+                                    //         <p className="font-bold text-black text-[17px] uppercase">
+                                    //             {panelTitles.join(" / ")}
+                                    //         </p>
+                                    //     </div>
+                                    // );
+                                })()}
+
+                                {/* <div className="w-full text-center pb-2 pt-1">
+                                    <p className="font-bold text-black text-[17px]">
+                                        Biochemistry
+                                    </p>
+                                </div> */}
 
                                 {/* UNIFIED HEADER ROW */}
                                 <div className="flex w-full bg-[#f4c3b9] border-y border-[#f4c3b9] text-[11px] font-bold text-black items-stretch relative z-8">
@@ -380,8 +391,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                     if (row.type === "PANEL") {
                                                         return (
                                                             row.mainHeading && <tr key={`panel-${rowIdx}`}>
-                                                                <td colSpan={5} className="px-2 pt-4">
-                                                                    <p className="font-bold text-black text-[18px] uppercase mt-1 underline underline-offset-2">{row.mainHeading}</p>
+                                                                <td colSpan={5} className="px-0 pt-2">
+                                                                    <p className="font-bold text-black text-[16px] uppercase mt-1">{row.mainHeading}</p>
                                                                 </td>
                                                             </tr>
                                                         );
@@ -389,8 +400,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                     if (row.type === "SUBHEADING") {
                                                         return (
                                                             <tr key={`subheading-${rowIdx}`}>
-                                                                <td colSpan={5} className="px-2 pt-2 pb-0.5">
-                                                                    <p className="font-semibold text-black text-[16px]">{row.name}</p>
+                                                                <td colSpan={5} className={`px-1 pt-1 ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <p className="font-semibold text-black text-[15px]">{row.name}</p>
                                                                 </td>
                                                             </tr>
                                                         );
@@ -408,13 +419,13 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                         <React.Fragment key={`test-wrap-${rowIdx}`}>
 
                                                             <tr key={`test-${rowIdx}`}>
-                                                                <td className="px-2 py-[5.5px]">
-                                                                    <p className={`text-[15px]  text-black font-semibold pl-4`}>
-                                                                        {row.name?.name || "Unknown test"}
+                                                                <td className={`px-0 pt-[12px] ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <p className={`text-[12px]  text-black font-semibold pl-0 uppercase`}>
+                                                                        {row.name?.name.toLowerCase() || "Unknown test"}
                                                                     </p>
-                                                                    {/* <p className="text-[8px] text-black pl-4">Method: {row.name?.method}</p> */}
+                                                                    <p className="text-[9px] text-black pl-0">Method: {row.name?.method || "Erba Chem 6"}</p>
                                                                 </td>
-                                                                <td className="px-2 py-[2px] text-center text-[15px] leading-tight whitespace-nowrap">
+                                                                <td className="px-2 py-[2px] text-center text-[12px] leading-tight whitespace-nowrap">
                                                                     <span className={isAbnormal ? "font-bold" : "text-black"}>
                                                                         {row.value || " "}
                                                                     </span>
@@ -426,7 +437,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                         " "
                                                                     )}
                                                                 </td>
-                                                                <td className="px-2 py-[2px] text-[14px] font-semibold text-black leading-tight">
+                                                                <td className="px-2 py-[2px] text-[13px] font-semibold text-black">
                                                                     {row.name?.range && row.name.range.length > 0 ? (
                                                                         row.name.range.map((r: any, idx: number) => {
                                                                             const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
@@ -443,13 +454,29 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                         })
                                                                     ) : "\u00A0"}
                                                                 </td>
-                                                                <td className="px-2 py-[2px] text-[10px] text-black leading-tight whitespace-pre-wrap">
+                                                                <td className="px-2 py-[2px] text-[10px] text-black whitespace-pre-wrap">
                                                                     {row.name?.note}
                                                                 </td>
                                                             </tr>
+
                                                         </React.Fragment>
                                                     );
                                                 })}
+                                                {/* <tr>
+                                                    <td colSpan={5} className="pt-3 font-medium">
+                                                        <p className="text-[13px] font-semibold">Comments:</p>
+                                                        <p className="text-[13px]">Kidneys play several vital roles like filtration/removal of toxic wastes and metabolites from the blood, RBC
+                                                            production, Vitamin D metabolism and regulation of blood pressure. It is recommended in following conditions:</p>
+                                                        <p className="text-[13px]">1. To evaluate kidney functioning in normal individuals as screening test</p>
+                                                        <p className="text-[13px]">2. To aid in diagnosis of kidney related disorders (Acute and chronic renal failure, pyelonephritis, End Stage Renal
+                                                            Disease)</p>
+                                                        <p className="text-[13px]">3. To screen those who may be at risk of developing kidney disorders (Diabetes, Hypertension, Cardiovascular
+                                                            diseases)</p>
+                                                        <p className="text-[13px]">4. To monitor someone on treatment for kidney related disorders</p>
+                                                        <p className="text-[13px]">5. To monitor effects of nephrotoxic drugs (given for other conditions) on kidneys (Vancomycin, methotrexate, some
+                                                            antivirals etc)</p>
+                                                    </td>
+                                                </tr> */}
                                             </tbody>
                                         </table>
                                     </div>

@@ -7,28 +7,19 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import PatientSelection from "./PatientSelection";
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/auth/context/auth-context";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { combineToIST, fDate } from "@/lib/fDateAndTime";
+
 import {
   Calendar as CalendarIcon,
-  ChevronDownIcon,
-  Plus,
   Trash,
   Zap,
   AlertTriangle,
 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { motion } from "framer-motion";
-import { Input } from "@/components/ui/input";
 import toast from "react-hot-toast";
 import {
   Table,
@@ -38,18 +29,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import useSWR from "swr";
 import api from "@/lib/axios";
-import { cn } from "@/lib/utils";
 
 import useGetTest from "@/data/useGetTest";
 import { RegisterPatient } from "./RegisterPatient";
 import useGetPanels from "@/data/useGetPanels";
-import LabeledCombobox from "./LabeledCombobox";
 import DateTimePicker from "./DateTimePicker";
 import { formatINR } from "@/lib/fNumber";
 import TechnicianSelection from "./TechnicianSelection";
 import DoctorSelection from "./DoctorSelection";
+import TestSelection from "./TestSelection";
 
 
 interface NewTestProps {
@@ -324,10 +313,7 @@ export default function NewTest({
 
 
           <div className="w-[300px]">
-            <LabeledCombobox
-              label="Select a Test"
-              value=""
-              clearOnSelect={true}
+            <TestSelection
               onSelect={(val) => {
                 if (!val) return;
 
