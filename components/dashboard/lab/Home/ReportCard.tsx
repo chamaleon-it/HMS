@@ -191,24 +191,21 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                         orderedIds = panelTests.map((t: any) => t.name?._id?.toString() || "");
                     }
 
-                    const subheadings = panelConfig?.subheadings || [];
                     const testSubheadings = panelConfig?.testSubheadings || {};
-
-                    subheadings.forEach(sub => {
-                        const subTestIds = orderedIds.filter(id => testSubheadings[id] === sub && testMap.has(id));
-                        if (subTestIds.length > 0) {
-                            allRows.push({ type: "SUBHEADING", name: sub, activePanel: panelId });
-                            subTestIds.forEach(id => {
-                                allRows.push({ type: "TEST", ...testMap.get(id), activePanel: panelId, hasSubheading: true });
-                                processedTestIds.add(id);
-                                testMap.delete(id);
-                            });
-                        }
-                    });
+                    let currentSubheading: string | null = null;
 
                     orderedIds.forEach(id => {
                         if (!processedTestIds.has(id) && testMap.has(id)) {
-                            allRows.push({ type: "TEST", ...testMap.get(id), activePanel: panelId, hasSubheading: false });
+                            const expectedSubheading = testSubheadings[id];
+                            
+                            if (expectedSubheading && expectedSubheading !== currentSubheading) {
+                                allRows.push({ type: "SUBHEADING", name: expectedSubheading, activePanel: panelId });
+                                currentSubheading = expectedSubheading;
+                            } else if (!expectedSubheading && currentSubheading) {
+                                currentSubheading = null;
+                            }
+
+                            allRows.push({ type: "TEST", ...testMap.get(id), activePanel: panelId, hasSubheading: !!expectedSubheading });
                             processedTestIds.add(id);
                             testMap.delete(id);
                         }
