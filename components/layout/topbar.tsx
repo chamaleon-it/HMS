@@ -1,20 +1,74 @@
 "use client";
 
 import React, { useState } from "react";
-import { Bell, Plus } from "lucide-react";
+import { Bell, Plus, Menu } from "lucide-react";
 import DoctorProfile from "./Profile";
 import { CreateAppointmentForm } from "@/app/dashboard/doctor/appointments/CreateAppointmentForm";
 import Drawer from "../ui/drawer";
 import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
 import SearchBar from "./SearchBar";
+import useSWR from "swr";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { motion } from "framer-motion";
 
-export default function Header() {
+export default function Header({ collapsed, setCollapsed }: { collapsed?: boolean, setCollapsed?: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [openCreate, setOpenCreate] = useState(false);
 
   const { mutate } = useAppointmentList({});
 
   const { user } = useAuth();
+  const pathname = usePathname();
+
+  const { data: appointmentStatisticsData } = useSWR<{
+    message: string;
+    data: {
+      completed: number;
+      consulted: number;
+      notShow: number;
+      observation: number;
+      today: number;
+      upcoming: number;
+    };
+  }>("/appointments/statistics", {
+    revalidateIfStale: false,
+  });
+
+
+
+  const items =
+    (user?.role === "Doctor" && [
+      { key: "dashboard", label: "Dashboard", link: "/dashboard/doctor/" },
+      { key: "appointments", label: "Appointments", link: "/dashboard/doctor/appointments/" },
+      { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
+      { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
+      { key: "billing", label: "Billing", link: "/dashboard/doctor/billing/" },
+    ]) ||
+    (user?.role === "Pharmacy" && [
+      { key: "appointments", label: "Appointments", link: "/dashboard/pharmacy/appointments/" },
+      { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
+      { key: "inventory", label: "Inventory", link: "/dashboard/pharmacy/inventory/" },
+      { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/suppliers/purchase-entry/" },
+      { key: "suppliers", label: "Suppliers", link: "/dashboard/pharmacy/suppliers/" },
+      { key: "customers", label: "Customers", link: "/dashboard/pharmacy/customers/" },
+      { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
+      { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
+      { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
+    ]) ||
+    (user?.role === "Pharmacy Wholesaler" && [
+      { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy-wholesaler" },
+      { key: "billing", label: "Billing", link: "/dashboard/pharmacy-wholesaler/billing/" },
+    ]) ||
+    (user?.role === "Lab" && [
+      { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
+      { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },
+      { key: "tests", label: "Test", childrens: [{ key: "lab", label: "Lab", link: "/dashboard/lab/test/lab/" }, { key: "imaging", label: "Imaging", link: "/dashboard/lab/test/imaging/" }] },
+      { key: "inventory", label: "Catalogue", link: "/dashboard/lab/inventory/" },
+      { key: "patients", label: "Customers", link: "/dashboard/lab/patients/" },
+      { key: "billing", label: "Billing", link: "/dashboard/lab/billing/" },
+      { key: "payments", label: "Payments", link: "/dashboard/lab/payments/" },
+    ]) || [];
 
   return (
     <>
@@ -28,11 +82,15 @@ export default function Header() {
 
         {/* Top bar */}
         <div className="flex h-16 items-center justify-between border-b border-slate-200/70 px-4 sm:px-8 bg-white/85">
-          {/* Brand */}
-          <div className="flex items-center gap-3 pr-2" data-testid="brand">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md">
-              S
-            </div>
+          {/* Brand & Toggle */}
+          <div className="flex items-center gap-3 pr-4" data-testid="brand">
+            {/* <button
+              onClick={() => setCollapsed?.((prev) => !prev)}
+              className="rounded-xl p-2 text-slate-500 hover:text-slate-800 hover:bg-white shadow-sm border border-slate-200 cursor-pointer"
+              title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+            >
+              <Menu className="h-5 w-5" />
+            </button> */}
             <div className="hidden md:block leading-tight">
               <div className="text-base font-semibold text-slate-800">
                 Synapse
@@ -40,6 +98,76 @@ export default function Header() {
               <div className="text-xs text-slate-500">HMS</div>
             </div>
           </div>
+
+          {/* Horizontal Nav */}
+          <nav className="hidden lg:flex flex-1 items-center px-6">
+            <div className="relative inline-flex items-center text-[13px] bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+              {items.map(item => {
+                const isActive = item.childrens
+                  ? item.childrens.some(child => pathname.startsWith(child.link))
+                  : item.key === "dashboard"
+                    ? pathname === item.link || pathname === item.link?.slice(0, -1)
+                    : pathname.startsWith(item.link || "xxx");
+                
+                return item.childrens ? (
+                  <div key={item.key} className="relative group cursor-pointer shrink-0">
+                    <span 
+                      className={
+                        "relative flex items-center rounded-full px-4 py-1.5 transition cursor-pointer font-medium " +
+                        (isActive ? "text-white" : "text-slate-600 hover:bg-slate-50")
+                      }
+                    >
+                      {isActive && (
+                        <motion.span
+                          layoutId="topbar-active-indicator"
+                          className="absolute inset-0 rounded-full bg-linear-to-r from-indigo-500 to-fuchsia-500"
+                          transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                        />
+                      )}
+                      <span className="relative z-10 flex items-center gap-2">
+                        {item.label}
+                      </span>
+                    </span>
+                    <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
+                      <div className="flex flex-col bg-white border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] rounded-xl w-36 py-2 overflow-hidden">
+                        {item.childrens.map(child => (
+                           <Link
+                             key={child.key}
+                             href={child.link}
+                             className={`px-4 py-2 transition-colors ${
+                               pathname.startsWith(child.link) ? "text-indigo-600 font-bold bg-indigo-50/50" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                             }`}
+                           >
+                             {child.label}
+                           </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <Link
+                    key={item.key}
+                    href={item.link || "#"}
+                    className={
+                      "relative flex items-center rounded-full px-4 py-1.5 transition cursor-pointer font-medium shrink-0 " +
+                      (isActive ? "text-white" : "text-slate-600 hover:bg-slate-50")
+                    }
+                  >
+                    {isActive && (
+                      <motion.span
+                        layoutId="topbar-active-indicator"
+                        className="absolute inset-0 rounded-full bg-linear-to-r from-indigo-500 to-fuchsia-500"
+                        transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                      />
+                    )}
+                    <span className="relative z-10 flex items-center gap-2">
+                      {item.label}
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
 
           {/* Search */}
           <SearchBar />

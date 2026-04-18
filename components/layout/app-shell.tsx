@@ -1,6 +1,6 @@
 "use client";
 
-import type React from "react";
+import React, { useState } from "react";
 import { Sidebar } from "./sidebar";
 import Header from "./topbar";
 import Footer from "./Footer";
@@ -13,6 +13,7 @@ type AppShellProps = {
 
 export default function AppShell({ children }: AppShellProps) {
   const { isAuthenticated, loading } = useAuth();
+  const [collapsed, setCollapsed] = useState(true);
 
   if (loading) return null;
 
@@ -22,9 +23,9 @@ export default function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="flex">
-      <Sidebar />
+      {/* <Sidebar collapsed={collapsed} /> */}
       <div className="min-h-screen flex-1 min-w-0 print:min-h-auto">
-        <Header />
+        <Header collapsed={collapsed} setCollapsed={setCollapsed} />
         <div className="min-h-[calc(100vh-80px)] print:min-h-auto">
           {children}
         </div>
