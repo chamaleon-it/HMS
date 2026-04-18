@@ -21,7 +21,7 @@ const RangeBar = ({ min, max, value, markerColor }: { min: any, max: any, value:
 
     return (
         <div className="relative w-[140px] mx-auto flex flex-col justify-center pt-[18px] pb-0.5">
-            <div className="w-full h-[4px] rounded-full shadow-inner"
+            <div className="w-full h-[6px] rounded-full shadow-inner"
                 style={{
                     background: "linear-gradient(90deg, #e12a32 0%, #f39130 15%, #6eb269 30%, #6eb269 70%, #f39130 85%, #e12a32 100%)"
                 }}
@@ -46,7 +46,7 @@ const RangeBar = ({ min, max, value, markerColor }: { min: any, max: any, value:
                 }}
             >
                 {value}
-                <div className="absolute -bottom-[4px] left-1/2 -translate-x-1/2 w-0 h-0 border-l-[3.5px] border-r-[3.5px] border-t-[5px] border-l-transparent border-r-transparent"
+                <div className="absolute -bottom-[11px] left-1/2 -translate-x-1/2 w-px h-[12px] bg-black"
                     style={{ borderTopColor: markerColor }}></div>
             </div>
         </div>
@@ -334,10 +334,10 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                             <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight capitalize">{row.name?.name ? /^[a-zA-Z]{3}$/.test(row.name?.name) ? row.name?.name.toUpperCase() : row.name?.name.toLowerCase() : "TEST"}</div>
                                                             <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method || "Erba Chem 6"}</div>
                                                         </td>
-                                                        <td className="pt-[8px] px-2 text-left text-[12px] align-top">
+                                                        <td className="pt-[17px] px-2 text-left text-[12px] align-top">
                                                             <span className="text-slate-800 font-medium">{row.value}</span>
                                                         </td>
-                                                        <td className="pt-[8px] px-2 text-left text-[11px] text-slate-800 font-medium tracking-wide align-top">
+                                                        <td className="pt-[17px] px-2 text-left text-[11px] text-slate-800 font-medium tracking-wide align-top">
                                                             {row.name?.unit ? <span dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
                                                         </td>
                                                         <td className="pt-[4px] px-0 text-center align-top">
@@ -347,7 +347,7 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                                 <div className="text-[11px] font-bold text-slate-600 mt-2">{row.name?.range?.[0]?.min} - {row.name?.range?.[0]?.max}</div>
                                                             )}
                                                         </td>
-                                                        <td className="pt-[10px] px-4 text-center align-top">
+                                                        <td className="pt-[14px] px-4 text-center align-top">
                                                             <div className={`${pillClass} text-white text-[9.5px] uppercase font-extrabold py-[4px] px-[2px] mx-auto rounded-[6px] tracking-wide w-[78px] shadow-sm`}>
                                                                 {label}
                                                             </div>
