@@ -11,8 +11,6 @@ interface ReportCardProps {
 
 export default function ReportCard({ report, panels }: ReportCardProps) {
 
-    console.log(report, panels)
-
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -174,13 +172,6 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
 
                     const panelConfig = panels?.find(p => p.name === panelId);
 
-                    allRows.push({
-                        type: "PANEL",
-                        name: panelId,
-                        activePanel: panelId,
-                        mainHeading: panelConfig?.mainHeading
-                    });
-
                     let orderedIds: string[] = [];
                     for (const t of panelTests) {
                         const panelDef = t.name?.panels?.find((p: any) => p.name === panelId);
@@ -195,20 +186,44 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                     }
 
                     const testSubheadings = panelConfig?.testSubheadings || {};
-                    let currentSubheading: string | null = null;
+                    let currentSubheadingState: string | null = null;
+                    let pendingSubheading: string | null = null;
+
+                    let panelRow: any = {
+                        type: "PANEL",
+                        name: panelId,
+                        activePanel: panelId,
+                        mainHeading: panelConfig?.mainHeading
+                    };
+                    let panelPushed = false;
 
                     orderedIds.forEach(id => {
-                        if (!processedTestIds.has(id) && testMap.has(id)) {
+                        const t = testMap.get(id);
+                        if (!processedTestIds.has(id) && t) {
                             const expectedSubheading = testSubheadings[id];
-                            
-                            if (expectedSubheading && expectedSubheading !== currentSubheading) {
-                                allRows.push({ type: "SUBHEADING", name: expectedSubheading, activePanel: panelId });
-                                currentSubheading = expectedSubheading;
-                            } else if (!expectedSubheading && currentSubheading) {
-                                currentSubheading = null;
+                            const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
+                            const hasValue = valStr !== "";
+
+                            if (expectedSubheading && expectedSubheading !== currentSubheadingState) {
+                                pendingSubheading = expectedSubheading;
+                                currentSubheadingState = expectedSubheading;
+                            } else if (!expectedSubheading && currentSubheadingState) {
+                                pendingSubheading = null;
+                                currentSubheadingState = null;
                             }
 
-                            allRows.push({ type: "TEST", ...testMap.get(id), activePanel: panelId, hasSubheading: !!expectedSubheading });
+                            if (hasValue) {
+                                if (!panelPushed) {
+                                    allRows.push(panelRow);
+                                    panelPushed = true;
+                                }
+                                if (pendingSubheading) {
+                                    allRows.push({ type: "SUBHEADING", name: pendingSubheading, activePanel: panelId });
+                                    pendingSubheading = null;
+                                }
+                                allRows.push({ type: "TEST", ...t, activePanel: panelId, hasSubheading: !!expectedSubheading });
+                            }
+
                             processedTestIds.add(id);
                             testMap.delete(id);
                         }
@@ -216,7 +231,10 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                 });
 
                 Array.from(testMap.values()).forEach((t: any) => {
-                    allRows.push({ type: "TEST", ...t, activePanel: "" });
+                    const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
+                    if (valStr !== "") {
+                        allRows.push({ type: "TEST", ...t, activePanel: "" });
+                    }
                 });
 
                 // 2. Chunk Into Pages
@@ -261,12 +279,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                         <HospitalName />
                                     </div>
 
-                                    {/* Date */}
-                                    {/* <div className="absolute right-10 top-28 z-10">
-                                        <p className="text-[12px] text-black font-semibold">
-                                            Report No : {String(report.mrn).padStart(4, "0")}
-                                        </p>
-                                    </div> */}
+
                                 </div>
 
                                 {/* Ribbon Wrapper */}
@@ -371,7 +384,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                         return (
                                                             row.mainHeading && <tr key={`panel-${rowIdx}`}>
                                                                 <td colSpan={5} className="px-0 pt-2">
-                                                                    <p className="font-bold text-black text-[16px] uppercase mt-1">{row.mainHeading}</p>
+                                                                    <p className="font-bold text-black text-[15px] uppercase mt-1">{row.mainHeading}</p>
                                                                 </td>
                                                             </tr>
                                                         );
@@ -379,8 +392,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                     if (row.type === "SUBHEADING") {
                                                         return (
                                                             <tr key={`subheading-${rowIdx}`}>
-                                                                <td colSpan={5} className={`px-1 pt-1 ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                    <p className="font-semibold text-black text-[15px]">{row.name}</p>
+                                                                <td colSpan={5} className={`pl-1 pt-1 ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <p className="font-semibold text-black text-[13px]">{row.name}</p>
                                                                 </td>
                                                             </tr>
                                                         );
@@ -398,9 +411,11 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                         <React.Fragment key={`test-wrap-${rowIdx}`}>
 
                                                             <tr key={`test-${rowIdx}`}>
-                                                                <td className={`px-0 pt-[12px] ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                    <p className={`text-[12px]  text-black font-semibold pl-0 uppercase`}>
-                                                                        {row.name?.name.toLowerCase() || "Unknown test"}
+                                                                <td className={`pl-2 pt-[12px] ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <p className={`text-[12px]  text-black font-semibold pl-0 capitalize`}>
+                                                                        {/^[a-zA-Z]{3}$/.test(row.name?.name)
+                                                                            ? row.name?.name.toUpperCase()
+                                                                            : row.name?.name?.toLowerCase() || "Unknown test"}
                                                                     </p>
                                                                     <p className="text-[9px] text-black pl-0">Method: {row.name?.method || "Erba Chem 6"}</p>
                                                                 </td>
@@ -441,7 +456,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                         </React.Fragment>
                                                     );
                                                 })}
-                                                {/* <tr>
+                                                <tr>
                                                     <td colSpan={5} className="pt-3 font-medium">
                                                         <p className="text-[13px] font-semibold">Comments:</p>
                                                         <p className="text-[13px]">Kidneys play several vital roles like filtration/removal of toxic wastes and metabolites from the blood, RBC
@@ -455,7 +470,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                         <p className="text-[13px]">5. To monitor effects of nephrotoxic drugs (given for other conditions) on kidneys (Vancomycin, methotrexate, some
                                                             antivirals etc)</p>
                                                     </td>
-                                                </tr> */}
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
