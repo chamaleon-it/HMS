@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import useGetPanels from "@/data/useGetPanels";
 import ReportCardModern from "./ReportCardModern";
+import useSWR from "swr";
 
 const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
   const [timeLeft, setTimeLeft] = React.useState(5);
@@ -142,6 +143,10 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
       setPrintReport(null);
     }, 100);
   };
+
+  const { data: profileData } = useSWR<{ message: string, data: { lab: { reportLayout: "Classic" | "Modern" } } }>("/users/profile")
+
+  const reportLayout: "Classic" | "Modern" = profileData?.data?.lab?.reportLayout ?? "Classic"
 
   return (
     <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-x-scroll">
@@ -591,7 +596,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
             })}
         </tbody>
       </table>
-      {printReport && <ReportCardModern report={printReport} panels={panels} />}
+      {printReport && reportLayout === "Classic" ? <ReportCard report={printReport} panels={panels} /> : <ReportCardModern report={printReport} panels={panels} />}
     </div>
   );
 }

@@ -9,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, Store } from "lucide-react";
+import { Save, Store, Check, FileText, LayoutTemplate } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
@@ -42,6 +42,12 @@ export default function General({
       address: profile?.address ?? "",
     }));
   }, [profile]);
+
+  const [layoutStyle, setLayoutStyle] = useState<"Classic" | "Modern">(profile?.lab?.reportLayout || "Modern");
+  useEffect(() => {
+    setLayoutStyle(profile?.lab?.reportLayout || "Modern")
+  }, [profile?.lab?.reportLayout])
+
 
   const [loading, setLoading] = useState(false);
 
@@ -187,28 +193,116 @@ export default function General({
         </CardContent>
       </Card>
 
-      {/* Helper card */}
-      <Card className="border border-dashed border-slate-200 bg-white/80 shadow-sm rounded-2xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-slate-900">
-            Where this appears
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-500">
-            These details are shown on printed bills, prescription headers and
-            Lab reports.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-xs text-slate-500">
-          <ul className="list-disc space-y-1 pl-4">
-            <li>Lab name and address in bill header.</li>
-            <li>GSTIN included in tax summary section.</li>
-            <li>Contact number and email on patient copy.</li>
-          </ul>
-          <p className="mt-2 text-[11px] text-slate-500">
-            Keep this updated whenever license, GST or contact details change.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        {/* Helper card */}
+        <Card className="border border-dashed border-slate-200 bg-white/80 shadow-sm rounded-2xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold text-slate-900">
+              Where this appears
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-500">
+              These details are shown on printed bills, prescription headers and
+              Lab reports.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-xs text-slate-500">
+            <ul className="list-disc space-y-1 pl-4">
+              <li>Lab name and address in bill header.</li>
+              <li>GSTIN included in tax summary section.</li>
+              <li>Contact number and email on patient copy.</li>
+            </ul>
+            <p className="mt-2 text-[11px] text-slate-500">
+              Keep this updated whenever license, GST or contact details change.
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Layout Switcher */}
+        <Card className="border border-slate-200 bg-white/80 shadow-sm rounded-2xl">
+          <CardHeader className="pb-4 text-center">
+            <CardTitle className="text-sm font-bold text-slate-900 tracking-wide text-left">
+              Report Layout Style
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-500 text-left">
+              Select the default print format for lab reports.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center pb-6">
+            <div className="flex justify-center gap-8 w-full mb-8 mt-2">
+              <div className="flex flex-col items-center gap-[14px]">
+                <button
+                  onClick={() => setLayoutStyle("Classic")}
+                  className={`relative w-[130px] rounded-[16px] bg-white flex flex-col items-center justify-center p-[10px] transition-all ${layoutStyle === "Classic"
+                    ? "border-2 border-[#6eb269] shadow-md ring-4 ring-[#6eb269]/10"
+                    : "border-2 border-slate-200 hover:border-slate-300 shadow-sm"
+                    }`}
+                >
+                  {layoutStyle === "Classic" && (
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#6eb269] rounded-full w-[24px] h-[24px] flex items-center justify-center border-[3px] border-white z-10 shadow-sm">
+                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
+                    </div>
+                  )}
+                  <img src="/dummy/report/classic.png" className="w-full h-auto object-contain rounded-md" alt="" />
+                </button>
+                <span
+                  className={`text-[13px] tracking-wide mt-1 ${layoutStyle === "Classic"
+                    ? "font-extrabold text-[#6eb269]"
+                    : "font-bold text-slate-500"
+                    }`}
+                >
+                  Classic
+                </span>
+              </div>
+
+              <div className="flex flex-col items-center gap-[14px]">
+                <button
+                  onClick={() => setLayoutStyle("Modern")}
+                  className={`relative w-[130px] rounded-[16px] bg-white flex flex-col items-center justify-center p-[10px] transition-all ${layoutStyle === "Modern"
+                    ? "border-2 border-[#6eb269] shadow-md ring-4 ring-[#6eb269]/10"
+                    : "border-2 border-slate-200 hover:border-slate-300 shadow-sm"
+                    }`}
+                >
+                  {layoutStyle === "Modern" && (
+                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#6eb269] rounded-full w-[24px] h-[24px] flex items-center justify-center border-[3px] border-white z-10 shadow-sm">
+                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
+                    </div>
+                  )}
+                  <img src="/dummy/report/modern.png" className="w-full h-auto object-contain rounded-md" alt="" />
+                </button>
+                <span
+                  className={`text-[13px] tracking-wide mt-1 ${layoutStyle === "Modern"
+                    ? "font-extrabold text-[#6eb269]"
+                    : "font-bold text-slate-500"
+                    }`}
+                >
+                  Modern
+                </span>
+              </div>
+            </div>
+
+            <Button
+              size="default"
+              className="h-9 rounded-full bg-[#11212B] px-8 text-[13px] font-semibold text-white shadow hover:bg-slate-800 tracking-wide"
+              onClick={async () => {
+                try {
+                  await toast.promise(api.patch("/users/lab/update_report_layout", {
+                    reportLayout: layoutStyle
+                  }), {
+                    loading: "Updating layout...",
+                    success: "Layout updated successfully!",
+                    error: "Failed to update layout!"
+                  })
+                  await profileMutate()
+                } catch (error) {
+                  console.log(error)
+                }
+              }}
+            >
+              Continue
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
