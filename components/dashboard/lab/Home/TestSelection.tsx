@@ -31,36 +31,58 @@ export default function TestSelection({
 
 
     const filteredOptions = options.filter(opt => opt.toLowerCase().startsWith(text.toLowerCase()))
-
-
-
-    // Auto scroll the focused item into view
     const listboxRef = useRef<HTMLDivElement>(null);
-    React.useEffect(() => {
-        if (focusedIndex >= 0 && listboxRef.current) {
-            const listboxNode = listboxRef.current;
-            const focusedItemNode = listboxNode.children[focusedIndex] as HTMLElement;
-            if (focusedItemNode) {
-                const itemTop = focusedItemNode.offsetTop;
-                const itemBottom = itemTop + focusedItemNode.offsetHeight;
-                const listboxTop = listboxNode.scrollTop;
-                const listboxBottom = listboxTop + listboxNode.offsetHeight;
 
-                if (itemTop < listboxTop) {
-                    listboxNode.scrollTop = itemTop;
-                } else if (itemBottom > listboxBottom) {
-                    listboxNode.scrollTop = itemBottom - listboxNode.offsetHeight;
-                }
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (!open && e.key !== 'Escape') {
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                setOpen(true);
             }
+            return;
         }
-    }, [focusedIndex]);
+
+        switch (e.key) {
+            case "ArrowDown":
+                e.preventDefault();
+                setFocusedIndex((prevIndex) =>
+                    prevIndex < filteredOptions.length - 1 ? prevIndex + 1 : prevIndex
+                );
+                break;
+            case "ArrowUp":
+                e.preventDefault();
+                setFocusedIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : 0));
+                break;
+            case "Enter":
+                e.preventDefault();
+                if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
+                    commit(filteredOptions[focusedIndex]);
+                } else {
+                    // Utility: if text exactly matches an option, select it immediately
+                    const exactMatch = filteredOptions.find(o => o.toLowerCase() === text.toLowerCase());
+                    if (exactMatch) {
+                        commit(exactMatch);
+                    } else if (filteredOptions.length === 1 && text.length > 0) {
+                        // Utility: auto-select the only option on Enter
+                        commit(filteredOptions[0]);
+                    } else if (text.trim() !== "") {
+                        // Allow completely custom free-text entry by committing typed text natively
+                        commit(text);
+                    }
+                }
+                break;
+            case "Escape":
+                setOpen(false);
+                setFocusedIndex(-1);
+                break;
+        }
+    };
 
     return (
         <div className="relative w-full" ref={containerRef}>
             <input
                 value={text}
                 onChange={(e) => handleChange(e.target.value)}
-
+                onKeyDown={handleKeyDown}
                 onClick={() => { setOpen(true); }}
                 placeholder=" "
                 className="peer w-full rounded-xl border border-slate-200 bg-transparent px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 z-20 relative"
@@ -75,7 +97,7 @@ export default function TestSelection({
             {open && (
                 <div
                     ref={listboxRef}
-                    className="absolute left-0 right-0 z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1"
+                    className="absolute left-0 right-0 z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-64 overflow-y-auto p-1"
                 >
                     {filteredOptions.map((opt: string, index: number) => (
                         <button
