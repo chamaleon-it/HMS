@@ -76,6 +76,12 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
 
     const content = (
         <div className="print-prescription hidden print:block bg-white text-black font-sans leading-tight overflow-visible">
+            <svg width="0" height="0" className="absolute z-[-1]" style={{ width: 0, height: 0, visibility: 'hidden' }}>
+                <filter id="edge-detect-hms" colorInterpolationFilters="sRGB">
+                    <feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0.33 0.33 0.33 0 0  0 0 0 1 0" result="gray" />
+                    <feConvolveMatrix order="3 3" preserveAlpha="true" kernelMatrix="-1 -1 -1 -1 8 -1 -1 -1 -1" in="gray" />
+                </filter>
+            </svg>
             <style dangerouslySetInnerHTML={{
                 __html: `
         @media print {
@@ -226,9 +232,17 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                 }
                 if (pages.length === 0) pages.push([]);
 
+                const firstCBCPageIdx = pages.findIndex(page =>
+                    page.some(row => {
+                        const pName = row.activePanel || row.name;
+                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
+                    })
+                );
+
                 return pages.map((pageRows, pageIdx) => {
                     const isFirstPage = pageIdx === 0;
                     const isLastPage = pageIdx === pages.length - 1;
+                    const pageHasCBC = pageIdx === firstCBCPageIdx;
 
                     return (
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
@@ -285,78 +299,143 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                         </div>
                                     );
                                 })()}
-                                <div className="w-full rounded-[10px] overflow-hidden">
-                                    <table className="w-full">
-                                        <thead className="bg-[#eef2eb] text-slate-700">
-                                            <tr>
-                                                <th className="py-[11px] pl-6 pr-2 text-[12.5px] font-extrabold tracking-wide text-left w-[25%] rounded-tl-[10px]">Parameter</th>
-                                                <th className="py-[11px] px-2 text-[12.5px] font-extrabold tracking-wide text-left w-[13%]">Result</th>
-                                                <th className="py-[11px] px-2 text-[12.5px] font-extrabold tracking-wide text-left w-[12%]">Unit</th>
-                                                <th className="py-[11px] px-2 text-[12.5px] font-extrabold tracking-wide text-center w-[35%]">Ref. Range</th>
-                                                <th className="py-[11px] pr-6 pl-2 text-[12.5px] font-extrabold tracking-wide text-center w-[15%] rounded-tr-[10px]">Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {pageRows.map((row, rowIdx) => {
-                                                if (row.type === "PANEL") return null; // Handled above table
-                                                if (row.type === "SUBHEADING") {
+                                <div className="flex w-full gap-2 relative">
+                                    <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} rounded-[10px] overflow-hidden`}>
+                                        <table className="w-full">
+                                            <thead className="bg-[#eef2eb] text-slate-700">
+                                                <tr>
+                                                    <th className="py-[11px] pl-6 pr-2 text-[12.5px] font-extrabold tracking-wide text-left w-[25%] rounded-tl-[10px]">Parameter</th>
+                                                    <th className="py-[11px] px-2 text-[12.5px] font-extrabold tracking-wide text-left w-[13%]">Result</th>
+                                                    <th className="py-[11px] px-2 text-[12.5px] font-extrabold tracking-wide text-left w-[12%]">Unit</th>
+                                                    <th className="py-[11px] px-2 text-[12.5px] font-extrabold tracking-wide text-center w-[35%]">Ref. Range</th>
+                                                    <th className="py-[11px] pr-6 pl-2 text-[12.5px] font-extrabold tracking-wide text-center w-[15%] rounded-tr-[10px]">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {pageRows.map((row, rowIdx) => {
+                                                    if (row.type === "PANEL") return null; // Handled above table
+                                                    if (row.type === "SUBHEADING") {
+                                                        return (
+                                                            <tr key={`sub-${rowIdx}`}>
+                                                                <td colSpan={5} className="py-[10px] px-6 text-left">
+                                                                    <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-widest underline underline-offset-[3px] decoration-slate-300">{row.name}</h3>
+                                                                </td>
+                                                            </tr>
+                                                        );
+                                                    }
+                                                    if (row.type !== "TEST") return null;
+
+                                                    const v = parseFloat(row.value);
+                                                    let min, max;
+                                                    if (row.name?.range?.[0]) {
+                                                        min = row.name.range[0].min;
+                                                        max = row.name.range[0].max;
+                                                    }
+
+                                                    let label = "NORMAL";
+                                                    let color = "#6eb269"; // green
+                                                    let pillClass = "bg-[#6eb269]";
+                                                    if (min !== undefined && v < min) { label = "LOW"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                    else if (max !== undefined && v > max) { label = "HIGH"; color = "#e12a32"; pillClass = "bg-[#e12a32]" }
+                                                    else if (min !== undefined && v === min) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                    else if (max !== undefined && v === max) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+
+                                                    // Special cases for visualization accuracy against the image
+                                                    if (row.name?.name?.toUpperCase() === 'GLOBULIN') { label = 'BORDERLINE'; color = "#f39130"; pillClass = "bg-[#f39130]" }
+
                                                     return (
-                                                        <tr key={`sub-${rowIdx}`}>
-                                                            <td colSpan={5} className="py-[10px] px-6 text-left">
-                                                                <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-widest underline underline-offset-[3px] decoration-slate-300">{row.name}</h3>
+                                                        <tr key={"test-" + rowIdx} className="">
+                                                            <td className="pt-[8px] px-6 text-left align-top border-b border-transparent">
+                                                                <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight capitalize">{row.name?.name ? /^[a-zA-Z]{3}$/.test(row.name?.name) ? row.name?.name.toUpperCase() : row.name?.name.toLowerCase() : "TEST"}</div>
+                                                                <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method || "Erba Chem 6"}</div>
+                                                            </td>
+                                                            <td className="pt-[17px] px-2 text-left text-[12px] align-top">
+                                                                <span className="text-slate-800 font-medium">{row.value}</span>
+                                                            </td>
+                                                            <td className="pt-[17px] px-2 text-left text-[11px] text-slate-800 font-medium tracking-wide align-top">
+                                                                {row.name?.unit ? <span dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
+                                                            </td>
+                                                            <td className="pt-[4px] px-0 text-center align-top">
+                                                                {min !== undefined && max !== undefined ? (
+                                                                    <RangeBar min={min} max={max} value={row.value} markerColor={color} />
+                                                                ) : (
+                                                                    <div className="text-[11px] font-bold text-slate-600 mt-2">{row.name?.range?.[0]?.min} - {row.name?.range?.[0]?.max}</div>
+                                                                )}
+                                                            </td>
+                                                            <td className="pt-[13px] px-4 text-center align-top">
+                                                                <div className={`${pillClass} text-white text-[9.5px] uppercase font-extrabold h-6 px-[2px] mx-auto rounded-[6px] tracking-wide w-[78px] shadow-sm flex justify-center items-center`}>
+                                                                    {label}
+                                                                </div>
                                                             </td>
                                                         </tr>
                                                     );
-                                                }
-                                                if (row.type !== "TEST") return null;
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-                                                const v = parseFloat(row.value);
-                                                let min, max;
-                                                if (row.name?.range?.[0]) {
-                                                    min = row.name.range[0].min;
-                                                    max = row.name.range[0].max;
-                                                }
+                                    {pageHasCBC && (
+                                        <div className="w-[30%] flex flex-col pt-0 px-1 relative right-0">
+                                            <div className="bg-[#eef2eb] rounded-t-[10px] py-[9px] px-2 w-full mb-3 flex items-center justify-center border border-[#e2ebd9]">
+                                                <div className="text-[12.5px] font-extrabold tracking-wide text-slate-700 text-center uppercase">Histograms</div>
+                                            </div>
+                                            <div className="flex flex-col gap-6 w-full px-2">
+                                                {/* WBC Graph */}
+                                                {report?.graphs?.['WBC Histogram. BMP'] ? (
+                                                    <div className="flex flex-col w-full">
+                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">WBC</div>
+                                                        <img
+                                                            src={`data:image/png;base64,${report.graphs['WBC Histogram. BMP']}`}
+                                                            alt="WBC Histogram"
+                                                            className="w-full h-[76px] object-contain object-left mix-blend-multiply"
+                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col w-full">
+                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">WBC</div>
+                                                        <div className="w-full h-[76px] border border-dashed border-slate-300 rounded-[8px] flex items-center justify-center text-slate-500 text-[10px] font-medium bg-slate-50">WBC Graph Area</div>
+                                                    </div>
+                                                )}
 
-                                                let label = "NORMAL";
-                                                let color = "#6eb269"; // green
-                                                let pillClass = "bg-[#6eb269]";
-                                                if (min !== undefined && v < min) { label = "LOW"; color = "#f39130"; pillClass = "bg-[#f39130]" }
-                                                else if (max !== undefined && v > max) { label = "HIGH"; color = "#e12a32"; pillClass = "bg-[#e12a32]" }
-                                                else if (min !== undefined && v === min) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
-                                                else if (max !== undefined && v === max) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                {/* RBC Graph */}
+                                                {report?.graphs?.['RBC Histogram. BMP'] ? (
+                                                    <div className="flex flex-col w-full pt-1">
+                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">RBC</div>
+                                                        <img
+                                                            src={`data:image/png;base64,${report.graphs['RBC Histogram. BMP']}`}
+                                                            alt="RBC Histogram"
+                                                            className="w-full h-[76px] object-contain object-left mix-blend-multiply"
+                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col w-full pt-1">
+                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">RBC</div>
+                                                        <div className="w-full h-[76px] border border-dashed border-slate-300 rounded-[8px] flex items-center justify-center text-slate-500 text-[10px] font-medium bg-slate-50">RBC Graph Area</div>
+                                                    </div>
+                                                )}
 
-                                                // Special cases for visualization accuracy against the image
-                                                if (row.name?.name?.toUpperCase() === 'GLOBULIN') { label = 'BORDERLINE'; color = "#f39130"; pillClass = "bg-[#f39130]" }
-
-                                                return (
-                                                    <tr key={"test-" + rowIdx} className="">
-                                                        <td className="pt-[8px] px-6 text-left align-top border-b border-transparent">
-                                                            <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight capitalize">{row.name?.name ? /^[a-zA-Z]{3}$/.test(row.name?.name) ? row.name?.name.toUpperCase() : row.name?.name.toLowerCase() : "TEST"}</div>
-                                                            <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method || "Erba Chem 6"}</div>
-                                                        </td>
-                                                        <td className="pt-[17px] px-2 text-left text-[12px] align-top">
-                                                            <span className="text-slate-800 font-medium">{row.value}</span>
-                                                        </td>
-                                                        <td className="pt-[17px] px-2 text-left text-[11px] text-slate-800 font-medium tracking-wide align-top">
-                                                            {row.name?.unit ? <span dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
-                                                        </td>
-                                                        <td className="pt-[4px] px-0 text-center align-top">
-                                                            {min !== undefined && max !== undefined ? (
-                                                                <RangeBar min={min} max={max} value={row.value} markerColor={color} />
-                                                            ) : (
-                                                                <div className="text-[11px] font-bold text-slate-600 mt-2">{row.name?.range?.[0]?.min} - {row.name?.range?.[0]?.max}</div>
-                                                            )}
-                                                        </td>
-                                                        <td className="pt-[14px] px-4 text-center align-top">
-                                                            <div className={`${pillClass} text-white text-[9.5px] uppercase font-extrabold py-[4px] px-[2px] mx-auto rounded-[6px] tracking-wide w-[78px] shadow-sm`}>
-                                                                {label}
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                );
-                                            })}
-                                        </tbody>
-                                    </table>
+                                                {/* PLT Graph */}
+                                                {report?.graphs?.['PLT Histogram. BMP'] ? (
+                                                    <div className="flex flex-col w-full pt-1">
+                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">PLT</div>
+                                                        <img
+                                                            src={`data:image/png;base64,${report.graphs['PLT Histogram. BMP']}`}
+                                                            alt="PLT Histogram"
+                                                            className="w-full h-[76px] object-contain object-left mix-blend-multiply"
+                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex flex-col w-full pt-1">
+                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">PLT</div>
+                                                        <div className="w-full h-[76px] border border-dashed border-slate-300 rounded-[8px] flex items-center justify-center text-slate-500 text-[10px] font-medium bg-slate-50">PLT Graph Area</div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
@@ -369,12 +448,12 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                 <span className="font-bold text-[13px] pl-3 mb-0.5 mt-[2px] tracking-wide">Comments:</span>
                                                 <div className="w-[75%] border-b h-0 border-white ml-2 opacity-80 mb-[-2px]"></div>
                                             </div>
-                                            <div className="px-5 pt-[14px] pb-1 text-[10.5px] text-slate-700 font-extrabold space-y-[6px]">
+                                            {/* <div className="px-5 pt-[14px] pb-1 text-[10.5px] text-slate-700 font-extrabold space-y-[6px]">
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To evaluate kidney functioning in normal individuals as screening test.</p></div>
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To aid in diagnosis of kidney related disorders (Acute and Chronic renal failure, prerenal, postrenal, End Stage Renal Disease).</p></div>
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To screen those who may be at risk of developing kidney disorders (diabetes, hypertension, cardiovascular diseases).</p></div>
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To monitor effects of nephrotoxic drugs (e.g., vancomycin, methotrexate, some antivirals, etc.).</p></div>
-                                            </div>
+                                            </div> */}
                                         </div>
 
                                         <div className="flex-4 flex flex-col border-l border-slate-300 divide-y divide-slate-300 bg-white min-w-[260px]">

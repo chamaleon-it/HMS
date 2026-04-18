@@ -424,7 +424,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                         {row.value || " "}
                                                                     </span>
                                                                 </td>
-                                                                <td className="px-2 py-[2px] text-center text-black text-[10px] font-medium leading-tight">
+                                                                <td className="px-2 py-[2px] text-center text-black text-[13px] font-medium leading-tight">
                                                                     {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
                                                                         <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
                                                                     ) : (
@@ -456,7 +456,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                         </React.Fragment>
                                                     );
                                                 })}
-                                                <tr>
+                                                {/* <tr>
                                                     <td colSpan={5} className="pt-3 font-medium">
                                                         <p className="text-[13px] font-semibold">Comments:</p>
                                                         <p className="text-[13px]">Kidneys play several vital roles like filtration/removal of toxic wastes and metabolites from the blood, RBC
@@ -470,7 +470,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                         <p className="text-[13px]">5. To monitor effects of nephrotoxic drugs (given for other conditions) on kidneys (Vancomycin, methotrexate, some
                                                             antivirals etc)</p>
                                                     </td>
-                                                </tr>
+                                                </tr> */}
                                             </tbody>
                                         </table>
                                     </div>
