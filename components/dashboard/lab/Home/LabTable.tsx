@@ -24,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import useGetPanels from "@/data/useGetPanels";
+import ReportCardModern from "./ReportCardModern";
 
 const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
   const [timeLeft, setTimeLeft] = React.useState(5);
@@ -590,7 +591,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
             })}
         </tbody>
       </table>
-      {printReport && <ReportCard report={printReport} panels={panels} />}
+      {printReport && <ReportCardModern report={printReport} panels={panels} />}
     </div>
   );
 }
