@@ -253,11 +253,13 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                       ))}
                       {r?.test
                         ?.filter(
-                          (t) =>
-                            !(t.name?.panels || [])
-                              .map((p: any) => r.panels?.includes(p.name))
-                              .includes(true)
+                          (t) => {
+                            const selectedPanels = panels.filter(p => r.panels?.includes(p.name))
+                            const panelTests = selectedPanels.flatMap(e => e.tests || []).map((e: any) => e._id)
+                            return !panelTests.includes(t.name?._id)
+                          }
                         )
+
                         .map((e) => (
                           <div
                             key={e._id}

@@ -10,6 +10,9 @@ interface ReportCardProps {
 }
 
 export default function ReportCard({ report, panels }: ReportCardProps) {
+
+    console.log(report, panels)
+
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -325,28 +328,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                             Biochemistry
                                         </p>
                                     </div>;
-
-                                    // const panelTitles = pagePanels.map(pId => {
-                                    //     const panelConf = panels?.find(p => p.name === pId);
-                                    //     return panelConf?.mainHeading || pId;
-                                    // });
-
-                                    // return (
-                                    //     <div className="w-full text-center pb-2 pt-1">
-                                    //         <p className="font-bold text-black text-[17px] uppercase">
-                                    //             {panelTitles.join(" / ")}
-                                    //         </p>
-                                    //     </div>
-                                    // );
                                 })()}
-
-                                {/* <div className="w-full text-center pb-2 pt-1">
-                                    <p className="font-bold text-black text-[17px]">
-                                        Biochemistry
-                                    </p>
-                                </div> */}
-
-                                {/* UNIFIED HEADER ROW */}
                                 <div className="flex w-full bg-[#f4c3b9] border-y border-[#f4c3b9] text-[11px] font-bold text-black items-stretch relative z-8">
                                     <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} pr-2`}>
                                         <table className="results-table w-full h-full border-none m-0">

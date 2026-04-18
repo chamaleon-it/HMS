@@ -391,9 +391,6 @@ export default function NewTest({
               <TableHead>Test Name</TableHead>
               <TableHead>Price</TableHead>
               <TableHead>Estimate Time</TableHead>
-              {/* <TableHead>Min Range</TableHead>
-              <TableHead>Max Range</TableHead>
-              <TableHead>Unit</TableHead> */}
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -409,10 +406,6 @@ export default function NewTest({
                   <TableCell>{t}</TableCell>
                   <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
                   <TableCell>{totalTime || "-"}</TableCell>
-
-                  {/* <TableCell>-</TableCell>
-                  <TableCell>-</TableCell>
-                  <TableCell>-</TableCell> */}
                   <TableCell>
                     <Button
                       variant="ghost"
@@ -421,13 +414,18 @@ export default function NewTest({
                         setPayload((prev) => {
                           if (!prev.panels.includes(t)) return prev;
 
-                          const relatedTestIds = new Set(
-                            tests
+                          const panelToRemove = panels.find((p) => p.name === t);
+                          let relatedIds: string[] = [];
+                          if (panelToRemove?.tests && panelToRemove.tests.length) {
+                            relatedIds = panelToRemove.tests.map((test: any) => test._id);
+                          } else {
+                            relatedIds = tests
                               .filter((test) =>
                                 test.panels?.some((panel) => panel.name === t)
                               )
-                              .map((test) => test._id)
-                          );
+                              .map((test) => test._id);
+                          }
+                          const relatedTestIds = new Set(relatedIds);
 
                           return {
                             ...prev,
@@ -446,9 +444,11 @@ export default function NewTest({
               );
             })}
             {payload.test.filter(t => {
-              const found = tests.find((test) => test._id === t.name)
-              const panelExist = found?.panels?.find(p => payload.panels.includes(p.name))
-              return !panelExist
+              const selectedPanels = panels.filter(p => payload.panels.includes(p.name))
+              const panelTests = selectedPanels.flatMap(e => e.tests).map(e => e._id)
+
+              return !panelTests.includes(t.name)
+
             }).map((t, idx) => (
               <TableRow key={t.name}>
                 <TableCell>{idx + 1}</TableCell>
@@ -461,15 +461,7 @@ export default function NewTest({
                 <TableCell>
                   {tests.find((test) => test._id === t.name)?.estimatedTime}
                 </TableCell>
-                {/* <TableCell>
-                  {tests.find((test) => test._id === t.name)?.range?.[0]?.min}
-                </TableCell>
-                <TableCell>
-                  {tests.find((test) => test._id === t.name)?.range?.[0]?.max}
-                </TableCell>
-                <TableCell>
-                  {tests.find((test) => test._id === t.name)?.unit}
-                </TableCell> */}
+
                 <TableCell>
                   <Button
                     variant={"ghost"}
