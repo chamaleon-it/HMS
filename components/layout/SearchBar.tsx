@@ -43,7 +43,7 @@ export default function SearchBar() {
 
 
   return (
-    <div className="flex-1 max-w-2xl">
+    <div className="flex-1 max-w-md">
       <div className="relative">
         <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
         <input
@@ -78,7 +78,7 @@ const hashHue = (seed?: string) => {
   return Math.abs(h) % 360;
 };
 
-const PatientCard: React.FC<{
+export const PatientCard: React.FC<{
   p: {
     address: string;
     allergies: string;
@@ -227,7 +227,7 @@ const PatientCard: React.FC<{
   );
 };
 
-const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+export const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
   if (!highlight.trim()) {
     return <span>{text}</span>;
   }

@@ -50,14 +50,17 @@ interface Props {
                 type: string;
                 dataType: "number" | "text" | "boolean"
                 unit?: string;
-                min?: number;
-                max?: number;
-                womenMin?: number;
-                womenMax?: number;
-                childMin?: number;
-                childMax?: number;
-                nbMin?: number;
-                nbMax?: number;
+                range: {
+                    name: string;
+                    min: number | null | undefined;
+                    max: number | null | undefined;
+                    fromAge: number | null | undefined;
+                    toAge: number | null | undefined;
+                    gender: "Both" | "Male" | "Female";
+                    dateType: "Year" | "Month" | "Day";
+
+                }[],
+                note: string
                 _id: string;
                 panels: {
                     _id: string;
@@ -197,7 +200,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                             <TableCell className="pr-6 py-4 text-right">
                                                 <div className="flex flex-col items-end gap-0.5">
                                                     <span className="text-sm font-medium text-gray-700">
-                                                        {labTest.name?.min ?? "0"} - {labTest.name?.unit ? labTest.name?.unit : ""} {labTest.name?.max ?? "N/A"}
+                                                        {labTest.name?.range?.[0]?.min ?? "0"} - {labTest.name?.unit ? labTest.name?.unit : ""} {labTest.name?.range?.[0]?.max ?? "N/A"}
                                                     </span>
                                                     <span className="text-[10px] text-gray-400 uppercase tracking-wide">Normal Range</span>
                                                 </div>

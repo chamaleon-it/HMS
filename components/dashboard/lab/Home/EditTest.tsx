@@ -31,6 +31,7 @@ import useGetPanels from "@/data/useGetPanels";
 import LabeledCombobox from "./LabeledCombobox";
 import DateTimePicker from "./DateTimePicker";
 import { formatINR } from "@/lib/fNumber";
+import TestSelection from "./TestSelection";
 
 interface EditTestProps {
     report: any;
@@ -133,10 +134,8 @@ export default function EditTest({ report, mutate }: EditTestProps) {
 
                 <div className="flex gap-2 justify-between w-full mt-4">
                     <div className="w-[300px]">
-                        <LabeledCombobox
-                            label="Select a Test"
-                            value=""
-                            clearOnSelect={true}
+                        <TestSelection
+
                             onSelect={(val) => {
                                 if (!val) return;
 
