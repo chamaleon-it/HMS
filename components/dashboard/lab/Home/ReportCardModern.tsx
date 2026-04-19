@@ -14,7 +14,6 @@ const RangeBar = ({ min, max, value, markerColor }: { min: any, max: any, value:
     const v = parseFloat(value);
     const range = vMax - vMin || 1;
 
-    // Gradient center (30% to 70%) maps to [vMin, vMax]
     const diff = v - vMin;
     const percentageOffset = (diff / range) * 40;
     let leftPercent = 30 + percentageOffset;

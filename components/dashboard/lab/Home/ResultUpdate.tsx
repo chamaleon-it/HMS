@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Dialog,
   DialogClose,
@@ -200,13 +200,90 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
   });
 
   const [showWarning, setShowWarning] = useState(false);
-
   const [collectedDate, setCollectedDate] = useState<Date | undefined>(
     r.sampleCollectedAt ? new Date(r.sampleCollectedAt) : (r.createdAt ? new Date(r.createdAt) : undefined)
   );
   const [reportedDate, setReportedDate] = useState<Date | undefined>(
     r.testStartedAt ? new Date(r.testStartedAt) : (r.updatedAt ? new Date(r.updatedAt) : undefined)
   );
+
+  // Auto-calculation logic for Lipid Profile and LFT
+  useEffect(() => {
+    const tests = payload.test;
+    const findTest = (name: string) => tests.find(t => t.name?.name?.trim()?.toLowerCase() === name.toLowerCase());
+
+    const tcTest = findTest("total cholesterol");
+    const tgTest = findTest("triglyceride");
+    const hdlTest = findTest("hdl cholesterol");
+
+    const tc = tcTest?.value ? parseFloat(tcTest.value.toString()) : NaN;
+    const tg = tgTest?.value ? parseFloat(tgTest.value.toString()) : NaN;
+    const hdl = hdlTest?.value ? parseFloat(hdlTest.value.toString()) : NaN;
+
+    let isChanged = false;
+    const newTests = [...payload.test];
+
+    const updateCalculatedValue = (targetName: string, value: string | number) => {
+      const index = newTests.findIndex(t => t.name?.name?.trim()?.toLowerCase() === targetName.toLowerCase());
+      if (index !== -1) {
+        const currentVal = newTests[index].value?.toString();
+        const nextVal = value.toString();
+        if (currentVal !== nextVal) {
+          newTests[index] = { ...newTests[index], value: nextVal };
+          isChanged = true;
+        }
+      }
+    };
+
+    // Calculate VLDL = TRIGLYCERIDE / 5
+    if (!isNaN(tg)) {
+      updateCalculatedValue("vldl", (tg / 5).toFixed(2));
+    }
+
+    // Calculate LDL = TOTAL CHOLESTEROL - HDL - (TRIGLYCERIDE / 5)
+    if (!isNaN(tc) && !isNaN(hdl) && !isNaN(tg)) {
+      const vldl = tg / 5;
+      const ldl = tc - hdl - vldl;
+      updateCalculatedValue("ldl cholesterol", ldl.toFixed(2));
+    }
+
+    // Calculate Cholesterol / HDL Ratio = TOTAL CHOLESTEROL / HDL
+    if (!isNaN(tc) && !isNaN(hdl) && hdl !== 0) {
+      updateCalculatedValue("cholesterol / hdl ratio", (tc / hdl).toFixed(2));
+    }
+
+    // Calculate LDL / HDL Ratio = LDL / HDL
+    const ldlTest = findTest("ldl cholesterol");
+    const ldlVal = ldlTest?.value ? parseFloat(ldlTest.value.toString()) : NaN;
+    if (!isNaN(ldlVal) && !isNaN(hdl) && hdl !== 0) {
+      updateCalculatedValue("ldl / hdl ratio", (ldlVal / hdl).toFixed(2));
+    }
+
+    // LFT Calculations
+    const tpTest = findTest("total proteins");
+    const saTest = findTest("serum albumin");
+
+    const tp = tpTest?.value ? parseFloat(tpTest.value.toString()) : NaN;
+    const sa = saTest?.value ? parseFloat(saTest.value.toString()) : NaN;
+
+    // Serum GLOBULIN = Total Proteins - Serum Albumin
+    if (!isNaN(tp) && !isNaN(sa)) {
+      const globulin = tp - sa;
+      updateCalculatedValue("serum globulin", globulin.toFixed(2));
+
+      // Albumin /Globulin(A/G) Ratio = Serum Albumin / Serum GLOBULIN
+      if (globulin !== 0) {
+        updateCalculatedValue("albumin /globulin(a/g) ratio", (sa / globulin).toFixed(2));
+      }
+    }
+
+    if (isChanged) {
+      setPayload(prev => ({ ...prev, test: newTests }));
+    }
+  }, [payload.test]);
+
+
+
 
   const handleDateSelect = (type: "collected" | "reported", newDate: Date | undefined) => {
     const current = type === "collected" ? collectedDate : reportedDate;
