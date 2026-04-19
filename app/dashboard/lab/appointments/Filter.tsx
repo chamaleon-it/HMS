@@ -9,6 +9,11 @@ import {
 } from "@/components/ui/popover";
 import { ChevronDownIcon, Search } from "lucide-react";
 import React, { useState } from "react";
+import DateFilter from "./DateFilter";
+import NewTest from "@/components/dashboard/lab/Home/NewTest";
+import useSWR from "swr";
+import Link from "next/link";
+import { PatientCard } from "@/components/layout/SearchBar";
 
 export const STATUSES = [
   "Upcoming",
@@ -30,60 +35,68 @@ export default function Filter({
   setActiveStatuses,
   date,
   setDate,
+  activeDate,
+  setActiveDate,
+  mutate,
 }: {
   query: string;
   setQuery: React.Dispatch<React.SetStateAction<string>>;
   activeStatuses: string[];
   setActiveStatuses: React.Dispatch<React.SetStateAction<string[]>>;
-  date: Date;
-  setDate: React.Dispatch<React.SetStateAction<Date>>;
+  date: Date | undefined;
+  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
+  activeDate: string;
+  setActiveDate: React.Dispatch<React.SetStateAction<string>>;
+  mutate?: () => void;
 }) {
   const [open, setOpen] = useState(false);
+
+  const { data } = useSWR<{
+    message: string;
+    data: any[];
+  }>(query && query.length >= 2 ? `/patients?query=${query}` : null);
 
 
   return (
     <Card className="border-zinc-200/60 shadow-sm py-2.5!">
       <CardContent className="p-3">
-        <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
-          <div className="flex-1 flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1 min-w-60">
-              <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
-              <Input
-                value={query}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                  setQuery(e.target.value)
-                }
-                placeholder="Search patient, doctor, or #ID..."
-                className="pl-9 h-11 bg-zinc-50/50 border-zinc-200 focus:bg-white transition-all rounded-xl"
-              />
-            </div>
-
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="h-11 px-4 justify-between font-medium border-zinc-200 bg-zinc-50/50 hover:bg-white hover:border-indigo-200 transition-all rounded-xl min-w-40"
-                >
-                  <span className="flex items-center gap-2">
-                    <ChevronDownIcon className="h-4 w-4 text-zinc-400" />
-                    {date ? date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "Select date"}
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 rounded-2xl border-zinc-200 shadow-xl" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={(date) => {
-                    setDate(date || new Date());
-                    setOpen(false);
-                  }}
-                  initialFocus
+        <div className="flex flex-col lg:flex-row items-center justify-between w-full gap-4">
+          <div className="flex flex-col lg:flex-row gap-4 lg:items-center w-1/2">
+            <div className="flex-1 flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1 min-w-60">
+                <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+                <Input
+                  value={query}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setQuery(e.target.value)
+                  }
+                  placeholder="Search patient, doctor, or #ID..."
+                  className="pl-9 h-11 bg-zinc-50/50 border-zinc-200 focus:bg-white transition-all rounded-xl relative z-10"
                 />
-              </PopoverContent>
-            </Popover>
+
+                {Boolean(data?.data?.length) && (
+                  <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-[400px] overflow-y-auto">
+                    {data?.data.map((p) => (
+                      <Link href={`/dashboard/lab/patients/single/?id=${p._id}`} className="block" key={p._id}>
+                        <PatientCard p={p} searchQuery={query} />
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
+          <div className="flex items-center gap-3">
+            <DateFilter
+              activeDate={activeDate}
+              setActiveDate={setActiveDate}
+              date={date}
+              setDate={setDate}
+              isLoading={false}
+            />
+            <NewTest mutate={mutate} />
+          </div>
         </div>
       </CardContent>
     </Card>

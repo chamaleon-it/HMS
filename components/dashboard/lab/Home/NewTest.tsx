@@ -501,14 +501,25 @@ export default function NewTest({
         </DialogFooter>
       </DialogContent>
 
-      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+      <Dialog open={openCreate} onOpenChange={(val) => {
+        setOpenCreate(val);
+        if (!val) setOpen?.(true);
+      }}>
         <DialogContent className="max-w-3xl!">
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
           <RegisterPatient
             patient={{ name: input }}
-            onClose={() => setOpenCreate(false)}
+            mutate={mutate}
+            onClose={(id, name) => {
+              setOpenCreate(false);
+              setOpen?.(true);
+              if (id) {
+                setPayload((prev) => ({ ...prev, patient: id }));
+                if (name) setInput(name);
+              }
+            }}
           />
         </DialogContent>
       </Dialog>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { fDateandTime } from "@/lib/fDateAndTime";
+import useSWR from "swr";
 
 interface ReportCardModernProps {
     report: any | null;
@@ -69,6 +70,10 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
         }
     }, [report]);
 
+
+    const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/technician");
+    const inChargeTechnician = labResponse?.data?.find((p) => p.inCharge);
+
     if (!report) return null;
 
     const patient = report.patient;
@@ -119,7 +124,7 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
           .a4-page {
             width: 210mm;
             height: 296mm !important;
-            padding: 31pt;
+            padding: 28pt;
             display: flex;
             flex-direction: column;
             background: white;
@@ -461,7 +466,8 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                 <p className="font-extrabold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[16px]">LAB TECHNICIAN</p>
                                             </div>
                                             <div className="px-4 py-[8px]">
-                                                <p className="font-extrabold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[16px]">LAB IN-CHARGE</p>
+                                                <p className="font-extrabold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[4px]">LAB IN-CHARGE</p>
+                                                <p className="font-semibold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[16px]">{inChargeTechnician?.name ?? ""}</p>
                                             </div>
                                             <div className="px-4 py-[9px] flex flex-col gap-[5px]">
                                                 <div className="flex items-center gap-[7px] text-slate-700 tracking-wide mt-1">

@@ -78,7 +78,7 @@ const hashHue = (seed?: string) => {
   return Math.abs(h) % 360;
 };
 
-const PatientCard: React.FC<{
+export const PatientCard: React.FC<{
   p: {
     address: string;
     allergies: string;
@@ -227,7 +227,7 @@ const PatientCard: React.FC<{
   );
 };
 
-const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+export const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
   if (!highlight.trim()) {
     return <span>{text}</span>;
   }
