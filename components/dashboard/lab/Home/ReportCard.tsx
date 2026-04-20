@@ -11,6 +11,7 @@ interface ReportCardProps {
 
 export default function ReportCard({ report, panels }: ReportCardProps) {
 
+
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -318,7 +319,6 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Name</span><span className="font-bold text-black uppercase">: {patient?.name || "—"}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "—"} / ${patient?.gender || "—"}`}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Ref. By.</span><span className="font-bold text-black">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
-                                                {/* <div className="flex gap-2"><span className="w-20 text-black font-bold">Ref. By.</span><span className="font-bold text-black">: Dr. Nader Shah</span></div> */}
                                             </div>
                                             <div className="space-y-1">
                                                 <div className="flex gap-2"><span className="w-35 text-black font-medium">Report No</span><span className="font-bold text-black">: {String(report.mrn).padStart(4, "0")}</span></div>
@@ -334,11 +334,12 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                 {(() => {
                                     const firstRow = pageRows[0];
                                     const activePanelId = firstRow?.activePanel || firstRow?.name;
-                                    const activePanelConfig = panels?.find(p => p.name === activePanelId);
+                                    const activePanelConfig = panels?.find(p => p?.name === activePanelId);
 
-                                    const headingText = activePanelConfig?.mainHeading || activePanelId || "Biochemistry";
+                                    const headingText = activePanelConfig?.mainHeading || "Biochemistry";
 
-                                    return pageIdx === 0 ? (
+                                    console.log(headingText)
+                                    return pageIdx === 0 && Boolean(headingText) ? (
                                         <div className="w-full text-center pb-2 pt-1">
                                             <p className="font-bold text-black text-[17px] uppercase">
                                                 {headingText}
@@ -504,23 +505,18 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                             <div className="bottom-grouping">
                                 {isLastPage && (
                                     <>
-                                        {/* <div className="border-2 border-black-light rounded-lg p-2 bg-slate-50 note-section mx-10">
-                                            <p className="font-bold text-[10px] uppercase text-black mb-1">Note</p>
-                                            <p className="text-black leading-relaxed font-bold italic text-[12px]">
-                                                {"The results should be correlated clinically."}
-                                            </p>
-                                        </div> */}
+
 
                                         <div className="flex justify-between signature-section pb-2 px-10 mt-2.5">
                                             <div className="text-center w-64">
-                                                {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
+
                                                 <p className="font-bold text-black uppercase leading-none text-[12px]">LAB IN-CHARGE</p>
                                                 <p className="text-[10px] font-bold text-black mt-1 uppercase">{report.technician || "LABORATORY"}</p>
                                             </div>
                                             <div className="text-center w-64">
-                                                {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
+
                                                 <p className="font-bold text-black uppercase leading-none  text-[12px]">LAB TECHNICIAN</p>
-                                                {/* <p className="text-[10px] font-bold text-black mt-1 uppercase ">{report.technician || "LABORATORY"}</p> */}
+
                                             </div>
                                         </div>
                                     </>
