@@ -285,8 +285,9 @@ export default function AppointmentPage() {
   const [activeStatuses, setActiveStatuses] = useState<string[]>(["Upcoming"]);
   const [openCreate, setOpenCreate] = useState<"walk-in" | boolean | any>(false);
   const [date, setDate] = useState(new Date());
+  const [activeDate, setActiveDate] = useState<"Today" | "7 days" | "30 days" | "Custom">("Today");
 
-  const { mutate } = useAppointmentList({ query, activeStatuses, date });
+  const { mutate } = useAppointmentList({ query, activeStatuses, date, activeDate });
   const { mutate: globalMutate } = useSWRConfig();
 
   const searchParams = useSearchParams();
@@ -470,6 +471,9 @@ export default function AppointmentPage() {
   // We consider "All" active if activeStatuses is empty
   const currentStatus = activeStatuses.length === 0 ? "All" : activeStatuses[0];
 
+
+
+
   return (
     <AppShell>
       <div className="p-0 sm:p-5 min-h-[calc(100vh-80px)] overflow-hidden flex flex-col">
@@ -524,9 +528,9 @@ export default function AppointmentPage() {
         {tab === 'list' &&
           <div className="shrink-0 mb-2.5 px-4 sm:px-0 print:hidden">
             <Filter
-              activeStatuses={activeStatuses}
+              activeDate={activeDate}
+              setActiveDate={setActiveDate}
               query={query}
-              setActiveStatuses={setActiveStatuses}
               setQuery={setQuery}
               date={date}
               setDate={setDate}
@@ -608,7 +612,7 @@ export default function AppointmentPage() {
             </div>
 
             <TabsContent value="list" className="flex-1 overflow-auto">
-              <List query={query} activeStatuses={activeStatuses} date={date} />
+              <List query={query} activeStatuses={activeStatuses} date={date} activeDate={activeDate} />
             </TabsContent>
 
             <TabsContent value="calendar" className="flex-1 h-full overflow-hidden">

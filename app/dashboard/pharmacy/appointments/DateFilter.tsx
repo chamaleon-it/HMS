@@ -12,8 +12,8 @@ const theme = {
 };
 
 interface DateFilterProps {
-    activeDate: "Today" | "7 days" | "30 days" | "Custom";
-    setActiveDate: (val: "Today" | "7 days" | "30 days" | "Custom") => void;
+    activeDate: string;
+    setActiveDate: (val: string) => void;
     date: Date;
     setDate: (val: Date) => void;
     isLoading?: boolean;
@@ -74,7 +74,7 @@ export default function DateFilter({ activeDate, setActiveDate, date, setDate, i
                 return (
                     <button
                         key={label}
-                        onClick={() => setActiveDate(label as "Today" | "7 days" | "30 days" | "Custom")}
+                        onClick={() => setActiveDate(label)}
                         className={cn(
                             "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer font-medium",
                             active ? "text-white" : "text-slate-600 hover:bg-slate-50"

@@ -31,8 +31,6 @@ export const STATUSES = [
 export default function Filter({
   query,
   setQuery,
-  activeStatuses,
-  setActiveStatuses,
   date,
   setDate,
   activeDate,
@@ -41,15 +39,13 @@ export default function Filter({
 }: {
   query: string;
   setQuery: React.Dispatch<React.SetStateAction<string>>;
-  activeStatuses: string[];
-  setActiveStatuses: React.Dispatch<React.SetStateAction<string[]>>;
-  date: Date | undefined;
-  setDate: React.Dispatch<React.SetStateAction<Date | undefined>>;
-  activeDate: string;
-  setActiveDate: React.Dispatch<React.SetStateAction<string>>;
+
+  date: Date;
+  setDate: React.Dispatch<React.SetStateAction<Date>>;
+  activeDate: "Today" | "7 days" | "30 days" | "Custom";
+  setActiveDate: React.Dispatch<React.SetStateAction<"Today" | "7 days" | "30 days" | "Custom">>;
   mutate?: () => void;
 }) {
-  const [open, setOpen] = useState(false);
 
   const { data } = useSWR<{
     message: string;

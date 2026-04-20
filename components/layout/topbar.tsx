@@ -13,27 +13,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 
-export default function Header({ collapsed, setCollapsed }: { collapsed?: boolean, setCollapsed?: React.Dispatch<React.SetStateAction<boolean>> }) {
+export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
 
-  const { mutate } = useAppointmentList({});
 
   const { user } = useAuth();
   const pathname = usePathname();
 
-  const { data: appointmentStatisticsData } = useSWR<{
-    message: string;
-    data: {
-      completed: number;
-      consulted: number;
-      notShow: number;
-      observation: number;
-      today: number;
-      upcoming: number;
-    };
-  }>("/appointments/statistics", {
-    revalidateIfStale: false,
-  });
+
 
 
 
@@ -108,10 +95,10 @@ export default function Header({ collapsed, setCollapsed }: { collapsed?: boolea
                   : item.key === "dashboard"
                     ? pathname === item.link || pathname === item.link?.slice(0, -1)
                     : pathname.startsWith(item.link || "xxx");
-                
+
                 return item.childrens ? (
                   <div key={item.key} className="relative group cursor-pointer shrink-0">
-                    <span 
+                    <span
                       className={
                         "relative flex items-center rounded-full px-4 py-1.5 transition cursor-pointer font-medium " +
                         (isActive ? "text-white" : "text-slate-600 hover:bg-slate-50")
@@ -131,15 +118,14 @@ export default function Header({ collapsed, setCollapsed }: { collapsed?: boolea
                     <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
                       <div className="flex flex-col bg-white border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] rounded-xl w-36 py-2 overflow-hidden">
                         {item.childrens.map(child => (
-                           <Link
-                             key={child.key}
-                             href={child.link}
-                             className={`px-4 py-2 transition-colors ${
-                               pathname.startsWith(child.link) ? "text-indigo-600 font-bold bg-indigo-50/50" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
-                             }`}
-                           >
-                             {child.label}
-                           </Link>
+                          <Link
+                            key={child.key}
+                            href={child.link}
+                            className={`px-4 py-2 transition-colors ${pathname.startsWith(child.link) ? "text-indigo-600 font-bold bg-indigo-50/50" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                              }`}
+                          >
+                            {child.label}
+                          </Link>
                         ))}
                       </div>
                     </div>
@@ -212,7 +198,6 @@ export default function Header({ collapsed, setCollapsed }: { collapsed?: boolea
           >
             <CreateAppointmentForm
               onClose={() => setOpenCreate(false)}
-              mutate={mutate}
             />
           </Drawer>
         </div>

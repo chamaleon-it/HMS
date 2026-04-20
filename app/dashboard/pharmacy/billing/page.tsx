@@ -19,8 +19,8 @@ export interface FilterType {
   qEnd: null | string;
   status: string;
   method: string;
-  activeDate: string;
-  date: undefined | Date;
+  activeDate: "Today" | "7 days" | "30 days" | "Custom";
+  date: Date;
   page: number;
   limit: number;
 }
@@ -33,7 +33,7 @@ export default function BillingPage() {
     status: "",
     method: "",
     activeDate: "Today",
-    date: undefined,
+    date: new Date(),
     page: 1,
     limit: 10,
   });

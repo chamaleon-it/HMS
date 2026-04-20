@@ -39,8 +39,8 @@ function RxQueue() {
   });
 
   const params = new URLSearchParams();
-  const [activeDate, setActiveDate] = useState<string>("Today");
-  const [date, setDate] = useState<Date>();
+  const [activeDate, setActiveDate] = useState<"Today" | "7 days" | "30 days" | "Custom">("Today");
+  const [date, setDate] = useState<Date>(new Date());
 
   let startDateStr = "";
   let endDateStr = "";

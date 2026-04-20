@@ -13,7 +13,6 @@ type AppShellProps = {
 
 export default function AppShell({ children }: AppShellProps) {
   const { isAuthenticated, loading } = useAuth();
-  const [collapsed, setCollapsed] = useState(true);
 
   if (loading) return null;
 
@@ -25,7 +24,7 @@ export default function AppShell({ children }: AppShellProps) {
     <div className="flex">
       {/* <Sidebar collapsed={collapsed} /> */}
       <div className="min-h-screen flex-1 min-w-0 print:min-h-auto">
-        <Header collapsed={collapsed} setCollapsed={setCollapsed} />
+        <Header />
         <div className="min-h-[calc(100vh-80px)] print:min-h-auto">
           {children}
         </div>

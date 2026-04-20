@@ -1,4 +1,4 @@
-import { fTime } from "@/lib/fDateAndTime";
+import { fDateandTime, fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video, Search, Clock } from "lucide-react";
 import React from "react";
 import {
@@ -20,6 +20,7 @@ export default function List({
   data,
   mutate,
   isLoading,
+  activeDate
 }: {
   query: string;
   activeStatuses: string[];
@@ -27,6 +28,7 @@ export default function List({
   data: any;
   mutate: () => void;
   isLoading: boolean;
+  activeDate: "Today" | "7 days" | "30 days" | "Custom";
 }) {
   // const { data } = useAppointmentList({ activeStatuses, date });
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
@@ -100,7 +102,7 @@ export default function List({
                   <TableCell className="py-2.5 pl-4 font-medium text-gray-700 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5 text-gray-400" />
-                      {fTime(row.date)}
+                      {fDateandTime(row.date)}
                     </div>
                   </TableCell>
                   <TableCell className="py-2.5">
