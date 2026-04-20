@@ -339,6 +339,7 @@ export default function CreateBill({
         payload={payload}
         setPayload={setPayload}
         orderPatient={orderPatient}
+        selectedPatient={selectedPatient}
         setSelectedPatient={setSelectedPatient}
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}

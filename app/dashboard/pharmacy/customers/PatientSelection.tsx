@@ -25,7 +25,7 @@ type Patient = {
 
 interface Props {
   setValue: (id: string) => void;
-  register: () => void;
+  register: (name?: string) => void;
   patientName: string;
 }
 
@@ -186,7 +186,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
                 </div>
                 <button
                   onClick={() => {
-                    register?.()
+                    register?.(input)
                   }}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
                 >
@@ -279,8 +279,8 @@ const PatientCard: React.FC<{
   return (
     <div
       className={cn(
-        "group relative rounded-2xl border bg-white/80 backdrop-blur supports-[backdrop-filter]:bg-white/70",
-        "transition-all duration-200 hover:-translate-y-[1px] hover:shadow-md",
+        "group relative rounded-2xl border bg-white/80 backdrop-blur supports-backdrop-filter:bg-white/70",
+        "transition-all duration-200 hover:-translate-y-px hover:shadow-md",
         "dark:bg-zinc-900/70 dark:border-zinc-800"
       )}
     >

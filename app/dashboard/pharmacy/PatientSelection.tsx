@@ -26,7 +26,7 @@ type Patient = {
 
 interface Props {
   setValue: (id: string, allergies?: string) => void;
-  register: () => void;
+  register: (name?: string) => void;
   patientName: string;
 }
 
@@ -187,7 +187,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
                 </div>
                 <button
                   onClick={() => {
-                    register?.()
+                    register?.(input)
                   }}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
                 >

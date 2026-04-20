@@ -141,12 +141,13 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const [showAllFields, setShowAllFields] = useState(false);
   const [patientName, setpatientName] = useState("")
   const [hasAllergy, setHasAllergy] = useState(false);
+  const [nameToRegister, setNameToRegister] = useState("");
 
   const router = useRouter()
 
   return (
     <>
-      <Button variant={"outline"} onClick={() => setOpenCreate(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
+      <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
       <Dialog open={open} onOpenChange={(value) => {
         if (!value && window.location.hash === "#newOrder") {
           router.push("/dashboard/pharmacy")
@@ -194,7 +195,9 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
                         setHasAllergy(false);
                       }
                     }}
-                    register={() => {
+                    register={(name) => {
+                      if (name) setNameToRegister(name);
+                      else setNameToRegister("");
                       setOpenCreate(true);
                       setOpen(false);
                     }}
@@ -307,12 +310,12 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient onClose={(id?: string, name?: string) => {
+          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string) => {
             setOpenCreate(false);
             setPayload((prev) => ({ ...prev, patient: id ?? "" }));
             setOpen(true)
             setpatientName(name ?? "")
-
+            setNameToRegister("")
           }} />
         </DialogContent>
       </Dialog>
