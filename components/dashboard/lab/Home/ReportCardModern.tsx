@@ -243,10 +243,14 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                     })
                 );
 
+                let globalSubheadingCount = 0;
                 return pages.map((pageRows, pageIdx) => {
                     const isFirstPage = pageIdx === 0;
                     const isLastPage = pageIdx === pages.length - 1;
-                    const pageHasCBC = pageIdx === firstCBCPageIdx;
+                    const pageHasCBC = pageRows.some(row => {
+                        const pName = row.activePanel || row.name;
+                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
+                    });
 
                     return (
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
@@ -304,7 +308,7 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                     );
                                 })()}
                                 <div className="flex w-full gap-2 relative">
-                                    <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} rounded-[10px] overflow-hidden`}>
+                                    <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} rounded-[10px] ${pageHasCBC ? 'overflow-visible' : 'overflow-hidden'}`}>
                                         <table className="w-full">
                                             <thead className="bg-[#eef2eb] text-slate-700">
                                                 <tr>
@@ -319,10 +323,36 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                 {pageRows.map((row, rowIdx) => {
                                                     if (row.type === "PANEL") return null; // Handled above table
                                                     if (row.type === "SUBHEADING") {
+                                                        globalSubheadingCount++;
+                                                        const graphKey = globalSubheadingCount === 1 ? 'WBC' : globalSubheadingCount === 2 ? 'RBC' : globalSubheadingCount === 3 ? 'PLT' : null;
+                                                        const fullGraphKey = globalSubheadingCount === 1 ? 'WBC Histogram. BMP' : 
+                                                                           globalSubheadingCount === 2 ? 'RBC Histogram. BMP' : 
+                                                                           globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
+
                                                         return (
                                                             <tr key={`sub-${rowIdx}`}>
-                                                                <td colSpan={5} className="py-[10px] px-6 text-left">
+                                                                <td colSpan={5} className="py-[10px] px-6 text-left relative">
                                                                     <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-widest underline underline-offset-[3px] decoration-slate-300">{row.name}</h3>
+                                                                    
+                                                                    {graphKey && pageHasCBC && (
+                                                                        <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '30px', width: '240px' }}>
+                                                                            <div className="flex flex-col pt-2">
+                                                                                <div className="text-[12px] font-extrabold text-slate-700 pl-1 mb-1">{graphKey} HISTOGRAM</div>
+                                                                                {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
+                                                                                    <img
+                                                                                        src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
+                                                                                        alt={`${graphKey} Histogram`}
+                                                                                        className="w-full h-[130px] object-contain object-left mix-blend-multiply"
+                                                                                        style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
+                                                                                    />
+                                                                                ) : (
+                                                                                    <div className="w-full h-[130px] border border-dashed border-slate-300 rounded-[8px] flex items-center justify-center text-slate-500 text-[10px] font-medium bg-slate-50">
+                                                                                        {graphKey} Graph Area
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
                                                                 </td>
                                                             </tr>
                                                         );
@@ -382,61 +412,6 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                         <div className="w-[30%] flex flex-col pt-0 px-1 relative right-0">
                                             <div className="bg-[#eef2eb] rounded-t-[10px] py-[9px] px-2 w-full mb-3 flex items-center justify-center border border-[#e2ebd9]">
                                                 <div className="text-[12.5px] font-extrabold tracking-wide text-slate-700 text-center uppercase">Histograms</div>
-                                            </div>
-                                            <div className="flex flex-col gap-6 w-full px-2">
-                                                {/* WBC Graph */}
-                                                {report?.graphs?.['WBC Histogram. BMP'] ? (
-                                                    <div className="flex flex-col w-full">
-                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">WBC</div>
-                                                        <img
-                                                            src={`data:image/png;base64,${report.graphs['WBC Histogram. BMP']}`}
-                                                            alt="WBC Histogram"
-                                                            className="w-full h-[76px] object-contain object-left mix-blend-multiply"
-                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col w-full">
-                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">WBC</div>
-                                                        <div className="w-full h-[76px] border border-dashed border-slate-300 rounded-[8px] flex items-center justify-center text-slate-500 text-[10px] font-medium bg-slate-50">WBC Graph Area</div>
-                                                    </div>
-                                                )}
-
-                                                {/* RBC Graph */}
-                                                {report?.graphs?.['RBC Histogram. BMP'] ? (
-                                                    <div className="flex flex-col w-full pt-1">
-                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">RBC</div>
-                                                        <img
-                                                            src={`data:image/png;base64,${report.graphs['RBC Histogram. BMP']}`}
-                                                            alt="RBC Histogram"
-                                                            className="w-full h-[76px] object-contain object-left mix-blend-multiply"
-                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col w-full pt-1">
-                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">RBC</div>
-                                                        <div className="w-full h-[76px] border border-dashed border-slate-300 rounded-[8px] flex items-center justify-center text-slate-500 text-[10px] font-medium bg-slate-50">RBC Graph Area</div>
-                                                    </div>
-                                                )}
-
-                                                {/* PLT Graph */}
-                                                {report?.graphs?.['PLT Histogram. BMP'] ? (
-                                                    <div className="flex flex-col w-full pt-1">
-                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">PLT</div>
-                                                        <img
-                                                            src={`data:image/png;base64,${report.graphs['PLT Histogram. BMP']}`}
-                                                            alt="PLT Histogram"
-                                                            className="w-full h-[76px] object-contain object-left mix-blend-multiply"
-                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col w-full pt-1">
-                                                        <div className="text-[11px] font-extrabold text-slate-700 pl-1 mb-1">PLT</div>
-                                                        <div className="w-full h-[76px] border border-dashed border-slate-300 rounded-[8px] flex items-center justify-center text-slate-500 text-[10px] font-medium bg-slate-50">PLT Graph Area</div>
-                                                    </div>
-                                                )}
                                             </div>
                                         </div>
                                     )}

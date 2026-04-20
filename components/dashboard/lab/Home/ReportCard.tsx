@@ -153,8 +153,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
       `}} />
 
             {(() => {
-                const FIRST_PAGE_LIMIT = 30;
-                const SUBSEQUENT_PAGE_LIMIT = 30;
+                const FIRST_PAGE_LIMIT = 20;
+                const SUBSEQUENT_PAGE_LIMIT = 20;
 
                 // 1. Prepare All Rows (Panel Headers + Tests)
                 const allRows: any[] = [];
@@ -256,10 +256,14 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                 );
 
                 // 3. Render Pages
+                let globalSubheadingCount = 0;
                 return pages.map((pageRows, pageIdx) => {
                     const isFirstPage = pageIdx === 0;
                     const isLastPage = pageIdx === pages.length - 1;
-                    const pageHasCBC = pageIdx === firstCBCPageIdx;
+                    const pageHasCBC = pageRows.some(row => {
+                        const pName = row.activePanel || row.name;
+                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
+                    });
 
                     return (
                         <div key={pageIdx} className={`a4-page shadow-none bg-white font-roboto ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
@@ -269,43 +273,40 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                             </div>
 
                             {/* 🏥 DIGITAL HEADER */}
-                            <div className="relative w-full bg-white text-black flex flex-col pt-0 break-inside-avoid">
-                                {/* Top Bar */}
-
-
-                                {/* Content Wrapper */}
-                                <div className="w-full relative flex justify-between items-start pt-1 pb-1.25 px-10">
-                                    <div className="relative z-10 w-[60%]">
-                                        <HospitalName />
+                            {isFirstPage && (
+                                <div className="relative w-full bg-white text-black flex flex-col pt-0 break-inside-avoid">
+                                    {/* Content Wrapper */}
+                                    <div className="w-full relative flex justify-between items-start pt-1 pb-1.25 px-10">
+                                        <div className="relative z-10 w-[60%]">
+                                            <HospitalName />
+                                        </div>
                                     </div>
 
-
-                                </div>
-
-                                {/* Ribbon Wrapper */}
-                                <div className="absolute right-0 top-0 w-[50%] z-1 flex flex-col items-end">
-                                    {/* Darker coral upper shape */}
-                                    <div
-                                        className="h-14 w-85 flex items-center justify-end"
-                                        style={{
-                                            backgroundColor: '#d66a54',
-                                            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 37px 100%)'
-                                        }}
-                                    >
-                                        <span className="text-white text-[26px] font-sans font-medium pr-11.25">
-                                            LAB REPORT
-                                        </span>
+                                    {/* Ribbon Wrapper */}
+                                    <div className="absolute right-0 top-0 w-[50%] z-1 flex flex-col items-end">
+                                        {/* Darker coral upper shape */}
+                                        <div
+                                            className="h-14 w-85 flex items-center justify-end"
+                                            style={{
+                                                backgroundColor: '#d66a54',
+                                                clipPath: 'polygon(0 0, 100% 0, 100% 100%, 37px 100%)'
+                                            }}
+                                        >
+                                            <span className="text-white text-[26px] font-sans font-medium pr-11.25">
+                                                LAB REPORT
+                                            </span>
+                                        </div>
+                                        {/* Lighter coral lower shape */}
+                                        <div
+                                            className="h-6 w-50"
+                                            style={{
+                                                backgroundColor: '#e6a69a',
+                                                clipPath: 'polygon(0 0, 100% 0, 100% 100%, 16px 100%)'
+                                            }}
+                                        ></div>
                                     </div>
-                                    {/* Lighter coral lower shape */}
-                                    <div
-                                        className="h-6 w-50"
-                                        style={{
-                                            backgroundColor: '#e6a69a',
-                                            clipPath: 'polygon(0 0, 100% 0, 100% 100%, 16px 100%)'
-                                        }}
-                                    ></div>
                                 </div>
-                            </div>
+                            )}
 
 
                             {/* BODY */}
@@ -331,13 +332,19 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
 
                                 {/* PANEL HEADINGS (Moved above the table headings) */}
                                 {(() => {
-                                    const pagePanels = Array.from(new Set(pageRows.map(r => r.activePanel).filter(Boolean)));
+                                    const firstRow = pageRows[0];
+                                    const activePanelId = firstRow?.activePanel || firstRow?.name;
+                                    const activePanelConfig = panels?.find(p => p.name === activePanelId);
 
-                                    if (pagePanels.length === 0) return <div className="w-full text-center pb-2 pt-1">
-                                        <p className="font-bold text-black text-[17px]">
-                                            Biochemistry
-                                        </p>
-                                    </div>;
+                                    const headingText = activePanelConfig?.mainHeading || activePanelId || "Biochemistry";
+
+                                    return (
+                                        <div className="w-full text-center pb-2 pt-1 invisible">
+                                            <p className="font-bold text-black text-[17px] uppercase">
+                                                {headingText} {pageIdx > 0 && pageRows.every(r => r.activePanel === activePanelId) && "(Continued)"}
+                                            </p>
+                                        </div>
+                                    );
                                 })()}
                                 <div className="flex w-full bg-[#f4c3b9] border-y border-[#f4c3b9] text-[11px] font-bold text-black items-stretch relative z-8">
                                     <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} pr-2`}>
@@ -379,161 +386,117 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                 <col className="col-note" />
                                             </colgroup>
                                             <tbody>
-                                                {pageRows.map((row, rowIdx) => {
-                                                    if (row.type === "PANEL") {
-                                                        return (
-                                                            row.mainHeading && <tr key={`panel-${rowIdx}`}>
-                                                                <td colSpan={5} className="px-0 pt-2">
-                                                                    <p className="font-bold text-black text-[15px] uppercase mt-1">{row.mainHeading}</p>
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    }
-                                                    if (row.type === "SUBHEADING") {
-                                                        return (
-                                                            <tr key={`subheading-${rowIdx}`}>
-                                                                <td colSpan={5} className={`pl-1 pt-1 ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                    <p className="font-semibold text-black text-[13px]">{row.name}</p>
-                                                                </td>
-                                                            </tr>
-                                                        );
-                                                    }
-                                                    const value = parseFloat(row.value);
-                                                    let isAbnormal = false;
-                                                    const min = row.name?.range?.[0]?.min;
-                                                    const max = row.name?.range?.[0]?.max;
-                                                    if (!isNaN(value) && ((min !== undefined && min !== null && value < min) || (max !== undefined && max !== null && value > max))) {
-                                                        isAbnormal = true;
-                                                    }
+                                                {(() => {
+                                                    return pageRows.map((row, rowIdx) => {
+                                                        if (row.type === "PANEL") {
+                                                            if (rowIdx === 0) return null;
+                                                            return (
+                                                                row.mainHeading && <tr key={`panel-${rowIdx}`}>
+                                                                    <td colSpan={5} className="px-0 pt-2">
+                                                                        <p className="font-bold text-black text-[15px] uppercase mt-1 text-center">{row.mainHeading}</p>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        }
+                                                        if (row.type === "SUBHEADING") {
+                                                            globalSubheadingCount++;
+                                                            const graphKey = globalSubheadingCount === 1 ? 'WBC' : globalSubheadingCount === 2 ? 'RBC' : globalSubheadingCount === 3 ? 'PLT' : null;
+                                                            const fullGraphKey = globalSubheadingCount === 1 ? 'WBC Histogram. BMP' :
+                                                                globalSubheadingCount === 2 ? 'RBC Histogram. BMP' :
+                                                                    globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
 
-
-                                                    return (
-                                                        <React.Fragment key={`test-wrap-${rowIdx}`}>
-
-                                                            <tr key={`test-${rowIdx}`}>
-                                                                <td className={`pl-2 pt-[12px] ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                    <p className={`text-[12px]  text-black font-semibold pl-0 capitalize`}>
-                                                                        {/^[a-zA-Z]{3}$/.test(row.name?.name)
-                                                                            ? row.name?.name.toUpperCase()
-                                                                            : row.name?.name?.toLowerCase() || "Unknown test"}
-                                                                    </p>
-                                                                    <p className="text-[9px] text-black pl-0">Method: {row.name?.method || "Erba Chem 6"}</p>
-                                                                </td>
-                                                                <td className="px-2 py-[2px] text-center text-[12px] leading-tight whitespace-nowrap">
-                                                                    <span className={isAbnormal ? "font-bold" : "text-black"}>
-                                                                        {row.value || " "}
-                                                                    </span>
-                                                                </td>
-                                                                <td className="px-2 py-[2px] text-center text-black text-[13px] font-medium leading-tight">
-                                                                    {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
-                                                                        <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
-                                                                    ) : (
-                                                                        " "
-                                                                    )}
-                                                                </td>
-                                                                <td className="px-2 py-[2px] text-[13px] font-semibold text-black">
-                                                                    {row.name?.range && row.name.range.length > 0 ? (
-                                                                        row.name.range.map((r: any, idx: number) => {
-                                                                            const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
-                                                                            const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
-                                                                            if (!hasMin && !hasMax) return null;
-                                                                            return (
-                                                                                <div key={idx} className="whitespace-nowrap pb-[2px]">
-                                                                                    {r.name && (row.name.range.length > 1 || r.name.toLowerCase() !== "normal") ? (
-                                                                                        <span className="font-medium opacity-80 pr-1">{r.name}:</span>
-                                                                                    ) : null}
-                                                                                    {hasMin ? r.min : "0"} - {hasMax ? r.max : "N/A"}
+                                                            return (
+                                                                <tr key={`subheading-${rowIdx}`}>
+                                                                    <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                        <p className="font-semibold text-black text-[13px]">{row.name}</p>
+                                                                        {graphKey && pageHasCBC && (
+                                                                            <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
+                                                                                <div className="flex flex-col pt-2">
+                                                                                    <div className="text-[12px] font-extrabold text-black pl-1 mb-1">{graphKey} HISTOGRAM</div>
+                                                                                    {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
+                                                                                        <img
+                                                                                            src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
+                                                                                            alt={`${graphKey} Histogram`}
+                                                                                            className="w-full h-[130px] object-contain object-left mix-blend-multiply"
+                                                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
+                                                                                        />
+                                                                                    ) : (
+                                                                                        <div className="w-full h-[130px] border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">
+                                                                                            {graphKey} Graph Area
+                                                                                        </div>
+                                                                                    )}
                                                                                 </div>
-                                                                            );
-                                                                        })
-                                                                    ) : "\u00A0"}
-                                                                </td>
-                                                                <td className="px-2 py-[2px] text-[10px] text-black whitespace-pre-wrap">
-                                                                    {row.name?.note}
-                                                                </td>
-                                                            </tr>
+                                                                            </div>
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        }
 
-                                                        </React.Fragment>
-                                                    );
-                                                })}
-                                                {/* <tr>
-                                                    <td colSpan={5} className="pt-3 font-medium">
-                                                        <p className="text-[13px] font-semibold">Comments:</p>
-                                                        <p className="text-[13px]">Kidneys play several vital roles like filtration/removal of toxic wastes and metabolites from the blood, RBC
-                                                            production, Vitamin D metabolism and regulation of blood pressure. It is recommended in following conditions:</p>
-                                                        <p className="text-[13px]">1. To evaluate kidney functioning in normal individuals as screening test</p>
-                                                        <p className="text-[13px]">2. To aid in diagnosis of kidney related disorders (Acute and chronic renal failure, pyelonephritis, End Stage Renal
-                                                            Disease)</p>
-                                                        <p className="text-[13px]">3. To screen those who may be at risk of developing kidney disorders (Diabetes, Hypertension, Cardiovascular
-                                                            diseases)</p>
-                                                        <p className="text-[13px]">4. To monitor someone on treatment for kidney related disorders</p>
-                                                        <p className="text-[13px]">5. To monitor effects of nephrotoxic drugs (given for other conditions) on kidneys (Vancomycin, methotrexate, some
-                                                            antivirals etc)</p>
-                                                    </td>
-                                                </tr> */}
+                                                        const value = parseFloat(row.value);
+                                                        let isAbnormal = false;
+                                                        const min = row.name?.range?.[0]?.min;
+                                                        const max = row.name?.range?.[0]?.max;
+                                                        if (!isNaN(value) && ((min !== undefined && min !== null && value < min) || (max !== undefined && max !== null && value > max))) {
+                                                            isAbnormal = true;
+                                                        }
+
+
+                                                        return (
+                                                            <React.Fragment key={`test-wrap-${rowIdx}`}>
+
+                                                                <tr key={`test-${rowIdx}`}>
+                                                                    <td className={`pl-2 pt-[12px] ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                        <p className={`text-[12px]  text-black font-semibold pl-0 capitalize`}>
+                                                                            {/^[a-zA-Z]{3}$/.test(row.name?.name)
+                                                                                ? row.name?.name.toUpperCase()
+                                                                                : row.name?.name?.toLowerCase() || "Unknown test"}
+                                                                        </p>
+                                                                        <p className="text-[9px] text-black pl-0">Method: {row.name?.method || "Erba Chem 6"}</p>
+                                                                    </td>
+                                                                    <td className="px-2 py-[2px] text-center text-[12px] leading-tight whitespace-nowrap">
+                                                                        <span className={isAbnormal ? "font-bold" : "text-black"}>
+                                                                            {row.value || " "}
+                                                                        </span>
+                                                                    </td>
+                                                                    <td className="px-2 py-[2px] text-center text-black text-[13px] font-medium leading-tight">
+                                                                        {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
+                                                                            <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
+                                                                        ) : (
+                                                                            " "
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="px-2 py-[2px] text-[13px] font-semibold text-black">
+                                                                        {row.name?.range && row.name.range.length > 0 ? (
+                                                                            row.name.range.map((r: any, idx: number) => {
+                                                                                const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
+                                                                                const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
+                                                                                if (!hasMin && !hasMax) return null;
+                                                                                return (
+                                                                                    <div key={idx} className="whitespace-nowrap pb-[2px]">
+                                                                                        {r.name && (row.name.range.length > 1 || r.name.toLowerCase() !== "normal") ? (
+                                                                                            <span className="font-medium opacity-80 pr-1">{r.name}:</span>
+                                                                                        ) : null}
+                                                                                        {hasMin ? r.min : "0"} - {hasMax ? r.max : "N/A"}
+                                                                                    </div>
+                                                                                );
+                                                                            })
+                                                                        ) : "\u00A0"}
+                                                                    </td>
+                                                                    <td className="px-2 py-[2px] text-[10px] text-black whitespace-pre-wrap">
+                                                                        {row.name?.note}
+                                                                    </td>
+                                                                </tr>
+
+                                                            </React.Fragment>
+                                                        );
+                                                    });
+                                                })()}
                                             </tbody>
                                         </table>
                                     </div>
 
-                                    {pageHasCBC && (
-                                        <div className="w-[30%] flex flex-col pt-6 px-4 relative right-0">
-                                            <div className="flex flex-col gap-6 w-full">
-                                                {/* WBC Graph */}
-                                                {report?.graphs?.['WBC Histogram. BMP'] ? (
-                                                    <div className="flex flex-col w-full pt-7">
-                                                        <div className="text-[11px] font-bold text-black pl-1">WBC</div>
-                                                        <img
-                                                            src={`data:image/png;base64,${report.graphs['WBC Histogram. BMP']}`}
-                                                            alt="WBC Histogram"
-                                                            className="w-full h-24 object-contain object-left mix-blend-multiply"
-                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col w-full">
-                                                        <div className="text-[10px] font-bold text-black pl-1">WBC</div>
-                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">WBC Graph Area</div>
-                                                    </div>
-                                                )}
 
-                                                {/* RBC Graph */}
-                                                {report?.graphs?.['RBC Histogram. BMP'] ? (
-                                                    <div className="flex flex-col w-full pt-1">
-                                                        <div className="text-[11px] font-bold text-black pl-1">RBC</div>
-                                                        <img
-                                                            src={`data:image/png;base64,${report.graphs['RBC Histogram. BMP']}`}
-                                                            alt="RBC Histogram"
-                                                            className="w-full h-24 object-contain object-left mix-blend-multiply"
-                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col w-full">
-                                                        <div className="text-[10px] font-bold text-black pl-1">RBC</div>
-                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">RBC Graph Area</div>
-                                                    </div>
-                                                )}
-
-                                                {/* PLT Graph */}
-                                                {report?.graphs?.['PLT Histogram. BMP'] ? (
-                                                    <div className="flex flex-col w-full pt-28">
-                                                        <div className="text-[11px] font-bold text-black pl-1">PLT</div>
-                                                        <img
-                                                            src={`data:image/png;base64,${report.graphs['PLT Histogram. BMP']}`}
-                                                            alt="PLT Histogram"
-                                                            className="w-full h-24 object-contain object-left mix-blend-multiply"
-                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <div className="flex flex-col w-full">
-                                                        <div className="text-[10px] font-bold text-black pl-1">PLT</div>
-                                                        <div className="w-full h-24 border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">PLT Graph Area</div>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    )}
                                 </div>
                             </div>
 
