@@ -338,13 +338,13 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
 
                                     const headingText = activePanelConfig?.mainHeading || activePanelId || "Biochemistry";
 
-                                    return (
-                                        <div className="w-full text-center pb-2 pt-1 invisible">
+                                    return pageIdx === 0 ? (
+                                        <div className="w-full text-center pb-2 pt-1">
                                             <p className="font-bold text-black text-[17px] uppercase">
-                                                {headingText} {pageIdx > 0 && pageRows.every(r => r.activePanel === activePanelId) && "(Continued)"}
+                                                {headingText}
                                             </p>
                                         </div>
-                                    );
+                                    ) : <div className="h-12"></div>;
                                 })()}
                                 <div className="flex w-full bg-[#f4c3b9] border-y border-[#f4c3b9] text-[11px] font-bold text-black items-stretch relative z-8">
                                     <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} pr-2`}>
