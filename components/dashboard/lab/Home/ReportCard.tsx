@@ -337,8 +337,6 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                     const activePanelConfig = panels?.find(p => p?.name === activePanelId);
 
                                     const headingText = activePanelConfig?.mainHeading || "Biochemistry";
-
-                                    console.log(headingText)
                                     return pageIdx === 0 && Boolean(headingText) ? (
                                         <div className="w-full text-center pb-2 pt-1">
                                             <p className="font-bold text-black text-[17px] uppercase">
