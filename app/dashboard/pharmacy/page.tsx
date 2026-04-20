@@ -13,6 +13,9 @@ import { TableSkeleton } from "./components/PharmacySkeleton";
 import PharmacyHeader from "./components/PharmacyHeader";
 import DateFilter from "./DateFilter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
+import { OrderDraftProvider } from "./OrderDraftContext";
+import { WindowManager } from "./components/WindowManager";
+import { DraftTaskbar } from "./components/DraftTaskbar";
 
 function RxQueue() {
 
@@ -136,11 +139,15 @@ function RxQueue() {
 export default function PharmacyHome() {
   return (
     <AppShell>
-      <TooltipProvider>
-        <main className="p-5 min-h-[calc(100vh-80px)]">
-          <RxQueue />
-        </main>
-      </TooltipProvider>
+      <OrderDraftProvider>
+        <TooltipProvider>
+          <main className="p-5 min-h-[calc(100vh-80px)] relative">
+            <RxQueue />
+            <WindowManager />
+            <DraftTaskbar />
+          </main>
+        </TooltipProvider>
+      </OrderDraftProvider>
     </AppShell>
   );
 }
