@@ -24,7 +24,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { QuickAddItem } from "../../../inventory/QuickAddItem";
+import { QuickAddItem } from "../../inventory/QuickAddItem";
 
 // Simple hook for debouncing
 function useDebounced<T>(value: T, delay = 250) {

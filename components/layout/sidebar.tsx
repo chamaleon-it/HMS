@@ -124,7 +124,7 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         key: "purchase-entry",
         label: "Purchase Entry",
         icon: ReceiptText,
-        link: "/dashboard/pharmacy/suppliers/purchase-entry/",
+        link: "/dashboard/pharmacy/purchase-entry/",
       },
       {
         key: "suppliers",

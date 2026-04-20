@@ -16,8 +16,8 @@ import { ChevronDownIcon } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import TypableExpiryInput from "../suppliers/purchase-entry/components/TypableExpiryInput";
 import useSWR from "swr";
+import TypableExpiryInput from "../purchase-entry/components/TypableExpiryInput";
 
 const months = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -204,9 +204,10 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             placeholder="e.g. 100"
             className="mt-1"
             value={values.packing as string || ""}
-            onChange={e=>{
-              setValue("packing",Number(e.target.value))
-              setValue("unitPrice",(Number(values.mrp) || 0 )/(e.target.value ? Number(e.target.value) : 1))}
+            onChange={e => {
+              setValue("packing", Number(e.target.value))
+              setValue("unitPrice", (Number(values.mrp) || 0) / (e.target.value ? Number(e.target.value) : 1))
+            }
             }
             ref={(e) => {
               register("packing").ref(e);
@@ -239,9 +240,10 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
               refs.mrp.current = e;
             }}
             onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
-            onChange={e=>{
-              setValue("mrp",Number(e.target.value))
-              setValue("unitPrice",(Number(e.target.value) || 0 )/(values?.packing ? Number(values.packing) : 1))}
+            onChange={e => {
+              setValue("mrp", Number(e.target.value))
+              setValue("unitPrice", (Number(e.target.value) || 0) / (values?.packing ? Number(values.packing) : 1))
+            }
             }
           />
           {errors.mrp && (

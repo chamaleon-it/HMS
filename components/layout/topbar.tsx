@@ -36,7 +36,7 @@ export default function Header() {
       { key: "appointments", label: "Appointments", link: "/dashboard/pharmacy/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
       { key: "inventory", label: "Inventory", link: "/dashboard/pharmacy/inventory/" },
-      { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/suppliers/purchase-entry/" },
+      { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/purchase-entry/" },
       { key: "suppliers", label: "Suppliers", link: "/dashboard/pharmacy/suppliers/" },
       { key: "customers", label: "Customers", link: "/dashboard/pharmacy/customers/" },
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },

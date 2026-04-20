@@ -43,7 +43,7 @@ import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { z } from "zod"
 import { ItemType } from './interface'
-import TypableExpiryInput from "../suppliers/purchase-entry/components/TypableExpiryInput"
+import TypableExpiryInput from '../purchase-entry/components/TypableExpiryInput';
 
 // Schema for adding a batch
 const addBatchSchema = z.object({
