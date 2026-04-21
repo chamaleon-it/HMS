@@ -385,6 +385,27 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                 <col className="col-note" />
                                             </colgroup>
                                             <tbody>
+                                                {report.sampleType && <tr key={``} className="pt-[12px] pl-2">
+                                                    <td className={`pl-2 pt-[12px] `}>
+                                                        <p className={`text-[12px]  text-black font-semibold pl-0 capitalize`}>
+                                                            Sample Type
+                                                        </p>
+                                                    </td>
+
+                                                    <td className="px-2 pt-[12px] text-center text-[12px] leading-tight whitespace-nowrap">
+                                                        {report.sampleType}
+                                                    </td>
+                                                    <td className="px-2 pt-[12px] text-center text-black text-[13px] font-medium leading-tight">
+
+                                                    </td>
+                                                    <td className="px-2 pt-[12px] text-[13px] font-semibold text-black">
+
+                                                    </td>
+                                                    <td className="px-2 pt-[12px] text-[10px] text-black whitespace-pre-wrap">
+
+                                                    </td>
+                                                </tr>}
+
                                                 {(() => {
                                                     return pageRows.map((row, rowIdx) => {
                                                         if (row.type === "PANEL") {
@@ -451,7 +472,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                                 ? row.name?.name.toUpperCase()
                                                                                 : row.name?.name?.toLowerCase() || "Unknown test"}
                                                                         </p>
-                                                                        <p className="text-[9px] text-black pl-0">Method: {row.name?.method || "Erba Chem 6"}</p>
+                                                                        {!!row?.name?.method && <p className="text-[9px] text-black pl-0">Method: {row.name?.method}</p>}
                                                                     </td>
                                                                     <td className="px-2 py-[2px] text-center text-[12px] leading-tight whitespace-nowrap">
                                                                         <span className={isAbnormal ? "font-bold" : "text-black"}>

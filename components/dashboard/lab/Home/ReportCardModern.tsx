@@ -320,20 +320,33 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                                {isFirstPage && report.sampleType && (
+                                                    <tr className="">
+                                                        <td className="py-[10px] px-6 text-left">
+                                                            <div className="font-extrabold text-slate-800 tracking-wide text-[12px] uppercase">Sample Type</div>
+                                                        </td>
+                                                        <td className="py-[10px] px-2 text-left text-[12px] font-bold text-slate-900">
+                                                            {report.sampleType}
+                                                        </td>
+                                                        <td className=""></td>
+                                                        <td className=""></td>
+                                                        <td className=""></td>
+                                                    </tr>
+                                                )}
                                                 {pageRows.map((row, rowIdx) => {
                                                     if (row.type === "PANEL") return null; // Handled above table
                                                     if (row.type === "SUBHEADING") {
                                                         globalSubheadingCount++;
                                                         const graphKey = globalSubheadingCount === 1 ? 'WBC' : globalSubheadingCount === 2 ? 'RBC' : globalSubheadingCount === 3 ? 'PLT' : null;
-                                                        const fullGraphKey = globalSubheadingCount === 1 ? 'WBC Histogram. BMP' : 
-                                                                           globalSubheadingCount === 2 ? 'RBC Histogram. BMP' : 
-                                                                           globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
+                                                        const fullGraphKey = globalSubheadingCount === 1 ? 'WBC Histogram. BMP' :
+                                                            globalSubheadingCount === 2 ? 'RBC Histogram. BMP' :
+                                                                globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
 
                                                         return (
                                                             <tr key={`sub-${rowIdx}`}>
                                                                 <td colSpan={5} className="py-[10px] px-6 text-left relative">
                                                                     <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-widest underline underline-offset-[3px] decoration-slate-300">{row.name}</h3>
-                                                                    
+
                                                                     {graphKey && pageHasCBC && (
                                                                         <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '30px', width: '240px' }}>
                                                                             <div className="flex flex-col pt-2">
@@ -381,7 +394,7 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                         <tr key={"test-" + rowIdx} className="">
                                                             <td className="pt-[8px] px-6 text-left align-top border-b border-transparent">
                                                                 <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight capitalize">{row.name?.name ? /^[a-zA-Z]{3}$/.test(row.name?.name) ? row.name?.name.toUpperCase() : row.name?.name.toLowerCase() : "TEST"}</div>
-                                                                <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method || "Erba Chem 6"}</div>
+                                                                {row?.name?.method && <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method}</div>}
                                                             </td>
                                                             <td className="pt-[17px] px-2 text-left text-[12px] align-top">
                                                                 <span className="text-slate-800 font-medium">{row.value}</span>

@@ -15,11 +15,28 @@ import { fAge, fDate } from "@/lib/fDateAndTime";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
+import { Button } from "@/components/ui/button";
+import { Eye, Pencil } from "lucide-react";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+import { useState } from "react";
+import { RegisterPatient } from "../../pharmacy/RegisterPatient";
 
 const Patients: React.FC = () => {
     const router = useRouter();
+    const [editPatient, setEditPatient] = useState<any>(null);
 
-    const { data: patientsData } = useSWR<{
+    const { data: patientsData, mutate } = useSWR<{
         message: string;
         data: {
             lastVisit: Date;
@@ -38,7 +55,8 @@ const Patients: React.FC = () => {
 
     return (
         <AppShell>
-            <div className="bg-slate-50 p-5 min-h-[calc(100vh-80px)]">
+            <TooltipProvider>
+                <div className="bg-slate-50 p-5 min-h-[calc(100vh-80px)]">
                 <main className="space-y-6">
                     <div className="flex items-center justify-between gap-3 w-full">
                         <LabHeader
@@ -69,6 +87,9 @@ const Patients: React.FC = () => {
                                     </TableHead>
                                     <TableHead className="text-white py-3 text-right">
                                         Last Visit
+                                    </TableHead>
+                                    <TableHead className="text-white py-3 text-right pr-4">
+                                        Actions
                                     </TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -130,6 +151,49 @@ const Patients: React.FC = () => {
                                             <TableCell className="py-3 align-middle text-right text-slate-700">
                                                 {fDate(p.lastVisit)}
                                             </TableCell>
+                                            <TableCell className="py-3 align-middle text-right pr-4">
+                                                <div className="flex justify-end items-center gap-1">
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                                                onClick={(e: React.MouseEvent) => {
+                                                                    e.stopPropagation();
+                                                                    router.push(
+                                                                        `/dashboard/lab/patients/single?id=${p._id}`
+                                                                    );
+                                                                }}
+                                                            >
+                                                                <Eye className="h-4 w-4" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>View History</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                                                onClick={(e: React.MouseEvent) => {
+                                                                    e.stopPropagation();
+                                                                    setEditPatient(p);
+                                                                }}
+                                                            >
+                                                                <Pencil className="h-4 w-4" />
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Edit Patient</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </div>
+                                            </TableCell>
                                         </TableRow>
                                     );
                                 })}
@@ -148,7 +212,24 @@ const Patients: React.FC = () => {
                         </Table>
                     </div>
                 </main>
-            </div>
+                </div>
+            </TooltipProvider>
+
+            <Dialog
+                open={Boolean(editPatient)}
+                onOpenChange={(v) => !v && setEditPatient(null)}
+            >
+                <DialogContent className="max-w-3xl!">
+                    <DialogHeader>
+                        <DialogTitle>Edit Patient</DialogTitle>
+                    </DialogHeader>
+                    <RegisterPatient
+                        onClose={() => setEditPatient(null)}
+                        mutate={mutate}
+                        patient={editPatient}
+                    />
+                </DialogContent>
+            </Dialog>
         </AppShell>
     );
 };

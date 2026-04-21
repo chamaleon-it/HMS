@@ -30,7 +30,7 @@ export default function TestSelection({
     };
 
 
-    const filteredOptions = options.filter(opt => opt.toLowerCase().startsWith(text.toLowerCase()))
+    const filteredOptions = options.filter(opt => opt.toLowerCase().includes(text.toLowerCase()))
     const listboxRef = useRef<HTMLDivElement>(null);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
