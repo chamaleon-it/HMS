@@ -413,7 +413,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
             {buttonText || "Update Result"}
           </Button>
         </DialogTrigger>
-        <DialogContent className="sm:max-w-200 p-0 overflow-hidden gap-0">
+        <DialogContent className="sm:max-w-225 p-0 overflow-hidden gap-0">
           <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-blue-100/50 text-blue-600 rounded-xl">
@@ -515,13 +515,10 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                       <TableHead className="w-[30%] pl-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         Test Details
                       </TableHead>
-                      <TableHead className="w-[15%] py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                        Code
-                      </TableHead>
                       <TableHead className="w-[30%] py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
                         Result Value
                       </TableHead>
-                      <TableHead className="w-[30%] py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                      <TableHead align="right" className="w-[30%] py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">
                         Unit
                       </TableHead>
                       <TableHead className="w-[25%] pr-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -580,14 +577,12 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                               <div className="p-2 bg-white border border-gray-100 text-blue-600 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all">
                                 <Beaker className="w-4 h-4" />
                               </div>
-                              <span className="font-medium text-gray-900">
-                                {labTest.name?.name}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="py-4">
-                            <div className="inline-flex items-center px-2 py-1 rounded-md bg-gray-50 border border-gray-100 text-xs font-mono text-gray-500">
-                              {labTest.name?.code}
+                              <div className="">
+                                <p className="font-medium text-gray-900">
+                                  {labTest.name?.name}
+                                </p>
+                                <p className="text-[10px]  text-gray-500">Code : {labTest.name?.code}</p>
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell className="py-4">
@@ -716,7 +711,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                               )}
                             </div>
                           </TableCell>
-                          <TableCell className="pr-6 py-4 text-right">
+                          <TableCell className="pr-6 py-4">
                             <div className="flex flex-col items-end gap-0.5">
                               <span className="text-sm font-medium text-gray-700">
                                 {labTest.name?.unit}

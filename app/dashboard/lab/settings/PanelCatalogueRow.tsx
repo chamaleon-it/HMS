@@ -86,7 +86,7 @@ export default function PanelCatalogueRow({
     onRemoveTests,
     panelMutate,
 }: {
-    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; };
+    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; specimen?: string; method?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; };
     idx: number;
     tests: any[];
     onAddTests: () => void;
@@ -94,9 +94,9 @@ export default function PanelCatalogueRow({
     panelMutate: () => void;
 }) {
 
-    console.log(panel)
 
     const initialPanelTests = panel.tests?.length ? panel.tests : tests.filter(t => t.panels?.some((p: any) => p.name === panel.name));
+
 
     const [editOpen, setEditOpen] = useState(false);
     const [viewOpen, setViewOpen] = useState(false);
@@ -109,6 +109,8 @@ export default function PanelCatalogueRow({
         price: number;
         estimatedTime: number;
         mainHeading: string;
+        specimen: string;
+        method: string;
         subheadings: string[];
         testSubheadings: Record<string, string>;
     }>({
@@ -116,6 +118,8 @@ export default function PanelCatalogueRow({
         price: panel.price,
         estimatedTime: panel.estimatedTime || 0,
         mainHeading: panel.mainHeading ?? "",
+        specimen: panel.specimen ?? "",
+        method: panel.method ?? "",
         subheadings: panel.subheadings || [],
         testSubheadings: panel.testSubheadings || {}
     });
@@ -169,6 +173,8 @@ export default function PanelCatalogueRow({
                 price: panel.price,
                 estimatedTime: panel.estimatedTime || 0,
                 mainHeading: panel.mainHeading ?? "",
+                specimen: panel.specimen ?? "",
+                method: panel.method ?? "",
                 subheadings: panel.subheadings || [],
                 testSubheadings: panel.testSubheadings || {}
             });
@@ -226,14 +232,22 @@ export default function PanelCatalogueRow({
 
 
     const formatRange = (t: any) => {
-        const ranges = [];
-        if (t.min !== null || t.max !== null) ranges.push(`N: ${t.min || 0}-${t.max || 0}`);
-        if (t.womenMin !== null || t.womenMax !== null) ranges.push(`F: ${t.womenMin || 0}-${t.womenMax || 0}`);
-        if (t.childMin !== null || t.childMax !== null) ranges.push(`C: ${t.childMin || 0}-${t.childMax || 0}`);
-        if (t.nbMin !== null || t.nbMax !== null) ranges.push(`NB: ${t.nbMin || 0}-${t.nbMax || 0}`);
+
+        const range = t.range as { name?: string, fromAge?: number, toAge?: number, gender?: string, min?: number, max?: number }[]
+        if (!range) return "N/A"
+
+        const ranges = range.map(r => {
+            const ageStr = (r.fromAge || r.toAge) ? `${r.fromAge || 0}-${r.toAge || 0}` : ""
+            const genderStr = r.gender ? r.gender === "Male" ? "M" : r.gender === "Female" ? "F" : r.gender : ""
+            const nameStr = r.name ? r.name : ""
+            const valStr = `${r.min || 0}-${r.max || 0}`
+
+            return [nameStr, ageStr, genderStr, valStr].filter(Boolean).join(" ")
+        })
 
         return ranges.length > 0 ? ranges.join(' | ') : 'N/A';
     }
+
 
     return (
         <TableRow onContextMenu={(e) => { e.preventDefault(); setViewOpen(true); }} className="cursor-context-menu">
@@ -241,6 +255,8 @@ export default function PanelCatalogueRow({
             <TableCell className="font-medium">{panel.name}</TableCell>
             <TableCell>{formatINR(panel.price)}</TableCell>
             <TableCell>{panel.estimatedTime ? `${panel.estimatedTime} Minutes` : "N/A"}</TableCell>
+            <TableCell className='uppercase'>{panel.method || "-"}</TableCell>
+            <TableCell className='uppercase'>{panel.specimen || "-"}</TableCell>
             <TableCell align="left">
                 <div className="flex gap-1 items-center justify-end">
 
@@ -287,7 +303,7 @@ export default function PanelCatalogueRow({
                                             <TableBody>
                                                 {initialPanelTests.length > 0 ? initialPanelTests.map(t => (
                                                     <TableRow key={t._id}>
-                                                        <TableCell className="font-medium text-xs">{t.name} <span className="text-slate-400">({t.code})</span></TableCell>
+                                                        <TableCell className="font-medium text-xs">{t.name} <span className="text-slate-400 text-[10px]">({t.code})</span></TableCell>
                                                         <TableCell className="text-xs">{t.unit || 'N/A'}</TableCell>
                                                         <TableCell className="text-slate-500 text-xs">{formatRange(t)}</TableCell>
                                                     </TableRow>
@@ -342,7 +358,7 @@ export default function PanelCatalogueRow({
                                         <Label htmlFor={`panel-eta-${idx}`}>ETA (Minutes)</Label>
                                         <Input id={`panel-eta-${idx}`} type="number" value={payload.estimatedTime} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
                                     </div>
-                                    <div className="space-y-2 col-span-2">
+                                    <div className="space-y-2 col-span-1">
                                         <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report)</span></Label>
                                         <Input
                                             id={`panel-main-heading-${idx}`}
@@ -350,6 +366,14 @@ export default function PanelCatalogueRow({
                                             value={payload.mainHeading}
                                             onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
                                         />
+                                    </div>
+                                    <div className="space-y-2 col-span-1">
+                                        <Label htmlFor={`panel-method-${idx}`}>Method <span className="text-slate-500 font-normal">(Optional)</span></Label>
+                                        <Input id={`panel-method-${idx}`} type="text" value={payload.method} onChange={(e) => setPayload({ ...payload, method: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2 col-span-1">
+                                        <Label htmlFor={`panel-specimen-${idx}`}>Specimen Type <span className="text-slate-500 font-normal">(Optional)</span></Label>
+                                        <Input id={`panel-specimen-${idx}`} type="text" value={payload.specimen} onChange={(e) => setPayload({ ...payload, specimen: e.target.value })} />
                                     </div>
                                 </div>
 

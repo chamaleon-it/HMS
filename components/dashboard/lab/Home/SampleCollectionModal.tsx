@@ -41,6 +41,8 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
     const [samples, setSamples] = useState<{ id: string; specimen: string }[]>([{ id: getNewId(), specimen: "Blood" }]);
     const [loading, setLoading] = useState(false);
 
+    const [sampleType, setSampleType] = useState("")
+
     const defaultSpecimens = ["Blood", "Urine", "Stool", "Sputum", "Saliva", "Swab", "Semen"];
     const [specimenOptions, setSpecimenOptions] = useState<string[]>(defaultSpecimens);
 
@@ -76,7 +78,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
         setLoading(true);
 
         try {
-            // First pass: Verify none of these Sample IDs exist globally today (UI-side check using existing endpoints)
+
             try {
                 const checkRes = await api.get('/lab/report');
                 const allReports = checkRes.data?.data || [];
@@ -115,7 +117,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
             }).join(", ");
 
             await toast.promise(
-                api.post(`lab/report/sample_collected/${reportId}`, { sampleId: finalSampleId }),
+                api.post(`lab/report/sample_collected/${reportId}`, { sampleId: finalSampleId, sampleType }),
                 {
                     loading: "Processing...",
                     success: "Sample Collected Successfully",
@@ -164,14 +166,29 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                     </div>
                 </DialogHeader>
 
-                <div className="py-4">
-                    <div className="border rounded-md" style={{ overflow: "visible" }}>
+                <div className="py-4 space-y-4">
+                    {/* <div className="grid gap-2">
+                        <Label htmlFor="sample-type" className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">
+                            Sample Type
+                        </Label>
+                        <Input
+                            id="sample-type"
+                            type="text"
+                            placeholder="Sample Type"
+                            className="h-11 rounded-xl border-slate-200 bg-slate-50/50 px-4 text-sm focus-visible:ring-blue-500/30 focus-visible:border-blue-500 transition-all duration-200"
+                            value={sampleType}
+                            onChange={(e) => setSampleType(e.target.value)}
+                        />
+                    </div> */}
+
+                    <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm" style={{ overflow: "visible" }}>
                         <table className="w-full text-sm text-left border-collapse" style={{ overflow: "visible" }}>
                             <thead className="bg-gray-50 text-gray-700 uppercase text-xs">
                                 <tr>
                                     <th className="px-4 py-3 font-medium w-12 text-center border-b">Sl No.</th>
                                     <th className="px-4 py-3 font-medium border-b">Sample ID</th>
                                     <th className="px-4 py-3 font-medium border-b">Specimen</th>
+
                                     <th className="px-4 py-3 font-medium w-16 text-center border-b">Action</th>
                                 </tr>
                             </thead>
@@ -250,6 +267,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                                                 autoFocus={index === 0}
                                             />
                                         </td>
+
                                         <td className="px-4 py-3">
                                             <div className="w-[200px] z-10">
                                                 <LabeledCombobox

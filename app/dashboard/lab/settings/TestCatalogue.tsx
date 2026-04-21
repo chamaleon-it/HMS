@@ -214,6 +214,8 @@ export default function TestCatalogue({
     code: string;
     name: string;
     price: number;
+    method: string;
+    specimen: string | null | undefined;
     type: "Lab" | "Imaging" | "";
     unit: string | null | undefined;
     estimatedTime?: string;
@@ -234,6 +236,8 @@ export default function TestCatalogue({
     code: "",
     name: "",
     price: 0,
+    method: "",
+    specimen: null,
     type: "",
     dataType: "number",
     unit: null,
@@ -296,7 +300,6 @@ export default function TestCatalogue({
         finalPayload.estimatedTime = (hours * 60 + minutes) as any;
       }
 
-      console.log(finalPayload);
 
       await toast.promise(api.post("/lab/panels/create_test", finalPayload), {
         loading: "Adding test...",
@@ -310,6 +313,8 @@ export default function TestCatalogue({
         code: "",
         name: "",
         price: 0,
+        method: "",
+        specimen: null,
         type: "",
         dataType: "number",
         unit: null,
@@ -344,6 +349,8 @@ export default function TestCatalogue({
       _id: string;
       code: string;
       name: string;
+      method: string;
+      specimen: string;
       type: "Lab" | "Imaging";
       dataType: "number" | "text" | "boolean"
       price: number;
@@ -397,7 +404,7 @@ export default function TestCatalogue({
               <div className="mt-2 grid gap-4">
                 <div className="grid grid-cols-12 gap-4">
 
-                  <div className="col-span-4 space-y-1.5">
+                  <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Test Name *</Label>
                     <Input
                       placeholder="e.g. Complete Blood Count"
@@ -409,7 +416,7 @@ export default function TestCatalogue({
                     />
                   </div>
 
-                  <div className="col-span-3 space-y-1.5">
+                  <div className="col-span-2 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Test Code</Label>
                     <Input
                       type="text"
@@ -422,15 +429,40 @@ export default function TestCatalogue({
                     />
                   </div>
 
-                  <div className="col-span-3 space-y-1.5">
+                  <div className="col-span-2 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Price</Label>
                     <Input
                       placeholder="e.g. 100"
                       value={newTest.price || ""}
-                      onFocus={(e) => e.target.placeholder = ""}
-                      onBlur={(e) => e.target.placeholder = "e.g. 100"}
+
                       onChange={(e) =>
                         setNewTest((prev) => ({ ...prev, price: Number(e.target.value) }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
+
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Method</Label>
+                    <Input
+                      placeholder="e.g. Impedance"
+                      value={newTest.method || ""}
+
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, method: e.target.value }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
+
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Specimen</Label>
+                    <Input
+                      placeholder="e.g. Blood"
+                      value={newTest.specimen || ""}
+
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, specimen: e.target.value }))
                       }
                       className="h-9 bg-slate-50"
                     />
@@ -753,6 +785,8 @@ export default function TestCatalogue({
                     <TableHead>ETA (Minutes)</TableHead>
                     <TableHead>Panels</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Method</TableHead>
+                    <TableHead>Specimen</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -831,7 +865,9 @@ export default function TestCatalogue({
                       <TableHead>SL</TableHead>
                       <TableHead>Name</TableHead>
                       <TableHead>Price</TableHead>
-                      <TableHead>Estimated Time</TableHead>
+                      <TableHead>ETA (Minutes)</TableHead>
+                      <TableHead>Method</TableHead>
+                      <TableHead>Specimen</TableHead>
                       <TableHead align="right" className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -839,7 +875,7 @@ export default function TestCatalogue({
 
                     {filteredPanels.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={5} className="text-center py-8 text-slate-500 text-xs">
+                        <TableCell colSpan={7} className="text-center py-8 text-slate-500 text-xs">
                           {panelSearchQuery ? "No panels found matching search criteria." : "No panels configured yet. Add one above."}
                         </TableCell>
                       </TableRow>
@@ -1006,6 +1042,8 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     price: number;
     estimatedTime: number;
     mainHeading: string;
+    method: string;
+    specimen: string;
     subheadings: string[];
     testSubheadings: Record<string, string>;
   }>({
@@ -1013,6 +1051,8 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     price: 0,
     estimatedTime: 0,
     mainHeading: "",
+    method: "",
+    specimen: "",
     subheadings: [],
     testSubheadings: {},
   });
@@ -1092,6 +1132,8 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         price: 0,
         estimatedTime: 0,
         mainHeading: "",
+        specimen: "",
+        method: "",
         subheadings: [],
         testSubheadings: {},
       });
@@ -1119,14 +1161,22 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
           <Label htmlFor="add-panel-eta">ETA (Minutes)</Label>
           <Input id="add-panel-eta" type="number" placeholder="e.g. 60" value={payload.estimatedTime || ""} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
         </div>
-        <div className="space-y-2 col-span-2">
+        <div className="space-y-2">
           <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report)</span></Label>
-            <Input
-              id="add-panel-main-heading"
-              placeholder="e.g. Haematology"
-              value={payload.mainHeading}
-              onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
-            />
+          <Input
+            id="add-panel-main-heading"
+            placeholder="e.g. Haematology"
+            value={payload.mainHeading}
+            onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="add-panel-method">Method <span className="text-slate-500 font-normal">(Optional)</span></Label>
+          <Input id="add-panel-method" type="text" placeholder="" value={payload.method} onChange={(e) => setPayload({ ...payload, method: e.target.value })} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="add-panel-specimen">Specimen Type <span className="text-slate-500 font-normal">(Optional)</span></Label>
+          <Input id="add-panel-specimen" type="text" placeholder="" value={payload.specimen} onChange={(e) => setPayload({ ...payload, specimen: e.target.value })} />
         </div>
       </div>
 

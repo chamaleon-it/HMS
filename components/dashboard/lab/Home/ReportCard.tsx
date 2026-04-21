@@ -6,10 +6,11 @@ import HospitalName from "@/components/print/HospitalName";
 
 interface ReportCardProps {
     report: any | null;
-    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[] }[];
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string }[];
 }
 
 export default function ReportCard({ report, panels }: ReportCardProps) {
+
 
     const [mounted, setMounted] = useState(false);
 
@@ -276,7 +277,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                             {isFirstPage && (
                                 <div className="relative w-full bg-white text-black flex flex-col pt-0 break-inside-avoid">
                                     {/* Content Wrapper */}
-                                    <div className="w-full relative flex justify-between items-start pt-1 pb-1.25 px-10">
+                                    <div className="w-full relative flex justify-between items-start pt-5 pb-1.25 px-10">
                                         <div className="relative z-10 w-[60%]">
                                             <HospitalName />
                                         </div>
@@ -318,7 +319,6 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Name</span><span className="font-bold text-black uppercase">: {patient?.name || "—"}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "—"} / ${patient?.gender || "—"}`}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Ref. By.</span><span className="font-bold text-black">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
-                                                {/* <div className="flex gap-2"><span className="w-20 text-black font-bold">Ref. By.</span><span className="font-bold text-black">: Dr. Nader Shah</span></div> */}
                                             </div>
                                             <div className="space-y-1">
                                                 <div className="flex gap-2"><span className="w-35 text-black font-medium">Report No</span><span className="font-bold text-black">: {String(report.mrn).padStart(4, "0")}</span></div>
@@ -334,11 +334,10 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                 {(() => {
                                     const firstRow = pageRows[0];
                                     const activePanelId = firstRow?.activePanel || firstRow?.name;
-                                    const activePanelConfig = panels?.find(p => p.name === activePanelId);
+                                    const activePanelConfig = panels?.find(p => p?.name === activePanelId);
 
-                                    const headingText = activePanelConfig?.mainHeading || activePanelId || "Biochemistry";
-
-                                    return pageIdx === 0 ? (
+                                    const headingText = activePanelConfig?.mainHeading || "Biochemistry";
+                                    return pageIdx === 0 && Boolean(headingText) ? (
                                         <div className="w-full text-center pb-2 pt-1">
                                             <p className="font-bold text-black text-[17px] uppercase">
                                                 {headingText}
@@ -386,6 +385,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                 <col className="col-note" />
                                             </colgroup>
                                             <tbody>
+
+
                                                 {(() => {
                                                     return pageRows.map((row, rowIdx) => {
                                                         if (row.type === "PANEL") {
@@ -405,10 +406,21 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                 globalSubheadingCount === 2 ? 'RBC Histogram. BMP' :
                                                                     globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
 
+                                                            const panel = panels?.find((p: any) => p.name === row.activePanel)
+
+                                                            const panelMethod = panel?.method
+                                                            const panelSpecimen = panel?.specimen
+                                                            const subheadings = panel?.subheadings ?? []
+
+
+
                                                             return (
                                                                 <tr key={`subheading-${rowIdx}`}>
                                                                     <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <p className="font-semibold text-black text-[13px]">{row.name}</p>
+                                                                        {subheadings[0] === row.name && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                        {subheadings[0] === row.name && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
+
                                                                         {graphKey && pageHasCBC && (
                                                                             <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
                                                                                 <div className="flex flex-col pt-2">
@@ -452,7 +464,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                                 ? row.name?.name.toUpperCase()
                                                                                 : row.name?.name?.toLowerCase() || "Unknown test"}
                                                                         </p>
-                                                                        <p className="text-[9px] text-black pl-0">Method: {row.name?.method || "Erba Chem 6"}</p>
+                                                                        {!!row?.name?.method && <p className="text-[9px] text-black pl-0">Method: {row.name?.method}</p>}
+                                                                        {!!row?.name?.specimen && <p className="text-[9px] text-black pl-0">Specimen: {row.name?.specimen}</p>}
                                                                     </td>
                                                                     <td className="px-2 py-[2px] text-center text-[12px] leading-tight whitespace-nowrap">
                                                                         <span className={isAbnormal ? "font-bold" : "text-black"}>
@@ -504,23 +517,18 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                             <div className="bottom-grouping">
                                 {isLastPage && (
                                     <>
-                                        {/* <div className="border-2 border-black-light rounded-lg p-2 bg-slate-50 note-section mx-10">
-                                            <p className="font-bold text-[10px] uppercase text-black mb-1">Note</p>
-                                            <p className="text-black leading-relaxed font-bold italic text-[12px]">
-                                                {"The results should be correlated clinically."}
-                                            </p>
-                                        </div> */}
+
 
                                         <div className="flex justify-between signature-section pb-2 px-10 mt-2.5">
                                             <div className="text-center w-64">
-                                                {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
+
                                                 <p className="font-bold text-black uppercase leading-none text-[12px]">LAB IN-CHARGE</p>
                                                 <p className="text-[10px] font-bold text-black mt-1 uppercase">{report.technician || "LABORATORY"}</p>
                                             </div>
                                             <div className="text-center w-64">
-                                                {/* <div className="border-b-2 border-slate-900 mb-2 w-full"></div> */}
+
                                                 <p className="font-bold text-black uppercase leading-none  text-[12px]">LAB TECHNICIAN</p>
-                                                {/* <p className="text-[10px] font-bold text-black mt-1 uppercase ">{report.technician || "LABORATORY"}</p> */}
+
                                             </div>
                                         </div>
                                     </>

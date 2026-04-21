@@ -5,7 +5,7 @@ import useSWR from "swr";
 
 interface ReportCardModernProps {
     report: any | null;
-    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[] }[];
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string; }[];
 }
 
 const RangeBar = ({ min, max, value, markerColor }: { min: any, max: any, value: any, markerColor: string }) => {
@@ -325,15 +325,20 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                     if (row.type === "SUBHEADING") {
                                                         globalSubheadingCount++;
                                                         const graphKey = globalSubheadingCount === 1 ? 'WBC' : globalSubheadingCount === 2 ? 'RBC' : globalSubheadingCount === 3 ? 'PLT' : null;
-                                                        const fullGraphKey = globalSubheadingCount === 1 ? 'WBC Histogram. BMP' : 
-                                                                           globalSubheadingCount === 2 ? 'RBC Histogram. BMP' : 
-                                                                           globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
+                                                        const fullGraphKey = globalSubheadingCount === 1 ? 'WBC Histogram. BMP' :
+                                                            globalSubheadingCount === 2 ? 'RBC Histogram. BMP' :
+                                                                globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
+                                                        const panel = panels?.find((p: any) => p.name === row.activePanel)
 
+                                                        const panelMethod = panel?.method
+                                                        const panelSpecimen = panel?.specimen
+                                                        const subheadings = panel?.subheadings ?? []
                                                         return (
                                                             <tr key={`sub-${rowIdx}`}>
                                                                 <td colSpan={5} className="py-[10px] px-6 text-left relative">
                                                                     <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-widest underline underline-offset-[3px] decoration-slate-300">{row.name}</h3>
-                                                                    
+                                                                    {subheadings[0] === row.name && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                    {subheadings[0] === row.name && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
                                                                     {graphKey && pageHasCBC && (
                                                                         <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '30px', width: '240px' }}>
                                                                             <div className="flex flex-col pt-2">
@@ -379,9 +384,10 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
 
                                                     return (
                                                         <tr key={"test-" + rowIdx} className="">
-                                                            <td className="pt-[8px] px-6 text-left align-top border-b border-transparent">
+                                                            <td className="pt-[15px] px-6 text-left align-top border-b border-transparent">
                                                                 <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight capitalize">{row.name?.name ? /^[a-zA-Z]{3}$/.test(row.name?.name) ? row.name?.name.toUpperCase() : row.name?.name.toLowerCase() : "TEST"}</div>
-                                                                <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method || "Erba Chem 6"}</div>
+                                                                {row?.name?.method && <div className="text-[9px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method}</div>}
+                                                                {row?.name?.specimen && <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Specimen : {row.name?.specimen}</div>}
                                                             </td>
                                                             <td className="pt-[17px] px-2 text-left text-[12px] align-top">
                                                                 <span className="text-slate-800 font-medium">{row.value}</span>
@@ -397,8 +403,8 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                                 )}
                                                             </td>
                                                             <td className="pt-[13px] px-4 text-center align-top">
-                                                                <div className={`${pillClass} text-white text-[9.5px] uppercase font-extrabold h-6 px-[2px] mx-auto rounded-[6px] tracking-wide w-[78px] shadow-sm flex justify-center items-center`}>
-                                                                    {label}
+                                                                <div className={`${pillClass} text-white text-[9.5px] uppercase font-extrabold h-6 px-[2px] rounded-[6px] w-[78px] shadow-sm flex justify-center items-center`}>
+                                                                    <p>{label}</p>
                                                                 </div>
                                                             </td>
                                                         </tr>
