@@ -333,7 +333,7 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                             <tr key={`sub-${rowIdx}`}>
                                                                 <td colSpan={5} className="py-[10px] px-6 text-left relative">
                                                                     <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-widest underline underline-offset-[3px] decoration-slate-300">{row.name}</h3>
-                                                                    {panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                    {rowIdx === 0 && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
                                                                     {graphKey && pageHasCBC && (
                                                                         <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '30px', width: '240px' }}>
                                                                             <div className="flex flex-col pt-2">

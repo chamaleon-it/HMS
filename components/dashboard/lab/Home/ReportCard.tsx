@@ -412,7 +412,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                 <tr key={`subheading-${rowIdx}`}>
                                                                     <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <p className="font-semibold text-black text-[13px]">{row.name}</p>
-                                                                        {!!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                        {rowIdx === 0 && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
                                                                         {graphKey && pageHasCBC && (
                                                                             <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
                                                                                 <div className="flex flex-col pt-2">
