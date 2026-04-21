@@ -10,7 +10,7 @@ interface ReportCardProps {
 }
 
 export default function ReportCard({ report, panels }: ReportCardProps) {
-
+    const isCBCPanelIncluded = report?.panels?.includes("CBC") || false
 
     const [mounted, setMounted] = useState(false);
 
@@ -154,8 +154,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
       `}} />
 
             {(() => {
-                const FIRST_PAGE_LIMIT = 20;
-                const SUBSEQUENT_PAGE_LIMIT = 20;
+                const FIRST_PAGE_LIMIT = isCBCPanelIncluded ? 28 : 20;
+                const SUBSEQUENT_PAGE_LIMIT = isCBCPanelIncluded ? 20 : 20;
 
                 // 1. Prepare All Rows (Panel Headers + Tests)
                 const allRows: any[] = [];
@@ -407,19 +407,19 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                     globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
 
                                                             const panel = panels?.find((p: any) => p.name === row.activePanel)
-
                                                             const panelMethod = panel?.method
                                                             const panelSpecimen = panel?.specimen
                                                             const subheadings = panel?.subheadings ?? []
 
+                                                            console.log(panelMethod, panelSpecimen)
 
 
                                                             return (
                                                                 <tr key={`subheading-${rowIdx}`}>
                                                                     <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <p className="font-semibold text-black text-[13px]">{row.name}</p>
-                                                                        {subheadings[0] === row.name && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
-                                                                        {subheadings[0] === row.name && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
+                                                                        {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                        {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
 
                                                                         {graphKey && pageHasCBC && (
                                                                             <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
@@ -458,7 +458,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                             <React.Fragment key={`test-wrap-${rowIdx}`}>
 
                                                                 <tr key={`test-${rowIdx}`}>
-                                                                    <td className={`pl-2 pt-[12px] ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <td className={`pl-2 pt-[3px] ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <p className={`text-[12px]  text-black font-semibold pl-0 capitalize`}>
                                                                             {/^[a-zA-Z]{3}$/.test(row.name?.name)
                                                                                 ? row.name?.name.toUpperCase()
@@ -467,19 +467,19 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                         {!!row?.name?.method && <p className="text-[9px] text-black pl-0">Method: {row.name?.method}</p>}
                                                                         {!!row?.name?.specimen && <p className="text-[9px] text-black pl-0">Specimen: {row.name?.specimen}</p>}
                                                                     </td>
-                                                                    <td className="px-2 py-[2px] text-center text-[12px] leading-tight whitespace-nowrap">
+                                                                    <td className={`px-2 pt-[3px] text-center text-[10px] leading-tight whitespace-nowrap ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <span className={isAbnormal ? "font-bold" : "text-black"}>
                                                                             {row.value || " "}
                                                                         </span>
                                                                     </td>
-                                                                    <td className="px-2 py-[2px] text-center text-black text-[13px] font-medium leading-tight">
+                                                                    <td className={`px-2 pt-[3px] text-center text-black text-[13px] font-medium leading-tight ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
                                                                             <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
                                                                         ) : (
                                                                             " "
                                                                         )}
                                                                     </td>
-                                                                    <td className="px-2 py-[2px] text-[13px] font-semibold text-black">
+                                                                    <td className={`px-2 pt-[3px] text-[13px] font-semibold text-black ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         {row.name?.range && row.name.range.length > 0 ? (
                                                                             row.name.range.map((r: any, idx: number) => {
                                                                                 const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
@@ -496,7 +496,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                             })
                                                                         ) : "\u00A0"}
                                                                     </td>
-                                                                    <td className="px-2 py-[2px] text-[10px] text-black whitespace-pre-wrap">
+                                                                    <td className={`px-2 pt-[3px] text-[10px] text-black whitespace-pre-wrap ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         {row.name?.note}
                                                                     </td>
                                                                 </tr>
