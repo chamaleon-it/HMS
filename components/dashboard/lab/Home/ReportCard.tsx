@@ -406,13 +406,18 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                 globalSubheadingCount === 2 ? 'RBC Histogram. BMP' :
                                                                     globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
 
-                                                            const panelMethod = panels?.find((p: any) => p.name === row.activePanel)?.method
+                                                            const panel = panels?.find((p: any) => p.name === row.activePanel)
+
+                                                            const panelMethod = panel?.method
+                                                            const subheadings = panel?.subheadings ?? []
+
+
 
                                                             return (
                                                                 <tr key={`subheading-${rowIdx}`}>
                                                                     <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <p className="font-semibold text-black text-[13px]">{row.name}</p>
-                                                                        {rowIdx === 0 && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                        {subheadings[0] === row.name && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
                                                                         {graphKey && pageHasCBC && (
                                                                             <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
                                                                                 <div className="flex flex-col pt-2">
