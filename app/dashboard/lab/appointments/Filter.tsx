@@ -83,7 +83,7 @@ export default function Filter({
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 shrink-0">
             <DateFilter
               activeDate={activeDate}
               setActiveDate={setActiveDate}

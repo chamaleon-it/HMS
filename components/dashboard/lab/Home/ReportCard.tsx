@@ -6,7 +6,7 @@ import HospitalName from "@/components/print/HospitalName";
 
 interface ReportCardProps {
     report: any | null;
-    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[] }[];
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string }[];
 }
 
 export default function ReportCard({ report, panels }: ReportCardProps) {
@@ -385,26 +385,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                 <col className="col-note" />
                                             </colgroup>
                                             <tbody>
-                                                {report.sampleType && <tr key={``} className="pt-[12px] pl-2">
-                                                    <td className={`pl-2 pt-[12px] `}>
-                                                        <p className={`text-[12px]  text-black font-semibold pl-0 capitalize`}>
-                                                            Sample Type
-                                                        </p>
-                                                    </td>
 
-                                                    <td className="px-2 pt-[12px] text-center text-[12px] leading-tight whitespace-nowrap">
-                                                        {report.sampleType}
-                                                    </td>
-                                                    <td className="px-2 pt-[12px] text-center text-black text-[13px] font-medium leading-tight">
-
-                                                    </td>
-                                                    <td className="px-2 pt-[12px] text-[13px] font-semibold text-black">
-
-                                                    </td>
-                                                    <td className="px-2 pt-[12px] text-[10px] text-black whitespace-pre-wrap">
-
-                                                    </td>
-                                                </tr>}
 
                                                 {(() => {
                                                     return pageRows.map((row, rowIdx) => {
@@ -425,10 +406,13 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                 globalSubheadingCount === 2 ? 'RBC Histogram. BMP' :
                                                                     globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
 
+                                                            const panelMethod = panels?.find((p: any) => p.name === row.activePanel)?.method
+
                                                             return (
                                                                 <tr key={`subheading-${rowIdx}`}>
                                                                     <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <p className="font-semibold text-black text-[13px]">{row.name}</p>
+                                                                        {!!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
                                                                         {graphKey && pageHasCBC && (
                                                                             <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
                                                                                 <div className="flex flex-col pt-2">
@@ -473,6 +457,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                                 : row.name?.name?.toLowerCase() || "Unknown test"}
                                                                         </p>
                                                                         {!!row?.name?.method && <p className="text-[9px] text-black pl-0">Method: {row.name?.method}</p>}
+                                                                        {!!row?.name?.specimen && <p className="text-[9px] text-black pl-0">Specimen: {row.name?.specimen}</p>}
                                                                     </td>
                                                                     <td className="px-2 py-[2px] text-center text-[12px] leading-tight whitespace-nowrap">
                                                                         <span className={isAbnormal ? "font-bold" : "text-black"}>

@@ -35,6 +35,7 @@ export default function TestCatalogueRow({
         name: string;
         price: number;
         method: string;
+        specimen: string;
         type: "Lab" | "Imaging";
         unit?: string;
         range?: {
@@ -66,6 +67,7 @@ export default function TestCatalogueRow({
         type: "Lab" | "Imaging";
         price: number;
         method: string
+        specimen: string
         panel: { name: string }[];
         unit: string | null | undefined;
         range: {
@@ -88,6 +90,7 @@ export default function TestCatalogueRow({
         type: test.type,
         price: test.price,
         method: test.method,
+        specimen: test.specimen,
         panel: test.panels,
         unit: test.unit,
         range: test.range?.length ? test.range : [{
@@ -110,6 +113,7 @@ export default function TestCatalogueRow({
                 type: test.type,
                 price: test.price,
                 method: test.method,
+                specimen: test.specimen,
                 panel: test.panels,
                 unit: test.unit,
                 range: test.range?.length ? test.range : [{
@@ -253,6 +257,9 @@ export default function TestCatalogueRow({
             <TableCell className="text-slate-500 text-sm max-w-48 whitespace-break-spaces">
                 {test.method ?? "-"}
             </TableCell>
+            <TableCell className="text-slate-500 text-sm max-w-48 whitespace-break-spaces">
+                {test.specimen ?? "-"}
+            </TableCell>
             <TableCell className="text-right">
                 <div className="flex flex-row items-center justify-end">
                     <Dialog open={viewOpen} onOpenChange={setViewOpen}>
@@ -392,7 +399,7 @@ export default function TestCatalogueRow({
                                         />
                                     </div>
 
-                                    <div className="col-span-3 space-y-1.5">
+                                    <div className="col-span-2 space-y-1.5">
                                         <Label className="text-xs font-medium text-slate-700">Test Code *</Label>
                                         <Input
                                             type="text"
@@ -402,7 +409,7 @@ export default function TestCatalogueRow({
                                         />
                                     </div>
 
-                                    <div className="col-span-3 space-y-1.5">
+                                    <div className="col-span-2 space-y-1.5">
                                         <Label className="text-xs font-medium text-slate-700">Price *</Label>
                                         <Input
                                             type="number"
@@ -415,9 +422,21 @@ export default function TestCatalogueRow({
                                     <div className="col-span-3 space-y-1.5">
                                         <Label className="text-xs font-medium text-slate-700">Method</Label>
                                         <Input
+                                            placeholder='e.g. Impedance'
                                             type="text"
                                             defaultValue={test.method}
                                             onChange={(e) => setPayload({ ...payload, method: e.target.value })}
+                                            className="h-9 bg-slate-50"
+                                        />
+                                    </div>
+
+                                    <div className="col-span-2 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Specimen</Label>
+                                        <Input
+                                            type="text"
+                                            placeholder='e.g. Blood'
+                                            defaultValue={test.specimen}
+                                            onChange={(e) => setPayload({ ...payload, specimen: e.target.value })}
                                             className="h-9 bg-slate-50"
                                         />
                                     </div>

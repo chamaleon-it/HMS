@@ -215,6 +215,7 @@ export default function TestCatalogue({
     name: string;
     price: number;
     method: string;
+    specimen: string | null | undefined;
     type: "Lab" | "Imaging" | "";
     unit: string | null | undefined;
     estimatedTime?: string;
@@ -236,6 +237,7 @@ export default function TestCatalogue({
     name: "",
     price: 0,
     method: "",
+    specimen: null,
     type: "",
     dataType: "number",
     unit: null,
@@ -298,7 +300,6 @@ export default function TestCatalogue({
         finalPayload.estimatedTime = (hours * 60 + minutes) as any;
       }
 
-      console.log(finalPayload);
 
       await toast.promise(api.post("/lab/panels/create_test", finalPayload), {
         loading: "Adding test...",
@@ -313,6 +314,7 @@ export default function TestCatalogue({
         name: "",
         price: 0,
         method: "",
+        specimen: null,
         type: "",
         dataType: "number",
         unit: null,
@@ -348,6 +350,7 @@ export default function TestCatalogue({
       code: string;
       name: string;
       method: string;
+      specimen: string;
       type: "Lab" | "Imaging";
       dataType: "number" | "text" | "boolean"
       price: number;
@@ -413,7 +416,7 @@ export default function TestCatalogue({
                     />
                   </div>
 
-                  <div className="col-span-3 space-y-1.5">
+                  <div className="col-span-2 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Test Code</Label>
                     <Input
                       type="text"
@@ -426,7 +429,7 @@ export default function TestCatalogue({
                     />
                   </div>
 
-                  <div className="col-span-3 space-y-1.5">
+                  <div className="col-span-2 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Price</Label>
                     <Input
                       placeholder="e.g. 100"
@@ -442,11 +445,24 @@ export default function TestCatalogue({
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Method</Label>
                     <Input
-                      placeholder="e.g. 100"
+                      placeholder="e.g. Impedance"
                       value={newTest.method || ""}
 
                       onChange={(e) =>
                         setNewTest((prev) => ({ ...prev, method: e.target.value }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
+                  </div>
+
+                  <div className="col-span-2 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Specimen</Label>
+                    <Input
+                      placeholder="e.g. Blood"
+                      value={newTest.specimen || ""}
+
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, specimen: e.target.value }))
                       }
                       className="h-9 bg-slate-50"
                     />
@@ -770,6 +786,7 @@ export default function TestCatalogue({
                     <TableHead>Panels</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Method</TableHead>
+                    <TableHead>Specimen</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -849,6 +866,7 @@ export default function TestCatalogue({
                       <TableHead>Name</TableHead>
                       <TableHead>Price</TableHead>
                       <TableHead>Estimated Time</TableHead>
+                      <TableHead>Method</TableHead>
                       <TableHead align="right" className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1023,6 +1041,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     price: number;
     estimatedTime: number;
     mainHeading: string;
+    method: string;
     subheadings: string[];
     testSubheadings: Record<string, string>;
   }>({
@@ -1030,6 +1049,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     price: 0,
     estimatedTime: 0,
     mainHeading: "",
+    method: "",
     subheadings: [],
     testSubheadings: {},
   });
@@ -1109,6 +1129,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         price: 0,
         estimatedTime: 0,
         mainHeading: "",
+        method: "",
         subheadings: [],
         testSubheadings: {},
       });
@@ -1144,6 +1165,10 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
             value={payload.mainHeading}
             onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
           />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="add-panel-method">Method <span className="text-slate-500 font-normal">(Optional)</span></Label>
+          <Input id="add-panel-method" type="text" placeholder="" value={payload.method} onChange={(e) => setPayload({ ...payload, method: e.target.value })} />
         </div>
       </div>
 

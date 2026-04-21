@@ -167,7 +167,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                 </DialogHeader>
 
                 <div className="py-4 space-y-4">
-                    <div className="grid gap-2">
+                    {/* <div className="grid gap-2">
                         <Label htmlFor="sample-type" className="text-[11px] font-bold text-slate-500 uppercase tracking-wider ml-1">
                             Sample Type
                         </Label>
@@ -179,7 +179,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                             value={sampleType}
                             onChange={(e) => setSampleType(e.target.value)}
                         />
-                    </div>
+                    </div> */}
 
                     <div className="border border-slate-100 rounded-2xl overflow-hidden shadow-sm" style={{ overflow: "visible" }}>
                         <table className="w-full text-sm text-left border-collapse" style={{ overflow: "visible" }}>
