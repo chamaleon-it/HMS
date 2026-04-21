@@ -6,7 +6,7 @@ import HospitalName from "@/components/print/HospitalName";
 
 interface ReportCardProps {
     report: any | null;
-    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string }[];
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string }[];
 }
 
 export default function ReportCard({ report, panels }: ReportCardProps) {
@@ -409,6 +409,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                             const panel = panels?.find((p: any) => p.name === row.activePanel)
 
                                                             const panelMethod = panel?.method
+                                                            const panelSpecimen = panel?.specimen
                                                             const subheadings = panel?.subheadings ?? []
 
 
@@ -418,6 +419,8 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                     <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <p className="font-semibold text-black text-[13px]">{row.name}</p>
                                                                         {subheadings[0] === row.name && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                        {subheadings[0] === row.name && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
+
                                                                         {graphKey && pageHasCBC && (
                                                                             <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
                                                                                 <div className="flex flex-col pt-2">

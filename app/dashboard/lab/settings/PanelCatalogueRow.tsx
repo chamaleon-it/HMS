@@ -86,7 +86,7 @@ export default function PanelCatalogueRow({
     onRemoveTests,
     panelMutate,
 }: {
-    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; method?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; };
+    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; specimen?: string; method?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; };
     idx: number;
     tests: any[];
     onAddTests: () => void;
@@ -109,6 +109,7 @@ export default function PanelCatalogueRow({
         price: number;
         estimatedTime: number;
         mainHeading: string;
+        specimen: string;
         method: string;
         subheadings: string[];
         testSubheadings: Record<string, string>;
@@ -117,6 +118,7 @@ export default function PanelCatalogueRow({
         price: panel.price,
         estimatedTime: panel.estimatedTime || 0,
         mainHeading: panel.mainHeading ?? "",
+        specimen: panel.specimen ?? "",
         method: panel.method ?? "",
         subheadings: panel.subheadings || [],
         testSubheadings: panel.testSubheadings || {}
@@ -171,6 +173,7 @@ export default function PanelCatalogueRow({
                 price: panel.price,
                 estimatedTime: panel.estimatedTime || 0,
                 mainHeading: panel.mainHeading ?? "",
+                specimen: panel.specimen ?? "",
                 method: panel.method ?? "",
                 subheadings: panel.subheadings || [],
                 testSubheadings: panel.testSubheadings || {}
@@ -253,6 +256,7 @@ export default function PanelCatalogueRow({
             <TableCell>{formatINR(panel.price)}</TableCell>
             <TableCell>{panel.estimatedTime ? `${panel.estimatedTime} Minutes` : "N/A"}</TableCell>
             <TableCell className='uppercase'>{panel.method || "-"}</TableCell>
+            <TableCell className='uppercase'>{panel.specimen || "-"}</TableCell>
             <TableCell align="left">
                 <div className="flex gap-1 items-center justify-end">
 
@@ -354,7 +358,7 @@ export default function PanelCatalogueRow({
                                         <Label htmlFor={`panel-eta-${idx}`}>ETA (Minutes)</Label>
                                         <Input id={`panel-eta-${idx}`} type="number" value={payload.estimatedTime} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
                                     </div>
-                                    <div className="space-y-2 col-span-2">
+                                    <div className="space-y-2 col-span-1">
                                         <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report)</span></Label>
                                         <Input
                                             id={`panel-main-heading-${idx}`}
@@ -366,6 +370,10 @@ export default function PanelCatalogueRow({
                                     <div className="space-y-2 col-span-1">
                                         <Label htmlFor={`panel-method-${idx}`}>Method <span className="text-slate-500 font-normal">(Optional)</span></Label>
                                         <Input id={`panel-method-${idx}`} type="text" value={payload.method} onChange={(e) => setPayload({ ...payload, method: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2 col-span-1">
+                                        <Label htmlFor={`panel-specimen-${idx}`}>Specimen Type <span className="text-slate-500 font-normal">(Optional)</span></Label>
+                                        <Input id={`panel-specimen-${idx}`} type="text" value={payload.specimen} onChange={(e) => setPayload({ ...payload, specimen: e.target.value })} />
                                     </div>
                                 </div>
 

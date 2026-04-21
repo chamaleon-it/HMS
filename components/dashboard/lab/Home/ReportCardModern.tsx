@@ -5,7 +5,7 @@ import useSWR from "swr";
 
 interface ReportCardModernProps {
     report: any | null;
-    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string }[];
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string; }[];
 }
 
 const RangeBar = ({ min, max, value, markerColor }: { min: any, max: any, value: any, markerColor: string }) => {
@@ -331,12 +331,14 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                                                         const panel = panels?.find((p: any) => p.name === row.activePanel)
 
                                                         const panelMethod = panel?.method
+                                                        const panelSpecimen = panel?.specimen
                                                         const subheadings = panel?.subheadings ?? []
                                                         return (
                                                             <tr key={`sub-${rowIdx}`}>
                                                                 <td colSpan={5} className="py-[10px] px-6 text-left relative">
                                                                     <h3 className="text-[12px] font-extrabold text-slate-800 uppercase tracking-widest underline underline-offset-[3px] decoration-slate-300">{row.name}</h3>
                                                                     {subheadings[0] === row.name && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                    {subheadings[0] === row.name && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
                                                                     {graphKey && pageHasCBC && (
                                                                         <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '30px', width: '240px' }}>
                                                                             <div className="flex flex-col pt-2">
