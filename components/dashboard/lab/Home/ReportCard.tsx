@@ -277,7 +277,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                             {isFirstPage && (
                                 <div className="relative w-full bg-white text-black flex flex-col pt-0 break-inside-avoid">
                                     {/* Content Wrapper */}
-                                    <div className="w-full relative flex justify-between items-start pt-1 pb-1.25 px-10">
+                                    <div className="w-full relative flex justify-between items-start pt-5 pb-1.25 px-10">
                                         <div className="relative z-10 w-[60%]">
                                             <HospitalName />
                                         </div>
