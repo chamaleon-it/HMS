@@ -55,7 +55,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     const searchParams = new URLSearchParams(window.location.search);
     searchParams.set("windowName", windowName);
     const url = `/dashboard/pharmacy/new-order?${searchParams.toString()}`;
-    const features = "width=1200,height=900,scrollbars=yes,resizable=yes";
+    const features = "width=1200,height=900,scrollbars=yes,resizable=yes,alwaysOnTop=yes";
     const win = window.open(url, windowName, features);
     if (win) {
       draftManager.addDraft(win, "Empty Draft");
@@ -82,7 +82,10 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       <Button
         className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg active:scale-95"
         size={"sm"}
-        onClick={openNewOrderWindow}
+        onClick={() => {
+          openNewOrderWindow();
+          draftManager.bringToFront();
+        }}
       >
         New Order
       </Button>
@@ -98,8 +101,13 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
               setOpenCreate(false);
               // After registering, we could potentially open the New Order window for this patient
               if (id) {
+                const windowName = `newOrder_${Date.now()}`;
                 const url = `/dashboard/pharmacy/new-order?id=${id}&name=${name}&mrn=`; // Simplified
-                window.open(url, `newOrder_${Date.now()}`, "width=1200,height=900,scrollbars=yes,resizable=yes");
+                const win = window.open(url, windowName, "width=1200,height=900,scrollbars=yes,resizable=yes,alwaysOnTop=yes");
+                if (win) {
+                  draftManager.addDraft(win, name || "New Order");
+                  draftManager.bringToFront();
+                }
               }
               setNameToRegister("");
             }} 

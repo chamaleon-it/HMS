@@ -15,12 +15,30 @@ const notify = () => {
   listeners.forEach(l => l([...activeDrafts]));
 };
 
-// Periodically prune
+// Periodically prune and ensure "always on top" behavior
 if (typeof window !== 'undefined') {
   setInterval(notify, 2000);
+
+
+  window.addEventListener('focus', () => draftManager.bringToFront());
+  window.addEventListener('click', () => draftManager.bringToFront());
 }
 
 export const draftManager = {
+  bringToFront: () => {
+    if (typeof window === 'undefined' || window.opener || activeDrafts.length === 0) return;
+
+    // Use a small timeout to allow the browser to finish its own focus handling
+    setTimeout(() => {
+      activeDrafts.forEach(d => {
+        if (d.win && !d.win.closed) {
+          try {
+            d.win.focus();
+          } catch (e) {}
+        }
+      });
+    }, 50);
+  },
   addDraft: (win: Window, label: string = "Empty Draft") => {
     const id = `draft_${Date.now()}`;
     activeDrafts.push({ id, win, label });

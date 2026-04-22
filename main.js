@@ -35,6 +35,24 @@ async function createWindow() {
         `http://localhost:${port}`;
 
     mainWindow.loadURL(startUrl);
+
+    // Handle child windows for pharmacy orders to ensure they stay on top
+    mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+        if (url.includes('/dashboard/pharmacy/new-order')) {
+            return {
+                action: 'allow',
+                overrideBrowserWindowOptions: {
+                    alwaysOnTop: true,
+                    // Keep the same webPreferences as main window
+                    webPreferences: {
+                        nodeIntegration: true,
+                        contextIsolation: false
+                    }
+                }
+            };
+        }
+        return { action: 'allow' };
+    });
 }
 
 app.on('ready', createWindow);
