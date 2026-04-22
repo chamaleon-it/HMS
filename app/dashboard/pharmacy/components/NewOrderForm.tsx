@@ -104,25 +104,23 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
         error: ({ response }) => response.data.message,
       });
 
-      // Notify parent window to refresh
+      // Notify parent window
       const channel = new BroadcastChannel('pharmacy-orders');
-      channel.postMessage({ type: 'order-created' });
-      channel.close();
-
+      
       if (isPopup) {
         if (data.data.billNo === "-") {
-          // If it needs to go to billing, we can either redirect the popup or tell parent to redirect.
-          // For now, let's redirect the popup if it's a sub-flow.
-          window.location.href = `/dashboard/pharmacy/billing?mrn=${data.data.mrn}#new`;
+          channel.postMessage({ type: 'redirect-to-billing', mrn: data.data.mrn });
         } else {
-          window.close();
+          channel.postMessage({ type: 'order-created' });
         }
+        window.close();
       } else {
-        // Fallback for non-popup usage (if any)
+        // Fallback for non-popup usage
         if (data.data.billNo === "-") {
           window.location.href = `/dashboard/pharmacy/billing?mrn=${data.data.mrn}#new`;
         }
       }
+      channel.close();
 
     } catch (error) {
       // Handle error

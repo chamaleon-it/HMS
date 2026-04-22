@@ -10,46 +10,61 @@ import { Button } from "@/components/ui/button";
 import { DataType } from "./interface";
 import { useAuth } from "@/auth/context/auth-context";
 import { RegisterPatient } from "./RegisterPatient";
+import { useRouter } from "next/navigation";
 
 export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
+  const router = useRouter();
   const { user } = useAuth();
   const [openCreate, setOpenCreate] = useState(false);
   const [nameToRegister, setNameToRegister] = useState("");
   const [patientName, setpatientName] = useState("")
-  const [payload, setPayload] = useState<DataType>({
-    patient: "",
-    doctor: user?._id ?? "",
-    items: [],
-    discount: 0,
-    priority: "Normal",
-    status: "Pending",
-    pharmacist: "",
-    allergies: ""
-  });
+  const windowsRef = React.useRef<Window[]>([]);
 
   useEffect(() => {
     const channel = new BroadcastChannel('pharmacy-orders');
     channel.onmessage = (event) => {
       if (event.data.type === 'order-created') {
         OrderMutate();
+      } else if (event.data.type === 'redirect-to-billing') {
+        OrderMutate();
+        router.push(`/dashboard/pharmacy/billing?mrn=${event.data.mrn}#new`);
       }
     };
-    return () => channel.close();
-  }, [OrderMutate]);
+
+    // Keep popups on top when main window is focused
+    const handleMainFocus = () => {
+      windowsRef.current = windowsRef.current.filter(win => !win.closed);
+      windowsRef.current.forEach(win => {
+        try {
+          win.focus();
+        } catch (e) {
+          // Handle potential closed window issues
+        }
+      });
+    };
+
+    window.addEventListener('focus', handleMainFocus);
+
+    return () => {
+      channel.close();
+      window.removeEventListener('focus', handleMainFocus);
+    };
+  }, [OrderMutate, router]);
 
   const openNewOrderWindow = () => {
     const searchParams = new URLSearchParams(window.location.search);
     const url = `/dashboard/pharmacy/new-order?${searchParams.toString()}`;
     const windowName = `newOrder_${Date.now()}`;
-    // Optimized popup features for a "desktop-like" experience
     const features = "width=1200,height=900,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes";
-    window.open(url, windowName, features);
+    const win = window.open(url, windowName, features);
+    if (win) {
+      windowsRef.current.push(win);
+    }
   };
 
   useEffect(() => {
     if (window.location.hash === "#newOrder") {
       openNewOrderWindow();
-      // Remove hash to prevent re-opening on refresh
       window.history.replaceState(null, "", window.location.pathname + window.location.search);
     }
   }, []);
