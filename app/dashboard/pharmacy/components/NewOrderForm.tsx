@@ -33,12 +33,42 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
 
   useEffect(() => {
     const searchParams = new URLSearchParams(window.location.search);
+    const n = searchParams.get("name");
     setMrn(searchParams.get("mrn"));
-    setName(searchParams.get("name"));
+    setName(n);
     setId(searchParams.get("id"));
     setDoctor(searchParams.get("doctor"));
     setAllergiesParam(searchParams.get("allergies"));
-  }, []);
+
+    if (n) {
+      const channel = new BroadcastChannel('pharmacy-orders');
+      const windowName = searchParams.get("windowName");
+      if (windowName) {
+        channel.postMessage({ type: 'update-draft-label', windowName, label: n });
+      }
+      channel.close();
+    }
+
+    const handleUnload = () => {
+      const channel = new BroadcastChannel('pharmacy-orders');
+      const windowName = new URLSearchParams(window.location.search).get("windowName");
+      if (windowName) {
+        channel.postMessage({ type: 'draft-closed', windowName });
+      }
+      channel.close();
+    };
+
+    if (isPopup) {
+      window.addEventListener('beforeunload', handleUnload);
+    }
+
+    return () => {
+      if (isPopup) {
+        window.removeEventListener('beforeunload', handleUnload);
+      }
+    };
+  }, [isPopup]);
+
 
   const { user } = useAuth();
   const [openCreate, setOpenCreate] = useState(false);
@@ -177,6 +207,14 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
                   } else {
                     setHasAllergy(false);
                   }
+                }}
+                onSelect={(p) => {
+                  const channel = new BroadcastChannel('pharmacy-orders');
+                  const windowName = new URLSearchParams(window.location.search).get("windowName");
+                  if (windowName) {
+                    channel.postMessage({ type: 'update-draft-label', windowName, label: p.name });
+                  }
+                  channel.close();
                 }}
                 register={(name) => {
                   if (name) setNameToRegister(name);

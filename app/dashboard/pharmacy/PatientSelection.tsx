@@ -28,13 +28,14 @@ interface Props {
   setValue: (id: string, allergies?: string) => void;
   register: (name?: string) => void;
   patientName: string;
+  onSelect?: (p: Patient) => void;
 }
 
 const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) => {
+const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, onSelect }) => {
   const [input, setInput] = useState(patientName);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
@@ -88,10 +89,11 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
     (p: Patient) => {
       setSelected(p);
       setValue(p._id, p.allergies);
+      onSelect?.(p);
       setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
       setOpen(false);
     },
-    [setValue]
+    [setValue, onSelect]
   );
 
   useEffect(() => {

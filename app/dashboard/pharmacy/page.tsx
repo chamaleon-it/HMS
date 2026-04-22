@@ -133,6 +133,8 @@ function RxQueue() {
   );
 }
 
+import ActiveDrafts from "./components/ActiveDrafts";
+
 export default function PharmacyHome() {
   return (
     <AppShell>
@@ -140,6 +142,7 @@ export default function PharmacyHome() {
         <main className="p-5 min-h-[calc(100vh-80px)]">
           <RxQueue />
         </main>
+        <ActiveDrafts />
       </TooltipProvider>
     </AppShell>
   );

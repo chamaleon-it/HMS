@@ -11,6 +11,7 @@ import { DataType } from "./interface";
 import { useAuth } from "@/auth/context/auth-context";
 import { RegisterPatient } from "./RegisterPatient";
 import { useRouter } from "next/navigation";
+import { draftManager } from "./lib/draftManager";
 
 export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const router = useRouter();
@@ -18,7 +19,6 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const [openCreate, setOpenCreate] = useState(false);
   const [nameToRegister, setNameToRegister] = useState("");
   const [patientName, setpatientName] = useState("")
-  const windowsRef = React.useRef<Window[]>([]);
 
   useEffect(() => {
     const channel = new BroadcastChannel('pharmacy-orders');
@@ -28,37 +28,37 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       } else if (event.data.type === 'redirect-to-billing') {
         OrderMutate();
         router.push(`/dashboard/pharmacy/billing?mrn=${event.data.mrn}#new`);
+      } else if (event.data.type === 'update-draft-label') {
+        const drafts = draftManager.getDrafts();
+        const draft = drafts.find(d => d.win.name === event.data.windowName);
+        if (draft) {
+          draftManager.updateLabel(draft.win, event.data.label);
+        }
+      } else if (event.data.type === 'draft-closed') {
+        const drafts = draftManager.getDrafts();
+        const draft = drafts.find(d => d.win.name === event.data.windowName);
+        if (draft) {
+          draftManager.removeDraft(draft.win);
+        }
       }
     };
 
-    // Keep popups on top when main window is focused
-    const handleMainFocus = () => {
-      windowsRef.current = windowsRef.current.filter(win => !win.closed);
-      windowsRef.current.forEach(win => {
-        try {
-          win.focus();
-        } catch (e) {
-          // Handle potential closed window issues
-        }
-      });
-    };
 
-    window.addEventListener('focus', handleMainFocus);
 
     return () => {
       channel.close();
-      window.removeEventListener('focus', handleMainFocus);
     };
   }, [OrderMutate, router]);
 
   const openNewOrderWindow = () => {
-    const searchParams = new URLSearchParams(window.location.search);
-    const url = `/dashboard/pharmacy/new-order?${searchParams.toString()}`;
     const windowName = `newOrder_${Date.now()}`;
-    const features = "width=1200,height=900,menubar=no,toolbar=no,location=no,status=no,scrollbars=yes,resizable=yes";
+    const searchParams = new URLSearchParams(window.location.search);
+    searchParams.set("windowName", windowName);
+    const url = `/dashboard/pharmacy/new-order?${searchParams.toString()}`;
+    const features = "width=1200,height=900,scrollbars=yes,resizable=yes";
     const win = window.open(url, windowName, features);
     if (win) {
-      windowsRef.current.push(win);
+      draftManager.addDraft(win, "Empty Draft");
     }
   };
 
@@ -99,7 +99,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
               // After registering, we could potentially open the New Order window for this patient
               if (id) {
                 const url = `/dashboard/pharmacy/new-order?id=${id}&name=${name}&mrn=`; // Simplified
-                window.open(url, `newOrder_${Date.now()}`, "width=1200,height=900");
+                window.open(url, `newOrder_${Date.now()}`, "width=1200,height=900,scrollbars=yes,resizable=yes");
               }
               setNameToRegister("");
             }} 
