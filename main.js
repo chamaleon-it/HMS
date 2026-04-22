@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu } = require('electron');
 const path = require('path');
 const http = require('http');
 const handler = require('serve-handler');
@@ -43,6 +43,7 @@ async function createWindow() {
                 action: 'allow',
                 overrideBrowserWindowOptions: {
                     alwaysOnTop: true,
+                    autoHideMenuBar: true,
                     // Keep the same webPreferences as main window
                     webPreferences: {
                         nodeIntegration: true,
@@ -55,7 +56,10 @@ async function createWindow() {
     });
 }
 
-app.on('ready', createWindow);
+app.on('ready', () => {
+    Menu.setApplicationMenu(null);
+    createWindow();
+});
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
