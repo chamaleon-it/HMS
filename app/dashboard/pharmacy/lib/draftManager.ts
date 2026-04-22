@@ -42,6 +42,7 @@ export const draftManager = {
   addDraft: (win: Window, label: string = "Empty Draft") => {
     const id = `draft_${Date.now()}`;
     activeDrafts.push({ id, win, label });
+
     notify();
     return id;
   },

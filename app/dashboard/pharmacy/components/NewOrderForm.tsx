@@ -165,7 +165,14 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
   const router = useRouter();
 
   return (
-    <div className="bg-white p-6 rounded-lg shadow-sm border h-full flex flex-col overflow-auto">
+    <div 
+      className="bg-white p-6 rounded-lg shadow-sm border h-full flex flex-col overflow-auto"
+      onMouseDown={() => {
+        if (isPopup) {
+          window.focus();
+        }
+      }}
+    >
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Add new order</h1>
