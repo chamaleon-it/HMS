@@ -115,7 +115,8 @@ const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?
 
   // Build URL only when needed
   const listUrl = useMemo(() => {
-    const u = new URL("/patients", window.location.origin);
+    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost";
+    const u = new URL("/patients", origin);
     u.searchParams.set("limit", String(PAGE_SIZE));
     u.searchParams.set("page", "1");
     if (debounced.length >= MIN_QUERY_LEN)
