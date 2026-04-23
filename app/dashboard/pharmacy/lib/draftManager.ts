@@ -18,6 +18,15 @@ const notify = () => {
 // Periodically prune and ensure "always on top" behavior
 if (typeof window !== 'undefined') {
   setInterval(notify, 2000);
+
+  // Re-adding the click listener to ensure popups stay above the dashboard
+  // even in non-Electron environments. Our debounced/interrupted bringToFront
+  // makes this safe for Windows too.
+  window.addEventListener('click', () => {
+    if (!window.opener) {
+      draftManager.bringToFront();
+    }
+  });
 }
 
 export const draftManager = {
