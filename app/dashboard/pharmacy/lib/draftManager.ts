@@ -19,28 +19,35 @@ const notify = () => {
 if (typeof window !== 'undefined') {
   setInterval(notify, 2000);
 
-
-  window.addEventListener('focus', () => draftManager.bringToFront());
-  window.addEventListener('click', () => draftManager.bringToFront());
+  // We only bring to front on explicit CLICK on the main window.
+  // Using 'focus' causes a "focus fight" in Electron/Windows when switching between children,
+  // making them appear unresponsive as focus is immediately stolen back.
+  window.addEventListener('click', () => {
+    if (!window.opener) {
+      draftManager.bringToFront();
+    }
+  });
 }
 
 export const draftManager = {
   bringToFront: () => {
     if (typeof window === 'undefined' || window.opener || activeDrafts.length === 0) return;
 
-    // Use a small timeout to allow the browser to finish its own focus handling
-    setTimeout(() => {
-      // Only focus if the main window is still the active window in the OS sense
-      // or if we want to ensure popups are visible.
+    // Clear any existing timeout to debounce
+    if ((window as any)._btfTimeout) {
+      clearTimeout((window as any)._btfTimeout);
+    }
+
+    (window as any)._btfTimeout = setTimeout(() => {
       activeDrafts.forEach(d => {
         if (d.win && !d.win.closed) {
           try {
-            // Only focus if not already focused to avoid loops
             d.win.focus();
           } catch (e) {}
         }
       });
-    }, 50);
+      delete (window as any)._btfTimeout;
+    }, 100);
   },
   // New method to handle focus from children
   handleWindowFocus: (winName: string) => {
