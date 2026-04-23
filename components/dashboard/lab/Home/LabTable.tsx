@@ -597,7 +597,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
             })}
         </tbody>
       </table>
-      {printReport && reportLayout === "Classic" ? <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} /> : <ReportCardModern report={printReport} panels={panels} panelPerPage={false} />}
+      {printReport && reportLayout === "Classic" ? <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} /> : <ReportCardModern report={printReport} panels={panels} panelPerPage={panelPerPage} />}
     </div>
   );
 }
