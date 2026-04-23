@@ -15,13 +15,12 @@ const notify = () => {
   listeners.forEach(l => l([...activeDrafts]));
 };
 
-// Periodically prune and ensure "always on top" behavior
 if (typeof window !== 'undefined') {
   setInterval(notify, 2000);
 
-  // Re-adding the click listener to ensure popups stay above the dashboard
-  // even in non-Electron environments. Our debounced/interrupted bringToFront
-  // makes this safe for Windows too.
+  // Keep popups in front of the main window. We focus only the most recently
+  // active popup (not all of them), so the relative z-order between popups
+  // is preserved across main-window clicks.
   window.addEventListener('click', () => {
     if (!window.opener) {
       draftManager.bringToFront(true);
@@ -35,8 +34,8 @@ export const draftManager = {
 
     const performFocus = () => {
       // Focus only the most recently active draft (last in array).
-      // Focusing all windows sequentially always ends with the last one on top,
-      // blocking the earlier windows from being reachable by click.
+      // Focusing all windows sequentially would always end with the last one
+      // on top, blocking the earlier windows from being reachable by click.
       const top = activeDrafts[activeDrafts.length - 1];
       if (top && !top.win.closed) {
         try {
@@ -48,34 +47,26 @@ export const draftManager = {
     if (immediate) {
       performFocus();
     } else {
-      // Clear any existing timeout to debounce
       if ((window as any)._btfTimeout) {
         clearTimeout((window as any)._btfTimeout);
       }
       (window as any)._btfTimeout = setTimeout(performFocus, 100);
     }
   },
-  // New method to handle focus from children
   handleWindowFocus: (winName: string) => {
     const index = activeDrafts.findIndex(d => d.win.name === winName);
     if (index !== -1) {
       const [draft] = activeDrafts.splice(index, 1);
       activeDrafts.push(draft);
-      
       notify();
-
-      // In the web, we can't reliably bring the whole stack to front 
-      // from a background message, but we can at least update the order.
-      // For Electron, we still try to re-assert focus.
-      if (typeof window !== 'undefined' && !window.opener) {
-        draftManager.bringToFront(false); 
-      }
+      // Do NOT call bringToFront here. The popup is already focused by the OS.
+      // A deferred bringToFront would steal focus from the main window if the
+      // user clicks there within the debounce window.
     }
   },
   addDraft: (win: Window, label: string = "Empty Draft") => {
     const id = `draft_${Date.now()}`;
     activeDrafts.push({ id, win, label });
-
     notify();
     return id;
   },
@@ -99,4 +90,3 @@ export const draftManager = {
     };
   }
 };
-
