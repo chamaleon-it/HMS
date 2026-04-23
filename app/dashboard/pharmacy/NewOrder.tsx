@@ -40,6 +40,8 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         if (draft) {
           draftManager.removeDraft(draft.win);
         }
+      } else if (event.data.type === 'window-focused') {
+        draftManager.handleWindowFocus(event.data.windowName);
       }
     };
 

@@ -30,14 +30,26 @@ export const draftManager = {
 
     // Use a small timeout to allow the browser to finish its own focus handling
     setTimeout(() => {
+      // Only focus if the main window is still the active window in the OS sense
+      // or if we want to ensure popups are visible.
       activeDrafts.forEach(d => {
         if (d.win && !d.win.closed) {
           try {
+            // Only focus if not already focused to avoid loops
             d.win.focus();
           } catch (e) {}
         }
       });
     }, 50);
+  },
+  // New method to handle focus from children
+  handleWindowFocus: (winName: string) => {
+    const index = activeDrafts.findIndex(d => d.win.name === winName);
+    if (index !== -1) {
+      const [draft] = activeDrafts.splice(index, 1);
+      activeDrafts.push(draft);
+      notify();
+    }
   },
   addDraft: (win: Window, label: string = "Empty Draft") => {
     const id = `draft_${Date.now()}`;

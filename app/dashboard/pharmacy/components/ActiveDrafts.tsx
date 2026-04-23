@@ -49,6 +49,9 @@ export default function ActiveDrafts() {
                 onClick={() => {
                   if (draft.win && !draft.win.closed) {
                     draft.win.focus();
+                    try {
+                      draftManager.handleWindowFocus(draft.win.name);
+                    } catch (e) {}
                   }
                 }}
               >

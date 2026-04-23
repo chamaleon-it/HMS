@@ -20,8 +20,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog";
 
 export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean }) {
@@ -126,7 +124,7 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
           return;
         }
       }
-      
+
       const payloadToSubmit = { ...payload, items: validItems };
       const { data } = await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
@@ -136,7 +134,7 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
 
       // Notify parent window
       const channel = new BroadcastChannel('pharmacy-orders');
-      
+
       if (isPopup) {
         if (data.data.billNo === "-") {
           channel.postMessage({ type: 'redirect-to-billing', mrn: data.data.mrn });
@@ -165,11 +163,17 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
   const router = useRouter();
 
   return (
-    <div 
+    <div
       className="bg-white p-6 rounded-lg shadow-sm border h-full flex flex-col overflow-auto"
       onMouseDown={() => {
         if (isPopup) {
           window.focus();
+          const channel = new BroadcastChannel('pharmacy-orders');
+          const windowName = new URLSearchParams(window.location.search).get("windowName");
+          if (windowName) {
+            channel.postMessage({ type: 'window-focused', windowName });
+          }
+          channel.close();
         }
       }}
     >
@@ -179,14 +183,14 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
           <p className="text-gray-500">Create a new order for the pharmacy</p>
         </div>
         <div className="flex gap-2">
-            <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
-            <Button
-                variant="outline"
-                className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm"
-                onClick={() => setShowAllFields(!showAllFields)}
-            >
-                {showAllFields ? "Hide optional fields" : "Display all fields"}
-            </Button>
+          <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
+          <Button
+            variant="outline"
+            className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm"
+            onClick={() => setShowAllFields(!showAllFields)}
+          >
+            {showAllFields ? "Hide optional fields" : "Display all fields"}
+          </Button>
         </div>
       </div>
 
@@ -304,7 +308,7 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
 
       <div className="mt-6 flex justify-between items-center border-t pt-6">
         <div>
-           {/* Add any left side actions if needed */}
+          {/* Add any left side actions if needed */}
         </div>
         <div className="flex gap-3">
           <Button variant="outline" onClick={() => isPopup ? window.close() : null}>
