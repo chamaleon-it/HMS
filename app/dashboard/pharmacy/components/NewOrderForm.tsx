@@ -168,6 +168,9 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
       onMouseDown={() => {
         if (isPopup) {
           window.focus();
+          // Double-focus pattern for Windows/Electron stability
+          setTimeout(() => window.focus(), 10);
+          
           const channel = new BroadcastChannel('pharmacy-orders');
           const windowName = new URLSearchParams(window.location.search).get("windowName");
           if (windowName) {

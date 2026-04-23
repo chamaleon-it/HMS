@@ -43,6 +43,10 @@ export const draftManager = {
         if (d.win && !d.win.closed) {
           try {
             d.win.focus();
+            // Double-focus pattern for Windows/Electron stability
+            setTimeout(() => {
+              if (d.win && !d.win.closed) d.win.focus();
+            }, 10);
           } catch (e) {}
         }
       });
@@ -55,6 +59,15 @@ export const draftManager = {
     if (index !== -1) {
       const [draft] = activeDrafts.splice(index, 1);
       activeDrafts.push(draft);
+      
+      // Ensure the window actually gets focus
+      try {
+        draft.win.focus();
+        setTimeout(() => {
+          if (draft.win && !draft.win.closed) draft.win.focus();
+        }, 10);
+      } catch (e) {}
+      
       notify();
     }
   },
