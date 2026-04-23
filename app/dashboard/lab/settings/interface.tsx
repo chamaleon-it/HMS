@@ -36,5 +36,6 @@ export interface ProfileType {
       note: string;
     };
     reportLayout?: "Classic" | "Modern";
+    panelPerPage?: boolean;
   };
 }

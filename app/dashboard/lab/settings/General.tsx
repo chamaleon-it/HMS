@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Save, Store, Check, FileText, LayoutTemplate } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { ProfileType } from "./interface";
+import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 
@@ -44,9 +45,12 @@ export default function General({
   }, [profile]);
 
   const [layoutStyle, setLayoutStyle] = useState<"Classic" | "Modern">(profile?.lab?.reportLayout || "Modern");
+  const [panelPerPage, setPanelPerPage] = useState<boolean>(profile?.lab?.panelPerPage || false);
+
   useEffect(() => {
     setLayoutStyle(profile?.lab?.reportLayout || "Modern")
-  }, [profile?.lab?.reportLayout])
+    setPanelPerPage(profile?.lab?.panelPerPage || false)
+  }, [profile?.lab?.reportLayout, profile?.lab?.panelPerPage])
 
 
   const [loading, setLoading] = useState(false);
@@ -280,26 +284,45 @@ export default function General({
               </div>
             </div>
 
-            <Button
-              size="default"
-              className="h-9 rounded-full bg-[#11212B] px-8 text-[13px] font-semibold text-white shadow hover:bg-slate-800 tracking-wide"
-              onClick={async () => {
-                try {
-                  await toast.promise(api.patch("/users/lab/update_report_layout", {
-                    reportLayout: layoutStyle
-                  }), {
-                    loading: "Updating layout...",
-                    success: "Layout updated successfully!",
-                    error: "Failed to update layout!"
-                  })
-                  await profileMutate()
-                } catch (error) {
-                  console.log(error)
-                }
-              }}
-            >
-              Continue
-            </Button>
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 w-full mb-6">
+              <div className="space-y-0.5 text-left">
+                <p className="text-sm font-medium text-slate-900">
+                  Panel per page
+                </p>
+                <p className="text-xs text-slate-500">
+                  Each panel will start on a new page in the report.
+                </p>
+              </div>
+              <Switch
+                checked={panelPerPage}
+                onCheckedChange={(v) => setPanelPerPage(v)}
+              />
+            </div>
+            <div className="flex justify-end w-full">
+
+
+              <Button
+                size="default"
+                className="h-9 rounded-full bg-[#11212B] px-8 text-[13px] font-semibold text-white shadow hover:bg-slate-800 tracking-wide"
+                onClick={async () => {
+                  try {
+                    await toast.promise(api.patch("/users/lab/update_report_layout", {
+                      reportLayout: layoutStyle,
+                      panelPerPage: panelPerPage
+                    }), {
+                      loading: "Updating layout...",
+                      success: "Layout updated successfully!",
+                      error: "Failed to update layout!"
+                    })
+                    await profileMutate()
+                  } catch (error) {
+                    console.log(error)
+                  }
+                }}
+              >
+                Continue
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>
