@@ -33,15 +33,15 @@ export const draftManager = {
     if (typeof window === 'undefined' || window.opener || activeDrafts.length === 0) return;
 
     const performFocus = () => {
-      // Focus only the most recently active draft (last in array).
-      // Focusing all windows sequentially would always end with the last one
-      // on top, blocking the earlier windows from being reachable by click.
-      const top = activeDrafts[activeDrafts.length - 1];
-      if (top && !top.win.closed) {
-        try {
-          top.win.focus();
-        } catch (e) {}
-      }
+      // Focus all windows in order. This ensures they all stay above the 
+      // main window, with the most recently active one ending up on top.
+      activeDrafts.forEach(d => {
+        if (d.win && !d.win.closed) {
+          try {
+            d.win.focus();
+          } catch (e) {}
+        }
+      });
     };
 
     if (immediate) {

@@ -62,6 +62,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     if (win) {
       win.addEventListener('load', () => win.moveTo(10, 10));
       draftManager.addDraft(win, "Empty Draft");
+      draftManager.bringToFront(true);
     }
   };
 
@@ -106,9 +107,8 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
               if (id) {
                 const windowName = `newOrder_${Date.now()}`;
                 const url = `/dashboard/pharmacy/new-order?id=${id}&name=${name}&mrn=`; // Simplified
-                const win = window.open(url, windowName, "width=1200,height=900,left=100,top=100,scrollbars=yes,resizable=yes");
+                const win = window.open(url, windowName, "width=1200,height=900,scrollbars=yes,resizable=yes");
                 if (win) {
-                  win.addEventListener('load', () => win.moveTo(100, 100));
                   draftManager.addDraft(win, name || "New Order");
                   draftManager.bringToFront();
                 }
