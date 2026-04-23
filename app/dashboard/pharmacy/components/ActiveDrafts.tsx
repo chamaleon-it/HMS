@@ -28,7 +28,7 @@ export default function ActiveDrafts() {
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              draftManager.bringToFront();
+              draftManager.bringToFront(true);
             }}
             className="p-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-400 transition-colors mr-2"
             title="Bring all drafts to front"

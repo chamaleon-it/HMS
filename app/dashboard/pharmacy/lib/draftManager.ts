@@ -24,58 +24,50 @@ if (typeof window !== 'undefined') {
   // makes this safe for Windows too.
   window.addEventListener('click', () => {
     if (!window.opener) {
-      draftManager.bringToFront();
+      draftManager.bringToFront(true);
     }
   });
 }
 
 export const draftManager = {
-  bringToFront: () => {
+  bringToFront: (immediate = false) => {
     if (typeof window === 'undefined' || window.opener || activeDrafts.length === 0) return;
 
-    // Clear any existing timeout to debounce
-    if ((window as any)._btfTimeout) {
-      clearTimeout((window as any)._btfTimeout);
-    }
-
-    (window as any)._btfTimeout = setTimeout(() => {
+    const performFocus = () => {
       activeDrafts.forEach(d => {
         if (d.win && !d.win.closed) {
           try {
             d.win.focus();
-            // Double-focus pattern for Windows/Electron stability
-            setTimeout(() => {
-              if (d.win && !d.win.closed) d.win.focus();
-            }, 10);
           } catch (e) {}
         }
       });
-      delete (window as any)._btfTimeout;
-    }, 100);
+    };
+
+    if (immediate) {
+      performFocus();
+    } else {
+      // Clear any existing timeout to debounce
+      if ((window as any)._btfTimeout) {
+        clearTimeout((window as any)._btfTimeout);
+      }
+      (window as any)._btfTimeout = setTimeout(performFocus, 100);
+    }
   },
   // New method to handle focus from children
   handleWindowFocus: (winName: string) => {
-    // If a child is focused, cancel any pending "bring all to front" 
-    // to prevent the parent from stealing focus back with a stale order.
-    if ((window as any)._btfTimeout) {
-      clearTimeout((window as any)._btfTimeout);
-      delete (window as any)._btfTimeout;
-    }
-
     const index = activeDrafts.findIndex(d => d.win.name === winName);
     if (index !== -1) {
       const [draft] = activeDrafts.splice(index, 1);
       activeDrafts.push(draft);
       
-      // Ensure the clicked window actually gets the top-most position
-      try {
-        draft.win.focus();
-        setTimeout(() => {
-          if (draft.win && !draft.win.closed) draft.win.focus();
-        }, 5);
-      } catch (e) {}
-      
       notify();
+
+      // In the web, we can't reliably bring the whole stack to front 
+      // from a background message, but we can at least update the order.
+      // For Electron, we still try to re-assert focus.
+      if (typeof window !== 'undefined' && !window.opener) {
+        draftManager.bringToFront(false); 
+      }
     }
   },
   addDraft: (win: Window, label: string = "Empty Draft") => {
