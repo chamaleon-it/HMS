@@ -179,13 +179,14 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                     let currentSubheadingState: string | null = null;
                     let pendingSubheading: string | null = null;
 
+                    const isBiochemistry = panelConfig?.mainHeading?.toUpperCase() === "BIOCHEMISTRY";
                     let panelRow: any = {
                         type: "PANEL",
                         name: panelId,
-                        activePanel: panelId,
+                        activePanel: isBiochemistry ? "" : panelId,
                         mainHeading: panelConfig?.mainHeading || panelId
                     };
-                    let panelPushed = false;
+                    let panelPushed = isBiochemistry;
 
                     orderedIds.forEach(id => {
                         const t = testMap.get(id);
@@ -208,10 +209,10 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                     panelPushed = true;
                                 }
                                 if (pendingSubheading) {
-                                    allRows.push({ type: "SUBHEADING", name: pendingSubheading, activePanel: panelId });
+                                    allRows.push({ type: "SUBHEADING", name: pendingSubheading, activePanel: isBiochemistry ? "" : panelId });
                                     pendingSubheading = null;
                                 }
-                                allRows.push({ type: "TEST", ...t, activePanel: panelId });
+                                allRows.push({ type: "TEST", ...t, activePanel: isBiochemistry ? "" : panelId });
                             }
 
                             processedTestIds.add(id);
@@ -230,46 +231,28 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                 // 2. Chunk Into Pages
                 const pages: any[][] = [];
                 if (panelPerPage) {
-                    // Group rows by panel to force each panel into its own "report"
-                    let currentPanel: string | null = null;
-                    let currentPanelRows: any[] = [];
+                    // Group all rows by panel ID to handle non-adjacent rows (like merged Biochemistry tests)
+                    const panelGroups: Record<string, any[]> = {};
+                    const panelOrder: string[] = [];
 
                     allRows.forEach((row) => {
-                        const rowPanel = row.activePanel || "misc";
-                        if (currentPanel !== null && rowPanel !== currentPanel) {
-                            // Chunk the completed panel's rows
-                            let pIdx = 0;
-                            let panelPageCount = 0;
-                            while (pIdx < currentPanelRows.length) {
-                                const isFirstPageOfPanel = panelPageCount === 0;
-                                const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
-                                const slice = currentPanelRows.slice(pIdx, pIdx + limit);
-                                const isLastPageOfPanel = (pIdx + limit) >= currentPanelRows.length;
-
-                                pages.push(slice.map((r, i) => ({
-                                    ...r,
-                                    isPanelStart: isFirstPageOfPanel && i === 0,
-                                    isPanelEnd: isLastPageOfPanel && i === slice.length - 1
-                                })));
-
-                                pIdx += limit;
-                                panelPageCount++;
-                            }
-                            currentPanelRows = [];
+                        const p = row.activePanel || "misc";
+                        if (!panelGroups[p]) {
+                            panelGroups[p] = [];
+                            panelOrder.push(p);
                         }
-                        currentPanel = rowPanel;
-                        currentPanelRows.push(row);
+                        panelGroups[p].push(row);
                     });
 
-                    // Final panel
-                    if (currentPanelRows.length > 0) {
+                    panelOrder.forEach((p) => {
+                        const rows = panelGroups[p];
                         let pIdx = 0;
                         let panelPageCount = 0;
-                        while (pIdx < currentPanelRows.length) {
+                        while (pIdx < rows.length) {
                             const isFirstPageOfPanel = panelPageCount === 0;
                             const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
-                            const slice = currentPanelRows.slice(pIdx, pIdx + limit);
-                            const isLastPageOfPanel = (pIdx + limit) >= currentPanelRows.length;
+                            const slice = rows.slice(pIdx, pIdx + limit);
+                            const isLastPageOfPanel = (pIdx + limit) >= rows.length;
 
                             pages.push(slice.map((r, i) => ({
                                 ...r,
@@ -280,7 +263,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                             pIdx += limit;
                             panelPageCount++;
                         }
-                    }
+                    });
                 } else {
                     let currentIndex = 0;
                     while (currentIndex < allRows.length) {
