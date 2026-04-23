@@ -467,19 +467,19 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                         {!!row?.name?.method && <p className="text-[9px] text-black pl-0">Method: {row.name?.method}</p>}
                                                                         {!!row?.name?.specimen && <p className="text-[9px] text-black pl-0">Specimen: {row.name?.specimen}</p>}
                                                                     </td>
-                                                                    <td className={`px-2 pt-[3px] text-center text-[10px] leading-tight whitespace-nowrap ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <td className={`px-2 pt-[3px] text-center text-[12px] leading-tight whitespace-nowrap ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <span className={isAbnormal ? "font-bold" : "text-black"}>
                                                                             {row.value || " "}
                                                                         </span>
                                                                     </td>
-                                                                    <td className={`px-2 pt-[3px] text-center text-black text-[13px] font-medium leading-tight ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <td className={`px-2 pt-[3px] text-center text-black text-[12px] font-medium leading-tight ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
                                                                             <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
                                                                         ) : (
                                                                             " "
                                                                         )}
                                                                     </td>
-                                                                    <td className={`px-2 pt-[3px] text-[13px] font-semibold text-black ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <td className={`px-2 pt-[3px] text-[12px] font-semibold text-black ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         {row.name?.range && row.name.range.length > 0 ? (
                                                                             row.name.range.map((r: any, idx: number) => {
                                                                                 const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
@@ -496,7 +496,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                                             })
                                                                         ) : "\u00A0"}
                                                                     </td>
-                                                                    <td className={`px-2 pt-[3px] text-[10px] text-black whitespace-pre-wrap ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <td className={`px-2 pt-[3px] text-[12px] text-black whitespace-pre-wrap ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         {row.name?.note}
                                                                     </td>
                                                                 </tr>
