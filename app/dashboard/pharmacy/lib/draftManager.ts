@@ -55,17 +55,24 @@ export const draftManager = {
   },
   // New method to handle focus from children
   handleWindowFocus: (winName: string) => {
+    // If a child is focused, cancel any pending "bring all to front" 
+    // to prevent the parent from stealing focus back with a stale order.
+    if ((window as any)._btfTimeout) {
+      clearTimeout((window as any)._btfTimeout);
+      delete (window as any)._btfTimeout;
+    }
+
     const index = activeDrafts.findIndex(d => d.win.name === winName);
     if (index !== -1) {
       const [draft] = activeDrafts.splice(index, 1);
       activeDrafts.push(draft);
       
-      // Ensure the window actually gets focus
+      // Ensure the clicked window actually gets the top-most position
       try {
         draft.win.focus();
         setTimeout(() => {
           if (draft.win && !draft.win.closed) draft.win.focus();
-        }, 10);
+        }, 5);
       } catch (e) {}
       
       notify();

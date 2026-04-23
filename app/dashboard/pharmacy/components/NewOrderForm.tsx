@@ -58,13 +58,22 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
 
     if (isPopup) {
       window.addEventListener('beforeunload', handleUnload);
-    }
 
-    return () => {
-      if (isPopup) {
+      // Listen for window focus to notify parent and update z-order
+      const handleFocus = () => {
+        const channel = new BroadcastChannel('pharmacy-orders');
+        const windowName = new URLSearchParams(window.location.search).get("windowName");
+        if (windowName) {
+          channel.postMessage({ type: 'window-focused', windowName });
+        }
+        channel.close();
+      };
+      window.addEventListener('focus', handleFocus);
+      return () => {
         window.removeEventListener('beforeunload', handleUnload);
-      }
-    };
+        window.removeEventListener('focus', handleFocus);
+      };
+    }
   }, [isPopup]);
 
 
