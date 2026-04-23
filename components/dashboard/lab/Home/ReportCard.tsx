@@ -7,9 +7,13 @@ import HospitalName from "@/components/print/HospitalName";
 interface ReportCardProps {
     report: any | null;
     panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string }[];
+    panelPerPage?: boolean;
 }
 
-export default function ReportCard({ report, panels }: ReportCardProps) {
+export default function ReportCard({ report, panels, panelPerPage = false }: ReportCardProps) {
+
+
+
     const isCBCPanelIncluded = report?.panels?.includes("CBC") || false
 
     const [mounted, setMounted] = useState(false);
@@ -240,27 +244,75 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
 
                 // 2. Chunk Into Pages
                 const pages: any[][] = [];
-                let currentIndex = 0;
-                while (currentIndex < allRows.length) {
-                    const isFirstPage = pages.length === 0;
-                    const limit = isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
-                    pages.push(allRows.slice(currentIndex, currentIndex + limit));
-                    currentIndex += limit;
-                }
-                if (pages.length === 0) pages.push([]); // Guarantee at least one page
+                if (panelPerPage) {
+                    // Group rows by panel to force each panel into its own "report"
+                    let currentPanel: string | null = null;
+                    let currentPanelRows: any[] = [];
 
-                const firstCBCPageIdx = pages.findIndex(page =>
-                    page.some(row => {
-                        const pName = row.activePanel || row.name;
-                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
-                    })
-                );
+                    allRows.forEach((row) => {
+                        const rowPanel = row.activePanel || "misc";
+                        if (currentPanel !== null && rowPanel !== currentPanel) {
+                            // Chunk the completed panel's rows
+                            let pIdx = 0;
+                            let panelPageCount = 0;
+                            while (pIdx < currentPanelRows.length) {
+                                const isFirstPageOfPanel = panelPageCount === 0;
+                                const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                                const slice = currentPanelRows.slice(pIdx, pIdx + limit);
+                                const isLastPageOfPanel = (pIdx + limit) >= currentPanelRows.length;
+
+                                pages.push(slice.map((r, i) => ({
+                                    ...r,
+                                    isPanelStart: isFirstPageOfPanel && i === 0,
+                                    isPanelEnd: isLastPageOfPanel && i === slice.length - 1
+                                })));
+
+                                pIdx += limit;
+                                panelPageCount++;
+                            }
+                            currentPanelRows = [];
+                        }
+                        currentPanel = rowPanel;
+                        currentPanelRows.push(row);
+                    });
+
+                    // Final panel
+                    if (currentPanelRows.length > 0) {
+                        let pIdx = 0;
+                        let panelPageCount = 0;
+                        while (pIdx < currentPanelRows.length) {
+                            const isFirstPageOfPanel = panelPageCount === 0;
+                            const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                            const slice = currentPanelRows.slice(pIdx, pIdx + limit);
+                            const isLastPageOfPanel = (pIdx + limit) >= currentPanelRows.length;
+
+                            pages.push(slice.map((r, i) => ({
+                                ...r,
+                                isPanelStart: isFirstPageOfPanel && i === 0,
+                                isPanelEnd: isLastPageOfPanel && i === slice.length - 1
+                            })));
+
+                            pIdx += limit;
+                            panelPageCount++;
+                        }
+                    }
+                } else {
+                    let currentIndex = 0;
+                    while (currentIndex < allRows.length) {
+                        const isFirstPage = pages.length === 0;
+                        const limit = isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                        pages.push(allRows.slice(currentIndex, currentIndex + limit));
+                        currentIndex += limit;
+                    }
+                }
+
+                if (pages.length === 0) pages.push([]); // Guarantee at least one page
 
                 // 3. Render Pages
                 let globalSubheadingCount = 0;
                 return pages.map((pageRows, pageIdx) => {
-                    const isFirstPage = pageIdx === 0;
-                    const isLastPage = pageIdx === pages.length - 1;
+                    const isFirstPage = panelPerPage ? (pageRows[0]?.isPanelStart || false) : pageIdx === 0;
+                    const isLastPage = panelPerPage ? (pageRows[pageRows.length - 1]?.isPanelEnd || false) : pageIdx === pages.length - 1;
                     const pageHasCBC = pageRows.some(row => {
                         const pName = row.activePanel || row.name;
                         return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
@@ -337,7 +389,7 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                     const activePanelConfig = panels?.find(p => p?.name === activePanelId);
 
                                     const headingText = activePanelConfig?.mainHeading || "Biochemistry";
-                                    return pageIdx === 0 && Boolean(headingText) ? (
+                                    return isFirstPage && Boolean(headingText) ? (
                                         <div className="w-full text-center pb-2 pt-1">
                                             <p className="font-bold text-black text-[17px] uppercase">
                                                 {headingText}
@@ -410,10 +462,6 @@ export default function ReportCard({ report, panels }: ReportCardProps) {
                                                             const panelMethod = panel?.method
                                                             const panelSpecimen = panel?.specimen
                                                             const subheadings = panel?.subheadings ?? []
-
-                                                            console.log(panelMethod, panelSpecimen)
-
-
                                                             return (
                                                                 <tr key={`subheading-${rowIdx}`}>
                                                                     <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>

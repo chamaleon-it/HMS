@@ -6,6 +6,7 @@ import useSWR from "swr";
 interface ReportCardModernProps {
     report: any | null;
     panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string; }[];
+    panelPerPage?: boolean;
 }
 
 const RangeBar = ({ min, max, value, markerColor }: { min: any, max: any, value: any, markerColor: string }) => {
@@ -53,7 +54,7 @@ const RangeBar = ({ min, max, value, markerColor }: { min: any, max: any, value:
     );
 };
 
-export default function ReportCardModern({ report, panels }: ReportCardModernProps) {
+export default function ReportCardModern({ report, panels, panelPerPage = false }: ReportCardModernProps) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
@@ -226,27 +227,77 @@ export default function ReportCardModern({ report, panels }: ReportCardModernPro
                     }
                 });
 
+                // 2. Chunk Into Pages
                 const pages: any[][] = [];
-                let currentIndex = 0;
-                while (currentIndex < allRows.length) {
-                    const isFirstPage = pages.length === 0;
-                    const limit = isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
-                    pages.push(allRows.slice(currentIndex, currentIndex + limit));
-                    currentIndex += limit;
+                if (panelPerPage) {
+                    // Group rows by panel to force each panel into its own "report"
+                    let currentPanel: string | null = null;
+                    let currentPanelRows: any[] = [];
+
+                    allRows.forEach((row) => {
+                        const rowPanel = row.activePanel || "misc";
+                        if (currentPanel !== null && rowPanel !== currentPanel) {
+                            // Chunk the completed panel's rows
+                            let pIdx = 0;
+                            let panelPageCount = 0;
+                            while (pIdx < currentPanelRows.length) {
+                                const isFirstPageOfPanel = panelPageCount === 0;
+                                const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                                const slice = currentPanelRows.slice(pIdx, pIdx + limit);
+                                const isLastPageOfPanel = (pIdx + limit) >= currentPanelRows.length;
+
+                                pages.push(slice.map((r, i) => ({
+                                    ...r,
+                                    isPanelStart: isFirstPageOfPanel && i === 0,
+                                    isPanelEnd: isLastPageOfPanel && i === slice.length - 1
+                                })));
+
+                                pIdx += limit;
+                                panelPageCount++;
+                            }
+                            currentPanelRows = [];
+                        }
+                        currentPanel = rowPanel;
+                        currentPanelRows.push(row);
+                    });
+
+                    // Final panel
+                    if (currentPanelRows.length > 0) {
+                        let pIdx = 0;
+                        let panelPageCount = 0;
+                        while (pIdx < currentPanelRows.length) {
+                            const isFirstPageOfPanel = panelPageCount === 0;
+                            const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                            const slice = currentPanelRows.slice(pIdx, pIdx + limit);
+                            const isLastPageOfPanel = (pIdx + limit) >= currentPanelRows.length;
+
+                            pages.push(slice.map((r, i) => ({
+                                ...r,
+                                isPanelStart: isFirstPageOfPanel && i === 0,
+                                isPanelEnd: isLastPageOfPanel && i === slice.length - 1
+                            })));
+
+                            pIdx += limit;
+                            panelPageCount++;
+                        }
+                    }
+                } else {
+                    let currentIndex = 0;
+                    while (currentIndex < allRows.length) {
+                        const isFirstPage = pages.length === 0;
+                        const limit = isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                        pages.push(allRows.slice(currentIndex, currentIndex + limit));
+                        currentIndex += limit;
+                    }
                 }
+
                 if (pages.length === 0) pages.push([]);
 
-                const firstCBCPageIdx = pages.findIndex(page =>
-                    page.some(row => {
-                        const pName = row.activePanel || row.name;
-                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
-                    })
-                );
-
+                // 3. Render Pages
                 let globalSubheadingCount = 0;
                 return pages.map((pageRows, pageIdx) => {
-                    const isFirstPage = pageIdx === 0;
-                    const isLastPage = pageIdx === pages.length - 1;
+                    const isFirstPage = panelPerPage ? (pageRows[0]?.isPanelStart || false) : pageIdx === 0;
+                    const isLastPage = panelPerPage ? (pageRows[pageRows.length - 1]?.isPanelEnd || false) : pageIdx === pages.length - 1;
                     const pageHasCBC = pageRows.some(row => {
                         const pName = row.activePanel || row.name;
                         return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
