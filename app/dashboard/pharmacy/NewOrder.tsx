@@ -86,7 +86,6 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         size={"sm"}
         onClick={() => {
           openNewOrderWindow();
-          draftManager.bringToFront();
         }}
       >
         New Order

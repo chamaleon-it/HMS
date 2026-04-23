@@ -18,15 +18,6 @@ const notify = () => {
 // Periodically prune and ensure "always on top" behavior
 if (typeof window !== 'undefined') {
   setInterval(notify, 2000);
-
-  // We only bring to front on explicit CLICK on the main window.
-  // Using 'focus' causes a "focus fight" in Electron/Windows when switching between children,
-  // making them appear unresponsive as focus is immediately stolen back.
-  window.addEventListener('click', () => {
-    if (!window.opener) {
-      draftManager.bringToFront();
-    }
-  });
 }
 
 export const draftManager = {

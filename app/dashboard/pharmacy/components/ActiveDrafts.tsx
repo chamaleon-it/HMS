@@ -25,7 +25,16 @@ export default function ActiveDrafts() {
         className="pointer-events-auto flex items-center gap-2 p-1.5 bg-slate-900/90 backdrop-blur-md border border-slate-700/50 rounded-2xl shadow-2xl overflow-hidden"
       >
         <div className="flex items-center gap-2 px-4 py-2 border-r border-slate-700/50 mr-2 shrink-0">
-          <LayoutGrid className="w-4 h-4 text-slate-400" />
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              draftManager.bringToFront();
+            }}
+            className="p-1.5 rounded-lg bg-indigo-500/20 hover:bg-indigo-500/40 text-indigo-400 transition-colors mr-2"
+            title="Bring all drafts to front"
+          >
+            <LayoutGrid className="w-4 h-4" />
+          </button>
           <span className="text-[11px] font-bold text-slate-200 tracking-wider uppercase whitespace-nowrap">
             Active Drafts
           </span>

@@ -60,7 +60,13 @@ export default function NewOrderForm({ isPopup = false }: { isPopup?: boolean })
       window.addEventListener('beforeunload', handleUnload);
 
       // Listen for window focus to notify parent and update z-order
+      // We use a guard to prevent infinite focus loops
+      let lastNotify = 0;
       const handleFocus = () => {
+        const now = Date.now();
+        if (now - lastNotify < 500) return; // Prevent loops
+        lastNotify = now;
+
         const channel = new BroadcastChannel('pharmacy-orders');
         const windowName = new URLSearchParams(window.location.search).get("windowName");
         if (windowName) {
