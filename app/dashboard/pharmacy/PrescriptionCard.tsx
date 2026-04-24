@@ -21,6 +21,7 @@ import { formatINR } from "@/lib/fNumber";
 // ------------------ Types ------------------
 interface Medicine {
   name: string;
+  medicineName: string;
   dosage: string;
   frequency: string;
   food: string;
@@ -58,6 +59,7 @@ export default function PrescriptionCard({
         {
           dosage: "1 tab",
           name: "",
+          medicineName: "",
           duration: "",
           food: "After food",
           frequency: "",
@@ -438,13 +440,12 @@ const QuantityInput = ({
         (currentOptions.frequency[3] === m.frequency && 1) ||
         (currentOptions.frequency[4] === m.frequency && 1) ||
         0;
-      if (dosage * duration * frequency > m.availableQuantity) {
-        setOpenWarning(true)
-
+      if (dosage * duration * frequency > 0) {
+        if (dosage * duration * frequency > m.availableQuantity) {
+          setOpenWarning(true)
+        }
+        updateField(i, "quantity", Math.ceil(dosage * duration * frequency));
       }
-      updateField(i, "quantity", Math.ceil(dosage * duration * frequency));
-    } else {
-      updateField(i, "quantity", 0);
     }
   }, [m.dosage, m.duration, m.frequency]);
 

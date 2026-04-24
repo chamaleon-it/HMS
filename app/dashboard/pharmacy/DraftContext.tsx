@@ -62,6 +62,7 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           {
             dosage: "1 tab",
             name: "",
+            medicineName: "",
             duration: "",
             food: "After food",
             frequency: "",

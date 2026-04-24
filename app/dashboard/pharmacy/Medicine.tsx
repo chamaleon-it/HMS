@@ -5,6 +5,7 @@ import useSWR from "swr";
 interface Medicine {
   // Store ONLY the id in your form model
   name: string; // _id
+  medicineName: string;
   dosage: string;
   frequency: string;
   food: string;
@@ -71,6 +72,10 @@ export default function MedicineField({
   useEffect(() => {
     if (m.name && itemById?.data && (!selected || selected.id !== m.name)) {
       setSelected({ id: itemById.data._id, name: itemById.data.name });
+      // Sync medicine name if missing
+      if (!m.medicineName) {
+        updateField(i, "medicineName", itemById.data.name);
+      }
       // Sync available quantity and price if they are missing or different
       if (m.availableQuantity !== itemById.data.quantity) {
         updateField(i, "availableQuantity", itemById.data.quantity);
@@ -80,7 +85,7 @@ export default function MedicineField({
       }
       if (!open) setQuery("");
     }
-  }, [m.name, itemById, open, selected, m.availableQuantity, m.unitPrice, i, updateField]);
+  }, [m.name, itemById, open, selected, m.availableQuantity, m.unitPrice, m.medicineName, i, updateField]);
 
   const qs = useMemo(() => {
     const p = new URLSearchParams();
@@ -109,6 +114,7 @@ export default function MedicineField({
   const handleSelect = (item: Item) => {
     // store only id in your form
     updateField(i, "name", item._id);
+    updateField(i, "medicineName", item.name);
     updateField(i, "availableQuantity", item.quantity);
     updateField(i, "unitPrice", item.unitPrice);
     // remember the label locally
@@ -148,7 +154,7 @@ export default function MedicineField({
     }
   };
 
-  const displayValue = open || query ? query : selected?.name ?? "";
+  const displayValue = open || query ? query : selected?.name || m.medicineName || "";
 
   return (
     <div ref={containerRef} className="relative w-full">
@@ -168,6 +174,7 @@ export default function MedicineField({
               onClick={() => {
                 // clear selected id from form & UI
                 updateField(i, "name", "");
+                updateField(i, "medicineName", "");
                 updateField(i, "availableQuantity", 0)
                 updateField(i, "quantity", 0)
                 updateField(i, "unitPrice", 0)
