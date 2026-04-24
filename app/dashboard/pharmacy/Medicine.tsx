@@ -71,10 +71,16 @@ export default function MedicineField({
   useEffect(() => {
     if (m.name && itemById?.data && (!selected || selected.id !== m.name)) {
       setSelected({ id: itemById.data._id, name: itemById.data.name });
-      // also sync the visible query to the name when idle
+      // Sync available quantity and price if they are missing or different
+      if (m.availableQuantity !== itemById.data.quantity) {
+        updateField(i, "availableQuantity", itemById.data.quantity);
+      }
+      if (m.unitPrice !== itemById.data.unitPrice) {
+        updateField(i, "unitPrice", itemById.data.unitPrice);
+      }
       if (!open) setQuery("");
     }
-  }, [m.name, itemById, open, selected]);
+  }, [m.name, itemById, open, selected, m.availableQuantity, m.unitPrice, i, updateField]);
 
   const qs = useMemo(() => {
     const p = new URLSearchParams();
