@@ -269,7 +269,7 @@ export default function PrescriptionCard({
                   placeholder="0"
                   disabled
                   className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
-                  value={m.unitPrice === 0 ? "" : m.unitPrice}
+                  value={m.unitPrice === 0 ? "" : m.unitPrice.toFixed(2)}
                 />
                 <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
                   Price
@@ -283,7 +283,7 @@ export default function PrescriptionCard({
                   placeholder="0"
                   disabled
                   className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
-                  value={m.unitPrice * m.quantity === 0 ? "" : m.unitPrice * m.quantity}
+                  value={m.unitPrice * m.quantity === 0 ? "" : (m.unitPrice * m.quantity).toFixed(2)}
                 />
                 <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
                   Total
