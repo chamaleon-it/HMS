@@ -21,7 +21,7 @@ import { Trash2, AlertCircle } from "lucide-react";
 import { usePathname } from 'next/navigation';
 
 export const DraftManager: React.FC = () => {
-  const { drafts, removeDraft, updateDraft, bringToFront } = useDrafts();
+  const { drafts, removeDraft, updateDraft, bringToFront, activeDraftId } = useDrafts();
   const [registerData, setRegisterData] = useState<{ name: string; draftId: string } | null>(null);
   const [draftToDelete, setDraftToDelete] = useState<string | null>(null);
   const pathname = usePathname();
@@ -54,6 +54,7 @@ export const DraftManager: React.FC = () => {
           zIndex={draft.zIndex}
           position={draft.position}
           minimized={draft.minimized}
+          isActive={draft.id === activeDraftId}
           onClose={() => setDraftToDelete(draft.id)}
           onMinimize={() => updateDraft(draft.id, { minimized: !draft.minimized })}
           onFocus={() => bringToFront(draft.id)}

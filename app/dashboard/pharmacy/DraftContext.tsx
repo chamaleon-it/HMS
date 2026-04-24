@@ -99,9 +99,14 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const bringToFront = (id: string) => {
-    const maxZ = Math.max(40, ...drafts.map(d => d.zIndex));
-    setDrafts(prev => prev.map(d => d.id === id ? { ...d, zIndex: maxZ + 1 } : d));
     setActiveDraftId(id);
+    const draft = drafts.find(d => d.id === id);
+    const maxZ = Math.max(40, ...drafts.map(d => d.zIndex));
+    
+    // Only update drafts array if z-index actually needs to change
+    if (draft && draft.zIndex < maxZ) {
+      setDrafts(prev => prev.map(d => d.id === id ? { ...d, zIndex: maxZ + 1 } : d));
+    }
   };
 
   return (
