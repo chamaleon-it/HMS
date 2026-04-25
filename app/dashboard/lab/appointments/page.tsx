@@ -5,6 +5,7 @@ import AppShell from "@/components/layout/app-shell";
 
 import List from "./List";
 import Filter, { STATUSES } from "./Filter";
+import useAppointmentList from "./data/useAppointmentList";
 
 import { motion } from "framer-motion";
 
@@ -12,8 +13,11 @@ import LabHeader from "@/components/dashboard/lab/LabHeader";
 export default function AppointmentPage() {
   const [query, setQuery] = useState("");
   const [activeStatuses, setActiveStatuses] = useState<string[]>(["Upcoming"]);
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState<Date>(new Date());
+  const [activeDate, setActiveDate] = useState<"Today" | "7 days" | "30 days" | "Custom">("Today");
   const currentStatus = activeStatuses.length === 0 ? "All" : activeStatuses[0];
+
+  const { data, mutate, isLoading } = useAppointmentList({ activeStatuses, date, activeDate });
 
   return (
     <AppShell>
@@ -27,12 +31,13 @@ export default function AppointmentPage() {
 
         <div className="shrink-0 mb-2.5 px-4 sm:px-0 print:hidden">
           <Filter
-            activeStatuses={activeStatuses}
             query={query}
-            setActiveStatuses={setActiveStatuses}
             setQuery={setQuery}
             date={date}
             setDate={setDate}
+            activeDate={activeDate}
+            setActiveDate={setActiveDate}
+            mutate={mutate}
           />
         </div>
 
@@ -73,7 +78,7 @@ export default function AppointmentPage() {
                 })}
               </div>
             </div>
-            <List query={query} activeStatuses={activeStatuses} date={date} />
+            <List query={query} activeStatuses={activeStatuses} date={date} data={data} mutate={mutate} isLoading={isLoading} activeDate={activeDate} />
           </div>
         </div>
       </div>

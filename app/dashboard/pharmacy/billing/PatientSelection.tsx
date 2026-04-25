@@ -42,7 +42,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, value, orderPatient, onSe
   const [input, setInput] = useState("");
   useEffect(() => {
     if (orderPatient) {
-      setInput(orderPatient.name + " - " + "(" + orderPatient.mrn + ")");
+      setInput(`${orderPatient.name}${orderPatient.mrn ? ` - (${orderPatient.mrn})` : ""}`);
     }
   }, [orderPatient]);
   const [open, setOpen] = useState(false);

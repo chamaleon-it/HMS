@@ -285,8 +285,9 @@ export default function AppointmentPage() {
   const [activeStatuses, setActiveStatuses] = useState<string[]>(["Upcoming"]);
   const [openCreate, setOpenCreate] = useState<"walk-in" | boolean | any>(false);
   const [date, setDate] = useState(new Date());
+  const [activeDate, setActiveDate] = useState<"Today" | "7 days" | "30 days" | "Custom">("Today");
 
-  const { mutate } = useAppointmentList({ query, activeStatuses, date });
+  const { mutate } = useAppointmentList({ query, activeStatuses, date, activeDate });
   const { mutate: globalMutate } = useSWRConfig();
 
   const searchParams = useSearchParams();
@@ -322,6 +323,23 @@ export default function AppointmentPage() {
   React.useEffect(() => {
     setSelectedAppointment(null);
   }, [tab, selectedDoctorId]);
+
+  // Handle auto-open for new appointment from customer list
+  React.useEffect(() => {
+    const id = searchParams.get("id");
+    const name = searchParams.get("name");
+    const mrn = searchParams.get("mrn");
+
+    if (window.location.hash === "#newAppointment" && id && name) {
+      setOpenCreate({
+        patient: { _id: id, name, mrn: mrn || "" },
+        doctor: selectedDoctorId,
+        type: "New",
+        status: "Upcoming",
+        walkIn: true
+      });
+    }
+  }, [searchParams, doctors, selectedDoctorId]);
 
   // Global Keyboard Shortcuts
   React.useEffect(() => {
@@ -453,6 +471,9 @@ export default function AppointmentPage() {
   // We consider "All" active if activeStatuses is empty
   const currentStatus = activeStatuses.length === 0 ? "All" : activeStatuses[0];
 
+
+
+
   return (
     <AppShell>
       <div className="p-0 sm:p-5 min-h-[calc(100vh-80px)] overflow-hidden flex flex-col">
@@ -507,9 +528,9 @@ export default function AppointmentPage() {
         {tab === 'list' &&
           <div className="shrink-0 mb-2.5 px-4 sm:px-0 print:hidden">
             <Filter
-              activeStatuses={activeStatuses}
+              activeDate={activeDate}
+              setActiveDate={setActiveDate}
               query={query}
-              setActiveStatuses={setActiveStatuses}
               setQuery={setQuery}
               date={date}
               setDate={setDate}
@@ -591,7 +612,7 @@ export default function AppointmentPage() {
             </div>
 
             <TabsContent value="list" className="flex-1 overflow-auto">
-              <List query={query} activeStatuses={activeStatuses} date={date} />
+              <List query={query} activeStatuses={activeStatuses} date={date} activeDate={activeDate} />
             </TabsContent>
 
             <TabsContent value="calendar" className="flex-1 h-full overflow-hidden">
@@ -624,12 +645,12 @@ export default function AppointmentPage() {
         <Drawer
           open={!!openCreate}
           onClose={() => setOpenCreate(false)}
-          title={typeof openCreate === 'object' ? "Edit Appointment" : "Create Appointment"}
+          title={openCreate?._id ? "Edit Appointment" : "Create Appointment"}
         >
           <CreateAppointmentForm
             onClose={() => setOpenCreate(false)}
             mutate={mutate}
-            walkIn={openCreate === "walk-in"}
+            walkIn={openCreate === "walk-in" || openCreate?.walkIn}
             appointment={typeof openCreate === 'object' ? openCreate : undefined}
           />
         </Drawer>

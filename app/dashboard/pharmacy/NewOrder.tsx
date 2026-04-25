@@ -1,3 +1,4 @@
+"use client";
 import React, { useEffect, useState } from "react";
 import {
   Dialog,
@@ -30,6 +31,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const name = new URLSearchParams(window.location.search).get("name");
   const id = new URLSearchParams(window.location.search).get("id");
   const doctor = new URLSearchParams(window.location.search).get("doctor");
+  const allergiesParam = new URLSearchParams(window.location.search).get("allergies");
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [openCreate, setOpenCreate] = useState(false);
@@ -53,18 +55,22 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     priority: "Normal",
     status: "Pending",
     pharmacist: "",
-    allergies: undefined
+    allergies: ""
   });
 
   useEffect(() => {
 
-    if (id && doctor) {
-      setPayload((prev) => ({ ...prev, patient: id, doctor }));
+    if (id) {
+      setPayload((prev) => ({ ...prev, patient: id, doctor: doctor || prev.doctor }));
+    }
+    if (allergiesParam && allergiesParam.trim().toLowerCase() !== "none" && allergiesParam.trim().toLowerCase() !== "n/a" && allergiesParam.trim() !== "") {
+      setPayload((prev) => ({ ...prev, allergies: allergiesParam }));
+      setHasAllergy(true);
     }
     if (window.location.hash === "#newOrder") {
       setOpen(true);
     }
-  }, [id, doctor]);
+  }, [id, doctor, allergiesParam]);
 
   const createOrder = async () => {
     try {
@@ -126,7 +132,8 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         discount: 0,
         priority: "Normal",
         status: "Pending",
-        pharmacist: ""
+        pharmacist: "",
+        allergies: ""
       });
     }
   }, [open, user?._id]);
@@ -134,12 +141,13 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   const [showAllFields, setShowAllFields] = useState(false);
   const [patientName, setpatientName] = useState("")
   const [hasAllergy, setHasAllergy] = useState(false);
+  const [nameToRegister, setNameToRegister] = useState("");
 
   const router = useRouter()
 
   return (
     <>
-      <Button variant={"outline"} onClick={() => setOpenCreate(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
+      <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
       <Dialog open={open} onOpenChange={(value) => {
         if (!value && window.location.hash === "#newOrder") {
           router.push("/dashboard/pharmacy")
@@ -187,7 +195,9 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
                         setHasAllergy(false);
                       }
                     }}
-                    register={() => {
+                    register={(name) => {
+                      if (name) setNameToRegister(name);
+                      else setNameToRegister("");
                       setOpenCreate(true);
                       setOpen(false);
                     }}
@@ -243,7 +253,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
                           <Input
                             id="allergy-input"
                             placeholder="Specify medical/food allergies..."
-                            value={payload.allergies}
+                            value={payload.allergies ?? ""}
                             onChange={(e) => setPayload((prev) => ({ ...prev, allergies: e.target.value }))}
                             className="h-9 focus:ring-amber-500/20 focus:border-amber-400 bg-white border-amber-100 placeholder:text-slate-400 text-sm"
                           />
@@ -300,12 +310,12 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient onClose={(id?: string, name?: string) => {
+          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string) => {
             setOpenCreate(false);
             setPayload((prev) => ({ ...prev, patient: id ?? "" }));
             setOpen(true)
             setpatientName(name ?? "")
-
+            setNameToRegister("")
           }} />
         </DialogContent>
       </Dialog>

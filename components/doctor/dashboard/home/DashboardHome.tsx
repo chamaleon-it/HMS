@@ -18,11 +18,11 @@ export default function Dashboard() {
     false
   );
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    () => new Date()
+  const [selectedDate, setSelectedDate] = useState<Date>(
+    new Date()
   );
 
-  const { mutate } = useAppointmentList({ date: selectedDate });
+  const { mutate } = useAppointmentList({ date: selectedDate, activeDate: "Custom" });
 
   const [activeTab, setActiveTab] = useState("day");
 
@@ -110,7 +110,6 @@ export default function Dashboard() {
         title="Create Appointment"
       >
         <CreateAppointmentForm
-          mutate={mutate}
           onClose={() => {
             setOpenAppointment(false);
           }}

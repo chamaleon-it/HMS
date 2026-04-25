@@ -212,6 +212,29 @@ export default function CreateBill({
     }
   }, [payload, billingMutate, defaultPayload]);
 
+  const saveBill = useCallback(async () => {
+    if (!payload.patient) {
+      toast.error("Please select patient.");
+      return;
+    }
+    if (payload.items.length === 0) {
+      toast.error("Please add atleast one item.");
+      return;
+    }
+    try {
+      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)) }), {
+        loading: "Saving bill...",
+        success: ({ data }) => data.message,
+        error: ({ response }) => response.data.message,
+      });
+      setPayload(defaultPayload);
+      billingMutate();
+      router.push("/dashboard/pharmacy");
+    } catch (error) {
+      // Handle error
+    }
+  }, [payload, billingMutate, defaultPayload, router]);
+
 
   const [orderPatient, setOrderPatient] = useState<{ _id: string, mrn: string, name: string } | undefined>(undefined)
 
@@ -316,6 +339,7 @@ export default function CreateBill({
         payload={payload}
         setPayload={setPayload}
         orderPatient={orderPatient}
+        selectedPatient={selectedPatient}
         setSelectedPatient={setSelectedPatient}
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
@@ -355,6 +379,7 @@ export default function CreateBill({
               totalPaid={totalPaid}
               dueAmount={dueAmount}
               payload={payload}
+              saveBill={saveBill}
               generateBill={generateBill}
               onPrint={onClick}
               downloadPdf={downloadPdf}

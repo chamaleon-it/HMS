@@ -49,14 +49,17 @@ interface Props {
                 name: string;
                 type: string;
                 unit?: string;
-                min?: number;
-                max?: number;
-                womenMin?: number;
-                womenMax?: number;
-                childMin?: number;
-                childMax?: number;
-                nbMin?: number;
-                nbMax?: number;
+                range: {
+                    name: string;
+                    min: number | null | undefined;
+                    max: number | null | undefined;
+                    fromAge: number | null | undefined;
+                    toAge: number | null | undefined;
+                    gender: "Both" | "Male" | "Female";
+                    dateType: "Year" | "Month" | "Day";
+
+                }[],
+                note: string
                 _id: string;
                 panels?: {
                     _id: string;
@@ -71,7 +74,7 @@ interface Props {
         }[];
         sampleType: string;
         status: string;
-        technician: string;
+        technician?: string;
         createdAt: Date;
         updatedAt: Date;
         panels?: string[];
@@ -144,10 +147,10 @@ export default function ViewResultModal({ r }: Props) {
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Blood Type</p>
                                 <p className="text-sm font-medium text-gray-700">{r?.patient?.blood || "N/A"}</p>
                             </div>
-                            <div>
+                            {r?.technician && <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Technician</p>
-                                <p className="text-sm font-medium text-gray-700">{r?.technician || "N/A"}</p>
-                            </div>
+                                <p className="text-sm font-medium text-gray-700">{r?.technician}</p>
+                            </div>}
                         </div>
                     </div>
                 </div>
@@ -260,9 +263,9 @@ export default function ViewResultModal({ r }: Props) {
                                                 {test.name?.type === 'Lab' && (
                                                     <div className="flex flex-col items-end gap-0.5">
                                                         <span className="text-sm font-medium text-gray-700">
-                                                            {test.name?.min ?? "0"} -{" "}
+                                                            {test.name?.range?.[0]?.min ?? "0"} -{" "}
                                                             {test.name?.unit ? test.name?.unit + " " : ""}
-                                                            {test.name?.max ?? "N/A"}
+                                                            {test.name?.range?.[0]?.max ?? "N/A"}
                                                         </span>
                                                         <span className="text-[10px] text-gray-400 uppercase tracking-wide">
                                                             Normal Range

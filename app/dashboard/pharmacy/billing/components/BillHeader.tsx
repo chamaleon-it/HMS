@@ -15,6 +15,7 @@ interface BillHeaderProps {
     payload: any;
     setPayload: React.Dispatch<React.SetStateAction<any>>;
     orderPatient: any;
+    selectedPatient: any;
     setSelectedPatient: (p: any) => void;
     openCreate: boolean;
     setOpenCreate: (open: boolean) => void;
@@ -25,6 +26,7 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
     payload,
     setPayload,
     orderPatient,
+    selectedPatient,
     setSelectedPatient,
     openCreate,
     setOpenCreate,
@@ -37,7 +39,7 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                     <div className="flex items-center gap-2">
                         <div className="flex-1">
                             <PatientSelection
-                                orderPatient={orderPatient}
+                                orderPatient={selectedPatient || orderPatient}
                                 onSelectPatient={(p) => setSelectedPatient(p)}
                                 value={payload.patient}
                                 setValue={(value) =>
