@@ -424,7 +424,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                                 {row?.name?.specimen && <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Specimen : {row.name?.specimen}</div>}
                                                             </td>
                                                             <td className="pt-[17px] px-2 text-left text-[12px] align-top">
-                                                                <span className="text-slate-800 font-medium">{row.value}</span>
+                                                                <span className="text-slate-800 font-bold">{row.value}</span>
                                                             </td>
                                                             <td className="pt-[17px] px-2 text-left text-[11px] text-slate-800 font-medium tracking-wide align-top">
                                                                 {row.name?.unit ? <span dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
@@ -461,47 +461,53 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                             {/* Footer Section - Pinned to bottom manually by flex-1 above */}
                             <div className="w-full mt-auto">
                                 {isLastPage && (
-                                    <div className="flex w-full border border-[#6eb269] rounded-[8px] overflow-hidden bg-white mt-1">
-                                        <div className="flex-[5.5] flex flex-col items-start bg-white pb-3">
-                                            <div className="bg-[#6eb269] text-white flex items-center h-[26px] self-start" style={{ clipPath: "polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0% 100%)", paddingRight: "40px", width: "95%" }}>
-                                                <span className="font-bold text-[13px] pl-3 mb-0.5 mt-[2px] tracking-wide">Comments:</span>
-                                                <div className="w-[75%] border-b h-0 border-white ml-2 opacity-80 mb-[-2px]"></div>
-                                            </div>
-                                            {/* <div className="px-5 pt-[14px] pb-1 text-[10.5px] text-slate-700 font-extrabold space-y-[6px]">
+                                    <>
+                                        <div className="flex w-full border border-[#6eb269] rounded-[8px] overflow-hidden bg-white mt-1">
+                                            <div className="flex-[5.5] flex flex-col items-start bg-white pb-3">
+                                                <div className="bg-[#6eb269] text-white flex items-center h-[26px] self-start" style={{ clipPath: "polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0% 100%)", paddingRight: "40px", width: "95%" }}>
+                                                    <span className="font-bold text-[13px] pl-3 mb-0.5 mt-[2px] tracking-wide">Comments:</span>
+                                                    <div className="w-[75%] border-b h-0 border-white ml-2 opacity-80 mb-[-2px]"></div>
+                                                </div>
+                                                {/* <div className="px-5 pt-[14px] pb-1 text-[10.5px] text-slate-700 font-extrabold space-y-[6px]">
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To evaluate kidney functioning in normal individuals as screening test.</p></div>
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To aid in diagnosis of kidney related disorders (Acute and Chronic renal failure, prerenal, postrenal, End Stage Renal Disease).</p></div>
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To screen those who may be at risk of developing kidney disorders (diabetes, hypertension, cardiovascular diseases).</p></div>
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To monitor effects of nephrotoxic drugs (e.g., vancomycin, methotrexate, some antivirals, etc.).</p></div>
                                             </div> */}
+                                            </div>
+
+                                            <div className="flex-4 flex flex-col border-l border-slate-300 divide-y divide-slate-300 bg-white min-w-[260px]">
+                                                <div className="px-4 py-[8px]">
+                                                    <p className="font-extrabold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[16px]">LAB TECHNICIAN</p>
+                                                </div>
+                                                <div className="px-4 py-[8px]">
+                                                    <p className="font-extrabold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[4px]">LAB IN-CHARGE</p>
+                                                    <p className="font-semibold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[16px]">{inChargeTechnician?.name ?? ""}</p>
+                                                </div>
+                                                <div className="px-4 py-[9px] flex flex-col gap-[5px]">
+                                                    <div className="flex items-center gap-[7px] text-slate-700 tracking-wide mt-1">
+                                                        <div className="w-[16px] h-[16px] bg-[#6eb269] rounded-sm flex items-center justify-center text-white shrink-0 shadow-sm mt-px">
+                                                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" /></svg>
+                                                        </div>
+                                                        <span className="text-[11.5px] font-extrabold">+91 83019 26155, 04931 240077</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-[7px] text-slate-700 tracking-wide">
+                                                        <div className="w-[16px] h-[16px] bg-[#6eb269] rounded-sm flex items-center justify-center text-white shrink-0 shadow-sm mt-px">
+                                                            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg>
+                                                        </div>
+                                                        <span className="text-[11.5px] font-extrabold">hospitalmark@gmail.com</span>
+                                                    </div>
+                                                </div>
+                                                <div className="bg-[#f0f3ec] px-4 py-[9px] flex items-center flex-1">
+                                                    <p className="text-[10px] font-extrabold text-slate-800 tracking-wide pt-1">For Appointments: <span className="text-black text-[10.5px]">+91 8301 926 155, 04931 240 077</span></p>
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div className="flex-4 flex flex-col border-l border-slate-300 divide-y divide-slate-300 bg-white min-w-[260px]">
-                                            <div className="px-4 py-[8px]">
-                                                <p className="font-extrabold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[16px]">LAB TECHNICIAN</p>
-                                            </div>
-                                            <div className="px-4 py-[8px]">
-                                                <p className="font-extrabold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[4px]">LAB IN-CHARGE</p>
-                                                <p className="font-semibold text-slate-800 uppercase text-[10.5px] tracking-wide mt-1 pb-[16px]">{inChargeTechnician?.name ?? ""}</p>
-                                            </div>
-                                            <div className="px-4 py-[9px] flex flex-col gap-[5px]">
-                                                <div className="flex items-center gap-[7px] text-slate-700 tracking-wide mt-1">
-                                                    <div className="w-[16px] h-[16px] bg-[#6eb269] rounded-sm flex items-center justify-center text-white shrink-0 shadow-sm mt-px">
-                                                        <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" /></svg>
-                                                    </div>
-                                                    <span className="text-[11.5px] font-extrabold">+91 83019 26155, 04931 240077</span>
-                                                </div>
-                                                <div className="flex items-center gap-[7px] text-slate-700 tracking-wide">
-                                                    <div className="w-[16px] h-[16px] bg-[#6eb269] rounded-sm flex items-center justify-center text-white shrink-0 shadow-sm mt-px">
-                                                        <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg>
-                                                    </div>
-                                                    <span className="text-[11.5px] font-extrabold">hospitalmark@gmail.com</span>
-                                                </div>
-                                            </div>
-                                            <div className="bg-[#f0f3ec] px-4 py-[9px] flex items-center flex-1">
-                                                <p className="text-[10px] font-extrabold text-slate-800 tracking-wide pt-1">For Appointments: <span className="text-black text-[10.5px]">+91 8301 926 155, 04931 240 077</span></p>
-                                            </div>
+                                        <div className="text-center w-full mt-2">
+                                            <p className="text-[10px] font-extrabold text-slate-800 uppercase tracking-[0.2em]">*** End of Report ***</p>
                                         </div>
-                                    </div>
+                                    </>
                                 )}
 
                                 <div className="flex justify-between items-center w-full mt-4 ml-1 pr-[18px]">

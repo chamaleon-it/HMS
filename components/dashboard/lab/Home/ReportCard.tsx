@@ -499,7 +499,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                         {!!row?.name?.specimen && <p className="text-[9px] text-black pl-0">Specimen: {row.name?.specimen}</p>}
                                                                     </td>
                                                                     <td className={`px-2 pt-[3px] text-center text-[12px] leading-tight whitespace-nowrap ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        <span className={isAbnormal ? "font-bold" : "text-black"}>
+                                                                        <span className={isAbnormal ? "font-bold" : "text-black font-bold"}>
                                                                             {row.value || " "}
                                                                         </span>
                                                                     </td>
@@ -548,8 +548,6 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             <div className="bottom-grouping">
                                 {isLastPage && (
                                     <>
-
-
                                         <div className="flex justify-between signature-section pb-2 px-10 mt-2.5">
                                             <div className="text-center w-64">
 
@@ -561,6 +559,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 <p className="font-bold text-black uppercase leading-none  text-[12px]">LAB TECHNICIAN</p>
 
                                             </div>
+                                        </div>
+
+                                        <div className="text-center w-full mb-1 mt-1">
+                                            <p className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">*** End of Report ***</p>
                                         </div>
                                     </>
                                 )}

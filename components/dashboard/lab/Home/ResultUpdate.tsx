@@ -215,10 +215,14 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
     const tcTest = findTest("total cholesterol");
     const tgTest = findTest("triglyceride");
     const hdlTest = findTest("hdl cholesterol");
+    const tpTest = findTest("total proteins");
+    const saTest = findTest("serum albumin");
 
     const tc = tcTest?.value ? parseFloat(tcTest.value.toString()) : NaN;
     const tg = tgTest?.value ? parseFloat(tgTest.value.toString()) : NaN;
     const hdl = hdlTest?.value ? parseFloat(hdlTest.value.toString()) : NaN;
+    const tp = tpTest?.value ? parseFloat(tpTest.value.toString()) : NaN;
+    const sa = saTest?.value ? parseFloat(saTest.value.toString()) : NaN;
 
     let isChanged = false;
     const newTests = [...payload.test];
@@ -259,13 +263,6 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
       updateCalculatedValue("ldl / hdl ratio", (ldlVal / hdl).toFixed(2));
     }
 
-    // LFT Calculations
-    const tpTest = findTest("total proteins");
-    const saTest = findTest("serum albumin");
-
-    const tp = tpTest?.value ? parseFloat(tpTest.value.toString()) : NaN;
-    const sa = saTest?.value ? parseFloat(saTest.value.toString()) : NaN;
-
     // Serum GLOBULIN = Total Proteins - Serum Albumin
     if (!isNaN(tp) && !isNaN(sa)) {
       const globulin = tp - sa;
@@ -280,7 +277,13 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
     if (isChanged) {
       setPayload(prev => ({ ...prev, test: newTests }));
     }
-  }, [payload.test]);
+  }, [
+    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "total cholesterol")?.value,
+    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "triglyceride")?.value,
+    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "hdl cholesterol")?.value,
+    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "total proteins")?.value,
+    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "serum albumin")?.value,
+  ]);
 
 
 
