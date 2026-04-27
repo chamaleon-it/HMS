@@ -462,6 +462,10 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                             <div className="w-full mt-auto">
                                 {isLastPage && (
                                     <>
+
+                                        <div className="text-center w-full mt-2">
+                                            <p className="text-[10px] font-extrabold text-slate-800 uppercase tracking-[0.2em]">*** End of Report ***</p>
+                                        </div>
                                         <div className="flex w-full border border-[#6eb269] rounded-[8px] overflow-hidden bg-white mt-1">
                                             <div className="flex-[5.5] flex flex-col items-start bg-white pb-3">
                                                 <div className="bg-[#6eb269] text-white flex items-center h-[26px] self-start" style={{ clipPath: "polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0% 100%)", paddingRight: "40px", width: "95%" }}>
@@ -475,6 +479,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To monitor effects of nephrotoxic drugs (e.g., vancomycin, methotrexate, some antivirals, etc.).</p></div>
                                             </div> */}
                                             </div>
+
 
                                             <div className="flex-4 flex flex-col border-l border-slate-300 divide-y divide-slate-300 bg-white min-w-[260px]">
                                                 <div className="px-4 py-[8px]">
@@ -504,9 +509,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                             </div>
                                         </div>
 
-                                        <div className="text-center w-full mt-2">
-                                            <p className="text-[10px] font-extrabold text-slate-800 uppercase tracking-[0.2em]">*** End of Report ***</p>
-                                        </div>
+
                                     </>
                                 )}
 
