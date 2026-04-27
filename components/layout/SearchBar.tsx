@@ -3,7 +3,8 @@ import { fAge } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import { ChevronRight, MapPin, Phone, Search } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
 
 export default function SearchBar() {
@@ -36,31 +37,80 @@ export default function SearchBar() {
   const generateLink = (id: string) => {
     if (user?.role === "Pharmacy") {
       return `/dashboard/pharmacy/customers/single?id=${id}`
+    } else if (user?.role === "Lab") {
+      return `/dashboard/lab/patients/single?id=${id}`
     } else {
       return `/dashboard/doctor/patients/single?id=${id}`
     }
   }
 
+  const router = useRouter();
+  const [isOpen, setIsOpen] = useState(false);
+  const [focusedIndex, setFocusedIndex] = useState(-1);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (q && data?.data?.length) {
+      setIsOpen(true);
+      setFocusedIndex(-1);
+    } else {
+      setIsOpen(false);
+    }
+  }, [q, data]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isOpen || !data?.data) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setFocusedIndex((prev) => (prev < data.data.length - 1 ? prev + 1 : prev));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setFocusedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      if (focusedIndex >= 0 && focusedIndex < data.data.length) {
+        const selectedPatient = data.data[focusedIndex];
+        router.push(generateLink(selectedPatient._id));
+        setIsOpen(false);
+      }
+    } else if (e.key === "Escape") {
+      setIsOpen(false);
+    }
+  };
 
   return (
     <div className="flex-1 max-w-md">
-      <div className="relative">
+      <div className="relative" ref={dropdownRef}>
         <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
         <input
           type="text"
           placeholder="Search patients or appointments…"
           value={q ?? ""}
           onChange={(e) => setQ(e.target.value)}
+          onKeyDown={handleKeyDown}
           data-testid="search-input"
           className="w-full rounded-2xl border border-slate-200 bg-white/90 pl-12 pr-24 py-2.5 text-sm shadow-sm outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
         />
-        <kbd className="absolute right-3 top-1/2 -translate-y-1/2 hidden sm:flex items-center gap-1 rounded-lg border border-slate-200 bg-white/80 px-2 py-1 text-[10px] text-slate-500">
-          ⌘K
-        </kbd>
-        {Boolean(data?.data.length) && (
-          <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5">
-            {data?.data.map((p) => (
-              <Link href={generateLink(p._id)} className="block" key={p._id}>
+        {isOpen && Boolean(data?.data.length) && (
+          <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-[400px] overflow-y-auto">
+            {data?.data.map((p, index) => (
+              <Link
+                href={generateLink(p._id)}
+                className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-indigo-500 ring-offset-1' : ''}`}
+                key={p._id}
+                onClick={() => setIsOpen(false)}
+              >
                 <PatientCard p={p} searchQuery={q ?? ""} />
               </Link>
             ))}
