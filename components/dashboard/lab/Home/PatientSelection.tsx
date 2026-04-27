@@ -101,9 +101,24 @@ const PatientSelection: React.FC<Props> = ({
     [setValue]
   );
 
+  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
+
+  useEffect(() => {
+    if (activeIdx >= 0 && itemRefs.current[activeIdx]) {
+      itemRefs.current[activeIdx]?.scrollIntoView({
+        block: "nearest",
+      });
+    }
+  }, [activeIdx]);
+
   // Keyboard navigation within the listbox
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setOpen(false);
+      return;
+    }
     if (!open) return;
+
     const max = patients.length - 1;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -124,8 +139,6 @@ const PatientSelection: React.FC<Props> = ({
     setSelected(null);
     setValue("");
   };
-
-
 
   return (
     <div ref={rootRef} className="relative w-full max-w-125">
@@ -198,7 +211,7 @@ const PatientSelection: React.FC<Props> = ({
             )}
           </div>
 
-          <ScrollArea className="">
+          <ScrollArea className="max-h-[450px] h-full overflow-scroll">
             <ul
               id="patient-listbox"
               role="listbox"
@@ -208,6 +221,9 @@ const PatientSelection: React.FC<Props> = ({
               {patients.map((p, idx) => (
                 <li
                   key={p._id}
+                  ref={(el) => {
+                    itemRefs.current[idx] = el;
+                  }}
                   role="option"
                   aria-selected={selected?._id === p._id}
                   onMouseDown={(e) => e.preventDefault()} // keep input focus
