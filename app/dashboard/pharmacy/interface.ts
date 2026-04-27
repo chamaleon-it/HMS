@@ -87,6 +87,7 @@ export interface DataType {
     doctor: string;
     items: {
         name: string;
+        medicineName: string;
         dosage: string;
         frequency: string;
         food: string;

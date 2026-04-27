@@ -21,6 +21,7 @@ import { formatINR } from "@/lib/fNumber";
 // ------------------ Types ------------------
 interface Medicine {
   name: string;
+  medicineName: string;
   dosage: string;
   frequency: string;
   food: string;
@@ -58,6 +59,7 @@ export default function PrescriptionCard({
         {
           dosage: "1 tab",
           name: "",
+          medicineName: "",
           duration: "",
           food: "After food",
           frequency: "",
@@ -267,7 +269,7 @@ export default function PrescriptionCard({
                   placeholder="0"
                   disabled
                   className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
-                  value={m.unitPrice === 0 ? "" : m.unitPrice}
+                  value={m.unitPrice === 0 ? "" : m.unitPrice.toFixed(2)}
                 />
                 <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
                   Price
@@ -281,7 +283,7 @@ export default function PrescriptionCard({
                   placeholder="0"
                   disabled
                   className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
-                  value={m.unitPrice * m.quantity === 0 ? "" : m.unitPrice * m.quantity}
+                  value={m.unitPrice * m.quantity === 0 ? "" : (m.unitPrice * m.quantity).toFixed(2)}
                 />
                 <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
                   Total
@@ -438,13 +440,12 @@ const QuantityInput = ({
         (currentOptions.frequency[3] === m.frequency && 1) ||
         (currentOptions.frequency[4] === m.frequency && 1) ||
         0;
-      if (dosage * duration * frequency > m.availableQuantity) {
-        setOpenWarning(true)
-
+      if (dosage * duration * frequency > 0) {
+        if (dosage * duration * frequency > m.availableQuantity) {
+          setOpenWarning(true)
+        }
+        updateField(i, "quantity", Math.ceil(dosage * duration * frequency));
       }
-      updateField(i, "quantity", Math.ceil(dosage * duration * frequency));
-    } else {
-      updateField(i, "quantity", 0);
     }
   }, [m.dosage, m.duration, m.frequency]);
 
