@@ -15,7 +15,7 @@ export default function usePatientAlreadyExist({ name, phoneNumber, email }: Pro
             name: string;
             phoneNumber: string;
             email: string;
-            gender: "Male" | "Female" | "Other" | "Prefer not to say",
+            gender: "Male" | "Female" | "Other",
             dateOfBirth: Date,
             address: string,
             mrn: string,
@@ -37,7 +37,7 @@ export default function usePatientAlreadyExist({ name, phoneNumber, email }: Pro
                 name: string,
                 phoneNumber: string,
                 email: string,
-                gender: "Male" | "Female" | "Other" | "Prefer not to say",
+                gender: "Male" | "Female" | "Other",
                 dateOfBirth: Date,
                 address: string,
                 mrn: string,

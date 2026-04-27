@@ -2,6 +2,7 @@ import React from "react";
 import { User2, UserPlus, FileText, CalendarDays } from "lucide-react";
 import { fDate } from "@/lib/fDateAndTime";
 import PatientSelection from "../PatientSelection";
+import DoctorSelection from "../DoctorSelection";
 import {
     Dialog,
     DialogContent,
@@ -68,17 +69,14 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
 
                 <div className="space-y-2">
                     <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Doctor Name</label>
-                    <input
-                        type="text"
-                        placeholder="Referrer / Doctor"
+                    <DoctorSelection
                         value={payload.doctor}
-                        onChange={(e) =>
+                        onSelect={(name) =>
                             setPayload((prev: any) => ({
                                 ...prev,
-                                doctor: e.target.value,
+                                doctor: name,
                             }))
                         }
-                        className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
                     />
                 </div>
 

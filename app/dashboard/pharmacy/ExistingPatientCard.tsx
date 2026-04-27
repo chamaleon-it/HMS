@@ -8,7 +8,7 @@ interface ExistingPatientCardProps {
         name: string;
         phoneNumber: string;
         email: string;
-        gender: "Male" | "Female" | "Other" | "Prefer not to say";
+        gender: "Male" | "Female" | "Other";
         dateOfBirth: Date;
         address: string;
         mrn: string;

@@ -329,7 +329,7 @@ export function RegisterPatient({
             <Label>Gender *</Label>
             <Select
               onValueChange={(
-                value: "Male" | "Female" | "Other" | "Prefer not to say"
+                value: "Male" | "Female" | "Other"
               ) => setValue("gender", value)}
               value={patient?.gender || values.gender}
             >
@@ -337,7 +337,7 @@ export function RegisterPatient({
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other", "Prefer not to say"].map((v) => (
+                {["Male", "Female", "Other"].map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>

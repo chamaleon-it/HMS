@@ -27,6 +27,7 @@ export default function ItemSelected({
   setItem,
   onOpenCustomModal,
 }: PropsType) {
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<{ _id: string, item: string, code: string, price: number } | null>(null);
@@ -40,6 +41,10 @@ export default function ItemSelected({
   );
 
   const billingItems = billingItemsData?.data ?? [];
+  
+  React.useEffect(() => {
+    setSelectedIndex(-1);
+  }, [item, billingItems.length]);
 
   const addbillingItem = useCallback(
     async (it: string, price: number) => {
@@ -93,19 +98,47 @@ export default function ItemSelected({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             onKeyDown={(e) => {
-              if (e.code === "Enter" || e.code === "Tab") {
+              if (e.key === "ArrowDown") {
                 e.preventDefault();
-                addItem("", 0);
+                setSelectedIndex((prev) => (prev < billingItems.length - 1 ? prev + 1 : prev));
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+              } else if (e.key === "Enter" || e.key === "Tab") {
+                e.preventDefault();
+                if (selectedIndex >= 0 && billingItems[selectedIndex]) {
+                  const selected = billingItems[selectedIndex];
+                  addItem(selected.item, selected.price);
+                  // Keep focused to allow multiple additions
+                  itemRef.current?.focus();
+                } else if (item?.trim()) {
+                  addItem(item, 0);
+                  addbillingItem(item, 0);
+                  // Keep focused
+                  itemRef.current?.focus();
+                }
+              } else if (e.key === "Escape") {
+                setIsFocused(false);
               }
             }}
           />
           {isFocused && billingItems.length > 0 && (
-            <div className="absolute w-full mt-2 p-1.5 max-h-64 overflow-y-auto rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 top-full flex flex-col gap-1 z-50 shadow-xl animate-in fade-in zoom-in-95 duration-200">
-              {billingItems.map((i) => (
+            <div 
+              onMouseDown={(e) => e.preventDefault()}
+              className="absolute w-full mt-2 p-1.5 max-h-64 overflow-y-auto rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 top-full flex flex-col gap-1 z-50 shadow-xl animate-in fade-in zoom-in-95 duration-200"
+            >
+              {billingItems.map((i, index) => (
                 <div
                   key={i._id}
-                  onClick={() => addItem(i.item, i.price)}
-                  className="group flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-all border border-transparent hover:border-slate-100"
+                  onClick={() => {
+                    addItem(i.item, i.price);
+                    itemRef.current?.focus();
+                  }}
+                  className={`group flex items-center justify-between gap-3 p-2 rounded-lg cursor-pointer transition-all border ${
+                    selectedIndex === index
+                      ? "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200"
+                      : "hover:bg-slate-50 border-transparent hover:border-slate-100"
+                  }`}
                 >
                   <div className="flex items-center gap-3 overflow-hidden flex-1">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 group-hover:bg-indigo-50 transition-colors">

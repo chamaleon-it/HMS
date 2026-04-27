@@ -53,7 +53,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       name: patient?.name || "",
       phoneNumber: patient?.phoneNumber || "",
       doctor: patient?.doctor || user?._id,
-      gender: patient?.gender || "Prefer not to say",
+      gender: patient?.gender,
       dateOfBirth: patient?.dateOfBirth || "",
       age: patient?.age || "",
       address: patient?.address || "",
@@ -113,7 +113,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         name: patient?.name || "",
         phoneNumber: patient?.phoneNumber || "",
         doctor: patient?.doctor || user?._id,
-        gender: patient?.gender || "Prefer not to say",
+        gender: patient?.gender,
         dateOfBirth: patient?.dateOfBirth || "",
         age: patient?.age || "",
         address: patient?.address || "",
@@ -261,7 +261,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             <Label>Gender </Label>
             <Select
               onValueChange={(
-                value: "Male" | "Female" | "Other" | "Prefer not to say"
+                value: "Male" | "Female" | "Other"
               ) => setValue("gender", value)}
               value={values.gender}
             >
@@ -273,7 +273,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other", "Prefer not to say"].map((v) => (
+                {["Male", "Female", "Other"].map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>
@@ -300,7 +300,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   onKeyDown={(e) => handleKeyDown(e, refs.age)}
                 >
                   {dateOfBirth && dateOfBirth !== ""
-                     ? dobSetFromAge
+                    ? dobSetFromAge
                       ? `${new Date(dateOfBirth).getFullYear()}`
                       : `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
                         day: "2-digit",

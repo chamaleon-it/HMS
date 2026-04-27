@@ -27,7 +27,7 @@ export const registerPatientSchema = z.object({
 
   doctor: z.string().trim().min(1, "Select a doctor."),
 
-  gender: z.enum(["Male", "Female", "Other", "Prefer not to say"]),
+  gender: z.enum(["Male", "Female", "Other"]),
 
   dateOfBirth: z.string().optional().or(z.literal("")),
   age: z.union([z.string(), z.number()]).optional(),
