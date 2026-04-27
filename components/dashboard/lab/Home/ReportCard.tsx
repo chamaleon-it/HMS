@@ -14,7 +14,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
 
 
-    const isCBCPanelIncluded = report?.panels?.includes("CBC") || false
+    const isCBCPanelIncluded = report?.panels?.some((panel: any) =>
+        panel.includes("CBC")
+    ) ?? false;
 
     const [mounted, setMounted] = useState(false);
 
