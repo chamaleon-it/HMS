@@ -226,7 +226,7 @@ export default function LoginPage() {
 function IndiaFlagIcon({ className = "h-5 w-5" }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      {/* Rounded flag with accurate tricolour and a cleaner Ashoka Chakra */}
+
       <defs>
         <clipPath id="flagClip">
           <rect x="2" y="4" width="20" height="16" rx="2" ry="2" />
