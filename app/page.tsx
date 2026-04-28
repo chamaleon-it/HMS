@@ -4,8 +4,8 @@ import { useAuth } from "@/auth/context/auth-context";
 import LoginForm from "@/components/LoginForm";
 import ForgotPassword from "@/components/LoginForm/ForgotPassword";
 import { Lock, Shield } from "lucide-react";
-import { redirect, useRouter } from "next/navigation";
-import React, { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect } from "react";
 
 const quotes = [
   {
