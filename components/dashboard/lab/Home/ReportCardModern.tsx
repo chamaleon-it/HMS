@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import useSWR from "swr";
 
 interface ReportCardModernProps {
@@ -314,7 +314,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                     <div className="bg-[#f5f5f0] px-8 py-[18px] flex justify-between w-full">
                                         <div className="flex flex-col space-y-[9px] text-[12px] font-medium text-slate-600 tracking-wide">
                                             <div className="flex items-center"><span className="w-24">Name</span><span className="w-6 text-slate-700 font-bold">:</span><span className="font-extrabold text-slate-900">{patient?.name || "Anees"}</span></div>
-                                            <div className="flex items-center"><span className="w-24">Age/Sex</span><span className="w-6 text-slate-700 font-bold">:</span><span className="font-extrabold text-slate-900">{patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "46 yr"} / {patient?.gender || "Other"}</span></div>
+                                            <div className="flex items-center"><span className="w-24">Age/Sex</span><span className="w-6 text-slate-700 font-bold">:</span><span className="font-extrabold text-slate-900">{patient?.dateOfBirth ? `${fAge(patient.dateOfBirth).years}y ${fAge(patient.dateOfBirth).months}m` : "46 yr"} / {patient?.gender || "Other"}</span></div>
                                             <div className="flex items-center"><span className="w-24">Ref. By.</span><span className="w-6 text-slate-700 font-bold">:</span><span className="font-extrabold text-slate-900">Dr. {doctor?.name || "Nadirsha"}</span></div>
                                         </div>
                                         <div className="flex flex-col space-y-[9px] text-[12px] font-medium text-slate-600 tracking-wide pr-4">

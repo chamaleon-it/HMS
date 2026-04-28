@@ -222,7 +222,7 @@ export const PatientCard: React.FC<{
               {/* Meta pills */}
               <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
                 <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-                  {fAge(p.dateOfBirth)} yrs
+                  {fAge(p.dateOfBirth).years}y {fAge(p.dateOfBirth).months}m
                 </span>
 
                 {/* Gender */}
@@ -236,11 +236,15 @@ export const PatientCard: React.FC<{
 
             {/* Phone pill */}
             {p.phoneNumber ? (
-              <a
-                href={`tel:${p.phoneNumber}`}
-                onClick={(e) => e.stopPropagation()}
+              <div
+                role="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  window.location.href = `tel:${p.phoneNumber}`;
+                }}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs transition-colors",
+                  "inline-flex items-center gap-1.5 rounded-lg border px-2 py-1 text-xs transition-colors cursor-pointer",
                   "border-zinc-200 text-zinc-900 hover:bg-zinc-50 hover:text-zinc-900 font-semibold",
                   "dark:border-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-800/70"
                 )}
@@ -248,7 +252,7 @@ export const PatientCard: React.FC<{
               >
                 <Phone className="h-3.5 w-3.5" />
                 <span className="tabular-nums"><HighlightText text={p.phoneNumber} highlight={searchQuery} /></span>
-              </a>
+              </div>
             ) : null}
           </div>
 

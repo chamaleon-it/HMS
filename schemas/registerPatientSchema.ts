@@ -33,6 +33,7 @@ export const registerPatientSchema = z.object({
 
   dateOfBirth: z.string().optional().or(z.literal("")),
   age: z.union([z.string(), z.number()]).optional(),
+  month: z.union([z.string(), z.number()]).optional(),
 
   conditions: z.array(z.string().max(100)).optional(),
 

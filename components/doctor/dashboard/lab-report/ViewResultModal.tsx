@@ -120,7 +120,7 @@ export default function ViewResultModal({ r }: Props) {
                             </div>
                             <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Age</p>
-                                <p className="text-sm font-medium text-gray-700">{fAge(r.patient.dateOfBirth)} yrs</p>
+                                <p className="text-sm font-medium text-gray-700">{fAge(r.patient.dateOfBirth).years}y {fAge(r.patient.dateOfBirth).months}m</p>
                             </div>
                             <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Blood Type</p>

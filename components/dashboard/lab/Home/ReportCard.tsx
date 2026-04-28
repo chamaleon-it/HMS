@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import HospitalName from "@/components/print/HospitalName";
 
 
@@ -354,7 +354,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         <div className="grid grid-cols-2 gap-x-8 text-[13px] font-semibold text-black tracking-tight px-2">
                                             <div className="space-y-1">
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Name</span><span className="font-bold text-black uppercase">: {patient?.name || "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()} yr` : "—"} / ${patient?.gender || "—"}`}</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${fAge(patient.dateOfBirth).years}y ${fAge(patient.dateOfBirth).months}m` : "—"} / ${patient?.gender || "—"}`}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Ref. By.</span><span className="font-bold text-black">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
                                             </div>
                                             <div className="space-y-1">

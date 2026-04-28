@@ -244,7 +244,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                         <span className="font-medium text-gray-600">
                           {r?.patient?.mrn}
                         </span>{" "}
-                        • {fAge(r?.patient?.dateOfBirth)} yrs • {r?.patient?.gender}
+                        • {fAge(r?.patient?.dateOfBirth).years}y {fAge(r?.patient?.dateOfBirth).months}m • {r?.patient?.gender}
                       </span>
                     </div>
                   </td>

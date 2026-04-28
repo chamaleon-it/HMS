@@ -56,6 +56,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       gender: patient?.gender,
       dateOfBirth: patient?.dateOfBirth || "",
       age: patient?.age || "",
+      month: patient?.month || "",
       address: patient?.address || "",
       allergies: patient?.allergies || "",
       mrn: patient?.mrn || "",
@@ -75,6 +76,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     gender: useRef<HTMLButtonElement>(null),
     dob: useRef<HTMLButtonElement>(null),
     age: useRef<HTMLInputElement>(null),
+    month: useRef<HTMLInputElement>(null),
     allergies: useRef<HTMLInputElement>(null),
     guardian: useRef<HTMLInputElement>(null),
     guardianPhoneNumber: useRef<HTMLInputElement>(null),
@@ -323,7 +325,20 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   onSelect={(date) => {
                     if (date) {
                       setValue("dateOfBirth", date.toISOString());
-                      setValue("age", fAge(date).toString());
+                      
+                      const today = new Date();
+                      let years = today.getFullYear() - date.getFullYear();
+                      let months = today.getMonth() - date.getMonth();
+                      if (today.getDate() < date.getDate()) {
+                        months--;
+                      }
+                      if (months < 0) {
+                        years--;
+                        months += 12;
+                      }
+                      
+                      setValue("age", years.toString());
+                      setValue("month", months.toString());
                       setDobSetFromAge(false);
                     } else {
                       setValue("dateOfBirth", "");
@@ -341,29 +356,65 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label>Age </Label>
-            <Input
-              {...register("age")}
-              ref={mergeRefs(refs.age, register("age").ref)}
-              type="number"
-              placeholder="0"
-              onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
-              onChange={(e) => {
-                const ageValue = e.target.value;
-                setValue("age", ageValue);
-                if (ageValue && Number(ageValue) > 0) {
-                  const birthYear = new Date().getFullYear() - Number(ageValue);
-                  const today = new Date();
-                  const estimatedDob = new Date(birthYear, today.getMonth(), today.getDate());
-                  setValue("dateOfBirth", estimatedDob.toISOString());
-                  setDobSetFromAge(true);
-                } else {
-                  setValue("dateOfBirth", "");
-                  setDobSetFromAge(false);
-                }
-              }}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Age (Years)</Label>
+              <Input
+                {...register("age")}
+                ref={mergeRefs(refs.age, register("age").ref)}
+                type="number"
+                placeholder="0"
+                onKeyDown={(e) => handleKeyDown(e, refs.month)}
+                onChange={(e) => {
+                  const ageValue = e.target.value;
+                  const monthValue = values.month || "0";
+                  setValue("age", ageValue);
+                  
+                  if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                    const today = new Date();
+                    const estimatedDob = new Date(
+                      today.getFullYear() - Number(ageValue || 0),
+                      today.getMonth() - Number(monthValue || 0),
+                      today.getDate()
+                    );
+                    setValue("dateOfBirth", estimatedDob.toISOString());
+                    setDobSetFromAge(true);
+                  } else {
+                    setValue("dateOfBirth", "");
+                    setDobSetFromAge(false);
+                  }
+                }}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Months</Label>
+              <Input
+                {...register("month")}
+                ref={mergeRefs(refs.month, register("month").ref)}
+                type="number"
+                placeholder="0"
+                onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
+                onChange={(e) => {
+                  const monthValue = e.target.value;
+                  const ageValue = values.age || "0";
+                  setValue("month", monthValue);
+                  
+                  if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                    const today = new Date();
+                    const estimatedDob = new Date(
+                      today.getFullYear() - Number(ageValue || 0),
+                      today.getMonth() - Number(monthValue || 0),
+                      today.getDate()
+                    );
+                    setValue("dateOfBirth", estimatedDob.toISOString());
+                    setDobSetFromAge(true);
+                  } else {
+                    setValue("dateOfBirth", "");
+                    setDobSetFromAge(false);
+                  }
+                }}
+              />
+            </div>
           </div>
 
           <div className="grid gap-2">
