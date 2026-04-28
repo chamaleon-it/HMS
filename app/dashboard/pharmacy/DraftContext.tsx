@@ -60,6 +60,7 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         doctor: "",
         items: [
           {
+            rowId: Date.now().toString(),
             dosage: "1 tab",
             name: "",
             medicineName: "",
@@ -103,7 +104,7 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setActiveDraftId(id);
     const draft = drafts.find(d => d.id === id);
     const maxZ = Math.max(40, ...drafts.map(d => d.zIndex));
-    
+
     // Only update drafts array if z-index actually needs to change
     if (draft && draft.zIndex < maxZ) {
       setDrafts(prev => prev.map(d => d.id === id ? { ...d, zIndex: maxZ + 1 } : d));

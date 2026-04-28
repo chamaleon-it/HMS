@@ -57,6 +57,7 @@ export default function PrescriptionCard({
       items: [
         ...prev.items,
         {
+          rowId: Date.now().toString(),
           dosage: "1 tab",
           name: "",
           medicineName: "",
@@ -97,10 +98,10 @@ export default function PrescriptionCard({
     addMedicineRow();
   };
 
-  const removeMedicineRow = (idx: number) => {
+  const removeMedicineRow = (rowId: string) => {
     setData((prev) => ({
       ...prev,
-      items: prev.items.filter((_, i) => i !== idx),
+      items: prev.items.filter((item) => item.rowId !== rowId),
     }));
   };
 
@@ -111,7 +112,7 @@ export default function PrescriptionCard({
     <div className="border rounded-xl p-4  max-h-[50vh] overflow-y-auto overflow-x-hidden">
       <div className="flex flex-col gap-3 min-w-[800px]">
         <div
-          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-8"}
+          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-8"
             } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
         >
           <div className="col-span-3">Drug</div>
@@ -132,7 +133,7 @@ export default function PrescriptionCard({
 
         {data.items.map((m, i) => (
           <div
-            key={i}
+            key={m.rowId}
             className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-8"
               } gap-2 mt-2 items-start`}
           >
@@ -294,7 +295,7 @@ export default function PrescriptionCard({
             <div className="col-span-1 flex justify-end gap-2">
               <Button
                 className="bg-red-600! hover:bg-red-700! text-white border-red-600!"
-                onClick={() => removeMedicineRow(i)}
+                onClick={() => removeMedicineRow(m.rowId)}
                 title="Remove medicine"
               >
                 <Trash className="w-4 h-4" />
