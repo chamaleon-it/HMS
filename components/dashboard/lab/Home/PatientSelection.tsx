@@ -25,7 +25,7 @@ type Patient = {
 
 interface Props {
   setValue: (id: string) => void;
-  register: () => void;
+  register: (name?: string) => void;
   input?: string;
   setInput?: (val: string) => void;
 }
@@ -186,7 +186,7 @@ const PatientSelection: React.FC<Props> = ({
                 </div>
                 <button
                   onClick={() => {
-                    register?.()
+                    register?.(input)
                   }}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
                 >
@@ -198,7 +198,7 @@ const PatientSelection: React.FC<Props> = ({
             )}
           </div>
 
-          <ScrollArea className="">
+          {patients.length > 0 && <ScrollArea className="h-[300px]">
             <ul
               id="patient-listbox"
               role="listbox"
@@ -230,7 +230,7 @@ const PatientSelection: React.FC<Props> = ({
                 </li>
               ))}
             </ul>
-          </ScrollArea>
+          </ScrollArea>}
         </div>
       )}
     </div>

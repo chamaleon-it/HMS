@@ -201,7 +201,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
             )}
           </div>
 
-          <ScrollArea className="">
+          {patients.length > 0 && <ScrollArea className="h-[300px]">
             <ul
               id="patient-listbox"
               role="listbox"
@@ -233,7 +233,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
                 </li>
               ))}
             </ul>
-          </ScrollArea>
+          </ScrollArea>}
         </div>
       )}
     </div>
