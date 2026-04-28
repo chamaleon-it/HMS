@@ -98,7 +98,7 @@ const CustomerContent: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-sm text-slate-600 mt-1">
-                    Age {fAge(patient?.dateOfBirth)} /{" "}
+                    Age {fAge(patient?.dateOfBirth).years}y {fAge(patient?.dateOfBirth).months}m /{" "}
                     {patient?.gender} • Ph:{" "}
                     {patient?.phoneNumber}
                   </p>

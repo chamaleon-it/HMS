@@ -366,7 +366,7 @@ export function RegisterPatient({
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
-                    })} - Age : ${fAge(new Date(dateOfBirth))}`
+                    })} - Age : ${fAge(new Date(dateOfBirth)).years}y ${fAge(new Date(dateOfBirth)).months}m`
                     : "Select date of birth"}
                   <ChevronDownIcon />
                 </Button>

@@ -213,7 +213,7 @@ export default function PatientTable({
                     {r.phoneNumber}
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">
-                    {fAge(r.dateOfBirth)}{" "}
+                    {fAge(r.dateOfBirth).years}y {fAge(r.dateOfBirth).months}m{" "}
                     <span className="text-gray-400">/</span> {r.gender}
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">
