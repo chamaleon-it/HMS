@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import {
     Receipt,
@@ -34,25 +35,62 @@ interface StatisticsProps {
 }
 
 export default function Statistics({ billing }: StatisticsProps) {
+    const { data: billingItemsResponse } = useSWR<{ data: { item: string }[] }>("/billing/billing_items");
+    const billingItems = billingItemsResponse?.data ?? [];
 
-    const { data: billingItemsResponse } = useSWR<{ data: { code: string, item: string, price: number, _id: string }[], message: string }>("/billing/billing_items")
-    const billingItems = billingItemsResponse?.data ?? []
+    const {
+        totalBills,
+        consultingFee,
+        procedureFee,
+        pharmacyFee,
+        paidAmount,
+        dueAmount
+    } = useMemo(() => {
+        let consult = 0;
+        let procItemsSum = 0;
+        let pharm = 0;
+        let paid = 0;
+        let due = 0;
 
-    const totalBills = billing.length
-    const consultingFee = billing.reduce((acc, bill) => acc + (bill.items.reduce((a, b) => a + (b.name.toLowerCase().includes("consultation") ? b.total : 0), 0)), 0)
-    const procedureFee = billing.reduce((acc, bill) => acc + (bill.items.reduce((a, b) => a + (billingItems.find((item) => item.item === b.name) ? b.total : 0), 0)), 0) - consultingFee
-    const pharmacyFee = billing.reduce((acc, bill) => acc + (bill.items.reduce((a, b) => a + (b.total), 0)), 0) - consultingFee - procedureFee
-    const paidAmount = billing.reduce((acc, bill) => acc + (bill.cash + bill.online + bill.insurance), 0)
-    const dueAmount = billing.reduce((acc, b) =>
-        acc + (b.items.reduce((a, x) => a + x.total, 0) -
-            (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0) -
-            (b.insurance + b.cash + b.online + (b.discount ?? 0))), 0
-    )
+        const billingItemNames = new Set(billingItems.map(i => i.item));
 
-    const stats = [
+        billing.forEach(bill => {
+            paid += (bill.cash || 0) + (bill.online || 0) + (bill.insurance || 0);
+
+            let billTotal = 0;
+            bill.items.forEach(item => {
+                const itemTotal = item.total || 0;
+                billTotal += itemTotal;
+
+                if (item.name.toLowerCase().includes("consultation")) {
+                    consult += itemTotal;
+                }
+
+                if (billingItemNames.has(item.name)) {
+                    procItemsSum += itemTotal;
+                } else {
+                    pharm += itemTotal;
+                }
+            });
+
+            const roundOffVal = bill.roundOff ? getDecimal(billTotal) : 0;
+            due += (billTotal - roundOffVal - (bill.insurance + bill.cash + bill.online + (bill.discount ?? 0)));
+        });
+
+        return {
+            totalBills: billing.length,
+            consultingFee: consult,
+            procedureFee: procItemsSum - consult,
+            pharmacyFee: pharm,
+            paidAmount: paid,
+            dueAmount: due
+        };
+    }, [billing, billingItems]);
+
+    const stats = useMemo(() => [
         {
             label: "Total Bills",
-            value: totalBills ?? 0,
+            value: totalBills,
             icon: Receipt,
             bg: "bg-blue-50/50",
             border: "border-blue-100",
@@ -62,7 +100,7 @@ export default function Statistics({ billing }: StatisticsProps) {
         },
         {
             label: "Consulting Fees",
-            value: formatINR(consultingFee ?? 0),
+            value: formatINR(consultingFee),
             icon: UserRound,
             bg: "bg-indigo-50/50",
             border: "border-indigo-100",
@@ -72,7 +110,7 @@ export default function Statistics({ billing }: StatisticsProps) {
         },
         {
             label: "Pharmacy Sales",
-            value: formatINR(pharmacyFee ?? 0),
+            value: formatINR(pharmacyFee),
             icon: Pill,
             bg: "bg-emerald-50/50",
             border: "border-emerald-100",
@@ -82,7 +120,7 @@ export default function Statistics({ billing }: StatisticsProps) {
         },
         {
             label: "Procedure Fees",
-            value: formatINR(procedureFee ?? 0),
+            value: formatINR(procedureFee),
             icon: Syringe,
             bg: "bg-amber-50/50",
             border: "border-amber-100",
@@ -90,19 +128,9 @@ export default function Statistics({ billing }: StatisticsProps) {
             textColor: "text-amber-800/70",
             headingColor: "text-amber-900"
         },
-        // {
-        //     label: "Total Amount",
-        //     value: formatINR(0),
-        //     icon: Wallet,
-        //     bg: "bg-blue-50/50",
-        //     border: "border-blue-100",
-        //     iconColor: "text-blue-600/70",
-        //     textColor: "text-blue-800/70",
-        //     headingColor: "text-blue-900"
-        // },
         {
             label: "Paid Amount",
-            value: formatINR(paidAmount ?? 0),
+            value: formatINR(paidAmount),
             icon: Wallet,
             bg: "bg-teal-50/50",
             border: "border-teal-100",
@@ -112,7 +140,7 @@ export default function Statistics({ billing }: StatisticsProps) {
         },
         {
             label: "Due Amount",
-            value: formatINR(dueAmount ?? 0),
+            value: formatINR(dueAmount),
             icon: AlertCircle,
             bg: "bg-rose-50/50",
             border: "border-rose-100",
@@ -120,7 +148,7 @@ export default function Statistics({ billing }: StatisticsProps) {
             textColor: "text-rose-800/70",
             headingColor: "text-rose-900"
         }
-    ];
+    ], [totalBills, consultingFee, pharmacyFee, procedureFee, paidAmount, dueAmount]);
 
     return (
         <div className="grid grid-cols-6 gap-5 pb-5">
@@ -143,5 +171,5 @@ export default function Statistics({ billing }: StatisticsProps) {
                 </div>
             ))}
         </div>
-    )
+    );
 }
