@@ -9,10 +9,11 @@ import Header from "./Header";
 import useSWR from "swr";
 import { BillingFormSkeleton, TableSkeleton } from "../components/PharmacySkeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { ReceiptIndianRupee, PlusCircle } from "lucide-react";
+import { ReceiptIndianRupee, PlusCircle, ShoppingBag } from "lucide-react";
 import { motion } from "framer-motion";
 import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
+import Statistics from "./Statistics";
 
 export interface FilterType {
   q: null | string;
@@ -142,6 +143,9 @@ export default function BillingPage() {
           <div className="flex flex-col gap-5">
             <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} />
 
+
+
+
             <Tabs
               defaultValue="all"
               className="flex-1 overflow-hidden"
@@ -149,6 +153,9 @@ export default function BillingPage() {
               value={tab}
             >
               <TabsContent value="all">
+
+                <Statistics billing={billing} />
+
                 <Filters filter={filter} setFilter={setFilter} />
                 {isLoadingBilling ? (
                   <TableSkeleton rows={10} columns={6} />
