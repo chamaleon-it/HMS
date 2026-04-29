@@ -787,7 +787,8 @@ const Customer: React.FC = () => {
                                                                                 error: "Something went wrong"
                                                                             })
                                                                             const updatedData = await mutate()
-                                                                            setSelectedVisit(updatedData?.data[0] ?? null)
+                                                                            const lastone = updatedData?.data.length
+                                                                            setSelectedVisit(updatedData?.data[(lastone ?? 0) - 1] ?? null)
                                                                         } catch (error) {
                                                                             // Handle error
                                                                         } finally {
