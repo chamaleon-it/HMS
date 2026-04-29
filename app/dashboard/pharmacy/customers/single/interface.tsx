@@ -1,5 +1,39 @@
+export interface BillingRecord {
+  _id: string;
+  user: string;
+  patient: {
+    _id: string;
+    name: string;
+    phoneNumber: string;
+    gender: string;
+    dateOfBirth: string | null;
+    address: string;
+    mrn: string;
+    allergies?: string;
+    blood?: string;
+    email?: string;
+  };
+  items: {
+    name: string;
+    quantity: number;
+    unitPrice: number;
+    gst: number;
+    discount: number;
+    total: number;
+  }[];
+  cash: number;
+  online: number;
+  insurance: number;
+  discount: number;
+  mrn: string;
+  roundOff: boolean;
+  transactionType: "Sale" | "Return";
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CustomerType {
-  data: Data;
+  data: BillingRecord[];
   message: string;
 }
 
