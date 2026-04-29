@@ -607,12 +607,7 @@ const Customer: React.FC = () => {
                                                         {fDate(selectedVisit.createdAt)}
                                                     </span>
                                                 </span>
-                                                {selectedVisit?.mrn && <span>
-                                                    RX ID:{" "}
-                                                    <span className="font-medium text-slate-700">
-                                                        {selectedVisit.mrn}
-                                                    </span>
-                                                </span>}
+
                                             </div>
                                         )}
                                     </div>
