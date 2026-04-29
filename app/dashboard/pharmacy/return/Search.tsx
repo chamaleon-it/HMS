@@ -117,7 +117,7 @@ export default function Search({
             </span>
 
             {showDropdown && orders.length > 0 && (
-              <div 
+              <div
                 ref={dropdownRef}
                 className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-xl shadow-xl max-h-60 overflow-auto py-2 border-slate-200 animate-in fade-in zoom-in duration-200"
               >
@@ -129,7 +129,7 @@ export default function Search({
                     onClick={() => {
                       setFilter((prev) => ({ ...prev, q: item.mrn }));
                       setShowDropdown(false);
-                      setTimeout(() => fetchOrder(), 0);
+                      setTimeout(() => fetchOrder(item.mrn), 0);
                     }}
                   >
                     <div className="flex items-center justify-between">
