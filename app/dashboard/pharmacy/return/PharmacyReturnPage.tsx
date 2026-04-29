@@ -89,8 +89,12 @@ export default function PharmacyReturnPage() {
       const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
       setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
       setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
-    } catch (error) {
-      toast.error("Failed to fetch order");
+    } catch (error: any) {
+      if (error?.response?.data?.message === "Order not found.") {
+        toast.error("No returnable products were found in this order.");
+      } else {
+        toast.error(error?.response?.data?.message);
+      }
     } finally {
       setFetching(false);
     }

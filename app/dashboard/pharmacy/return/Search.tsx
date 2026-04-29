@@ -4,7 +4,8 @@ import { formatINR } from "@/lib/fNumber";
 import React from "react";
 import { OrderType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
-import { Search as SearchIcon, User, Stethoscope, CreditCard, ReceiptIndianRupee, Download } from "lucide-react";
+import { User, Stethoscope, CreditCard, ReceiptIndianRupee, Download } from "lucide-react";
+import useSWR from "swr";
 
 interface Props {
   filter: {
@@ -27,9 +28,57 @@ export default function Search({
   setFilter,
   order,
 }: Props) {
+
+  const { data: ordersData, isLoading: isLoadingOrders } = useSWR<{
+    message: string,
+    data: {
+      _id: string,
+      user: string,
+      patient: {
+        _id: string,
+        name: string,
+        phoneNumber: string,
+        gender: string,
+        dateOfBirth: Date,
+        mrn: string,
+        address: string
+      },
+      mrn: string
+    }[]
+  }>(filter.q ? `/billing/drop-down${filter.q ? `?query=${filter.q}` : ""}` : null)
+
+  const orders = ordersData?.data ?? [];
+
+  const [showDropdown, setShowDropdown] = React.useState(false);
+  const [selectedIndex, setSelectedIndex] = React.useState(-1);
+
+  React.useEffect(() => {
+    setSelectedIndex(-1);
+  }, [orders, showDropdown]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showDropdown || orders.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev < orders.length - 1 ? prev + 1 : prev));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSelectedIndex((prev) => (prev > 0 ? prev - 1 : prev));
+    } else if (e.key === "Enter") {
+      if (selectedIndex >= 0) {
+        e.preventDefault();
+        setFilter((prev) => ({ ...prev, q: orders[selectedIndex].mrn }));
+        setShowDropdown(false);
+        setTimeout(() => fetchOrder(), 0);
+      }
+    } else if (e.key === "Escape") {
+      setShowDropdown(false);
+    }
+  };
+
   return (
     <section className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-      {/* LEFT: SEARCH BOX */}
       <div className="xl:col-span-1 bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 flex flex-col gap-3">
         <div className="text-sm font-medium text-slate-700 flex items-center gap-2">
           <span>Find Bill</span>
@@ -40,13 +89,56 @@ export default function Search({
               placeholder="Search invoice no. "
               className="pl-9 text-sm h-9 rounded-lg border-slate-300 focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
               value={filter.q ?? ""}
+              onFocus={() => setShowDropdown(true)}
+              onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+              onKeyDown={handleKeyDown}
               onChange={(e) =>
-                setFilter((prev) => ({ ...prev, q: e.target.value.trim() }))
+                setFilter((prev) => ({ ...prev, q: e.target.value }))
               }
             />
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
               🔍
             </span>
+
+            {showDropdown && orders.length > 0 && (
+              <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-xl shadow-xl max-h-60 overflow-auto py-2 border-slate-200 animate-in fade-in zoom-in duration-200">
+                {orders.map((item, index) => (
+                  <div
+                    key={item._id}
+                    className={`px-4 py-2 cursor-pointer flex flex-col gap-1 transition-colors border-b border-slate-50 last:border-0 ${
+                      selectedIndex === index ? "bg-slate-100" : "hover:bg-slate-50"
+                    }`}
+                    onClick={() => {
+                      setFilter((prev) => ({ ...prev, q: item.mrn }));
+                      setShowDropdown(false);
+                      setTimeout(() => fetchOrder(), 0);
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-semibold text-slate-800">
+                        {item.patient?.name}{" "}
+                        <span className="font-medium ml-1 text-[10px]">
+                          ({item.patient.mrn})
+                        </span>
+                      </div>
+                      <div className="text-[10px] text-slate-400">
+                        {item.patient?.phoneNumber}
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <div className="text-[9px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-sm font-bold uppercase tracking-wider border border-indigo-100">
+                        {item.mrn}
+                      </div>
+                      {item.patient?.address && (
+                        <div className="text-[10px] text-slate-500 truncate italic max-w-[200px]">
+                          {item.patient.address}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <Button
             className="h-9 rounded-lg bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 text-xs font-medium shadow-md flex items-center gap-2 transition-all active:scale-95"
@@ -73,8 +165,6 @@ export default function Search({
           </div>
         )}
       </div>
-
-      {/* RIGHT: BILL SUMMARY */}
       <div className="xl:col-span-2 bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 grid grid-cols-2 md:grid-cols-4 gap-4 text-[11px] text-slate-600">
         <div className="flex flex-col">
           <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500 font-medium text-xs">
