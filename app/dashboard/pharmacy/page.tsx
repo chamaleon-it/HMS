@@ -137,7 +137,7 @@ export default function PharmacyHome() {
   return (
     <AppShell>
       <TooltipProvider>
-        <main className="p-5 min-h-[calc(100vh-80px)]">
+        <main className="p-5 min-h-[calc(100vh-67px)]">
           <RxQueue />
         </main>
       </TooltipProvider>

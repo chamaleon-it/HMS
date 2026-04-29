@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 
 interface BillRow {
-  status: "Paid" | "Partial" | "Unpaid";
+  status: "Paid" | "Partial" | "Unpaid" | "Return";
   method: "cash" | "online" | "insurance" | "mixed";
 }
 
@@ -28,6 +28,7 @@ interface PropsType {
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   total: number;
   billing: {
+    transactionType: "Return" | "Sale"
     roundOff: boolean;
     mrn: string;
     _id: string;
@@ -56,7 +57,6 @@ import PrintReceipt from "./PrintReceipt";
 import { PaginationBar } from "../components/PaginationBar";
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
-  const [selectedBill, setSelectedBill] = React.useState<PropsType["billing"][number] | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
   const [printBill, setPrintBill] = React.useState<PropsType["billing"][number] | null>(null);
 
@@ -67,7 +67,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
     }, 100);
   };
 
-
+  console.log(billing)
   return (
     <>
       <div className="flex flex-col gap-6 print:hidden mt-6">
@@ -166,7 +166,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                             0
                           ) - (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
                           const paid = b.cash + b.online + b.insurance + (b.discount ?? 0);
-                          return total <= paid
+                          return b.transactionType === "Return" ? "Return" : total <= paid
                             ? "Paid"
                             : paid === 0
                               ? "Unpaid"
@@ -188,11 +188,11 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                             <p>View Bill</p>
                           </TooltipContent>
                         </Tooltip>
- 
+
                         <Button variant="outline" size="sm" onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5 text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800">
                           <Printer className="h-3.5 w-3.5" /> Print
                         </Button>
- 
+
                         {b.items.reduce(
                           (sum, i) => sum + i.total,
                           0
@@ -238,23 +238,24 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     Total
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums">
-                    {formatINR(billing.reduce((acc, b) => acc + b.items.reduce((a, x) => a + x.total, 0), 0))}
+                    {formatINR(billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0)), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items.reduce((a, x) => a + x.total, 0)), 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-slate-700">
-                    {billing.reduce((acc, b) => acc + (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0), 0).toFixed(2)}
+                    {billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0), 0).toFixed(2)}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums">
                     {formatINR(billing.reduce((acc, b) => acc + (b.discount ?? 0), 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
-                    {formatINR(billing.reduce((acc, b) => acc + b.insurance + b.cash + b.online, 0))}
+                    {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - b.cash : acc + b.insurance + b.cash + b.online, 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-rose-700 font-black">
                     {formatINR(billing.reduce((acc, b) =>
-                      acc + (b.items.reduce((a, x) => a + x.total, 0) -
+                      acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0) -
                         (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0) -
                         (b.insurance + b.cash + b.online + (b.discount ?? 0))), 0
-                    ))}
+                    )
+                    )}
                   </TableCell>
                   <TableCell colSpan={2} />
                 </TableRow>
@@ -276,7 +277,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
       <AddPaymentDialog
         open={isPaymentOpen}
         setOpen={setIsPaymentOpen}
-        bill={selectedBill as any} // temporary cast until types align perfectly
+        bill={null} // temporary cast until types align perfectly
         billingMutate={billingMutate}
       />
 
@@ -335,9 +336,11 @@ const StatusPill: React.FC<{ s: BillRow["status"] }> = ({ s }) => {
   const cls =
     s === "Paid"
       ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-      : s === "Partial"
+      : s === "Partial" || s === "Unpaid"
         ? "bg-amber-50 text-amber-800 border-amber-200"
-        : "bg-rose-50 text-rose-700 border-rose-200";
+        : s === "Return"
+          ? "bg-amber-50 text-amber-800 border-amber-200"
+          : "bg-rose-50 text-rose-700 border-rose-200";
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}

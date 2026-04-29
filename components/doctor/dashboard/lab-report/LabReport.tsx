@@ -314,7 +314,7 @@ export default function LabResultsPage() {
   })
 
   return (
-    <div className="min-h-[calc(100vh-80px)] w-full bg-zinc-50/50 p-6 space-y-6">
+    <div className="min-h-[calc(100vh-67px)] w-full bg-zinc-50/50 p-6 space-y-6">
       <DoctorHeader
         title="Investigations"
         subtitle="Track, filter & review lab and imaging results"

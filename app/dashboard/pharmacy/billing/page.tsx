@@ -98,6 +98,7 @@ export default function BillingPage() {
         name: string;
         mrn: string;
       };
+      transactionType: "Return" | "Sale"
     }[];
   }>(`/billing?${params.toString()}`);
 
@@ -133,7 +134,7 @@ export default function BillingPage() {
     <AppShell>
       <TooltipProvider>
         <div
-          className="min-h-[calc(100vh-80px)] w-full p-5 text-slate-900 dark:text-slate-100"
+          className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100"
         >
           <div className="flex flex-col gap-5">
             <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} />

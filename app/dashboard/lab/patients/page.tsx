@@ -56,7 +56,7 @@ const Patients: React.FC = () => {
     return (
         <AppShell>
             <TooltipProvider>
-                <div className="bg-slate-50 p-5 min-h-[calc(100vh-80px)]">
+                <div className="bg-slate-50 p-5 min-h-[calc(100vh-67px)]">
                     <main className="space-y-6">
                         <div className="flex items-center justify-between gap-3 w-full">
                             <LabHeader

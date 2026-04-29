@@ -105,7 +105,7 @@ export default function Lab() {
   const REPORT = data?.data ?? [];
 
   return (
-    <div className="min-h-[calc(100vh-80px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-6">
+    <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-6">
       <LabHeader
         title="Test Management"
         subtitle="Comprehensive view of all laboratory results and records"

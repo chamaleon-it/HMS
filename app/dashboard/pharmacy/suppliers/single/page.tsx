@@ -193,7 +193,7 @@ const SingleSupplierPage: React.FC = () => {
 
     return (
         <AppShell>
-            <div className="p-5 min-h-[calc(100vh-80px)] ">
+            <div className="p-5 min-h-[calc(100vh-67px)] ">
                 <main className="flex flex-col gap-6">
                     <PharmacyHeader
                         title={supplier.name}

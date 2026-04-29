@@ -96,7 +96,7 @@ export default function InventoryPage() {
   return (
     <AppShell>
       <TooltipProvider>
-        <div className="p-5 min-h-[calc(100vh-80px)] w-full">
+        <div className="p-5 min-h-[calc(100vh-67px)] w-full">
           <div
             className={`flex flex-col gap-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
               }`}

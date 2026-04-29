@@ -109,7 +109,7 @@ export default function LabResultsPage() {
   const REPORT = data?.data ?? [];
 
   return (
-    <div className="min-h-[calc(100vh-80px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-6">
+    <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-6">
       <div className="flex flex-col gap-6">
         <LabHeader
           title="Lab Investigations"

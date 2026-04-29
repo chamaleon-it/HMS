@@ -26,7 +26,7 @@ const WholesalerSettingsPage: React.FC = () => {
 
   return (
     <AppShell>
-      <div className="min-h-[calc(100vh-80px)] w-full bg-slate-50 text-slate-900">
+      <div className="min-h-[calc(100vh-67px)] w-full bg-slate-50 text-slate-900">
         <div className="bg-white/70 backdrop-blur border-b">
           <div className="p-5 flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -89,15 +89,15 @@ const WholesalerSettingsPage: React.FC = () => {
 
         {/* Content */}
         <div className="flex flex-col gap-6 px-5 pb-5">
-          <Summery profile={profile}/>
+          <Summery profile={profile} />
 
           {activeSection === "general" && <General profile={profile} profileMutate={profileMutate} />}
 
-          {activeSection === "pricing" && <Pricing profile={profile} profileMutate={profileMutate}/>}
+          {activeSection === "pricing" && <Pricing profile={profile} profileMutate={profileMutate} />}
 
-          {activeSection === "logistics" && <Logistics profile={profile} profileMutate={profileMutate}/>}
+          {activeSection === "logistics" && <Logistics profile={profile} profileMutate={profileMutate} />}
 
-          {activeSection === "notifications" && <Notifications profile={profile} profileMutate={profileMutate}/>}
+          {activeSection === "notifications" && <Notifications profile={profile} profileMutate={profileMutate} />}
 
           {activeSection === "security" && <Security />}
         </div>

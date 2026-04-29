@@ -36,7 +36,7 @@ export default function AppointmentPage() {
 
   return (
     <AppShell>
-      <div className="p-5 min-h-[calc(100vh-80px)] space-y-5">
+      <div className="p-5 min-h-[calc(100vh-67px)] space-y-5">
         <DoctorHeader
           title="Appointments"
           subtitle="Manage patient appointments and schedules"
