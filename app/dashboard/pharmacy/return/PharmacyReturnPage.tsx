@@ -58,12 +58,12 @@ export default function PharmacyReturnPage() {
   const [fetching, setFetching] = useState(false);
   const [returning, setReturning] = useState(false);
 
-  const fetchOrder = async () => {
+  const fetchOrder = async (billNumber?: string) => {
     try {
       setFetching(true);
 
 
-      if (!mrn && !filter.q) {
+      if (!mrn && !filter.q && !billNumber) {
         toast.error("Please enter a valid RX id");
         return;
       }
@@ -71,7 +71,9 @@ export default function PharmacyReturnPage() {
 
       const params = new URLSearchParams();
 
-      if (mrn) {
+      if (billNumber) {
+        params.set("q", billNumber);
+      } else if (mrn) {
         params.set("q", mrn);
       }
       else if (filter.q) {

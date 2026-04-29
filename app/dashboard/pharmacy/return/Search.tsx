@@ -17,7 +17,7 @@ interface Props {
     }>
   >;
 
-  fetchOrder: () => Promise<void>;
+  fetchOrder: (mrn?: string) => Promise<void>;
 
   order: OrderType | null;
 }
@@ -51,6 +51,19 @@ export default function Search({
 
   const [showDropdown, setShowDropdown] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(-1);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (selectedIndex !== -1 && dropdownRef.current) {
+      const selectedElement = dropdownRef.current.children[selectedIndex] as HTMLElement;
+      if (selectedElement) {
+        selectedElement.scrollIntoView({
+          block: "nearest",
+          behavior: "smooth",
+        });
+      }
+    }
+  }, [selectedIndex]);
 
   React.useEffect(() => {
     setSelectedIndex(-1);
@@ -68,9 +81,10 @@ export default function Search({
     } else if (e.key === "Enter") {
       if (selectedIndex >= 0) {
         e.preventDefault();
+        console.log(orders[selectedIndex])
         setFilter((prev) => ({ ...prev, q: orders[selectedIndex].mrn }));
         setShowDropdown(false);
-        setTimeout(() => fetchOrder(), 0);
+        setTimeout(async () => await fetchOrder(orders[selectedIndex].mrn), 220);
       }
     } else if (e.key === "Escape") {
       setShowDropdown(false);
@@ -92,8 +106,10 @@ export default function Search({
               onFocus={() => setShowDropdown(true)}
               onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
               onKeyDown={handleKeyDown}
-              onChange={(e) =>
+              onChange={(e) => {
                 setFilter((prev) => ({ ...prev, q: e.target.value }))
+                setShowDropdown(true)
+              }
               }
             />
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">
@@ -101,13 +117,15 @@ export default function Search({
             </span>
 
             {showDropdown && orders.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-xl shadow-xl max-h-60 overflow-auto py-2 border-slate-200 animate-in fade-in zoom-in duration-200">
+              <div 
+                ref={dropdownRef}
+                className="absolute top-full left-0 right-0 z-50 mt-1 bg-white border rounded-xl shadow-xl max-h-60 overflow-auto py-2 border-slate-200 animate-in fade-in zoom-in duration-200"
+              >
                 {orders.map((item, index) => (
                   <div
                     key={item._id}
-                    className={`px-4 py-2 cursor-pointer flex flex-col gap-1 transition-colors border-b border-slate-50 last:border-0 ${
-                      selectedIndex === index ? "bg-slate-100" : "hover:bg-slate-50"
-                    }`}
+                    className={`px-4 py-2 cursor-pointer flex flex-col gap-1 transition-colors border-b border-slate-50 last:border-0 ${selectedIndex === index ? "bg-slate-100" : "hover:bg-slate-50"
+                      }`}
                     onClick={() => {
                       setFilter((prev) => ({ ...prev, q: item.mrn }));
                       setShowDropdown(false);
@@ -142,7 +160,7 @@ export default function Search({
           </div>
           <Button
             className="h-9 rounded-lg bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 text-xs font-medium shadow-md flex items-center gap-2 transition-all active:scale-95"
-            onClick={fetchOrder}
+            onClick={() => fetchOrder()}
           >
             <Download className="w-3.5 h-3.5" />
             Load Order
