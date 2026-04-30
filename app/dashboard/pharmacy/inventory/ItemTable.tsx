@@ -151,7 +151,7 @@ export default function ItemTable({
                         <AlertCircle className="w-4 h-4" />
                         <span>Out of Stock</span>
                       </div>
-                    ) : item.quantity < pharmacyInventory.lowStockThreshold ? (
+                    ) : item.quantity <= pharmacyInventory.lowStockThreshold ? (
                       <div className="flex items-center gap-1.5 text-amber-600 font-medium">
                         <AlertTriangle className="w-4 h-4" />
                         <span>{item.quantity}</span>

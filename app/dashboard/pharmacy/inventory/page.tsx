@@ -26,7 +26,7 @@ export default function InventoryPage() {
   const [openAdd, setOpenAdd] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItemType | null>(null);
 
-  const { data } = useSWR<{
+  const { data: profileData } = useSWR<{
     message: string;
     data: {
       pharmacy: {
@@ -39,7 +39,7 @@ export default function InventoryPage() {
     };
   }>("/users/profile");
 
-  const pharmacyInventory = data?.data?.pharmacy?.inventory ?? {
+  const pharmacyInventory = profileData?.data?.pharmacy?.inventory ?? {
     lowStockThreshold: 20,
     expiryAlert: 90,
     allowNegativeStock: false,
