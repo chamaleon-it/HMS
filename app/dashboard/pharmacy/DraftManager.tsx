@@ -39,13 +39,15 @@ export const DraftManager: React.FC = () => {
     return () => window.removeEventListener('request-delete-draft', handleDeleteRequest);
   }, []);
 
+  const containerRef = React.useRef<HTMLDivElement | null>(null);
+
   if (typeof window === 'undefined') return null;
 
   // Only show windows on the main pharmacy dashboard page
   if (pathname !== "/dashboard/pharmacy/") return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-40">
+    <div ref={containerRef} className="fixed inset-0 pointer-events-none z-40">
       {drafts.map((draft) => (
         <DraggableWindow
           key={draft.id}
@@ -59,6 +61,7 @@ export const DraftManager: React.FC = () => {
           onMinimize={() => updateDraft(draft.id, { minimized: !draft.minimized })}
           onFocus={() => bringToFront(draft.id)}
           onPositionChange={(pos) => updateDraft(draft.id, { position: pos })}
+          dragConstraints={containerRef}
         >
           <NewOrderWindowContent draft={draft} />
         </DraggableWindow>

@@ -28,10 +28,12 @@ export const LabDraftManager: React.FC = () => {
     return () => window.removeEventListener('open-lab-register-patient', handleRegister);
   }, []);
 
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
   if (typeof window === 'undefined') return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-40">
+    <div ref={containerRef} className="fixed inset-0 pointer-events-none z-40">
       {drafts.map((draft) => (
         <DraggableWindow
           key={draft.id}
@@ -45,6 +47,7 @@ export const LabDraftManager: React.FC = () => {
           onMinimize={() => updateDraft(draft.id, { minimized: !draft.minimized })}
           onFocus={() => bringToFront(draft.id)}
           onPositionChange={(pos) => updateDraft(draft.id, { position: pos })}
+          dragConstraints={containerRef}
         >
           <NewTestWindowContent draft={draft} />
         </DraggableWindow>

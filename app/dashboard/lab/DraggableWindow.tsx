@@ -1,4 +1,5 @@
 "use client";
+import React, { useEffect } from 'react';
 import { motion, useDragControls } from 'framer-motion';
 import { X, Minus, Maximize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -17,19 +18,59 @@ interface Props {
   isActive?: boolean;
   minimized?: boolean;
   className?: string;
+  dragConstraints?: React.RefObject<HTMLDivElement | null>;
 }
 
 export const DraggableWindow: React.FC<Props> = ({
-  id, title, children, onClose, onMinimize, onFocus, zIndex, position, onPositionChange, isActive, minimized, className
+  id, title, children, onClose, onMinimize, onFocus, zIndex, position, onPositionChange, isActive, minimized, className, dragConstraints
 }) => {
   const dragControls = useDragControls();
+  const windowRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Keep window in visible area
+  useEffect(() => {
+    const checkBounds = () => {
+      if (!windowRef.current) return;
+      const rect = windowRef.current.getBoundingClientRect();
+      const padding = 20;
+      let newX = position.x;
+      let newY = position.y;
+
+      const viewportWidth = window.innerWidth;
+      const viewportHeight = window.innerHeight;
+
+      if (rect.right > viewportWidth) {
+        newX = Math.max(padding, viewportWidth - rect.width - padding);
+      }
+      if (rect.bottom > viewportHeight) {
+        newY = Math.max(padding, viewportHeight - rect.height - padding);
+      }
+      if (rect.left < 0) {
+        newX = padding;
+      }
+      if (rect.top < 0) {
+        newY = padding;
+      }
+
+      if (newX !== position.x || newY !== position.y) {
+        onPositionChange({ x: newX, y: newY });
+      }
+    };
+
+    checkBounds();
+    window.addEventListener('resize', checkBounds);
+    return () => window.removeEventListener('resize', checkBounds);
+  }, [position.x, position.y, minimized, onPositionChange]);
 
   return (
     <motion.div
+      ref={windowRef}
       drag
       dragControls={dragControls}
       dragListener={false}
       dragMomentum={false}
+      dragConstraints={dragConstraints}
+      dragElastic={0}
       initial={false}
       style={{
         zIndex,

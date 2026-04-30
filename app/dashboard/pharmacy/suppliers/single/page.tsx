@@ -417,7 +417,7 @@ const SingleSupplierPage: React.FC = () => {
                             </div>
 
                             <div className="flex-1 overflow-y-auto divide-y ">
-                                {sortedFilteredOrders.map((order) => {
+                                {sortedFilteredOrders.sort((a, b) => new Date(b.invoiceDate).getTime() - new Date(a.invoiceDate).getTime()).map((order) => {
                                     const active = selectedOrder?._id === order._id;
                                     const isDue = order.paymentStatus !== "Paid";
                                     const dueDate = addDays(new Date(order.invoiceDate), supplier?.paymentTerms || 0);
