@@ -94,13 +94,6 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
     [setValue]
   );
 
-  useEffect(() => {
-    if (patientName && patients.length > 0) {
-      handleSelect(patients[0])
-    }
-
-  }, [patientName, patients])
-
 
 
   // Keyboard navigation within the listbox
