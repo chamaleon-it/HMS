@@ -11,6 +11,7 @@ import { BillingFormSkeleton, TableSkeleton } from "../components/PharmacySkelet
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
+import Statistics from "./Statistics";
 
 export interface FilterType {
   q: null | string;
@@ -147,7 +148,7 @@ export default function BillingPage() {
             >
               <TabsContent value="all">
 
-                {/* <Statistics billing={billing} /> */}
+                <Statistics billing={billing} />
 
                 <Filters filter={filter} setFilter={setFilter} />
                 {isLoadingBilling ? (
