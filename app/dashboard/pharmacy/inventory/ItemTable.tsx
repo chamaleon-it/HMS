@@ -100,7 +100,7 @@ export default function ItemTable({
         <div className="overflow-x-auto w-full">
           <Table className="whitespace-nowrap">
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
-              <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+              <TableRow className="bg-slate-700 hover:bg-slate-800 border-b-0">
 
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Sl No</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Item Name</TableHead>
@@ -118,6 +118,7 @@ export default function ItemTable({
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Expiry Date</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Supplier</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Status</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Item Sold</TableHead>
                 <TableHead className="text-white text-right font-bold text-[11px] uppercase tracking-wider py-2.5 pr-4" >Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -187,6 +188,11 @@ export default function ItemTable({
                       label={item.status}
                       tone={item.status as "Inactive" | "Active"}
                     />
+                  </TableCell>
+
+                  <TableCell className="py-3 font-medium text-slate-700">
+                    {((item.openingStockQuantity || 0) + (item.batches?.reduce((acc, b) => acc + (b.quantity || 0), 0) || 0)) - item.quantity}
+                    
                   </TableCell>
 
                   <TableCell className="py-3 pr-4">
