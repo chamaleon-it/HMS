@@ -47,6 +47,8 @@ export default function PrintReceipt({
     invoiceDetails,
 }: PrintReceiptProps) {
 
+    console.log(payload)
+
     if (!patient || !payload || !invoiceDetails) return null;
 
     const invoiceNo = `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;

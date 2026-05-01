@@ -6,7 +6,8 @@ import {
     Pill,
     Syringe,
     Wallet,
-    AlertCircle
+    AlertCircle,
+    Stethoscope
 } from "lucide-react";
 import useSWR from "swr";
 
@@ -31,12 +32,14 @@ interface StatisticsProps {
             name: string;
             mrn: string;
         };
+        doctor: string;
     }[]
 }
 
 export default function Statistics({ billing }: StatisticsProps) {
     const { data: billingItemsResponse } = useSWR<{ data: { item: string }[] }>("/billing/billing_items");
     const billingItems = billingItemsResponse?.data ?? [];
+
 
     const {
         totalBills,
@@ -154,12 +157,15 @@ export default function Statistics({ billing }: StatisticsProps) {
         }
     ], [totalBills, consultingFee, pharmacyFee, procedureFee, paidAmount, dueAmount]);
 
+
     return (
-        <div className="grid grid-cols-6 gap-5 pb-5">
+
+        <div className="grid grid-cols-6 gap-3 pb-3">
+
             {stats.map((stat, index) => (
                 <div
                     key={index}
-                    className={`${stat.bg} p-6 rounded-2xl border ${stat.border} shadow-sm transition-all hover:scale-[1.02] cursor-default`}
+                    className={`${stat.bg} p-4 rounded-2xl border ${stat.border} shadow-sm transition-all hover:scale-[1.02] cursor-default`}
                 >
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -175,5 +181,7 @@ export default function Statistics({ billing }: StatisticsProps) {
                 </div>
             ))}
         </div>
+
+
     );
 }
