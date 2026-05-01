@@ -460,7 +460,7 @@ const QuantityInput = ({
           placeholder="0"
           onChange={(e) => {
             const value = Number(e.target.value);
-            updateField(i, "quantity", value ?? 0);
+            updateField(i, "quantity", value || 0);
           }}
           onKeyDown={onKeyDown}
           inputMode={"numeric"}

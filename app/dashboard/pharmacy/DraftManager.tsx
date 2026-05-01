@@ -143,41 +143,6 @@ export const DraftManager: React.FC = () => {
           )}
         </DialogContent>
       </Dialog>
-
-      {/* Kept Drafts Drawer / List */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col-reverse gap-3 pointer-events-none">
-        {drafts.filter(d => !d.isOpen).map(draft => (
-          <div 
-            key={draft.id} 
-            className="bg-white/95 backdrop-blur-md border border-slate-200/80 shadow-xl shadow-slate-200/50 rounded-xl p-3 flex items-center justify-between gap-4 cursor-pointer hover:bg-slate-50 transition-all hover:-translate-y-1 hover:shadow-2xl pointer-events-auto w-[280px]"
-            onClick={() => updateDraft(draft.id, { isOpen: true, minimized: false })}
-          >
-            <div className="flex items-center gap-3 overflow-hidden">
-              <div className="p-2 bg-gradient-to-br from-indigo-50 to-purple-50 text-indigo-600 rounded-lg border border-indigo-100 shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/><line x1="10" x2="8" y1="9" y2="9"/></svg>
-              </div>
-              <div className="flex flex-col overflow-hidden">
-                <span className="text-sm font-semibold text-slate-800 truncate">
-                  {draft.patientName || `Draft #${draft.id.slice(-4)}`}
-                </span>
-                <span className="text-[11px] font-medium text-slate-500">
-                  {draft.payload.items?.filter((i: any) => i.name)?.length || 0} items
-                </span>
-              </div>
-            </div>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                removeDraft(draft.id);
-              }}
-              className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors shrink-0"
-              title="Discard Draft"
-            >
-              <Trash2 className="w-[18px] h-[18px]" />
-            </button>
-          </div>
-        ))}
-      </div>
     </div>
   );
 };
