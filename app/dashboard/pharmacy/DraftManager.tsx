@@ -25,6 +25,11 @@ export const DraftManager: React.FC = () => {
   const [registerData, setRegisterData] = useState<{ name: string; draftId: string } | null>(null);
   const [draftToDelete, setDraftToDelete] = useState<string | null>(null);
   const pathname = usePathname();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleRegister = (e: any) => setRegisterData(e.detail);
@@ -41,14 +46,14 @@ export const DraftManager: React.FC = () => {
 
   const containerRef = React.useRef<HTMLDivElement | null>(null);
 
-  if (typeof window === 'undefined') return null;
+  if (!isMounted) return null;
 
   // Only show windows on the main pharmacy dashboard page
   if (pathname !== "/dashboard/pharmacy/") return null;
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none z-40">
-      {drafts.map((draft) => (
+      {drafts.filter(draft => draft.isOpen).map((draft) => (
         <DraggableWindow
           key={draft.id}
           id={draft.id}
@@ -86,7 +91,15 @@ export const DraftManager: React.FC = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+            <AlertDialogCancel 
+              onClick={() => {
+                if (draftToDelete) {
+                  updateDraft(draftToDelete, { isOpen: false });
+                }
+                setDraftToDelete(null);
+              }}
+              
+            className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
               Keep Draft
             </AlertDialogCancel>
             <AlertDialogAction

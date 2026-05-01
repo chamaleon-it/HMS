@@ -13,6 +13,7 @@ import { TableSkeleton } from "./components/PharmacySkeleton";
 import PharmacyHeader from "./components/PharmacyHeader";
 import DateFilter from "./DateFilter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
+import { useDrafts } from "./DraftContext";
 
 function RxQueue() {
 
@@ -29,7 +30,7 @@ function RxQueue() {
   };
 
   const [filter, setFilter] = useState<{
-    q: "Pending" | "Filling" | "Ready" | "Completed" | "Deleted";
+    q: "Pending" | "Filling" | "Ready" | "Completed" | "Deleted" | "Draft";
     page: number;
     limit: number;
   }>({
@@ -68,15 +69,36 @@ function RxQueue() {
   params.set("startDate", startDateStr);
   params.set("endDate", endDateStr);
 
+  const { drafts } = useDrafts();
 
   const { data: ordersData, mutate: OrderMutate, isLoading } = useSWR<{
     message: string;
     total: number;
     data: OrderType[];
-  }>(`/pharmacy/orders?${params.toString()}`);
+  }>(filter.q === "Draft" ? null : `/pharmacy/orders?${params.toString()}`);
 
-  const orders = ordersData?.data ?? [];
-  const total = ordersData?.total ?? 0;
+  const apiOrders = ordersData?.data ?? [];
+  const apiTotal = ordersData?.total ?? 0;
+
+  // Combine draft mapping
+  const orders = filter.q === "Draft" 
+    ? drafts.filter(d => !d.isOpen).map((d) => ({
+        _id: d.id,
+        mrn: "-",
+        rxNumber: `DRFT-${d.id.slice(-4)}`,
+        patient: { name: d.patientName || "Unknown" } as any,
+        status: "Draft",
+        priority: d.payload?.priority || "Normal",
+        items: d.payload?.items || [],
+        createdAt: new Date(parseInt(d.id)).toISOString(), // fallback timestamp
+        department: "Walk-in",
+        paymentStatus: "Pending",
+        grandTotal: 0,
+        doctor: null,
+      })) as unknown as OrderType[]
+    : apiOrders;
+    
+  const total = filter.q === "Draft" ? drafts.filter(d => !d.isOpen).length : apiTotal;
 
   return (
     <div className="flex flex-col gap-6">
