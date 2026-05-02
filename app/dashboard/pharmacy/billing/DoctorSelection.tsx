@@ -26,10 +26,14 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
     const doctors = doctorsData?.data ?? [];
 
     const filteredDoctors = useMemo(() => {
-        if (!search) return doctors;
-        return doctors.filter(d =>
-            d.name.toLowerCase().includes(search.toLowerCase()) ||
-            d.email?.toLowerCase().includes(search.toLowerCase())
+        const selfOption: Doctor = { _id: "self", name: "Self" };
+        const allOptions = [selfOption, ...doctors];
+
+        if (!search) return allOptions;
+        const searchLower = search.toLowerCase();
+        return allOptions.filter(d =>
+            d.name.toLowerCase().includes(searchLower) ||
+            d.email?.toLowerCase().includes(searchLower)
         );
     }, [doctors, search]);
 

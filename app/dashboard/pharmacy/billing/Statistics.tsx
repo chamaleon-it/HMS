@@ -6,7 +6,8 @@ import {
     Pill,
     Syringe,
     Wallet,
-    AlertCircle
+    AlertCircle,
+    Stethoscope
 } from "lucide-react";
 import useSWR from "swr";
 
@@ -31,6 +32,7 @@ interface StatisticsProps {
             name: string;
             mrn: string;
         };
+        doctor: string;
     }[]
 }
 
@@ -38,19 +40,22 @@ export default function Statistics({ billing }: StatisticsProps) {
     const { data: billingItemsResponse } = useSWR<{ data: { item: string }[] }>("/billing/billing_items");
     const billingItems = billingItemsResponse?.data ?? [];
 
+
     const {
         totalBills,
         consultingFee,
         procedureFee,
         pharmacyFee,
         paidAmount,
-        dueAmount
+        dueAmount,
+        totalConsultation
     } = useMemo(() => {
         let consult = 0;
         let procItemsSum = 0;
         let pharm = 0;
         let paid = 0;
         let due = 0;
+        let totalConsultation = 0;
 
         const billingItemNames = new Set(billingItems.map(i => i.item));
 
@@ -64,6 +69,7 @@ export default function Statistics({ billing }: StatisticsProps) {
 
                 if (item.name.toLowerCase().includes("consultation")) {
                     consult += itemTotal;
+                    totalConsultation += 1;
                 }
 
                 if (billingItemNames.has(item.name)) {
@@ -83,7 +89,8 @@ export default function Statistics({ billing }: StatisticsProps) {
             procedureFee: procItemsSum - consult,
             pharmacyFee: pharm,
             paidAmount: paid,
-            dueAmount: due
+            dueAmount: due,
+            totalConsultation: totalConsultation
         };
     }, [billing, billingItems]);
 
@@ -97,6 +104,16 @@ export default function Statistics({ billing }: StatisticsProps) {
             iconColor: "text-blue-600/70",
             textColor: "text-blue-800/70",
             headingColor: "text-blue-900"
+        },
+        {
+            label: "Total Consultations",
+            value: totalConsultation,
+            icon: UserRound,
+            bg: "bg-indigo-50/50",
+            border: "border-indigo-100",
+            iconColor: "text-indigo-600/70",
+            textColor: "text-indigo-800/70",
+            headingColor: "text-indigo-900"
         },
         {
             label: "Consulting Fees",
@@ -129,16 +146,6 @@ export default function Statistics({ billing }: StatisticsProps) {
             headingColor: "text-amber-900"
         },
         {
-            label: "Paid Amount",
-            value: formatINR(paidAmount),
-            icon: Wallet,
-            bg: "bg-teal-50/50",
-            border: "border-teal-100",
-            iconColor: "text-teal-600/70",
-            textColor: "text-teal-800/70",
-            headingColor: "text-teal-900"
-        },
-        {
             label: "Due Amount",
             value: formatINR(dueAmount),
             icon: AlertCircle,
@@ -150,12 +157,15 @@ export default function Statistics({ billing }: StatisticsProps) {
         }
     ], [totalBills, consultingFee, pharmacyFee, procedureFee, paidAmount, dueAmount]);
 
+
     return (
-        <div className="grid grid-cols-6 gap-5 pb-5">
+
+        <div className="grid grid-cols-6 gap-3 pb-3">
+
             {stats.map((stat, index) => (
                 <div
                     key={index}
-                    className={`${stat.bg} p-6 rounded-2xl border ${stat.border} shadow-sm transition-all hover:scale-[1.02] cursor-default`}
+                    className={`${stat.bg} p-4 rounded-2xl border ${stat.border} shadow-sm transition-all hover:scale-[1.02] cursor-default`}
                 >
                     <div className="flex flex-col gap-1">
                         <div className="flex items-center gap-2 mb-2">
@@ -171,5 +181,7 @@ export default function Statistics({ billing }: StatisticsProps) {
                 </div>
             ))}
         </div>
+
+
     );
 }

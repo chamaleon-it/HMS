@@ -28,6 +28,7 @@ interface PropsType {
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   total: number;
   billing: {
+    doctor: string;
     transactionType: "Return" | "Sale"
     roundOff: boolean;
     mrn: string;
@@ -70,17 +71,18 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
   console.log(billing)
   return (
     <>
-      <div className="flex flex-col gap-6 print:hidden mt-6">
+      <div className="flex flex-col gap-6 print:hidden mt-3">
 
 
         <div className="bg-white/90 border rounded-2xl shadow-md shadow-slate-200 overflow-hidden">
-          <Table className="print:hidden min-w-[1200px] text-sm" containerClassName="max-h-[calc(100vh-280px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
+          <Table className="print:hidden min-w-[1200px] text-sm" containerClassName="max-h-[calc(100vh-365px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
             <TableHeader className="bg-slate-700 sticky top-0 z-20 shadow-sm">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
                 <TableHead className="py-2.5 text-left pl-4 w-16 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Sl No</TableHead>
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Invoice</TableHead>
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Date</TableHead>
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Patient</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Doctor</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Items</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Total</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Round off</TableHead>
@@ -135,6 +137,10 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       <div className="text-[11px] text-slate-500">
                         {b.patient.mrn}
                       </div>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <div className="font-medium truncate text-slate-900">{b.doctor}</div>
+
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-slate-700">
                       {b.items.length}
@@ -234,7 +240,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             {billing.length > 0 && (
               <TableFooter className="sticky bottom-0 z-10 bg-emerald-50 font-extrabold text-[15px] text-slate-900 border-t-2 border-slate-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
                 <TableRow className="hover:bg-emerald-50 bg-emerald-50">
-                  <TableCell colSpan={5} className="py-4 px-4 text-right uppercase tracking-wider text-sm font-black text-slate-800">
+                  <TableCell colSpan={6} className="py-4 px-4 text-right uppercase tracking-wider text-sm font-black text-slate-800">
                     Total
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums">
@@ -290,6 +296,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             online: printBill.online,
             insurance: printBill.insurance,
             discount: printBill.discount,
+            doctor: printBill.doctor === "Self" ? "" : printBill.doctor
           }}
           patient={{
             name: printBill.patient.name,

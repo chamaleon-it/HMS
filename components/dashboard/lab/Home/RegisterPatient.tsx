@@ -260,7 +260,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2">
-            <Label>Gender </Label>
+            <Label>Gender *</Label>
             <Select
               onValueChange={(
                 value: "Male" | "Female" | "Other"
@@ -325,7 +325,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   onSelect={(date) => {
                     if (date) {
                       setValue("dateOfBirth", date.toISOString());
-                      
+
                       const today = new Date();
                       let years = today.getFullYear() - date.getFullYear();
                       let months = today.getMonth() - date.getMonth();
@@ -336,7 +336,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                         years--;
                         months += 12;
                       }
-                      
+
                       setValue("age", years.toString());
                       setValue("month", months.toString());
                       setDobSetFromAge(false);
@@ -369,7 +369,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   const ageValue = e.target.value;
                   const monthValue = values.month || "0";
                   setValue("age", ageValue);
-                  
+
                   if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
                     const today = new Date();
                     const estimatedDob = new Date(
@@ -398,7 +398,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   const monthValue = e.target.value;
                   const ageValue = values.age || "0";
                   setValue("month", monthValue);
-                  
+
                   if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
                     const today = new Date();
                     const estimatedDob = new Date(

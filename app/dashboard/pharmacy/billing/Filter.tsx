@@ -25,7 +25,7 @@ interface PropsType {
 export default function Filters({ filter, setFilter }: PropsType) {
 
   const handleReset = () => {
-    setFilter({ q: null, qEnd: null, status: "all", method: "all", activeDate: "Today", date: new Date(), page: 1, limit: 10 });
+    setFilter({ q: null, qEnd: null, status: "all", method: "all", activeDate: "Today", date: new Date(), page: 1, limit: 10, doctor: [] });
   };
 
   return (

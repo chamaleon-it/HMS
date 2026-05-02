@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import AppShell from "@/components/layout/app-shell";
 import AllBill from "./AllBill";
 import CreateBill from "./CreateBill";
@@ -11,6 +11,7 @@ import { BillingFormSkeleton, TableSkeleton } from "../components/PharmacySkelet
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";
+import Statistics from "./Statistics";
 
 export interface FilterType {
   q: null | string;
@@ -21,6 +22,7 @@ export interface FilterType {
   date: Date;
   page: number;
   limit: number;
+  doctor: string[];
 }
 
 export default function BillingPage() {
@@ -34,6 +36,7 @@ export default function BillingPage() {
     date: new Date(),
     page: 1,
     limit: 10,
+    doctor: []
   });
 
   const params = new URLSearchParams();
@@ -53,6 +56,8 @@ export default function BillingPage() {
   if (filter.method !== "all") {
     params.set("method", filter.method);
   }
+
+
 
   let sd: Date = startOfDay(new Date());
   let ed: Date = endOfDay(new Date());
@@ -99,10 +104,16 @@ export default function BillingPage() {
         mrn: string;
       };
       transactionType: "Return" | "Sale"
+      doctor: string
     }[];
   }>(`/billing?${params.toString()}`);
 
-  const billing = billingData?.data ?? [];
+  const allBilling = billingData?.data ?? [];
+  const billing = useMemo(() => {
+    if (filter.doctor.length === 0) return allBilling;
+    return allBilling.filter(b => filter.doctor.includes(b.doctor));
+  }, [allBilling, filter.doctor]);
+
   const total = billingData?.total ?? 0;
 
   const { data, isLoading: isLoadingProfile } = useSWR<{
@@ -137,7 +148,7 @@ export default function BillingPage() {
           className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100"
         >
           <div className="flex flex-col gap-5">
-            <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} />
+            <Header tab={tab} setTab={setTab} filter={filter} setFilter={setFilter} billing={allBilling} />
 
             <Tabs
               defaultValue="all"
@@ -147,7 +158,7 @@ export default function BillingPage() {
             >
               <TabsContent value="all">
 
-                {/* <Statistics billing={billing} /> */}
+                <Statistics billing={billing} />
 
                 <Filters filter={filter} setFilter={setFilter} />
                 {isLoadingBilling ? (
