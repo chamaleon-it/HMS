@@ -26,7 +26,7 @@ export default function InventoryPage() {
   const [openAdd, setOpenAdd] = useState(false);
   const [selectedItem, setSelectedItem] = useState<ItemType | null>(null);
 
-  const { data } = useSWR<{
+  const { data: profileData } = useSWR<{
     message: string;
     data: {
       pharmacy: {
@@ -39,7 +39,7 @@ export default function InventoryPage() {
     };
   }>("/users/profile");
 
-  const pharmacyInventory = data?.data.pharmacy.inventory ?? {
+  const pharmacyInventory = profileData?.data?.pharmacy?.inventory ?? {
     lowStockThreshold: 20,
     expiryAlert: 90,
     allowNegativeStock: false,
@@ -96,7 +96,7 @@ export default function InventoryPage() {
   return (
     <AppShell>
       <TooltipProvider>
-        <div className="p-5 min-h-[calc(100vh-80px)] w-full">
+        <div className="p-5 min-h-[calc(100vh-67px)] w-full">
           <div
             className={`flex flex-col gap-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
               }`}
@@ -127,8 +127,8 @@ export default function InventoryPage() {
           </div>
 
           <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>
-            <DialogContent className={openView ? "max-w-3xl! w-full" : "max-w-2xl!" + " max-h-[90vh] overflow-y-auto p-0 gap-1"}>
-              <DialogHeader className="flex justify-between items-center border-b p-4">
+            <DialogContent className={openView ? "max-w-3xl! w-full" : "max-w-2xl!" + " max-h-[90vh] overflow-y-auto p-0! gap-1"}>
+              <DialogHeader className="flex justify-between items-center border-b p-0!">
                 <DialogTitle>
                   {openView
                     ? "View Item"
@@ -140,7 +140,7 @@ export default function InventoryPage() {
                 </DialogTitle>
               </DialogHeader>
 
-              <div className="p-2">
+              <div className="">
                 {openView && selectedItem && (
                   <ViewItem
                     item={selectedItem}

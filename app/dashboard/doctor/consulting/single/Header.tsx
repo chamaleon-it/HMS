@@ -36,7 +36,7 @@ export default function Header({
     <div className="space-y-4 mb-6">
       <DoctorHeader
         title={appointment.patient.name}
-        subtitle={`(ID: ${appointment.patient.mrn}) • Age ${fAge(appointment?.patient?.dateOfBirth)}, ${appointment.patient.gender} ${!!appointment.patient.allergies ? `• Allergies: ${appointment.patient.allergies}` : ""}`}
+        subtitle={`(ID: ${appointment.patient.mrn}) • Age ${fAge(appointment?.patient?.dateOfBirth).years}y ${fAge(appointment?.patient?.dateOfBirth).months}m, ${appointment.patient.gender} ${!!appointment.patient.allergies ? `• Allergies: ${appointment.patient.allergies}` : ""}`}
       >
         <div className="flex gap-2.5 items-center">
           <Button

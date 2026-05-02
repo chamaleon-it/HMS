@@ -193,7 +193,7 @@ const SingleSupplierPage: React.FC = () => {
 
     return (
         <AppShell>
-            <div className="p-5 min-h-[calc(100vh-80px)] ">
+            <div className="p-5 min-h-[calc(100vh-67px)] ">
                 <main className="flex flex-col gap-6">
                     <PharmacyHeader
                         title={supplier.name}
@@ -210,7 +210,7 @@ const SingleSupplierPage: React.FC = () => {
                             </Button>
                             <Button
                                 className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
-                                onClick={() => router.push(`/dashboard/pharmacy/suppliers/purchase-entry?supplierId=${supplier._id}`)}
+                                onClick={() => router.push(`/dashboard/pharmacy/purchase-entry?supplierId=${supplier._id}`)}
                             >
                                 Purchase Entry
                             </Button>
@@ -417,7 +417,7 @@ const SingleSupplierPage: React.FC = () => {
                             </div>
 
                             <div className="flex-1 overflow-y-auto divide-y ">
-                                {sortedFilteredOrders.map((order) => {
+                                {sortedFilteredOrders.sort((a, b) => new Date(b.invoiceDate).getTime() - new Date(a.invoiceDate).getTime()).map((order) => {
                                     const active = selectedOrder?._id === order._id;
                                     const isDue = order.paymentStatus !== "Paid";
                                     const dueDate = addDays(new Date(order.invoiceDate), supplier?.paymentTerms || 0);

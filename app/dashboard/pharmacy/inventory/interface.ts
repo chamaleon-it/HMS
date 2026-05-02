@@ -19,6 +19,7 @@ export interface ItemType {
   supplier: string;
   manufacturer: string;
   unitPrice: number;
+  mrp: number;
   purchasePrice: number;
   openingStockQuantity: number;
   quantity: number;
@@ -31,6 +32,13 @@ export interface ItemType {
   rackLocation?: string;
   packing?: number;
   gst?: number;
+  soldQuantity?: number;
+  soldHistory?: Array<{
+    date: Date;
+    quantity: number;
+    unitPrice: number;
+    total: number;
+  }>;
 }
 
 export interface FilterType {

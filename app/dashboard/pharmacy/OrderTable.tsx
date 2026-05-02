@@ -34,6 +34,7 @@ import ViewOrder from "./ViewOrder";
 import { PaginationBar } from "./components/PaginationBar";
 import { Dispatch, SetStateAction } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useDrafts } from "./DraftContext";
 
 export default function OrderTable({
   orders,
@@ -51,6 +52,8 @@ export default function OrderTable({
   OrderMutate: () => void;
 }) {
 
+  const { updateDraft, removeDraft } = useDrafts();
+  
   const { data: profile } = useSWR<{
     data: {
       pharmacy: {
@@ -224,6 +227,14 @@ export default function OrderTable({
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<OrderType | null>(null);
 
+  const handleRowClick = (r: OrderType) => {
+    if (r.status === "Draft") {
+      updateDraft(r._id, { isOpen: true, minimized: false });
+    } else {
+      setSelected(r);
+      setOpen(true);
+    }
+  };
 
   return (
     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
@@ -258,24 +269,15 @@ export default function OrderTable({
             >
 
               <TableCell className="py-3 pl-4 text-slate-500 font-medium cursor-pointer"
-                onClick={() => {
-                  setSelected(r);
-                  setOpen(true);
-                }}
+                onClick={() => handleRowClick(r)}
               >
                 {(filter.page - 1) * filter.limit + idx + 1}
               </TableCell>
               <TableCell className="py-3 font-medium text-slate-900 cursor-pointer"
-                onClick={() => {
-                  setSelected(r);
-                  setOpen(true);
-                }}
+                onClick={() => handleRowClick(r)}
               >{r?.mrn}</TableCell>
               <TableCell className="py-3 cursor-pointer"
-                onClick={() => {
-                  setSelected(r);
-                  setOpen(true);
-                }}
+                onClick={() => handleRowClick(r)}
               >
                 <div className="flex items-center gap-1.5">
                   <div className="font-medium text-slate-900">{r?.patient?.name}</div>
@@ -290,39 +292,67 @@ export default function OrderTable({
                     </Tooltip>
                   )}
                 </div>
-                <div className="text-[11px] text-slate-500">({r?.patient?.mrn})</div>
+                {r.status !== "Draft" && <div className="text-[11px] text-slate-500">({r?.patient?.mrn})</div>}
               </TableCell>
               <TableCell className="py-3 text-center cursor-pointer"
-                onClick={() => {
-                  setSelected(r);
-                  setOpen(true);
-                }}
-              >{r?.items?.length}</TableCell>
+                onClick={() => handleRowClick(r)}
+              >
+                {r.status === "Draft" 
+                  ? r.items?.filter((i: any) => i.medicineName)?.length || 0 
+                  : r?.items?.length || 0}
+              </TableCell>
               <TableCell className="py-3 text-center cursor-pointer"
-                onClick={() => {
-                  setSelected(r);
-                  setOpen(true);
-                }}
+                onClick={() => handleRowClick(r)}
               >
                 <PriorityBadge priority={r?.priority} />
               </TableCell>
               <TableCell className="py-3 text-center cursor-pointer"
-                onClick={() => {
-                  setSelected(r);
-                  setOpen(true);
-                }}
+                onClick={() => handleRowClick(r)}
               >
                 <StatusBadge status={r?.status} />
               </TableCell>
               <TableCell className="py-3 cursor-pointer"
-                onClick={() => {
-                  setSelected(r);
-                  setOpen(true);
-                }}
+                onClick={() => handleRowClick(r)}
               >{fDateandTime(r?.createdAt)}</TableCell>
               <TableCell className="py-3 text-right space-x-1 pr-4">
+                {r.status === "Draft" && (
+                  <div className="flex justify-end items-center gap-1">
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            updateDraft(r._id, { isOpen: true, minimized: false });
+                          }}
+                          className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Open Draft</p></TooltipContent>
+                    </Tooltip>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeDraft(r._id);
+                          }}
+                          className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                        >
+                          <Trash className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Discard Draft</p></TooltipContent>
+                    </Tooltip>
+                  </div>
+                )}
 
-                {r.isDeleted === false && <div className="flex justify-end items-center gap-1">
+                {r.status !== "Draft" && r.isDeleted === false && <div className="flex justify-end items-center gap-1">
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button

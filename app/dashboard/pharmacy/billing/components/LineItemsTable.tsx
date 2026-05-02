@@ -443,14 +443,14 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                         <PrimaryButton
                             onClick={async () => {
                                 try {
-                                    const data = await toast.promise(api.post("/billing/billing_item", {
+                                    await toast.promise(api.post("/billing/billing_item", {
                                         item: customItem.name,
                                         price: customItem.unitPrice,
                                         code: customItem.procedureCode
                                     }), {
                                         loading: "Adding custom item...",
                                         success: "Custom item added successfully!",
-                                        error: "Failed to add custom item!"
+                                        error: (err) => err.response?.data?.message || "Failed to add custom item!"
                                     })
                                     setCustomItem({
                                         name: "",

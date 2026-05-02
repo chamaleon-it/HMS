@@ -67,7 +67,7 @@ export default function BillingPage() {
   return (
     <AppShell>
       <div
-        className="min-h-[calc(100vh-80px)] w-full p-5 text-slate-900 dark:text-slate-100"
+        className="min-h-[calc(100vh-67px)] w-full p-5 text-slate-900 dark:text-slate-100"
       >
         <div className="">
           <Header setTab={setTab} />

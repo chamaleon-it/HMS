@@ -14,10 +14,11 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table";
 
 interface BillRow {
-  status: "Paid" | "Partial" | "Unpaid";
+  status: "Paid" | "Partial" | "Unpaid" | "Return";
   method: "cash" | "online" | "insurance" | "mixed";
 }
 
@@ -27,6 +28,8 @@ interface PropsType {
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   total: number;
   billing: {
+    doctor: string;
+    transactionType: "Return" | "Sale"
     roundOff: boolean;
     mrn: string;
     _id: string;
@@ -55,7 +58,6 @@ import PrintReceipt from "./PrintReceipt";
 import { PaginationBar } from "../components/PaginationBar";
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
-  const [selectedBill, setSelectedBill] = React.useState<PropsType["billing"][number] | null>(null);
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
   const [printBill, setPrintBill] = React.useState<PropsType["billing"][number] | null>(null);
 
@@ -66,28 +68,29 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
     }, 100);
   };
 
-
+  console.log(billing)
   return (
     <>
-      <div className="flex flex-col gap-6 print:hidden mt-6">
+      <div className="flex flex-col gap-6 print:hidden mt-3">
 
 
-        <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
-          <Table className="print:hidden min-w-[1200px] text-sm">
-            <TableHeader className="bg-slate-700 hover:bg-slate-700">
+        <div className="bg-white/90 border rounded-2xl shadow-md shadow-slate-200 overflow-hidden">
+          <Table className="print:hidden min-w-[1200px] text-sm" containerClassName="max-h-[calc(100vh-365px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
+            <TableHeader className="bg-slate-700 sticky top-0 z-20 shadow-sm">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                <TableHead className="py-2.5 text-left pl-4 w-16 text-white font-bold text-[11px] uppercase tracking-wider">Sl No</TableHead>
-                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Invoice</TableHead>
-                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Date</TableHead>
-                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Patient</TableHead>
-                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Items</TableHead>
-                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Total</TableHead>
-                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Round off</TableHead>
-                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Discount</TableHead>
-                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Paid</TableHead>
-                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">Due</TableHead>
-                <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider">Status</TableHead>
-                <TableHead className="py-2.5 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider">Action</TableHead>
+                <TableHead className="py-2.5 text-left pl-4 w-16 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Sl No</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Invoice</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Date</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Patient</TableHead>
+                <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Doctor</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Items</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Total</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Round off</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Discount</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Paid</TableHead>
+                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Due</TableHead>
+                <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Status</TableHead>
+                <TableHead className="py-2.5 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -104,7 +107,10 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                   </TableCell>
                 </TableRow>
               ) : (
-                billing.map((b, idx) => (
+                (filter.activeDate === "Today" || filter.activeDate === "Custom"
+                  ? billing
+                  : billing.slice((filter.page - 1) * filter.limit, filter.page * filter.limit)
+                ).map((b, idx) => (
                   <TableRow
                     key={b._id}
                     className={idx % 2 === 0
@@ -113,7 +119,9 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     }
                   >
                     <TableCell className="py-3 pl-4 text-slate-500">
-                      {(filter.page - 1) * filter.limit + idx + 1}
+                      {(filter.activeDate === "Today" || filter.activeDate === "Custom")
+                        ? idx + 1
+                        : (filter.page - 1) * filter.limit + idx + 1}
                     </TableCell>
                     <TableCell className="py-3">
                       <div className="font-medium text-slate-900">{b.mrn}</div>
@@ -129,6 +137,10 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       <div className="text-[11px] text-slate-500">
                         {b.patient.mrn}
                       </div>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <div className="font-medium truncate text-slate-900">{b.doctor}</div>
+
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-slate-700">
                       {b.items.length}
@@ -160,7 +172,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                             0
                           ) - (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
                           const paid = b.cash + b.online + b.insurance + (b.discount ?? 0);
-                          return total <= paid
+                          return b.transactionType === "Return" ? "Return" : total <= paid
                             ? "Paid"
                             : paid === 0
                               ? "Unpaid"
@@ -225,14 +237,44 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                 ))
               )}
             </TableBody>
+            {billing.length > 0 && (
+              <TableFooter className="sticky bottom-0 z-10 bg-emerald-50 font-extrabold text-[15px] text-slate-900 border-t-2 border-slate-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
+                <TableRow className="hover:bg-emerald-50 bg-emerald-50">
+                  <TableCell colSpan={6} className="py-4 px-4 text-right uppercase tracking-wider text-sm font-black text-slate-800">
+                    Total
+                  </TableCell>
+                  <TableCell className="py-4 text-right tabular-nums">
+                    {formatINR(billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0)), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items.reduce((a, x) => a + x.total, 0)), 0))}
+                  </TableCell>
+                  <TableCell className="py-4 text-right tabular-nums text-slate-700">
+                    {billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0), 0).toFixed(2)}
+                  </TableCell>
+                  <TableCell className="py-4 text-right tabular-nums">
+                    {formatINR(billing.reduce((acc, b) => acc + (b.discount ?? 0), 0))}
+                  </TableCell>
+                  <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
+                    {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - b.cash : acc + b.insurance + b.cash + b.online, 0))}
+                  </TableCell>
+                  <TableCell className="py-4 text-right tabular-nums text-rose-700 font-black">
+                    {formatINR(billing.reduce((acc, b) =>
+                      acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0) -
+                        (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0) -
+                        (b.insurance + b.cash + b.online + (b.discount ?? 0))), 0
+                    )
+                    )}
+                  </TableCell>
+                  <TableCell colSpan={2} />
+                </TableRow>
+              </TableFooter>
+            )}
           </Table>
         </div>
-        {total > filter.limit && (
+        {(filter.activeDate !== "Today" && filter.activeDate !== "Custom") && billing.length > filter.limit && (
           <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
             <PaginationBar
               page={filter.page}
               limit={filter.limit}
-              total={total}
+              total={billing.length}
               setFilter={setFilter}
             />
           </div>
@@ -241,7 +283,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
       <AddPaymentDialog
         open={isPaymentOpen}
         setOpen={setIsPaymentOpen}
-        bill={selectedBill as any} // temporary cast until types align perfectly
+        bill={null} // temporary cast until types align perfectly
         billingMutate={billingMutate}
       />
 
@@ -254,6 +296,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             online: printBill.online,
             insurance: printBill.insurance,
             discount: printBill.discount,
+            doctor: printBill.doctor === "Self" ? "" : printBill.doctor
           }}
           patient={{
             name: printBill.patient.name,
@@ -300,9 +343,11 @@ const StatusPill: React.FC<{ s: BillRow["status"] }> = ({ s }) => {
   const cls =
     s === "Paid"
       ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-      : s === "Partial"
+      : s === "Partial" || s === "Unpaid"
         ? "bg-amber-50 text-amber-800 border-amber-200"
-        : "bg-rose-50 text-rose-700 border-rose-200";
+        : s === "Return"
+          ? "bg-amber-50 text-amber-800 border-amber-200"
+          : "bg-rose-50 text-rose-700 border-rose-200";
   return (
     <span
       className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${cls}`}

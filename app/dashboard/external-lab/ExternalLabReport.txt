@@ -49,15 +49,17 @@ export default function ExternalLabReport() {
                     name: string;
                     type: string;
                     unit?: string;
-                    min?: number;
-                    max?: number;
-                    estimatedTime?: number;
-                    womenMin?: number;
-                    womenMax?: number;
-                    childMin?: number;
-                    childMax?: number;
-                    nbMin?: number;
-                    nbMax?: number;
+                    range: {
+      name: string;
+      min: number | null | undefined;
+      max: number | null | undefined;
+      fromAge: number | null | undefined;
+      toAge: number | null | undefined;
+      gender: "Both" | "Male" | "Female";
+      dateType: "Year" | "Month" | "Day";
+
+    }[],
+    note: string
                     _id: string;
                     panels: {
                         _id: string;
@@ -85,7 +87,7 @@ export default function ExternalLabReport() {
     >("Pending");
 
     return (
-        <div className="min-h-[calc(100vh-80px)] w-full bg-linear-to-b from-white to-slate-50 p-6">
+        <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-slate-50 p-6">
             {/* Header */}
             {/* Header Controls */}
             <div className="flex items-center justify-end mb-6">

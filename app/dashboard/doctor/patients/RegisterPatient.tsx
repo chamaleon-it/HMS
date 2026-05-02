@@ -329,7 +329,7 @@ export function RegisterPatient({
             <Label>Gender *</Label>
             <Select
               onValueChange={(
-                value: "Male" | "Female" | "Other" | "Prefer not to say"
+                value: "Male" | "Female" | "Other"
               ) => setValue("gender", value)}
               value={patient?.gender || values.gender}
             >
@@ -337,7 +337,7 @@ export function RegisterPatient({
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other", "Prefer not to say"].map((v) => (
+                {["Male", "Female", "Other"].map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>
@@ -366,7 +366,7 @@ export function RegisterPatient({
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
-                    })} - Age : ${fAge(new Date(dateOfBirth))}`
+                    })} - Age : ${fAge(new Date(dateOfBirth)).years}y ${fAge(new Date(dateOfBirth)).months}m`
                     : "Select date of birth"}
                   <ChevronDownIcon />
                 </Button>
@@ -378,7 +378,7 @@ export function RegisterPatient({
                 <Calendar
                   disabled={{ after: new Date() }}
                   mode="single"
-                  selected={new Date(dateOfBirth)}
+                  selected={dateOfBirth ? new Date(dateOfBirth) : undefined}
                   captionLayout="dropdown"
                   onSelect={(date) => {
                     setValue(

@@ -1,6 +1,5 @@
 // ItemTable.tsx
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -15,7 +14,6 @@ import { fDate } from "@/lib/fDateAndTime";
 import { PaginationBar } from "../components/PaginationBar";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowUpDown, AlertCircle, AlertTriangle, Eye, Pencil, Trash2 } from "lucide-react";
 import {
   Tooltip,
@@ -112,8 +110,10 @@ export default function ItemTable({
                   currentSortOrder={orderBy}
                   onSort={handleSort}
                 />
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">P.Price</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Sold Quantity</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Purchase Rate</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Unit Price (₹)</TableHead>
+                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">MRP (₹)</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Expiry Date</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Supplier</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Status</TableHead>
@@ -150,7 +150,7 @@ export default function ItemTable({
                         <AlertCircle className="w-4 h-4" />
                         <span>Out of Stock</span>
                       </div>
-                    ) : item.quantity < pharmacyInventory.lowStockThreshold ? (
+                    ) : item.quantity <= pharmacyInventory.lowStockThreshold ? (
                       <div className="flex items-center gap-1.5 text-amber-600 font-medium">
                         <AlertTriangle className="w-4 h-4" />
                         <span>{item.quantity}</span>
@@ -162,8 +162,12 @@ export default function ItemTable({
 
                     )}
                   </TableCell>
+                  <TableCell className="py-3 text-slate-700">
+                    {item.soldQuantity ?? "-"}
+                  </TableCell>
                   <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
                   <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
+                  <TableCell className="py-3">{formatINR(item.mrp)}</TableCell>
                   <TableCell className="py-3">
                     {new Date(item.expiryDate) < new Date() ? (
                       <div className="flex items-center gap-1.5 text-red-600 font-medium">

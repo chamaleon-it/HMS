@@ -16,12 +16,10 @@ const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({
   onClose,
-  mutate,
   walkIn = false,
   appointment,
 }: {
   onClose: () => void;
-  mutate?: () => void;
   walkIn?: boolean;
   appointment?: {
     _id: string;
@@ -124,9 +122,7 @@ export function CreateAppointmentForm({
           isPaid: "false",
         });
         onClose();
-        if (mutate) {
-          mutate();
-        }
+
 
         return;
       }
@@ -141,9 +137,7 @@ export function CreateAppointmentForm({
         isPaid: "false",
       });
       onClose();
-      if (mutate) {
-        mutate();
-      }
+
     } catch (error) {
       console.log(error);
     }

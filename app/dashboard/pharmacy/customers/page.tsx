@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { RegisterPatient } from "../RegisterPatient";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, Plus, ClipboardPlus, CalendarPlus } from "lucide-react";
 const Customers: React.FC = () => {
   const router = useRouter();
   const [editCustomer, setEditCustomer] = useState<any>(null);
@@ -74,6 +74,7 @@ const Customers: React.FC = () => {
         address: string;
         mrn: string;
         doctor: string;
+        allergies: string;
       };
       lastPurchase: Date;
     }[];
@@ -89,7 +90,7 @@ const Customers: React.FC = () => {
   return (
     <AppShell>
       <TooltipProvider>
-        <div className="p-5 min-h-[calc(100vh-80px)]">
+        <div className="p-5 min-h-[calc(100vh-67px)]">
           <main className="flex flex-col gap-6">
             <PharmacyHeader
               title="Customers"
@@ -187,7 +188,7 @@ const Customers: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell className="py-3 align-middle text-slate-700">
-                            {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
+                            {fAge(p.patient.dateOfBirth).years}y / {fAge(p.patient.dateOfBirth).months}m / {p.patient.gender}
                           </TableCell>
                           <TableCell className="py-3 align-middle text-slate-700">
                             <HighlightText
@@ -245,6 +246,50 @@ const Customers: React.FC = () => {
                                   <p>Edit Customer</p>
                                 </TooltipContent>
                               </Tooltip>
+
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    onClick={(e: React.MouseEvent) => {
+                                      e.stopPropagation();
+                                      router.push(
+                                        `/dashboard/pharmacy?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}&allergies=${p.patient.allergies || ""}#newOrder`
+                                      )
+                                    }}
+                                  >
+                                    <ClipboardPlus className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>New Order</p>
+                                </TooltipContent>
+                              </Tooltip>
+
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    onClick={(e: React.MouseEvent) => {
+                                      e.stopPropagation();
+                                      router.push(
+                                        `/dashboard/pharmacy/appointments?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}#newAppointment`
+                                      )
+                                    }}
+                                  >
+                                    <CalendarPlus className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>New Appointment</p>
+                                </TooltipContent>
+                              </Tooltip>
+
+
                             </div>
                           </TableCell>
                         </TableRow>

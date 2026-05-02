@@ -25,15 +25,25 @@ type Patient = {
 
 interface Props {
   setValue: (id: string) => void;
-  register: () => void
+  register: (name?: string) => void;
+  input?: string;
+  setInput?: (val: string) => void;
 }
 
 const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
-  const [input, setInput] = useState("");
+const PatientSelection: React.FC<Props> = ({
+  setValue,
+  register,
+  input: externalInput,
+  setInput: setExternalInput,
+}) => {
+  const [internalInput, setInternalInput] = useState("");
+  const input = externalInput !== undefined ? externalInput : internalInput;
+  const setInput = setExternalInput || setInternalInput;
+
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
@@ -91,9 +101,24 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
     [setValue]
   );
 
+  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
+
+  useEffect(() => {
+    if (activeIdx >= 0 && itemRefs.current[activeIdx]) {
+      itemRefs.current[activeIdx]?.scrollIntoView({
+        block: "nearest",
+      });
+    }
+  }, [activeIdx]);
+
   // Keyboard navigation within the listbox
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setOpen(false);
+      return;
+    }
     if (!open) return;
+
     const max = patients.length - 1;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -114,8 +139,6 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
     setSelected(null);
     setValue("");
   };
-
-
 
   return (
     <div ref={rootRef} className="relative w-full max-w-125">
@@ -176,7 +199,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
                 </div>
                 <button
                   onClick={() => {
-                    register?.()
+                    register?.(input)
                   }}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
                 >
@@ -188,7 +211,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
             )}
           </div>
 
-          <ScrollArea className="">
+          {patients.length > 0 && <ScrollArea className="h-[300px]">
             <ul
               id="patient-listbox"
               role="listbox"
@@ -198,6 +221,9 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
               {patients.map((p, idx) => (
                 <li
                   key={p._id}
+                  ref={(el) => {
+                    itemRefs.current[idx] = el;
+                  }}
                   role="option"
                   aria-selected={selected?._id === p._id}
                   onMouseDown={(e) => e.preventDefault()} // keep input focus
@@ -220,7 +246,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
                 </li>
               ))}
             </ul>
-          </ScrollArea>
+          </ScrollArea>}
         </div>
       )}
     </div>
@@ -252,7 +278,7 @@ const safeAge = (dob?: string | Date) => {
   try {
     const d = typeof dob === "string" ? new Date(dob) : dob;
     if (Number.isNaN(d.getTime())) return "—";
-    return `${fAge(d)} yrs`;
+    return `${fAge(d).years}y ${fAge(d).months}m`;
   } catch {
     return "—";
   }

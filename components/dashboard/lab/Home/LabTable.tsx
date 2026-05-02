@@ -5,7 +5,7 @@ import ViewResultModal from "./ViewResultModal";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Clock, Flag, FlagOff, Play, Printer,  RotateCcw, Trash2, X } from "lucide-react";
+import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, Trash2, X } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
@@ -23,6 +23,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import useGetPanels from "@/data/useGetPanels";
+import ReportCardModern from "./ReportCardModern";
+import useSWR from "swr";
 
 const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
   const [timeLeft, setTimeLeft] = React.useState(5);
@@ -51,6 +54,7 @@ const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
 interface PropsTypes {
   status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted";
   mutate: () => void;
+  autoGenerateSampleId?: boolean;
   REPORT: {
     _id: string;
     mrn: number;
@@ -95,14 +99,17 @@ interface PropsTypes {
         type: string;
         unit?: string;
         estimatedTime?: number;
-        min?: number;
-        max?: number;
-        womenMin?: number;
-        womenMax?: number;
-        childMin?: number;
-        childMax?: number;
-        nbMin?: number;
-        nbMax?: number;
+        range: {
+          name: string;
+          min: number | null | undefined;
+          max: number | null | undefined;
+          fromAge: number | null | undefined;
+          toAge: number | null | undefined;
+          gender: "Both" | "Male" | "Female";
+          dateType: "Year" | "Month" | "Day";
+
+        }[],
+        note: string
         _id: string;
         panels: {
           _id: string;
@@ -118,13 +125,15 @@ interface PropsTypes {
     panels: string[];
     sampleCollectedAt: Date | null;
     status: string;
+    technician?: string;
     createdAt: Date;
     updatedAt: Date;
   }[];
 }
 
-export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
+export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId }: PropsTypes) {
   const { user } = useAuth();
+  const { panels } = useGetPanels();
   const [printReport, setPrintReport] = React.useState<any | null>(null);
 
   const handlePrint = (report: any) => {
@@ -134,6 +143,11 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
       setPrintReport(null);
     }, 100);
   };
+
+  const { data: profileData } = useSWR<{ message: string, data: { lab: { reportLayout: "Classic" | "Modern", panelPerPage: boolean } } }>("/users/profile")
+
+  const reportLayout: "Classic" | "Modern" = profileData?.data?.lab?.reportLayout ?? "Classic"
+  const panelPerPage: boolean = profileData?.data?.lab?.panelPerPage ?? false
 
   return (
     <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-x-scroll">
@@ -230,7 +244,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         <span className="font-medium text-gray-600">
                           {r?.patient?.mrn}
                         </span>{" "}
-                        • {fAge(r?.patient?.dateOfBirth)} yrs • {r?.patient?.gender}
+                        • {fAge(r?.patient?.dateOfBirth).years}y {fAge(r?.patient?.dateOfBirth).months}m • {r?.patient?.gender}
                       </span>
                     </div>
                   </td>
@@ -246,11 +260,13 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       ))}
                       {r?.test
                         ?.filter(
-                          (t) =>
-                            !(t.name?.panels || [])
-                              .map((p: any) => r.panels?.includes(p.name))
-                              .includes(true)
+                          (t) => {
+                            const selectedPanels = panels.filter(p => r.panels?.includes(p.name))
+                            const panelTests = selectedPanels.flatMap(e => e.tests || []).map((e: any) => e._id)
+                            return !panelTests.includes(t.name?._id)
+                          }
                         )
+
                         .map((e) => (
                           <div
                             key={e._id}
@@ -307,7 +323,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                   <td className="px-3 py-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      {r.doctor._id !== user?._id ? (
+                      {r?.doctor?._id ? (
                         <span
                           className="truncate max-w-25"
                           title={r.doctor.name}
@@ -315,7 +331,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                           Dr. {r.doctor.name}
                         </span>
                       ) : (
-                        <span>Direct</span>
+                        <span>Self</span>
                       )}
                     </div>
                   </td>
@@ -347,6 +363,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                           reportId={r._id}
                           patientName={r.patient?.name}
                           mutate={mutate}
+                          autoGenerateSampleId={autoGenerateSampleId}
                         />
                       )}
 
@@ -580,7 +597,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             })}
         </tbody>
       </table>
-      {printReport && <ReportCard report={printReport} />}
+      {printReport && reportLayout === "Classic" ? <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} /> : <ReportCardModern report={printReport} panels={panels} panelPerPage={panelPerPage} />}
     </div>
   );
 }

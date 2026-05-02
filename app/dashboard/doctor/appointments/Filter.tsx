@@ -13,6 +13,7 @@ import { ChevronDownIcon, Search, Calendar as CalendarIcon } from "lucide-react"
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
+import DateFilter from "./DateFilter";
 
 const STATUSES = [
   "Upcoming",
@@ -29,6 +30,8 @@ export default function Filter({
   setActiveStatuses,
   date,
   setDate,
+  activeDate,
+  setActiveDate,
 }: {
   query: string;
   setQuery: React.Dispatch<React.SetStateAction<string>>;
@@ -36,8 +39,9 @@ export default function Filter({
   setActiveStatuses: React.Dispatch<React.SetStateAction<string[]>>;
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
+  activeDate: "Today" | "7 days" | "30 days" | "Custom";
+  setActiveDate: React.Dispatch<React.SetStateAction<"Today" | "7 days" | "30 days" | "Custom">>;
 }) {
-  const [open, setOpen] = useState(false);
 
   return (
     <Card className="border-zinc-200/60 shadow-sm overflow-hidden">
@@ -56,35 +60,15 @@ export default function Filter({
               />
             </div>
 
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="h-11 justify-start gap-2 bg-zinc-50/50 border-zinc-200 hover:bg-zinc-100 hover:border-zinc-300 transition-all font-medium sm:w-48"
-                >
-                  <CalendarIcon className="h-4 w-4 text-zinc-500" />
-                  <span className="flex-1 text-left">
-                    {date ? date.toLocaleDateString("en-GB", { day: '2-digit', month: 'short', year: 'numeric' }) : "Select date"}
-                  </span>
-                  <ChevronDownIcon className="h-4 w-4 text-zinc-400" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent
-                className="w-auto p-0"
-                align="start"
-              >
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  captionLayout="dropdown"
-                  onSelect={(date) => {
-                    setDate(date || new Date());
-                    setOpen(false);
-                  }}
-                />
-              </PopoverContent>
-            </Popover>
+
           </div>
+
+          <DateFilter
+            activeDate={activeDate}
+            setActiveDate={setActiveDate}
+            date={date}
+            setDate={setDate}
+          />
 
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider mr-1 hidden sm:inline">Filter:</span>

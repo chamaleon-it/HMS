@@ -1,7 +1,6 @@
-import { fTime } from "@/lib/fDateAndTime";
+import { fDateandTime, fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video, Search, Clock } from "lucide-react";
 import React from "react";
-import useAppointmentList from "./data/useAppointmentList";
 import {
   Table,
   TableBody,
@@ -18,12 +17,20 @@ export default function List({
   query,
   activeStatuses,
   date,
+  data,
+  mutate,
+  isLoading,
+  activeDate
 }: {
   query: string;
   activeStatuses: string[];
-  date: Date;
+  date: Date | undefined;
+  data: any;
+  mutate: () => void;
+  isLoading: boolean;
+  activeDate: "Today" | "7 days" | "30 days" | "Custom";
 }) {
-  const { data } = useAppointmentList({ activeStatuses, date });
+  // const { data } = useAppointmentList({ activeStatuses, date });
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
   const [doctor, setDoctor] = useState<string | null>(null)
   const [isNewTestOpen, setIsNewTestOpen] = useState(false);
@@ -61,7 +68,16 @@ export default function List({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filteredData.length === 0 ? (
+          {isLoading ? (
+            <TableRow>
+              <TableCell colSpan={7} className="h-64 text-center">
+                <div className="flex flex-col items-center justify-center gap-2">
+                  <div className="w-8 h-8 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+                  <p className="text-sm text-gray-500">Loading appointments...</p>
+                </div>
+              </TableCell>
+            </TableRow>
+          ) : filteredData.length === 0 ? (
             <TableRow>
               <TableCell colSpan={7} className="h-64 text-center">
                 <div className="flex flex-col items-center justify-center gap-3">
@@ -76,7 +92,7 @@ export default function List({
               </TableCell>
             </TableRow>
           ) : (
-            filteredData.map((row, idx) => {
+            filteredData.map((row: any) => {
               const isNew = row.visitCount === 1 || row.type === "New";
               return (
                 <TableRow
@@ -86,7 +102,7 @@ export default function List({
                   <TableCell className="py-2.5 pl-4 font-medium text-gray-700 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5 text-gray-400" />
-                      {fTime(row.date)}
+                      {fDateandTime(row.date)}
                     </div>
                   </TableCell>
                   <TableCell className="py-2.5">
@@ -169,7 +185,7 @@ export default function List({
         open={isNewTestOpen}
         onOpenChange={setIsNewTestOpen}
         patient={selectedPatient}
-        mutate={() => { }}
+        mutate={mutate}
       />
     </div>
   );

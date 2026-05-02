@@ -25,16 +25,17 @@ type Patient = {
 };
 
 interface Props {
-  setValue: (id: string, allergies?: string) => void;
-  register: () => void;
+  setValue: (id: string, allergies?: string, name?: string) => void;
+  register: (name?: string) => void;
   patientName: string;
+  autoFocus?: boolean;
 }
 
 const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 5;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) => {
+const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus }) => {
   const [input, setInput] = useState(patientName);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
@@ -86,19 +87,12 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
   const handleSelect = useCallback(
     (p: Patient) => {
       setSelected(p);
-      setValue(p._id, p.allergies);
+      setValue(p._id, p.allergies, p.name);
       setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
       setOpen(false);
     },
     [setValue]
   );
-
-  useEffect(() => {
-    if (patientName && patients.length > 0) {
-      handleSelect(patients[0])
-    }
-
-  }, [patientName, patients])
 
 
 
@@ -144,6 +138,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
         <Input
           placeholder="Search or type new"
           value={input}
+          autoFocus={autoFocus}
           onFocus={() => setOpen(true)}
           onChange={(e) => {
             setInput(e.target.value);
@@ -187,7 +182,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
                 </div>
                 <button
                   onClick={() => {
-                    register?.()
+                    register?.(input)
                   }}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
                 >
@@ -199,7 +194,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
             )}
           </div>
 
-          <ScrollArea className="">
+          {patients.length > 0 && <ScrollArea className="h-[300px]">
             <ul
               id="patient-listbox"
               role="listbox"
@@ -231,7 +226,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
                 </li>
               ))}
             </ul>
-          </ScrollArea>
+          </ScrollArea>}
         </div>
       )}
     </div>
@@ -263,7 +258,7 @@ const safeAge = (dob?: string | Date) => {
   try {
     const d = typeof dob === "string" ? new Date(dob) : dob;
     if (Number.isNaN(d.getTime())) return "—";
-    return `${fAge(d)} yrs`;
+    return `${fAge(d).years}y ${fAge(d).months}m`;
   } catch {
     return "—";
   }

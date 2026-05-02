@@ -22,9 +22,10 @@ export default function AppointmentPage() {
   const [activeStatuses, setActiveStatuses] = useState<string[]>([]);
   const [openCreate, setOpenCreate] = useState(false);
   const [date, setDate] = useState(new Date());
+  const [activeDate, setActiveDate] = useState<"Today" | "7 days" | "30 days" | "Custom">("Today");
   const [activeTab, setActiveTab] = useState("list");
 
-  const { mutate } = useAppointmentList({ query, activeStatuses, date });
+  const { mutate } = useAppointmentList({ query, activeStatuses, date, activeDate });
 
   const tabs = [
     { key: "list", label: "List", icon: LayoutList },
@@ -35,7 +36,7 @@ export default function AppointmentPage() {
 
   return (
     <AppShell>
-      <div className="p-5 min-h-[calc(100vh-80px)] space-y-5">
+      <div className="p-5 min-h-[calc(100vh-67px)] space-y-5">
         <DoctorHeader
           title="Appointments"
           subtitle="Manage patient appointments and schedules"
@@ -56,9 +57,9 @@ export default function AppointmentPage() {
           setQuery={setQuery}
           date={date}
           setDate={setDate}
+          activeDate={activeDate}
+          setActiveDate={setActiveDate}
         />
-
-        {/* Stats Row */}
 
         {/* Tabs: List / Calendar */}
         <div className="mt-2">
@@ -104,7 +105,7 @@ export default function AppointmentPage() {
             </div>
 
             <TabsContent value="list">
-              <List query={query} activeStatuses={activeStatuses} date={date} />
+              <List query={query} activeStatuses={activeStatuses} date={date} activeDate={activeDate} />
             </TabsContent>
             <TabsContent value="calendar">
               <Calendar date={date} />
@@ -117,10 +118,7 @@ export default function AppointmentPage() {
           onClose={() => setOpenCreate(false)}
           title="Create Appointment"
         >
-          <CreateAppointmentForm
-            onClose={() => setOpenCreate(false)}
-            mutate={mutate}
-          />
+          <CreateAppointmentForm onClose={() => setOpenCreate(false)} />
         </Drawer>
       </div>
     </AppShell>

@@ -32,8 +32,9 @@ import Address from "./Address";
 import { useDebounce } from "@/hooks/useDebounce";
 import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
 import ExistingPatientCard from "./ExistingPatientCard";
+import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 
-export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string) => void, patient?: any, mutate?: () => void }) {
+export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string, allergies?: string) => void, patient?: any, mutate?: () => void }) {
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
@@ -46,17 +47,19 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     setValue,
     reset,
     watch,
-  } = useForm({
+  } = useForm<RegisterPatientSchema>({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
       name: patient?.name || "",
       phoneNumber: patient?.phoneNumber || "",
       doctor: patient?.doctor || user?._id,
-      gender: patient?.gender || "Prefer not to say",
-      dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
+      gender: patient?.gender,
+      dateOfBirth: patient?.dateOfBirth || "",
+      age: patient?.age || "",
+      month: patient?.month || "",
       address: patient?.address || "",
       allergies: patient?.allergies || "",
-      mrn: patient?.mrn || undefined,
+      mrn: patient?.mrn || "",
       guardian: patient?.guardian || "",
       guardianPhoneNumber: patient?.guardianPhoneNumber || "",
       guardianRelation: patient?.guardianRelation || "",
@@ -73,6 +76,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     gender: useRef<HTMLButtonElement>(null),
     dob: useRef<HTMLButtonElement>(null),
     age: useRef<HTMLInputElement>(null),
+    month: useRef<HTMLInputElement>(null),
     allergies: useRef<HTMLInputElement>(null),
     guardian: useRef<HTMLInputElement>(null),
     guardianPhoneNumber: useRef<HTMLInputElement>(null),
@@ -111,10 +115,11 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         name: patient?.name || "",
         phoneNumber: patient?.phoneNumber || "",
         doctor: patient?.doctor || user?._id,
-        gender: patient?.gender || "Prefer not to say",
-        dateOfBirth: patient?.dateOfBirth || new Date().toISOString(),
+        gender: patient?.gender,
+        dateOfBirth: patient?.dateOfBirth || "",
+        age: patient?.age || "",
         address: patient?.address || "",
-        mrn: patient?.mrn || undefined
+        mrn: patient?.mrn || ""
       });
     }
   }, [patient]);
@@ -136,7 +141,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           success: `Customer register successfully.`,
         });
         reset();
-        onClose(responseData.data._id, responseData.data.name);
+        onClose(responseData.data._id, responseData.data.name, responseData.data.allergies);
       }
     } catch (error) {
       console.log(error);
@@ -144,6 +149,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   });
 
   const [openCalander, setOpenCalander] = useState(false);
+  const [dobSetFromAge, setDobSetFromAge] = useState(false);
 
   const searchParams = useSearchParams();
   const name = searchParams.get("name");
@@ -215,7 +221,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               placeholder="PID"
               {...register("mrn")}
               ref={mergeRefs(refs.mrn, register("mrn").ref)}
-              value={values.mrn}
+              value={values.mrn ?? ""}
               disabled={patient?._id}
               onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
             />
@@ -232,7 +238,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               placeholder="+91"
               {...register("phoneNumber")}
               ref={mergeRefs(refs.phoneNumber, register("phoneNumber").ref)}
-              value={values.phoneNumber}
+              value={values.phoneNumber ?? ""}
               onKeyDown={(e) => handleKeyDown(e, refs.gender)}
             />
             {errors.phoneNumber && (
@@ -254,10 +260,10 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2">
-            <Label>Gender </Label>
+            <Label>Gender *</Label>
             <Select
               onValueChange={(
-                value: "Male" | "Female" | "Other" | "Prefer not to say"
+                value: "Male" | "Female" | "Other"
               ) => setValue("gender", value)}
               value={values.gender}
             >
@@ -269,7 +275,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other", "Prefer not to say"].map((v) => (
+                {["Male", "Female", "Other"].map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>
@@ -295,12 +301,14 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   className="w-full justify-between font-normal"
                   onKeyDown={(e) => handleKeyDown(e, refs.age)}
                 >
-                  {dateOfBirth
-                    ? `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}`
+                  {dateOfBirth && dateOfBirth !== ""
+                    ? dobSetFromAge
+                      ? `${new Date(dateOfBirth).getFullYear()}`
+                      : `${new Date(dateOfBirth).toLocaleDateString("en-GB", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}`
                     : "Select date of birth"}
                   <ChevronDownIcon />
                 </Button>
@@ -312,13 +320,29 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                 <Calendar
                   disabled={{ after: new Date() }}
                   mode="single"
-                  selected={new Date(dateOfBirth)}
+                  selected={dateOfBirth ? new Date(dateOfBirth) : undefined}
                   captionLayout="dropdown"
                   onSelect={(date) => {
-                    setValue(
-                      "dateOfBirth",
-                      date?.toISOString() ?? new Date().toISOString()
-                    );
+                    if (date) {
+                      setValue("dateOfBirth", date.toISOString());
+
+                      const today = new Date();
+                      let years = today.getFullYear() - date.getFullYear();
+                      let months = today.getMonth() - date.getMonth();
+                      if (today.getDate() < date.getDate()) {
+                        months--;
+                      }
+                      if (months < 0) {
+                        years--;
+                        months += 12;
+                      }
+
+                      setValue("age", years.toString());
+                      setValue("month", months.toString());
+                      setDobSetFromAge(false);
+                    } else {
+                      setValue("dateOfBirth", "");
+                    }
                     setOpenCalander(false);
                   }}
                 />
@@ -332,34 +356,65 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label>Age </Label>
-            <Input
-              ref={refs.age}
-              type="number"
-              placeholder="0"
-              onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
-              value={
-                dateOfBirth
-                  ? (new Date().getFullYear() -
-                    new Date(dateOfBirth).getFullYear() || "")
-                  : ""
-              }
-              onChange={(e) => {
-                const age = parseInt(e.target.value);
-                if (!isNaN(age)) {
-                  const today = new Date();
-                  const newDob = new Date(
-                    today.getFullYear() - age,
-                    today.getMonth(),
-                    today.getDate()
-                  );
-                  setValue("dateOfBirth", newDob.toISOString());
-                } else {
-                  setValue("dateOfBirth", new Date().toISOString());
-                }
-              }}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label>Age (Years)</Label>
+              <Input
+                {...register("age")}
+                ref={mergeRefs(refs.age, register("age").ref)}
+                type="number"
+                placeholder="0"
+                onKeyDown={(e) => handleKeyDown(e, refs.month)}
+                onChange={(e) => {
+                  const ageValue = e.target.value;
+                  const monthValue = values.month || "0";
+                  setValue("age", ageValue);
+
+                  if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                    const today = new Date();
+                    const estimatedDob = new Date(
+                      today.getFullYear() - Number(ageValue || 0),
+                      today.getMonth() - Number(monthValue || 0),
+                      today.getDate()
+                    );
+                    setValue("dateOfBirth", estimatedDob.toISOString());
+                    setDobSetFromAge(true);
+                  } else {
+                    setValue("dateOfBirth", "");
+                    setDobSetFromAge(false);
+                  }
+                }}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label>Months</Label>
+              <Input
+                {...register("month")}
+                ref={mergeRefs(refs.month, register("month").ref)}
+                type="number"
+                placeholder="0"
+                onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
+                onChange={(e) => {
+                  const monthValue = e.target.value;
+                  const ageValue = values.age || "0";
+                  setValue("month", monthValue);
+
+                  if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                    const today = new Date();
+                    const estimatedDob = new Date(
+                      today.getFullYear() - Number(ageValue || 0),
+                      today.getMonth() - Number(monthValue || 0),
+                      today.getDate()
+                    );
+                    setValue("dateOfBirth", estimatedDob.toISOString());
+                    setDobSetFromAge(true);
+                  } else {
+                    setValue("dateOfBirth", "");
+                    setDobSetFromAge(false);
+                  }
+                }}
+              />
+            </div>
           </div>
 
           <div className="grid gap-2">
@@ -450,7 +505,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         <Button variant="ghost" onClick={() => onClose()} type="button">
           Close
         </Button>
-        <Button type="submit">{patient?._id ? "Update Customer" : "Register Customer"}</Button>
+        <Button type="submit" className="bg-black hover:bg-gray-900 text-white hover:text-white transition-colors shadow-sm">{patient?._id ? "Update Customer" : "Register Customer"}</Button>
       </div>
     </form>
   );
@@ -465,7 +520,7 @@ type Props = {
     phoneNumber: string;
     email: string;
     gender: "Male" | "Female" | "Other";
-    age: unknown;
+    age?: unknown;
     conditions?: string[] | undefined;
     blood?: string | undefined;
     allergies?: string | undefined;
