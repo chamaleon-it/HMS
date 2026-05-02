@@ -36,7 +36,7 @@ const tabs = [
 
 export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
   const { user } = useAuth();
-  const { updateDraft, removeDraft } = useLabDrafts();
+  const { updateDraft, removeDraft, setDraftToDelete } = useLabDrafts();
   const { panels } = useGetPanels();
   const { tests } = useGetTest();
 
@@ -357,7 +357,14 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           Grand Total: <span className="text-blue-600">{formatINR(grandTotal)}</span>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" onClick={() => removeDraft(draft.id)}>Cancel</Button>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setDraftToDelete(draft.id);
+              }}
+            >
+            Cancel
+            </Button>
           <Button
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
             onClick={handleSubmit}
