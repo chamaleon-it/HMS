@@ -32,6 +32,7 @@ export interface ItemType {
   rackLocation?: string;
   packing?: number;
   gst?: number;
+  soldQuantity?: number;
 }
 
 export interface FilterType {
