@@ -1,10 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText } from "lucide-react";
+import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History } from "lucide-react";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -28,11 +29,25 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     [mutate, onClose]
   );
 
+  const [activeTab, setActiveTab] = useState<"Batch History" | "Sold History">("Batch History");
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 5;
-  const sortedBatches = item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
-  const totalPages = Math.ceil(sortedBatches.length / ITEMS_PER_PAGE);
-  const paginatedBatches = sortedBatches.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+
+  const tabs = useMemo(() => [
+    { key: "Batch History", icon: Package },
+    { key: "Sold History", icon: ShoppingCart },
+  ], []);
+
+  const sortedData = useMemo(() => {
+    if (activeTab === "Batch History") {
+      return item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+    } else {
+      return item?.soldHistory ? [...item.soldHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
+    }
+  }, [item, activeTab]);
+
+  const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
+  const paginatedData = sortedData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const handleNextPage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -221,91 +236,105 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
         </div>
       </div>
 
-      {/* <div className="grid grid-cols-2 gap-4">
-        <Card className="overflow-hidden border-none shadow-md bg-gradient-to-br from-blue-50 to-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <p className="text-sm font-medium text-muted-foreground">Medicine Sales</p>
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <ShoppingBag className="h-4 w-4 text-blue-600" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="text-2xl font-bold text-gray-900">₹ 12,450</div>
-              <div className="flex items-center text-xs text-green-600 font-medium">
-                <TrendingUp className="mr-1 h-3 w-3" />
-                +15% from last month
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex justify-center py-2">
+        <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+          {tabs.map(({ key, icon: Icon }) => {
+            const active = activeTab === key;
+            return (
+              <button
+                key={key}
+                onClick={() => {
+                  setActiveTab(key as any);
+                  setCurrentPage(1);
+                }}
+                className={
+                  "relative flex items-center gap-2 rounded-full px-6 py-2 transition-all duration-300 will-change-transform cursor-pointer " +
+                  (active ? "text-white" : "text-gray-600 hover:text-gray-900")
+                }
+                type="button"
+              >
+                {active && (
+                  <motion.span
+                    layoutId="tab-indicator-view"
+                    className="absolute inset-0 rounded-full"
+                    style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-2 font-medium">
+                  <Icon size={16} /> {key}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
 
-        <Card className="overflow-hidden border-none shadow-md bg-gradient-to-br from-emerald-50 to-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <p className="text-sm font-medium text-muted-foreground">Medicine Purchase</p>
-              <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Package className="h-4 w-4 text-emerald-600" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="text-2xl font-bold text-gray-900">₹ 45,200</div>
-              <div className="flex items-center text-xs text-green-600 font-medium">
-                <TrendingUp className="mr-1 h-3 w-3" />
-                +4% from last month
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div> */}
-
-      < div className="space-y-3" >
-        <h3 className="font-semibold text-sm text-gray-900 flex items-center gap-2">
-          <Package className="w-4 h-4 text-gray-500" />
-          Batch History
-        </h3>
+      <div className="space-y-3">
         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
           <Table>
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
-                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Purchase Rate</TableHead>
-                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Qty</TableHead>
+                {activeTab === "Batch History" ? (
+                  <>
+                    <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Purchase Rate</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Qty</TableHead>
+                  </>
+                ) : (
+                  <>
+                    <TableHead className="w-[200px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sale Date</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Quantity Sold</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Unit Price</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Total</TableHead>
+                  </>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedBatches.length === 0 ? (
+              {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-20 text-slate-400">
+                  <TableCell colSpan={activeTab === "Batch History" ? 6 : 4} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2">
-                      <Barcode className="h-8 w-8 opacity-20" />
-                      <p className="font-bold uppercase tracking-widest text-[11px]">No batch history found</p>
+                      {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
+                      <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedBatches.map((batch, idx) => (
+                paginatedData.map((data: any, idx: number) => (
                   <TableRow
-                    key={batch._id}
+                    key={data._id || idx}
                     className={
                       idx % 2 === 0
                         ? "bg-white hover:bg-white/60"
                         : "bg-slate-100 hover:bg-slate-100/60"
                     }
                   >
-                    <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(batch.createdAt)}</TableCell>
-                    <TableCell className="py-3">
-                      <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
-                        {batch.batchNumber}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(batch.expiryDate)}</TableCell>
-                    <TableCell className="text-xs py-3 text-slate-600">{batch.supplier || "-"}</TableCell>
-                    <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(batch.purchasePrice)}</TableCell>
-                    <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 pr-4 tabular-nums">{batch.quantity}</TableCell>
+                    {activeTab === "Batch History" ? (
+                      <>
+                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.createdAt)}</TableCell>
+                        <TableCell className="py-3">
+                          <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
+                            {data.batchNumber}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
+                        <TableCell className="text-xs py-3 text-slate-600">{data.supplier || "-"}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(data.purchasePrice)}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                      </>
+                    ) : (
+                      <>
+                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.date)}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.unitPrice)}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.total)}</TableCell>
+                      </>
+                    )}
                   </TableRow>
                 ))
               )}
@@ -313,7 +342,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           </Table>
         </div>
         {
-          sortedBatches.length > ITEMS_PER_PAGE && (
+          sortedData.length > ITEMS_PER_PAGE && (
             <div className="flex items-center justify-end space-x-2 py-4">
               <Button
                 variant="outline"
@@ -348,7 +377,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             </div>
           )
         }
-      </div >
+      </div>
 
       {/* Actions */}
       < div className="flex gap-3 pt-4 border-t mt-2" >
