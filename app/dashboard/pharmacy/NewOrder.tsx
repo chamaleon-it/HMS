@@ -52,7 +52,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         patient: id,
         doctor: doctor || user?._id || "",
         allergies: allergiesParam || ""
-      });
+      }, name || "");
       window.location.hash = "";
     }
   }, [addDraft, user?._id]);
@@ -82,15 +82,14 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
           </DialogHeader>
           <RegisterPatient
             patient={{ name: nameToRegister }}
-            onClose={(id?: string, name?: string) => {
+            onClose={(id?: string, name?: string, allergies?: string) => {
               setOpenCreate(false);
               if (id && name) {
                 addDraft({
                   patient: id,
                   doctor: user?._id || "",
-                });
-                // We don't have a way to set patientName in the addDraft call yet, 
-                // but the Manager can handle it if we update DraftContext.
+                  allergies: allergies || ""
+                }, name);
               }
               setNameToRegister("");
             }}
