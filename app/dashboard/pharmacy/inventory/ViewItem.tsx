@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History } from "lucide-react";
+import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight } from "lucide-react";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -227,11 +227,11 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
               <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center">
-                <CreditCard className="w-3.5 h-3.5 text-rose-600" />
+                <ArrowLeftRight className="w-3.5 h-3.5 text-rose-600" />
               </div>
-              GST
+              Sold Quantity
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.gst}%</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.soldQuantity}</div>
           </div>
         </div>
       </div>
