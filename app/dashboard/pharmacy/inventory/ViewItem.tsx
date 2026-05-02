@@ -10,6 +10,15 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatINR } from "@/lib/fNumber";
+import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarUI } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker";
+import { addDays, format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
+import { Calendar as CalendarIcon, FilterX, History as HistoryIcon, Barcode as BarcodeIcon } from "lucide-react";
+import { PaginationBar } from "../components/PaginationBar";
+
+
 
 export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
 
@@ -29,35 +38,84 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     [mutate, onClose]
   );
 
-  const [activeTab, setActiveTab] = useState<"Batch History" | "Sold History">("Batch History");
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 5;
+  const [activeTab, setActiveTab] = useState<"Batch History" | "Medicine History">("Batch History");
+  const [pagination, setPagination] = useState({ page: 1, limit: 5 });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+
 
   const tabs = useMemo(() => [
     { key: "Batch History", icon: Package },
-    { key: "Sold History", icon: ShoppingCart },
+    { key: "Medicine History", icon: History },
   ], []);
 
   const sortedData = useMemo(() => {
     if (activeTab === "Batch History") {
       return item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
     } else {
-      return item?.soldHistory ? [...item.soldHistory].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()) : [];
+      let filtered = item?.soldHistory ? [...item.soldHistory] : [];
+      if (dateRange?.from) {
+        filtered = filtered.filter(h => {
+          const d = new Date(h.date);
+          if (dateRange.to) {
+            return d >= startOfDay(dateRange.from!) && d <= endOfDay(dateRange.to);
+          }
+          return d >= startOfDay(dateRange.from!);
+        });
+      }
+
+      // Grouping logic
+      const groups: Record<string, { date: Date, quantity: number, unitPrice: number, total: number }> = {};
+      filtered.forEach(h => {
+        const d = new Date(h.date);
+        const dateKey = format(d, "yyyy-MM-dd");
+        const price = h.unitPrice;
+        const key = `${dateKey}_${price}`;
+
+        if (groups[key]) {
+          groups[key].quantity += h.quantity;
+          groups[key].total += h.total;
+        } else {
+          groups[key] = {
+            date: d,
+            quantity: h.quantity,
+            unitPrice: price,
+            total: h.total
+          };
+        }
+      });
+
+      return Object.values(groups).sort((a, b) => b.date.getTime() - a.date.getTime());
     }
-  }, [item, activeTab]);
+  }, [item, activeTab, dateRange]);
 
-  const totalPages = Math.ceil(sortedData.length / ITEMS_PER_PAGE);
-  const paginatedData = sortedData.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const salesStats = useMemo(() => {
+    if (activeTab !== "Medicine History") return null;
+    
+    let filtered = item?.soldHistory ? [...item.soldHistory] : [];
+    if (dateRange?.from) {
+      filtered = filtered.filter(h => {
+        const d = new Date(h.date);
+        if (dateRange.to) {
+          return d >= startOfDay(dateRange.from!) && d <= endOfDay(dateRange.to);
+        }
+        return d >= startOfDay(dateRange.from!);
+      });
+    }
 
-  const handleNextPage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
-  };
+    const totalQuantitySold = filtered.reduce((acc, h) => acc + h.quantity, 0);
+    const totalSales = filtered.reduce((acc, h) => acc + h.total, 0);
+    const averageUnitPrice = totalQuantitySold > 0 ? totalSales / totalQuantitySold : 0;
 
-  const handlePrevPage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (currentPage > 1) setCurrentPage(prev => prev - 1);
-  };
+    return { totalQuantitySold, totalSales, averageUnitPrice };
+  }, [item, activeTab, dateRange]);
+
+
+  const paginatedData = useMemo(() => {
+    return sortedData.slice((pagination.page - 1) * pagination.limit, pagination.page * pagination.limit);
+  }, [sortedData, pagination]);
+
+
+
 
   return (
     <div className="w-full bg-white rounded-2xl shadow-xl p-2 space-y-4 text-sm max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -236,8 +294,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
         </div>
       </div>
 
-      <div className="flex justify-center py-2">
-        <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 shadow-sm">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 border-b border-slate-100">
+        <div className="relative inline-flex items-center gap-2 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 shadow-xs">
           {tabs.map(({ key, icon: Icon }) => {
             const active = activeTab === key;
             return (
@@ -245,33 +303,135 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                 key={key}
                 onClick={() => {
                   setActiveTab(key as any);
-                  setCurrentPage(1);
+                  setPagination({ page: 1, limit: 5 });
                 }}
+
                 className={
-                  "relative flex items-center gap-2 rounded-full px-6 py-2 transition-all duration-300 will-change-transform cursor-pointer " +
-                  (active ? "text-white" : "text-gray-600 hover:text-gray-900")
+                  "relative flex items-center gap-2 rounded-full px-5 py-1.5 transition-all duration-300 will-change-transform cursor-pointer " +
+                  (active ? "text-white" : "text-slate-500 hover:text-slate-900")
                 }
                 type="button"
               >
                 {active && (
                   <motion.span
                     layoutId="tab-indicator-view"
-                    className="absolute inset-0 rounded-full"
+                    className="absolute inset-0 rounded-full shadow-md"
                     style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
                     transition={{ type: "spring", stiffness: 500, damping: 40 }}
                   />
                 )}
-                <span className="relative z-10 flex items-center gap-2 font-medium">
-                  <Icon size={16} /> {key}
+                <span className="relative z-10 flex items-center gap-2 font-semibold">
+                  <Icon size={14} /> {key}
                 </span>
               </button>
             );
           })}
         </div>
+
+        {activeTab === "Medicine History" && (
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-9 rounded-full px-4 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 gap-2",
+                    dateRange?.from && "border-indigo-500 bg-indigo-50 text-indigo-700"
+                  )}
+                >
+                  <CalendarIcon size={14} />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd")} - {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Filter by Date Range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden" align="end">
+                <CalendarUI
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={(range) => {
+                    setDateRange(range);
+                    setPagination(prev => ({ ...prev, page: 1 }));
+                  }}
+
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {dateRange && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setDateRange(undefined);
+                  setPagination(prev => ({ ...prev, page: 1 }));
+                }}
+
+                className="h-9 w-9 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50"
+                title="Clear Filter"
+              >
+                <FilterX size={16} />
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="space-y-3">
+        {activeTab === "Medicine History" && salesStats && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                  <ShoppingCart className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Total Quantity Sold</p>
+                  <p className="text-xl font-bold text-emerald-900">{salesStats.totalQuantitySold}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                  <Coins className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Avg. Unit Price</p>
+                  <p className="text-xl font-bold text-blue-900">{formatINR(salesStats.averageUnitPrice)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                  <Banknote className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">Total Sales</p>
+                  <p className="text-xl font-bold text-indigo-900">{formatINR(salesStats.totalSales)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
+
           <Table>
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
@@ -341,42 +501,15 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             </TableBody>
           </Table>
         </div>
-        {
-          sortedData.length > ITEMS_PER_PAGE && (
-            <div className="flex items-center justify-end space-x-2 py-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(page);
-                  }}
-                  className="w-8 h-8 p-0"
-                >
-                  {page}
-                </Button>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          )
-        }
+        <div className="px-4">
+          <PaginationBar
+            page={pagination.page}
+            limit={pagination.limit}
+            total={sortedData.length}
+            setFilter={setPagination as any}
+          />
+        </div>
+
       </div>
 
       {/* Actions */}
