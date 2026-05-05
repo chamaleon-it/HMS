@@ -32,7 +32,7 @@ interface Props {
 }
 
 const MIN_QUERY_LEN = 2;
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 30;
 const DEBOUNCE_MS = 250;
 
 const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus }) => {
@@ -40,6 +40,19 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  // Auto-scroll to active item
+  useEffect(() => {
+    if (activeIdx >= 0 && listRef.current) {
+      const activeElement = listRef.current.children[activeIdx] as HTMLElement;
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          block: "nearest",
+        });
+      }
+    }
+  }, [activeIdx]);
 
   // Close on outside click
   const rootRef = useRef<HTMLDivElement>(null);
@@ -80,9 +93,6 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
     debounced.length >= MIN_QUERY_LEN ? listUrl : null
   );
   const patients = data?.data ?? [];
-
-
-
 
   const handleSelect = useCallback(
     (p: Patient) => {
@@ -196,6 +206,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
 
           {patients.length > 0 && <ScrollArea className="h-[300px]">
             <ul
+              ref={listRef}
               id="patient-listbox"
               role="listbox"
               aria-label="Patients"
