@@ -34,7 +34,7 @@ import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
 import ExistingPatientCard from "./ExistingPatientCard";
 import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 
-export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string) => void, patient?: any, mutate?: () => void }) {
+export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string, allergies?: string) => void, patient?: any, mutate?: () => void }) {
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
@@ -141,7 +141,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           success: `Customer register successfully.`,
         });
         reset();
-        onClose(responseData.data._id, responseData.data.name);
+        onClose(responseData.data._id, responseData.data.name, responseData.data.allergies);
       }
     } catch (error) {
       console.log(error);

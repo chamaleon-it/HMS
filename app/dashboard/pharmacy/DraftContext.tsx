@@ -16,7 +16,7 @@ export interface Draft {
 
 interface DraftContextType {
   drafts: Draft[];
-  addDraft: (initialData?: Partial<DataType>) => void;
+  addDraft: (initialData?: Partial<DataType>, patientName?: string) => void;
   updateDraft: (id: string, updates: Partial<Draft> | ((prev: Draft) => Partial<Draft>)) => void;
   removeDraft: (id: string) => void;
   bringToFront: (id: string) => void;
@@ -50,7 +50,9 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   }, [drafts]);
 
-  const addDraft = (initialData?: Partial<DataType>) => {
+  const isNoAllergy = (a?: string) => !a || ["none", "n/a", "no", "nil"].includes(a.trim().toLowerCase());
+
+  const addDraft = (initialData?: Partial<DataType>, patientName?: string) => {
     const id = Date.now().toString();
     const maxZ = Math.max(40, ...drafts.map(d => d.zIndex));
     const newDraft: Draft = {
@@ -83,9 +85,9 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       zIndex: maxZ + 1,
       isOpen: true,
       minimized: false,
-      hasAllergy: false,
+      hasAllergy: !isNoAllergy(initialData?.allergies),
       showAllFields: false,
-      patientName: ""
+      patientName: patientName || ""
     };
     setDrafts([...drafts, newDraft]);
     setActiveDraftId(id);

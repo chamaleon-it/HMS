@@ -127,8 +127,8 @@ export default function InventoryPage() {
           </div>
 
           <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>
-            <DialogContent className={openView ? "max-w-3xl! w-full" : "max-w-2xl!" + " max-h-[90vh] overflow-y-auto p-0 gap-1"}>
-              <DialogHeader className="flex justify-between items-center border-b p-4">
+            <DialogContent className={openView ? "max-w-3xl! w-full" : "max-w-2xl!" + " max-h-[90vh] overflow-y-auto p-0! gap-1"}>
+              <DialogHeader className="flex justify-between items-center border-b p-0!">
                 <DialogTitle>
                   {openView
                     ? "View Item"
@@ -140,7 +140,7 @@ export default function InventoryPage() {
                 </DialogTitle>
               </DialogHeader>
 
-              <div className="p-2">
+              <div className="">
                 {openView && selectedItem && (
                   <ViewItem
                     item={selectedItem}
