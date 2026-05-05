@@ -492,7 +492,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                                                 <tr key={`test-${rowIdx}`}>
                                                                     <td className={`pl-2 pt-[3px] ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        <p className={`text-[12px]  text-black font-semibold pl-0 capitalize`}>
+                                                                        <p className={`text-[12px]  text-black font-semibold pl-0`}>
                                                                             {row.name?.name || "Unknown test"}
                                                                         </p>
                                                                         {!!row?.name?.method && <p className="text-[9px] text-black pl-0">Method: {row.name?.method}</p>}
