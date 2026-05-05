@@ -112,10 +112,11 @@ export default function PrescriptionCard({
     <div className="border rounded-xl bg-white shadow-sm max-h-[50vh] overflow-y-auto overflow-x-hidden">
       <div className="flex flex-col min-w-[900px]">
         <div
-          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-8"
+          className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
             } gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}
         >
-          <div className="col-span-3">Drug</div>
+          <div className="col-span-1 flex items-center justify-center">Sl</div>
+          <div className="col-span-2">Drug</div>
           {showAllFields && (
             <>
               <div className="col-span-1">Dosage</div>
@@ -134,10 +135,13 @@ export default function PrescriptionCard({
         {data.items.map((m, i) => (
           <div
             key={m.rowId}
-            className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-8"
+            className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
               } gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
           >
-            <div className="col-span-3">
+            <div className="col-span-1 flex items-center justify-center text-slate-400 text-[11px] font-medium">
+              {i + 1}
+            </div>
+            <div className="col-span-2">
               <Medicine
                 i={i}
                 m={m}
