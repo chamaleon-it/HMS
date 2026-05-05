@@ -35,7 +35,7 @@ interface Props {
 }
 
 const MIN_QUERY_LEN = 2;
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 100;
 const DEBOUNCE_MS = 250;
 
 const PatientSelection: React.FC<Props> = ({ setValue, value, orderPatient, onSelectPatient }) => {
