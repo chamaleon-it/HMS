@@ -57,7 +57,7 @@ export default function MedicineField({
     q: string;
     page: number;
   }>({
-    limit: 10,
+    limit: 25,
     q: "",
     page: 1,
   });
