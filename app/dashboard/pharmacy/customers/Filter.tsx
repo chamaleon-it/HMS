@@ -66,7 +66,7 @@ export default function Filter({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3"
+      className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-2"
     >
       <div className="flex flex-wrap items-end gap-3">
         {/* Search */}

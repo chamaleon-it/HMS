@@ -91,7 +91,7 @@ const Customers: React.FC = () => {
     <AppShell>
       <TooltipProvider>
         <div className="p-5 min-h-[calc(100vh-67px)]">
-          <main className="flex flex-col gap-5">
+          <main className="flex flex-col gap-4">
             <PharmacyHeader
               title="Customers"
               subtitle="Click a row to open full pharmacy history for that customer"
