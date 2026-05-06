@@ -285,7 +285,7 @@ export default function PrescriptionCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-100 cursor-pointer transition-colors"
                 onClick={() => removeMedicineRow(m.rowId)}
                 title="Remove medicine"
               >
