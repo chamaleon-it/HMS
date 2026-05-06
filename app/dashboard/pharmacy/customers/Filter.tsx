@@ -54,7 +54,7 @@ export default function Filter({
       lastVisit: undefined,
       alreadyPurchase: false,
       page: 1,
-      limit: 10,
+      limit: 20,
       dateRange: {
         from: undefined,
         to: undefined,
@@ -66,11 +66,11 @@ export default function Filter({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white p-7 rounded-xl shadow-sm border border-slate-200 space-y-6"
+      className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 space-y-3"
     >
-      <div className="flex flex-wrap items-end gap-6">
+      <div className="flex flex-wrap items-end gap-3">
         {/* Search */}
-        <div className="space-y-2 flex-1 min-w-[280px]">
+        <div className="space-y-2 flex-1 max-w-[400px]">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Search Customers
           </label>
@@ -97,7 +97,6 @@ export default function Filter({
               { label: "All", value: undefined, icon: "•" },
               { label: "Female", value: "Female", icon: "♀" },
               { label: "Male", value: "Male", icon: "♂" },
-              { label: "Other", value: "Other", icon: "⚧" },
             ].map((opt) => {
               const active = filter.gender === opt.value;
               const activeClass =
@@ -105,9 +104,7 @@ export default function Filter({
                   ? "bg-rose-500 text-white shadow-sm"
                   : opt.value === "Male"
                     ? "bg-sky-500 text-white shadow-sm"
-                    : opt.value === "Other"
-                      ? "bg-violet-500 text-white shadow-sm"
-                      : "bg-white text-slate-800 border-slate-200 shadow-sm";
+                    : "bg-white text-slate-800 border-slate-200 shadow-sm";
 
               const baseClass = "px-3 h-9 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap";
               const idleClass = "text-slate-500 hover:text-slate-800 hover:bg-white/80";
@@ -157,6 +154,7 @@ export default function Filter({
               type="number"
               value={filter.age[0] === 0 ? "" : filter.age[0]}
               placeholder="Min"
+              min={0}
               onChange={(e) => {
                 const age: [number, number] = [
                   Number(e.target.value),
@@ -182,10 +180,7 @@ export default function Filter({
             />
           </div>
         </div>
-      </div>
 
-      <div className="flex flex-wrap items-end gap-6 pt-2 border-t border-slate-50">
-        {/* Last Visit */}
         <div className="space-y-2">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Last Visit
@@ -211,7 +206,11 @@ export default function Filter({
           </div>
         )}
 
-        {/* Purchase Status */}
+
+      </div>
+
+      <div className="flex flex-wrap items-end gap-3">
+
         <div className="space-y-2">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Purchase Status
@@ -337,8 +336,8 @@ function Segmented({
             key={o.label}
             onClick={() => onChange(o.value)}
             className={`px-4 h-9 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${active
-                ? "bg-white text-indigo-600 shadow-sm border border-slate-200"
-                : "text-slate-500 hover:text-slate-800 hover:bg-white/80"
+              ? "bg-white text-indigo-600 shadow-sm border border-slate-200"
+              : "text-slate-500 hover:text-slate-800 hover:bg-white/80"
               }`}
           >
             {o.label}
@@ -441,8 +440,8 @@ function FilterSelect({
                       setOpen(false);
                     }}
                     className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors ${active
-                        ? "bg-indigo-50 text-indigo-700"
-                        : "hover:bg-slate-50 text-slate-600"
+                      ? "bg-indigo-50 text-indigo-700"
+                      : "hover:bg-slate-50 text-slate-600"
                       }`}
                   >
                     {o.label}
