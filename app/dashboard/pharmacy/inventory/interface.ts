@@ -31,6 +31,7 @@ export interface ItemType {
   batchNumber?: string;
   rackLocation?: string;
   packing?: number;
+  noOfPacking?: number;
   gst?: number;
   soldQuantity?: number;
   soldHistory?: Array<{
