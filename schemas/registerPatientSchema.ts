@@ -43,6 +43,8 @@ export const registerPatientSchema = z.object({
 
   blood: z.enum([...BLOOD_GROUPS]).optional(),
 
+  weight: z.string().max(20).optional(),
+
   allergies: z.string().max(500).optional(),
 
   insurance: z.string().max(100).optional(),

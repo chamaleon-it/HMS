@@ -59,6 +59,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       month: patient?.month || "",
       address: patient?.address || "",
       allergies: patient?.allergies || "",
+      weight: patient?.weight || "",
       mrn: patient?.mrn || "",
       guardian: patient?.guardian || "",
       guardianPhoneNumber: patient?.guardianPhoneNumber || "",
@@ -77,6 +78,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     dob: useRef<HTMLButtonElement>(null),
     age: useRef<HTMLInputElement>(null),
     month: useRef<HTMLInputElement>(null),
+    weight: useRef<HTMLInputElement>(null),
     allergies: useRef<HTMLInputElement>(null),
     guardian: useRef<HTMLInputElement>(null),
     guardianPhoneNumber: useRef<HTMLInputElement>(null),
@@ -118,6 +120,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         gender: patient?.gender,
         dateOfBirth: patient?.dateOfBirth || "",
         age: patient?.age || "",
+        weight: patient?.weight || "",
         address: patient?.address || "",
         mrn: patient?.mrn || ""
       });
@@ -394,7 +397,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                   ref={mergeRefs(refs.month, register("month").ref)}
                   type="number"
                   placeholder="0"
-                  onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
+                  onKeyDown={(e) => handleKeyDown(e, refs.weight)}
                   onChange={(e) => {
                     const monthValue = e.target.value;
                     const ageValue = values.age || "0";
@@ -422,6 +425,18 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                 {errors.age.message}
               </p>
             )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label>
+              Weight
+            </Label>
+            <Input
+              {...register("weight")}
+              ref={mergeRefs(refs.weight, register("weight").ref)}
+              onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
+              placeholder="e.g. 10kg or 1000g"
+            />
           </div>
 
           <div className="grid gap-2">
