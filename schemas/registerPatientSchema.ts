@@ -17,7 +17,7 @@ export const registerPatientSchema = z.object({
 
   phoneNumber: z
     .string()
-    .optional()
+    .min(1, "Phone number is required")
     .refine(
       (val) => !val || (!val.includes("+") && val.replace(/\D/g, "").length === 10 || (val.includes("+") && val.replace(/\D/g, "").length === 12)),
       "Please provide a valid phone number"
@@ -27,12 +27,16 @@ export const registerPatientSchema = z.object({
 
   doctor: z.string().trim().min(1, "Select a doctor."),
 
-  gender: z.enum(["Male", "Female", "Other"], {
-    message: "Please select a gender",
+  gender: z.enum(["Male", "Female"], {
+    message: "Gender is mandatory",
   }),
 
   dateOfBirth: z.string().optional().or(z.literal("")),
-  age: z.union([z.string(), z.number()]).optional(),
+  age: z.union([z.string(), z.number()]).refine(
+  (val) => val !== "" && val !== undefined && val !== null,
+    "Age is required"
+  ),
+
   month: z.union([z.string(), z.number()]).optional(),
 
   conditions: z.array(z.string().max(100)).optional(),
@@ -62,6 +66,8 @@ export const registerPatientSchema = z.object({
     }),
 
   address: z.string().max(500).optional(),
+  address_line1: z.string().min(1, "Address Line 1 is required"),
+  city: z.string().min(1, "Locality/Place is required"),
 
   guardian: z.string().max(100).optional(),
 

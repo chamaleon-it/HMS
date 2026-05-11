@@ -1,12 +1,13 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import React, { useEffect, useState } from "react";
-import { UseFormSetValue } from "react-hook-form";
+import { FieldErrors, UseFormSetValue } from "react-hook-form";
 import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 
 export default function Address({
   setValue,
   refs,
+  errors,
 }: {
   setValue: UseFormSetValue<RegisterPatientSchema>;
   refs: {
@@ -16,6 +17,7 @@ export default function Address({
     state: React.RefObject<HTMLInputElement | null>;
     pin: React.RefObject<HTMLInputElement | null>;
   };
+  errors?: FieldErrors<RegisterPatientSchema>;
 }) {
   const capitalizeWords = (str: string) => {
     return str.replace(/\b\w/g, (char) => char.toUpperCase());
@@ -47,13 +49,15 @@ export default function Address({
   useEffect(() => {
     const newAddress = Object.values(address).filter(Boolean).join(", ");
     setValue("address", newAddress);
+    setValue("address_line1", address.line1 ?? "");
+    setValue("city", address.city ?? "");
   }, [address, setValue]);
 
   return (
     <>
       <p className="col-span-full font-semibold text-left">Patient Address</p>
       <div className="grid gap-2">
-        <Label>Address Line 1</Label>
+        <Label>Address Line 1 *</Label>
         <Input
           ref={refs.line1}
           placeholder="Address Line 1"
@@ -66,6 +70,11 @@ export default function Address({
             }))
           }
         />
+        {errors?.address_line1 && (
+          <p className="text-red-500 text-xs my-1">
+            {errors.address_line1.message}
+          </p>
+        )}
       </div>
       <div className="grid gap-2">
         <Label>Address Line 2</Label>
@@ -83,7 +92,7 @@ export default function Address({
         />
       </div>
       <div className="grid gap-2">
-        <Label>Locality/Place</Label>
+        <Label>Locality/Place *</Label>
         <Input
           ref={refs.city}
           placeholder="Locality/Place"
@@ -96,6 +105,11 @@ export default function Address({
             }))
           }
         />
+        {errors?.city && (
+          <p className="text-red-500 text-xs my-1">
+            {errors.city.message}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-2">
