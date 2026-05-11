@@ -492,10 +492,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                                                 <tr key={`test-${rowIdx}`}>
                                                                     <td className={`pl-2 pt-[3px] ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        <p className={`text-[12px]  text-black font-semibold pl-0 capitalize`}>
-                                                                            {/^[a-zA-Z]{3}$/.test(row.name?.name)
-                                                                                ? row.name?.name.toUpperCase()
-                                                                                : row.name?.name?.toLowerCase() || "Unknown test"}
+                                                                        <p className={`text-[12px]  text-black font-semibold pl-0`}>
+                                                                            {row.name?.name || "Unknown test"}
                                                                         </p>
                                                                         {!!row?.name?.method && <p className="text-[9px] text-black pl-0">Method: {row.name?.method}</p>}
                                                                         {!!row?.name?.specimen && <p className="text-[9px] text-black pl-0">Specimen: {row.name?.specimen}</p>}

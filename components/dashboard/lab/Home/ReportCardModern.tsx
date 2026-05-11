@@ -419,7 +419,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                     return (
                                                         <tr key={"test-" + rowIdx} className="">
                                                             <td className="pt-[15px] px-6 text-left align-top border-b border-transparent">
-                                                                <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight capitalize">{row.name?.name ? /^[a-zA-Z]{3}$/.test(row.name?.name) ? row.name?.name.toUpperCase() : row.name?.name.toLowerCase() : "TEST"}</div>
+                                                                <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight">{row.name?.name  || "TEST"}</div>
                                                                 {row?.name?.method && <div className="text-[9px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method}</div>}
                                                                 {row?.name?.specimen && <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Specimen : {row.name?.specimen}</div>}
                                                             </td>

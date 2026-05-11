@@ -263,7 +263,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             <Label>Gender *</Label>
             <Select
               onValueChange={(
-                value: "Male" | "Female" | "Other"
+                value: "Male" | "Female"
               ) => setValue("gender", value)}
               value={values.gender}
             >
@@ -275,7 +275,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other"].map((v) => (
+                {["Male", "Female"].map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>

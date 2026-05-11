@@ -28,6 +28,8 @@ function useDebounced<T>(value: T, delay = 250) {
   return debounced;
 }
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 export default function MedicineField({
   m,
   updateField,
@@ -55,13 +57,14 @@ export default function MedicineField({
     q: string;
     page: number;
   }>({
-    limit: 5,
+    limit: 100,
     q: "",
     page: 1,
   });
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const containerRef = useRef<HTMLDivElement>(null);
+  const listRefs = useRef<(HTMLLIElement | null)[]>([]);
   const debouncedQ = useDebounced(filter.q, 300);
 
   const { data: itemById } = useSWR<ItemApi>(
@@ -100,16 +103,16 @@ export default function MedicineField({
     keepPreviousData: true,
   });
 
-  useEffect(() => {
-    const onClick = (e: MouseEvent) => {
-      if (!containerRef.current) return;
-      if (!containerRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", onClick);
-    return () => document.removeEventListener("mousedown", onClick);
-  }, []);
-
   const items = data?.data ?? [];
+
+  useEffect(() => {
+    if (activeIdx >= 0 && listRefs.current[activeIdx]) {
+      listRefs.current[activeIdx]?.scrollIntoView({
+        block: "nearest",
+        behavior: "auto",
+      });
+    }
+  }, [activeIdx]);
 
   const handleSelect = (item: Item) => {
     // store only id in your form
@@ -158,93 +161,108 @@ export default function MedicineField({
 
   return (
     <div ref={containerRef} className="relative w-full">
-      <LabeledInput
-        label="Drug"
-        value={displayValue}
-        onChange={(val) => {
-          setQuery(val);
-          setFilter((prev) => ({ ...prev, q: val, page: 1 }));
-          setOpen(true);
-          setActiveIdx(-1);
-        }}
-        right={
-          selected ? (
-            <button
-              type="button"
-              onClick={() => {
-                // clear selected id from form & UI
-                updateField(i, "name", "");
-                updateField(i, "medicineName", "");
-                updateField(i, "availableQuantity", 0)
-                updateField(i, "quantity", 0)
-                updateField(i, "unitPrice", 0)
-                setSelected(null);
-                setQuery("");
-                setFilter((f) => ({ ...f, q: "", page: 1 }));
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <div className="w-full">
+            <LabeledInput
+              label="Drug"
+              value={displayValue}
+              onChange={(val) => {
+                setQuery(val);
+                setFilter((prev) => ({ ...prev, q: val, page: 1 }));
                 setOpen(true);
+                setActiveIdx(-1);
               }}
-              className="rounded-md border px-2 py-1 text-xs text-slate-600 hover:bg-slate-50"
-            >
-              Clear
-            </button>
-          ) : null
-        }
-        onKeyDown={onKeyDown}
-        inputRef={inputRef}
-      />
+              right={
+                selected ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      // clear selected id from form & UI
+                      updateField(i, "name", "");
+                      updateField(i, "medicineName", "");
+                      updateField(i, "availableQuantity", 0)
+                      updateField(i, "quantity", 0)
+                      updateField(i, "unitPrice", 0)
+                      setSelected(null);
+                      setQuery("");
+                      setFilter((f) => ({ ...f, q: "", page: 1 }));
+                      setOpen(true);
+                    }}
+                    className="rounded-md border px-2 py-0.5 text-[10px] text-slate-600 hover:bg-slate-50"
+                  >
+                    Clear
+                  </button>
+                ) : null
+              }
+              onKeyDown={onKeyDown}
+              inputRef={inputRef}
+            />
+          </div>
+        </PopoverTrigger>
 
-      {open && (
-        <div className="absolute z-50 mt-1 max-h-72 w-full overflow-auto rounded-xl border border-slate-200 bg-white shadow-xl">
-          {isLoading ? (
-            <div className="p-3 text-sm text-slate-500">Searching…</div>
-          ) : items.length === 0 ? (
-            <div className="p-3 text-sm text-slate-500">No medicines found</div>
-          ) : (
-            <ul role="listbox" className="divide-y divide-slate-100">
-              {items.map((it, idx) => (
-                <li
-                  key={it._id}
-                  role="option"
-                  aria-selected={idx === activeIdx}
-                  onMouseEnter={() => setActiveIdx(idx)}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => handleSelect(it)}
-                  className={`cursor-pointer px-3 py-2 text-sm ${idx === activeIdx ? "bg-emerald-50" : "hover:bg-slate-50"
-                    }`}
-                >
-                  <div className="flex justify-between items-center">
-                    <div className="">
-                      <div className="font-medium leading-tight">{it.name}</div>
-                      {it.generic ? (
-                        <div className="text-xs text-slate-500">
-                          {it.generic}
-                        </div>
-                      ) : null}
-                    </div>
+        <PopoverContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="p-0 border-none shadow-none z-50 mt-1"
+          style={{ width: containerRef.current?.offsetWidth }}
+          align="start"
+        >
+          <div className="max-h-72 w-full overflow-auto rounded-md border border-slate-200 bg-white shadow-xl">
+            {isLoading ? (
+              <div className="p-3 text-sm text-slate-500">Searching…</div>
+            ) : items.length === 0 ? (
+              <div className="p-3 text-sm text-slate-500">No medicines found</div>
+            ) : (
+              <ul role="listbox" className="divide-y divide-slate-100">
+                {items.map((it, idx) => (
+                  <li
+                    key={it._id}
+                    ref={(el) => {
+                      listRefs.current[idx] = el;
+                    }}
+                    role="option"
+                    aria-selected={idx === activeIdx}
+                    onMouseEnter={() => setActiveIdx(idx)}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => handleSelect(it)}
+                    className={`cursor-pointer px-2 py-1.5 text-sm ${idx === activeIdx ? "bg-emerald-50" : "hover:bg-slate-50"
+                      }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <div className="">
+                        <div className="font-medium leading-tight">{it.name}</div>
+                        {it.generic ? (
+                          <div className="text-xs text-slate-500">
+                            {it.generic}
+                          </div>
+                        ) : null}
+                      </div>
 
-                    <div className="flex flex-col items-end gap-0.5">
-                      <span className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${it.quantity <= 0
-                        ? "bg-red-50 text-red-600"
-                        : it.quantity < 15
-                          ? "bg-amber-50 text-amber-600"
-                          : "bg-emerald-50 text-emerald-600"
-                        }`}>
-                        {it.quantity <= 0 ? "Out of Stock" : it.quantity < 15 ? "Low Stock" : "In Stock"}
-                      </span>
-                      <span className="text-[11px] font-bold text-slate-500">
-                        {it.quantity} {it.quantity === 1 ? 'unit' : 'units'} available
-                      </span>
+                      <div className="flex flex-col items-end gap-0.5">
+                        <span className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${it.quantity <= 0
+                          ? "bg-red-50 text-red-600"
+                          : it.quantity < 15
+                            ? "bg-amber-50 text-amber-600"
+                            : "bg-emerald-50 text-emerald-600"
+                          }`}>
+                          {it.quantity <= 0 ? "Out of Stock" : it.quantity < 15 ? "Low Stock" : "In Stock"}
+                        </span>
+                        <span className="text-[11px] font-bold text-slate-500">
+                          {it.quantity} {it.quantity === 1 ? 'unit' : 'units'} available
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }
+
 
 /* ---------------- Reusable Input ---------------- */
 type LabeledInputProps = {
@@ -278,17 +296,14 @@ function LabeledInput({
         value={value}
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={onKeyDown}
-        placeholder=" "
+        placeholder={label}
         type={type}
         inputMode={inputMode ?? (type === "number" ? "numeric" : undefined)}
-        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${hasRight ? "pr-24" : unit ? "pr-12" : ""
+        className={`peer w-full rounded-md border border-slate-200 bg-white px-2 h-9 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 ${hasRight ? "pr-16" : unit ? "pr-12" : ""
           }`}
       />
-      <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
-        {label}
-      </label>
       {hasRight ? (
-        <span className="absolute right-2 top-1/2 -translate-y-1/2">
+        <span className="absolute right-1 top-1/2 -translate-y-1/2">
           {right}
         </span>
       ) : unit ? (

@@ -79,7 +79,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
   };
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-3">
       <div className="flex flex-col gap-4">
         <div className="flex justify-between items-start gap-4">
           <div className="flex-1">
@@ -101,7 +101,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
               }}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 items-stretch">
               <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
@@ -183,7 +183,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
 
       <PrescriptionCard setData={setPayload as any} data={payload} showAllFields={showAllFields} />
 
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between items-center">
         <div className="">
           {payload.patient && (
             <Button
