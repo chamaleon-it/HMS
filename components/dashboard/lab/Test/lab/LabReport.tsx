@@ -48,7 +48,7 @@ const StatCard: React.FC<{
 
 export default function Lab() {
   const [status, setStatus] = useState<
-    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted"
+    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft"
   >("Upcoming");
 
   const [activeDate, setActiveDate] = useState<string>("Today");

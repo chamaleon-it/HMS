@@ -47,6 +47,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     setValue,
     reset,
     watch,
+    setError,
   } = useForm<RegisterPatientSchema>({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
@@ -59,6 +60,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       month: patient?.month || "",
       address: patient?.address || "",
       allergies: patient?.allergies || "",
+      weight: patient?.weight || "",
       mrn: patient?.mrn || "",
       guardian: patient?.guardian || "",
       guardianPhoneNumber: patient?.guardianPhoneNumber || "",
@@ -77,6 +79,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     dob: useRef<HTMLButtonElement>(null),
     age: useRef<HTMLInputElement>(null),
     month: useRef<HTMLInputElement>(null),
+    weight: useRef<HTMLInputElement>(null),
     allergies: useRef<HTMLInputElement>(null),
     guardian: useRef<HTMLInputElement>(null),
     guardianPhoneNumber: useRef<HTMLInputElement>(null),
@@ -118,6 +121,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         gender: patient?.gender,
         dateOfBirth: patient?.dateOfBirth || "",
         age: patient?.age || "",
+        weight: patient?.weight || "",
         address: patient?.address || "",
         mrn: patient?.mrn || ""
       });
@@ -125,6 +129,11 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   }, [patient]);
 
   const createEditPatient = handleSubmit(async (data) => {
+    if (!data.weight || Number(data.weight) <= 0) {
+      setError("weight", { type: "manual", message: "Weight is mandatory" });
+      return;
+    }
+
     try {
       if (patient?._id) {
         await toast.promise(api.patch(`/patients/${patient._id}`, data), {
@@ -233,7 +242,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2 relative">
-            <Label>Phone </Label>
+            <Label>Phone *</Label>
             <Input
               placeholder="+91"
               {...register("phoneNumber")}
@@ -356,65 +365,89 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label>Age (Years)</Label>
-              <Input
-                {...register("age")}
-                ref={mergeRefs(refs.age, register("age").ref)}
-                type="number"
-                placeholder="0"
-                onKeyDown={(e) => handleKeyDown(e, refs.month)}
-                onChange={(e) => {
-                  const ageValue = e.target.value;
-                  const monthValue = values.month || "0";
-                  setValue("age", ageValue);
+          <div className="">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Age (Years) *</Label>
+                <Input
+                  {...register("age")}
+                  ref={mergeRefs(refs.age, register("age").ref)}
+                  type="number"
+                  placeholder="0"
+                  onKeyDown={(e) => handleKeyDown(e, refs.month)}
+                  onChange={(e) => {
+                    const ageValue = e.target.value;
+                    const monthValue = values.month || "0";
+                    setValue("age", ageValue);
 
-                  if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
-                    const today = new Date();
-                    const estimatedDob = new Date(
-                      today.getFullYear() - Number(ageValue || 0),
-                      today.getMonth() - Number(monthValue || 0),
-                      today.getDate()
-                    );
-                    setValue("dateOfBirth", estimatedDob.toISOString());
-                    setDobSetFromAge(true);
-                  } else {
-                    setValue("dateOfBirth", "");
-                    setDobSetFromAge(false);
-                  }
-                }}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Months</Label>
-              <Input
-                {...register("month")}
-                ref={mergeRefs(refs.month, register("month").ref)}
-                type="number"
-                placeholder="0"
-                onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
-                onChange={(e) => {
-                  const monthValue = e.target.value;
-                  const ageValue = values.age || "0";
-                  setValue("month", monthValue);
+                    if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                      const today = new Date();
+                      const estimatedDob = new Date(
+                        today.getFullYear() - Number(ageValue || 0),
+                        today.getMonth() - Number(monthValue || 0),
+                        today.getDate()
+                      );
+                      setValue("dateOfBirth", estimatedDob.toISOString());
+                      setDobSetFromAge(true);
+                    } else {
+                      setValue("dateOfBirth", "");
+                      setDobSetFromAge(false);
+                    }
+                  }}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Months</Label>
+                <Input
+                  {...register("month")}
+                  ref={mergeRefs(refs.month, register("month").ref)}
+                  type="number"
+                  placeholder="0"
+                  onKeyDown={(e) => handleKeyDown(e, refs.weight)}
+                  onChange={(e) => {
+                    const monthValue = e.target.value;
+                    const ageValue = values.age || "0";
+                    setValue("month", monthValue);
 
-                  if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
-                    const today = new Date();
-                    const estimatedDob = new Date(
-                      today.getFullYear() - Number(ageValue || 0),
-                      today.getMonth() - Number(monthValue || 0),
-                      today.getDate()
-                    );
-                    setValue("dateOfBirth", estimatedDob.toISOString());
-                    setDobSetFromAge(true);
-                  } else {
-                    setValue("dateOfBirth", "");
-                    setDobSetFromAge(false);
-                  }
-                }}
-              />
+                    if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                      const today = new Date();
+                      const estimatedDob = new Date(
+                        today.getFullYear() - Number(ageValue || 0),
+                        today.getMonth() - Number(monthValue || 0),
+                        today.getDate()
+                      );
+                      setValue("dateOfBirth", estimatedDob.toISOString());
+                      setDobSetFromAge(true);
+                    } else {
+                      setValue("dateOfBirth", "");
+                      setDobSetFromAge(false);
+                    }
+                  }}
+                />
+              </div>
             </div>
+            {errors.age && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.age.message}
+              </p>
+            )}
+          </div>
+
+          <div className="grid gap-2">
+            <Label>Weight *</Label>
+            <Input
+              {...register("weight")}
+              ref={mergeRefs(refs.weight, register("weight").ref)}
+              onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
+              placeholder="e.g. 10 or 12.5"
+              type="number"
+              step="any"
+            />
+            {errors.weight && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.weight.message}
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -497,7 +530,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <Address setValue={setValue} refs={refs.addressDetails} />
+          <Address setValue={setValue} refs={refs.addressDetails} errors={errors} />
         </div>
       </section>
 

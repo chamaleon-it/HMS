@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { startOfDay, endOfDay, subDays } from "date-fns";
+import { useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
+import useGetTest from "@/data/useGetTest";
 
 const StatCard: React.FC<{
   icon: React.ReactNode;
@@ -48,9 +50,11 @@ const StatCard: React.FC<{
 );
 
 export default function LabResultsPage() {
+  const { drafts } = useLabDrafts();
+  const { tests } = useGetTest();
 
   const [status, setStatus] = useState<
-    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted"
+    "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft"
   >("Upcoming");
 
   // NEW ONES FOR DATE FILTER
@@ -92,7 +96,7 @@ export default function LabResultsPage() {
   const { data, mutate, isLoading } = useSWR<{
     message: string;
     data: any[];
-  }>(`/lab/report?${dateQuery}`);
+  }>(status === "Draft" ? null : `/lab/report?${dateQuery}`);
 
 
   const { data: statsResponse, mutate: statsMutate } = useSWR<{ message: string, data: { total: number, upcoming: number, sampleCollected: number, waitingForResult: number, completed: number, flagged: number } }>("/lab/report/statistics")
@@ -106,7 +110,41 @@ export default function LabResultsPage() {
     flagged: 0
   };
 
-  const REPORT = data?.data ?? [];
+  const REPORT = status === "Draft"
+    ? drafts.filter(d => !d.isOpen).map(d => ({
+      _id: d.id,
+      mrn: 0,
+      patient: { 
+        name: d.patientName || "Unknown Patient", 
+        // mrn: "-",
+        //_id: d.payload.patient || "",
+        //phoneNumber: "-",
+        //email: "-",
+        // gender: "Other",
+        //dateOfBirth: new Date(),
+        // address: "-",
+      },
+      test: d.payload.test.map(t => {
+        const testObj = tests.find(test => test._id === t.name);
+        return {
+          name: { 
+            _id: t.name, 
+            name: testObj?.name || "Unknown Test", 
+            code: testObj?.code || "-", 
+            type: testObj?.type || "-" 
+          },
+          _id: Math.random().toString()
+        };
+      }),
+      panels: d.payload.panels || [],
+      status: "Draft",
+      priority: d.payload.priority,
+      doctor: { _id: d.payload.doctor || "" },
+      date: d.payload.date || new Date(),
+      createdAt: new Date(parseInt(d.id)).toISOString(),
+      sampleId: "-",
+    }))
+    : data?.data ?? [];
 
   return (
     <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-6">
