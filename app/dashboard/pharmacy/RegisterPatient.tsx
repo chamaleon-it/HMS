@@ -47,6 +47,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     setValue,
     reset,
     watch,
+    setError,
   } = useForm<RegisterPatientSchema>({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
@@ -128,6 +129,11 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   }, [patient]);
 
   const createEditPatient = handleSubmit(async (data) => {
+    if (!data.weight || Number(data.weight) <= 0) {
+      setError("weight", { type: "manual", message: "Weight is mandatory" });
+      return;
+    }
+
     try {
       if (patient?._id) {
         await toast.promise(api.patch(`/patients/${patient._id}`, data), {
@@ -428,15 +434,20 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2">
-            <Label>
-              Weight
-            </Label>
+            <Label>Weight *</Label>
             <Input
               {...register("weight")}
               ref={mergeRefs(refs.weight, register("weight").ref)}
               onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
-              placeholder="e.g. 10kg or 1000g"
+              placeholder="e.g. 10 or 12.5"
+              type="number"
+              step="any"
             />
+            {errors.weight && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.weight.message}
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2">
