@@ -78,39 +78,6 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
         setLoading(true);
 
         try {
-
-            try {
-                const checkRes = await api.get('/lab/report');
-                const allReports = checkRes.data?.data || [];
-
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                for (const sample of samplesToProcess) {
-                    const val = sample.id.trim();
-                    if (!val) continue;
-
-                    const isGlobalDuplicate = allReports.some((r: any) => {
-                        if (r._id === reportId) return false;
-                        if (!r.sampleId) return false;
-
-                        const reportDate = new Date(r.createdAt);
-                        if (reportDate < today) return false;
-
-                        const regex = new RegExp(`\\b${val}\\b`, 'i');
-                        return regex.test(r.sampleId);
-                    });
-
-                    if (isGlobalDuplicate) {
-                        toast.error(`Warning: Sample ID "${val}" is already assigned to another test today.`, { id: 'duplicate-sample-error' });
-                        setLoading(false);
-                        return; // Halt submission
-                    }
-                }
-            } catch (err) {
-                console.error("Failed to fetch reports for duplicate check", err);
-            }
-
             const finalSampleId = samplesToProcess.map(s => {
                 const idStr = s.id.trim();
                 return idStr ? `${idStr} (${s.specimen.trim()})` : s.specimen.trim();
@@ -121,7 +88,12 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                 {
                     loading: "Processing...",
                     success: "Sample Collected Successfully",
-                    error: "Failed to collect sample",
+                    error: (err: any) => {
+                        if (err.response?.status === 409 || err.response?.data?.message?.includes("already assigned")) {
+                            return err.response?.data?.message || "This Sample ID is already assigned today.";
+                        }
+                        return "Failed to collect sample";
+                    },
                 }
             );
             mutate();
