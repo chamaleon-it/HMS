@@ -279,7 +279,7 @@ export function EditItem({
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            No.of Packing
+            Strip Count
           </label>
           <Input
             className="mt-1"

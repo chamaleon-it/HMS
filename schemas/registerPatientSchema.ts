@@ -27,7 +27,7 @@ export const registerPatientSchema = z.object({
 
   doctor: z.string().trim().min(1, "Select a doctor."),
 
-  gender: z.enum(["Male", "Female"], {
+  gender: z.enum(["Male", "Female", "Other"], {
     message: "Gender is mandatory",
   }),
 
