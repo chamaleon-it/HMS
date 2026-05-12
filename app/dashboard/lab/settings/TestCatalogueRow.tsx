@@ -52,6 +52,7 @@ export default function TestCatalogueRow({
         panels: { name: string }[]
         dataType: "number" | "text" | "boolean" | "options";
         options: string[];
+        category?: string;
     };
     testMutate: () => void
 }) {
@@ -84,6 +85,7 @@ export default function TestCatalogueRow({
         _id: string;
         dataType: "number" | "text" | "boolean" | "options";
         options: string[];
+        category?: string;
     }>({
         code: test.code,
         name: test.name,
@@ -101,7 +103,8 @@ export default function TestCatalogueRow({
         estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
         _id: test._id,
         dataType: test.dataType,
-        options: test.options || []
+        options: test.options || [],
+        category: test.category || "",
     })
 
     // Reset payload when modal opens to avoid state persistence bug
@@ -124,7 +127,8 @@ export default function TestCatalogueRow({
                 estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
                 _id: test._id,
                 dataType: test.dataType,
-                options: test.options || []
+                options: test.options || [],
+                category: test.category || "",
             });
         }
     }, [editOpen, test]);
@@ -166,6 +170,7 @@ export default function TestCatalogueRow({
             note?: string;
             estimatedTime?: string;
             options?: string[];
+            category?: string;
         }) => {
             try {
                 let finalPayload = { ...data };
@@ -297,6 +302,10 @@ export default function TestCatalogueRow({
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Data Type</Label>
                                         <p className="font-medium text-sm">{test.dataType}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-slate-500">Category</Label>
+                                        <p className="font-medium text-sm">{test.category || "N/A"}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Unit</Label>
@@ -441,7 +450,7 @@ export default function TestCatalogueRow({
                                         />
                                     </div>
 
-                                    <div className="col-span-3 space-y-1.5">
+                                    <div className="col-span-2 space-y-1.5">
                                         <Label className="text-xs font-medium text-slate-700">Type *</Label>
                                         <Select
                                             value={payload.type}
@@ -473,7 +482,7 @@ export default function TestCatalogueRow({
                                         />
                                     </div>
 
-                                    <div className="col-span-3 space-y-1.5">
+                                    <div className="col-span-2 space-y-1.5">
                                         <Label className="text-xs font-medium text-slate-700">Unit</Label>
                                         <Input
                                             placeholder="e.g. mg/dL"
@@ -483,7 +492,7 @@ export default function TestCatalogueRow({
                                         />
                                     </div>
 
-                                    <div className="col-span-3 space-y-1.5">
+                                    <div className="col-span-2 space-y-1.5">
                                         <Label className="text-xs font-medium text-slate-700">Data Type *</Label>
                                         <Select
                                             value={payload.dataType}
@@ -501,6 +510,18 @@ export default function TestCatalogueRow({
                                                 <SelectItem value="options">Options</SelectItem>
                                             </SelectContent>
                                         </Select>
+                                    </div>
+
+                                    <div className="col-span-3 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Category</Label>
+                                        <Input
+                                            placeholder="e.g. Haematology"
+                                            value={payload.category || ""}
+                                            onChange={(e) =>
+                                                setPayload((prev) => ({ ...prev, category: e.target.value }))
+                                            }
+                                            className="h-9 bg-slate-50"
+                                        />
                                     </div>
 
                                     {payload.dataType === "options" && <>

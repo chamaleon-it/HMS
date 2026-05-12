@@ -241,7 +241,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 Array.from(testMap.values()).forEach((t: any) => {
                     const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
                     if (valStr !== "") {
-                        allRows.push({ type: "TEST", ...t, activePanel: "" });
+                        const testCategory = t.name?.category ? `CATEGORY_${String(t.name.category).trim().toUpperCase()}` : "";
+                        allRows.push({ type: "TEST", ...t, activePanel: testCategory });
                     }
                 });
 
@@ -373,7 +374,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     const activePanelId = firstRow?.activePanel || firstRow?.name;
                                     const activePanelConfig = panels?.find(p => p?.name === activePanelId);
 
-                                    const headingText = activePanelConfig?.mainHeading || "Biochemistry";
+                                    const firstTestRow = pageRows.find(r => r.type === "TEST");
+                                    const categoryText = firstTestRow?.name?.category ? String(firstTestRow.name.category).trim() : "";
+                                    const headingText = activePanelConfig?.mainHeading || categoryText || "Biochemistry";
                                     return isFirstPage && Boolean(headingText) ? (
                                         <div className="w-full text-center pb-2 pt-1">
                                             <p className="font-bold text-black text-[17px] uppercase">

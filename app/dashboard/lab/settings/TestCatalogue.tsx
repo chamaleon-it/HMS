@@ -231,7 +231,8 @@ export default function TestCatalogue({
       dateType: "Year" | "Month" | "Day";
 
     }[],
-    note: string
+    note: string;
+    category: string;
   }>({
     code: "",
     name: "",
@@ -251,7 +252,8 @@ export default function TestCatalogue({
       gender: "Both",
       dateType: "Year"
     }],
-    note: ""
+    note: "",
+    category: "",
   });
 
   const handleRangeChange = (index: number, field: string, value: any) => {
@@ -328,7 +330,8 @@ export default function TestCatalogue({
           gender: "Both",
           dateType: "Year"
         }],
-        note: ""
+        note: "",
+        category: "",
       });
       setIsNewTestModalOpen(false);
 
@@ -468,7 +471,7 @@ export default function TestCatalogue({
                     />
                   </div>
 
-                  <div className="col-span-3 space-y-1.5">
+                  <div className="col-span-2 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Type *</Label>
                     <Select
                       value={newTest.type}
@@ -500,7 +503,7 @@ export default function TestCatalogue({
                     />
                   </div>
 
-                  <div className="col-span-3 space-y-1.5">
+                  <div className="col-span-2 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Unit</Label>
                     <UnitAutoInput
                       value={newTest.unit ?? ""}
@@ -508,7 +511,7 @@ export default function TestCatalogue({
                     />
                   </div>
 
-                  <div className="col-span-3 space-y-1.5">
+                  <div className="col-span-2 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Data Type *</Label>
                     <Select
                       value={newTest.dataType}
@@ -526,6 +529,19 @@ export default function TestCatalogue({
                         <SelectItem value="options">Options</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Category</Label>
+                    <Input
+                      placeholder="e.g. Haematology"
+                      value={newTest.category || ""}
+
+                      onChange={(e) =>
+                        setNewTest((prev) => ({ ...prev, category: e.target.value }))
+                      }
+                      className="h-9 bg-slate-50"
+                    />
                   </div>
                   {newTest.dataType === "options" && <>
                     <div className="col-span-4 space-y-1.5 ">
