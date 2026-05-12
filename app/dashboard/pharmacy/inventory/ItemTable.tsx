@@ -193,7 +193,7 @@ export default function ItemTable({
                   </TableCell>
 
                   <TableCell className="py-3 font-medium text-slate-700">
-                    {((item.openingStockQuantity || 0) + (item.batches?.reduce((acc, b) => acc + (b.quantity || 0), 0) || 0)) - item.quantity}
+                    {item.soldQuantity ?? 0}
                     
                   </TableCell>
 
