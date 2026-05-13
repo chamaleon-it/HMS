@@ -248,7 +248,7 @@ export default function TestCatalogueRow({
             <TableCell className="text-slate-500">{test.unit}</TableCell>
             <TableCell>{formatINR(test.price)}</TableCell>
             <TableCell>{test.estimatedTime || ""}</TableCell>
-            <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell>
+            {/* <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell> */}
             <TableCell>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
                     {test.type}

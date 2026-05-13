@@ -783,7 +783,7 @@ export default function TestCatalogue({
                     <TableHead>Unit</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>ETA (Minutes)</TableHead>
-                    <TableHead>Panels</TableHead>
+                    {/* <TableHead>Panels</TableHead> */}
                     <TableHead>Type</TableHead>
                     <TableHead>Method</TableHead>
                     <TableHead>Specimen</TableHead>
