@@ -17,7 +17,7 @@ export const registerPatientSchema = z.object({
 
   phoneNumber: z
     .string()
-    .min(1, "Phone number is required")
+    .optional()
     .refine(
       (val) => !val || (!val.includes("+") && val.replace(/\D/g, "").length === 10 || (val.includes("+") && val.replace(/\D/g, "").length === 12)),
       "Please provide a valid phone number"
@@ -32,10 +32,7 @@ export const registerPatientSchema = z.object({
   }),
 
   dateOfBirth: z.string().optional().or(z.literal("")),
-  age: z.union([z.string(), z.number()]).refine(
-  (val) => val !== "" && val !== undefined && val !== null,
-    "Age is required"
-  ),
+  age: z.union([z.string(), z.number()]).optional(),
 
   month: z.union([z.string(), z.number()]).optional(),
 
@@ -43,7 +40,10 @@ export const registerPatientSchema = z.object({
 
   blood: z.enum([...BLOOD_GROUPS]).optional(),
 
-  weight: z.coerce.number().optional(),
+  weight: z.union([z.literal(""), z.coerce.number()])
+    .nullable()
+    .optional()
+    .transform((val) => (val === "" ? null : val)),
 
   allergies: z.string().max(500).optional(),
 
@@ -68,8 +68,8 @@ export const registerPatientSchema = z.object({
     }),
 
   address: z.string().max(500).optional(),
-  address_line1: z.string().min(1, "Address Line 1 is required"),
-  city: z.string().min(1, "Locality/Place is required"),
+  address_line1: z.string().optional(),
+  city: z.string().optional(),
 
   guardian: z.string().max(100).optional(),
 
