@@ -14,6 +14,7 @@ import Notifications from "./Notifications";
 import Summery from "./Summery";
 import { ProfileType } from "./interface";
 import useSWR from "swr";
+import configuration from "@/config/configuration";
 
 const WholesalerSettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
@@ -39,7 +40,7 @@ const WholesalerSettingsPage: React.FC = () => {
               </div>
             </div>
             <div className="hidden md:flex items-center gap-2">
-              <Badge className="bg-emerald-600 text-white">Mark Hospital</Badge>
+              <Badge className="bg-emerald-600 text-white">{configuration().hospitalName}</Badge>
               <Badge variant="secondary">HIPAA-ready</Badge>
               <Badge variant="outline">ISO 27001-minded</Badge>
             </div>

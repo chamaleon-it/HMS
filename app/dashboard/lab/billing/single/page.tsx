@@ -8,6 +8,7 @@ import { formatINR } from "@/lib/fNumber";
 import { Download, Printer } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import configuration from "@/config/configuration";
 import useSWR from "swr";
 function InvoiceViewContent() {
   const searchParams = useSearchParams();
@@ -59,7 +60,7 @@ function InvoiceViewContent() {
         {/* Header Section */}
         <div className="flex justify-between items-center bg-linear-to-r from-purple-600 to-blue-500 text-white px-8 py-6 border-b">
           <div className="flex items-center space-x-3">
-            <h2 className="text-lg font-semibold">Synapse HMS</h2>
+            <h2 className="text-lg font-semibold">{configuration().hospitalName}</h2>
           </div>
           <div className="flex space-x-12 text-sm">
             <div>
@@ -128,12 +129,11 @@ function InvoiceViewContent() {
           <div className="p-8">
             <h3 className="text-sm text-gray-500 mb-2">Clinic Details</h3>
             <div className="text-sm text-gray-700">
-              <p className="font-semibold text-gray-800">Mark Hospital</p>
-              <p>contact@synapsehms.com</p>
-              <p className="mt-1">Pothukallu, Nilambur, Kerala</p>
-              <p>+91 98765 43210</p>
+              <p className="font-semibold text-gray-800">{configuration().hospitalName}</p>
+              <p>{configuration().hospitalEmail}</p>
+              <p className="mt-1">{configuration().hospitalAddress}</p>
+              <p>{configuration().hospitalPhone}</p>
               <p className="mt-1">Booking No: BK2025-00921</p>
-
             </div>
           </div>
           <div className="p-8">
@@ -266,8 +266,8 @@ function InvoiceViewContent() {
         <Separator /> {/* Footer */}
         <div className="relative text-center text-xs text-gray-500 py-6 bg-linear-to-r from-gray-50 to-gray-100">
           <p>
-            Mark Hospital, Pothukallu, Nilambur, Kerala | GSTIN: 32ABCDE1234F1Z5
-            | Contact: +91 98765 43210
+            {configuration().hospitalAddress} | {configuration().gstIn}
+            | Contact: {configuration().hospitalPhone}
           </p>
           <p>
             All prices are inclusive of GST as per Government of India norms.
@@ -278,7 +278,7 @@ function InvoiceViewContent() {
           </p>
           <div
             className="absolute inset-0 opacity-5 bg-center bg-no-repeat bg-contain"
-            style={{ backgroundImage: "url(/mark-hospital-logo.png)" }}
+            style={{ backgroundImage: `url(${configuration().logo})` }}
           ></div>
         </div>
       </div>

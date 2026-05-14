@@ -5,6 +5,7 @@ import Watermark from "@/components/print/Watermark";
 import HospitalName from "@/components/print/HospitalName";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import configuration from "@/config/configuration";
 
 interface PrintReceiptProps {
     payload?: {
@@ -193,7 +194,7 @@ export default function PrintReceipt({
                     <div className="space-y-1">
                         <p className="text-black font-medium">This prescription is valid only if signed by registered medical practitioner</p>
                         <p className="text-black">
-                            For Appointments / Booking: <span className="text-black font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
+                            For Appointments / Booking: <span className="text-black font-semibold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
                         </p>
                     </div>
                     <p className="text-black">

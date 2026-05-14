@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import HospitalName from "@/components/print/HospitalName";
+import configuration from "@/config/configuration";
 
 
 interface ReportCardProps {
@@ -308,7 +309,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         <div key={pageIdx} className={`a4-page shadow-none bg-white font-roboto ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
                             {/* 🏥 ATOMIC WATERMARK (DIRECT INLINE) */}
                             <div className="watermark-print">
-                                <img src="/print/logo.png" alt="watermark" className="w-[12cm] grayscale object-contain" style={{ opacity: 0.50 }} />
+                                <img src={configuration().logo} alt="watermark" className="w-[12cm] grayscale object-contain" style={{ opacity: 0.50 }} />
                             </div>
 
                             {/* 🏥 DIGITAL HEADER */}
@@ -575,7 +576,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                 <div className="px-10 py-3 text-black flex justify-between items-center footer" style={{ backgroundColor: '#f2cdbf' }}>
                                     <div className="space-y-0.5">
                                         <p className="text-black font-bold text-[11px]">Please consult your physician with this report.</p>
-                                        <p className="text-black font-medium text-[11px]">For Appointments: <span className="font-bold">+91 83019 26155 · 04931 240077</span></p>
+                                        <p className="text-black font-medium text-[11px]">For Appointments: <span className="font-bold">{configuration().hospitalPhone}</span></p>
                                     </div>
                                     <p className="text-black font-medium text-[11px]">Powered by <span className="font-bold">Caresoft Innovations LLP</span></p>
                                 </div>

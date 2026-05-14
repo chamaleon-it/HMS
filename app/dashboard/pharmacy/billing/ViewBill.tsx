@@ -14,6 +14,7 @@ import PharmacyHeader from "../components/PharmacyHeader";
 import React, { useState } from "react";
 import { getDecimal } from "@/lib/fNumber";
 import PrintReceipt from "./PrintReceipt";
+import configuration from "@/config/configuration";
 
 export default function ViewBill({ id }: { id: string }) {
     const [printBill, setPrintBill] = useState<any>(null);
@@ -238,7 +239,7 @@ export default function ViewBill({ id }: { id: string }) {
                         <div className="space-y-1 text-left">
                             <p className="text-slate-300 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
                             <p className="text-slate-500">
-                                For Appointments / Booking: <span className="text-slate-400 font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
+                                For Appointments / Booking: <span className="text-slate-400 font-semibold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
                             </p>
                         </div>
                         <p className="text-slate-500">

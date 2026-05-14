@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import useSWR from "swr";
+import configuration from "@/config/configuration";
 
 interface ReportCardModernProps {
     report: any | null;
@@ -294,12 +295,12 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                     <div className="flex justify-between items-start w-full">
                                         <div className="flex gap-4 items-center">
                                             <div className="shrink-0 flex items-center justify-center">
-                                                <img src="/print/logo.png" alt="Logo" className="w-[124px] h-[124px] rounded-full object-contain mix-blend-multiply" />
+                                                <img src={configuration().logo} alt="Logo" className="w-[124px] h-[124px] rounded-full object-contain mix-blend-multiply" />
                                             </div>
                                             <div className="flex flex-col gap-px mt-2 ml-1">
-                                                <h1 className="text-[28px] font-extrabold tracking-tight text-slate-800 uppercase leading-none">Mark Hospital</h1>
-                                                <p className="text-[11.5px] font-extrabold text-[#6eb269] mt-1 ml-px">Pothukallu P.O, Nilambur, Malappuram, India - 679334</p>
-                                                <p className="text-[12px] font-bold text-slate-800 ml-px mt-0.5 tracking-wide">DIGIPIN: MC9-955-6F2F</p>
+                                                <h1 className="text-[28px] font-extrabold tracking-tight text-slate-800 uppercase leading-none">{configuration().hospitalName}</h1>
+                                                <p className="text-[11.5px] font-extrabold text-[#6eb269] mt-1 ml-px">{configuration().hospitalAddress}</p>
+                                                <p className="text-[12px] font-bold text-slate-800 ml-px mt-0.5 tracking-wide">DIGIPIN: {configuration().digiPin}</p>
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end gap-[13px] mt-2 mr-3">
@@ -494,17 +495,17 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                         <div className="w-[16px] h-[16px] bg-[#6eb269] rounded-sm flex items-center justify-center text-white shrink-0 shadow-sm mt-px">
                                                             <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" /></svg>
                                                         </div>
-                                                        <span className="text-[11.5px] font-extrabold">+91 83019 26155, 04931 240077</span>
+                                                        <span className="text-[11.5px] font-extrabold">{configuration().hospitalPhone}</span>
                                                     </div>
                                                     <div className="flex items-center gap-[7px] text-slate-700 tracking-wide">
                                                         <div className="w-[16px] h-[16px] bg-[#6eb269] rounded-sm flex items-center justify-center text-white shrink-0 shadow-sm mt-px">
                                                             <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z" /></svg>
                                                         </div>
-                                                        <span className="text-[11.5px] font-extrabold">hospitalmark@gmail.com</span>
+                                                        <span className="text-[11.5px] font-extrabold">{configuration().hospitalEmail}</span>
                                                     </div>
                                                 </div>
                                                 <div className="bg-[#f0f3ec] px-4 py-[9px] flex items-center flex-1">
-                                                    <p className="text-[10px] font-extrabold text-slate-800 tracking-wide pt-1">For Appointments: <span className="text-black text-[10.5px]">+91 8301 926 155, 04931 240 077</span></p>
+                                                    <p className="text-[10px] font-extrabold text-slate-800 tracking-wide pt-1">For Appointments: <span className="text-black text-[10.5px]">{configuration().hospitalPhone}</span></p>
                                                 </div>
                                             </div>
                                         </div>
