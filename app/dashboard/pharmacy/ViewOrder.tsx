@@ -75,7 +75,7 @@ function OrderHeader({ order }: { order: OrderType }) {
                     <span className="text-sm">({order?.patient?.mrn})</span>
                 </div>
                 <div className="text-sm text-slate-700">
-                    Age/Gender: {fAge(order?.patient?.dateOfBirth)} /{" "}
+                    Age/Gender: {fAge(order?.patient?.dateOfBirth).years}y {fAge(order?.patient?.dateOfBirth).months}m /{" "}
                     {order?.patient?.gender} • Ph:
                     {order?.patient?.phoneNumber}
                 </div>

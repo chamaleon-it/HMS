@@ -21,6 +21,7 @@ import { DataTypes, Datum } from "./interface";
 import useGetPatient from "./useGetPatient";
 import { motion } from "framer-motion";
 import ReportCard from "@/components/dashboard/lab/Home/ReportCard";
+import useGetPanels from "@/data/useGetPanels";
 
 const CustomerContent: React.FC = () => {
   const router = useRouter();
@@ -31,11 +32,11 @@ const CustomerContent: React.FC = () => {
   );
 
   const { data: patient } = useGetPatient(id as string);
+  const { panels } = useGetPanels();
   const reports = reportData?.data;
   const [selectedVisit, setSelectedVisit] = useState<Datum | null>(null);
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
 
-  const [openCalander, setOpenCalander] = useState(false);
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
   const [printReport, setPrintReport] = React.useState<any | null>(null);
 
@@ -97,7 +98,7 @@ const CustomerContent: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-sm text-slate-600 mt-1">
-                    Age {fAge(patient?.dateOfBirth)} /{" "}
+                    Age {fAge(patient?.dateOfBirth).years}y {fAge(patient?.dateOfBirth).months}m /{" "}
                     {patient?.gender} • Ph:{" "}
                     {patient?.phoneNumber}
                   </p>
@@ -494,14 +495,14 @@ const CustomerContent: React.FC = () => {
                                     )}
                                   </td>
                                   <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
-                                    {it.type === "Lab" && it.min ? (
+                                    {it.type === "Lab" && it.range?.[0]?.min ? (
                                       <>
-                                        {it.min} {it.unit} - {it.max}{" "}
+                                        {it.range?.[0]?.min} {it.unit} - {it.range?.[0]?.max}{" "}
                                         {it.unit}
                                       </>
                                     ) : (
                                       <>
-                                        {it.min} - {it.max}
+                                        {it.range?.[0]?.min} - {it.range?.[0]?.max}
                                       </>
                                     )}
                                   </td>
@@ -565,7 +566,7 @@ const CustomerContent: React.FC = () => {
                             className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
 
                           >
-                            Print bill
+                            Print Report
                           </Button>
                         </div>
                       </div>
@@ -578,7 +579,7 @@ const CustomerContent: React.FC = () => {
           )}
         </main>
       </div>
-      {printReport && <ReportCard report={printReport} />}
+      {printReport && <ReportCard report={printReport} panels={panels} />}
     </AppShell>
   );
 };

@@ -58,12 +58,12 @@ export default function PharmacyReturnPage() {
   const [fetching, setFetching] = useState(false);
   const [returning, setReturning] = useState(false);
 
-  const fetchOrder = async () => {
+  const fetchOrder = async (billNumber?: string) => {
     try {
       setFetching(true);
 
 
-      if (!mrn && !filter.q) {
+      if (!mrn && !filter.q && !billNumber) {
         toast.error("Please enter a valid RX id");
         return;
       }
@@ -71,7 +71,9 @@ export default function PharmacyReturnPage() {
 
       const params = new URLSearchParams();
 
-      if (mrn) {
+      if (billNumber) {
+        params.set("q", billNumber);
+      } else if (mrn) {
         params.set("q", mrn);
       }
       else if (filter.q) {
@@ -89,8 +91,12 @@ export default function PharmacyReturnPage() {
       const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
       setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
       setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
-    } catch (error) {
-      toast.error("Failed to fetch order");
+    } catch (error: any) {
+      if (error?.response?.data?.message === "Order not found.") {
+        toast.error("No returnable products were found in this order.");
+      } else {
+        toast.error(error?.response?.data?.message);
+      }
     } finally {
       setFetching(false);
     }
@@ -180,7 +186,7 @@ export default function PharmacyReturnPage() {
 
   return (
     <AppShell>
-      <div className="p-5 flex flex-col gap-6 text-sm min-h-[calc(100vh-80px)]">
+      <div className="p-5 flex flex-col gap-6 text-sm min-h-[calc(100vh-67px)]">
         <Header />
 
         <Search

@@ -66,7 +66,7 @@ const SuppliersPage: React.FC = () => {
     if (error) {
         return (
             <AppShell>
-                <div className="p-5 flex items-center justify-center min-h-[calc(100vh-80px)]">
+                <div className="p-5 flex items-center justify-center min-h-[calc(100vh-67px)]">
                     <div className="text-center">
                         <p className="text-red-500 font-medium">Failed to load suppliers</p>
                         <Button variant="outline" className="mt-4" onClick={() => mutate()}>
@@ -81,7 +81,7 @@ const SuppliersPage: React.FC = () => {
 
     return (
         <AppShell>
-            <div className="p-5 min-h-[calc(100vh-80px)]">
+            <div className="p-5 min-h-[calc(100vh-67px)]">
                 <main className="flex flex-col gap-6">
                     <PharmacyHeader
                         title="Suppliers"

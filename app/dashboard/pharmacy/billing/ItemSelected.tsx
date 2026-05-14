@@ -1,8 +1,10 @@
 import api from "@/lib/axios";
-import { Plus, Search, Trash2, Tag, CreditCard } from "lucide-react";
+import { Plus, Search, Trash2, Tag, CreditCard, Pencil } from "lucide-react";
 import React, { useCallback, useState } from "react";
 import useSWR from "swr";
 import { formatINR } from "@/lib/fNumber";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import toast from "react-hot-toast";
 
 const theme = {
   from: "#4f46e5",
@@ -25,7 +27,10 @@ export default function ItemSelected({
   setItem,
   onOpenCustomModal,
 }: PropsType) {
+  const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isFocused, setIsFocused] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState<{ _id: string, item: string, code: string, price: number } | null>(null);
 
   const query = isFocused || item?.trim()
     ? `/billing/billing_items${item?.trim() ? `?item=${encodeURIComponent(item.trim())}` : ""}`
@@ -36,6 +41,10 @@ export default function ItemSelected({
   );
 
   const billingItems = billingItemsData?.data ?? [];
+  
+  React.useEffect(() => {
+    setSelectedIndex(-1);
+  }, [item, billingItems.length]);
 
   const addbillingItem = useCallback(
     async (it: string, price: number) => {
@@ -89,19 +98,47 @@ export default function ItemSelected({
             onFocus={() => setIsFocused(true)}
             onBlur={() => setTimeout(() => setIsFocused(false), 200)}
             onKeyDown={(e) => {
-              if (e.code === "Enter" || e.code === "Tab") {
+              if (e.key === "ArrowDown") {
                 e.preventDefault();
-                addItem("", 0);
+                setSelectedIndex((prev) => (prev < billingItems.length - 1 ? prev + 1 : prev));
+              } else if (e.key === "ArrowUp") {
+                e.preventDefault();
+                setSelectedIndex((prev) => (prev > 0 ? prev - 1 : -1));
+              } else if (e.key === "Enter" || e.key === "Tab") {
+                e.preventDefault();
+                if (selectedIndex >= 0 && billingItems[selectedIndex]) {
+                  const selected = billingItems[selectedIndex];
+                  addItem(selected.item, selected.price);
+                  // Keep focused to allow multiple additions
+                  itemRef.current?.focus();
+                } else if (item?.trim()) {
+                  addItem(item, 0);
+                  addbillingItem(item, 0);
+                  // Keep focused
+                  itemRef.current?.focus();
+                }
+              } else if (e.key === "Escape") {
+                setIsFocused(false);
               }
             }}
           />
           {isFocused && billingItems.length > 0 && (
-            <div className="absolute w-full mt-2 p-1.5 max-h-64 overflow-y-auto rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 top-full flex flex-col gap-1 z-50 shadow-xl animate-in fade-in zoom-in-95 duration-200">
-              {billingItems.map((i) => (
+            <div 
+              onMouseDown={(e) => e.preventDefault()}
+              className="absolute w-full mt-2 p-1.5 max-h-64 overflow-y-auto rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 top-full flex flex-col gap-1 z-50 shadow-xl animate-in fade-in zoom-in-95 duration-200"
+            >
+              {billingItems.map((i, index) => (
                 <div
                   key={i._id}
-                  onClick={() => addItem(i.item, i.price)}
-                  className="group flex items-center justify-between gap-3 p-2 rounded-lg hover:bg-slate-50 cursor-pointer transition-all border border-transparent hover:border-slate-100"
+                  onClick={() => {
+                    addItem(i.item, i.price);
+                    itemRef.current?.focus();
+                  }}
+                  className={`group flex items-center justify-between gap-3 p-2 rounded-lg cursor-pointer transition-all border ${
+                    selectedIndex === index
+                      ? "bg-indigo-50 border-indigo-200 ring-1 ring-indigo-200"
+                      : "hover:bg-slate-50 border-transparent hover:border-slate-100"
+                  }`}
                 >
                   <div className="flex items-center gap-3 overflow-hidden flex-1">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 group-hover:bg-indigo-50 transition-colors">
@@ -138,6 +175,18 @@ export default function ItemSelected({
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
+                    <button
+                      type="button"
+                      onClick={(ev) => {
+                        ev.stopPropagation();
+                        setEditingItem(i);
+                        setIsEditModalOpen(true);
+                      }}
+                      aria-label={`Edit ${i.item}`}
+                      className="opacity-0 group-hover:opacity-100 flex h-8 w-8 items-center justify-center rounded-lg hover:bg-indigo-50 text-slate-400 hover:text-indigo-600 transition-all active:scale-90"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
                   </div>
                 </div>
               ))}
@@ -148,6 +197,70 @@ export default function ItemSelected({
           <Plus className="h-5 w-5 stroke-[2.5]" />
         </PrimaryButton>
       </div>
+
+      <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Edit Service / Item</DialogTitle>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Service / Item code <span className="text-red-500">*</span></label>
+              <input
+                value={editingItem?.code || ""}
+                onChange={(e) => setEditingItem(prev => prev ? { ...prev, code: e.target.value } : null)}
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="e.g. CPT-12345"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Service / Item Name <span className="text-red-500">*</span></label>
+              <input
+                value={editingItem?.item || ""}
+                onChange={(e) => setEditingItem(prev => prev ? { ...prev, item: e.target.value } : null)}
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="ex. Consultation"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Price (₹)</label>
+              <input
+                type="number"
+                min="0"
+                value={editingItem?.price === 0 ? "" : editingItem?.price.toString()}
+                onChange={(e) => setEditingItem(prev => prev ? { ...prev, price: Number(e.target.value) } : null)}
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                placeholder="0"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <PrimaryButton
+              onClick={async () => {
+                if (!editingItem) return;
+                try {
+                  await toast.promise(api.patch(`/billing/billing_item/${editingItem._id}`, {
+                    item: editingItem.item,
+                    price: editingItem.price,
+                    code: editingItem.code
+                  }), {
+                    loading: "Updating item...",
+                    success: "Item updated successfully!",
+                    error: "Failed to update item!"
+                  });
+                  setIsEditModalOpen(false);
+                  mutate(); // Refresh the list
+                } catch (error) {
+                  console.log(error);
+                }
+              }}
+              disabled={!editingItem?.item?.trim() || !editingItem?.code?.trim()}
+            >
+              Save Changes
+            </PrimaryButton>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -48,14 +48,17 @@ interface PropsTypes {
                 type: string;
                 unit?: string;
                 dataType: "number" | "text" | "boolean";
-                min?: number;
-                max?: number;
-                womenMin?: number;
-                womenMax?: number;
-                childMin?: number;
-                childMax?: number;
-                nbMin?: number;
-                nbMax?: number;
+                range: {
+                    name: string;
+                    min: number | null | undefined;
+                    max: number | null | undefined;
+                    fromAge: number | null | undefined;
+                    toAge: number | null | undefined;
+                    gender: "Both" | "Male" | "Female";
+                    dateType: "Year" | "Month" | "Day";
+
+                }[],
+                note: string
                 _id: string;
                 panels: {
                     _id: string;
@@ -100,9 +103,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     </tr>
                 </thead>
                 <tbody>
-                    {REPORT.filter(
-                        (r) => status === "All" || r.status === status
-                    )
+                    {REPORT
                         .sort((a, b) => {
                             const isAUrgent = a.priority === "Urgent";
                             const isBUrgent = b.priority === "Urgent";
@@ -119,10 +120,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 <tr
                                     key={r._id}
                                     className={cn(`group border-b border-gray-100 transition-colors duration-200 last:border-0 ${r.priority === "Urgent"
-                                            ? "bg-amber-100 hover:bg-amber-200/60"
-                                            : idx % 2 === 0
-                                                ? "bg-white hover:bg-white/60"
-                                                : "bg-slate-100 hover:bg-slate-100/60"
+                                        ? "bg-amber-100 hover:bg-amber-200/60"
+                                        : idx % 2 === 0
+                                            ? "bg-white hover:bg-white/60"
+                                            : "bg-slate-100 hover:bg-slate-100/60"
                                         }`)}
                                 >
                                     <td className="px-3 py-2">
@@ -135,7 +136,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                                 {r?.patient?.name}
                                             </span>
                                             <span className="text-xs text-gray-500 mt-0.5">
-                                                <span className="font-medium text-gray-600">{r?.patient?.mrn}</span> • {fAge(r?.patient?.dateOfBirth)} yrs • {r?.patient?.gender}
+                                                <span className="font-medium text-gray-600">{r?.patient?.mrn}</span> • {fAge(r?.patient?.dateOfBirth).years}y {fAge(r?.patient?.dateOfBirth).months}m • {r?.patient?.gender}
                                             </span>
                                         </div>
                                     </td>
@@ -157,8 +158,8 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                                                         let normal = true
 
-                                                        if (e.value && e.name?.min && e.name?.max) {
-                                                            if (Number(e.value) < Number(e.name?.min) || Number(e.value) > Number(e.name?.max)) {
+                                                        if (e.value && e.name?.range?.[0]?.min && e.name?.range?.[0]?.max) {
+                                                            if (Number(e.value) < Number(e.name?.range?.[0]?.min) || Number(e.value) > Number(e.name?.range?.[0]?.max)) {
                                                                 normal = false
                                                             }
                                                         }
@@ -185,7 +186,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                                         <span
                                                             key={e._id}
                                                             className="text-gray-600 font-mono h-5"
-                                                        >{`${e?.name?.min ?? ""} - ${e?.name?.max ?? ""} ${e?.name?.min ? e?.name?.unit : ""}`}</span>
+                                                        >{`${e?.name?.range?.[0]?.min ?? ""} - ${e?.name?.range?.[0]?.max ?? ""} ${e?.name?.range?.[0]?.min ? e?.name?.unit : ""}`}</span>
                                                     )
                                             )}
                                         </div>
@@ -199,7 +200,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                     </td>
                                     <td className="px-3 py-2 text-sm text-gray-600">
                                         <div className="flex items-center gap-2">
-                                            {r.doctor._id !== user?._id ? <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name}</span> : <span>Direct</span>}
+                                            {r?.doctor?._id ? <span className="truncate max-w-[100px]" title={r.doctor.name}>Dr. {r.doctor.name}</span> : <span>Self</span>}
                                         </div>
                                     </td>
 

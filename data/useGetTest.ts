@@ -17,19 +17,22 @@ export interface TestItemType {
     type?: "Lab" | "Imaging" | "Panel";
     estimatedTime?: number;
     price?: number;
-    min?: number;
-    max?: number;
     unit?: string;
     panels?: {
         name: string;
         _id: string;
     }[];
-    womenMax?: number;
-    womenMin?: number;
-    childMax?: number;
-    childMin?: number;
-    nbMax?: number;
-    nbMin?: number;
+    range: {
+        name: string;
+        min: number | null | undefined;
+        max: number | null | undefined;
+        fromAge: number | null | undefined;
+        toAge: number | null | undefined;
+        gender: "Both" | "Male" | "Female";
+        dateType: "Year" | "Month" | "Day";
+
+    }[],
+    note: string
 }
 
 

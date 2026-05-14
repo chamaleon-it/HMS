@@ -311,7 +311,7 @@ const safeAge = (dob?: string | Date) => {
   try {
     const d = typeof dob === "string" ? new Date(dob) : dob;
     if (Number.isNaN(d.getTime())) return "—";
-    return `${fAge(d)} yrs`;
+    return `${fAge(d).years}y ${fAge(d).months}m`;
   } catch {
     return "—";
   }

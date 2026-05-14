@@ -118,7 +118,6 @@ export default function Filter({
               { label: "All", value: undefined, icon: null },
               { label: "Female", value: "Female", color: "bg-rose-600" },
               { label: "Male", value: "Male", color: "bg-blue-600" },
-              { label: "Others", value: "Other", color: "bg-violet-600" },
             ].map((opt) => {
               const active = filter.gender === opt.value;
               return (

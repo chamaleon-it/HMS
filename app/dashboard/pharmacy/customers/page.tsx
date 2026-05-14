@@ -29,7 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { RegisterPatient } from "../RegisterPatient";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, Plus, ClipboardPlus, CalendarPlus } from "lucide-react";
 const Customers: React.FC = () => {
   const router = useRouter();
   const [editCustomer, setEditCustomer] = useState<any>(null);
@@ -42,7 +42,7 @@ const Customers: React.FC = () => {
     lastVisit: undefined,
     alreadyPurchase: false,
     page: 1,
-    limit: 10,
+    limit: 20,
     dateRange: { from: undefined, to: undefined },
   });
 
@@ -74,6 +74,7 @@ const Customers: React.FC = () => {
         address: string;
         mrn: string;
         doctor: string;
+        allergies: string;
       };
       lastPurchase: Date;
     }[];
@@ -89,8 +90,8 @@ const Customers: React.FC = () => {
   return (
     <AppShell>
       <TooltipProvider>
-        <div className="p-5 min-h-[calc(100vh-80px)]">
-          <main className="flex flex-col gap-6">
+        <div className="p-5 min-h-[calc(100vh-67px)]">
+          <main className="flex flex-col gap-4">
             <PharmacyHeader
               title="Customers"
               subtitle="Click a row to open full pharmacy history for that customer"
@@ -143,10 +144,10 @@ const Customers: React.FC = () => {
                             } hover:-translate-y-px hover:shadow-sm`}
 
                         >
-                          <TableCell className="py-3 align-middle text-slate-500 pl-4">
+                          <TableCell className="py-1.5 align-middle text-slate-500 pl-4">
                             {(filter.page - 1) * filter.limit + idx + 1}
                           </TableCell>
-                          <TableCell className="py-3 align-middle font-medium cursor-pointer" onClick={() =>
+                          <TableCell className="py-1.5 align-middle font-medium cursor-pointer" onClick={() =>
                             router.push(
                               `/dashboard/pharmacy/customers/single?id=${p.patient._id}`
                             )
@@ -180,31 +181,31 @@ const Customers: React.FC = () => {
                               </span>
                             </div>
                           </TableCell>
-                          <TableCell className="py-3 align-middle text-slate-700">
+                          <TableCell className="py-1.5 align-middle text-slate-700">
                             <HighlightText
                               text={p.patient.mrn}
                               highlight={filter.query || ""}
                             />
                           </TableCell>
-                          <TableCell className="py-3 align-middle text-slate-700">
-                            {fAge(p.patient.dateOfBirth)} / {p.patient.gender}
+                          <TableCell className="py-1.5 align-middle text-slate-700">
+                            {fAge(p.patient.dateOfBirth).years}y {fAge(p.patient.dateOfBirth).months}m / {p.patient.gender}
                           </TableCell>
-                          <TableCell className="py-3 align-middle text-slate-700">
+                          <TableCell className="py-1.5 align-middle text-slate-700">
                             <HighlightText
                               text={p.patient.phoneNumber.length < 5 ? "-" : p.patient.phoneNumber}
                               highlight={filter.query || ""}
                             />
                           </TableCell>
-                          <TableCell className="py-3 align-middle text-right text-slate-900">
+                          <TableCell className="py-1.5 align-middle text-right text-slate-900">
                             {p.visits}
                           </TableCell>
-                          <TableCell className="py-3 align-middle text-right text-slate-700">
+                          <TableCell className="py-1.5 align-middle text-right text-slate-700">
                             {fDate(p.lastPurchase)}
                           </TableCell>
-                          <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                          <TableCell className="py-1.5 align-middle text-right font-semibold text-slate-900 pr-4">
                             {formatINR(p.totalSpend)}
                           </TableCell>
-                          <TableCell className="py-3 align-middle text-right font-semibold text-slate-900 pr-4">
+                          <TableCell className="py-1.5 align-middle text-right font-semibold text-slate-900 pr-4">
                             <div className="flex justify-end items-center gap-1">
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -245,6 +246,50 @@ const Customers: React.FC = () => {
                                   <p>Edit Customer</p>
                                 </TooltipContent>
                               </Tooltip>
+
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    onClick={(e: React.MouseEvent) => {
+                                      e.stopPropagation();
+                                      router.push(
+                                        `/dashboard/pharmacy?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}&allergies=${p.patient.allergies || ""}#newOrder`
+                                      )
+                                    }}
+                                  >
+                                    <ClipboardPlus className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>New Order</p>
+                                </TooltipContent>
+                              </Tooltip>
+
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                    onClick={(e: React.MouseEvent) => {
+                                      e.stopPropagation();
+                                      router.push(
+                                        `/dashboard/pharmacy/appointments?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}#newAppointment`
+                                      )
+                                    }}
+                                  >
+                                    <CalendarPlus className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>New Appointment</p>
+                                </TooltipContent>
+                              </Tooltip>
+
+
                             </div>
                           </TableCell>
                         </TableRow>
@@ -264,7 +309,7 @@ const Customers: React.FC = () => {
                   </TableBody>
                 </Table>
                 {total > filter.limit && (
-                  <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+                  <div className="px-2 py-0 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
                     <PaginationBar
                       page={filter.page}
                       limit={filter.limit}

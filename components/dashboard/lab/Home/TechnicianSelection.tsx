@@ -41,7 +41,7 @@ const TechnicianSelection: React.FC<Props> = ({ setValue, technicianName, hideLa
 
     return (
         <div className={cn("relative w-full", className)}>
-            {!hideLabel && <Label className="block mb-1.5">Technician Name <span className="text-xs">*</span></Label>}
+            {!hideLabel && <Label className="block mb-1.5">Technician Name</Label>}
             <Select
                 onValueChange={(val) => {
 

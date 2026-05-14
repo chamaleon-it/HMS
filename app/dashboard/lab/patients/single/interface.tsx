@@ -51,14 +51,17 @@ export interface Name {
   type: string;
   estimatedTime: number;
   dataType: string;
-  min: number;
-  max: number;
-  womenMin: number;
-  womenMax: number;
-  childMin: null;
-  childMax: null;
-  nbMin: null;
-  nbMax: number;
+  range: {
+    name: string;
+    min: number | null | undefined;
+    max: number | null | undefined;
+    fromAge: number | null | undefined;
+    toAge: number | null | undefined;
+    gender: "Both" | "Male" | "Female";
+    dateType: "Year" | "Month" | "Day";
+
+  }[],
+  note: string
   unit: string;
   panels: string[];
 }

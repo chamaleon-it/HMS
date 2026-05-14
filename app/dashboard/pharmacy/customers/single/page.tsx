@@ -7,10 +7,10 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import AppShell from "@/components/layout/app-shell";
 import { useRouter, useSearchParams } from "next/navigation";
-import { formatINR } from "@/lib/fNumber";
+import { formatINR, getDecimal } from "@/lib/fNumber";
 import { fAge, fDate } from "@/lib/fDateAndTime";
 import useSWR from "swr";
-import { CustomerType, Order } from "./interface";
+import { CustomerType, BillingRecord } from "./interface";
 import { EmptyPurchases } from "./EmptyPurchases";
 import {
     Popover,
@@ -21,7 +21,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Datum, ReturnType } from "./ReturnType";
+// Removed Datum and ReturnType as they are replaced by BillingRecord
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { OrderType } from "../../interface";
@@ -44,24 +44,49 @@ const Customer: React.FC = () => {
     const searchParams = useSearchParams();
     const id = searchParams.get("id");
 
-    const { data: customerData, error, mutate } = useSWR<CustomerType>(
-        id ? `/pharmacy/orders/customers/${id}` : null
+    const { data: billingData, error, mutate } = useSWR<CustomerType>(
+        id ? `/billing/single?q=${id}` : null
     );
 
-    const { data: returnData } = useSWR<ReturnType>(
-        id ? `/pharmacy/return/patient/${id}` : null
-    );
+    const billing = billingData?.data || [];
 
-    if (!id) {
-        return (
-            <AppShell>
-                <div className="p-10 text-center text-slate-500">Invalid Customer ID</div>
-            </AppShell>
-        )
-    }
+    const customer = React.useMemo(() => {
+        if (billing.length === 0) return null;
 
-    const customer = customerData?.data;
-    const [selectedVisit, setSelectedVisit] = useState<Order | Datum | null>(null);
+        const patient = billing[0].patient;
+        let totalSpend = 0;
+        let totalPaid = 0;
+        let totalVisit = 0;
+        let lastPurchase = billing[0].createdAt;
+
+        billing.forEach(b => {
+            const itemsTotal = b.items.reduce((acc, it) => acc + (it.total || 0), 0);
+            const rOff = b.roundOff ? getDecimal(itemsTotal) : 0;
+            const paid = (b.cash || 0) + (b.online || 0) + (b.insurance || 0);
+
+            if (b.transactionType === "Sale") {
+                totalSpend += itemsTotal - rOff - (b.discount || 0);
+                totalPaid += paid;
+                totalVisit++;
+            } else {
+                totalSpend -= itemsTotal;
+                totalPaid -= paid;
+            }
+        });
+
+        return {
+            patient,
+            totalSpend,
+            totalPaid,
+            totalDue: Math.max(0, totalSpend - totalPaid),
+            totalVisit,
+            averageSpend: totalVisit > 0 ? totalSpend / totalVisit : 0,
+            lastPurchase,
+            billing // To keep UI compatible with .orders check if needed
+        };
+    }, [billing]);
+
+    const [selectedVisit, setSelectedVisit] = useState<BillingRecord | null>(null);
 
 
     const [openCalendar, setOpenCalendar] = useState(false);
@@ -118,87 +143,85 @@ const Customer: React.FC = () => {
     const handlePrintBill = async (mrn: string) => {
         try {
             setPrintingBill(true);
-            const params = new URLSearchParams()
-            params.set("q", mrn)
             const { data } = await api.get<{
                 data: {
-                    assignedTo: string,
-                    createdAt: Date,
-                    discount: number,
-                    doctor: {
+                    _id: string;
+                    user: string;
+                    patient: {
+                        _id: string;
                         name: string;
                         phoneNumber: string;
-                        specialization: string;
-                        _id: string
-                    },
+                        gender: string;
+                        dateOfBirth: string | null;
+                        address: string;
+                        mrn: string;
+                    };
                     items: {
-                        dosage: string;
-                        duration: string;
-                        food: string;
-                        frequency: string;
-                        isPacked: string;
-                        quantity: number;
-                        name: {
-                            name: string;
-                            unitPrice: number;
-                            _id: string
-                        },
-                    }[];
-                    mrn: string;
-                    patient: {
                         name: string;
-                        mrn?: string;
-                        phoneNumber?: string;
-                        gender?: string;
-                        dateOfBirth: string | Date;
-                        address?: string;
-                        _id: string
-                    }
-                    priority: string;
-                    status: string;
+                        quantity: number;
+                        unitPrice: number;
+                        gst: number;
+                        discount: number;
+                        total: number;
+                    }[];
+                    cash: number;
+                    online: number;
+                    insurance: number;
+                    discount: number;
+                    mrn: string;
+                    roundOff: boolean;
+                    transactionType: "Sale" | "Return";
+                    createdAt: string;
                     updatedAt: string;
-                    _id: string
-                }, message: string
-            }>(`/pharmacy/orders/single?${params}`,)
+                }[], message: string
+            }>(`/billing/single?q=${id}`)
+
+            const bill = data.data.find(b => b.mrn === mrn);
+
+            if (!bill) {
+                toast.error("Bill not found");
+                return;
+            }
 
             // Map Items Logic
-            const items = data.data.items.map(e => {
-                const unitPrice = e.name.unitPrice || 0;
+            const items = bill.items.map(e => {
+                const unitPrice = e.unitPrice || 0;
                 const quantity = e.quantity || 0;
-                const itemGst = defaultGst;
-                const basePrice = unitPrice * quantity;
-                const gstAmount = basePrice * (itemGst / 100);
+                const itemGst = e.gst || 0;
+                const total = e.total || 0;
                 return {
                     gst: itemGst,
-                    name: e.name.name,
+                    name: e.name,
                     quantity,
                     unitPrice,
-                    total: Math.round((basePrice + gstAmount) * 100) / 100,
+                    total: total,
                 };
             });
 
             const subtotal = items.reduce((a, b) => a + b.unitPrice * b.quantity, 0);
             const totalGst = items.reduce((a, b) => a + b.unitPrice * b.quantity * (b.gst / 100), 0);
-            const discount = data.data.discount || 0;
-            const grandTotal = subtotal + totalGst - discount;
+            const discount = bill.discount || 0;
+            const grandTotalBeforeRoundOff = subtotal + totalGst - discount;
+            const roundOffAmount = bill.roundOff ? getDecimal(grandTotalBeforeRoundOff) : 0;
+            const grandTotal = grandTotalBeforeRoundOff - roundOffAmount;
 
             setPrintBill({
-                patient: data.data.patient,
+                patient: bill.patient,
                 payload: {
                     items,
-                    cash: 0,
+                    cash: bill.cash,
                     discount,
-                    insurance: 0,
-                    online: 0,
-                    patient: data.data.patient._id,
-                    department: data.data.doctor.specialization,
-                    doctor: data.data.doctor.name,
+                    insurance: bill.insurance,
+                    online: bill.online,
+                    patient: bill.patient._id,
+                    department: "Pharmacy",
+                    doctor: "N/A",
                     note: "",
                 },
                 invoiceDetails: {
                     totalGst,
                     prefix,
-                    roundOffAmount: 0,
+                    roundOffAmount,
                     subtotal,
                     grandTotal
                 }
@@ -215,52 +238,27 @@ const Customer: React.FC = () => {
         }
     }
 
-    const calculatedDueAmount = selectedVisit?.type === "sale" && selectedVisit?.items
-        ? selectedVisit.items.reduce((a, b) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice), 0) - (selectedVisit?.discount || 0) - (selectedVisit?.paidAmount || 0)
+    const calculatedDueAmount = selectedVisit?.transactionType === "Sale" && selectedVisit?.items
+        ? selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) - (selectedVisit?.discount || 0) - ((selectedVisit?.cash || 0) + (selectedVisit?.online || 0) + (selectedVisit?.insurance || 0))
         : 0;
 
     const handlePaymentUpdate = async () => {
-        if (!selectedVisit || selectedVisit.type !== "sale") return;
-
-        const payload = {
-            orderId: selectedVisit._id,
-            paidAmount: 0,
-            paymentStatus: "Partial",
-            paymentReference: referenceNumber
-        }
-
-        const currentPaid = selectedVisit.paidAmount || 0;
-        const totalAmount = selectedVisit.items.reduce((acc, it) => acc + ((it.unitPrice ?? it.name.unitPrice) * it.quantity), 0) - (selectedVisit.discount || 0);
-
-        if (paymentMethod === "UPI" || paymentMethod === "Cash") {
-            payload.paymentStatus = "Paid";
-            payload.paidAmount = currentPaid + calculatedDueAmount;
-        } else {
-            payload.paymentStatus = "Partial";
-            payload.paidAmount = currentPaid + Number(amountPaid);
-        }
-
         try {
             setUpdatingPayment(true);
-            await toast.promise(
-                api.patch<{ data: OrderType }>("/pharmacy/orders/update_payment", payload),
-                {
-                    loading: "Updating payment...",
-                    success: "Payment updated successfully",
-                    error: "Failed to update payment"
-                }
-            )
-            mutate()
+            const payload = {
+                cash: (selectedVisit?.cash || 0) + (paymentMethod === "Cash" ? calculatedDueAmount : (paymentMethod === "Underpaid" ? Number(amountPaid) : 0)),
+                online: (selectedVisit?.online || 0) + (paymentMethod === "UPI" ? calculatedDueAmount : 0),
+                insurance: (selectedVisit?.insurance || 0),
+            };
+
+            await api.patch(`/billing/add_payment/${selectedVisit?._id}`, payload);
+
+            toast.success("Payment updated successfully");
             setShowPaymentModal(false);
+            mutate();
             setAmountPaid("");
-            setReferenceNumber("");
-
-            // Refetch or update local selectedVisit to reflect new paidAmount
-            const { data } = await api.get<{ data: OrderType, message: string }>(`/pharmacy/orders/single?q=${selectedVisit.mrn}`)
-            setSelectedVisit({ ...data.data, type: "sale" } as any);
-
         } catch (error) {
-            console.log(error)
+            toast.error("Failed to update payment");
         } finally {
             setUpdatingPayment(false);
         }
@@ -301,7 +299,11 @@ const Customer: React.FC = () => {
                                         </span>
                                     </div>
                                     <p className="text-sm text-slate-600 mt-1">
-                                        Age {fAge(customer?.patient?.dateOfBirth)} /{" "}
+                                        {customer?.patient?.dateOfBirth && (
+                                            <>
+                                                Age {fAge(customer.patient.dateOfBirth).years}y / {fAge(customer.patient.dateOfBirth).months}m /{" "}
+                                            </>
+                                        )}
                                         {customer?.patient?.gender} • Ph:{" "}
                                         {customer?.patient?.phoneNumber}
                                     </p>
@@ -317,7 +319,7 @@ const Customer: React.FC = () => {
                                         </div>
                                     )}
                                     <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
-                                        {customer?.orders.length === 0 && (
+                                        {customer?.billing.length === 0 && (
                                             <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
                                                 No purchase history yet
                                             </span>
@@ -370,7 +372,7 @@ const Customer: React.FC = () => {
                                         Last Purchase
                                     </div>
                                     <div className="text-sm font-semibold text-violet-900">
-                                        {fDate(customer?.lastPurchase)}
+                                        {customer?.lastPurchase ? fDate(customer.lastPurchase) : "N/A"}
                                     </div>
                                 </div>
                                 <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
@@ -494,17 +496,10 @@ const Customer: React.FC = () => {
 
                                         {(() => {
                                             // 1. Combine Data
-                                            let combined = [];
-                                            if (returnData?.data) {
-                                                combined.push(
-                                                    ...returnData.data.map((r) => ({ ...r, type: "return" }))
-                                                );
-                                            }
-                                            if (customer?.orders) {
-                                                combined.push(
-                                                    ...customer.orders.map((o) => ({ ...o, type: "sale" }))
-                                                );
-                                            }
+                                            let combined = billing.map(b => ({
+                                                ...b,
+                                                type: b.transactionType.toLowerCase()
+                                            }));
 
                                             // 2. Filter by Tab Type (sale, return, all)
                                             if (type !== "all") {
@@ -537,6 +532,12 @@ const Customer: React.FC = () => {
                                                 const active = selectedVisit && selectedVisit._id === item._id;
                                                 const isReturn = item.type === "return";
 
+                                                const itemsTotal = item.items.reduce((a: number, b: any) => a + (b.total || 0), 0);
+                                                const rOff = item.roundOff ? getDecimal(itemsTotal) : 0;
+                                                const paid = (item.cash || 0) + (item.online || 0) + (item.insurance || 0);
+                                                const netTotal = itemsTotal - rOff - (item.discount || 0);
+                                                const due = Math.max(0, netTotal - paid);
+
                                                 return (
                                                     <button
                                                         key={item._id}
@@ -552,43 +553,25 @@ const Customer: React.FC = () => {
                                                                 // Return Item Header
                                                                 <>
                                                                     <span className="font-medium">
-                                                                        {fDate(item.createdAt)} - {item.billNo} - Return
+                                                                        {fDate(item.createdAt)} - {item.mrn} - Return
                                                                     </span>
                                                                     <span className="text-xs font-semibold">
-                                                                        {formatINR(
-                                                                            item.items.reduce(
-                                                                                (a: number, b: any) =>
-                                                                                    a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
-                                                                                0
-                                                                            )
-                                                                        )}
+                                                                        {formatINR(itemsTotal)}
                                                                     </span>
                                                                 </>
                                                             ) : (
                                                                 // Sale Item Header
                                                                 <>
                                                                     <span className="font-medium">
-                                                                        {fDate(item.createdAt)} • {item.billNo}
+                                                                        {fDate(item.createdAt)} • {item.mrn}
                                                                     </span>
                                                                     <div className="text-right flex flex-col items-end">
                                                                         <span className={`text-[13px] font-bold ${active ? "text-slate-50" : "text-slate-900"}`}>
-                                                                            {formatINR(
-                                                                                item.items.reduce(
-                                                                                    (a: number, b: any) =>
-                                                                                        a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
-                                                                                    0
-                                                                                ) - (item?.discount || 0)
-                                                                            )}
+                                                                            {formatINR(netTotal)}
                                                                         </span>
-                                                                        {(item.items.reduce((a: number, b: any) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice), 0) - (item?.discount || 0) - (item?.paidAmount || 0)) > 0 && (
+                                                                        {due > 0 && (
                                                                             <span className={`text-[10px] font-bold uppercase tracking-tight ${active ? "text-rose-300" : "text-rose-500"}`}>
-                                                                                Due: {formatINR(
-                                                                                    item.items.reduce(
-                                                                                        (a: number, b: any) =>
-                                                                                            a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
-                                                                                        0
-                                                                                    ) - (item?.discount || 0) - (item?.paidAmount || 0)
-                                                                                )}
+                                                                                Due: {formatINR(due)}
                                                                             </span>
                                                                         )}
                                                                     </div>
@@ -614,9 +597,7 @@ const Customer: React.FC = () => {
                                 <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
                                     <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                                         <div className="text-sm font-semibold text-slate-900">
-                                            {selectedVisit
-                                                ? `${selectedVisit?.type === "sale" ? "Sale" : "Return"} Details — ${selectedVisit?.billNo || selectedVisit?._id}`
-                                                : "Bill Details"}
+                                            {selectedVisit?.transactionType === "Sale" ? "Sale" : "Return"} Details — {selectedVisit?.mrn || selectedVisit?._id}
                                         </div>
                                         {selectedVisit && (
                                             <div className="text-[11px] text-slate-500 flex flex-col items-end">
@@ -626,12 +607,7 @@ const Customer: React.FC = () => {
                                                         {fDate(selectedVisit.createdAt)}
                                                     </span>
                                                 </span>
-                                                {selectedVisit?.mrn && <span>
-                                                    RX ID:{" "}
-                                                    <span className="font-medium text-slate-700">
-                                                        {selectedVisit.mrn}
-                                                    </span>
-                                                </span>}
+
                                             </div>
                                         )}
                                     </div>
@@ -665,10 +641,10 @@ const Customer: React.FC = () => {
                                                     </thead>
                                                     <tbody>
                                                         {selectedVisit.items.map((it, i) => {
-                                                            const amount = it.quantity * (it?.unitPrice ?? it.name?.unitPrice);
+                                                            const amount = it.total || 0;
                                                             return (
                                                                 <tr
-                                                                    key={it.name.name}
+                                                                    key={it.name + i}
                                                                     className="border-t align-top hover:bg-slate-50/70 transition-colors"
                                                                 >
                                                                     <td className="p-2 align-top text-slate-500">
@@ -676,17 +652,14 @@ const Customer: React.FC = () => {
                                                                     </td>
                                                                     <td className="p-2 align-top">
                                                                         <div className="font-medium text-slate-900 leading-snug">
-                                                                            {it.name.name}
-                                                                        </div>
-                                                                        <div className="text-[12px] text-slate-600 leading-snug">
-                                                                            (Gen: {it.name.generic})
+                                                                            {it.name}
                                                                         </div>
                                                                     </td>
                                                                     <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
                                                                         {it.quantity}
                                                                     </td>
                                                                     <td className="p-2 align-top text-right text-slate-800">
-                                                                        {formatINR(it.unitPrice ?? it.name.unitPrice)}
+                                                                        {formatINR(it.unitPrice)}
                                                                     </td>
                                                                     <td className="p-2 align-top text-right font-semibold text-slate-900">
                                                                         {formatINR(amount)}
@@ -706,88 +679,63 @@ const Customer: React.FC = () => {
                                                             </tr>
                                                         )}
                                                     </tbody>
-                                                    <tfoot>
-
-                                                        <tr className="border-t bg-slate-50/80">
-                                                            <td
-                                                                colSpan={4}
-                                                                className="p-2 text-right text-xs text-slate-600"
-                                                            >
+                                                    <tfoot className="bg-slate-50/80 font-medium">
+                                                        <tr className="border-t">
+                                                            <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
                                                                 Sub Total
                                                             </td>
                                                             <td className="p-2 text-right text-sm font-semibold text-slate-900">
                                                                 {formatINR(
-                                                                    selectedVisit.items.reduce(
-                                                                        (a, b) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
-                                                                        0
-                                                                    )
+                                                                    selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0)
                                                                 )}
                                                             </td>
                                                         </tr>
-                                                        {selectedVisit?.type === "sale" && <>
-                                                            <tr className="border-t bg-slate-50/80">
-                                                                <td
-                                                                    colSpan={4}
-                                                                    className="p-2 text-right text-xs text-slate-600"
-                                                                >
-                                                                    Discount
-                                                                </td>
-                                                                <td className="p-2 text-right text-sm font-semibold text-slate-900">
-                                                                    {formatINR(
-                                                                        selectedVisit?.discount || 0
-
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-
-
-                                                            <tr className="border-t bg-slate-50/80">
-                                                                <td
-                                                                    colSpan={4}
-                                                                    className="p-2 text-right text-xs text-slate-600"
-                                                                >
-                                                                    Amount Paid
-                                                                </td>
-                                                                <td className="p-2 text-right text-sm font-semibold text-slate-900">
-                                                                    {formatINR(
-                                                                        selectedVisit?.paidAmount || 0
-
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-
-                                                            <tr className="border-t bg-slate-50/80">
-                                                                <td
-                                                                    colSpan={4}
-                                                                    className="p-2 text-right text-xs text-slate-600"
-                                                                >
-                                                                    Due Amount
-                                                                </td>
-                                                                <td className="p-2 text-right text-sm font-semibold text-rose-500">
-                                                                    {formatINR(
-                                                                        selectedVisit.items.reduce(
-                                                                            (a, b) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
-                                                                            0
-                                                                        ) - (selectedVisit?.discount || 0) - (selectedVisit?.paidAmount || 0)
-                                                                    )}
-                                                                </td>
-                                                            </tr>
-                                                        </>}
-
-
-                                                        <tr className="border-t bg-slate-50/80">
-                                                            <td
-                                                                colSpan={4}
-                                                                className="p-2 text-right text-xs text-slate-600"
-                                                            >
+                                                        {selectedVisit?.transactionType === "Sale" && (
+                                                            <>
+                                                                <tr className="border-t">
+                                                                    <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
+                                                                        Discount
+                                                                    </td>
+                                                                    <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                                                        {formatINR(selectedVisit?.discount || 0)}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr className="border-t">
+                                                                    <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
+                                                                        Amount Paid
+                                                                    </td>
+                                                                    <td className="p-2 text-right text-sm font-semibold text-emerald-700">
+                                                                        {formatINR(
+                                                                            (selectedVisit?.cash || 0) +
+                                                                            (selectedVisit?.online || 0) +
+                                                                            (selectedVisit?.insurance || 0)
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                                <tr className="border-t">
+                                                                    <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
+                                                                        Due Amount
+                                                                    </td>
+                                                                    <td className="p-2 text-right text-sm font-semibold text-rose-500">
+                                                                        {formatINR(
+                                                                            selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
+                                                                            (selectedVisit?.discount || 0) -
+                                                                            ((selectedVisit?.cash || 0) +
+                                                                                (selectedVisit?.online || 0) +
+                                                                                (selectedVisit?.insurance || 0))
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                            </>
+                                                        )}
+                                                        <tr className="border-t bg-slate-100/50">
+                                                            <td colSpan={4} className="p-2 text-right text-xs font-bold text-slate-700">
                                                                 Total
                                                             </td>
-                                                            <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                                            <td className="p-2 text-right text-sm font-bold text-slate-900">
                                                                 {formatINR(
-                                                                    selectedVisit.items.reduce(
-                                                                        (a, b) => a + b.quantity * (b.unitPrice ?? b.name.unitPrice),
-                                                                        0
-                                                                    ) - (selectedVisit?.discount || 0)
+                                                                    selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
+                                                                    (selectedVisit?.discount || 0)
                                                                 )}
                                                             </td>
                                                         </tr>
@@ -839,7 +787,8 @@ const Customer: React.FC = () => {
                                                                                 error: "Something went wrong"
                                                                             })
                                                                             const updatedData = await mutate()
-                                                                            setSelectedVisit(updatedData?.data?.orders[0] ?? null)
+                                                                            const lastone = updatedData?.data.length
+                                                                            setSelectedVisit(updatedData?.data[(lastone ?? 0) - 1] ?? null)
                                                                         } catch (error) {
                                                                             // Handle error
                                                                         } finally {
@@ -872,7 +821,7 @@ const Customer: React.FC = () => {
                                                         className="rounded-full text-sm px-6 py-2 bg-slate-900 text-white hover:bg-slate-800"
                                                         asChild
                                                     >
-                                                        <Link href={selectedVisit.billNo ? `/dashboard/pharmacy/return/?mrn=${selectedVisit?.billNo}` : `#`}>
+                                                        <Link href={selectedVisit.mrn ? `/dashboard/pharmacy/return/?mrn=${selectedVisit.mrn}` : `#`}>
                                                             Return
                                                         </Link>
                                                     </Button>

@@ -1,14 +1,24 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText } from "lucide-react";
+import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight } from "lucide-react";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { formatINR } from "@/lib/fNumber";
+import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarUI } from "@/components/ui/calendar";
+import { DateRange } from "react-day-picker";
+import { addDays, format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
+import { Calendar as CalendarIcon, FilterX, History as HistoryIcon, Barcode as BarcodeIcon } from "lucide-react";
+import { PaginationBar } from "../components/PaginationBar";
+
+
 
 export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, editItem: () => void, mutate: () => void, onClose: () => void }) {
 
@@ -28,21 +38,84 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
     [mutate, onClose]
   );
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const ITEMS_PER_PAGE = 5;
-  const sortedBatches = item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
-  const totalPages = Math.ceil(sortedBatches.length / ITEMS_PER_PAGE);
-  const paginatedBatches = sortedBatches.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
+  const [activeTab, setActiveTab] = useState<"Batch History" | "Medicine History">("Batch History");
+  const [pagination, setPagination] = useState({ page: 1, limit: 5 });
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
-  const handleNextPage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
-  };
 
-  const handlePrevPage = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (currentPage > 1) setCurrentPage(prev => prev - 1);
-  };
+  const tabs = useMemo(() => [
+    { key: "Batch History", icon: Package },
+    { key: "Medicine History", icon: History },
+  ], []);
+
+  const sortedData = useMemo(() => {
+    if (activeTab === "Batch History") {
+      return item?.batches ? [...item.batches].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) : [];
+    } else {
+      let filtered = item?.soldHistory ? [...item.soldHistory] : [];
+      if (dateRange?.from) {
+        filtered = filtered.filter(h => {
+          const d = new Date(h.date);
+          if (dateRange.to) {
+            return d >= startOfDay(dateRange.from!) && d <= endOfDay(dateRange.to);
+          }
+          return d >= startOfDay(dateRange.from!);
+        });
+      }
+
+      // Grouping logic
+      const groups: Record<string, { date: Date, quantity: number, unitPrice: number, total: number }> = {};
+      filtered.forEach(h => {
+        const d = new Date(h.date);
+        const dateKey = format(d, "yyyy-MM-dd");
+        const price = h.unitPrice;
+        const key = `${dateKey}_${price}`;
+
+        if (groups[key]) {
+          groups[key].quantity += h.quantity;
+          groups[key].total += h.total;
+        } else {
+          groups[key] = {
+            date: d,
+            quantity: h.quantity,
+            unitPrice: price,
+            total: h.total
+          };
+        }
+      });
+
+      return Object.values(groups).sort((a, b) => b.date.getTime() - a.date.getTime());
+    }
+  }, [item, activeTab, dateRange]);
+
+  const salesStats = useMemo(() => {
+    if (activeTab !== "Medicine History") return null;
+    
+    let filtered = item?.soldHistory ? [...item.soldHistory] : [];
+    if (dateRange?.from) {
+      filtered = filtered.filter(h => {
+        const d = new Date(h.date);
+        if (dateRange.to) {
+          return d >= startOfDay(dateRange.from!) && d <= endOfDay(dateRange.to);
+        }
+        return d >= startOfDay(dateRange.from!);
+      });
+    }
+
+    const totalQuantitySold = filtered.reduce((acc, h) => acc + h.quantity, 0);
+    const totalSales = filtered.reduce((acc, h) => acc + h.total, 0);
+    const averageUnitPrice = totalQuantitySold > 0 ? totalSales / totalQuantitySold : 0;
+
+    return { totalQuantitySold, totalSales, averageUnitPrice };
+  }, [item, activeTab, dateRange]);
+
+
+  const paginatedData = useMemo(() => {
+    return sortedData.slice((pagination.page - 1) * pagination.limit, pagination.page * pagination.limit);
+  }, [sortedData, pagination]);
+
+
+
 
   return (
     <div className="w-full bg-white rounded-2xl shadow-xl p-2 space-y-4 text-sm max-h-[calc(100vh-200px)] overflow-y-auto">
@@ -129,6 +202,16 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
+              <div className="w-6 h-6 rounded-full bg-emerald-100 flex items-center justify-center">
+                <CreditCard className="w-3.5 h-3.5 text-emerald-600" />
+              </div>
+              MRP
+            </div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.mrp}</div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
               <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center">
                 <Calendar className="w-3.5 h-3.5 text-red-600" />
               </div>
@@ -202,143 +285,232 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
               <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center">
-                <CreditCard className="w-3.5 h-3.5 text-rose-600" />
+                <ArrowLeftRight className="w-3.5 h-3.5 text-rose-600" />
               </div>
-              GST
+              Sold Quantity
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">{item.gst}%</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">{item.soldQuantity}</div>
           </div>
         </div>
       </div>
 
-      {/* <div className="grid grid-cols-2 gap-4">
-        <Card className="overflow-hidden border-none shadow-md bg-gradient-to-br from-blue-50 to-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <p className="text-sm font-medium text-muted-foreground">Medicine Sales</p>
-              <div className="h-8 w-8 rounded-full bg-blue-100 flex items-center justify-center">
-                <ShoppingBag className="h-4 w-4 text-blue-600" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="text-2xl font-bold text-gray-900">₹ 12,450</div>
-              <div className="flex items-center text-xs text-green-600 font-medium">
-                <TrendingUp className="mr-1 h-3 w-3" />
-                +15% from last month
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 py-2 border-b border-slate-100">
+        <div className="relative inline-flex items-center gap-2 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 shadow-xs">
+          {tabs.map(({ key, icon: Icon }) => {
+            const active = activeTab === key;
+            return (
+              <button
+                key={key}
+                onClick={() => {
+                  setActiveTab(key as any);
+                  setPagination({ page: 1, limit: 5 });
+                }}
 
-        <Card className="overflow-hidden border-none shadow-md bg-gradient-to-br from-emerald-50 to-white">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between space-y-0 pb-2">
-              <p className="text-sm font-medium text-muted-foreground">Medicine Purchase</p>
-              <div className="h-8 w-8 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Package className="h-4 w-4 text-emerald-600" />
-              </div>
-            </div>
-            <div className="flex flex-col gap-1">
-              <div className="text-2xl font-bold text-gray-900">₹ 45,200</div>
-              <div className="flex items-center text-xs text-green-600 font-medium">
-                <TrendingUp className="mr-1 h-3 w-3" />
-                +4% from last month
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div> */}
+                className={
+                  "relative flex items-center gap-2 rounded-full px-5 py-1.5 transition-all duration-300 will-change-transform cursor-pointer " +
+                  (active ? "text-white" : "text-slate-500 hover:text-slate-900")
+                }
+                type="button"
+              >
+                {active && (
+                  <motion.span
+                    layoutId="tab-indicator-view"
+                    className="absolute inset-0 rounded-full shadow-md"
+                    style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                    transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                  />
+                )}
+                <span className="relative z-10 flex items-center gap-2 font-semibold">
+                  <Icon size={14} /> {key}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-      < div className="space-y-3" >
-        <h3 className="font-semibold text-sm text-gray-900 flex items-center gap-2">
-          <Package className="w-4 h-4 text-gray-500" />
-          Batch History
-        </h3>
+        {activeTab === "Medicine History" && (
+          <div className="flex items-center gap-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className={cn(
+                    "h-9 rounded-full px-4 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 gap-2",
+                    dateRange?.from && "border-indigo-500 bg-indigo-50 text-indigo-700"
+                  )}
+                >
+                  <CalendarIcon size={14} />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "LLL dd")} - {format(dateRange.to, "LLL dd, y")}
+                      </>
+                    ) : (
+                      format(dateRange.from, "LLL dd, y")
+                    )
+                  ) : (
+                    <span>Filter by Date Range</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 rounded-xl overflow-hidden" align="end">
+                <CalendarUI
+                  initialFocus
+                  mode="range"
+                  defaultMonth={dateRange?.from}
+                  selected={dateRange}
+                  onSelect={(range) => {
+                    setDateRange(range);
+                    setPagination(prev => ({ ...prev, page: 1 }));
+                  }}
+
+                  numberOfMonths={2}
+                />
+              </PopoverContent>
+            </Popover>
+
+            {dateRange && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  setDateRange(undefined);
+                  setPagination(prev => ({ ...prev, page: 1 }));
+                }}
+
+                className="h-9 w-9 rounded-full text-slate-400 hover:text-red-500 hover:bg-red-50"
+                title="Clear Filter"
+              >
+                <FilterX size={16} />
+              </Button>
+            )}
+          </div>
+        )}
+      </div>
+
+      <div className="space-y-3">
+        {activeTab === "Medicine History" && salesStats && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600">
+                  <ShoppingCart className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Total Quantity Sold</p>
+                  <p className="text-xl font-bold text-emerald-900">{salesStats.totalQuantitySold}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                  <Coins className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Avg. Unit Price</p>
+                  <p className="text-xl font-bold text-blue-900">{formatINR(salesStats.averageUnitPrice)}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                  <Banknote className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">Total Sales</p>
+                  <p className="text-xl font-bold text-indigo-900">{formatINR(salesStats.totalSales)}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
+
           <Table>
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
-                <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
-                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">P Price</TableHead>
-                <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Qty</TableHead>
+                {activeTab === "Batch History" ? (
+                  <>
+                    <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4">Purchase Rate</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Qty</TableHead>
+                  </>
+                ) : (
+                  <>
+                    <TableHead className="w-[200px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sale Date</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Quantity Sold</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Unit Price</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Total</TableHead>
+                  </>
+                )}
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedBatches.length === 0 ? (
+              {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-20 text-slate-400">
+                  <TableCell colSpan={activeTab === "Batch History" ? 6 : 4} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2">
-                      <Barcode className="h-8 w-8 opacity-20" />
-                      <p className="font-bold uppercase tracking-widest text-[11px]">No batch history found</p>
+                      {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
+                      <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
                     </div>
                   </TableCell>
                 </TableRow>
               ) : (
-                paginatedBatches.map((batch, idx) => (
+                paginatedData.map((data: any, idx: number) => (
                   <TableRow
-                    key={batch._id}
+                    key={data._id || idx}
                     className={
                       idx % 2 === 0
                         ? "bg-white hover:bg-white/60"
                         : "bg-slate-100 hover:bg-slate-100/60"
                     }
                   >
-                    <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(batch.createdAt)}</TableCell>
-                    <TableCell className="py-3">
-                      <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
-                        {batch.batchNumber}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(batch.expiryDate)}</TableCell>
-                    <TableCell className="text-xs py-3 text-slate-600">{batch.supplier || "-"}</TableCell>
-                    <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(batch.purchasePrice)}</TableCell>
-                    <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 pr-4 tabular-nums">{batch.quantity}</TableCell>
+                    {activeTab === "Batch History" ? (
+                      <>
+                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.createdAt)}</TableCell>
+                        <TableCell className="py-3">
+                          <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
+                            {data.batchNumber}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
+                        <TableCell className="text-xs py-3 text-slate-600">{data.supplier || "-"}</TableCell>
+                        <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(data.purchasePrice)}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                      </>
+                    ) : (
+                      <>
+                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.date)}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.unitPrice)}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.total)}</TableCell>
+                      </>
+                    )}
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
         </div>
-        {
-          sortedBatches.length > ITEMS_PER_PAGE && (
-            <div className="flex items-center justify-end space-x-2 py-4">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrevPage}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                <Button
-                  key={page}
-                  variant={currentPage === page ? "default" : "outline"}
-                  size="sm"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    setCurrentPage(page);
-                  }}
-                  className="w-8 h-8 p-0"
-                >
-                  {page}
-                </Button>
-              ))}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNextPage}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          )
-        }
-      </div >
+        <div className="px-4">
+          <PaginationBar
+            page={pagination.page}
+            limit={pagination.limit}
+            total={sortedData.length}
+            setFilter={setPagination as any}
+          />
+        </div>
+
+      </div>
 
       {/* Actions */}
       < div className="flex gap-3 pt-4 border-t mt-2" >

@@ -21,6 +21,7 @@ import { formatINR } from "@/lib/fNumber";
 // ------------------ Types ------------------
 interface Medicine {
   name: string;
+  medicineName: string;
   dosage: string;
   frequency: string;
   food: string;
@@ -56,8 +57,10 @@ export default function PrescriptionCard({
       items: [
         ...prev.items,
         {
+          rowId: Date.now().toString(),
           dosage: "1 tab",
           name: "",
+          medicineName: "",
           duration: "",
           food: "After food",
           frequency: "",
@@ -95,10 +98,10 @@ export default function PrescriptionCard({
     addMedicineRow();
   };
 
-  const removeMedicineRow = (idx: number) => {
+  const removeMedicineRow = (rowId: string) => {
     setData((prev) => ({
       ...prev,
-      items: prev.items.filter((_, i) => i !== idx),
+      items: prev.items.filter((item) => item.rowId !== rowId),
     }));
   };
 
@@ -106,35 +109,39 @@ export default function PrescriptionCard({
 
   return (
 
-    <div className="border rounded-xl p-4  max-h-[50vh] overflow-y-auto overflow-x-hidden">
-      <div className="flex flex-col gap-3 min-w-[800px]">
+    <div className="border rounded-xl bg-white shadow-sm max-h-[50vh] overflow-y-auto overflow-x-hidden">
+      <div className="flex flex-col min-w-[900px]">
         <div
-          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-8"}
-            } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
+          className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
+            } gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}
         >
-          <div className="col-span-3">Drug</div>
+          <div className="col-span-1 flex items-center justify-center">Sl</div>
+          <div className="col-span-2">Drug</div>
           {showAllFields && (
             <>
               <div className="col-span-1">Dosage</div>
-              <div className="col-span-1">Frequency</div>
+              <div className="col-span-1">Freq</div>
               <div className="col-span-1">Food</div>
-              <div className="col-span-1">Duration</div>
+              <div className="col-span-1">Dur</div>
             </>
           )}
-          <div className="col-span-1">Available</div>
-          <div className="col-span-1">Quantity</div>
+          <div className="col-span-1">Avail</div>
+          <div className="col-span-1">Qty</div>
           <div className="col-span-1">Price</div>
           <div className="col-span-1">Total</div>
-          <div className="col-span-1 text-right">Actions</div>
+          <div className="col-span-1 text-right pr-2">Act</div>
         </div>
 
         {data.items.map((m, i) => (
           <div
-            key={i}
-            className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-8"
-              } gap-2 mt-2 items-start`}
+            key={m.rowId}
+            className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
+              } gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
           >
-            <div className="col-span-3">
+            <div className="col-span-1 flex items-center justify-center text-slate-400 text-[11px] font-medium">
+              {i + 1}
+            </div>
+            <div className="col-span-2">
               <Medicine
                 i={i}
                 m={m}
@@ -182,7 +189,7 @@ export default function PrescriptionCard({
                       "0-0-1",
                       "SOS",
                     ]}
-                    label="Frequency"
+                    label="Freq"
                     value={m.frequency}
                     onChange={(e) => updateField(i, "frequency", e)}
                     onKeyDown={(e) => {
@@ -219,7 +226,7 @@ export default function PrescriptionCard({
                       "14 days",
                       "28 days",
                     ]}
-                    label="Duration"
+                    label="Dur"
                     value={m.duration}
                     onChange={(e) => updateField(i, "duration", e)}
                     onKeyDown={(e) => {
@@ -230,17 +237,12 @@ export default function PrescriptionCard({
               </>
             )}
             <div className="col-span-1">
-              <div className="relative w-full">
-                <input
-                  placeholder="0"
-                  disabled
-                  className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
-                  value={m.availableQuantity || 0}
-                />
-                <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
-                  Available
-                </label>
-              </div>
+              <input
+                placeholder="0"
+                disabled
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-sm outline-none text-slate-500 font-medium"
+                value={m.availableQuantity || 0}
+              />
             </div>
             <div className="col-span-1">
               <QuantityInput
@@ -262,37 +264,29 @@ export default function PrescriptionCard({
             </div>
 
             <div className="col-span-1">
-              <div className="relative w-full">
-                <input
-                  placeholder="0"
-                  disabled
-                  className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
-                  value={m.unitPrice === 0 ? "" : m.unitPrice}
-                />
-                <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
-                  Price
-                </label>
-              </div>
+              <input
+                placeholder="0.00"
+                disabled
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-sm outline-none text-slate-500 font-medium text-right"
+                value={m.unitPrice === 0 ? "" : m.unitPrice.toFixed(2)}
+              />
             </div>
 
             <div className="col-span-1">
-              <div className="relative w-full">
-                <input
-                  placeholder="0"
-                  disabled
-                  className="peer w-full rounded-xl border border-slate-200 bg-slate-50 px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent"
-                  value={m.unitPrice * m.quantity === 0 ? "" : m.unitPrice * m.quantity}
-                />
-                <label className="absolute left-3 top-2 text-[10px] font-bold text-slate-500 uppercase tracking-tight transition-all">
-                  Total
-                </label>
-              </div>
+              <input
+                placeholder="0.00"
+                disabled
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-sm outline-none text-slate-500 font-bold text-right"
+                value={m.unitPrice * m.quantity === 0 ? "" : (m.unitPrice * m.quantity).toFixed(2)}
+              />
             </div>
 
-            <div className="col-span-1 flex justify-end gap-2">
+            <div className="col-span-1 flex justify-end">
               <Button
-                className="bg-red-600! hover:bg-red-700! text-white border-red-600!"
-                onClick={() => removeMedicineRow(i)}
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                onClick={() => removeMedicineRow(m.rowId)}
                 title="Remove medicine"
               >
                 <Trash className="w-4 h-4" />
@@ -301,91 +295,82 @@ export default function PrescriptionCard({
           </div>
         ))}
       </div>
-      <div className="mt-4 flex gap-3">
-        <Button
-          onClick={addMedicineRow}
-          className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
+      <div className="p-4 bg-slate-50/50 border-t space-y-2">
+        <div className="flex gap-3 mb-2">
+          <Button
+            onClick={addMedicineRow}
+            size="sm"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md h-8"
+          >
+            + Add Medicine
+          </Button>
+        </div>
+
+        <div
+          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+            } gap-2 text-[11px] uppercase tracking-wide text-slate-500`}
         >
-          + Add Medicine
-        </Button>
-      </div>
+          <div
+            className={`${showAllFields ? "col-span-8" : "col-span-3"}`}
+          ></div>
+          <div className="text-right flex items-center justify-end h-full">
+            <p className="h-min">Discount %</p>
+          </div>
+          <div className="relative w-full">
+            <input
+              placeholder="0"
+              type="number"
+              inputMode={"numeric"}
+              className={`peer w-full rounded-md border border-slate-200 bg-white px-3 h-8 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100`}
+              onChange={(e) => {
+                const pct = parseFloat(e.target.value) || 0;
+                const amt = (pct / 100) * subTotal;
+                setData({ ...data, discount: amt });
+              }}
+              value={
+                subTotal && data.discount
+                  ? parseFloat(((data.discount / subTotal) * 100).toFixed(2))
+                  : ""
+              }
+            />
+          </div>
 
-      <div
-        className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
-          } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
-      >
+          <div className="text-right flex items-center justify-end h-full">
+            <p className="h-min">Discount ₹</p>
+          </div>
+          <div className="relative w-full">
+            <input
+              placeholder="0"
+              type="number"
+              inputMode={"numeric"}
+              className={`peer w-full rounded-md border border-slate-200 bg-white px-3 h-8 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100`}
+              onChange={(e) => setData({ ...data, discount: Number(e.target.value) })}
+              value={data.discount === 0 ? "" : parseFloat(data.discount.toFixed(2))}
+            />
+          </div>
+        </div>
+
         <div
-          className={`${showAllFields ? "col-span-8" : "col-span-3"}`}
-        ></div>
-        <div className="text-right flex items-center justify-end h-full">
-          <p className="h-min">
-            Discount %
-          </p>
-        </div>
-        <div className="relative w-full">
-          <input
-            placeholder="0"
-            type="number"
-            inputMode={"numeric"}
-            className={`peer w-full rounded-md border border-slate-200 bg-white px-3 h-8 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
-            onChange={(e) => {
-              const pct = parseFloat(e.target.value) || 0;
-              const amt = (pct / 100) * subTotal;
-              setData({ ...data, discount: amt });
-            }}
-            value={
-              subTotal && data.discount
-                ? parseFloat(((data.discount / subTotal) * 100).toFixed(2))
-                : ""
-            }
-            onFocus={(e) => (e.target.placeholder = "")}
-            onBlur={(e) => {
-              e.target.placeholder = "0";
-            }}
-          />
+          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+            } gap-2 text-[11px] uppercase tracking-wide text-slate-500`}
+        >
+          <div
+            className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
+          ></div>
+          <div className="text-right">Sub Total</div>
+          <div className="text-right font-medium">{formatINR(subTotal)}</div>
         </div>
 
-        <div className="text-right flex items-center justify-end h-full">
-          <p className="h-min">
-            Discount ₹
-          </p>
-        </div>
-        <div className="relative w-full">
-          <input
-            placeholder="0"
-            type="number"
-            inputMode={"numeric"}
-            className={`peer w-full rounded-md border border-slate-200 bg-white px-3 h-8 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100`}
-            onChange={(e) => setData({ ...data, discount: Number(e.target.value) })}
-            value={data.discount === 0 ? "" : parseFloat(data.discount.toFixed(2))}
-            onFocus={(e) => (e.target.placeholder = "")}
-            onBlur={(e) => {
-              e.target.placeholder = "0";
-            }}
-          />
-        </div>
-      </div>
-
-      <div
-        className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
-          } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
-      >
         <div
-          className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
-        ></div>
-        <div className="text-right">Sub Total</div>
-        <div className="text-right">{formatINR(subTotal)}</div>
-      </div>
-
-      <div
-        className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
-          } gap-2 text-[11px] uppercase tracking-wide text-slate-500 mt-2`}
-      >
-        <div
-          className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
-        ></div>
-        <div className="text-right font-bold text-[13px]">Grand Total</div>
-        <div className="text-right font-bold text-[13px]">{formatINR(subTotal - data.discount)}</div>
+          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
+            } gap-2 text-[11px] uppercase tracking-wide text-slate-500`}
+        >
+          <div
+            className={`${showAllFields ? "col-span-10" : "col-span-5"}`}
+          ></div>
+          <div className="text-right font-bold text-slate-900 text-sm">Grand Total</div>
+          <div className="text-right font-bold text-emerald-700 text-sm">{formatINR(subTotal - data.discount)}</div>
+        </div>
       </div>
 
     </div>
@@ -438,13 +423,12 @@ const QuantityInput = ({
         (currentOptions.frequency[3] === m.frequency && 1) ||
         (currentOptions.frequency[4] === m.frequency && 1) ||
         0;
-      if (dosage * duration * frequency > m.availableQuantity) {
-        setOpenWarning(true)
-
+      if (dosage * duration * frequency > 0) {
+        if (dosage * duration * frequency > m.availableQuantity) {
+          setOpenWarning(true)
+        }
+        updateField(i, "quantity", Math.ceil(dosage * duration * frequency));
       }
-      updateField(i, "quantity", Math.ceil(dosage * duration * frequency));
-    } else {
-      updateField(i, "quantity", 0);
     }
   }, [m.dosage, m.duration, m.frequency]);
 
@@ -458,11 +442,11 @@ const QuantityInput = ({
           placeholder="0"
           onChange={(e) => {
             const value = Number(e.target.value);
-            updateField(i, "quantity", value ?? 0);
+            updateField(i, "quantity", value || 0);
           }}
           onKeyDown={onKeyDown}
           inputMode={"numeric"}
-          className={`peer w-full rounded-xl border border-slate-200 bg-transparent px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 relative z-20`}
+          className={`peer w-full rounded-md border border-slate-200 bg-white px-2 h-9 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 font-medium`}
           value={m.quantity === 0 ? "" : m.quantity}
           onFocus={(e) => (e.target.placeholder = "")}
           onBlur={(e) => {
@@ -473,9 +457,6 @@ const QuantityInput = ({
             }
           }}
         />
-        <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600 z-10">
-          Quantity
-        </label>
       </div>
       <AlertDialog open={openWarning} onOpenChange={setOpenWarning}>
         <AlertDialogContent>
@@ -518,6 +499,8 @@ type LabeledComboboxProps = {
   inputRef?: React.RefObject<HTMLInputElement>;
 };
 
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+
 function LabeledCombobox({
   label,
   value,
@@ -550,41 +533,51 @@ function LabeledCombobox({
 
   return (
     <div className="relative w-full" ref={containerRef}>
-      <input
-        ref={inputRef}
-        value={text}
-        onChange={(e) => handleChange(e.target.value)}
-        onKeyDown={onKeyDown}
-        onFocus={() => setOpen(true)}
-        onClick={() => setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 120)}
-        placeholder=" "
-        className="peer w-full rounded-xl border border-slate-200 bg-transparent px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 z-20 relative"
-      />
-      <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
-        {label}
-      </label>
-      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
-        ▾
-      </span>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <div className="w-full">
+            <input
+              ref={inputRef}
+              value={text}
+              onChange={(e) => handleChange(e.target.value)}
+              onKeyDown={onKeyDown}
+              onFocus={() => setOpen(true)}
+              onClick={() => setOpen(true)}
+              onBlur={() => setTimeout(() => setOpen(false), 120)}
+              placeholder={label}
+              className="peer w-full rounded-md border border-slate-200 bg-white px-2 h-9 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100 relative"
+            />
+            <span className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 text-[10px]">
+              ▼
+            </span>
+          </div>
+        </PopoverTrigger>
 
-      {open && options.length > 0 && (
-        <div className="absolute left-0 right-0  z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1">
-          {options.map((opt: string) => (
-            <button
-              key={opt}
-              type="button"
-              className="w-full text-left px-2 py-1.5 rounded-lg text-sm bg-white hover:bg-emerald-50 hover:text-emerald-700"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                commit(opt);
-              }}
-            >
-              {opt}
-            </button>
-          ))}
-        </div>
-      )}
+        <PopoverContent
+          onOpenAutoFocus={(e) => e.preventDefault()}
+          className="p-0 border-none shadow-none z-50 mt-1"
+          style={{ width: containerRef.current?.offsetWidth }}
+          align="start"
+        >
+          {options.length > 0 && (
+            <div className="rounded-md border border-slate-200 bg-white shadow-lg max-h-56 overflow-y-auto p-1">
+              {options.map((opt: string) => (
+                <button
+                  key={opt}
+                  type="button"
+                  className="w-full text-left px-2 py-1.5 rounded-md text-sm bg-white hover:bg-emerald-50 hover:text-emerald-700"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    commit(opt);
+                  }}
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+          )}
+        </PopoverContent>
+      </Popover>
     </div>
   );
 }

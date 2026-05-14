@@ -9,10 +9,21 @@ import Link from "next/link";
 import useSWR from "swr";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Printer } from "lucide-react";
 import PharmacyHeader from "../components/PharmacyHeader";
+import React, { useState } from "react";
+import { getDecimal } from "@/lib/fNumber";
+import PrintReceipt from "./PrintReceipt";
 
 export default function ViewBill({ id }: { id: string }) {
+    const [printBill, setPrintBill] = useState<any>(null);
+
+    const handlePrint = (bill: any) => {
+        setPrintBill(bill);
+        setTimeout(() => {
+            window.print();
+        }, 100);
+    };
 
     const { data: billingData } = useSWR<{
         message: string;
@@ -94,12 +105,19 @@ export default function ViewBill({ id }: { id: string }) {
     return (
         <AppShell>
             <div className="flex flex-col items-center p-5 min-h-screen overflow-auto gap-6 print:p-0 print:bg-white">
-                <div className="w-full">
+                <div className="w-full print:hidden">
 
                     <PharmacyHeader
                         title="Invoice Details"
                         subtitle={`Viewing invoice ${billing.mrn}`}
                     >
+                        <button
+                            onClick={() => handlePrint(billing)}
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-colors shadow-sm text-xs font-bold"
+                        >
+                            <Printer className="h-4 w-4" />
+                            Print
+                        </button>
                         <Link
                             href="/dashboard/pharmacy/billing"
                             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-colors shadow-sm text-xs font-bold"
@@ -129,7 +147,7 @@ export default function ViewBill({ id }: { id: string }) {
                     </div>
 
                     {/* BODY */}
-                    <div className="p-10 flex-1 flex flex-col gap-6 text-[13px]">
+                    <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                         {/* PATIENT STRIP - 4 COL COMPACT */}
                         <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
                             <Compact label="Patient" value={billing.patient.name} />
@@ -224,11 +242,42 @@ export default function ViewBill({ id }: { id: string }) {
                             </p>
                         </div>
                         <p className="text-slate-500">
-                            Powered by <span className="font-bold text-slate-300 tracking-tight uppercase">Synapse IT Services LLP</span>
+                            Powered by <span className="font-bold text-slate-300 tracking-tight uppercase">Caresoft Innovations LLP</span>
                         </p>
                     </div>
                 </div>
             </div>
+            {printBill && (
+                <PrintReceipt
+                    payload={{
+                        patient: printBill.patient.name,
+                        items: printBill.items.map((i: any) => ({ ...i, name: i.name })),
+                        cash: printBill.cash,
+                        online: printBill.online,
+                        insurance: printBill.insurance,
+                        discount: printBill.discount,
+                    }}
+                    patient={{
+                        name: printBill.patient.name,
+                        mrn: printBill.patient.mrn,
+                    }}
+                    invoiceDetails={{
+                        prefix: "MINV",
+                        roundOffAmount: printBill.roundOff
+                            ? getDecimal(printBill.items.reduce((a: any, b: any) => a + b.total, 0))
+                            : 0,
+                        subtotal: printBill.items.reduce(
+                            (a: any, b: any) => a + b.unitPrice * b.quantity,
+                            0
+                        ),
+                        totalGst: printBill.items.reduce(
+                            (a: any, b: any) => a + (b.total - b.unitPrice * b.quantity),
+                            0
+                        ),
+                        grandTotal: printBill.items.reduce((a: any, b: any) => a + b.total, 0),
+                    }}
+                />
+            )}
             <Watermark />
         </AppShell>
     );

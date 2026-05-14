@@ -62,7 +62,7 @@ export default function PurchaseOrdersListPage() {
   return (
     <AppShell>
       <TooltipProvider>
-        <div className="flex flex-col gap-6 p-5 min-h-[calc(100vh-80px)]">
+        <div className="flex flex-col gap-6 p-5 min-h-[calc(100vh-67px)]">
           <PharmacyHeader
             title="Purchase Orders"
             subtitle="Track, manage, and create purchase orders to wholesalers"

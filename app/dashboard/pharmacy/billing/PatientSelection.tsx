@@ -35,14 +35,14 @@ interface Props {
 }
 
 const MIN_QUERY_LEN = 2;
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 100;
 const DEBOUNCE_MS = 250;
 
 const PatientSelection: React.FC<Props> = ({ setValue, value, orderPatient, onSelectPatient }) => {
   const [input, setInput] = useState("");
   useEffect(() => {
     if (orderPatient) {
-      setInput(orderPatient.name + " - " + "(" + orderPatient.mrn + ")");
+      setInput(`${orderPatient.name}${orderPatient.mrn ? ` - (${orderPatient.mrn})` : ""}`);
     }
   }, [orderPatient]);
   const [open, setOpen] = useState(false);
@@ -324,7 +324,7 @@ const safeAge = (dob?: string | Date) => {
   try {
     const d = typeof dob === "string" ? new Date(dob) : dob;
     if (Number.isNaN(d.getTime())) return "—";
-    return `${fAge(d)} yrs`;
+    return `${fAge(d).years}y ${fAge(d).months}m`;
   } catch {
     return "—";
   }

@@ -13,6 +13,7 @@ interface BillSummaryProps {
     totalPaid: number;
     dueAmount: number;
     payload: any;
+    saveBill: () => void;
     generateBill: () => void;
     onPrint: () => void;
     downloadPdf: () => void;
@@ -27,6 +28,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
     totalPaid,
     dueAmount,
     payload,
+    saveBill,
     generateBill,
     onPrint,
     downloadPdf,
@@ -91,12 +93,21 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
 
             <div className="mt-4 grid grid-cols-2 gap-3">
                 <PrimaryButton
-                    className="col-span-full h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
-                    onClick={() => handleAction(generateBill)}
+                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
+                    onClick={() => handleAction(saveBill)}
                 >
                     <div className="flex items-center justify-center gap-2">
                         <FilePlus2 className="h-5 w-5" />
-                        Generate Invoice
+                        Generate & Save Invoice
+                    </div>
+                </PrimaryButton>
+                <PrimaryButton
+                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
+                    onClick={() => handleAction(generateBill)}
+                >
+                    <div className="flex items-center justify-center gap-2">
+                        <Printer className="h-5 w-5" />
+                        Generate & Print Invoice
                     </div>
                 </PrimaryButton>
                 <button

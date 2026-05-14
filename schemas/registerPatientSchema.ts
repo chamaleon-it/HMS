@@ -27,13 +27,23 @@ export const registerPatientSchema = z.object({
 
   doctor: z.string().trim().min(1, "Select a doctor."),
 
-  gender: z.enum(["Male", "Female", "Other", "Prefer not to say"]),
+  gender: z.enum(["Male", "Female", "Other"], {
+    message: "Gender is mandatory",
+  }),
 
-  dateOfBirth: z.string(),
+  dateOfBirth: z.string().optional().or(z.literal("")),
+  age: z.union([z.string(), z.number()]).optional(),
+
+  month: z.union([z.string(), z.number()]).optional(),
 
   conditions: z.array(z.string().max(100)).optional(),
 
   blood: z.enum([...BLOOD_GROUPS]).optional(),
+
+  weight: z.union([z.literal(""), z.coerce.number()])
+    .nullable()
+    .optional()
+    .transform((val) => (val === "" ? null : val)),
 
   allergies: z.string().max(500).optional(),
 
@@ -58,6 +68,8 @@ export const registerPatientSchema = z.object({
     }),
 
   address: z.string().max(500).optional(),
+  address_line1: z.string().optional(),
+  city: z.string().optional(),
 
   guardian: z.string().max(100).optional(),
 
@@ -81,5 +93,6 @@ export const registerPatientSchema = z.object({
 });
 
 export type RegisterPatientInput = z.infer<typeof registerPatientSchema>;
+export type RegisterPatientSchema = z.input<typeof registerPatientSchema>;
 
 export default registerPatientSchema;

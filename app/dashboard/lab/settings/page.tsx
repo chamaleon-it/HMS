@@ -34,11 +34,7 @@ const LabSettingsPage: React.FC = () => {
           subtitle="Manage your profile, specialization, and security"
           icon={<Shield className="h-5 w-5" />}
         >
-          <div className="hidden md:flex items-center gap-2">
-            <Badge className="bg-emerald-600 text-white">Mark Hospital</Badge>
-            <Badge variant="secondary">HIPAA-ready</Badge>
-            <Badge variant="outline">ISO 27001-minded</Badge>
-          </div>
+
         </LabHeader>
       </div>
       <div className="p-5 w-full">
