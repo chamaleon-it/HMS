@@ -20,8 +20,10 @@ import { Trash2, AlertCircle } from "lucide-react";
 export const LabDraftManager: React.FC = () => {
   const { drafts, removeDraft, updateDraft, bringToFront, activeDraftId, draftToDelete, setDraftToDelete } = useLabDrafts();
   const [registerData, setRegisterData] = useState<{ name: string; draftId: string } | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleRegister = (e: any) => setRegisterData(e.detail);
     window.addEventListener('open-lab-register-patient', handleRegister);
     return () => window.removeEventListener('open-lab-register-patient', handleRegister);
@@ -29,7 +31,7 @@ export const LabDraftManager: React.FC = () => {
 
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  if (typeof window === 'undefined') return null;
+  if (!mounted) return null;
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none z-40">
