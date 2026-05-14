@@ -129,11 +129,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   }, [patient]);
 
   const createEditPatient = handleSubmit(async (data) => {
-    if (!data.weight || Number(data.weight) <= 0) {
-      setError("weight", { type: "manual", message: "Weight is mandatory" });
-      return;
-    }
-
     try {
       if (patient?._id) {
         await toast.promise(api.patch(`/patients/${patient._id}`, data), {
