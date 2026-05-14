@@ -30,6 +30,8 @@ interface LabDraftContextType {
   removeDraft: (id: string) => void;
   bringToFront: (id: string) => void;
   activeDraftId: string | null;
+  draftToDelete: string | null;
+  setDraftToDelete: (id: string | null) => void;
 }
 
 const LabDraftContext = createContext<LabDraftContextType | undefined>(undefined);
@@ -37,6 +39,7 @@ const LabDraftContext = createContext<LabDraftContextType | undefined>(undefined
 export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: string }> = ({ children, userId }) => {
   const [drafts, setDrafts] = useState<LabDraft[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
+  const [draftToDelete, setDraftToDelete] = useState<string | null>(null);
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -117,7 +120,7 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
   };
 
   return (
-    <LabDraftContext.Provider value={{ drafts, addDraft, updateDraft, removeDraft, bringToFront, activeDraftId }}>
+    <LabDraftContext.Provider value={{ drafts, addDraft, updateDraft, removeDraft, bringToFront, activeDraftId, draftToDelete, setDraftToDelete }}>
       {children}
     </LabDraftContext.Provider>
   );

@@ -72,6 +72,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
     batchNumber: useRef<HTMLInputElement>(null),
     rackLocation: useRef<HTMLInputElement>(null),
     packing: useRef<HTMLInputElement>(null),
+    noOfPacking: useRef<HTMLInputElement>(null),
     hsnCode: useRef<HTMLInputElement>(null),
     sku: useRef<HTMLInputElement>(null),
     category: useRef<HTMLButtonElement>(null),
@@ -213,7 +214,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
               register("packing").ref(e);
               refs.packing.current = e;
             }}
-            onKeyDown={(e) => handleKeyDown(e, refs.mrp)}
+            onKeyDown={(e) => handleKeyDown(e, refs.noOfPacking)}
           />
           {errors.packing && (
             <p className="text-xs text-red-600 my-1">
@@ -222,7 +223,29 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
           )}
         </div>
 
-
+        <div>
+          <label className="text-[12px] text-gray-600 font-medium">
+            Strip Count
+          </label>
+          <Input
+            className="mt-1"
+            placeholder="e.g. 5 or 10"
+            type="number"
+            min={1}
+            {...register("noOfPacking")}
+            ref={(e) => {
+              register("noOfPacking").ref(e);
+              refs.noOfPacking.current = e;
+            }}
+            onChange={(e) => {
+              const noOfPacking = Number(e.target.value) || 0;
+              const packing = Number(values.packing) || 0;
+              setValue("noOfPacking", noOfPacking);
+              setValue("openingStockQuantity", packing * noOfPacking);
+            }}
+            onKeyDown={(e) => handleKeyDown(e, refs.mrp)}
+          />
+        </div>
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">

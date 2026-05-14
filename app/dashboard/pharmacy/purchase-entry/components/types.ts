@@ -4,6 +4,7 @@ export interface BulkUpdateItem {
     batch: string;
     qty: number;
     pack: number; // Changed from number to string based on usage in BulkUpdateTable
+    noOfPack: number;
     unitPrice: number;
     expiryDate: string;
     purchasePrice: number;

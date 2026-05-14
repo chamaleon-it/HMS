@@ -144,7 +144,14 @@ export default function OrderTable({
               name: string;
               unitPrice: number;
               _id: string;
+              genericName?: string;
+              manufacturer?: string;
+              hsnCode?: string;
+              batchNumber?: string;
+              expiryDate?: string | Date;
             };
+            batchNumber?: string;
+            expiryDate?: string | Date;
           }[];
           mrn: string;
           patient: {
@@ -174,6 +181,10 @@ export default function OrderTable({
         return {
           gst: itemGst,
           name: e.name.name,
+          generic: e.name.genericName,
+          manufacturer: e.name.manufacturer,
+          batchNumber: e.batchNumber || e.name.batchNumber,
+          expiryDate: e.expiryDate || e.name.expiryDate,
           quantity,
           unitPrice,
           total: Math.round((basePrice + gstAmount) * 100) / 100,

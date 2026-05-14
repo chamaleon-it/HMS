@@ -233,7 +233,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2 relative">
-            <Label>Phone </Label>
+            <Label>Phone *</Label>
             <Input
               placeholder="+91"
               {...register("phoneNumber")}
@@ -356,65 +356,72 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label>Age (Years)</Label>
-              <Input
-                {...register("age")}
-                ref={mergeRefs(refs.age, register("age").ref)}
-                type="number"
-                placeholder="0"
-                onKeyDown={(e) => handleKeyDown(e, refs.month)}
-                onChange={(e) => {
-                  const ageValue = e.target.value;
-                  const monthValue = values.month || "0";
-                  setValue("age", ageValue);
+          <div className="">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label>Age (Years) *</Label>
+                <Input
+                  {...register("age")}
+                  ref={mergeRefs(refs.age, register("age").ref)}
+                  type="number"
+                  placeholder="0"
+                  onKeyDown={(e) => handleKeyDown(e, refs.month)}
+                  onChange={(e) => {
+                    const ageValue = e.target.value;
+                    const monthValue = values.month || "0";
+                    setValue("age", ageValue);
 
-                  if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
-                    const today = new Date();
-                    const estimatedDob = new Date(
-                      today.getFullYear() - Number(ageValue || 0),
-                      today.getMonth() - Number(monthValue || 0),
-                      today.getDate()
-                    );
-                    setValue("dateOfBirth", estimatedDob.toISOString());
-                    setDobSetFromAge(true);
-                  } else {
-                    setValue("dateOfBirth", "");
-                    setDobSetFromAge(false);
-                  }
-                }}
-              />
-            </div>
-            <div className="grid gap-2">
-              <Label>Months</Label>
-              <Input
-                {...register("month")}
-                ref={mergeRefs(refs.month, register("month").ref)}
-                type="number"
-                placeholder="0"
-                onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
-                onChange={(e) => {
-                  const monthValue = e.target.value;
-                  const ageValue = values.age || "0";
-                  setValue("month", monthValue);
+                    if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                      const today = new Date();
+                      const estimatedDob = new Date(
+                        today.getFullYear() - Number(ageValue || 0),
+                        today.getMonth() - Number(monthValue || 0),
+                        today.getDate()
+                      );
+                      setValue("dateOfBirth", estimatedDob.toISOString());
+                      setDobSetFromAge(true);
+                    } else {
+                      setValue("dateOfBirth", "");
+                      setDobSetFromAge(false);
+                    }
+                  }}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>Months</Label>
+                <Input
+                  {...register("month")}
+                  ref={mergeRefs(refs.month, register("month").ref)}
+                  type="number"
+                  placeholder="0"
+                  onKeyDown={(e) => handleKeyDown(e, refs.allergies)}
+                  onChange={(e) => {
+                    const monthValue = e.target.value;
+                    const ageValue = values.age || "0";
+                    setValue("month", monthValue);
 
-                  if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
-                    const today = new Date();
-                    const estimatedDob = new Date(
-                      today.getFullYear() - Number(ageValue || 0),
-                      today.getMonth() - Number(monthValue || 0),
-                      today.getDate()
-                    );
-                    setValue("dateOfBirth", estimatedDob.toISOString());
-                    setDobSetFromAge(true);
-                  } else {
-                    setValue("dateOfBirth", "");
-                    setDobSetFromAge(false);
-                  }
-                }}
-              />
+                    if ((ageValue && Number(ageValue) > 0) || (monthValue && Number(monthValue) > 0)) {
+                      const today = new Date();
+                      const estimatedDob = new Date(
+                        today.getFullYear() - Number(ageValue || 0),
+                        today.getMonth() - Number(monthValue || 0),
+                        today.getDate()
+                      );
+                      setValue("dateOfBirth", estimatedDob.toISOString());
+                      setDobSetFromAge(true);
+                    } else {
+                      setValue("dateOfBirth", "");
+                      setDobSetFromAge(false);
+                    }
+                  }}
+                />
+              </div>
             </div>
+            {errors.age && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.age.message}
+              </p>
+            )}
           </div>
 
           <div className="grid gap-2">
@@ -497,7 +504,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             )}
           </div>
 
-          <Address setValue={setValue} refs={refs.addressDetails} />
+          <Address setValue={setValue} refs={refs.addressDetails} errors={errors} />
         </div>
       </section>
 

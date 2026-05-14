@@ -5,7 +5,7 @@ import ViewResultModal from "./ViewResultModal";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, Trash2, X } from "lucide-react";
+import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, X } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
@@ -26,6 +26,9 @@ import {
 import useGetPanels from "@/data/useGetPanels";
 import ReportCardModern from "./ReportCardModern";
 import useSWR from "swr";
+import { useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
+import { Eye, Trash2, FileEdit } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
   const [timeLeft, setTimeLeft] = React.useState(5);
@@ -52,7 +55,7 @@ const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
 };
 
 interface PropsTypes {
-  status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted";
+  status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft";
   mutate: () => void;
   autoGenerateSampleId?: boolean;
   REPORT: {
@@ -132,6 +135,7 @@ interface PropsTypes {
 }
 
 export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId }: PropsTypes) {
+  const { updateDraft, removeDraft } = useLabDrafts();
   const { user } = useAuth();
   const { panels } = useGetPanels();
   const [printReport, setPrintReport] = React.useState<any | null>(null);
@@ -155,17 +159,17 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
         <thead className="bg-slate-700 hover:bg-slate-700">
           <tr className="bg-slate-700 hover:bg-slate-700 border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
             {headerCell("SL No.")}
-            {headerCell("Report No.")}
+            {status !== "Draft" && headerCell("Report No.")}
             {headerCell("Patient")}
             {headerCell("Test")}
             {status === "Upcoming" && headerCell("Scheduled Date")}
-            {status !== "Upcoming" && headerCell("Sample Id")}
+            {status !== "Upcoming" && status !== "Draft" && headerCell("Sample Id")}
             {headerCell("Created At")}
             {status === "Completed" && headerCell("Collected At")}
             {status === "Completed" && headerCell("Started At")}
             {status === "Sample Collected" && headerCell("Sample Collected")}
             {status === "Completed" && headerCell("Test Reported At")}
-            {headerCell("Doctor")}
+            { status !== "Draft" && headerCell("Doctor")}
             {/* {headerCell("Status")} */}
             {/* {status === "Completed" && headerCell("Collected Time")} */}
             {status === "Waiting For Result" && headerCell("Estimated Time")}
@@ -218,7 +222,12 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
               return (
                 <tr
                   key={r._id}
-                  className={`group transition-colors duration-200 last:border-0 relative ${expired && r.priority === "Urgent"
+                  onClick={() => {
+                    if (status === "Draft") {
+                      updateDraft(r._id, { isOpen: true, minimized: false });
+                    }
+                  }}
+                  className={`group transition-colors duration-200 last:border-0 relative ${status === "Draft" ? "cursor-pointer" : ""} ${expired && r.priority === "Urgent"
                     ? "bg-orange-100 hover:bg-orange-200/70 border-b-2 border-emerald-500"
                     : expired
                       ? "bg-green-100/80 hover:bg-green-200/60 border-b border-gray-100"
@@ -232,20 +241,20 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {String(idx + 1).padStart(2, "0")}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-500">
+                  { status !== "Draft" && <td className="px-3 py-2 text-sm text-gray-500">
                     {String(r.mrn).padStart(4, "0")}
-                  </td>
+                  </td>}
                   <td className="px-3 py-2">
                     <div className="flex flex-col">
                       <span className="font-semibold text-gray-900 text-sm">
                         {r?.patient?.name}
                       </span>
-                      <span className="text-xs text-gray-500 mt-0.5">
+                      { status !== "Draft" && <span className="text-xs text-gray-500 mt-0.5">
                         <span className="font-medium text-gray-600">
                           {r?.patient?.mrn}
                         </span>{" "}
                         • {fAge(r?.patient?.dateOfBirth).years}y {fAge(r?.patient?.dateOfBirth).months}m • {r?.patient?.gender}
-                      </span>
+                      </span>}
                     </div>
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-700">
@@ -282,7 +291,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                     {fDateandTime(r.date)}
                   </td>}
 
-                  {status !== "Upcoming" && (
+                  {status !== "Upcoming" && status !== "Draft" && (
                     <td className="px-3 py-2 text-sm text-gray-500">
                       {r.sampleId}
                     </td>
@@ -321,7 +330,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                     </td>
                   )}
 
-                  <td className="px-3 py-2 text-sm text-gray-600">
+                  { status !== "Draft" && <td className="px-3 py-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
                       {r?.doctor?._id ? (
                         <span
@@ -334,7 +343,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                         <span>Self</span>
                       )}
                     </div>
-                  </td>
+                  </td>}
 
                   {/* <td className="px-3 py-2">
                     <Chip label={r.status} tone={statusTone(r.status)} />
@@ -358,6 +367,42 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                   )}
                   <td className="px-3 py-2 text-right">
                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
+                      {status === "Draft" && (
+                        <div className="flex items-center justify-end gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  updateDraft(r._id, { isOpen: true, minimized: false });
+                                }}
+                                className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Open Draft</p></TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeDraft(r._id);
+                                }}
+                                className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Discard Draft</p></TooltipContent>
+                          </Tooltip>
+                        </div>
+                      )}
                       {status === "Upcoming" && (
                         <SampleCollectionModal
                           reportId={r._id}
@@ -490,7 +535,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
 
                       {status === "Upcoming" && <EditTest report={r} mutate={mutate} />}
 
-                      {status !== "Deleted" && <AlertDialog>
+                      {status !== "Deleted" && status !== "Draft" && <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
                             variant={"outline"}

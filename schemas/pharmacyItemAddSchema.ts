@@ -75,6 +75,11 @@ export const pharmacyItemAddSchema = z.object({
     .int({ error: "Packing must be an integer" })
     .optional(),
 
+  noOfPacking: z.coerce
+    .number({ error: "No. of Packing must be a number" })
+    .int({ error: "No. of Packing must be an integer" })
+    .optional(),
+
   gst: z.coerce
     .number({ error: "GST must be a number" })
     .max(100, { error: "GST cannot be above 100" })
