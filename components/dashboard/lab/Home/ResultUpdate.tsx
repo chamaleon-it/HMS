@@ -210,7 +210,8 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
   // Auto-calculation logic for Lipid Profile and LFT
   useEffect(() => {
     const tests = payload.test;
-    const findTest = (name: string) => tests.find(t => t.name?.name?.trim()?.toLowerCase() === name.toLowerCase());
+    const normalize = (str?: string) => (str || "").replace(/\s+/g, "").toLowerCase();
+    const findTest = (name: string) => tests.find(t => normalize(t.name?.name) === normalize(name));
 
     const tcTest = findTest("total cholesterol");
     const tgTest = findTest("triglyceride");
@@ -228,7 +229,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
     const newTests = [...payload.test];
 
     const updateCalculatedValue = (targetName: string, value: string | number) => {
-      const index = newTests.findIndex(t => t.name?.name?.trim()?.toLowerCase() === targetName.toLowerCase());
+      const index = newTests.findIndex(t => normalize(t.name?.name) === normalize(targetName));
       if (index !== -1) {
         const currentVal = newTests[index].value?.toString();
         const nextVal = value.toString();
@@ -278,11 +279,11 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
       setPayload(prev => ({ ...prev, test: newTests }));
     }
   }, [
-    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "total cholesterol")?.value,
-    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "triglyceride")?.value,
-    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "hdl cholesterol")?.value,
-    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "total proteins")?.value,
-    payload.test.find(t => t.name?.name?.trim()?.toLowerCase() === "serum albumin")?.value,
+    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "totalcholesterol")?.value,
+    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "triglyceride")?.value,
+    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "hdlcholesterol")?.value,
+    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "totalproteins")?.value,
+    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "serumalbumin")?.value,
   ]);
 
 
