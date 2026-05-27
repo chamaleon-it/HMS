@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import useGetPanels from "@/data/useGetPanels";
 import ReportCardModern from "./ReportCardModern";
+import LabBillReceipt from "./LabBillReceipt";
 import useSWR from "swr";
 import { useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
 import { Eye, Trash2, FileEdit } from "lucide-react";
@@ -139,12 +140,21 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
   const { user } = useAuth();
   const { panels } = useGetPanels();
   const [printReport, setPrintReport] = React.useState<any | null>(null);
+  const [printBillReport, setPrintBillReport] = React.useState<any | null>(null);
 
   const handlePrint = (report: any) => {
     setPrintReport(report);
     setTimeout(() => {
       window.print();
       setPrintReport(null);
+    }, 100);
+  };
+
+  const handlePrintBill = (report: any) => {
+    setPrintBillReport(report);
+    setTimeout(() => {
+      window.print();
+      setPrintBillReport(null);
     }, 100);
   };
 
@@ -517,6 +527,16 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                         Report
                       </Button>}
 
+                      {status !== "Draft" && status !== "Deleted" && <Button
+                        variant={"outline"}
+                        size="sm"
+                        className="gap-2 h-8 text-xs text-teal-700 border-teal-200 hover:bg-teal-50 hover:text-teal-800 bg-white"
+                        onClick={() => handlePrintBill(r)}
+                      >
+                        <Printer className="h-3.5 w-3.5" />
+                        Bill
+                      </Button>}
+
                       {(status === "Completed" || status === "Flagged") && <ViewResultModal r={r} />}
 
                       {status === "Flagged" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
@@ -643,6 +663,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
         </tbody>
       </table>
       {printReport && reportLayout === "Classic" ? <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} /> : <ReportCardModern report={printReport} panels={panels} panelPerPage={panelPerPage} />}
+      <LabBillReceipt report={printBillReport} panels={panels} />
     </div>
   );
 }
