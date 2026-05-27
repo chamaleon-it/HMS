@@ -10,9 +10,9 @@ export default function HospitalName() {
             <div className="flex flex-col gap-0.5">
                 <h1 className="text-xl font-bold tracking-tight">{configuration().hospitalName}</h1>
                 <p className="text-xs opacity-75">{configuration().hospitalAddress}</p>
-                <p className="text-xs opacity-75">DIGIPIN: {configuration().digiPin}</p>
+                {/* <p className="text-xs opacity-75">DIGIPIN: {configuration().digiPin}</p> */}
                 <p className="text-xs opacity-75">Tel: {configuration().hospitalPhone}</p>
-                <p className="text-xs opacity-75">Email: {configuration().hospitalEmail}</p>
+                {/* <p className="text-xs opacity-75">Email: {configuration().hospitalEmail}</p> */}
             </div>
         </div>
     )

@@ -139,7 +139,7 @@ export default function PrintReceipt({
                     <div className="flex gap-3 items-center">
                         <div className="shrink-0 flex items-center justify-center">
 
-                            <img src="/print/logo.png" alt="Logo" className="w-[90px] h-auto object-contain" />
+                            <img src="/print/image.png" alt="Logo" className="w-[90px] h-auto object-contain" />
                         
                         </div>
                         <div className="flex flex-col gap-0 select-none">
@@ -187,7 +187,7 @@ export default function PrintReceipt({
                     {/* Watermark */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0 select-none">
                         
-                        <img src="/print/logo.png" alt="watermark" className="w-[70%] object-contain" />
+                        <img src="/print/image.png" alt="watermark" className="w-[70%] object-contain" />
                     
                     </div>
 

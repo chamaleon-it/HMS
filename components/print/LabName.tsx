@@ -12,7 +12,7 @@ export default function LabName() {
                 <p className="text-xs opacity-75">{configuration().hospitalAddress}</p>
                 {/* <p className="text-xs opacity-75">DIGIPIN: MC9-955-6T2F</p> */}
                 <p className="text-xs opacity-75">Tel: {configuration().hospitalPhone}</p>
-                <p className="text-xs opacity-75">Email: {configuration().hospitalEmail}</p>
+                {/* <p className="text-xs opacity-75">Email: {configuration().hospitalEmail}</p> */}
             </div>
         </div>
     )
