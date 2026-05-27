@@ -7,12 +7,15 @@ import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import { Download, Printer } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useState } from "react";
 import configuration from "@/config/configuration";
 import useSWR from "swr";
+import LabBillReceipt from "@/components/dashboard/lab/Home/LabBillReceipt";
+
 function InvoiceViewContent() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id");
+  const [printBill, setPrintBill] = useState<any | null>(null);
 
   const { data: billingData } = useSWR<{
     message: string;
@@ -254,14 +257,24 @@ function InvoiceViewContent() {
             </p>
             <div className="h-10 mt-4 border-b border-gray-400 w-48"></div>
           </div>
-          {/* <div className="text-right">
-            <Button variant="outline" size="sm" className="mr-2">
+          <div className="text-right">
+            <Button
+              variant="outline"
+              size="sm"
+              className="mr-2"
+              onClick={() => {
+                if (billing) {
+                  setPrintBill(billing);
+                  setTimeout(() => {
+                    window.print();
+                    setPrintBill(null);
+                  }, 100);
+                }
+              }}
+            >
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>
-            <Button variant="outline" size="sm">
-              <Download className="w-4 h-4 mr-1" /> PDF
-            </Button>
-          </div> */}
+          </div>
         </div>
         <Separator /> {/* Footer */}
         <div className="relative text-center text-xs text-gray-500 py-6 bg-linear-to-r from-gray-50 to-gray-100">
@@ -282,6 +295,7 @@ function InvoiceViewContent() {
           ></div>
         </div>
       </div>
+      <LabBillReceipt bill={printBill} />
     </AppShell>
   );
 }
