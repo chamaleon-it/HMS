@@ -139,7 +139,9 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       </div>
                     </TableCell>
                     <TableCell className="py-3">
-                      <div className="font-medium truncate text-slate-900">{b.doctor}</div>
+                      <div className="font-medium truncate text-slate-900">
+                        {typeof b.doctor === 'object' ? (b.doctor as any)?.name : b.doctor}
+                      </div>
 
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-slate-700">
@@ -194,11 +196,11 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                             <p>View Bill</p>
                           </TooltipContent>
                         </Tooltip>
-
+ 
                         <Button variant="outline" size="sm" onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5 text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800">
                           <Printer className="h-3.5 w-3.5" /> Print
                         </Button>
-
+ 
                         {b.items.reduce(
                           (sum, i) => sum + i.total,
                           0
@@ -286,7 +288,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
         bill={null} // temporary cast until types align perfectly
         billingMutate={billingMutate}
       />
-
+ 
       {printBill && (
         <PrintReceipt
           payload={{
@@ -296,7 +298,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             online: printBill.online,
             insurance: printBill.insurance,
             discount: printBill.discount,
-            doctor: printBill.doctor === "Self" ? "" : printBill.doctor
+            doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor)
           }}
           patient={{
             name: printBill.patient.name,
