@@ -141,6 +141,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
   const { panels } = useGetPanels();
   const [printReport, setPrintReport] = React.useState<any | null>(null);
   const [printBillReport, setPrintBillReport] = React.useState<any | null>(null);
+  const [printBill, setPrintBill] = React.useState<any | null>(null);
 
   const handlePrint = (report: any) => {
     setPrintReport(report);
@@ -150,7 +151,21 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
     }, 100);
   };
 
-  const handlePrintBill = (report: any) => {
+  const handlePrintBill = async (report: any) => {
+    try {
+      const res = await api.get(`/billing/report/${report._id}`);
+      if (res.data?.data) {
+        setPrintBill(res.data.data);
+        setTimeout(() => {
+          window.print();
+          setPrintBill(null);
+        }, 100);
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to fetch bill by report id, falling back to calculation", err);
+    }
+
     setPrintBillReport(report);
     setTimeout(() => {
       window.print();
@@ -179,7 +194,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
             {status === "Completed" && headerCell("Started At")}
             {status === "Sample Collected" && headerCell("Sample Collected")}
             {status === "Completed" && headerCell("Test Reported At")}
-            { status !== "Draft" && headerCell("Doctor")}
+            {status !== "Draft" && headerCell("Doctor")}
             {/* {headerCell("Status")} */}
             {/* {status === "Completed" && headerCell("Collected Time")} */}
             {status === "Waiting For Result" && headerCell("Estimated Time")}
@@ -251,7 +266,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {String(idx + 1).padStart(2, "0")}
                   </td>
-                  { status !== "Draft" && <td className="px-3 py-2 text-sm text-gray-500">
+                  {status !== "Draft" && <td className="px-3 py-2 text-sm text-gray-500">
                     {String(r.mrn).padStart(4, "0")}
                   </td>}
                   <td className="px-3 py-2">
@@ -259,7 +274,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                       <span className="font-semibold text-gray-900 text-sm">
                         {r?.patient?.name}
                       </span>
-                      { status !== "Draft" && <span className="text-xs text-gray-500 mt-0.5">
+                      {status !== "Draft" && <span className="text-xs text-gray-500 mt-0.5">
                         <span className="font-medium text-gray-600">
                           {r?.patient?.mrn}
                         </span>{" "}
@@ -340,7 +355,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                     </td>
                   )}
 
-                  { status !== "Draft" && <td className="px-3 py-2 text-sm text-gray-600">
+                  {status !== "Draft" && <td className="px-3 py-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
                       {r?.doctor?._id ? (
                         <span
@@ -527,7 +542,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                         Report
                       </Button>}
 
-                      {status !== "Draft" && status !== "Deleted" && <Button
+                      {status === "Completed" && <Button
                         variant={"outline"}
                         size="sm"
                         className="gap-2 h-8 text-xs text-teal-700 border-teal-200 hover:bg-teal-50 hover:text-teal-800 bg-white"
@@ -663,7 +678,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
         </tbody>
       </table>
       {printReport && reportLayout === "Classic" ? <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} /> : <ReportCardModern report={printReport} panels={panels} panelPerPage={panelPerPage} />}
-      <LabBillReceipt report={printBillReport} panels={panels} />
+      <LabBillReceipt report={printBillReport} bill={printBill} panels={panels} />
     </div>
   );
 }

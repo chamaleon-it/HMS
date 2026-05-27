@@ -106,6 +106,7 @@ export default function BillingPage() {
                 billing={billing}
                 filter={filter}
                 setFilter={setFilter}
+                billingMutate={billingMutate}
               />
             </TabsContent>
             <TabsContent value="new">
