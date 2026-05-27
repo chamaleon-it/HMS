@@ -48,7 +48,7 @@ export default function Header() {
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy-wholesaler/billing/" },
     ]) ||
     (user?.role === "Lab" && [
-      { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
+      // { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },
       { key: "tests", label: "Test", childrens: [{ key: "lab", label: "Lab", link: "/dashboard/lab/test/lab/" }, { key: "imaging", label: "Imaging", link: "/dashboard/lab/test/imaging/" }] },
       { key: "inventory", label: "Catalogue", link: "/dashboard/lab/inventory/" },

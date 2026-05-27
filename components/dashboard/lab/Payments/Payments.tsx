@@ -170,6 +170,7 @@ export default function Payments() {
                                     <TableHead>Patient</TableHead>
                                     <TableHead>Date</TableHead>
                                     <TableHead>Mode</TableHead>
+                                    <TableHead>State</TableHead>
                                     <TableHead className="text-right">Amount</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -185,6 +186,11 @@ export default function Payments() {
                                                 {bill.online > 0 && <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">Online</span>}
                                                 {bill.insurance > 0 && <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">Ins</span>}
                                             </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", (bill as any).status === 'Completed' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700")}>
+                                                {(bill as any).status || 'Draft'}
+                                            </span>
                                         </TableCell>
                                         <TableCell className="text-right font-bold text-zinc-700">
                                             ${(bill.cash + bill.online + bill.insurance).toFixed(2)}

@@ -5,53 +5,73 @@ import useGetTest from "@/data/useGetTest";
 import { formatINR } from "@/lib/fNumber";
 
 interface LabBillReceiptProps {
-    report: any | null;
+    report?: any | null;
+    bill?: any | null;
     panels?: { name: string; price: number; tests?: any[] }[];
 }
 
-export default function LabBillReceipt({ report, panels }: LabBillReceiptProps) {
+export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptProps) {
     const [mounted, setMounted] = useState(false);
     const { tests } = useGetTest();
 
     useEffect(() => {
         setMounted(true);
-        if (report?.patient?.name && report?.patient?.mrn) {
+        const name = bill?.patient?.name || report?.patient?.name;
+        const mrn = bill?.patient?.mrn || report?.patient?.mrn;
+        if (name && mrn) {
             const originalTitle = document.title;
-            const pid = report.patient.mrn.replace("MRN", "P-");
+            const pid = mrn.replace("MRN", "P-");
             const timestamp = fDateandTime(new Date());
-            document.title = `${report.patient.name}_${pid}_${timestamp}_Bill`;
+            document.title = `${name}_${pid}_${timestamp}_Bill`;
             return () => {
                 document.title = originalTitle;
             };
         }
-    }, [report]);
+    }, [report, bill]);
 
-    if (!report || !mounted) return null;
+    if ((!report && !bill) || !mounted) return null;
+
+    // Determine values
+    const patient = bill?.patient || report?.patient;
+    const doctorVal = bill?.doctor || report?.doctor;
+    const doctorName = typeof doctorVal === 'object' ? doctorVal?.name : doctorVal;
+    const invoiceNo = bill?.mrn || `LAB-${report?.sampleId || report?.mrn || report?._id.substring(0, 6).toUpperCase()}`;
+    const billDate = bill?.createdAt ? new Date(bill.createdAt) : new Date();
 
     // Calculate items
-    const items: { name: string, total: number }[] = [];
+    let items: { name: string; total: number; gst?: number }[] = [];
+    let subtotal = 0;
+    let totalGst = 0;
+    let grandTotal = 0;
 
-    // Group tests by panels if they belong to a panel
-    const selectedPanels = panels?.filter(p => report.panels?.includes(p.name)) || [];
-    selectedPanels.forEach(p => {
-        items.push({ name: p.name, total: p.price || 0 });
-    });
+    if (bill) {
+        items = bill.items.map((it: any) => ({
+            name: it.name,
+            total: it.total,
+            gst: it.gst
+        }));
+        subtotal = bill.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unitPrice - item.discount), 0);
+        totalGst = bill.items.reduce((sum: number, item: any) => sum + ((item.quantity * item.unitPrice - item.discount) * item.gst) / 100, 0);
+        grandTotal = bill.items.reduce((sum: number, item: any) => sum + item.total, 0);
+    } else {
+        // Group tests by panels if they belong to a panel
+        const selectedPanels = panels?.filter(p => report.panels?.includes(p.name)) || [];
+        selectedPanels.forEach(p => {
+            items.push({ name: p.name, total: p.price || 0, gst: 0 });
+        });
 
-    const panelTests = selectedPanels.flatMap((e: any) => e.tests || []).map((e: any) => e._id);
+        const panelTests = selectedPanels.flatMap((e: any) => e.tests || []).map((e: any) => e._id);
 
-    // Standalone tests
-    report.test?.filter((t: any) => !panelTests.includes(t.name?._id)).forEach((t: any) => {
-        const testDetails = tests.find((test) => test._id === t.name?._id);
-        items.push({ name: t.name?.name || "Test", total: testDetails?.price || 0 });
-    });
+        // Standalone tests
+        report.test?.filter((t: any) => !panelTests.includes(t.name?._id)).forEach((t: any) => {
+            const testDetails = tests.find((test) => test._id === t.name?._id);
+            items.push({ name: t.name?.name || "Test", total: testDetails?.price || 0, gst: 0 });
+        });
 
-    const patient = report.patient;
-    const doctor = report.doctor;
-    const invoiceNo = `LAB-${report.sampleId || report.mrn || report._id.substring(0, 6).toUpperCase()}`;
-
-    const subtotal = items.reduce((a, b) => a + b.total, 0);
-    const totalGst = 0;
-    const grandTotal = subtotal + totalGst;
+        subtotal = items.reduce((a, b) => a + b.total, 0);
+        totalGst = 0;
+        grandTotal = subtotal + totalGst;
+    }
 
     const totalRowsNeeded = 21;
     const itemsCount = items.length;
@@ -101,7 +121,7 @@ export default function LabBillReceipt({ report, panels }: LabBillReceiptProps) 
                     {/* Left: Logo & Hospital Info */}
                     <div className="flex gap-3 items-center">
                         <div className="shrink-0 flex items-center justify-center">
-                            <img src="/print/logo.png" alt="Logo" className="w-[90px] h-auto object-contain" />
+                            <img src="/print/image.png" alt="Logo" className="w-[90px] h-auto object-contain" />
                         </div>
                         <div className="flex flex-col gap-0 select-none">
                             <h1 className="text-[32px] font-bold text-black leading-none tracking-tight uppercase">AR-RAHMA MEDICARE</h1>
@@ -117,7 +137,7 @@ export default function LabBillReceipt({ report, panels }: LabBillReceiptProps) 
                         </div>
                         <div className="text-[12px] text-gray-500 font-medium space-y-0.5 mt-2 italic">
                             <p>Invoice No: <span className="font-bold text-black">{invoiceNo}</span></p>
-                            <p>Date : <span className="font-bold text-black">{fDateandTime(new Date())}</span></p>
+                            <p>Date : <span className="font-bold text-black">{fDateandTime(billDate)}</span></p>
                         </div>
                     </div>
                 </div>
@@ -138,7 +158,7 @@ export default function LabBillReceipt({ report, panels }: LabBillReceiptProps) 
                     </div>
                     <div className="flex flex-col justify-center">
                         <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span>
+                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{doctorName ? `Dr. ${doctorName}` : "Self"}</span>
                     </div>
                 </div>
 
@@ -146,7 +166,7 @@ export default function LabBillReceipt({ report, panels }: LabBillReceiptProps) 
                 <div className="relative border border-[#c5c9cf] rounded-tr-2xl rounded-tl-2xl overflow-hidden w-full mt-3 mb-3 flex-1 flex flex-col">
                     {/* Watermark */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0 select-none">
-                        <img src="/print/logo.png" alt="watermark" className="w-[70%] object-contain" />
+                        <img src="/print/image.png" alt="watermark" className="w-[70%] object-contain" />
                     </div>
 
                     <table className="w-full border-collapse relative z-10 table-layout-fixed">
@@ -166,7 +186,7 @@ export default function LabBillReceipt({ report, panels }: LabBillReceiptProps) 
                                         <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug">
                                             <p className="font-bold text-black text-[12px]">{item.name}</p>
                                         </td>
-                                        <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">0%</td>
+                                        <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{item.gst ?? 0}%</td>
                                         <td className="px-3 py-0.5 text-right font-bold text-black text-[12px]">{formatINR(item.total)}</td>
                                     </tr>
                                 );

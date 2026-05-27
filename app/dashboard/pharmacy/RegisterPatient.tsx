@@ -237,7 +237,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2 relative">
-            <Label>Phone *</Label>
+            <Label>Phone</Label>
             <Input
               placeholder="+91"
               {...register("phoneNumber")}
@@ -294,7 +294,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2">
-            <Label>Date of Birth </Label>
+            <Label>Date of Birth</Label>
 
             <Popover open={openCalander} onOpenChange={setOpenCalander}>
               <PopoverTrigger asChild>
@@ -429,7 +429,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2">
-            <Label>Weight *</Label>
+            <Label>Weight</Label>
             <Input
               {...register("weight")}
               ref={mergeRefs(refs.weight, register("weight").ref)}

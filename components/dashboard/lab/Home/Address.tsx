@@ -57,7 +57,7 @@ export default function Address({
     <>
       <p className="col-span-full font-semibold text-left">Patient Address</p>
       <div className="grid gap-2">
-        <Label>Address Line 1 *</Label>
+        <Label>Address Line 1</Label>
         <Input
           ref={refs.line1}
           placeholder="Address Line 1"
