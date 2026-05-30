@@ -90,6 +90,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
             </svg>
             <style dangerouslySetInnerHTML={{
                 __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
         @media print {
           @page {
             margin: 0;
@@ -106,6 +107,9 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
           }
           * {
               font-family: 'Montserrat', 'Inter', sans-serif !important;
+          }
+          .font-cinzel {
+              font-family: 'Cinzel Decorative', serif !important;
           }
           .print-prescription { 
             visibility: visible !important;
@@ -298,7 +302,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                 <img src={configuration().logo} alt="Logo" className="w-[124px] h-[124px] rounded-full object-contain mix-blend-multiply" />
                                             </div>
                                             <div className="flex flex-col gap-px mt-2 ml-1">
-                                                <h1 className="text-[28px] font-extrabold tracking-tight text-slate-800 uppercase leading-none">{configuration().hospitalName}</h1>
+                                                <h1 className="text-[28px] font-extrabold tracking-tight text-slate-800 uppercase leading-none font-cinzel">{configuration().hospitalName}</h1>
                                                 <p className="text-[11.5px] font-extrabold text-[#6eb269] mt-1 ml-px">{configuration().hospitalAddress}</p>
                                                 <p className="text-[12px] font-bold text-slate-800 ml-px mt-0.5 tracking-wide">DIGIPIN: {configuration().digiPin}</p>
                                             </div>

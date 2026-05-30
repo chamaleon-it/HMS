@@ -2,6 +2,7 @@ import React from "react";
 import { formatINR } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import useSWR from "swr";
+import configuration from "@/config/configuration";
 
 interface PrintReceiptProps {
     payload?: {
@@ -100,6 +101,7 @@ export default function PrintReceipt({
         <div className="print-receipt hidden print:block bg-white text-black font-sans leading-tight overflow-visible relative">
             <style dangerouslySetInnerHTML={{
                 __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
         @media print {
           @page {
             size: A4;
@@ -112,6 +114,9 @@ export default function PrintReceipt({
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+          .font-cinzel {
+            font-family: 'Cinzel Decorative', serif !important;
           }
           .print-receipt { 
             visibility: visible !important;
@@ -143,7 +148,7 @@ export default function PrintReceipt({
                         
                         </div>
                         <div className="flex flex-col gap-0 select-none">
-                            <h1 className="text-[32px] font-bold text-black leading-none tracking-tight uppercase">AR-RAHMA MEDICARE</h1>
+                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
                             <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
                             <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
                             {/*<p className="text-[12px] font-bold text-black uppercase mt-1">DIGIPIN: MC9-955-6F2F</p>*/}

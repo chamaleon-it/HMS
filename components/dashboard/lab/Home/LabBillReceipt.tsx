@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import useGetTest from "@/data/useGetTest";
 import { formatINR } from "@/lib/fNumber";
+import configuration from "@/config/configuration";
 
 interface LabBillReceiptProps {
     report?: any | null;
@@ -81,6 +82,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
         <div className="print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-visible relative flex-col">
             <style dangerouslySetInnerHTML={{
                 __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
         @media print {
           @page {
             size: A4;
@@ -93,6 +95,9 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+          .font-cinzel {
+            font-family: 'Cinzel Decorative', serif !important;
           }
           .print-receipt { 
             visibility: visible !important;
@@ -124,7 +129,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                             <img src="/print/image.png" alt="Logo" className="w-[90px] h-auto object-contain" />
                         </div>
                         <div className="flex flex-col gap-0 select-none">
-                            <h1 className="text-[32px] font-bold text-black leading-none tracking-tight uppercase">AR-RAHMA MEDICARE</h1>
+                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
                             <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
                             <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
                         </div>
