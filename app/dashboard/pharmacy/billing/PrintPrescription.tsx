@@ -75,7 +75,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                             <Info label="Doctor" value={`DR. ${doctor?.name || "—"}`} />
                         </div>
                         <div className="col-span-2 text-right">
-                            <Info label="Dept" value={doctor?.specialization || "ENT"} />
+                            <Info label="Dept" value={doctor?.specialization || "GENERAL MEDICINE"} />
                         </div>
                     </div>
 

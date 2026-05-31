@@ -94,7 +94,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                             <Info label="Doctor" value={doctor?.name ? `DR. ${doctor.name}` : "—"} />
                         </div>
                         <div className="shrink-0">
-                            <Info label="Dept" value={doctor?.specialization || "ENT"} />
+                            <Info label="Dept" value={doctor?.specialization || "GENERAL MEDICINE"} />
                         </div>
                     </div>
 
