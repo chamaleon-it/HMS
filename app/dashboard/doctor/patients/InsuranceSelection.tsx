@@ -14,39 +14,18 @@ import {
 } from "@/components/ui/popover";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FieldErrors, UseFormSetValue } from "react-hook-form";
+import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 import { TopInsuranceCompany } from "./data";
 import { X } from "lucide-react";
-
-interface FormType {
-  name: string;
-  doctor: string;
-  gender: "Male" | "Female" | "Other";
-  dateOfBirth?: string | undefined;
-  mrn?: string | undefined;
-  phoneNumber?: string | undefined;
-  email?: string | undefined;
-  conditions?: string[] | undefined;
-  blood?: string | undefined;
-  allergies?: string | undefined;
-  insurance?: string | undefined;
-  insuranceValidity?: string | undefined;
-  uhid?: string | undefined;
-  emergencyContactNumber?: string | undefined;
-  address?: string | undefined;
-  guardian?: string | undefined;
-  guardianPhoneNumber?: string | undefined;
-  guardianRelation?: string | undefined;
-  notes?: string | undefined;
-}
 
 export default function InsuranceSelection({
   setValue,
   errors,
   values
 }: {
-  setValue: UseFormSetValue<FormType>;
-  errors: FieldErrors<FormType>;
-  values: FormType
+  setValue: UseFormSetValue<RegisterPatientSchema>;
+  errors: FieldErrors<RegisterPatientSchema>;
+  values: RegisterPatientSchema
 }) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");

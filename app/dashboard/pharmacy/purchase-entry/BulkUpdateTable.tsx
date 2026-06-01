@@ -121,6 +121,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             batch: "",
             qty: 0,
             pack: 0,
+            noOfPack: 0,
             unitPrice: 0,
             expiryDate: "",
             purchasePrice: 0,
@@ -144,6 +145,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             prevItems.map((item) => {
                 if (item.id === id) {
                     const updated = { ...item, [field]: value };
+
+                    if (field === "pack" || field === "noOfPack") {
+                        updated.qty = (Number(updated.pack) || 0) * (Number(updated.noOfPack) || 0);
+                    }
 
                     const q = Number(updated.qty) || 0;
                     const r = Number(updated.purchasePrice) || 0;
@@ -304,6 +309,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 qty: 0,
                 schm: 0,
                 pack: 0,
+                noOfPack: 0,
                 unitPrice: 0,
                 expiryDate: "",
                 purchasePrice: 0,
@@ -444,8 +450,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="w-16 text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider border-r border-slate-600/30">SL NO</TableHead>
                                 <TableHead className="min-w-[150px] text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">PRODUCT NAME</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">BATCH</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">QTY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">PACK</TableHead>
+                                {/* <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">STRIP COUNT</TableHead> */}
+                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">QTY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">EXPIRY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">Rate</TableHead>
@@ -504,22 +511,32 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
+                                                data-field="pack"
+                                                className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center"
+                                                value={item.pack || ""}
+                                                onChange={(e) => updateNewItem(item.id, "pack", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "pack")}
+                                            />
+                                        </TableCell>
+                                        {/* <TableCell className="p-2">
+                                            <Input
+                                                type="number"
+                                                data-field="noOfPack"
+                                                className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center"
+                                                value={item.noOfPack || ""}
+                                                onChange={(e) => updateNewItem(item.id, "noOfPack", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "noOfPack")}
+                                            />
+                                        </TableCell> */}
+                                        <TableCell className="p-2">
+                                            <Input
+                                                type="number"
                                                 name="qty"
                                                 data-field="qty"
                                                 className="h-11 text-sm font-semibold border-slate-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-700"
                                                 value={item.qty || ""}
                                                 onChange={(e) => updateNewItem(item.id, "qty", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "qty")}
-                                            />
-                                        </TableCell>
-                                        <TableCell className="p-2">
-                                            <Input
-                                                type="number"
-                                                data-field="pack"
-                                                className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center"
-                                                value={item.pack || ""}
-                                                onChange={(e) => updateNewItem(item.id, "pack", Number(e.target.value))}
-                                                onKeyDown={(e) => handleKeyDown(e, item.id, "pack")}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2">

@@ -18,11 +18,12 @@ import {
 import { Trash2, AlertCircle } from "lucide-react";
 
 export const LabDraftManager: React.FC = () => {
-  const { drafts, removeDraft, updateDraft, bringToFront, activeDraftId } = useLabDrafts();
+  const { drafts, removeDraft, updateDraft, bringToFront, activeDraftId, draftToDelete, setDraftToDelete } = useLabDrafts();
   const [registerData, setRegisterData] = useState<{ name: string; draftId: string } | null>(null);
-  const [draftToDelete, setDraftToDelete] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const handleRegister = (e: any) => setRegisterData(e.detail);
     window.addEventListener('open-lab-register-patient', handleRegister);
     return () => window.removeEventListener('open-lab-register-patient', handleRegister);
@@ -30,11 +31,11 @@ export const LabDraftManager: React.FC = () => {
 
   const containerRef = React.useRef<HTMLDivElement>(null);
 
-  if (typeof window === 'undefined') return null;
+  if (!mounted) return null;
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none z-40">
-      {drafts.map((draft) => (
+      {drafts.filter(d => d.isOpen).map((draft) => (
         <DraggableWindow
           key={draft.id}
           id={draft.id}
@@ -72,7 +73,16 @@ export const LabDraftManager: React.FC = () => {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="mt-4">
-            <AlertDialogCancel>Keep Draft</AlertDialogCancel>
+            <AlertDialogCancel
+              onClick={() => {
+                if (draftToDelete) {
+                  updateDraft(draftToDelete, { isOpen: false });
+                }
+                setDraftToDelete(null);
+              }}
+            className="border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900">
+              Keep Draft
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={() => {
                 if (draftToDelete) {

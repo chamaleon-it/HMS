@@ -241,7 +241,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 Array.from(testMap.values()).forEach((t: any) => {
                     const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
                     if (valStr !== "") {
-                        allRows.push({ type: "TEST", ...t, activePanel: "" });
+                        const testCategory = t.name?.category ? `CATEGORY_${String(t.name.category).trim().toUpperCase()}` : "";
+                        allRows.push({ type: "TEST", ...t, activePanel: testCategory });
                     }
                 });
 
@@ -354,7 +355,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         <div className="grid grid-cols-2 gap-x-8 text-[13px] font-semibold text-black tracking-tight px-2">
                                             <div className="space-y-1">
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Name</span><span className="font-bold text-black uppercase">: {patient?.name || "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${fAge(patient.dateOfBirth).years}y ${fAge(patient.dateOfBirth).months}m` : "—"} / ${patient?.gender || "—"}`}</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? (() => {
+                                                    const age = fAge(patient.dateOfBirth);
+                                                    return `${age.years}Y${age.months > 0 ? ` ${age.months}M` : ""}`;
+                                                })() : "—"} / ${patient?.gender || "—"}`}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Ref. By.</span><span className="font-bold text-black">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
                                             </div>
                                             <div className="space-y-1">
@@ -373,7 +377,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     const activePanelId = firstRow?.activePanel || firstRow?.name;
                                     const activePanelConfig = panels?.find(p => p?.name === activePanelId);
 
-                                    const headingText = activePanelConfig?.mainHeading || "Biochemistry";
+                                    const firstTestRow = pageRows.find(r => r.type === "TEST");
+                                    const categoryText = firstTestRow?.name?.category ? String(firstTestRow.name.category).trim() : "";
+                                    const headingText = activePanelConfig?.mainHeading || categoryText || "Biochemistry";
                                     return isFirstPage && Boolean(headingText) ? (
                                         <div className="w-full text-center pb-2 pt-1">
                                             <p className="font-bold text-black text-[17px] uppercase">
