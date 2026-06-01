@@ -154,14 +154,14 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         updated.qty = Number(qty)
                     }
 
-                    const q = Number(updated.qty) || 0;
+
                     const r = Number(updated.purchasePrice) || 0;
                     const dp = Number(updated.dis_p) || 0;
                     const sp = Number(updated.sgst_p) || 0;
                     const cp = Number(updated.cgst_p) || 0;
                     const sf = Number(updated.schema_free) || 0;
 
-                    const gross = q * r;
+                    const gross = updated.noOfPack * updated.purchasePrice;
                     const discount = gross * (dp / 100);
                     const taxable = gross - discount;
                     const tax = taxable * ((sp + cp) / 100);
@@ -180,7 +180,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
 
     const totals = useMemo(() => {
         return newItems.reduce((acc, item) => {
-            const q = Number(item.qty) || 0;
+            const q = item.noOfPack;
             const r = Number(item.purchasePrice) || 0;
             const dp = Number(item.dis_p) || 0;
             const sp = Number(item.sgst_p) || 0;
