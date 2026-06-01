@@ -146,8 +146,12 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 if (item.id === id) {
                     const updated = { ...item, [field]: value };
 
-                    if (field === "pack" || field === "noOfPack") {
-                        updated.qty = (Number(updated.pack) || 0) * (Number(updated.noOfPack) || 0);
+                    if (field === "pack" || field === "noOfPack" || field === "schema_free") {
+                        const pack = Number(updated.pack) || 0
+                        const stripsCount = Number(updated.noOfPack) || 0;
+                        const schemeFree = Number(updated.schema_free) || 0;
+                        const qty = (stripsCount + schemeFree) * pack
+                        updated.qty = Number(qty)
                     }
 
                     const q = Number(updated.qty) || 0;
@@ -452,7 +456,6 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">BATCH</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">PACK</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">STRIP COUNT</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">QTY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">EXPIRY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">Rate</TableHead>
@@ -464,6 +467,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 {/* <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS AMT</TableHead> */}
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA (FREE)</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA AMT</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">QTY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">TOTAL</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">Action</TableHead>
                             </TableRow>
@@ -528,17 +532,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "noOfPack")}
                                             />
                                         </TableCell>
-                                        <TableCell className="p-2">
-                                            <Input
-                                                type="number"
-                                                name="qty"
-                                                data-field="qty"
-                                                className="h-11 text-sm font-semibold border-slate-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-700"
-                                                value={item.qty || ""}
-                                                onChange={(e) => updateNewItem(item.id, "qty", Number(e.target.value))}
-                                                onKeyDown={(e) => handleKeyDown(e, item.id, "qty")}
-                                            />
-                                        </TableCell>
+
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -647,6 +641,17 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <div className="text-xs font-semibold text-indigo-700 bg-indigo-50/50 h-11 flex items-center justify-center rounded-lg border border-indigo-200/50 shadow-sm border-dashed">
                                                 ₹{(item.schema_amt || 0).toFixed(2)}
                                             </div>
+                                        </TableCell>
+                                        <TableCell className="p-2">
+                                            <Input
+                                                type="number"
+                                                name="qty"
+                                                data-field="qty"
+                                                className="h-11 text-sm font-semibold border-slate-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-700"
+                                                value={item.qty || ""}
+                                                onChange={(e) => updateNewItem(item.id, "qty", Number(e.target.value))}
+                                                onKeyDown={(e) => handleKeyDown(e, item.id, "qty")}
+                                            />
                                         </TableCell>
                                         <TableCell className="p-2 text-right pr-8">
                                             <div className="text-base font-bold text-[#1e293b] group-hover:text-indigo-700 transition-colors drop-shadow-sm">
