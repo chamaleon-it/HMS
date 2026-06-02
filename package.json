@@ -9,7 +9,7 @@
   "private": true,
   "main": "main.js",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "pack": "next build && electron-builder",
