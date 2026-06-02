@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Save, Trash2, Search, GripVertical, Check, Mars, Venus, Baby, Smile } from "lucide-react";
+import { Plus, Save, Trash2, Search, GripVertical, Check, Mars, Venus, Baby, Smile, Trash } from "lucide-react";
 import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
