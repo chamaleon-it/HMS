@@ -477,6 +477,11 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                     <span className="font-bold text-[13px] pl-3 mb-0.5 mt-[2px] tracking-wide">Comments:</span>
                                                     <div className="w-[75%] border-b h-0 border-white ml-2 opacity-80 mb-[-2px]"></div>
                                                 </div>
+                                                {report.note && (
+                                                    <div className="px-5 pt-[10px] pb-1 text-[11px] text-slate-800 font-medium whitespace-pre-wrap leading-normal">
+                                                        {report.note}
+                                                    </div>
+                                                )}
                                                 {/* <div className="px-5 pt-[14px] pb-1 text-[10.5px] text-slate-700 font-extrabold space-y-[6px]">
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To evaluate kidney functioning in normal individuals as screening test.</p></div>
                                                 <div className="flex gap-[8px] items-start"><div className="w-[4.5px] h-[4.5px] rounded-full bg-[#6eb269] mt-[5px] shrink-0"></div><p className="leading-normal text-slate-800 pr-2">To aid in diagnosis of kidney related disorders (Acute and Chronic renal failure, prerenal, postrenal, End Stage Renal Disease).</p></div>

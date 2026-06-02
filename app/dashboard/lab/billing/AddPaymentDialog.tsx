@@ -275,7 +275,7 @@ export default function AddPaymentDialog({
                                 <Row label="Subtotal" value={formatINR(subtotal)} />
                                 <Row label="Discount" value={`−${formatINR(payment.discount)}`} />
                                 <div className="my-2 h-px bg-slate-200" />
-                                <Row label="Total" value={formatINR(subtotal)} bold />
+                                <Row label="Total" value={formatINR(Math.max(0, subtotal - payment.discount))} bold />
                                 <Row label="Paid" value={formatINR(totalPaid)} className="text-emerald-600" />
                                 <Row label="Due" value={formatINR(due)} className="text-rose-600" bold />
                             </div>

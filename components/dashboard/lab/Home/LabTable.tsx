@@ -1,5 +1,6 @@
 import { useAuth } from "@/auth/context/auth-context";
 import { fAge, fDateandTime } from "@/lib/fDateAndTime";
+import { formatINR } from "@/lib/fNumber";
 import React from "react";
 import ViewResultModal from "./ViewResultModal";
 import { Button } from "@/components/ui/button";
@@ -103,6 +104,7 @@ interface PropsTypes {
         type: string;
         unit?: string;
         estimatedTime?: number;
+        price?: number;
         range: {
           name: string;
           min: number | null | undefined;
@@ -143,6 +145,95 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
   const [printBillReport, setPrintBillReport] = React.useState<any | null>(null);
   const [printBill, setPrintBill] = React.useState<any | null>(null);
 
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const isDragging = React.useRef(false);
+  const startX = React.useRef(0);
+  const startY = React.useRef(0);
+  const startScrollLeft = React.useRef(0);
+  const startScrollTop = React.useRef(0);
+  const startWindowY = React.useRef(0);
+  const hasMoved = React.useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+
+    const target = e.target as HTMLElement;
+    if (
+      target.closest(
+        "button, a, input, select, textarea, [role='button'], svg, .cursor-pointer"
+      )
+    ) {
+      return;
+    }
+
+    isDragging.current = true;
+    hasMoved.current = false;
+    startX.current = e.clientX;
+    startY.current = e.clientY;
+
+    if (containerRef.current) {
+      startScrollLeft.current = containerRef.current.scrollLeft;
+      startScrollTop.current = containerRef.current.scrollTop;
+      containerRef.current.style.userSelect = "none";
+      containerRef.current.style.webkitUserSelect = "none";
+    }
+    startWindowY.current = window.scrollY;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging.current) return;
+
+    const dx = e.clientX - startX.current;
+    const dy = e.clientY - startY.current;
+
+    if (!hasMoved.current && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+      hasMoved.current = true;
+    }
+
+    if (hasMoved.current) {
+      e.preventDefault();
+
+      if (containerRef.current) {
+        containerRef.current.scrollLeft = startScrollLeft.current - dx;
+
+        const isScrollableVertically =
+          containerRef.current.scrollHeight > containerRef.current.clientHeight;
+
+        if (isScrollableVertically) {
+          containerRef.current.scrollTop = startScrollTop.current - dy;
+        } else {
+          window.scrollTo(0, startWindowY.current - dy);
+        }
+      }
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    if (containerRef.current) {
+      containerRef.current.style.userSelect = "";
+      containerRef.current.style.webkitUserSelect = "";
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    if (containerRef.current) {
+      containerRef.current.style.userSelect = "";
+      containerRef.current.style.webkitUserSelect = "";
+    }
+  };
+
+  const handleCaptureClick = (e: React.MouseEvent) => {
+    if (hasMoved.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      hasMoved.current = false;
+    }
+  };
+
   const handlePrint = (report: any) => {
     setPrintReport(report);
     setTimeout(() => {
@@ -179,7 +270,15 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
   const panelPerPage: boolean = profileData?.data?.lab?.panelPerPage ?? false
 
   return (
-    <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-x-scroll">
+    <div
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onClickCapture={handleCaptureClick}
+      className="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm overflow-x-auto cursor-grab active:cursor-grabbing"
+    >
       <table className="w-full whitespace-nowrap  overflow-scroll">
         <thead className="bg-slate-700 hover:bg-slate-700">
           <tr className="bg-slate-700 hover:bg-slate-700 border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
@@ -187,6 +286,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
             {status !== "Draft" && headerCell("Report No.")}
             {headerCell("Patient")}
             {headerCell("Test")}
+            {headerCell("Amount")}
             {status === "Upcoming" && headerCell("Scheduled Date")}
             {status !== "Upcoming" && status !== "Draft" && headerCell("Sample Id")}
             {headerCell("Created At")}
@@ -307,6 +407,37 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                             className="flex items-center gap-1 h-5 font-medium text-sm"
                           >
                             {e.name?.name}
+                          </div>
+                        ))}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-700">
+                    <div className="flex flex-col gap-2">
+                      {r?.panels?.map((p) => {
+                        const panelObj = panels.find((panel) => panel.name === p);
+                        return (
+                          <div
+                            key={p}
+                            className="flex items-center gap-1 h-5 font-medium text-sm text-gray-600"
+                          >
+                            {formatINR(panelObj?.price ?? 0)}
+                          </div>
+                        );
+                      })}
+                      {r?.test
+                        ?.filter(
+                          (t) => {
+                            const selectedPanels = panels.filter(p => r.panels?.includes(p.name))
+                            const panelTests = selectedPanels.flatMap(e => e.tests || []).map((e: any) => e._id)
+                            return !panelTests.includes(t.name?._id)
+                          }
+                        )
+                        .map((e) => (
+                          <div
+                            key={e._id}
+                            className="flex items-center gap-1 h-5 font-medium text-sm text-gray-600"
+                          >
+                            {formatINR(e.name?.price ?? 0)}
                           </div>
                         ))}
                     </div>

@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
-import { Download, Printer } from "lucide-react";
+import { Download, Printer, ArrowLeft } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
 import configuration from "@/config/configuration";
 import useSWR from "swr";
 import LabBillReceipt from "@/components/dashboard/lab/Home/LabBillReceipt";
+import Link from "next/link";
 
 function InvoiceViewContent() {
   const searchParams = useSearchParams();
@@ -49,6 +50,7 @@ function InvoiceViewContent() {
       cash: number;
       online: number;
       insurance: number;
+      discount: number;
       mrn: string;
       createdAt: Date;
       updatedAt: Date;
@@ -59,7 +61,19 @@ function InvoiceViewContent() {
 
   return (
     <AppShell>
-      <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden m-5">
+      <div className="p-5 flex flex-col gap-4">
+        <div className="flex items-center">
+          <Button
+            variant="outline"
+            asChild
+            className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 gap-2 font-semibold shadow-xs rounded-xl"
+          >
+            <Link href="/dashboard/lab/billing">
+              <ArrowLeft className="h-4 w-4" /> Back to Bills
+            </Link>
+          </Button>
+        </div>
+        <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
         {/* Header Section */}
         <div className="flex justify-between items-center bg-linear-to-r from-purple-600 to-blue-500 text-white px-8 py-6 border-b">
           <div className="flex items-center space-x-3">
@@ -101,7 +115,7 @@ function InvoiceViewContent() {
                       (billing?.cash ?? 0) +
                       (billing?.online ?? 0) +
                       (billing?.insurance ?? 0);
-                    return Math.max(0, totalItems - paid);
+                    return Math.max(0, totalItems - paid - (billing?.discount ?? 0));
                   })()
                 )}
               </p>
@@ -110,10 +124,11 @@ function InvoiceViewContent() {
               <p className="text-xs opacity-80">Payment Status</p>
               <p className="font-medium text-white">
                 {(() => {
-                  const total = (billing?.items ?? []).reduce(
+                  const subtotal = (billing?.items ?? []).reduce(
                     (sum, it) => sum + (it?.total ?? 0),
                     0
                   );
+                  const total = subtotal - (billing?.discount ?? 0);
                   const paid =
                     (billing?.cash ?? 0) +
                     (billing?.online ?? 0) +
@@ -224,14 +239,19 @@ function InvoiceViewContent() {
                 )}
               </span>
             </div>
+            {billing?.discount ? (
+              <div className="flex justify-between py-1 text-sm text-amber-700">
+                <span>Discount</span> <span>- {formatINR(billing.discount)}</span>
+              </div>
+            ) : null}
             <div className="flex justify-between py-2 font-semibold text-gray-900 border-t mt-2 pt-2">
               <span>Total</span> <span>
                 {formatINR(
-                  billing?.items?.reduce(
+                  (billing?.items?.reduce(
                     (acc, { total }) =>
                       acc + total,
                     0
-                  ) ?? 0
+                  ) ?? 0) - (billing?.discount ?? 0)
                 )}
               </span>
             </div>
@@ -240,11 +260,11 @@ function InvoiceViewContent() {
             </div>
             <div className="flex justify-between py-1 text-sm text-red-600">
               <span>Due</span> <span>{formatINR(
-                (billing?.items?.reduce(
+                ((billing?.items?.reduce(
                   (acc, { total }) =>
                     acc + total,
                   0
-                ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
+                ) ?? 0) - (billing?.discount ?? 0)) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
               )}</span>
             </div>
           </div>
@@ -294,6 +314,7 @@ function InvoiceViewContent() {
             style={{ backgroundImage: `url(${configuration().logo})` }}
           ></div>
         </div>
+      </div>
       </div>
       <LabBillReceipt bill={printBill} />
     </AppShell>

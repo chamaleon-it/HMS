@@ -4,7 +4,7 @@ import React, { useMemo, useState, useEffect } from "react";
 import useSWR from "swr";
 import LabTable from "./LabTable";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
-import { Camera, Search, RefreshCcw, CheckCircle2, AlertCircle, Layout, Clock, TestTube2, AlertTriangle } from "lucide-react";
+import { Camera, Search, RefreshCcw, CheckCircle2, AlertCircle, Layout, Clock, TestTube2, AlertTriangle, FlaskConical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
@@ -132,9 +132,9 @@ export default function Imagine() {
         />
         <StatCard
           delay={0.3}
-          icon={<TestTube2 className="h-6 w-6" />}
-          label="Sample Collected"
-          value={statsData.sampleCollected}
+          icon={<FlaskConical className="h-6 w-6" />}
+          label="Waiting For Result"
+          value={statsData.waitingForResult}
           colorClass="from-indigo-500/10 to-indigo-500/5"
           iconBgClass="bg-indigo-100 text-indigo-600"
           borderClass="hover:border-indigo-200"

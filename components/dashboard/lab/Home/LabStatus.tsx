@@ -18,7 +18,6 @@ export default function LabStatus({
     () => [
 
       { key: "Upcoming", label: "Upcoming", icon: Clock },
-      { key: "Sample Collected", label: "Sample Collected", icon: TestTube2 },
       { key: "Waiting For Result", label: "Waiting For Result", icon: FlaskConical },
       { key: "Completed", label: "Completed", icon: CheckCircle },
       { key: "Flagged", label: "Flagged", icon: AlertTriangle },

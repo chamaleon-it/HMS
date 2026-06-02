@@ -356,7 +356,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         <div className="grid grid-cols-2 gap-x-8 text-[13px] font-semibold text-black tracking-tight px-2">
                                             <div className="space-y-1">
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Name</span><span className="font-bold text-black uppercase">: {patient?.name || "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${fAge(patient.dateOfBirth).years}y ${fAge(patient.dateOfBirth).months}m` : "—"} / ${patient?.gender || "—"}`}</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${fAge(patient.dateOfBirth).years}Y${fAge(patient.dateOfBirth).months > 0 ? ` ${fAge(patient.dateOfBirth).months}M` : ""}` : "—"} / ${patient?.gender || "—"}`}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Ref. By.</span><span className="font-bold text-black">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
                                             </div>
                                             <div className="space-y-1">
@@ -552,6 +552,16 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             <div className="bottom-grouping">
                                 {isLastPage && (
                                     <>
+                                        {report.note && (
+                                            <div className="w-full px-10 pb-4 text-left">
+                                                <div className="border-t border-slate-300 pt-2">
+                                                    <p className="text-xs font-bold text-black uppercase tracking-wide">Note:</p>
+                                                    <p className="text-[11px] font-medium text-slate-800 mt-1 whitespace-pre-wrap leading-normal font-sans">
+                                                        {report.note}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
                                         <div className="text-center w-full mb-1 mt-1">
                                             <p className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">*** End of Report ***</p>
                                         </div>

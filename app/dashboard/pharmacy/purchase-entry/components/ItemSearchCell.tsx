@@ -49,11 +49,13 @@ interface Item {
 
 interface ItemSearchCellProps {
     selectedItemId: string;
+    selectedItemName?: string;
     onSelect: (item: Item) => void;
 }
 
 const ItemSearchCell = ({
     selectedItemId,
+    selectedItemName,
     onSelect
 }: ItemSearchCellProps) => {
     const [query, setQuery] = useState("");
@@ -92,7 +94,7 @@ const ItemSearchCell = ({
                     )}
                 >
                     <span className="truncate">
-                        {localSelectedItem ? localSelectedItem.name : "Search Medicine..."}
+                        {localSelectedItem ? localSelectedItem.name : (selectedItemName || "Search Medicine...")}
                     </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-indigo-500" />
                 </Button>

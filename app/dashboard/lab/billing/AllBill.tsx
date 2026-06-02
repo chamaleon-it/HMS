@@ -39,6 +39,7 @@ interface PropsType {
     cash: number;
     online: number;
     insurance: number;
+    discount: number;
     items: {
       total: number;
     }[];
@@ -100,6 +101,9 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                 Total
               </TableHead>
               <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
+                Discount
+              </TableHead>
+              <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
                 Paid
               </TableHead>
               <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
@@ -119,7 +123,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
           <TableBody>
             {billing.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="py-20 text-center">
+                <TableCell colSpan={11} className="py-20 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
                       <Search className="h-6 w-6 text-slate-300" />
@@ -171,12 +175,16 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                   <TableCell className="py-3 text-right tabular-nums font-medium text-slate-900">
                     {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
                   </TableCell>
+                  <TableCell className="py-3 text-right tabular-nums text-slate-600 font-medium">
+                    {formatINR(b.discount || 0)}
+                  </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
                     {formatINR(b.insurance + b.cash + b.online)}
                   </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
                     {formatINR(
                       b.items.reduce((a, b) => a + b.total, 0) -
+                      (b.discount || 0) -
                       (b.insurance + b.cash + b.online)
                     )}
                   </TableCell>
@@ -188,10 +196,11 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                   <TableCell className="py-3 text-center">
                     <StatusPill
                       s={(() => {
-                        const total = b.items.reduce(
+                        const subtotal = b.items.reduce(
                           (sum, i) => sum + i.total,
                           0
                         );
+                        const total = subtotal - (b.discount || 0);
                         const paid = b.cash + b.online + b.insurance;
                         return total <= paid
                           ? "Paid"
@@ -204,7 +213,8 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                   <TableCell className="py-3 pr-4">
                     <div className="flex justify-end items-center gap-1">
                       {(() => {
-                        const total = b.items.reduce((sum, i) => sum + i.total, 0);
+                        const subtotal = b.items.reduce((sum, i) => sum + i.total, 0);
+                        const total = subtotal - (b.discount || 0);
                         const paid = b.cash + b.online + b.insurance;
                         const due = total - paid;
 

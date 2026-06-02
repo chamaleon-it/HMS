@@ -173,6 +173,7 @@ interface Props {
     sampleCollectedAt?: Date | null;
     testStartedAt?: Date | null;
     panels?: string[];
+    note?: string;
   };
   mutate: () => void;
   buttonText?: "Ready" | "Completed" | "Update";
@@ -189,6 +190,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
       name: any;
     }[];
     status?: string;
+    note?: string;
   }>({
     _id: r._id,
     test: r.test
@@ -197,6 +199,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
         value: item.value && item?.value?.toString(),
         name: item.name,
       })),
+    note: r.note || "",
   });
 
   const [showWarning, setShowWarning] = useState(false);
@@ -206,6 +209,26 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
   const [reportedDate, setReportedDate] = useState<Date | undefined>(
     r.testStartedAt ? new Date(r.testStartedAt) : (r.updatedAt ? new Date(r.updatedAt) : undefined)
   );
+
+  useEffect(() => {
+    if (open) {
+      setPayload({
+        _id: r._id,
+        test: r.test.map((item) => ({
+          _id: item._id,
+          value: item.value && item?.value?.toString(),
+          name: item.name,
+        })),
+        note: r.note || "",
+      });
+      setCollectedDate(
+        r.sampleCollectedAt ? new Date(r.sampleCollectedAt) : (r.createdAt ? new Date(r.createdAt) : undefined)
+      );
+      setReportedDate(
+        r.testStartedAt ? new Date(r.testStartedAt) : (r.updatedAt ? new Date(r.updatedAt) : undefined)
+      );
+    }
+  }, [open, r]);
 
   // Auto-calculation logic for Lipid Profile and LFT
   useEffect(() => {
@@ -373,6 +396,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
         // otherwise it will print the old data
         const mergedReport: any = {
           ...r,
+          note: payload.note,
           test: r.test.map((t: any) => {
             const payloadTest = payload.test.find((pt: any) => pt._id === t._id);
             const hasValue = payloadTest?.value !== undefined && payloadTest?.value !== "" && payloadTest?.value !== null;
@@ -738,6 +762,20 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                   </TableBody>
                 </Table>
               </div>
+            </div>
+
+            {/* Note Section */}
+            <div className="flex flex-col gap-2">
+              <label htmlFor="report-notes" className="text-sm font-semibold text-gray-700">
+                Note
+              </label>
+              <textarea
+                id="report-notes"
+                placeholder="Enter additional findings, observations, or technician notes here..."
+                className="w-full min-h-[90px] p-3.5 text-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white shadow-xs resize-none"
+                value={payload.note ?? ""}
+                onChange={(e) => setPayload({ ...payload, note: e.target.value })}
+              />
             </div>
           </div>
 

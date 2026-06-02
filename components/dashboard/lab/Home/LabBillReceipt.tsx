@@ -53,7 +53,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
         }));
         subtotal = bill.items.reduce((sum: number, item: any) => sum + (item.quantity * item.unitPrice - item.discount), 0);
         totalGst = bill.items.reduce((sum: number, item: any) => sum + ((item.quantity * item.unitPrice - item.discount) * item.gst) / 100, 0);
-        grandTotal = bill.items.reduce((sum: number, item: any) => sum + item.total, 0);
+        grandTotal = Math.max(0, bill.items.reduce((sum: number, item: any) => sum + item.total, 0) - (bill.discount || 0));
     } else {
         // Group tests by panels if they belong to a panel
         const selectedPanels = panels?.filter(p => report.panels?.includes(p.name)) || [];
@@ -241,6 +241,13 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                                 <span className="font-bold">:</span>
                                 <span className="font-bold text-right">{formatINR(totalGst)}</span>
                             </div>
+                            {Boolean(bill?.discount) && (
+                                <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
+                                    <span className="font-semibold text-gray-700">Discount</span>
+                                    <span className="font-bold">:</span>
+                                    <span className="font-bold text-right">- {formatINR(bill.discount)}</span>
+                                </div>
+                            )}
                         </div>
 
                         {/* Divider Line */}

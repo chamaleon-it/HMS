@@ -133,9 +133,9 @@ export default function Lab() {
         />
         <StatCard
           delay={0.3}
-          icon={<TestTube2 className="h-6 w-6" />}
-          label="Sample Collected"
-          value={statsData.sampleCollected}
+          icon={<FlaskConical className="h-6 w-6" />}
+          label="Waiting For Result"
+          value={statsData.waitingForResult}
           colorClass="from-indigo-500/10 to-indigo-500/5"
           iconBgClass="bg-indigo-100 text-indigo-600"
           borderClass="hover:border-indigo-200"
