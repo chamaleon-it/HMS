@@ -28,6 +28,7 @@ import useGetPanels from "@/data/useGetPanels";
 import ReportCardModern from "./ReportCardModern";
 import LabBillReceipt from "./LabBillReceipt";
 import useSWR from "swr";
+import useGetGroups from "@/data/useGetGroups";
 import { useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
 import { Eye, Trash2, FileEdit } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
@@ -129,6 +130,7 @@ interface PropsTypes {
     }[];
     sampleType: string;
     panels: string[];
+    groups?: string[];
     sampleCollectedAt: Date | null;
     status: string;
     technician?: string;
@@ -141,6 +143,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
   const { updateDraft, removeDraft } = useLabDrafts();
   const { user } = useAuth();
   const { panels } = useGetPanels();
+  const { groups } = useGetGroups();
   const [printReport, setPrintReport] = React.useState<any | null>(null);
   const [printBillReport, setPrintBillReport] = React.useState<any | null>(null);
   const [printBill, setPrintBill] = React.useState<any | null>(null);
@@ -384,7 +387,24 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-700">
                     <div className="flex flex-col gap-2">
-                      {r?.panels?.map((p) => (
+                      {r?.groups?.map((g) => (
+                        <div
+                          key={g}
+                          className="flex items-center gap-1 h-5 font-medium text-sm"
+                        >
+                          <span className="font-semibold text-slate-800">{g}</span>
+                          <span className="text-[10px] text-emerald-700 font-bold bg-emerald-100/80 border border-emerald-200 px-2 py-0.5 rounded-full ml-1">
+                            Group
+                          </span>
+                        </div>
+                      ))}
+                      {r?.panels?.filter(p => {
+                        const isInGroup = (r.groups || []).some(gName => {
+                          const group = groups.find(g => g.name === gName);
+                          return group?.panels?.some(gp => gp.name === p);
+                        });
+                        return !isInGroup;
+                      }).map((p) => (
                         <div
                           key={p}
                           className="flex items-center gap-1 h-5 font-medium text-sm"
@@ -395,9 +415,19 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                       {r?.test
                         ?.filter(
                           (t) => {
-                            const selectedPanels = panels.filter(p => r.panels?.includes(p.name))
-                            const panelTests = selectedPanels.flatMap(e => e.tests || []).map((e: any) => e._id)
-                            return !panelTests.includes(t.name?._id)
+                            const groupPanelNames = new Set<string>();
+                            const groupTestIds = new Set<string>();
+                            (r.groups || []).forEach(gName => {
+                                const group = groups.find(g => g.name === gName);
+                                group?.panels?.forEach(p => groupPanelNames.add(p.name));
+                                group?.tests?.forEach(test => groupTestIds.add(test._id));
+                            });
+                            
+                            const allSelectedPanels = Array.from(new Set([...(r.panels || []), ...Array.from(groupPanelNames)]));
+                            const selectedPanels = panels.filter(p => allSelectedPanels.includes(p.name));
+                            const panelTests = selectedPanels.flatMap(e => e.tests || []).map((e: any) => e._id);
+                            
+                            return !panelTests.includes(t.name?._id) && !groupTestIds.has(t.name?._id);
                           }
                         )
 

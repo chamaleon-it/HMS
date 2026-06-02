@@ -2,7 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Save, Trash2, Search, GripVertical, Check, Mars, Venus, Baby, Smile } from "lucide-react";
+import { Plus, Save, Trash2, Search, GripVertical, Check, Mars, Venus, Baby, Smile, Trash } from "lucide-react";
 import { ProfileType } from "./interface";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -26,6 +26,7 @@ import { Label } from "@/components/ui/label";
 import TestCatalogueRow from "./TestCatalogueRow";
 import PanelCatalogueRow from "./PanelCatalogueRow";
 import useGetPanels from "@/data/useGetPanels";
+import useGetGroups, { GroupItemType } from "@/data/useGetGroups";
 import useSWR from "swr";
 import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
 import RemoveTestsFromPanelDialog from "./RemoveTestsFromPanelDialog";
@@ -190,6 +191,14 @@ export default function TestCatalogue({
   const [isNewPanelModalOpen, setIsNewPanelModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [panelSearchQuery, setPanelSearchQuery] = useState("");
+  const { groups, mutate: groupMutate } = useGetGroups();
+  const [isNewGroupModalOpen, setIsNewGroupModalOpen] = useState(false);
+  const [groupSearchQuery, setGroupSearchQuery] = useState("");
+  const [editingGroup, setEditingGroup] = useState<GroupItemType | null>(null);
+  const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);
+  const filteredGroups = groups.filter((g) =>
+    g.name.toLowerCase().includes(groupSearchQuery.toLowerCase())
+  );
 
   const testsRef = useDragScroll();
   const panelsRef = useDragScroll();
@@ -925,6 +934,109 @@ export default function TestCatalogue({
 
         <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
           <CardContent className="p-6">
+            <div className="flex gap-3 justify-between items-center">
+              <SectionHeader
+                title="Test Grouping & Discount Pricing"
+                description="Manage customized test packages with special discounted rates."
+                emoji="🎁"
+              />
+              <div className="flex items-center justify-end gap-3 w-full">
+                <Input
+                  placeholder="Search groups..."
+                  value={groupSearchQuery}
+                  onChange={(e) => setGroupSearchQuery(e.target.value)}
+                  className="h-9 w-64 bg-slate-50"
+                />
+                <Button
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
+                  onClick={() => setIsNewGroupModalOpen(true)}
+                >
+                  Create New Group
+                </Button>
+              </div>
+            </div>
+
+            <Dialog open={isNewGroupModalOpen} onOpenChange={setIsNewGroupModalOpen}>
+              <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Create New Group</DialogTitle>
+                  <DialogDescription>Group tests and panels together with a custom discounted price.</DialogDescription>
+                </DialogHeader>
+                <AddGroupForm
+                  tests={tests}
+                  panels={panels}
+                  onSuccess={() => {
+                    groupMutate();
+                    setIsNewGroupModalOpen(false);
+                  }}
+                  onCancel={() => setIsNewGroupModalOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+
+            <Dialog open={isEditGroupModalOpen} onOpenChange={setIsEditGroupModalOpen}>
+              <DialogContent className="sm:max-w-4xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>Edit Group</DialogTitle>
+                  <DialogDescription>Modify group details.</DialogDescription>
+                </DialogHeader>
+                <AddGroupForm
+                  initialGroup={editingGroup}
+                  tests={tests}
+                  panels={panels}
+                  onSuccess={() => {
+                    groupMutate();
+                    setIsEditGroupModalOpen(false);
+                  }}
+                  onCancel={() => setIsEditGroupModalOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+
+            <div className="mt-6 border rounded-xl overflow-hidden shadow-sm">
+              <div className="max-h-[500px] overflow-auto custom-scrollbar">
+                <Table>
+                  <TableHeader className="bg-slate-50/80 sticky top-0 z-10 backdrop-blur-sm">
+                    <TableRow>
+                      <TableHead className="w-16">SL</TableHead>
+                      <TableHead>Group Name</TableHead>
+                      <TableHead>Price</TableHead>
+                      <TableHead>Tests</TableHead>
+                      <TableHead>Panels</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredGroups.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={6} className="text-center py-8 text-slate-500 text-xs">
+                          {groupSearchQuery ? "No groups found." : "No groups configured yet. Add one above."}
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredGroups.map((group, idx) => (
+                        <GroupCatalogueRow
+                          key={group.name}
+                          idx={idx}
+                          group={group}
+                          groupMutate={groupMutate}
+                          onEdit={() => {
+                            setEditingGroup(group);
+                            setIsEditGroupModalOpen(true);
+                          }}
+                        />
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+
+        <Card className="border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!">
+          <CardContent className="p-6">
             <SectionHeader
               title="Settings"
               description="Group common tests together for quick ordering."
@@ -1542,6 +1654,285 @@ const UnitAutoInput = ({
           )}
         </div>
       )}
+    </div>
+  );
+};
+
+const GroupCatalogueRow = ({
+  group,
+  idx,
+  groupMutate,
+  onEdit,
+}: {
+  group: GroupItemType;
+  idx: number;
+  groupMutate: () => void;
+  onEdit: () => void;
+}) => {
+  const handleDelete = async () => {
+    if (confirm(`Are you sure you want to delete group "${group.name}"?`)) {
+      try {
+        await toast.promise(api.delete(`/lab/panels/groups/${group.name}`), {
+          loading: "Deleting group...",
+          success: "Group deleted successfully",
+          error: ({ response }: any) => response?.data?.message || "Failed to delete group",
+        });
+        groupMutate();
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  };
+
+  return (
+    <TableRow>
+      <TableCell className="font-medium">{idx + 1}</TableCell>
+      <TableCell className="font-semibold text-slate-800">{group.name}</TableCell>
+      <TableCell className="font-medium text-emerald-600">₹{group.price}</TableCell>
+      <TableCell className="max-w-[200px] truncate">
+        {group.tests?.map((t) => t.name).join(", ") || "-"}
+      </TableCell>
+      <TableCell className="max-w-[200px] truncate">
+        {group.panels?.map((p) => p.name).join(", ") || "-"}
+      </TableCell>
+      <TableCell align="right" className="text-right">
+        <div className="flex justify-end gap-2">
+          <Button variant="outline" size="sm" className="h-8 px-2 text-slate-600" onClick={onEdit}>
+            Edit
+          </Button>
+          <Button variant="outline" size="sm" className="h-8 px-2 text-red-600 hover:bg-red-50 border-red-200" onClick={handleDelete}>
+            Delete
+          </Button>
+        </div>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+const AddGroupForm = ({
+  onSuccess,
+  onCancel,
+  tests,
+  panels,
+  initialGroup,
+}: {
+  onSuccess: () => void;
+  onCancel: () => void;
+  tests: any[];
+  panels: any[];
+  initialGroup?: GroupItemType | null;
+}) => {
+  const [name, setName] = useState(initialGroup?.name || "");
+  const [price, setPrice] = useState(initialGroup?.price || 0);
+  const [selectedTests, setSelectedTests] = useState<any[]>(initialGroup?.tests || []);
+  const [selectedPanels, setSelectedPanels] = useState<any[]>(initialGroup?.panels || []);
+  
+  const [searchTestQuery, setSearchTestQuery] = useState("");
+  const [searchPanelQuery, setSearchPanelQuery] = useState("");
+  
+  const [addTestDropdownOpen, setAddTestDropdownOpen] = useState(false);
+  const [addPanelDropdownOpen, setAddPanelDropdownOpen] = useState(false);
+  
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async () => {
+    if (!name) {
+      toast.error("Please enter a group name");
+      return;
+    }
+    setLoading(true);
+    try {
+      const payload = {
+        name,
+        price,
+        tests: selectedTests.map((t) => t._id),
+        panels: selectedPanels.map((p) => p._id),
+      };
+      
+      if (initialGroup) {
+        await toast.promise(api.patch(`/lab/panels/groups/${initialGroup.name}`, payload), {
+          loading: "Updating group...",
+          success: "Group updated successfully",
+          error: ({ response }: any) => response?.data?.message || "Failed to update group",
+        });
+      } else {
+        await toast.promise(api.post("/lab/panels/groups", payload), {
+          loading: "Adding group...",
+          success: "Group added successfully",
+          error: ({ response }: any) => response?.data?.message || "Failed to add group",
+        });
+      }
+      onSuccess();
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredTests = tests.filter((t) =>
+    t.name.toLowerCase().includes(searchTestQuery.toLowerCase())
+  );
+  
+  const filteredPanels = panels.filter((p) =>
+    p.name.toLowerCase().includes(searchPanelQuery.toLowerCase())
+  );
+
+  return (
+    <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium text-slate-700">Group Name *</Label>
+          <Input
+            placeholder="e.g. Master Health Checkup"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="h-9 bg-slate-50"
+            disabled={!!initialGroup}
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs font-medium text-slate-700">Discounted Price *</Label>
+          <Input
+            type="number"
+            placeholder="0.00"
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+            className="h-9 bg-slate-50"
+          />
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <Label className="text-xs font-medium text-slate-700">Included Tests</Label>
+            <Popover open={addTestDropdownOpen} onOpenChange={setAddTestDropdownOpen}>
+              <PopoverTrigger asChild>
+                <Button size="sm" variant="outline" className="h-7 text-xs border-dashed gap-1 text-slate-600">
+                  <Plus className="h-3 w-3" /> Add Test
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0" align="start">
+                <Command>
+                  <CommandInput
+                    placeholder="Search tests..."
+                    value={searchTestQuery}
+                    onValueChange={setSearchTestQuery}
+                  />
+                  <CommandList>
+                    <CommandEmpty>No test found.</CommandEmpty>
+                    <CommandGroup className="max-h-[200px] overflow-auto">
+                      {filteredTests.map((test) => (
+                        <CommandItem
+                          key={test._id}
+                          value={test.name}
+                          onSelect={() => {
+                            if (!selectedTests.find((t) => t._id === test._id)) {
+                              setSelectedTests([...selectedTests, test]);
+                            }
+                            setAddTestDropdownOpen(false);
+                            setSearchTestQuery("");
+                          }}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${selectedTests.find((t) => t._id === test._id) ? "opacity-100" : "opacity-0"}`}
+                          />
+                          {test.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          <div className="border rounded-md max-h-[250px] overflow-y-auto p-2 space-y-2">
+            {selectedTests.length === 0 ? (
+              <p className="text-xs text-center text-slate-500 py-4">No tests selected</p>
+            ) : (
+              selectedTests.map((test) => (
+                <div key={test._id} className="flex justify-between items-center p-2 rounded-md bg-slate-50 text-sm">
+                  <span>{test.name}</span>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setSelectedTests(prev => prev.filter((t) => t._id !== test._id))}>
+                    <Trash className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <Label className="text-xs font-medium text-slate-700">Included Panels</Label>
+            <Popover open={addPanelDropdownOpen} onOpenChange={setAddPanelDropdownOpen}>
+              <PopoverTrigger asChild>
+                <Button size="sm" variant="outline" className="h-7 text-xs border-dashed gap-1 text-slate-600">
+                  <Plus className="h-3 w-3" /> Add Panel
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-0" align="start">
+                <Command>
+                  <CommandInput
+                    placeholder="Search panels..."
+                    value={searchPanelQuery}
+                    onValueChange={setSearchPanelQuery}
+                  />
+                  <CommandList>
+                    <CommandEmpty>No panel found.</CommandEmpty>
+                    <CommandGroup className="max-h-[200px] overflow-auto">
+                      {filteredPanels.map((panel) => (
+                        <CommandItem
+                          key={panel._id}
+                          value={panel.name}
+                          onSelect={() => {
+                            if (!selectedPanels.find((p) => p._id === panel._id)) {
+                              setSelectedPanels([...selectedPanels, panel]);
+                            }
+                            setAddPanelDropdownOpen(false);
+                            setSearchPanelQuery("");
+                          }}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${selectedPanels.find((p) => p._id === panel._id) ? "opacity-100" : "opacity-0"}`}
+                          />
+                          {panel.name}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
+          </div>
+          
+          <div className="border rounded-md max-h-[250px] overflow-y-auto p-2 space-y-2">
+            {selectedPanels.length === 0 ? (
+              <p className="text-xs text-center text-slate-500 py-4">No panels selected</p>
+            ) : (
+              selectedPanels.map((panel) => (
+                <div key={panel._id} className="flex justify-between items-center p-2 rounded-md bg-slate-50 text-sm">
+                  <span>{panel.name}</span>
+                  <Button variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={() => setSelectedPanels(prev => prev.filter((p) => p._id !== panel._id))}>
+                    <Trash className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+      
+      <div className="flex justify-end gap-2 pt-2 border-t">
+        <Button variant="outline" onClick={onCancel} disabled={loading}>
+          Cancel
+        </Button>
+        <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={handleSubmit} disabled={loading}>
+          {loading ? "Saving..." : "Save Group"}
+        </Button>
+      </div>
     </div>
   );
 };

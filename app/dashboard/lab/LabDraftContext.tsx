@@ -9,6 +9,7 @@ export interface LabDraft {
     lab: string;
     test: { name: string }[];
     panels: string[];
+    groups: string[];
     date: Date | undefined;
     priority: "Normal" | "Urgent";
     sampleType: string;
@@ -82,6 +83,7 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
         lab: userId,
         test: [],
         panels: [],
+        groups: [],
         date: new Date(),
         priority: "Normal",
         sampleType: "Other",
