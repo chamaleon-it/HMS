@@ -197,7 +197,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               Unit Price
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.unitPrice}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.unitPrice.toFixed(2)}</div>
           </div>
 
           <div className="space-y-2">
@@ -207,7 +207,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
               MRP
             </div>
-            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.mrp}</div>
+            <div className="text-sm font-bold text-slate-900 pl-8">₹ {item.mrp.toFixed(2)}</div>
           </div>
 
           <div className="space-y-2">
