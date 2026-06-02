@@ -17,6 +17,7 @@ import {
 import api from "@/lib/axios";
 import useGetTest from "@/data/useGetTest";
 import useGetPanels from "@/data/useGetPanels";
+import useGetGroups from "@/data/useGetGroups";
 import DateTimePicker from "./DateTimePicker";
 import { formatINR } from "@/lib/fNumber";
 import TechnicianSelection from "./TechnicianSelection";
@@ -39,6 +40,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
   const { updateDraft, removeDraft, setDraftToDelete } = useLabDrafts();
   const { panels } = useGetPanels();
   const { tests } = useGetTest();
+  const { groups } = useGetGroups();
 
   const payload = draft.payload;
   const bookingType = draft.bookingType;
@@ -94,26 +96,57 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
   };
 
   const grandTotal = useMemo(() => {
+    const groupsTotal = (payload.groups || []).reduce((acc, groupName) => {
+      const group = groups.find((g) => g.name === groupName);
+      return acc + (group?.price || 0);
+    }, 0);
+
+    const groupTestIds = new Set<string>();
+    const groupPanelNames = new Set<string>();
+
+    (payload.groups || []).forEach((groupName) => {
+      const group = groups.find((g) => g.name === groupName);
+      if (group) {
+        group.tests?.forEach((t) => groupTestIds.add(t._id));
+        group.panels?.forEach((p) => groupPanelNames.add(p.name));
+      }
+    });
+
     const panelsTotal = payload.panels.reduce((acc, panelName) => {
+      if (groupPanelNames.has(panelName)) return acc;
       const panel = panels.find((p) => p.name === panelName);
       return acc + (panel?.price || 0);
     }, 0);
 
+    const selectedPanelNames = [
+      ...payload.panels,
+      ...Array.from(groupPanelNames),
+    ];
+    const panelTestIds = new Set<string>();
+    selectedPanelNames.forEach((panelName) => {
+      const panel = panels.find((p) => p.name === panelName);
+      if (panel) {
+        if (panel.tests && panel.tests.length) {
+          panel.tests.forEach((t) => panelTestIds.add(t._id));
+        } else {
+          tests
+            .filter((t) => t.panels?.some((p) => p.name === panelName))
+            .forEach((t) => panelTestIds.add(t._id));
+        }
+      }
+    });
+
     const independentTestsTotal = payload.test
       .filter((t) => {
-        const testObj = tests.find((test) => test._id === t.name);
-        const belongsToPanel = testObj?.panels?.some((p) =>
-          payload.panels.includes(p.name)
-        );
-        return !belongsToPanel;
+        return !panelTestIds.has(t.name) && !groupTestIds.has(t.name);
       })
       .reduce((acc, t) => {
         const testObj = tests.find((test) => test._id === t.name);
         return acc + (testObj?.price || 0);
       }, 0);
 
-    return panelsTotal + independentTestsTotal;
-  }, [payload.panels, payload.test, panels, tests]);
+    return groupsTotal + panelsTotal + independentTestsTotal;
+  }, [payload.groups, payload.panels, payload.test, panels, tests, groups]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -216,6 +249,43 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           <TestSelection
             onSelect={(val) => {
               if (!val) return;
+              const isGroup = groups.find((g) => g.name === val);
+              if (isGroup) {
+                setPayload((prev: any) => {
+                  if (prev.groups?.includes(val)) return prev;
+                  const groupTests = isGroup.tests || [];
+                  const groupPanels = isGroup.panels || [];
+                  
+                  let groupPanelTests: any[] = [];
+                  groupPanels.forEach((gp) => {
+                    if (gp.tests && gp.tests.length) {
+                      groupPanelTests.push(...gp.tests.map((t: any) => ({ name: t._id || t })));
+                    } else {
+                      const foundPanel = panels.find((p) => p.name === gp.name);
+                      if (foundPanel && foundPanel.tests) {
+                        groupPanelTests.push(...foundPanel.tests.map((t: any) => ({ name: t._id || t })));
+                      }
+                    }
+                  });
+
+                  const newTests = [
+                    ...groupTests.map((t: any) => ({ name: t._id })),
+                    ...groupPanelTests,
+                  ];
+
+                  return {
+                    ...prev,
+                    groups: [...(prev.groups || []), val],
+                    panels: [...prev.panels, ...groupPanels.map((p) => p.name).filter((name) => !prev.panels.includes(name))],
+                    test: [
+                      ...prev.test,
+                      ...newTests.filter((nt: any) => !prev.test.some((pt: any) => pt.name === nt.name)),
+                    ],
+                  };
+                });
+                return;
+              }
+
               const isPanel = panels.find((p) => p.name === val);
               if (isPanel) {
                 setPayload((prev: any) => {
@@ -251,6 +321,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
               }
             }}
             options={[
+              ...groups.filter((g) => !payload.groups?.includes(g.name)).map(e => e.name),
               ...panels.filter((p) => !payload.panels.includes(p.name)).map(e => e.name),
               ...tests
                 .filter(
@@ -284,14 +355,56 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {payload.panels.map((t, idx) => {
+          {(payload.groups || []).map((groupName, idx) => {
+            const group = groups.find((g) => g.name === groupName);
+            return (
+              <TableRow key={groupName}>
+                <TableCell>{idx + 1}</TableCell>
+                <TableCell>
+                  <span className="font-semibold text-slate-800">{groupName}</span>
+                  <span className="text-[10px] text-emerald-700 font-bold bg-emerald-100/80 border border-emerald-200 px-2 py-0.5 rounded-full ml-2">
+                    Package Group
+                  </span>
+                </TableCell>
+                <TableCell>{formatINR(group?.price || 0)}</TableCell>
+                <TableCell>-</TableCell>
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    onClick={() => {
+                      setPayload((prev: any) => {
+                        const groupToRemove = groups.find((g) => g.name === groupName);
+                        const relatedTestIds = new Set(groupToRemove?.tests?.map((t: any) => t._id) || []);
+                        const relatedPanelNames = new Set(groupToRemove?.panels?.map((p: any) => p.name) || []);
+                        return {
+                          ...prev,
+                          groups: prev.groups.filter((g: string) => g !== groupName),
+                          panels: prev.panels.filter((pName: string) => !relatedPanelNames.has(pName)),
+                          test: prev.test.filter((tItem: { name: string }) => !relatedTestIds.has(tItem.name)),
+                        };
+                      });
+                    }}
+                  >
+                    <Trash className="h-4 w-4 text-red-500" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            );
+          })}
+          {payload.panels.filter((panelName) => {
+            const isInGroup = (payload.groups || []).some((gName) => {
+              const g = groups.find((group) => group.name === gName);
+              return g?.panels?.some((p: any) => p.name === panelName);
+            });
+            return !isInGroup;
+          }).map((t, idx) => {
             const panelTests = tests.filter((test) =>
               test.panels?.some((panel) => panel.name === t)
             );
             const totalTime = panelTests.reduce((acc, curr) => acc + (Number(curr.estimatedTime) || 0), 0);
             return (
               <TableRow key={t}>
-                <TableCell>{idx + 1}</TableCell>
+                <TableCell>{(payload.groups?.length || 0) + idx + 1}</TableCell>
                 <TableCell>{t}</TableCell>
                 <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
                 <TableCell>{totalTime || "-"}</TableCell>
@@ -325,12 +438,25 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             );
           })}
           {payload.test.filter((t: any) => {
-            const selectedPanels = panels.filter(p => payload.panels.includes(p.name))
-            const panelTests = selectedPanels.flatMap(e => e.tests).map((e: any) => e._id)
-            return !panelTests.includes(t.name)
+            const groupPanelNames = new Set<string>();
+            const groupTestIds = new Set<string>();
+            (payload.groups || []).forEach((gName) => {
+              const g = groups.find(group => group.name === gName);
+              g?.panels?.forEach((p: any) => groupPanelNames.add(p.name));
+              g?.tests?.forEach((test: any) => groupTestIds.add(test._id));
+            });
+            const allSelectedPanels = Array.from(new Set([...payload.panels, ...Array.from(groupPanelNames)]));
+            const selectedPanelsData = panels.filter(p => allSelectedPanels.includes(p.name));
+            const panelTests = selectedPanelsData.flatMap(e => e.tests || []).map((e: any) => e._id || e.toString());
+            return !panelTests.includes(t.name) && !groupTestIds.has(t.name);
           }).map((t: any, idx: number) => (
             <TableRow key={t.name}>
-              <TableCell>{idx + 1}</TableCell>
+              <TableCell>{(payload.groups?.length || 0) + payload.panels.filter(p => {
+                return !(payload.groups || []).some(gName => {
+                  const g = groups.find(group => group.name === gName);
+                  return g?.panels?.some((p: any) => p.name === p);
+                });
+              }).length + idx + 1}</TableCell>
               <TableCell>{tests.find((test) => test._id === t.name)?.name}</TableCell>
               <TableCell>{formatINR(tests.find((test) => test._id === t.name)?.price || 0)}</TableCell>
               <TableCell>{tests.find((test) => test._id === t.name)?.estimatedTime}</TableCell>
