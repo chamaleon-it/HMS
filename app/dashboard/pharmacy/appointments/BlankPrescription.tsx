@@ -99,8 +99,39 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                     </div>
 
                     {/* EMPTY SPACE for writing */}
-                    <div className="flex-1 border border-slate-500 rounded-lg bg-slate-50/5 text-slate-100 flex flex-col items-center justify-center min-h-[500px]">
-                        <p className="text-4xl font-black opacity-10 uppercase tracking-[1em]">Rx Prescription</p>
+                    <div className="flex-1 border border-slate-500 rounded-lg bg-slate-50/5 relative min-h-[500px] overflow-hidden">
+                        
+                        {/* Parameters at top right */}
+                        <div className="absolute top-0 right-0 w-48 border-l border-b border-slate-500 p-4 bg-white rounded-bl-lg">
+                            <div className="space-y-4 text-black font-bold text-[10px] uppercase">
+                                <div className="flex items-end gap-2">
+                                    <span className="w-12">Weight</span>
+                                    <div className="flex-1 border-b border-slate-400 border-dotted h-3"></div>
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <span className="w-12">BP</span>
+                                    <div className="flex-1 border-b border-slate-400 border-dotted h-3"></div>
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <span className="w-12">Temp</span>
+                                    <div className="flex-1 border-b border-slate-400 border-dotted h-3"></div>
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <span className="w-12">SPO2</span>
+                                    <div className="flex-1 border-b border-slate-400 border-dotted h-3"></div>
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <span className="w-12">GRBS</span>
+                                    <div className="flex-1 border-b border-slate-400 border-dotted h-3"></div>
+                                </div>
+                                <div className="flex items-end gap-2">
+                                    <span className="w-12">PR</span>
+                                    <div className="flex-1 border-b border-slate-400 border-dotted h-3"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                       
                     </div>
                 </div>
 
