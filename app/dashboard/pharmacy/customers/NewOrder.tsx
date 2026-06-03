@@ -17,9 +17,11 @@ import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { RegisterPatient } from "../RegisterPatient";
+import { useRouter } from "next/navigation";
 
 export default function NewOrder({ mutate }: { mutate: () => void }) {
   const { user } = useAuth();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [openCreate, setOpenCreate] = useState(false);
 
@@ -159,14 +161,15 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string) => {
+          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
             setOpenCreate(false);
-            mutate()
-            setNameToRegister("")
-            // setPayload((prev) => ({ ...prev, patient: id ?? "" }));
-            // setOpen(true)
-            // setpatientName(name ?? "")
-
+            mutate();
+            setNameToRegister("");
+            if (id && name) {
+              router.push(
+                `/dashboard/pharmacy?id=${id}&mrn=${mrn || ""}&name=${encodeURIComponent(name)}&allergies=${encodeURIComponent(allergies || "")}#newOrder`
+              );
+            }
           }} />
         </DialogContent>
       </Dialog>

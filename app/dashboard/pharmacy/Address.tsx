@@ -92,7 +92,7 @@ export default function Address({
         />
       </div>
       <div className="grid gap-2">
-        <Label>Locality/Place *</Label>
+        <Label>Locality/Place</Label>
         <Input
           ref={refs.city}
           placeholder="Locality/Place"

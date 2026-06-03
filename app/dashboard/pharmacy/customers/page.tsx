@@ -173,12 +173,17 @@ const Customers: React.FC = () => {
                                   )}
                                 </div>
                               </div>
-                              <span className="text-[12px] text-slate-500 truncate max-w-[260px]">
-                                <HighlightText
-                                  text={p.patient.address}
-                                  highlight={filter.query || ""}
-                                />
-                              </span>
+                              <div className="flex items-center gap-2">
+                                {p.patient.mrn && (
+                                  <span className="text-[11px] text-indigo-500 font-medium">{p.patient.mrn}</span>
+                                )}
+                                <span className="text-[12px] text-slate-500 truncate max-w-[220px]">
+                                  <HighlightText
+                                    text={p.patient.address}
+                                    highlight={filter.query || ""}
+                                  />
+                                </span>
+                              </div>
                             </div>
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
@@ -188,7 +193,7 @@ const Customers: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
-                            {fAge(p.patient.dateOfBirth).years}y {fAge(p.patient.dateOfBirth).months}m / {p.patient.gender}
+                           {p.patient.dateOfBirth ?<> {fAge(p.patient.dateOfBirth).years}y {fAge(p.patient.dateOfBirth).months > 0 ? <> {fAge(p.patient.dateOfBirth).months}m</> : ""} </> : "-" }/ {p.patient.gender}
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
                             <HighlightText
