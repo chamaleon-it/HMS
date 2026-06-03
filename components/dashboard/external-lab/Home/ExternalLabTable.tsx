@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Eye, Upload } from "lucide-react";
 import SendToLabDialog from "./SendToLabDialog";
-import { fAge, fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
 
 // Reusing types roughly matching LabTable
 interface Report {

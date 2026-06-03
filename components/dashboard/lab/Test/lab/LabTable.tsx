@@ -1,5 +1,5 @@
 import { useAuth } from '@/auth/context/auth-context';
-import { fAge, fDate } from '@/lib/fDateAndTime';
+import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
 import React from 'react'
 import ResultUpdate from './ResultUpdate';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -136,7 +136,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                                 {r?.patient?.name}
                                             </span>
                                             <span className="text-xs text-gray-500 mt-0.5">
-                                                <span className="font-medium text-gray-600">{r?.patient?.mrn}</span> • {fAge(r?.patient?.dateOfBirth).years}y {fAge(r?.patient?.dateOfBirth).months}m • {r?.patient?.gender}
+                                                <span className="font-medium text-gray-600">{r?.patient?.mrn}</span> • {fAgeString(r?.patient?.dateOfBirth)} • {r?.patient?.gender}
                                             </span>
                                         </div>
                                     </td>

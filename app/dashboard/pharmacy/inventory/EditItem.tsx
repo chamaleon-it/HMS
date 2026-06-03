@@ -261,7 +261,7 @@ export function EditItem({
             value={values.packing as string || ""}
             onChange={e => {
               setValue("packing", Number(e.target.value))
-              setValue("unitPrice", (Number(values.mrp) || 0) / (e.target.value ? Number(e.target.value) : 1))
+              setValue("unitPrice", Number(((Number(values.mrp) || 0) / (e.target.value ? Number(e.target.value) : 1)).toFixed(2)))
             }
             }
             ref={(e) => {
@@ -302,7 +302,7 @@ export function EditItem({
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            MRP (₹) *
+            MRP (₹)
           </label>
           <Input
             type="number"
@@ -318,7 +318,7 @@ export function EditItem({
             onKeyDown={(e) => handleKeyDown(e, refs.unitPrice)}
             onChange={e => {
               setValue("mrp", Number(e.target.value))
-              setValue("unitPrice", (Number(e.target.value) || 0) / (values?.packing ? Number(values.packing) : 1))
+              setValue("unitPrice", Number(((Number(e.target.value) || 0) / (values?.packing ? Number(values.packing) : 1)).toFixed(2)))
             }
             }
           />
@@ -331,7 +331,7 @@ export function EditItem({
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Unit Price (MRP ÷ Packing) (₹) *
+            Unit Price (MRP ÷ Packing) (₹)
           </label>
           <Input
             type="number"
@@ -501,7 +501,7 @@ export function EditItem({
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Current Stock Qty *
+            Current Stock Qty
           </label>
           <Input
             type="number"

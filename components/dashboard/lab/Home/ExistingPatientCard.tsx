@@ -1,4 +1,4 @@
-import { fAge } from "@/lib/fDateAndTime";
+import { fAge , fAgeString} from "@/lib/fDateAndTime";
 import { MapPin, MousePointerClick, Phone, X } from "lucide-react";
 
 interface ExistingPatientCardProps {

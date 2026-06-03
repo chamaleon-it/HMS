@@ -1,5 +1,5 @@
 import { useAuth } from "@/auth/context/auth-context";
-import { fAge, fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import React from "react";
 import ViewResultModal from "./ViewResultModal";
@@ -381,7 +381,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                         <span className="font-medium text-gray-600">
                           {r?.patient?.mrn}
                         </span>{" "}
-                        • {fAge(r?.patient?.dateOfBirth).years}y {fAge(r?.patient?.dateOfBirth).months}m • {r?.patient?.gender}
+                        • {fAgeString(r?.patient?.dateOfBirth)} • {r?.patient?.gender}
                       </span>}
                     </div>
                   </td>

@@ -7,7 +7,7 @@ import AppShell from "@/components/layout/app-shell";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Suspense } from "react";
 import { formatINR } from "@/lib/fNumber";
-import { fAge, fDate } from "@/lib/fDateAndTime";
+import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
 import useSWR from "swr";
 import { EmptyReport } from "./EmptyReport";
 import {
@@ -98,7 +98,7 @@ const CustomerContent: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-sm text-slate-600 mt-1">
-                    Age {fAge(patient?.dateOfBirth).years}y {fAge(patient?.dateOfBirth).months}m /{" "}
+                    Age {fAgeString(patient?.dateOfBirth)} /{" "}
                     {patient?.gender} • Ph:{" "}
                     {patient?.phoneNumber}
                   </p>

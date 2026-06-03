@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import AppShell from "@/components/layout/app-shell";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatINR, getDecimal } from "@/lib/fNumber";
-import { fAge, fDate } from "@/lib/fDateAndTime";
+import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
 import useSWR from "swr";
 import { CustomerType, BillingRecord } from "./interface";
 import { EmptyPurchases } from "./EmptyPurchases";
@@ -301,7 +301,7 @@ const Customer: React.FC = () => {
                                     <p className="text-sm text-slate-600 mt-1">
                                         {customer?.patient?.dateOfBirth && (
                                             <>
-                                                Age {fAge(customer.patient.dateOfBirth).years}y / {fAge(customer.patient.dateOfBirth).months}m /{" "}
+                                                Age {fAgeString(customer.patient.dateOfBirth)} /{" "}
                                             </>
                                         )}
                                         {customer?.patient?.gender} • Ph:{" "}

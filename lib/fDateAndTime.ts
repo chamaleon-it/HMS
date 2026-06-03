@@ -145,3 +145,12 @@ export function combineDateAndSlot(date: Date, slot: string) {
 
   return result;
 }
+
+export function fAgeString(date?: Date | string | null) {
+  if (!date) return "-";
+  const { years, months } = fAge(date);
+  if (months > 0) {
+    return `${years}y ${months}m`;
+  }
+  return `${years}y`;
+}

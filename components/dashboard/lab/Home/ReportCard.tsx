@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { fAge, fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
 import HospitalName from "@/components/print/HospitalName";
 import configuration from "@/config/configuration";
 
@@ -356,7 +356,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         <div className="grid grid-cols-2 gap-x-8 text-[13px] font-semibold text-black tracking-tight px-2">
                                             <div className="space-y-1">
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Name</span><span className="font-bold text-black uppercase">: {patient?.name || "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${fAge(patient.dateOfBirth).years}Y${fAge(patient.dateOfBirth).months > 0 ? ` ${fAge(patient.dateOfBirth).months}M` : ""}` : "—"} / ${patient?.gender || "—"}`}</span></div>
+                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "—"} / ${patient?.gender || "—"}`}</span></div>
                                                 <div className="flex gap-2"><span className="w-20 text-black font-medium">Ref. By.</span><span className="font-bold text-black">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
                                             </div>
                                             <div className="space-y-1">

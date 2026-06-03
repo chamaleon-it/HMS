@@ -11,7 +11,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import AppShell from "@/components/layout/app-shell";
-import { fAge, fDate } from "@/lib/fDateAndTime";
+import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
@@ -140,7 +140,7 @@ const Patients: React.FC = () => {
                                                     {p.mrn}
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle text-slate-700">
-                                                    {fAge(p.dateOfBirth).years}y {fAge(p.dateOfBirth).months}m / {p.gender}
+                                                    {fAgeString(p.dateOfBirth)} / {p.gender}
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle text-slate-700">
                                                     {p.phoneNumber}

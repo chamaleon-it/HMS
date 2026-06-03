@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/select";
 
 import api from "@/lib/axios";
-import { fAge } from "@/lib/fDateAndTime";
+import { fAge , fAgeString} from "@/lib/fDateAndTime";
 import registerPatientSchema from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 

@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { OrderType } from "./interface";
-import { fAge, fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -75,7 +75,7 @@ function OrderHeader({ order }: { order: OrderType }) {
                     <span className="text-sm">({order?.patient?.mrn})</span>
                 </div>
                 <div className="text-sm text-slate-700">
-                    Age/Gender: {fAge(order?.patient?.dateOfBirth).years}y {fAge(order?.patient?.dateOfBirth).months}m /{" "}
+                    Age/Gender: {fAgeString(order?.patient?.dateOfBirth)} /{" "}
                     {order?.patient?.gender} • Ph:
                     {order?.patient?.phoneNumber}
                 </div>

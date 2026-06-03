@@ -12,7 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { fAge } from "@/lib/fDateAndTime";
+import { fAge , fAgeString} from "@/lib/fDateAndTime";
 import { Download, FileText, Plus, Printer, Share2, User2 } from "lucide-react";
 import React from "react";
 import { PatientType } from "./interface";
@@ -41,7 +41,7 @@ export default function Header({
           </h1>
           {patient?.dateOfBirth && (
             <Badge variant="secondary" className="rounded-full">
-              Age {fAge(patient?.dateOfBirth).years}y {fAge(patient?.dateOfBirth).months}m
+              Age {fAgeString(patient?.dateOfBirth)}
             </Badge>
           )}
           {patient?.gender && (

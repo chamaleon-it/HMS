@@ -9,7 +9,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { AppointmentType, DataType } from "./interface";
-import { fAge, fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
 import { ActionButton } from "@/components/doctor/dashboard/home/PatientCard";
 import toast from "react-hot-toast";
 import useGetLabReport from "./useGetLabReport";
@@ -36,7 +36,7 @@ export default function Header({
     <div className="space-y-4 mb-6">
       <DoctorHeader
         title={appointment.patient.name}
-        subtitle={`(ID: ${appointment.patient.mrn}) • Age ${fAge(appointment?.patient?.dateOfBirth).years}y ${fAge(appointment?.patient?.dateOfBirth).months}m, ${appointment.patient.gender} ${!!appointment.patient.allergies ? `• Allergies: ${appointment.patient.allergies}` : ""}`}
+        subtitle={`(ID: ${appointment.patient.mrn}) • Age ${fAgeString(appointment?.patient?.dateOfBirth)}, ${appointment.patient.gender} ${!!appointment.patient.allergies ? `• Allergies: ${appointment.patient.allergies}` : ""}`}
       >
         <div className="flex gap-2.5 items-center">
           <Button

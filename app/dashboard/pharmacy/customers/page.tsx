@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import AppShell from "@/components/layout/app-shell";
-import { fAge, fDate } from "@/lib/fDateAndTime";
+import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
@@ -193,7 +193,7 @@ const Customers: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
-                           {p.patient.dateOfBirth ?<> {fAge(p.patient.dateOfBirth).years}y {fAge(p.patient.dateOfBirth).months > 0 ? <> {fAge(p.patient.dateOfBirth).months}m</> : ""} </> : "-" }/ {p.patient.gender}
+                           {fAgeString(p.patient.dateOfBirth)}/ {p.patient.gender}
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
                             <HighlightText

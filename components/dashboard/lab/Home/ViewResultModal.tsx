@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { fAge, fDate } from '@/lib/fDateAndTime';
+import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
 import { Activity, Clock, Eye, FileText, FlaskConical, User } from 'lucide-react';
 import {
     Table,
@@ -141,7 +141,7 @@ export default function ViewResultModal({ r }: Props) {
                             </div>
                             <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Age</p>
-                                <p className="text-sm font-medium text-gray-700">{fAge(r?.patient?.dateOfBirth).years}y {fAge(r?.patient?.dateOfBirth).months}m</p>
+                                <p className="text-sm font-medium text-gray-700">{fAgeString(r?.patient?.dateOfBirth)}</p>
                             </div>
                             <div>
                                 <p className="text-[10px] uppercase tracking-wider font-medium text-gray-500">Blood Type</p>
