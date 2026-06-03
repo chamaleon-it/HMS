@@ -27,9 +27,10 @@ import TestCatalogueRow from "./TestCatalogueRow";
 import PanelCatalogueRow from "./PanelCatalogueRow";
 import useGetPanels from "@/data/useGetPanels";
 import useGetGroups, { GroupItemType } from "@/data/useGetGroups";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
 import RemoveTestsFromPanelDialog from "./RemoveTestsFromPanelDialog";
+import AddCustomItemDialog from "./AddCustomItemDialog";
 import {
   Dialog,
   DialogContent,
@@ -377,8 +378,8 @@ export default function TestCatalogue({
 
   const tests = data?.data ?? [];
   const filteredTests = tests.filter((test) =>
-    test.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    test.code.toLowerCase().includes(searchQuery.toLowerCase())
+    (test.name?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+    (test.code?.toLowerCase() || "").includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -1189,6 +1190,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
   const [searchTestQuery, setSearchTestQuery] = useState("");
   const [addTestDropdownOpen, setAddTestDropdownOpen] = useState(false);
   const [cancelAlertOpen, setCancelAlertOpen] = useState(false);
+  const [isCustomItemOpen, setIsCustomItemOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -1485,9 +1487,31 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
                       </PopoverTrigger>
                       <PopoverContent className="w-200 p-0" align="start">
                         <Command>
-                          <CommandInput placeholder="Type test name or code..." className="h-11" />
+                          <CommandInput 
+                            placeholder="Type test name or code..." 
+                            className="h-11" 
+                            value={searchTestQuery}
+                            onValueChange={setSearchTestQuery}
+                          />
                           <CommandList onWheel={(e) => e.stopPropagation()}>
-                            <CommandEmpty>No test found.</CommandEmpty>
+                            <CommandEmpty className="py-6 text-center text-sm">
+                              <p className="text-muted-foreground mb-2">No test found.</p>
+                              {searchTestQuery.trim() !== "" && (
+                                <Button 
+                                  size="sm" 
+                                  type="button"
+                                  variant="outline" 
+                                  className="h-8 border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                                  onClick={() => {
+                                    setIsCustomItemOpen(true);
+                                    setAddTestDropdownOpen(false);
+                                  }}
+                                >
+                                  <Plus className="h-3.5 w-3.5 mr-1" />
+                                  Create "{searchTestQuery}" as custom item
+                                </Button>
+                              )}
+                            </CommandEmpty>
                             <CommandGroup>
                               {tests
                                 .map((t: any) => {
@@ -1521,6 +1545,22 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
                                 })}
                             </CommandGroup>
                           </CommandList>
+                          {searchTestQuery.trim() !== "" && (
+                            <div className="border-t border-slate-100 p-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                className="w-full justify-start text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50 h-8 px-2"
+                                onClick={() => {
+                                  setIsCustomItemOpen(true);
+                                  setAddTestDropdownOpen(false);
+                                }}
+                              >
+                                <Plus className="h-3.5 w-3.5 mr-1" />
+                                Create "{searchTestQuery}" as custom item
+                              </Button>
+                            </div>
+                          )}
                         </Command>
                       </PopoverContent>
                     </Popover>
@@ -1532,7 +1572,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         </div>
         <p className="text-xs text-slate-400 mt-2 italic">Select tests from the combobox to add them to this panel. Hit enter on search to add the top result.</p>
       </div>
-
+ 
       <div className="flex justify-end gap-2 mt-4">
         {selectedTests.length > 0 ? (
           <Button variant="outline" onClick={() => setCancelAlertOpen(true)}>Cancel</Button>
@@ -1541,6 +1581,16 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         )}
         <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={addPanel} disabled={loading}>{loading ? "Adding..." : "Save Panel"}</Button>
       </div>
+
+      <AddCustomItemDialog
+        open={isCustomItemOpen}
+        onOpenChange={setIsCustomItemOpen}
+        defaultName={searchTestQuery}
+        onSuccess={(newItem) => {
+          setSelectedTests((prev) => [...prev, newItem]);
+          mutate("/lab/panels/tests");
+        }}
+      />
 
       <AlertDialog open={cancelAlertOpen} onOpenChange={setCancelAlertOpen}>
         <AlertDialogContent>

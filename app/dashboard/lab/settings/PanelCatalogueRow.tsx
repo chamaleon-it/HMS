@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import api from "@/lib/axios";
+import AddCustomItemDialog from "./AddCustomItemDialog";
 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -10,6 +11,7 @@ import { TableCell, TableRow, Table, TableHeader, TableHead, TableBody } from '@
 import { formatINR } from '@/lib/fNumber';
 import { Eye, Pencil, Trash2, Plus, Search, GripVertical, Check } from 'lucide-react';
 import React, { useCallback, useState, useEffect } from 'react'
+import { mutate } from 'swr';
 import toast from 'react-hot-toast';
 import {
     AlertDialog,
@@ -127,6 +129,7 @@ export default function PanelCatalogueRow({
     const [selectedTests, setSelectedTests] = useState<any[]>(initialPanelTests);
     const [searchTestQuery, setSearchTestQuery] = useState("");
     const [addTestDropdownOpen, setAddTestDropdownOpen] = useState(false);
+    const [isCustomItemOpen, setIsCustomItemOpen] = useState(false);
 
     const sensors = useSensors(
         useSensor(PointerSensor),
@@ -192,7 +195,7 @@ export default function PanelCatalogueRow({
             };
 
 
-            await toast.promise(api.patch(`/lab/panels/${panel.name}`, updatePayload), {
+            await toast.promise(api.patch(`/lab/panels/${encodeURIComponent(encodeURIComponent(panel.name))}`, updatePayload), {
                 loading: "Updating panel...",
                 success: "Panel updated successfully",
                 error: ({ response }) => response.data.message,
@@ -208,7 +211,7 @@ export default function PanelCatalogueRow({
     const deletePanel = useCallback(async () => {
         try {
             setIsDeleting(true);
-            await toast.promise(api.delete(`/lab/panels/${panel.name}`), {
+            await toast.promise(api.delete(`/lab/panels/${encodeURIComponent(encodeURIComponent(panel.name))}`), {
                 loading: "Deleting Panel...",
                 success: "Panel deleted successfully",
                 error: ({ response }) => response.data.message,
@@ -555,9 +558,31 @@ export default function PanelCatalogueRow({
                                                                         const words = s.split(/\s+/);
                                                                         return words.every(w => v.includes(w)) ? 1 : 0;
                                                                     }}>
-                                                                        <CommandInput placeholder="Type test name or code..." className="h-11" />
+                                                                        <CommandInput 
+                                                                            placeholder="Type test name or code..." 
+                                                                            className="h-11" 
+                                                                            value={searchTestQuery}
+                                                                            onValueChange={setSearchTestQuery}
+                                                                        />
                                                                         <CommandList className="max-h-[350px]" onWheel={(e) => e.stopPropagation()}>
-                                                                            <CommandEmpty>No test found.</CommandEmpty>
+                                                                            <CommandEmpty className="py-6 text-center text-sm">
+                                                                                <p className="text-muted-foreground mb-2">No test found.</p>
+                                                                                {searchTestQuery.trim() !== "" && (
+                                                                                    <Button 
+                                                                                        size="sm" 
+                                                                                        type="button"
+                                                                                        variant="outline" 
+                                                                                        className="h-8 border-emerald-500 text-emerald-600 hover:bg-emerald-50"
+                                                                                        onClick={() => {
+                                                                                            setIsCustomItemOpen(true);
+                                                                                            setAddTestDropdownOpen(false);
+                                                                                        }}
+                                                                                    >
+                                                                                        <Plus className="h-3.5 w-3.5 mr-1" />
+                                                                                        Create "{searchTestQuery}" as custom item
+                                                                                    </Button>
+                                                                                )}
+                                                                            </CommandEmpty>
                                                                             <CommandGroup>
                                                                                 {[...tests]
                                                                                     .sort((a, b) => {
@@ -597,6 +622,22 @@ export default function PanelCatalogueRow({
                                                                                     })}
                                                                             </CommandGroup>
                                                                         </CommandList>
+                                                                        {searchTestQuery.trim() !== "" && (
+                                                                            <div className="border-t border-slate-100 p-2">
+                                                                                <Button
+                                                                                    type="button"
+                                                                                    variant="ghost"
+                                                                                    className="w-full justify-start text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50 h-8 px-2"
+                                                                                    onClick={() => {
+                                                                                        setIsCustomItemOpen(true);
+                                                                                        setAddTestDropdownOpen(false);
+                                                                                    }}
+                                                                                >
+                                                                                    <Plus className="h-3.5 w-3.5 mr-1" />
+                                                                                    Create "{searchTestQuery}" as custom item
+                                                                                </Button>
+                                                                            </div>
+                                                                        )}
                                                                     </Command>
                                                                 </PopoverContent>
                                                             </Popover>
@@ -608,11 +649,21 @@ export default function PanelCatalogueRow({
                                     </div>
                                     <p className="text-xs text-slate-400 mt-2 italic">Search by test name, code, or unit. Already added tests appear at the bottom.</p>
                                 </div>
-
+ 
                             </div>
                             <DialogFooter>
                                 <Button onClick={updatePanel}>Save changes</Button>
                             </DialogFooter>
+                            
+                            <AddCustomItemDialog
+                                open={isCustomItemOpen}
+                                onOpenChange={setIsCustomItemOpen}
+                                defaultName={searchTestQuery}
+                                onSuccess={(newItem) => {
+                                    setSelectedTests((prev) => [...prev, newItem]);
+                                    mutate("/lab/panels/tests");
+                                }}
+                            />
                         </DialogContent>
                     </Dialog>
 
