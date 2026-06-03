@@ -203,6 +203,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
   });
 
   const [showWarning, setShowWarning] = useState(false);
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false);
   const [collectedDate, setCollectedDate] = useState<Date | undefined>(
     r.sampleCollectedAt ? new Date(r.sampleCollectedAt) : (r.createdAt ? new Date(r.createdAt) : undefined)
   );
@@ -390,6 +391,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
       mutate();
       setOpen(false);
       setShowWarning(false);
+      setShowCompleteDialog(false);
 
       if (shouldPrint && handlePrint) {
         // Need to pass the updated values back up to LabTable's print handler
@@ -800,6 +802,13 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
               <Printer className="w-4 h-4" />
               Save & Print
             </Button>
+            <Button
+              onClick={() => setShowCompleteDialog(true)}
+              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-100 shadow-lg"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              Complete Test
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -842,6 +851,40 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                 }}
               >
                 Continue & Print
+              </Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-emerald-100 text-emerald-600 rounded-full">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <AlertDialogTitle>Complete Test</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="pl-12">
+              Are you sure you want to complete this test? 
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-6 flex gap-2 sm:justify-end">
+            <AlertDialogCancel asChild>
+              <Button variant="outline" onClick={() => setShowCompleteDialog(false)}>
+                Cancel
+              </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button
+                variant="default"
+                className="bg-emerald-600 text-white hover:bg-emerald-700"
+                onClick={() => {
+                  updateResult(false, true);
+                }}
+              >
+                Confirm & Complete
               </Button>
             </AlertDialogAction>
           </AlertDialogFooter>
