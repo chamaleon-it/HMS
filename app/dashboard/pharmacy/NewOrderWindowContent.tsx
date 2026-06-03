@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { AlertTriangle, Eye, Printer } from "lucide-react";
+import { AlertTriangle, Eye, Printer, UserPlus } from "lucide-react";
 import PharmacistSelection from "./PharmacistSelection";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -86,6 +86,20 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
             <PatientSelection
               patientName={patientName}
               autoFocus
+              actionElement={
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name: '', draftId: draft.id } }));
+                  }}
+                  className="h-7 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+                >
+                  <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+                  New Customer
+                </Button>
+              }
               setValue={(id: string, allergies?: string, name?: string) => {
                 setPayload((prev: any) => ({ ...prev, patient: id, allergies: allergies || undefined }));
                 updateDraft(draft.id, { patientName: name || "" });
@@ -96,7 +110,6 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
                 }
               }}
               register={(name) => {
-                // For simplicity, we'll keep the registration in the window or handle it globally
                 window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name, draftId: draft.id } }));
               }}
             />

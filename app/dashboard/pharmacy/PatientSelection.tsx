@@ -29,13 +29,14 @@ interface Props {
   register: (name?: string) => void;
   patientName: string;
   autoFocus?: boolean;
+  actionElement?: React.ReactNode;
 }
 
 const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 100;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus }) => {
+const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus, actionElement }) => {
   const [input, setInput] = useState(patientName);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
@@ -134,7 +135,10 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
 
   return (
     <div ref={rootRef} className="relative w-full max-w-[500px]">
-      <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+      <div className="flex items-center justify-between mb-1">
+        <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+        {actionElement}
+      </div>
 
       <div
         role="combobox"
