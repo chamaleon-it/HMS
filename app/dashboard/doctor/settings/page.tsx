@@ -21,7 +21,7 @@ export default function SettingsPage() {
 
   return (
     <AppShell>
-      <div className="min-h-[calc(100vh-80px)] bg-white p-5 space-y-5">
+      <div className="min-h-[calc(100vh-67px)] bg-white p-5 space-y-5">
         <DoctorHeader
           title="Settings"
           subtitle="Manage your profile, specialization, and security"

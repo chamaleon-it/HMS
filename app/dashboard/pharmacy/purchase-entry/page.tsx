@@ -3,16 +3,13 @@
 import { useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import BulkUpdateTable from "./BulkUpdateTable";
-import { FilterType, ItemType } from "../../inventory/interface";
-import useItems from "../../inventory/useItems";
-import { TableSkeleton } from "../../components/PharmacySkeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import PharmacyHeader from "../../components/PharmacyHeader";
+import PharmacyHeader from "../components/PharmacyHeader";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
-import { RefreshCw, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Drawer from "@/components/ui/drawer";
-import { AddSupplier } from "../AddSupplier";
+import { AddSupplier } from "../suppliers/AddSupplier";
 
 export default function PurchaseEntryPage() {
     const [isAddDrawerOpen, setIsAddDrawerOpen] = useState(false);
@@ -34,7 +31,7 @@ export default function PurchaseEntryPage() {
     return (
         <AppShell>
             <TooltipProvider>
-                <div className="p-5 min-h-[calc(100vh-80px)] w-full">
+                <div className="p-5 min-h-[calc(100vh-67px)] w-full">
                     <div className="flex flex-col gap-6">
                         <PharmacyHeader
                             title="Purchase entry"

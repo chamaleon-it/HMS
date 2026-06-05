@@ -42,6 +42,10 @@ export const pharmacyItemAddSchema = z.object({
     .number({ error: "Purchase price must be a number" })
     .optional(),
 
+  mrp: z.coerce
+    .number({ error: "MRP must be a number" })
+    .optional(),
+
   unitPrice: z.coerce
     .number({ error: "Unit price must be a number" })
     .optional(),
@@ -69,6 +73,11 @@ export const pharmacyItemAddSchema = z.object({
   packing: z.coerce
     .number({ error: "Packing must be a number" })
     .int({ error: "Packing must be an integer" })
+    .optional(),
+
+  noOfPacking: z.coerce
+    .number({ error: "No. of Packing must be a number" })
+    .int({ error: "No. of Packing must be an integer" })
     .optional(),
 
   gst: z.coerce

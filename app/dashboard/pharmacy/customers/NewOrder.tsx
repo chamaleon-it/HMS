@@ -100,10 +100,11 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
 
   const [showAllFields, setShowAllFields] = useState(false);
   const [patientName, setpatientName] = useState("")
+  const [nameToRegister, setNameToRegister] = useState("");
 
   return (
     <>
-      <Button variant={"outline"} onClick={() => setOpenCreate(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
+      <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button
@@ -126,7 +127,9 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
               setValue={(id: string) => {
                 setPayload((prev) => ({ ...prev, patient: id }));
               }}
-              register={() => {
+              register={(name) => {
+                if (name) setNameToRegister(name);
+                else setNameToRegister("");
                 setOpenCreate(true);
                 setOpen(false);
               }}
@@ -156,9 +159,10 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient onClose={(id?: string, name?: string) => {
+          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string) => {
             setOpenCreate(false);
             mutate()
+            setNameToRegister("")
             // setPayload((prev) => ({ ...prev, patient: id ?? "" }));
             // setOpen(true)
             // setpatientName(name ?? "")

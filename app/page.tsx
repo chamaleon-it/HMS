@@ -4,8 +4,8 @@ import { useAuth } from "@/auth/context/auth-context";
 import LoginForm from "@/components/LoginForm";
 import ForgotPassword from "@/components/LoginForm/ForgotPassword";
 import { Lock, Shield } from "lucide-react";
-import { redirect, useRouter } from "next/navigation";
-import React, { useState, useMemo, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useState, useMemo, useEffect } from "react";
 
 const quotes = [
   {
@@ -131,7 +131,7 @@ export default function LoginPage() {
               ))}
             </div>
 
-            {/* Medical quote (rotates per refresh) */}
+
             <div className="mt-6 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm animate-fade-up">
               <blockquote className="rounded-[12px] bg-white/10 p-5 text-slate-100 shadow-sm">
                 <p className="italic text-sm">
@@ -144,10 +144,10 @@ export default function LoginPage() {
             </div>
           </section>
 
-          {/* Right: the form card */}
+
           <section className="w-full max-w-lg ml-auto animate-fade-up-delay-2">
             <div className="rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-[2px] shadow-[0_12px_36px_-12px_rgba(2,6,23,0.25)] p-6 md:p-8 relative overflow-hidden">
-              {/* decorative soft glow for attractiveness */}
+
               <div
                 className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full opacity-20"
                 style={{
@@ -155,7 +155,7 @@ export default function LoginPage() {
                     "radial-gradient(50% 50% at 50% 50%, rgba(37,99,235,.18) 0%, transparent 70%)",
                 }}
               />
-              {/* subtle top gradient accent (brand) */}
+
               <div
                 className="absolute -top-px left-6 right-6 h-[3px] rounded-full animate-ribbon"
                 style={{
@@ -226,7 +226,7 @@ export default function LoginPage() {
 function IndiaFlagIcon({ className = "h-5 w-5" }) {
   return (
     <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-      {/* Rounded flag with accurate tricolour and a cleaner Ashoka Chakra */}
+
       <defs>
         <clipPath id="flagClip">
           <rect x="2" y="4" width="20" height="16" rx="2" ry="2" />

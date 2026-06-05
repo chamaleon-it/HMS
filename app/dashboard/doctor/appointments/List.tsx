@@ -1,4 +1,4 @@
-import { fTime } from "@/lib/fDateAndTime";
+import { fDateandTime, fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video, Search } from "lucide-react";
 import React, { useState } from "react";
 import useAppointmentList from "./data/useAppointmentList";
@@ -17,12 +17,14 @@ export default function List({
   query,
   activeStatuses,
   date,
+  activeDate
 }: {
   query: string;
   activeStatuses: string[];
   date: Date;
+  activeDate: "Today" | "7 days" | "30 days" | "Custom";
 }) {
-  const { data, mutate } = useAppointmentList({ activeStatuses, date });
+  const { data, mutate } = useAppointmentList({ activeStatuses, date, activeDate });
 
   const [edit, setEdit] = useState<null | {
     _id: string;
@@ -109,7 +111,7 @@ export default function List({
                 }
               >
                 <TableCell className="py-3 pl-4 font-medium text-slate-900">
-                  {fTime(row.date)}
+                  {fDateandTime(row.date)}
                 </TableCell>
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
@@ -174,7 +176,6 @@ export default function List({
       >
         <CreateAppointmentForm
           onClose={() => setEdit(null)}
-          mutate={mutate}
           appointment={edit}
         />
       </Drawer>}

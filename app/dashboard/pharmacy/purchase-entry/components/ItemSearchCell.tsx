@@ -24,7 +24,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { QuickAddItem } from "../../../inventory/QuickAddItem";
+import { QuickAddItem } from "../../inventory/QuickAddItem";
 
 // Simple hook for debouncing
 function useDebounced<T>(value: T, delay = 250) {
@@ -49,11 +49,13 @@ interface Item {
 
 interface ItemSearchCellProps {
     selectedItemId: string;
+    selectedItemName?: string;
     onSelect: (item: Item) => void;
 }
 
 const ItemSearchCell = ({
     selectedItemId,
+    selectedItemName,
     onSelect
 }: ItemSearchCellProps) => {
     const [query, setQuery] = useState("");
@@ -74,7 +76,9 @@ const ItemSearchCell = ({
 
     // Sync local selection when found in items (helps if we only have an ID)
     useEffect(() => {
-        if (selectedItemId && items.length > 0) {
+        if (!selectedItemId) {
+            setLocalSelectedItem(null);
+        } else if (items.length > 0) {
             const found = items.find(it => it._id === selectedItemId);
             if (found) setLocalSelectedItem(found);
         }
@@ -92,7 +96,7 @@ const ItemSearchCell = ({
                     )}
                 >
                     <span className="truncate">
-                        {localSelectedItem ? localSelectedItem.name : "Search Medicine..."}
+                        {localSelectedItem ? localSelectedItem.name : (selectedItemName || "Search Medicine...")}
                     </span>
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-indigo-500" />
                 </Button>

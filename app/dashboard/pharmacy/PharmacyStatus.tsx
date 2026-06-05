@@ -1,10 +1,10 @@
 "use client";
 
 import React, { JSX, useMemo } from "react";
-import { CheckCircle, Eye, Clock, LucideProps, Package, Trash2 } from "lucide-react";
+import { CheckCircle, Eye, Clock, LucideProps, Package, Trash2, FileEdit } from "lucide-react";
 import { motion } from "framer-motion";
 
-type statusType = "Pending" | "Filling" | "Ready" | "Completed" | "Deleted";
+type statusType = "Pending" | "Filling" | "Ready" | "Completed" | "Deleted" | "Draft";
 
 export default function PharmacyStatus({
   currenctStatus,
@@ -23,6 +23,7 @@ export default function PharmacyStatus({
       { key: "Ready", icon: Package },
       { key: "Completed", icon: CheckCircle },
       { key: "Deleted", icon: Trash2 },
+      { key: "Draft", icon: FileEdit},
     ],
     []
   );

@@ -35,5 +35,7 @@ export interface ProfileType {
       inApp: boolean;
       note: string;
     };
+    reportLayout?: "Classic" | "Modern";
+    panelPerPage?: boolean;
   };
 }

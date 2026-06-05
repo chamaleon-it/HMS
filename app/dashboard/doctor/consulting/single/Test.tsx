@@ -248,7 +248,7 @@ export default function Test({
   const [tab, setTab] = useState<TabKey>("All");
   const [selectedTests, setSelectedTests] = useState<TestItemType[]>([]);
   const [date, setDate] = useState<Date>(new Date());
-  const [labId, setLabId] = useState<string>(configuration().in_house_lab_id);
+  const [labId, setLabId] = useState<string>("");
   const [slot, setSlot] = useState<string>("");
   const [priority, setPriority] = useState<PriorityId>("Normal");
   const isSelected = (t: TestItemType) =>
@@ -274,7 +274,7 @@ export default function Test({
     const newTest = {
       name: selectedTests.map((e) => e._id),
       date: mode === "inhouse" ? new Date() : datetime,
-      lab: labId === "" ? labId : configuration().in_house_lab_id,
+      lab: labId,
       priority,
       panels: selectedPanel,
     };
@@ -431,6 +431,8 @@ export default function Test({
                         name: panel,
                         code: panel,
                         type: "Panel",
+                        range: [],
+                        note: "",
                       }}
                       onToggle={(t) => {
                         setSelectedPanel((prev) => [...prev, t.code]);
@@ -480,6 +482,8 @@ export default function Test({
                         name: panel.name,
                         code: panel.name,
                         type: "Panel",
+                        range: [],
+                        note: "",
                       }}
                       onToggle={(t) => {
                         setSelectedPanel((prev) => [...prev, t.code]);
@@ -687,6 +691,8 @@ export default function Test({
                             name: panel,
                             code: panel,
                             type: "Panel",
+                            range: [],
+                            note: "",
                           }}
                           toggleTest={() => {
                             tests

@@ -183,7 +183,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         }
 
                                                         return (
-                                                            <div key={item.item} className="group relative">
+                                                            <div key={item._id} className="group relative">
                                                                 <button
                                                                     className={`relative flex items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition-all shadow-sm ${tierStyles}`}
                                                                     onClick={() => {
@@ -242,7 +242,8 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                 <div className="overflow-x-auto">
                     <table className="w-full table-fixed text-sm">
                         <colgroup>
-                            <col className="w-[36%]" />
+                            <col className="w-[1%]" />
+                            <col className="w-[30%]" />
                             <col className="w-[10%]" />
                             <col className="w-[16%]" />
                             <col className="w-[12%]" />
@@ -251,7 +252,8 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                         </colgroup>
                         <thead className="bg-[#334155]">
                             <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-white font-semibold">
-                                <th className="py-2.5 pl-4 text-left">Item Name</th>
+                                <th className="py-2.5 pl-3 text-left">SL</th>
+                                <th className="py-2.5 pl-3 text-left">Item Name</th>
                                 <th className="py-2.5 pr-2 text-right">Qty</th>
                                 <th className="py-2.5 pr-2 text-right">Unit Price</th>
                                 <th className="py-2.5 pr-2 text-right">GST%</th>
@@ -261,7 +263,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                         </thead>
                         <tbody>
                             <AnimatePresence initial={false}>
-                                {payload.items.map((it: any) => {
+                                {payload.items.map((it: any, index: number) => {
                                     return (
                                         <React.Fragment key={it.name}>
                                             <motion.tr
@@ -271,6 +273,9 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                 transition={{ duration: 0.18 }}
                                                 className="border-b border-slate-100 last:border-0 hover:bg-indigo-50/30 group transition-colors"
                                             >
+                                                <td className="py-3 pl-3 text-left text-sm text-slate-500 font-medium">
+                                                    {index + 1}
+                                                </td>
                                                 <td className="py-3 pl-3 pr-2">
                                                     <div className="space-y-1">
                                                         <input
@@ -443,14 +448,14 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                         <PrimaryButton
                             onClick={async () => {
                                 try {
-                                    const data = await toast.promise(api.post("/billing/billing_item", {
+                                    await toast.promise(api.post("/billing/billing_item", {
                                         item: customItem.name,
                                         price: customItem.unitPrice,
                                         code: customItem.procedureCode
                                     }), {
                                         loading: "Adding custom item...",
                                         success: "Custom item added successfully!",
-                                        error: "Failed to add custom item!"
+                                        error: (err) => err.response?.data?.message || "Failed to add custom item!"
                                     })
                                     setCustomItem({
                                         name: "",

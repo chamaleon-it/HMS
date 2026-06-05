@@ -269,14 +269,17 @@ export default function LabResultsPage() {
           name: string;
           type: string;
           unit?: string;
-          min?: number;
-          max?: number;
-          womenMin?: number;
-          womenMax?: number;
-          childMin?: number;
-          childMax?: number;
-          nbMin?: number;
-          nbMax?: number;
+          range: {
+            name: string;
+            min: number | null | undefined;
+            max: number | null | undefined;
+            fromAge: number | null | undefined;
+            toAge: number | null | undefined;
+            gender: "Both" | "Male" | "Female";
+            dateType: "Year" | "Month" | "Day";
+
+          }[],
+          note: string
           _id: string;
           panels: {
             _id: string;
@@ -311,7 +314,7 @@ export default function LabResultsPage() {
   })
 
   return (
-    <div className="min-h-[calc(100vh-80px)] w-full bg-zinc-50/50 p-6 space-y-6">
+    <div className="min-h-[calc(100vh-67px)] w-full bg-zinc-50/50 p-6 space-y-6">
       <DoctorHeader
         title="Investigations"
         subtitle="Track, filter & review lab and imaging results"
