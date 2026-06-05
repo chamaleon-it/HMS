@@ -218,7 +218,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            MRP (₹) *
+            MRP (₹)
           </label>
           <Input
             type="number"
@@ -247,7 +247,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Unit Price (MRP ÷ Packing) (₹) *
+            Unit Price (MRP ÷ Packing) (₹)
           </label>
           <Input
             type="number"
@@ -270,7 +270,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Purchase Rate (P. Rate) (₹) *
+            Purchase Rate (P. Rate) (₹)
           </label>
           <Input
             type="number"
@@ -428,7 +428,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Current Stock Qty *
+            Current Stock Qty
           </label>
           <Input
             type="number"
