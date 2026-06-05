@@ -14,6 +14,8 @@ interface BlankPrescriptionProps {
 }
 
 export default function BlankPrescription({ data }: BlankPrescriptionProps) {
+
+    console.log(data)
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {

@@ -1,6 +1,7 @@
 import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw } from "lucide-react";
+import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer } from "lucide-react";
 import React, { useState } from "react";
+import BlankPrescription from "./BlankPrescription";
 import useAppointmentList from "./data/useAppointmentList";
 import Drawer from "@/components/ui/drawer";
 import { CreateAppointmentForm } from "./CreateAppointmentForm";
@@ -41,6 +42,19 @@ export default function List({
   const { data, mutate } = useAppointmentList({ activeStatuses, date, activeDate });
 
   const [edit, setEdit] = useState<null | any>(null);
+  const [printData, setPrintData] = useState<any>(null);
+
+  const handlePrintPrescription = (row: any) => {
+    setPrintData({
+      patient: row.patient,
+      doctor: row.doctor,
+      date: row.date,
+    });
+    setTimeout(() => {
+      window.print();
+      setPrintData(null);
+    }, 500);
+  };
 
   // Combine real data with mock data if real data is empty for demo purposes
   const rawData = data?.data && data.data.length > 0 ? data.data : [];
@@ -202,8 +216,8 @@ export default function List({
                     <span className="text-xs text-gray-500 truncate">{row.notes}</span>
                   </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
-                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} />
+                    <div className="flex items-center justify-end gap-1">
+                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -226,11 +240,13 @@ export default function List({
           />
         )}
       </Drawer>
+
+      {printData && <BlankPrescription data={printData} />}
     </div>
   );
 }
 
-function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder }: any) {
+function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint }: any) {
   return (
     <>
       {status !== "Consulted" && <button
@@ -240,6 +256,13 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
       >
         <CheckCircle2 size={16} />
       </button>}
+      <button
+        onClick={onPrint}
+        className="p-1.5 rounded-md hover:bg-purple-50 text-purple-600 border border-transparent hover:border-purple-200 transition-all"
+        title="Print Blank Prescription"
+      >
+        <Printer size={16} />
+      </button>
       <button
         onClick={onEdit}
         className="p-1.5 rounded-md hover:bg-blue-50 text-blue-600 border border-transparent hover:border-blue-200 transition-all"
