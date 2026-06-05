@@ -170,10 +170,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
 
                     updated.dis = discount;
                     updated.amount = taxable + tax;
-
                     return updated;
                 }
                 return item;
+
             })
         );
     };
@@ -511,7 +511,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 }}
                                             />
                                         </TableCell>
-                                        <TableCell className="p-2"><Input name="batch" className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} /></TableCell>
+                                        <TableCell className="p-2">
+                                            <Input name="batch" className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} />
+                                        </TableCell>
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"

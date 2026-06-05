@@ -7,7 +7,9 @@ function Input({ className, type, onBlur, onChange, ...props }: React.ComponentP
     if (type === "number" && e.target.value !== "") {
       const num = parseFloat(e.target.value);
       if (!isNaN(num)) {
-        const formatted = num.toFixed(2);
+        const formatted = Number.isInteger(num)
+          ? num.toString()
+          : num.toFixed(2);
         if (e.target.value !== formatted) {
           e.target.value = formatted;
           const event = new Event("input", { bubbles: true });
