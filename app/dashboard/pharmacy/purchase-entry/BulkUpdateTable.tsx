@@ -51,6 +51,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
     const [selectedSupplierId, setSelectedSupplierId] = useState<string>(defaultSupplierId || "");
     const [gstType, setGstType] = useState<"inclusive" | "exclusive">("inclusive");
     const [enableTCS, setEnableTCS] = useState(false);
+    const [isDraftLoaded, setIsDraftLoaded] = useState(false);
 
     const focusNextElement = (currentElement: HTMLElement) => {
         const currentRow = currentElement.closest('tr');
@@ -147,21 +148,21 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     const updated = { ...item, [field]: value };
 
                     if (field === "pack" || field === "noOfPack" || field === "schema_free") {
-                        const pack = Number(updated.pack) || 0
-                        const stripsCount = Number(updated.noOfPack) || 0;
-                        const schemeFree = Number(updated.schema_free) || 0;
-                        const qty = (stripsCount + schemeFree) * pack
-                        updated.qty = Number(qty)
+                        const pack = Number(updated.pack);
+                        const noOfPack = Number(updated.noOfPack);
+                        const schemaFree = Number(updated.schema_free);
+                        console.log(pack,noOfPack,schemaFree)
+                        updated.qty = (noOfPack + schemaFree) * pack;
                     }
 
-
+                    const q = Number(updated.noOfPack) || 0;
                     const r = Number(updated.purchasePrice) || 0;
                     const dp = Number(updated.dis_p) || 0;
                     const sp = Number(updated.sgst_p) || 0;
                     const cp = Number(updated.cgst_p) || 0;
                     const sf = Number(updated.schema_free) || 0;
 
-                    const gross = updated.noOfPack * updated.purchasePrice;
+                    const gross = q * r;
                     const discount = gross * (dp / 100);
                     const taxable = gross - discount;
                     const tax = taxable * ((sp + cp) / 100);
@@ -170,17 +171,17 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
 
                     updated.dis = discount;
                     updated.amount = taxable + tax;
+
                     return updated;
                 }
                 return item;
-
             })
         );
     };
 
     const totals = useMemo(() => {
         return newItems.reduce((acc, item) => {
-            const q = item.noOfPack;
+            const q = Number(item.noOfPack) || 0;
             const r = Number(item.purchasePrice) || 0;
             const dp = Number(item.dis_p) || 0;
             const sp = Number(item.sgst_p) || 0;
@@ -285,6 +286,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
 
             await api.post("/purchase_entry", payload);
             toast.success("Purchase entry saved successfully");
+            try {
+                localStorage.removeItem("purchase_entry_draft");
+            } catch (e) {}
             setNewItems([]);
             setBillDetails({
                 invoiceNumber: "",
@@ -302,16 +306,32 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
         }
     };
 
-    useEffect(() => {
-        if (newItems.length === 0) {
-            const initialRows = Array.from({ length: 1 }).map((_, i) => ({
-                id: `init-${i}`,
+    const handleSaveDraft = () => {
+        try {
+            const draft = {
+                newItems,
+                selectedSupplierId,
+                gstType,
+                enableTCS,
+                billDetails
+            };
+            localStorage.setItem("purchase_entry_draft", JSON.stringify(draft));
+            toast.success("Draft saved temporarily");
+        } catch (e) {
+            console.error("Failed to save draft", e);
+            toast.error("Failed to save draft");
+        }
+    };
+
+    const handleClearDraft = () => {
+        try {
+            localStorage.removeItem("purchase_entry_draft");
+            setNewItems([{
+                id: `init-0`,
                 _id: "",
                 product: "",
-                hsn: "",
                 batch: "",
                 qty: 0,
-                schm: 0,
                 pack: 0,
                 noOfPack: 0,
                 unitPrice: 0,
@@ -324,10 +344,94 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 schema_free: 0,
                 schema_amt: 0,
                 amount: 0,
-            }));
-            setNewItems(initialRows);
+            }]);
+            setBillDetails({
+                invoiceNumber: "",
+                invoiceDate: "",
+                transportCharges: "0",
+                paidAmount: "0",
+                description: ""
+            });
+            setSelectedSupplierId("");
+            toast.success("Form cleared");
+        } catch (e) {
+            console.error("Failed to clear draft", e);
+        }
+    };
+
+    // Load draft from localStorage on mount
+    useEffect(() => {
+        try {
+            const savedDraft = localStorage.getItem("purchase_entry_draft");
+            if (savedDraft) {
+                const parsed = JSON.parse(savedDraft);
+                if (parsed.newItems && parsed.newItems.length > 0) {
+                    setNewItems(parsed.newItems);
+                } else {
+                    initializeEmptyRow();
+                }
+                if (parsed.selectedSupplierId) {
+                    setSelectedSupplierId(parsed.selectedSupplierId);
+                }
+                if (parsed.gstType) {
+                    setGstType(parsed.gstType);
+                }
+                if (parsed.enableTCS !== undefined) {
+                    setEnableTCS(parsed.enableTCS);
+                }
+                if (parsed.billDetails) {
+                    setBillDetails(parsed.billDetails);
+                }
+            } else {
+                initializeEmptyRow();
+            }
+        } catch (e) {
+            console.error("Failed to load purchase entry draft", e);
+            initializeEmptyRow();
+        } finally {
+            setIsDraftLoaded(true);
+        }
+
+        function initializeEmptyRow() {
+            setNewItems([{
+                id: `init-0`,
+                _id: "",
+                product: "",
+                batch: "",
+                qty: 0,
+                pack: 0,
+                noOfPack: 0,
+                unitPrice: 0,
+                expiryDate: "",
+                purchasePrice: 0,
+                sgst_p: 0,
+                cgst_p: 0,
+                dis_p: 0,
+                dis: 0,
+                schema_free: 0,
+                schema_amt: 0,
+                amount: 0,
+            }]);
         }
     }, []);
+
+    // Save draft to localStorage whenever relevant state changes
+    useEffect(() => {
+        if (!isDraftLoaded) return;
+
+        try {
+            const draft = {
+                newItems,
+                selectedSupplierId,
+                gstType,
+                enableTCS,
+                billDetails
+            };
+            localStorage.setItem("purchase_entry_draft", JSON.stringify(draft));
+        } catch (e) {
+            console.error("Failed to save purchase entry draft", e);
+        }
+    }, [isDraftLoaded, newItems, selectedSupplierId, gstType, enableTCS, billDetails]);
 
     const { data: suppliersData } = useSWR<{ message: string; data: { _id: string; name: string }[] }>("/suppliers/get_id_and_name");
     const suppliers = suppliersData?.data || [];
@@ -456,6 +560,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">BATCH</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">PACK</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">STRIP COUNT</TableHead>
+                                
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">EXPIRY</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">Rate</TableHead>
@@ -490,6 +595,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="p-2 min-w-[150px] ">
                                             <ItemSearchCell
                                                 selectedItemId={item._id}
+                                                selectedItemName={item.product}
                                                 onSelect={(it) => {
 
                                                     const gst = it?.gst || 0;
@@ -511,9 +617,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 }}
                                             />
                                         </TableCell>
-                                        <TableCell className="p-2">
-                                            <Input name="batch" className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} />
-                                        </TableCell>
+                                        <TableCell className="p-2"><Input name="batch" className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} /></TableCell>
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -534,7 +638,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "noOfPack")}
                                             />
                                         </TableCell>
-
+                                       
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -644,7 +748,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 ₹{(item.schema_amt || 0).toFixed(2)}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="p-2">
+                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
                                                 name="qty"
@@ -670,14 +774,32 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     </Table>
                 </div>
 
-                <div className="p-6 bg-[#f8fafc] border-t border-slate-200 flex items-center justify-between">
-                    <Button
-                        onClick={addNewRow}
-                        variant="outline"
-                        className="bg-white text-indigo-600 hover:text-white hover:bg-indigo-600 border-indigo-200 font-semibold text-xs uppercase tracking-widest px-8 h-12 rounded-xl transition-all shadow-sm active:scale-95"
-                    >
-                        + Add Drug Row
-                    </Button>
+                <div className="p-6 bg-[#f8fafc] border-t border-slate-200 flex items-center gap-4 justify-between">
+                    <div className="flex items-center gap-3">
+                        <Button
+                            onClick={addNewRow}
+                            variant="outline"
+                            className="bg-white text-indigo-600 hover:text-white hover:bg-indigo-600 border-indigo-200 font-semibold text-xs uppercase tracking-widest px-8 h-12 rounded-xl transition-all shadow-sm active:scale-95"
+                        >
+                            + Add Drug Row
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={handleSaveDraft}
+                            variant="outline"
+                            className="bg-white text-amber-600 hover:bg-amber-600 hover:text-white border-amber-200 font-semibold text-xs uppercase tracking-widest px-8 h-12 rounded-xl transition-all shadow-sm active:scale-95"
+                        >
+                            Save Draft
+                        </Button>
+                        <Button
+                            type="button"
+                            onClick={handleClearDraft}
+                            variant="ghost"
+                            className="text-slate-500 hover:text-slate-700 font-semibold text-xs uppercase tracking-widest px-4 h-12 rounded-xl transition-all active:scale-95"
+                        >
+                            Clear Form
+                        </Button>
+                    </div>
                     <div className="text-[10px]  text-slate-400 italic">
                         Tip: Tab through fields for faster entry
                     </div>

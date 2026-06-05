@@ -41,7 +41,7 @@ export default function Header({ handleAdd, items, lowStockCount, setFilter, low
 
           // Build a downloadable file from the blob
           const blob = new Blob([resp.data], {
-            type: resp.headers["content-type"] || "text/csv",
+            type:"text/csv",
           });
 
           const filename =
