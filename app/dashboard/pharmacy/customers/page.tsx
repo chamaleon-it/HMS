@@ -188,7 +188,7 @@ const Customers: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
-                            {fAge(p.patient.dateOfBirth).years}y {fAge(p.patient.dateOfBirth).months}m / {p.patient.gender}
+                            {fAge(p.patient.dateOfBirth).formatted} / {p.patient.gender}
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
                             <HighlightText

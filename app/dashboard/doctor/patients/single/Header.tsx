@@ -41,7 +41,7 @@ export default function Header({
           </h1>
           {patient?.dateOfBirth && (
             <Badge variant="secondary" className="rounded-full">
-              Age {fAge(patient?.dateOfBirth).years}y {fAge(patient?.dateOfBirth).months}m
+              Age {fAge(patient?.dateOfBirth).formatted}
             </Badge>
           )}
           {patient?.gender && (

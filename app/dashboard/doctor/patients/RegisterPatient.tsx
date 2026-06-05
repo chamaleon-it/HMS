@@ -282,7 +282,7 @@ export function RegisterPatient({
             )}
           </div>
           <div className="grid gap-2">
-            <Label>Phone *</Label>
+            <Label>Phone</Label>
             <Input
               placeholder="+91"
               {...register("phoneNumber")}

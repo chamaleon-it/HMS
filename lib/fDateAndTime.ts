@@ -37,8 +37,14 @@ export function to12h(time24: string) {
   return `${hour12}:${m.toString().padStart(2, "0")} ${suffix}`;
 }
 
-export function fAge(date: Date | string = new Date()) {
+export function fAge(date?: Date | string | null) {
+  if (!date) {
+    return { years: 0, months: 0, formatted: "-" };
+  }
   const dob = new Date(date);
+  if (isNaN(dob.getTime())) {
+    return { years: 0, months: 0, formatted: "-" };
+  }
   const today = new Date();
 
   let years = today.getFullYear() - dob.getFullYear();
@@ -55,9 +61,16 @@ export function fAge(date: Date | string = new Date()) {
     months += 12;
   }
 
+  let formatted = "";
+  if (years === 0 && months === 0) formatted = "0m";
+  else if (years === 0) formatted = `${months}m`;
+  else if (months === 0) formatted = `${years}y`;
+  else formatted = `${years}y ${months}m`;
+
   return {
     years,
     months,
+    formatted
   };
 }
 

@@ -237,7 +237,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2 relative">
-            <Label>Phone *</Label>
+            <Label>Phone</Label>
             <Input
               placeholder="+91"
               {...register("phoneNumber")}
@@ -363,7 +363,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           <div className="">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label>Age (Years) *</Label>
+                <Label>Age (Years)</Label>
                 <Input
                   {...register("age")}
                   ref={mergeRefs(refs.age, register("age").ref)}
@@ -429,7 +429,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2">
-            <Label>Weight *</Label>
+            <Label>Weight</Label>
             <Input
               {...register("weight")}
               ref={mergeRefs(refs.weight, register("weight").ref)}

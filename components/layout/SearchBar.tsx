@@ -222,7 +222,7 @@ export const PatientCard: React.FC<{
               {/* Meta pills */}
               <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
                 <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-                  {fAge(p.dateOfBirth).years}y {fAge(p.dateOfBirth).months}m
+                  {fAge(p.dateOfBirth).formatted}
                 </span>
 
                 {/* Gender */}

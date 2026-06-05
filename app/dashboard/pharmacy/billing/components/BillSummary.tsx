@@ -74,7 +74,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                     <div className="absolute top-0 right-0 w-24 h-24 bg-white/5 -mr-12 -mt-12 rounded-full rotate-45 group-hover:scale-110 transition-transform duration-700" />
                     <div className="flex justify-between items-center text-white mb-1">
                         <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Net Payable</span>
-                        <span className="text-3xl font-black tracking-tight">₹{Math.ceil(finalTotal).toLocaleString('en-IN')}</span>
+                        <span className="text-3xl font-black tracking-tight">₹{finalTotal?.toFixed(2)}</span>
                     </div>
                     <div className="text-[9px] text-slate-500 uppercase tracking-widest font-medium text-right mt-1">Inclusive of all taxes</div>
                 </div>

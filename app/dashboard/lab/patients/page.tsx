@@ -140,7 +140,7 @@ const Patients: React.FC = () => {
                                                     {p.mrn}
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle text-slate-700">
-                                                    {fAge(p.dateOfBirth).years}y {fAge(p.dateOfBirth).months}m / {p.gender}
+                                                    {fAge(p.dateOfBirth).formatted} / {p.gender}
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle text-slate-700">
                                                     {p.phoneNumber}
