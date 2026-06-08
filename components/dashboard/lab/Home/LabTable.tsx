@@ -25,7 +25,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import useGetPanels from "@/data/useGetPanels";
-import ReportCardModern from "./ReportCardModern";
+
 import LabBillReceipt from "./LabBillReceipt";
 import useSWR from "swr";
 import useGetGroups from "@/data/useGetGroups";
@@ -269,7 +269,6 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
 
   const { data: profileData } = useSWR<{ message: string, data: { lab: { reportLayout: "Classic" | "Modern", panelPerPage: boolean } } }>("/users/profile")
 
-  const reportLayout: "Classic" | "Modern" = profileData?.data?.lab?.reportLayout ?? "Classic"
   const panelPerPage: boolean = profileData?.data?.lab?.panelPerPage ?? false
 
   return (
@@ -865,7 +864,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
             })}
         </tbody>
       </table>
-      {printReport && reportLayout === "Classic" ? <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} /> : <ReportCardModern report={printReport} panels={panels} panelPerPage={panelPerPage} />}
+      {printReport && <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} />}
       <LabBillReceipt report={printBillReport} bill={printBill} panels={panels} />
     </div>
   );

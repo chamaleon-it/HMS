@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
-import HospitalName from "@/components/print/HospitalName";
+import { fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import configuration from "@/config/configuration";
-
+import useSWR from "swr";
 
 interface ReportCardProps {
     report: any | null;
@@ -12,14 +11,10 @@ interface ReportCardProps {
 }
 
 export default function ReportCard({ report, panels, panelPerPage = false }: ReportCardProps) {
-
-
-
-    const isCBCPanelIncluded = report?.panels?.some((panel: any) =>
-        panel.includes("CBC")
-    ) ?? false;
-
     const [mounted, setMounted] = useState(false);
+    
+    const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/technician");
+    const inChargeTechnician = labResponse?.data?.find((p) => p.inCharge);
 
     useEffect(() => {
         setMounted(true);
@@ -33,6 +28,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             };
         }
     }, [report]);
+
     if (!report) return null;
 
     const patient = report.patient;
@@ -48,6 +44,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             </svg>
             <style dangerouslySetInnerHTML={{
                 __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
         @media print {
           @page {
             margin: 0;
@@ -61,6 +58,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
             font-family: 'Roboto', sans-serif;
+          }
+          * {
+              font-family: 'Roboto', sans-serif !important;
           }
           .print-prescription { 
             visibility: visible !important;
@@ -78,8 +78,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             display: none !important;
           }
           .a4-page {
-            width: 21cm;
-            height: 29.7cm !important; /* 📏 FULL A4 HEIGHT */
+            width: 210mm;
+            height: 296mm !important;
             padding: 0;
             margin: 0;
             display: flex;
@@ -97,74 +97,13 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
           .print-page-last {
             page-break-after: auto !important;
           }
-          .watermark-print {
-            position: absolute !important;
-            inset: 0 !important;
-            z-index: 0 !important; /* 🏥 ABOVE PAGE BASE, BELOW CONTENT */
-            pointer-events: none !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-          }
-          .watermark-print, .watermark-print *, .watermark-print img {
-            visibility: visible !important;
-            display: flex !important;
-            opacity: 0.25 !important; /* 🛡️ FORCED VISIBILITY FOR PRINTERS */
-          }
-          .header-reservoir {
-             height: 4.5cm; /* 🏥 FIXED Letterhead Reservoir (Blank) */
-             width: 100%;
-             visibility: hidden !important;
-          }
-          .report-body {
-            padding: 0 40px;
-            display: flex;
-            flex-direction: column;
-            width: 100%;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 20 !important; /* 🟢 CONTENT ABOVE WATERMARK */
-          }
-          .results-table {
-            table-layout: fixed;
-            width: 100%;
-            border-collapse: collapse;
-          }
-          .col-investigation { width: 40%; }
-          .col-result { width: 10%; }
-          .col-unit { width: 14%; }
-          .col-ref { width: 22%; }
-          .col-note { width: 14%; }
-
-          .bottom-grouping {
-            margin-top: auto; /* ⚡ PINNED TO PAGE BOTTOM */
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 5px 0 0 0;
-            width: 100%;
-            box-sizing: border-box;
-            position: relative;
-            z-index: 20 !important; /* 🟢 CONTENT ABOVE WATERMARK */
-          }
-          .signature-section {
-            page-break-inside: avoid !important;
-          }
-          .note-section {
-            page-break-inside: avoid !important;
-          }
-          .footer {
-            break-inside: avoid;
-            page-break-inside: avoid;
-          }
         }
       `}} />
 
             {(() => {
-                const FIRST_PAGE_LIMIT = isCBCPanelIncluded ? 28 : 20;
-                const SUBSEQUENT_PAGE_LIMIT = isCBCPanelIncluded ? 20 : 20;
+                const FIRST_PAGE_LIMIT = 24;
+                const SUBSEQUENT_PAGE_LIMIT = 30;
 
-                // 1. Prepare All Rows (Panel Headers + Tests)
                 const allRows: any[] = [];
                 const testMap = new Map<string, any>();
                 (report.test || []).forEach((t: any) => {
@@ -202,7 +141,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         type: "PANEL",
                         name: panelId,
                         activePanel: isBiochemistry ? "" : panelId,
-                        mainHeading: panelConfig?.mainHeading
+                        mainHeading: panelConfig?.mainHeading || panelId
                     };
                     let panelPushed = isBiochemistry;
 
@@ -230,7 +169,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     allRows.push({ type: "SUBHEADING", name: pendingSubheading, activePanel: isBiochemistry ? "" : panelId });
                                     pendingSubheading = null;
                                 }
-                                allRows.push({ type: "TEST", ...t, activePanel: isBiochemistry ? "" : panelId, hasSubheading: !!expectedSubheading });
+                                allRows.push({ type: "TEST", ...t, activePanel: isBiochemistry ? "" : panelId });
                             }
 
                             processedTestIds.add(id);
@@ -242,15 +181,13 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 Array.from(testMap.values()).forEach((t: any) => {
                     const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
                     if (valStr !== "") {
-                        const testCategory = t.name?.category ? `CATEGORY_${String(t.name.category).trim().toUpperCase()}` : "";
-                        allRows.push({ type: "TEST", ...t, activePanel: testCategory });
+                        allRows.push({ type: "TEST", ...t, activePanel: "" });
                     }
                 });
 
-                // 2. Chunk Into Pages
+                // Chunk Into Pages
                 const pages: any[][] = [];
                 if (panelPerPage) {
-                    // Group all rows by panel ID to handle non-adjacent rows (like merged Biochemistry tests)
                     const panelGroups: Record<string, any[]> = {};
                     const panelOrder: string[] = [];
 
@@ -293,10 +230,15 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     }
                 }
 
-                if (pages.length === 0) pages.push([]); // Guarantee at least one page
+                if (pages.length === 0) pages.push([]);
+                
+                // Overlay Watermark Background
+                const watermark = (
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.08] z-0">
+                        <img src={configuration().logo} alt="Watermark" className="w-[15cm] object-contain grayscale" />
+                    </div>
+                );
 
-                // 3. Render Pages
-                let globalSubheadingCount = 0;
                 return pages.map((pageRows, pageIdx) => {
                     const isFirstPage = panelPerPage ? (pageRows[0]?.isPanelStart || false) : pageIdx === 0;
                     const isLastPage = panelPerPage ? (pageRows[pageRows.length - 1]?.isPanelEnd || false) : pageIdx === pages.length - 1;
@@ -304,252 +246,205 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         const pName = row.activePanel || row.name;
                         return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
                     });
+                    const showHistograms = pageHasCBC && pages.findIndex(pr => pr.some(row => {
+                        const pName = row.activePanel || row.name;
+                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
+                    })) === pageIdx;
 
                     return (
-                        <div key={pageIdx} className={`a4-page shadow-none bg-white font-roboto ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
-                            {/* 🏥 ATOMIC WATERMARK (DIRECT INLINE) */}
-                            <div className="watermark-print">
-                                <img src={configuration().logo} alt="watermark" className="w-[12cm] grayscale object-contain" style={{ opacity: 0.50 }} />
-                            </div>
-
-                            {/* 🏥 DIGITAL HEADER */}
+                        <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'} flex flex-col relative`}>
+                            {watermark}
+                            <div className="flex-1 flex flex-col z-10 relative">
+                            {/* Header Section */}
                             {isFirstPage && (
-                                <div className="relative w-full bg-white text-black flex flex-col pt-0 break-inside-avoid">
-                                    {/* Content Wrapper */}
-                                    <div className="w-full relative flex justify-between items-start pt-5 pb-1.25 px-10">
-                                        <div className="relative z-10 w-[60%]">
-                                            <HospitalName />
+                                <div className="pt-6 px-10 pb-4 relative z-0">
+                                    <img src="/report-corner-icon.png" alt="Corner Icon" className="absolute top-0 right-0 w-1/2 object-contain object-right-top opacity-30 pointer-events-none mix-blend-multiply z-0" />
+                                    <div className="flex justify-between items-start relative z-10">
+                                        <div className="flex gap-4 items-center">
+                                            <div className="w-[110px] h-[110px] rounded-full border border-teal-100 flex items-center justify-center bg-white shrink-0 overflow-hidden">
+                                                <img src={configuration().logo} alt="Logo" className="w-full h-full object-cover mix-blend-multiply p-1" />
+                                            </div>
+                                            <div className="flex flex-col gap-1 ml-2">
+                                                <h1 className="text-[28px] font-bold text-slate-800 uppercase leading-none tracking-wide">{configuration().hospitalName}</h1>
+                                                <p className="text-[14px] text-slate-600 mt-1">{configuration().hospitalAddress}</p>
+                                                <div className="flex items-center gap-6 mt-1 text-slate-500">
+                                                    <div className="flex items-center gap-2">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-[#89b9c4]"><path d="M20 10.999h2C22 5.869 18.127 2 12.99 2v2C17.052 4 20 6.943 20 10.999z" /><path d="M13 8c2.103 0 3 .897 3 3h2c0-3.225-1.775-5-5-5v2zm3.422 5.443a1.001 1.001 0 0 0-1.391.043l-2.393 2.461c-.576-.11-1.734-.471-2.926-1.66-1.192-1.193-1.553-2.354-1.66-2.926l2.459-2.394a1 1 0 0 0 .043-1.391L6.859 3.513a1 1 0 0 0-1.391-.087l-2.17 1.861a1 1 0 0 0-.29.649c-.015.25-.301 6.172 4.291 10.766C11.305 20.707 16.323 21 17.705 21c.202 0 .326-.006.359-.008a.992.992 0 0 0 .648-.291l1.86-2.171a1 1 0 0 0-.086-1.391l-4.064-3.696z" /></svg>
+                                                        <span className="text-[14px] font-medium text-slate-600">+91 {configuration().hospitalPhone}</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-2">
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-[#89b9c4]">
+                                                            <path d="M20 4H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zm0 2v.511l-8 6.223-8-6.222V6h16zM4 18V9.044l7.386 5.745a.994.994 0 0 0 1.228 0L20 9.044 20.002 18H4z" />
+                                                        </svg>
+                                                        <span className="text-[14px] font-medium text-slate-600">arrahmamedicarelab@gmail.com</span>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    {/* Ribbon Wrapper */}
-                                    <div className="absolute right-0 top-0 w-[50%] z-1 flex flex-col items-end">
-                                        {/* Darker coral upper shape */}
-                                        <div
-                                            className="h-14 w-85 flex items-center justify-end"
-                                            style={{
-                                                backgroundColor: '#d66a54',
-                                                clipPath: 'polygon(0 0, 100% 0, 100% 100%, 37px 100%)'
-                                            }}
-                                        >
-                                            <span className="text-white text-[26px] font-sans font-medium pr-11.25">
-                                                LAB REPORT
-                                            </span>
+                                        <div className="flex flex-col items-end gap-1 mt-2">
+                                            <h2 className="text-[32px] font-bold text-slate-800 leading-none">LAB REPORT</h2>
+                                            <p className="text-[16px] text-slate-600 font-medium">Report No : {String(report.mrn || "0056").padStart(4, "0")}</p>
                                         </div>
-                                        {/* Lighter coral lower shape */}
-                                        <div
-                                            className="h-6 w-50"
-                                            style={{
-                                                backgroundColor: '#e6a69a',
-                                                clipPath: 'polygon(0 0, 100% 0, 100% 100%, 16px 100%)'
-                                            }}
-                                        ></div>
                                     </div>
                                 </div>
                             )}
 
-
-                            {/* BODY */}
-                            <div className="report-body">
-                                {isFirstPage && (
-                                    <div className="mb-3 pt-3 pb-3 border-y border-slate-300">
-                                        <div className="grid grid-cols-2 gap-x-8 text-[13px] font-semibold text-black tracking-tight px-2">
-                                            <div className="space-y-1">
-                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Name</span><span className="font-bold text-black uppercase">: {patient?.name || "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Age/Sex</span><span className="font-bold text-black">: {`${patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "—"} / ${patient?.gender || "—"}`}</span></div>
-                                                <div className="flex gap-2"><span className="w-20 text-black font-medium">Ref. By.</span><span className="font-bold text-black">: {doctor?.name ? `Dr. ${doctor.name}` : "Self"}</span></div>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <div className="flex gap-2"><span className="w-35 text-black font-medium">Report No</span><span className="font-bold text-black">: {String(report.mrn).padStart(4, "0")}</span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-black font-medium">Sample Collected On</span><span className="font-bold text-black">: {report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).split(",")[0] : "—"} </span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-black font-medium">Result Reported On</span><span className="font-bold text-black">: {report.testStartedAt ? fDateandTime(report.testStartedAt).split(",")[0] : "—"}</span></div>
-                                                <div className="flex gap-2"><span className="w-35 text-black font-medium">Result Printed On</span><span className="font-bold text-black">: {fDateandTime(new Date()).split(",")[0]}</span></div>
-                                            </div>
-                                        </div>
+                            {/* Patient Info Banner */}
+                            {isFirstPage && (
+                                <div className="bg-[#d9e9e8] w-full px-10 py-5 flex justify-between">
+                                    <div className="flex flex-col space-y-2 text-[15px] text-slate-800">
+                                        <div className="flex items-center"><span className="w-28 text-slate-700">Patient Name</span><span className="w-4">:</span><span className="font-semibold">{patient?.name || "Rashid"}</span></div>
+                                        <div className="flex items-center"><span className="w-28 text-slate-700">Age/Sex</span><span className="w-4">:</span><span className="font-semibold">{patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "26Y 3M"} / {patient?.gender || "Male"}</span></div>
+                                        <div className="flex items-center"><span className="w-28 text-slate-700">Ref. By.</span><span className="w-4">:</span><span className="font-semibold">Dr. {doctor?.name || "Self"}</span></div>
                                     </div>
-                                )}
+                                    <div className="flex flex-col space-y-2 text-[15px] text-slate-800 w-[45%]">
+                                        {/* <div className="flex items-center border-b border-slate-400/30 pb-0.5"><span className="w-40 text-slate-700">Sample Collected On</span><span className="w-4">:</span><span className="font-semibold">{report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).toLowerCase() : "02/06/26 10:23 am"}</span></div> */}
+                                        <div className="flex items-center border-b border-slate-400/30 pb-0.5"><span className="w-40 text-slate-700">Result Reported On</span><span className="w-4">:</span><span className="font-semibold">{report.testStartedAt ? fDateandTime(report.testStartedAt).toLowerCase() : "02/06/26 10:23 am"}</span></div>
+                                        <div className="flex items-center border-b border-slate-400/30 pb-0.5"><span className="w-40 text-slate-700">Result Printed On</span><span className="w-4">:</span><span className="font-semibold">{fDateandTime(new Date()).toLowerCase()}</span></div>
+                                    </div>
+                                </div>
+                            )}
 
-                                {/* PANEL HEADINGS (Moved above the table headings) */}
+                            {/* Results Table Section */}
+                            <div className="flex-1 mt-4 px-10">
                                 {(() => {
-                                    const firstRow = pageRows[0];
-                                    const activePanelId = firstRow?.activePanel || firstRow?.name;
-                                    const activePanelConfig = panels?.find(p => p?.name === activePanelId);
+                                    const firstPanelRow = pageRows.find(r => r.type === "PANEL");
+                                    const activePanelId = pageRows.find(r => r.activePanel)?.activePanel;
+                                    const headingText = firstPanelRow?.mainHeading || 
+                                                        panels?.find(p => p.name === activePanelId)?.mainHeading || 
+                                                        activePanelId || "";
 
-                                    const firstTestRow = pageRows.find(r => r.type === "TEST");
-                                    const categoryText = firstTestRow?.name?.category ? String(firstTestRow.name.category).trim() : "";
-                                    const headingText = activePanelConfig?.mainHeading || categoryText || "Biochemistry";
-                                    return isFirstPage && Boolean(headingText) ? (
-                                        <div className="w-full text-center pb-2 pt-1">
-                                            <p className="font-bold text-black text-[17px] uppercase">
-                                                {headingText}
-                                            </p>
+                                    return isFirstPage && headingText ? (
+                                        <div className="w-full bg-[#7caabb] text-white py-1.5 px-4 mb-4">
+                                            <h2 className="text-[16px] font-bold uppercase">{headingText}</h2>
                                         </div>
-                                    ) : <div className="h-12"></div>;
+                                    ) : null;
                                 })()}
-                                <div className="flex w-full bg-[#f4c3b9] border-y border-[#f4c3b9] text-[11px] font-bold text-black items-stretch relative z-8">
-                                    <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} pr-2`}>
-                                        <table className="results-table w-full h-full border-none m-0">
-                                            <colgroup>
-                                                <col className="col-investigation" />
-                                                <col className="col-result" />
-                                                <col className="col-unit" />
-                                                <col className="col-ref" />
-                                                <col className="col-note" />
-                                            </colgroup>
-                                            <thead className="bg-transparent border-none">
-                                                <tr>
-                                                    <th className="px-2 py-[5.5px] text-left">Parameter</th>
-                                                    <th className="px-2 py-[5.5px] text-center">Result</th>
-                                                    <th className="px-2 py-[5.5px] text-center">Unit</th>
-                                                    <th className="px-2 py-[5.5px] text-left">Ref. Range</th>
-                                                    <th className="px-2 py-[5.5px] text-left">Note</th>
+                                
+                                <div className="flex w-full gap-4 relative">
+                                    <div className={`${showHistograms ? 'w-[65%]' : 'w-full'}`}>
+                                        <table className="w-full border-collapse">
+                                            <thead>
+                                                <tr className="bg-[#e4eff0] text-slate-800 border-b border-white border-[3px]">
+                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[40%]">Parameter</th>
+                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[20%]">Result</th>
+                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[40%]">Ref. Range</th>
                                                 </tr>
                                             </thead>
-                                        </table>
-                                    </div>
-                                    {pageHasCBC && (
-                                        <div className="w-[30%] flex items-center px-4">
-                                            <div className="uppercaser">Histograms</div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* CONTENT BODY */}
-                                <div className="flex w-full gap-2 relative">
-                                    <div className={`${pageHasCBC ? 'w-[70%]' : 'w-full'} pr-2`}>
-                                        <table className="results-table">
-                                            <colgroup>
-                                                <col className="col-investigation" />
-                                                <col className="col-result" />
-                                                <col className="col-unit" />
-                                                <col className="col-ref" />
-                                                <col className="col-note" />
-                                            </colgroup>
                                             <tbody>
-
-
-                                                {(() => {
-                                                    return pageRows.map((row, rowIdx) => {
-                                                        if (row.type === "PANEL") {
-                                                            if (rowIdx === 0) return null;
-                                                            return (
-                                                                row.mainHeading && <tr key={`panel-${rowIdx}`}>
-                                                                    <td colSpan={5} className="px-0 pt-2">
-                                                                        <p className="font-bold text-black text-[15px] uppercase mt-1 text-center">{row.mainHeading}</p>
-                                                                    </td>
-                                                                </tr>
-                                                            );
-                                                        }
-                                                        if (row.type === "SUBHEADING") {
-                                                            globalSubheadingCount++;
-                                                            const graphKey = globalSubheadingCount === 1 ? 'WBC' : globalSubheadingCount === 2 ? 'RBC' : globalSubheadingCount === 3 ? 'PLT' : null;
-                                                            const fullGraphKey = globalSubheadingCount === 1 ? 'WBC Histogram. BMP' :
-                                                                globalSubheadingCount === 2 ? 'RBC Histogram. BMP' :
-                                                                    globalSubheadingCount === 3 ? 'PLT Histogram. BMP' : null;
-
-                                                            const panel = panels?.find((p: any) => p.name === row.activePanel)
-                                                            const panelMethod = panel?.method
-                                                            const panelSpecimen = panel?.specimen
-                                                            const subheadings = panel?.subheadings ?? []
-                                                            return (
-                                                                <tr key={`subheading-${rowIdx}`}>
-                                                                    <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        <p className="font-semibold text-black text-[13px]">{row.name}</p>
-                                                                        {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
-                                                                        {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
-
-                                                                        {graphKey && pageHasCBC && (
-                                                                            <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
-                                                                                <div className="flex flex-col pt-2">
-                                                                                    <div className="text-[12px] font-extrabold text-black pl-1 mb-1">{graphKey} HISTOGRAM</div>
-                                                                                    {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
-                                                                                        <img
-                                                                                            src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
-                                                                                            alt={`${graphKey} Histogram`}
-                                                                                            className="w-full h-[130px] object-contain object-left mix-blend-multiply"
-                                                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                                                        />
-                                                                                    ) : (
-                                                                                        <div className="w-full h-[130px] border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">
-                                                                                            {graphKey} Graph Area
-                                                                                        </div>
-                                                                                    )}
-                                                                                </div>
-                                                                            </div>
-                                                                        )}
-                                                                    </td>
-                                                                </tr>
-                                                            );
-                                                        }
-
-                                                        const value = parseFloat(row.value);
-                                                        let isAbnormal = false;
-                                                        const min = row.name?.range?.[0]?.min;
-                                                        const max = row.name?.range?.[0]?.max;
-                                                        if (!isNaN(value) && ((min !== undefined && min !== null && value < min) || (max !== undefined && max !== null && value > max))) {
-                                                            isAbnormal = true;
-                                                        }
-
+                                                {pageRows.map((row, rowIdx) => {
+                                                    if (row.type === "PANEL") return null;
+                                                    
+                                                    if (row.type === "SUBHEADING") {
+                                                        const panel = panels?.find((p: any) => p.name === row.activePanel)
+                                                        const panelMethod = panel?.method
+                                                        const panelSpecimen = panel?.specimen
+                                                        const subheadings = panel?.subheadings ?? []
+                                                        const isFirstSub = subheadings.length === 0 || subheadings[0] === row.name;
 
                                                         return (
-                                                            <React.Fragment key={`test-wrap-${rowIdx}`}>
-
-                                                                <tr key={`test-${rowIdx}`}>
-                                                                    <td className={`pl-2 pt-[3px] ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        <p className={`text-[12px]  text-black font-semibold pl-0`}>
-                                                                            {row.name?.name || "Unknown test"}
-                                                                        </p>
-                                                                        {!!row?.name?.method && <p className="text-[9px] text-black pl-0">Method: {row.name?.method}</p>}
-                                                                        {!!row?.name?.specimen && <p className="text-[9px] text-black pl-0">Specimen: {row.name?.specimen}</p>}
-                                                                    </td>
-                                                                    <td className={`px-2 pt-[3px] text-center text-[12px] leading-tight whitespace-nowrap ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        <span className={isAbnormal ? "font-bold" : "text-black font-bold"}>
-                                                                            {row.value || " "}
-                                                                        </span>
-                                                                    </td>
-                                                                    <td className={`px-2 pt-[3px] text-center text-black text-[12px] font-medium leading-tight ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
-                                                                            <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
-                                                                        ) : (
-                                                                            " "
-                                                                        )}
-                                                                    </td>
-                                                                    <td className={`px-2 pt-[3px] text-[12px] font-semibold text-black ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        {row.name?.range && row.name.range.length > 0 ? (
-                                                                            row.name.range.map((r: any, idx: number) => {
-                                                                                const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
-                                                                                const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
-                                                                                if (!hasMin && !hasMax) return null;
-                                                                                return (
-                                                                                    <div key={idx} className="whitespace-nowrap pb-[2px]">
-                                                                                        {r.name && (row.name.range.length > 1 || r.name.toLowerCase() !== "normal") ? (
-                                                                                            <span className="font-medium opacity-80 pr-1">{r.name}:</span>
-                                                                                        ) : null}
-                                                                                        {hasMin ? r.min : "0"} - {hasMax ? r.max : "N/A"}
-                                                                                    </div>
-                                                                                );
-                                                                            })
-                                                                        ) : "\u00A0"}
-                                                                    </td>
-                                                                    <td className={`px-2 pt-[3px] text-[12px] text-black whitespace-pre-wrap ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        {row.name?.note}
+                                                            <React.Fragment key={`sub-${rowIdx}`}>
+                                                                <tr>
+                                                                    <td colSpan={3} className="py-1.5 px-3 bg-[#e4eff0] mt-2 border-t-[4px] border-white text-slate-800">
+                                                                        <h3 className="text-[14px] font-bold uppercase underline underline-offset-2">{row.name}</h3>
                                                                     </td>
                                                                 </tr>
-
+                                                                {isFirstSub && panelMethod && (
+                                                                    <tr>
+                                                                        <td colSpan={3} className="px-3 pt-1 text-[12px] text-slate-600">Method: {panelMethod}</td>
+                                                                    </tr>
+                                                                )}
+                                                                {isFirstSub && panelSpecimen && (
+                                                                    <tr>
+                                                                        <td colSpan={3} className="px-3 pb-2 text-[12px] text-slate-600">Specimen: {panelSpecimen}</td>
+                                                                    </tr>
+                                                                )}
                                                             </React.Fragment>
                                                         );
-                                                    });
-                                                })()}
+                                                    }
+                                                    
+                                                    if (row.type !== "TEST") return null;
+
+                                                    const v = parseFloat(row.value);
+                                                    let min, max;
+                                                    if (row.name?.range?.[0]) {
+                                                        min = row.name.range[0].min;
+                                                        max = row.name.range[0].max;
+                                                    }
+
+                                                    let isAbnormal = false;
+                                                    if (min !== undefined && v < min) isAbnormal = true;
+                                                    else if (max !== undefined && v > max) isAbnormal = true;
+
+                                                    return (
+                                                        <tr key={"test-" + rowIdx}>
+                                                            <td className="py-1.5 px-3 text-[13px] text-slate-800 align-top">
+                                                                <div>{row.name?.name || "TEST"}</div>
+                                                            </td>
+                                                            <td className="py-1.5 px-3 text-[13px] text-slate-800 align-top flex gap-1 items-center">
+                                                                <span className={isAbnormal ? "font-bold text-black" : "font-semibold"}>{row.value || " "}</span>
+                                                                {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-slate-600 text-[12px] font-medium" dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
+                                                            </td>
+                                                            <td className="py-1.5 px-3 text-[13px] text-slate-600 align-top font-medium">
+                                                                {row.name?.range && row.name.range.length > 0 ? (
+                                                                    row.name.range.map((r: any, idx: number) => {
+                                                                        const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
+                                                                        const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
+                                                                        if (!hasMin && !hasMax) return null;
+                                                                        return (
+                                                                            <div key={idx}>
+                                                                                {r.name && r.name.toLowerCase() !== "normal" ? <span className="pr-1">{r.name}:</span> : ""}
+                                                                                ({hasMin ? r.min : "0"} - {hasMax ? r.max : "N/A"}) <span className="text-[12px]" dangerouslySetInnerHTML={{ __html: row.name?.unit || "" }} />
+                                                                            </div>
+                                                                        );
+                                                                    })
+                                                                ) : ""}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
                                             </tbody>
                                         </table>
                                     </div>
 
-
+                                    {showHistograms && (
+                                        <div className="w-[35%] pl-4 border-l border-slate-200">
+                                            <div className="bg-[#e4eff0] py-2 px-3 mb-4">
+                                                <h3 className="text-[14px] font-bold text-center text-slate-800">Histograms</h3>
+                                            </div>
+                                            
+                                            <div className="flex flex-col gap-6">
+                                                {['WBC', 'RBC', 'PLT'].map((graphKey) => {
+                                                    const fullGraphKey = `${graphKey} Histogram. BMP`;
+                                                    
+                                                    return (
+                                                        <div key={graphKey} className="flex flex-col">
+                                                            <div className="bg-[#e4eff0] px-2 py-1 mb-2 inline-block self-start">
+                                                                <span className="text-[13px] font-bold text-slate-800">{graphKey}</span>
+                                                            </div>
+                                                            {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
+                                                                <img
+                                                                    src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
+                                                                    alt={`${graphKey} Histogram`}
+                                                                    className="w-[200px] h-[100px] object-contain mix-blend-multiply ml-4"
+                                                                    style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
+                                                                />
+                                                            ) : (
+                                                                <div className="w-[200px] h-[100px] border border-dashed border-slate-300 flex items-center justify-center text-[10px] text-slate-400 ml-4">
+                                                                    {graphKey} Graph Area
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
-                            {/* SIGNATURE & FOOTER (Pinned to Bottom) */}
-                            <div className="bottom-grouping">
+                            {/* Footer Section */}
+                            <div className="w-full mt-auto pt-8">
                                 {isLastPage && (
                                     <>
                                         {report.note && (
@@ -562,34 +457,31 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 </div>
                                             </div>
                                         )}
-                                        <div className="text-center w-full mb-1 mt-1">
-                                            <p className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">*** End of Report ***</p>
-                                        </div>
-
-                                        <div className="flex justify-between signature-section pb-2 px-10 mt-2.5">
-                                            <div className="text-center w-64">
-
-                                                <p className="font-bold text-black uppercase leading-none text-[12px]">LAB IN-CHARGE</p>
-                                                <p className="text-[10px] font-bold text-black mt-1 uppercase">{report.technician || "LABORATORY"}</p>
+                                        <div className="px-10 pb-6 w-full flex justify-between items-end mt-4">
+                                            <div className="text-center w-48">
+                                                <p className="font-bold text-slate-800 text-[14px]">LAB IN-CHARGE</p>
+                                                <p className="text-[12px] text-slate-600 font-medium uppercase mt-1">{inChargeTechnician?.name || "LABORATORY"}</p>
                                             </div>
-                                            <div className="text-center w-64">
-
-                                                <p className="font-bold text-black uppercase leading-none  text-[12px]">LAB TECHNICIAN</p>
-
+                                            <div className="text-center w-48">
+                                                <p className="font-bold text-slate-800 text-[14px]">LAB TECHNICIAN</p>
+                                                {/* <p className="text-[12px] text-slate-600 font-medium mt-1 uppercase">{report.technician || ""}</p> */}
                                             </div>
                                         </div>
-
-
                                     </>
                                 )}
 
-                                <div className="px-10 py-3 text-black flex justify-between items-center footer" style={{ backgroundColor: '#f2cdbf' }}>
-                                    <div className="space-y-0.5">
-                                        <p className="text-black font-bold text-[11px]">Please consult your physician with this report.</p>
-                                        <p className="text-black font-medium text-[11px]">For Appointments: <span className="font-bold">{configuration().hospitalPhone}</span></p>
+                                {/* Bottom Banner */}
+                                <div className="bg-[#b3d4d9] w-full px-10 py-4 flex justify-between items-center text-slate-800 footer">
+                                    <div className="text-[14px]">
+                                        <span className="font-medium">Quality of our laboratory is controlled by</span><br/>
+                                        <span className="font-bold text-[15px]">CMC VELLORE</span>
                                     </div>
-                                    <p className="text-black font-medium text-[11px]">Powered by <span className="font-bold">Caresoft Innovations LLP</span></p>
+                                    <div className="text-[13px] text-right">
+                                        <span className="font-medium">Working Hours :</span><br/>
+                                        <span className="font-bold text-[14px]">6.30 am To 8.00 pm <br /> Sunday 6.30 am To 12.00 pm</span>
+                                    </div>
                                 </div>
+                            </div>
                             </div>
                         </div>
                     );

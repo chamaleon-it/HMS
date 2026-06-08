@@ -44,13 +44,11 @@ export default function General({
     }));
   }, [profile]);
 
-  const [layoutStyle, setLayoutStyle] = useState<"Classic" | "Modern">(profile?.lab?.reportLayout || "Modern");
   const [panelPerPage, setPanelPerPage] = useState<boolean>(profile?.lab?.panelPerPage || false);
 
   useEffect(() => {
-    setLayoutStyle(profile?.lab?.reportLayout || "Modern")
     setPanelPerPage(profile?.lab?.panelPerPage || false)
-  }, [profile?.lab?.reportLayout, profile?.lab?.panelPerPage])
+  }, [profile?.lab?.panelPerPage])
 
 
   const [loading, setLoading] = useState(false);
@@ -221,70 +219,17 @@ export default function General({
           </CardContent>
         </Card>
 
-        {/* Layout Switcher */}
         <Card className="border border-slate-200 bg-white/80 shadow-sm rounded-2xl">
           <CardHeader className="pb-4 text-center">
             <CardTitle className="text-sm font-bold text-slate-900 tracking-wide text-left">
-              Report Layout Style
+              Report Layout Settings
             </CardTitle>
             <CardDescription className="text-xs text-slate-500 text-left">
-              Select the default print format for lab reports.
+              Configure how lab reports are printed.
             </CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col items-center pb-6">
-            <div className="flex justify-center gap-8 w-full mb-8 mt-2">
-              <div className="flex flex-col items-center gap-[14px]">
-                <button
-                  onClick={() => setLayoutStyle("Classic")}
-                  className={`relative w-[130px] rounded-[16px] bg-white flex flex-col items-center justify-center p-[10px] transition-all ${layoutStyle === "Classic"
-                    ? "border-2 border-[#6eb269] shadow-md ring-4 ring-[#6eb269]/10"
-                    : "border-2 border-slate-200 hover:border-slate-300 shadow-sm"
-                    }`}
-                >
-                  {layoutStyle === "Classic" && (
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#6eb269] rounded-full w-[24px] h-[24px] flex items-center justify-center border-[3px] border-white z-10 shadow-sm">
-                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
-                    </div>
-                  )}
-                  <img src="/dummy/report/classic.png" className="w-full h-auto object-contain rounded-md" alt="" />
-                </button>
-                <span
-                  className={`text-[13px] tracking-wide mt-1 ${layoutStyle === "Classic"
-                    ? "font-extrabold text-[#6eb269]"
-                    : "font-bold text-slate-500"
-                    }`}
-                >
-                  Classic
-                </span>
-              </div>
-
-              <div className="flex flex-col items-center gap-[14px]">
-                <button
-                  onClick={() => setLayoutStyle("Modern")}
-                  className={`relative w-[130px] rounded-[16px] bg-white flex flex-col items-center justify-center p-[10px] transition-all ${layoutStyle === "Modern"
-                    ? "border-2 border-[#6eb269] shadow-md ring-4 ring-[#6eb269]/10"
-                    : "border-2 border-slate-200 hover:border-slate-300 shadow-sm"
-                    }`}
-                >
-                  {layoutStyle === "Modern" && (
-                    <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-[#6eb269] rounded-full w-[24px] h-[24px] flex items-center justify-center border-[3px] border-white z-10 shadow-sm">
-                      <Check className="w-3.5 h-3.5 text-white" strokeWidth={3.5} />
-                    </div>
-                  )}
-                  <img src="/dummy/report/modern.png" className="w-full h-auto object-contain rounded-md" alt="" />
-                </button>
-                <span
-                  className={`text-[13px] tracking-wide mt-1 ${layoutStyle === "Modern"
-                    ? "font-extrabold text-[#6eb269]"
-                    : "font-bold text-slate-500"
-                    }`}
-                >
-                  Modern
-                </span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 w-full mb-6">
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 w-full mb-6 mt-2">
               <div className="space-y-0.5 text-left">
                 <p className="text-sm font-medium text-slate-900">
                   Panel per page
@@ -307,12 +252,11 @@ export default function General({
                 onClick={async () => {
                   try {
                     await toast.promise(api.patch("/users/lab/update_report_layout", {
-                      reportLayout: layoutStyle,
                       panelPerPage: panelPerPage
                     }), {
-                      loading: "Updating layout...",
-                      success: "Layout updated successfully!",
-                      error: "Failed to update layout!"
+                      loading: "Updating settings...",
+                      success: "Settings updated successfully!",
+                      error: "Failed to update settings!"
                     })
                     await profileMutate()
                   } catch (error) {
@@ -320,7 +264,7 @@ export default function General({
                   }
                 }}
               >
-                Continue
+                Save Settings
               </Button>
             </div>
           </CardContent>
