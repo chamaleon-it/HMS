@@ -345,7 +345,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                         return (
                                                             <React.Fragment key={`sub-${rowIdx}`}>
                                                                 <tr>
-                                                                    <td colSpan={3} className="py-1.5 px-3 bg-[#e4eff0] mt-2 border-t-[4px] border-white text-slate-800">
+                                                                    <td colSpan={3} className="py-1.5 px-3 bg-[#e4eff0] mt-2 border-t-4 border-white text-slate-800">
                                                                         <h3 className="text-[14px] font-bold uppercase underline underline-offset-2">{row.name}</h3>
                                                                     </td>
                                                                 </tr>
