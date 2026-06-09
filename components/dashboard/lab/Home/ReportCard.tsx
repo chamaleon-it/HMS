@@ -12,7 +12,7 @@ interface ReportCardProps {
 
 export default function ReportCard({ report, panels, panelPerPage = false }: ReportCardProps) {
     const [mounted, setMounted] = useState(false);
-    
+
     const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/technician");
     const inChargeTechnician = labResponse?.data?.find((p) => p.inCharge);
 
@@ -101,8 +101,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
       `}} />
 
             {(() => {
-                const FIRST_PAGE_LIMIT = 24;
-                const SUBSEQUENT_PAGE_LIMIT = 30;
+                const FIRST_PAGE_LIMIT = 20;
+                const SUBSEQUENT_PAGE_LIMIT = 24;
 
                 const allRows: any[] = [];
                 const testMap = new Map<string, any>();
@@ -114,10 +114,14 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 let sortedPanels = [...(report.panels || [])];
                 sortedPanels.sort((a: string, b: string) => {
-                    const aUpper = a.toUpperCase();
-                    const bUpper = b.toUpperCase();
-                    const isAHematology = aUpper.includes("HAEMATOLOGY") || aUpper.includes("HEMATOLOGY");
-                    const isBHematology = bUpper.includes("HAEMATOLOGY") || bUpper.includes("HEMATOLOGY");
+                    const aConfig = panels?.find((pItem: any) => pItem.name === a);
+                    const bConfig = panels?.find((pItem: any) => pItem.name === b);
+                    const aHeading = (aConfig?.mainHeading || a).toUpperCase();
+                    const bHeading = (bConfig?.mainHeading || b).toUpperCase();
+
+                    const isAHematology = aHeading.includes("HAEMATOLOGY") || aHeading.includes("HEMATOLOGY") || aHeading.includes("HEAMATOLOGY") || aHeading.includes("CBC");
+                    const isBHematology = bHeading.includes("HAEMATOLOGY") || bHeading.includes("HEMATOLOGY") || bHeading.includes("HEAMATOLOGY") || bHeading.includes("CBC");
+
                     if (isAHematology && !isBHematology) return -1;
                     if (!isAHematology && isBHematology) return 1;
                     return 0;
@@ -146,10 +150,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     orderedIds.sort((a, b) => {
                         const tA = testMap.get(a)?.name?.name?.toUpperCase() || "";
                         const tB = testMap.get(b)?.name?.name?.toUpperCase() || "";
-                        const aSugar = tA.includes("SUGAR") || tA.includes("URIC");
-                        const bSugar = tB.includes("SUGAR") || tB.includes("URIC");
-                        if (aSugar && !bSugar) return -1;
-                        if (!aSugar && bSugar) return 1;
+                        const aPriority = tA.includes("SUGAR") || tA.includes("URIC") || tA.includes("URINE");
+                        const bPriority = tB.includes("SUGAR") || tB.includes("URIC") || tB.includes("URINE");
+                        if (aPriority && !bPriority) return -1;
+                        if (!aPriority && bPriority) return 1;
                         return 0;
                     });
 
@@ -210,13 +214,13 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     remainingTests.sort((a, b) => {
                         const tA = a.name?.name?.toUpperCase() || "";
                         const tB = b.name?.name?.toUpperCase() || "";
-                        const aSugar = tA.includes("SUGAR") || tA.includes("URIC");
-                        const bSugar = tB.includes("SUGAR") || tB.includes("URIC");
-                        if (aSugar && !bSugar) return -1;
-                        if (!aSugar && bSugar) return 1;
+                        const aPriority = tA.includes("SUGAR") || tA.includes("URIC") || tA.includes("URINE");
+                        const bPriority = tB.includes("SUGAR") || tB.includes("URIC") || tB.includes("URINE");
+                        if (aPriority && !bPriority) return -1;
+                        if (!aPriority && bPriority) return 1;
                         return 0;
                     });
-                    
+
                     const panelId = "BIOCHEMISTRY";
                     allRows.push({
                         type: "PANEL",
@@ -229,8 +233,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     });
                 }
 
-                // Chunk Into Pages
-                const pages: any[][] = [];
+                // Group by activePanel first to maintain grouping
                 const panelGroups: Record<string, any[]> = {};
                 const panelOrder: string[] = [];
 
@@ -243,29 +246,90 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     panelGroups[p].push(row);
                 });
 
-                panelOrder.forEach((p) => {
-                    const rows = panelGroups[p];
-                    let pIdx = 0;
-                    let panelPageCount = 0;
-                    while (pIdx < rows.length) {
-                        const isFirstPageOfPanel = panelPageCount === 0;
-                        const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
-                        const slice = rows.slice(pIdx, pIdx + limit);
-                        const isLastPageOfPanel = (pIdx + limit) >= rows.length;
+                // Sort panelOrder: 1) Hematology, 2) Biochemistry, 3) Category panels (with subheadings), 4) Others
+                const getHaemCheck = (name: string) => {
+                    const cfg = panels?.find((pItem: any) => pItem.name === name);
+                    const heading = (cfg?.mainHeading || name || "").toUpperCase();
+                    return heading.includes("HEMATOLOGY") || heading.includes("HAEMATOLOGY") || heading.includes("HEAMATOLOGY") || heading.includes("CBC");
+                };
+                const getBiochemCheck = (name: string) => {
+                    const heading = (name || "").toUpperCase();
+                    return heading === "BIOCHEMISTRY";
+                };
+                const getCategoryCheck = (name: string) => {
+                    const cfg = panels?.find((pItem: any) => pItem.name === name);
+                    return cfg?.subheadings && cfg.subheadings.length > 0;
+                };
 
-                        pages.push(slice.map((r, i) => ({
-                            ...r,
-                            isPanelStart: isFirstPageOfPanel && i === 0,
-                            isPanelEnd: isLastPageOfPanel && i === slice.length - 1
-                        })));
-
-                        pIdx += limit;
-                        panelPageCount++;
-                    }
+                panelOrder.sort((a, b) => {
+                    const getPriority = (p: string) => {
+                        if (getHaemCheck(p)) return 0;
+                        if (getBiochemCheck(p)) return 1;
+                        if (getCategoryCheck(p)) return 2;
+                        return 3;
+                    };
+                    return getPriority(a) - getPriority(b);
                 });
 
+                // Flatten panel groups to remove duplicate PANEL rows (e.g. 2 Biochemistry)
+                const finalRows: any[] = [];
+                const seenPanels = new Set<string>();
+
+                panelOrder.forEach((p) => {
+                    panelGroups[p].forEach(row => {
+                        if (row.type === "PANEL") {
+                            const heading = row.mainHeading || row.name;
+                            if (seenPanels.has(heading)) return;
+                            seenPanels.add(heading);
+                        }
+                        finalRows.push(row);
+                    });
+                });
+
+                // Chunk Into Pages with Continuous Flow, isolating Haematology
+                const pages: any[][] = [];
+                let currentPageRows: any[] = [];
+                let isFirstPageVar = true;
+                let currentLimit = FIRST_PAGE_LIMIT;
+
+                for (let i = 0; i < finalRows.length; i++) {
+                    const row = finalRows[i];
+                    const prevRow = i > 0 ? finalRows[i - 1] : null;
+
+                    const getIsHaem = (r: any) => {
+                        if (!r) return false;
+                        const pConfig = panels?.find((pItem: any) => pItem.name === r.activePanel);
+                        const pHeading = (pConfig?.mainHeading || r.activePanel || r.mainHeading || r.name?.name || r.name || "")?.toUpperCase();
+                        return pHeading.includes("HEMATOLOGY") || pHeading.includes("HAEMATOLOGY") || pHeading.includes("HEAMATOLOGY") || pHeading.includes("CBC");
+                    };
+
+                    const isPrevHaematology = getIsHaem(prevRow);
+                    const isCurrHaematology = getIsHaem(row);
+
+                    // Force page break when leaving Haematology
+                    if (isPrevHaematology && !isCurrHaematology && currentPageRows.length > 0) {
+                        pages.push(currentPageRows);
+                        currentPageRows = [];
+                        isFirstPageVar = false;
+                        currentLimit = SUBSEQUENT_PAGE_LIMIT;
+                    }
+
+                    if (currentPageRows.length >= currentLimit) {
+                        pages.push(currentPageRows);
+                        currentPageRows = [];
+                        isFirstPageVar = false;
+                        currentLimit = SUBSEQUENT_PAGE_LIMIT;
+                    }
+
+                    currentPageRows.push(row);
+                }
+
+                if (currentPageRows.length > 0) {
+                    pages.push(currentPageRows);
+                }
+
                 if (pages.length === 0) pages.push([]);
-                
+
                 // Overlay Watermark Background
                 const watermark = (
                     <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.08] z-0">
@@ -274,8 +338,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 );
 
                 return pages.map((pageRows, pageIdx) => {
-                    const isFirstPage = pageRows[0]?.isPanelStart || false;
-                    const isLastPage = pageRows[pageRows.length - 1]?.isPanelEnd || false;
+                    const isFirstPage = pageIdx === 0;
+                    const isLastPage = pageIdx === pages.length - 1;
                     const pageHasCBC = pageRows.some(row => {
                         const pName = row.activePanel || row.name;
                         return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
@@ -289,8 +353,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'} flex flex-col relative`}>
                             {watermark}
                             <div className="flex-1 flex flex-col z-10 relative">
-                            {/* Header Section */}
-                            {isFirstPage && (
+                                {/* Header Section */}
                                 <div className="pt-6 px-10 pb-4 relative z-0">
                                     <img src="/report-corner-icon.png" alt="Corner Icon" className="absolute top-0 right-0 w-1/2 object-contain object-right-top opacity-30 pointer-events-none mix-blend-multiply z-0" />
                                     <div className="flex justify-between items-start relative z-10">
@@ -321,10 +384,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         </div>
                                     </div>
                                 </div>
-                            )}
 
-                            {/* Patient Info Banner */}
-                            {isFirstPage && (
+                                {/* Patient Info Banner */}
                                 <div className="bg-[#d9e9e8] w-full px-10 py-5 flex justify-between">
                                     <div className="flex flex-col space-y-2 text-[15px] text-slate-800">
                                         <div className="flex items-center"><span className="w-28 text-slate-700">Patient Name</span><span className="w-4">:</span><span className="font-semibold">{patient?.name || "Rashid"}</span></div>
@@ -337,185 +398,205 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         <div className="flex items-center border-b border-slate-400/30 pb-0.5"><span className="w-40 text-slate-700">Result Printed On</span><span className="w-4">:</span><span className="font-semibold">{fDateandTime(new Date()).toLowerCase()}</span></div>
                                     </div>
                                 </div>
-                            )}
 
-                            {/* Results Table Section */}
-                            <div className="flex-1 mt-4 px-10">
-                                {(() => {
-                                    const firstPanelRow = pageRows.find(r => r.type === "PANEL");
-                                    const activePanelId = pageRows.find(r => r.activePanel)?.activePanel;
-                                    const headingText = firstPanelRow?.mainHeading || 
-                                                        panels?.find(p => p.name === activePanelId)?.mainHeading || 
-                                                        activePanelId || "";
+                                {/* Results Table Section */}
+                                <div className="mt-4 px-10">
 
-                                    return isFirstPage && headingText ? (
-                                        <div className="w-full bg-[#7caabb] text-white py-1.5 px-4 mb-4">
-                                            <h2 className="text-[16px] font-bold uppercase">{headingText}</h2>
+                                    <div className="flex w-full gap-4 relative">
+                                        <div className={`${showHistograms ? 'w-[65%]' : 'w-full'} flex flex-col gap-6`}>
+                                            {(() => {
+                                                const panelGroupsOnPage: { heading: string, rows: any[] }[] = [];
+                                                let currentGroup: any[] = [];
+                                                let currentHeading = "";
+
+                                                pageRows.forEach((row) => {
+                                                    if (row.type === "PANEL") {
+                                                        if (currentGroup.length > 0 || currentHeading !== "") {
+                                                            panelGroupsOnPage.push({ heading: currentHeading, rows: currentGroup });
+                                                        }
+                                                        currentHeading = row.mainHeading || row.name;
+                                                        currentGroup = [];
+                                                    } else {
+                                                        if (currentHeading === "" && currentGroup.length === 0) {
+                                                            const pConfig = panels?.find((p: any) => p.name === row.activePanel);
+                                                            currentHeading = pConfig?.mainHeading || row.activePanel || "";
+                                                        }
+                                                        currentGroup.push(row);
+                                                    }
+                                                });
+                                                if (currentGroup.length > 0 || currentHeading !== "") {
+                                                    panelGroupsOnPage.push({ heading: currentHeading, rows: currentGroup });
+                                                }
+
+                                                return panelGroupsOnPage.map((pg, pgIdx) => (
+                                                    <div key={pgIdx} className="w-full">
+                                                        {pg.heading && (
+                                                            <div className="w-full bg-[#7caabb] text-white py-1.5 px-4 mb-0">
+                                                                <h2 className="text-[16px] font-bold uppercase tracking-widest">{pg.heading}</h2>
+                                                            </div>
+                                                        )}
+                                                        <table className="w-full border-collapse">
+                                                            <thead>
+                                                                <tr className="bg-[#e4eff0] text-slate-800 border-b border-white border-[3px]">
+                                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[40%]">Parameter</th>
+                                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[20%]">Result</th>
+                                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[40%]">Ref. Range</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {pg.rows.map((row, rowIdx) => {
+                                                                    if (row.type === "PANEL") return null;
+
+                                                                    if (row.type === "SUBHEADING") {
+                                                                        const panel = panels?.find((p: any) => p.name === row.activePanel)
+                                                                        const panelMethod = panel?.method
+                                                                        const panelSpecimen = panel?.specimen
+                                                                        const subheadings = panel?.subheadings ?? []
+                                                                        const isFirstSub = subheadings.length === 0 || subheadings[0] === row.name;
+
+                                                                        return (
+                                                                            <React.Fragment key={`sub-${rowIdx}`}>
+                                                                                <tr>
+                                                                                    <td colSpan={3} className="py-1.5 px-3 bg-[#e4eff0] mt-2 border-t-4 border-white text-slate-800">
+                                                                                        <h3 className="text-[14px] font-bold uppercase underline underline-offset-2">{row.name}</h3>
+                                                                                    </td>
+                                                                                </tr>
+                                                                                {isFirstSub && panelMethod && (
+                                                                                    <tr>
+                                                                                        <td colSpan={3} className="px-3 pt-1 text-[12px] text-slate-600">Method: {panelMethod}</td>
+                                                                                    </tr>
+                                                                                )}
+                                                                                {isFirstSub && panelSpecimen && (
+                                                                                    <tr>
+                                                                                        <td colSpan={3} className="px-3 pb-2 text-[12px] text-slate-600">Specimen: {panelSpecimen}</td>
+                                                                                    </tr>
+                                                                                )}
+                                                                            </React.Fragment>
+                                                                        );
+                                                                    }
+
+                                                                    if (row.type !== "TEST") return null;
+
+                                                                    const v = parseFloat(row.value);
+                                                                    let min, max;
+                                                                    if (row.name?.range?.[0]) {
+                                                                        min = row.name.range[0].min;
+                                                                        max = row.name.range[0].max;
+                                                                    }
+
+                                                                    let isAbnormal = false;
+                                                                    if (min !== undefined && v < min) isAbnormal = true;
+                                                                    else if (max !== undefined && v > max) isAbnormal = true;
+
+                                                                    return (
+                                                                        <tr key={"test-" + rowIdx}>
+                                                                            <td className="py-1.5 px-3 text-[13px] text-slate-800 align-top">
+                                                                                <div>{row.name?.name || "TEST"}</div>
+                                                                            </td>
+                                                                            <td className="py-1.5 px-3 text-[13px] text-slate-800 align-top flex gap-1 items-center">
+                                                                                <span className={isAbnormal ? "font-bold text-black" : "font-semibold"}>{row.value || " "}</span>
+                                                                                {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-slate-600 text-[12px] font-medium" dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
+                                                                            </td>
+                                                                            <td className="py-1.5 px-3 text-[13px] text-slate-600 align-top font-medium">
+                                                                                {row.name?.range && row.name.range.length > 0 ? (
+                                                                                    row.name.range.map((r: any, idx: number) => {
+                                                                                        const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
+                                                                                        const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
+                                                                                        if (!hasMin && !hasMax) return null;
+                                                                                        return (
+                                                                                            <div key={idx}>
+                                                                                                {r.name && r.name.toLowerCase() !== "normal" ? <span className="pr-1">{r.name}:</span> : ""}
+                                                                                                ({hasMin ? r.min : "0"} - {hasMax ? r.max : "N/A"}) <span className="text-[12px]" dangerouslySetInnerHTML={{ __html: row.name?.unit || "" }} />
+                                                                                            </div>
+                                                                                        );
+                                                                                    })
+                                                                                ) : ""}
+                                                                            </td>
+                                                                        </tr>
+                                                                    );
+                                                                })}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                ));
+                                            })()}
                                         </div>
-                                    ) : null;
-                                })()}
-                                
-                                <div className="flex w-full gap-4 relative">
-                                    <div className={`${showHistograms ? 'w-[65%]' : 'w-full'}`}>
-                                        <table className="w-full border-collapse">
-                                            <thead>
-                                                <tr className="bg-[#e4eff0] text-slate-800 border-b border-white border-[3px]">
-                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[40%]">Parameter</th>
-                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[20%]">Result</th>
-                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[40%]">Ref. Range</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {pageRows.map((row, rowIdx) => {
-                                                    if (row.type === "PANEL") return null;
-                                                    
-                                                    if (row.type === "SUBHEADING") {
-                                                        const panel = panels?.find((p: any) => p.name === row.activePanel)
-                                                        const panelMethod = panel?.method
-                                                        const panelSpecimen = panel?.specimen
-                                                        const subheadings = panel?.subheadings ?? []
-                                                        const isFirstSub = subheadings.length === 0 || subheadings[0] === row.name;
+
+                                        {showHistograms && (
+                                            <div className="w-[35%] pl-4 border-l border-slate-200">
+                                                <div className="bg-[#e4eff0] py-2 px-3 mb-4">
+                                                    <h3 className="text-[14px] font-bold text-center text-slate-800">Histograms</h3>
+                                                </div>
+
+                                                <div className="flex flex-col gap-6">
+                                                    {['WBC', 'RBC', 'PLT'].map((graphKey) => {
+                                                        const fullGraphKey = `${graphKey} Histogram. BMP`;
 
                                                         return (
-                                                            <React.Fragment key={`sub-${rowIdx}`}>
-                                                                <tr>
-                                                                    <td colSpan={3} className="py-1.5 px-3 bg-[#e4eff0] mt-2 border-t-4 border-white text-slate-800">
-                                                                        <h3 className="text-[14px] font-bold uppercase underline underline-offset-2">{row.name}</h3>
-                                                                    </td>
-                                                                </tr>
-                                                                {isFirstSub && panelMethod && (
-                                                                    <tr>
-                                                                        <td colSpan={3} className="px-3 pt-1 text-[12px] text-slate-600">Method: {panelMethod}</td>
-                                                                    </tr>
-                                                                )}
-                                                                {isFirstSub && panelSpecimen && (
-                                                                    <tr>
-                                                                        <td colSpan={3} className="px-3 pb-2 text-[12px] text-slate-600">Specimen: {panelSpecimen}</td>
-                                                                    </tr>
-                                                                )}
-                                                            </React.Fragment>
-                                                        );
-                                                    }
-                                                    
-                                                    if (row.type !== "TEST") return null;
-
-                                                    const v = parseFloat(row.value);
-                                                    let min, max;
-                                                    if (row.name?.range?.[0]) {
-                                                        min = row.name.range[0].min;
-                                                        max = row.name.range[0].max;
-                                                    }
-
-                                                    let isAbnormal = false;
-                                                    if (min !== undefined && v < min) isAbnormal = true;
-                                                    else if (max !== undefined && v > max) isAbnormal = true;
-
-                                                    return (
-                                                        <tr key={"test-" + rowIdx}>
-                                                            <td className="py-1.5 px-3 text-[13px] text-slate-800 align-top">
-                                                                <div>{row.name?.name || "TEST"}</div>
-                                                            </td>
-                                                            <td className="py-1.5 px-3 text-[13px] text-slate-800 align-top flex gap-1 items-center">
-                                                                <span className={isAbnormal ? "font-bold text-black" : "font-semibold"}>{row.value || " "}</span>
-                                                                {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-slate-600 text-[12px] font-medium" dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
-                                                            </td>
-                                                            <td className="py-1.5 px-3 text-[13px] text-slate-600 align-top font-medium">
-                                                                {row.name?.range && row.name.range.length > 0 ? (
-                                                                    row.name.range.map((r: any, idx: number) => {
-                                                                        const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
-                                                                        const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
-                                                                        if (!hasMin && !hasMax) return null;
-                                                                        return (
-                                                                            <div key={idx}>
-                                                                                {r.name && r.name.toLowerCase() !== "normal" ? <span className="pr-1">{r.name}:</span> : ""}
-                                                                                ({hasMin ? r.min : "0"} - {hasMax ? r.max : "N/A"}) <span className="text-[12px]" dangerouslySetInnerHTML={{ __html: row.name?.unit || "" }} />
-                                                                            </div>
-                                                                        );
-                                                                    })
-                                                                ) : ""}
-                                                            </td>
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
-
-                                    {showHistograms && (
-                                        <div className="w-[35%] pl-4 border-l border-slate-200">
-                                            <div className="bg-[#e4eff0] py-2 px-3 mb-4">
-                                                <h3 className="text-[14px] font-bold text-center text-slate-800">Histograms</h3>
-                                            </div>
-                                            
-                                            <div className="flex flex-col gap-6">
-                                                {['WBC', 'RBC', 'PLT'].map((graphKey) => {
-                                                    const fullGraphKey = `${graphKey} Histogram. BMP`;
-                                                    
-                                                    return (
-                                                        <div key={graphKey} className="flex flex-col">
-                                                            <div className="bg-[#e4eff0] px-2 py-1 mb-2 inline-block self-start">
-                                                                <span className="text-[13px] font-bold text-slate-800">{graphKey}</span>
-                                                            </div>
-                                                            {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
-                                                                <img
-                                                                    src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
-                                                                    alt={`${graphKey} Histogram`}
-                                                                    className="w-[200px] h-[100px] object-contain mix-blend-multiply ml-4"
-                                                                    style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                                />
-                                                            ) : (
-                                                                <div className="w-[200px] h-[100px] border border-dashed border-slate-300 flex items-center justify-center text-[10px] text-slate-400 ml-4">
-                                                                    {graphKey} Graph Area
+                                                            <div key={graphKey} className="flex flex-col">
+                                                                <div className="bg-[#e4eff0] px-2 py-1 mb-2 inline-block self-start">
+                                                                    <span className="text-[13px] font-bold text-slate-800">{graphKey}</span>
                                                                 </div>
-                                                            )}
-                                                        </div>
-                                                    );
-                                                })}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Footer Section */}
-                            <div className="w-full mt-auto pt-8">
-                                {isLastPage && (
-                                    <>
-                                        {report.note && (
-                                            <div className="w-full px-10 pb-4 text-left">
-                                                <div className="border-t border-slate-300 pt-2">
-                                                    <p className="text-xs font-bold text-black uppercase tracking-wide">Note:</p>
-                                                    <p className="text-[11px] font-medium text-slate-800 mt-1 whitespace-pre-wrap leading-normal font-sans">
-                                                        {report.note}
-                                                    </p>
+                                                                {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
+                                                                    <img
+                                                                        src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
+                                                                        alt={`${graphKey} Histogram`}
+                                                                        className="w-[200px] h-[100px] object-contain mix-blend-multiply ml-4"
+                                                                        style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
+                                                                    />
+                                                                ) : (
+                                                                    <div className="w-[200px] h-[100px] border border-dashed border-slate-300 flex items-center justify-center text-[10px] text-slate-400 ml-4">
+                                                                        {graphKey} Graph Area
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        );
+                                                    })}
                                                 </div>
                                             </div>
                                         )}
-                                        <div className="px-10 pb-6 w-full flex justify-between items-end mt-4">
-                                            <div className="text-center w-48">
-                                                <p className="font-bold text-slate-800 text-[14px]">LAB IN-CHARGE</p>
-                                                <p className="text-[12px] text-slate-600 font-medium uppercase mt-1">{inChargeTechnician?.name || "LABORATORY"}</p>
-                                            </div>
-                                            <div className="text-center w-48">
-                                                <p className="font-bold text-slate-800 text-[14px]">LAB TECHNICIAN</p>
-                                                {/* <p className="text-[12px] text-slate-600 font-medium mt-1 uppercase">{report.technician || ""}</p> */}
-                                            </div>
-                                        </div>
-                                    </>
-                                )}
-
-                                {/* Bottom Banner */}
-                                <div className="bg-[#b3d4d9] w-full px-10 py-4 flex justify-between items-center text-slate-800 footer">
-                                    <div className="text-[14px]">
-                                        <span className="font-medium">Quality of our laboratory is controlled by</span><br/>
-                                        <span className="font-bold text-[15px]">CMC VELLORE</span>
-                                    </div>
-                                    <div className="text-[13px] text-right">
-                                        <span className="font-medium">Working Hours :</span><br/>
-                                        <span className="font-bold text-[14px]">6.30 am To 8.00 pm <br /> Sunday 6.30 am To 12.00 pm</span>
                                     </div>
                                 </div>
-                            </div>
+
+                                {/* Footer Section */}
+                                <div className="w-full mt-auto pt-8">
+                                    {isLastPage && (
+                                        <>
+                                            {report.note && (
+                                                <div className="w-full px-10 pb-4 text-left">
+                                                    <div className="border-t border-slate-300 pt-2">
+                                                        <p className="text-xs font-bold text-black uppercase tracking-wide">Note:</p>
+                                                        <p className="text-[11px] font-medium text-slate-800 mt-1 whitespace-pre-wrap leading-normal font-sans">
+                                                            {report.note}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div className="px-10 pb-6 w-full flex justify-between items-end mt-4">
+                                                <div className="text-center w-48">
+                                                    <p className="font-bold text-slate-800 text-[14px]">LAB IN-CHARGE</p>
+                                                    <p className="text-[12px] text-slate-600 font-medium uppercase mt-1">{inChargeTechnician?.name || "LABORATORY"}</p>
+                                                </div>
+                                                <div className="text-center w-48">
+                                                    <p className="font-bold text-slate-800 text-[14px]">LAB TECHNICIAN</p>
+                                                    {/* <p className="text-[12px] text-slate-600 font-medium mt-1 uppercase">{report.technician || ""}</p> */}
+                                                </div>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* Bottom Banner */}
+                                    <div className="bg-[#b3d4d9] w-full px-10 py-4 flex justify-between items-center text-slate-800 footer">
+                                        <div className="text-[13px]">
+                                            <span className="font-medium">OP Working Hours :</span><br />
+                                            <span className="font-bold text-[14px]">3.00 pm to 8 pm</span>
+                                        </div>
+                                        <div className="text-[13px] text-right">
+                                            <span className="font-medium">Lab Working Hours :</span><br />
+                                            <span className="font-bold text-[14px]">6.30 am To 8.00 pm <br /> Sunday 6.30 am To 12.00 pm</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     );

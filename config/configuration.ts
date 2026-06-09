@@ -6,7 +6,7 @@ export default () => ({
   hospitalPhone: process.env.NEXT_PUBLIC_HOSPITAL_PHONE,
   hospitalEmail: process.env.NEXT_PUBLIC_HOSPITAL_EMAIL,
   digiPin: process.env.NEXT_PUBLIC_DIGI_PIN,
-  logo: process.env.NEXT_PUBLIC_LOGO,
+  logo: process.env.NEXT_PUBLIC_LOGO || "/logo.png",
   gstIn: process.env.NEXT_PUBLIC_GSTIN
 });
 
