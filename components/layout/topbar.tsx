@@ -55,6 +55,7 @@ export default function Header() {
       { key: "patients", label: "Customers", link: "/dashboard/lab/patients/" },
       { key: "billing", label: "Billing", link: "/dashboard/lab/billing/" },
       { key: "payments", label: "Payments", link: "/dashboard/lab/payments/" },
+      { key: "register", label: "Lab Register", link: "/dashboard/lab/register/" },
     ]) || [];
 
   return (
