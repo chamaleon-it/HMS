@@ -377,8 +377,8 @@ export default function TestCatalogue({
 
   const tests = data?.data ?? [];
   const filteredTests = tests.filter((test) =>
-    test.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    test.code.toLowerCase().includes(searchQuery.toLowerCase())
+    test?.name?.toLowerCase()?.includes(searchQuery?.toLowerCase()) ||
+    test?.code?.toLowerCase()?.includes(searchQuery?.toLowerCase())
   );
 
   return (
@@ -1726,13 +1726,13 @@ const AddGroupForm = ({
   const [price, setPrice] = useState(initialGroup?.price || 0);
   const [selectedTests, setSelectedTests] = useState<any[]>(initialGroup?.tests || []);
   const [selectedPanels, setSelectedPanels] = useState<any[]>(initialGroup?.panels || []);
-  
+
   const [searchTestQuery, setSearchTestQuery] = useState("");
   const [searchPanelQuery, setSearchPanelQuery] = useState("");
-  
+
   const [addTestDropdownOpen, setAddTestDropdownOpen] = useState(false);
   const [addPanelDropdownOpen, setAddPanelDropdownOpen] = useState(false);
-  
+
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
@@ -1748,7 +1748,7 @@ const AddGroupForm = ({
         tests: selectedTests.map((t) => t._id),
         panels: selectedPanels.map((p) => p._id),
       };
-      
+
       if (initialGroup) {
         await toast.promise(api.patch(`/lab/panels/groups/${initialGroup.name}`, payload), {
           loading: "Updating group...",
@@ -1773,7 +1773,7 @@ const AddGroupForm = ({
   const filteredTests = tests.filter((t) =>
     t.name.toLowerCase().includes(searchTestQuery.toLowerCase())
   );
-  
+
   const filteredPanels = panels.filter((p) =>
     p.name.toLowerCase().includes(searchPanelQuery.toLowerCase())
   );
@@ -1802,7 +1802,7 @@ const AddGroupForm = ({
           />
         </div>
       </div>
-      
+
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <div className="flex justify-between items-center">
@@ -1847,7 +1847,7 @@ const AddGroupForm = ({
               </PopoverContent>
             </Popover>
           </div>
-          
+
           <div className="border rounded-md max-h-[250px] overflow-y-auto p-2 space-y-2">
             {selectedTests.length === 0 ? (
               <p className="text-xs text-center text-slate-500 py-4">No tests selected</p>
@@ -1863,7 +1863,7 @@ const AddGroupForm = ({
             )}
           </div>
         </div>
-        
+
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <Label className="text-xs font-medium text-slate-700">Included Panels</Label>
@@ -1907,7 +1907,7 @@ const AddGroupForm = ({
               </PopoverContent>
             </Popover>
           </div>
-          
+
           <div className="border rounded-md max-h-[250px] overflow-y-auto p-2 space-y-2">
             {selectedPanels.length === 0 ? (
               <p className="text-xs text-center text-slate-500 py-4">No panels selected</p>
@@ -1924,7 +1924,7 @@ const AddGroupForm = ({
           </div>
         </div>
       </div>
-      
+
       <div className="flex justify-end gap-2 pt-2 border-t">
         <Button variant="outline" onClick={onCancel} disabled={loading}>
           Cancel
