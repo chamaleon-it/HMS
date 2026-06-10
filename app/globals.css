@@ -8,7 +8,7 @@
 }
 
 .font-cinzel {
-  font-family: 'Cinzel Decorative', serif;
+  font-family: 'Cinzel Decorative', serif !important;
 }
 
 @custom-variant dark (&:is(.dark *));

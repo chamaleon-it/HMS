@@ -45,6 +45,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             <style dangerouslySetInnerHTML={{
                 __html: `
         @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel+Decorative:wght@400;700;900&family=Italianno&display=swap');
         @media print {
           @page {
             margin: 0;
@@ -79,7 +80,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
           }
           .a4-page {
             width: 210mm;
-            height: 296mm !important;
+            height: 297mm !important;
             padding: 0;
             margin: 0;
             display: flex;
@@ -451,7 +452,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 <img src={configuration().logo} alt="Logo" className="w-full h-full object-cover mix-blend-multiply p-1" />
                                             </div>
                                             <div className="flex flex-col gap-1 ml-2">
-                                                <h1 className="text-[28px] font-bold text-slate-800 uppercase leading-none tracking-wide">{configuration().hospitalName}</h1>
+                                                <h1 className="text-[28px] font-bold text-slate-800 uppercase leading-none tracking-wide font-cinzel" style={{ fontFamily: "'Cinzel Decorative', serif" }}>{configuration().hospitalName}</h1>
                                                 <p className="text-[14px] text-slate-600 mt-1">{configuration().hospitalAddress}</p>
                                                 <div className="flex items-center gap-6 mt-1 text-slate-500">
                                                     <div className="flex items-center gap-2">
@@ -468,14 +469,14 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end gap-1 mt-2">
-                                            <h2 className="text-[24px] font-bold text-slate-800 leading-none">LAB REPORT</h2>
+                                            <h2 className="text-[22px] font-bold text-slate-800 leading-none">LAB REPORT</h2>
                                             <p className="text-[16px] text-slate-600 font-medium">Report No : {String(report.mrn || "0056").padStart(4, "0")}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Patient Info Banner */}
-                                <div className="bg-[#d9e9e8] w-full px-5 py-2.5 flex justify-between">
+                                <div className="bg-[#d9e9e8] w-full px-10 py-2.5 flex justify-between">
                                     <div className="flex flex-col space-y-2 text-[15px] text-slate-800">
                                         <div className="flex items-center"><span className="w-28 text-slate-700">Patient Name</span><span className="w-4">:</span><span className="font-semibold">{patient?.name || "Rashid"}</span></div>
                                         <div className="flex items-center"><span className="w-28 text-slate-700">Age/Sex</span><span className="w-4">:</span><span className="font-semibold">{patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "26Y 3M"} / {patient?.gender || "Male"}</span></div>
@@ -483,15 +484,15 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     </div>
                                     <div className="flex flex-col space-y-2 text-[15px] text-slate-800 w-[45%]">
                                         {/* <div className="flex items-center border-b border-slate-400/30 pb-0.5"><span className="w-40 text-slate-700">Sample Collected On</span><span className="w-4">:</span><span className="font-semibold">{report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).toLowerCase() : "02/06/26 10:23 am"}</span></div> */}
-                                        <div className="flex items-center border-b border-slate-400/30 pb-0.5"><span className="w-40 text-slate-700">Result Reported On</span><span className="w-4">:</span><span className="font-semibold">{report.testStartedAt ? fDateandTime(report.testStartedAt).toLowerCase() : "02/06/26 10:23 am"}</span></div>
-                                        <div className="flex items-center border-b border-slate-400/30 pb-0.5"><span className="w-40 text-slate-700">Result Printed On</span><span className="w-4">:</span><span className="font-semibold">{fDateandTime(new Date()).toLowerCase()}</span></div>
+                                        <div className="flex items-center  pb-0.5"><span className="w-40 text-slate-700">Result Reported On</span><span className="w-4">:</span><span className="font-semibold">{report.testStartedAt ? fDateandTime(report.testStartedAt).toLowerCase() : "02/06/26 10:23 am"}</span></div>
+                                        <div className="flex items-center  pb-0.5"><span className="w-40 text-slate-700">Result Printed On</span><span className="w-4">:</span><span className="font-semibold">{fDateandTime(new Date()).toLowerCase()}</span></div>
                                     </div>
                                 </div>
 
                                 {/* Results Table Section */}
                                 <div className="mt-4 px-10 flex-1 relative">
                                     <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.08] z-0">
-                                        <img src={configuration().logo} alt="Watermark" className="w-[15cm] object-contain grayscale" />
+                                        <img src={configuration().logo} alt="Watermark" className="w-[15cm] object-contain grayscale mt-36" />
                                     </div>
                                     <div className="flex w-full gap-4 relative z-10">
                                         <div className={`${showHistograms ? 'w-[65%]' : 'w-full'} flex flex-col gap-6`}>
@@ -599,10 +600,20 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                                         const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
                                                                                         const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
                                                                                         if (!hasMin && !hasMax) return null;
+
+                                                                                        let rangeDisplay = "";
+                                                                                        if (hasMin && hasMax) {
+                                                                                            rangeDisplay = `(${r.min} - ${r.max})`;
+                                                                                        } else if (hasMin) {
+                                                                                            rangeDisplay = `>${r.min}`;
+                                                                                        } else if (hasMax) {
+                                                                                            rangeDisplay = `<${r.max}`;
+                                                                                        }
+
                                                                                         return (
                                                                                             <div key={idx}>
                                                                                                 {r.name && r.name.toLowerCase() !== "normal" ? <span className="pr-1">{r.name}:</span> : ""}
-                                                                                                ({hasMin ? r.min : "0"} - {hasMax ? r.max : "N/A"}) <span className="text-[12px]" dangerouslySetInnerHTML={{ __html: row.name?.unit || "" }} />
+                                                                                                {rangeDisplay} <span className="text-[12px]" dangerouslySetInnerHTML={{ __html: row.name?.unit || "" }} />
                                                                                             </div>
                                                                                         );
                                                                                     })
@@ -668,7 +679,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                     </div>
                                                 </div>
                                             )}
-                                            <div className="px-5 pb-1 w-full flex justify-between items-start">
+                                            <div className="px-5 pb-20 w-full flex justify-between items-start">
                                                 <div className="text-center w-48">
                                                     <p className="font-bold text-slate-800 text-[14px]">LAB IN-CHARGE</p>
                                                     <p className="text-[12px] text-slate-600 font-medium uppercase mt-1">{inChargeTechnician?.name || "LABORATORY"}</p>
@@ -680,21 +691,18 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                             </div>
                                         </>
                                     )}
+                                </div>
+                            </div>
 
-                                    {/* Bottom Banner */}
-                                    <div className="bg-[#b3d4d9] w-full px-10 py-2 flex justify-between items-center text-slate-800 footer">
-                                        <div className="text-[13px]">
-                                            <span className="font-medium">OP Time :</span><br />
-                                            <span className="font-bold text-[14px]">Monday-Sunday 3:00 PM to 8:00 PM</span>
-                                        </div>
-                                        <div className="text-[13px] text-right">
-                                            <span className="font-medium">Lab Working Hours :</span><br />
-                                            <span className="font-bold text-[14px]">6:30 AM to 8:00 PM <br /> Sunday 6:30 AM to 12:00 PM</span>
-                                        </div>
-                                        {/* <div className="text-[13px]">
-                                            <span className="font-medium">Page {pageIdx + 1} of {pages.length}</span>
-                                        </div> */}
-                                    </div>
+                            {/* Bottom Banner */}
+                            <div className="absolute bottom-0 left-0 bg-[#b3d4d9] w-full px-10 py-3 flex justify-between items-center text-slate-800 footer z-20">
+                                <div className="text-[13px]">
+                                    <span className="font-medium">OP Time :</span><br />
+                                    <span className="font-bold text-[14px]">Monday-Sunday <br /> 3:00 PM to 8:00 PM</span>
+                                </div>
+                                <div className="text-[13px] text-right">
+                                    <span className="font-medium">Lab Working Hours :</span><br />
+                                    <span className="font-bold text-[14px]">6:30 AM to 8:00 PM <br /> Sunday 6:30 AM to 12:00 PM</span>
                                 </div>
                             </div>
                         </div>
