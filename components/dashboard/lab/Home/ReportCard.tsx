@@ -102,13 +102,21 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
             {(() => {
                 const FIRST_PAGE_LIMIT = 20;
-                const SUBSEQUENT_PAGE_LIMIT = 24;
+                const SUBSEQUENT_PAGE_LIMIT = 20;
 
                 const allRows: any[] = [];
                 const testMap = new Map<string, any>();
                 (report.test || []).forEach((t: any) => {
                     testMap.set(t.name?._id?.toString() || "", t);
                 });
+
+                const normalizeHeading = (h: string) => {
+                    let text = h.toUpperCase().trim();
+                    if (text.includes("HEMATOLOGY") || text.includes("HAEMATOLOGY") || text.includes("HEAMATOLOGY")) {
+                        return "HAEMATOLOGY";
+                    }
+                    return text;
+                };
 
                 const processedTestIds = new Set<string>();
 
@@ -147,17 +155,37 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         orderedIds = panelTests.map((t: any) => t.name?._id?.toString() || "");
                     }
 
+                    const testSubheadings = panelConfig?.testSubheadings || {};
+                    const subheadingsOrder = panelConfig?.subheadings || [];
+
                     orderedIds.sort((a, b) => {
+                        const subA = testSubheadings[a];
+                        const subB = testSubheadings[b];
+
+                        if (subA !== subB) {
+                            const indexA = subA ? subheadingsOrder.indexOf(subA) : -1;
+                            const indexB = subB ? subheadingsOrder.indexOf(subB) : -1;
+
+                            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
+                            if (indexA !== -1) return -1;
+                            if (indexB !== -1) return 1;
+
+                            if (subA && subB) return subA.localeCompare(subB);
+                        }
+
                         const tA = testMap.get(a)?.name?.name?.toUpperCase() || "";
                         const tB = testMap.get(b)?.name?.name?.toUpperCase() || "";
-                        const aPriority = tA.includes("SUGAR") || tA.includes("URIC") || tA.includes("URINE");
-                        const bPriority = tB.includes("SUGAR") || tB.includes("URIC") || tB.includes("URINE");
-                        if (aPriority && !bPriority) return -1;
-                        if (!aPriority && bPriority) return 1;
+                        const getPriority = (testName: string) => {
+                            if (testName.includes("SUGAR")) return 1;
+                            if (testName.includes("URINE")) return 2;
+                            if (testName.includes("URIC")) return 3;
+                            return 4;
+                        };
+                        const pA = getPriority(tA);
+                        const pB = getPriority(tB);
+                        if (pA !== pB) return pA - pB;
                         return 0;
                     });
-
-                    const testSubheadings = panelConfig?.testSubheadings || {};
                     let currentSubheadingState: string | null = null;
                     let pendingSubheading: string | null = null;
 
@@ -211,27 +239,65 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 });
 
                 if (remainingTests.length > 0) {
+                    // Sort remaining tests by priority (sugar, urine, uric)
                     remainingTests.sort((a, b) => {
                         const tA = a.name?.name?.toUpperCase() || "";
                         const tB = b.name?.name?.toUpperCase() || "";
-                        const aPriority = tA.includes("SUGAR") || tA.includes("URIC") || tA.includes("URINE");
-                        const bPriority = tB.includes("SUGAR") || tB.includes("URIC") || tB.includes("URINE");
-                        if (aPriority && !bPriority) return -1;
-                        if (!aPriority && bPriority) return 1;
+                        const getPriority = (testName: string) => {
+                            if (testName.includes("SUGAR")) return 1;
+                            if (testName.includes("URINE")) return 2;
+                            if (testName.includes("URIC")) return 3;
+                            return 4;
+                        };
+                        const pA = getPriority(tA);
+                        const pB = getPriority(tB);
+                        if (pA !== pB) return pA - pB;
                         return 0;
                     });
 
-                    const panelId = "BIOCHEMISTRY";
-                    allRows.push({
-                        type: "PANEL",
-                        name: panelId,
-                        activePanel: panelId,
-                        mainHeading: "BIOCHEMISTRY"
+                    // Separate HEAMATOLOGY tests from other biochemistry tests
+                    const heamTests = remainingTests.filter(t => {
+                        const cat = (t.name?.category || "").toString().toUpperCase();
+                        return cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC");
                     });
-                    remainingTests.forEach(t => {
-                        allRows.push({ type: "TEST", ...t, activePanel: panelId });
+                    const otherTests = remainingTests.filter(t => {
+                        const cat = (t.name?.category || "").toString().toUpperCase();
+                        return !(cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC"));
                     });
+
+                    // Add HEAMATOLOGY panel if any tests belong to this category
+                    if (heamTests.length > 0) {
+                        const heamPanelId = "HAEMATOLOGY";
+                        allRows.push({
+                            type: "PANEL",
+                            name: heamPanelId,
+                            activePanel: heamPanelId,
+                            mainHeading: "HAEMATOLOGY"
+                        });
+                        heamTests.forEach(t => {
+                            allRows.push({ type: "TEST", ...t, activePanel: heamPanelId });
+                        });
+                    }
+
+                    // Add BIOCHEMISTRY panel for the remaining tests
+                    if (otherTests.length > 0) {
+                        const panelId = "BIOCHEMISTRY";
+                        // Add BIOCHEMISTRY panel only if not already added
+                        const bioExists = allRows.some(row => row.type === "PANEL" && (row.name === panelId || (row.mainHeading && row.mainHeading.toUpperCase() === "BIOCHEMISTRY")));
+                        if (!bioExists) {
+                            allRows.push({
+                                type: "PANEL",
+                                name: panelId,
+                                activePanel: panelId,
+                                mainHeading: "BIOCHEMISTRY"
+                            });
+                        }
+                        otherTests.forEach(t => {
+                            allRows.push({ type: "TEST", ...t, activePanel: panelId });
+                        });
+                    }
                 }
+                // Duplicate remainingTests block removed
 
                 // Group by activePanel first to maintain grouping
                 const panelGroups: Record<string, any[]> = {};
@@ -253,22 +319,52 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     return heading.includes("HEMATOLOGY") || heading.includes("HAEMATOLOGY") || heading.includes("HEAMATOLOGY") || heading.includes("CBC");
                 };
                 const getBiochemCheck = (name: string) => {
-                    const heading = (name || "").toUpperCase();
-                    return heading === "BIOCHEMISTRY";
+                    const cfg = panels?.find((pItem: any) => pItem.name === name);
+                    const heading = (cfg?.mainHeading || name || "").toUpperCase();
+                    return heading.includes("BIOCHEMISTRY");
                 };
                 const getCategoryCheck = (name: string) => {
                     const cfg = panels?.find((pItem: any) => pItem.name === name);
                     return cfg?.subheadings && cfg.subheadings.length > 0;
+                };
+                const getUrineCheck = (name: string) => {
+                    const cfg = panels?.find((pItem: any) => pItem.name === name);
+                    const heading = (cfg?.mainHeading || name || "").toUpperCase();
+                    return heading.includes("URINE");
                 };
 
                 panelOrder.sort((a, b) => {
                     const getPriority = (p: string) => {
                         if (getHaemCheck(p)) return 0;
                         if (getBiochemCheck(p)) return 1;
+                        if (getUrineCheck(p)) return 4;
                         if (getCategoryCheck(p)) return 2;
                         return 3;
                     };
-                    return getPriority(a) - getPriority(b);
+                    const pA = getPriority(a);
+                    const pB = getPriority(b);
+                    if (pA !== pB) return pA - pB;
+
+                    const getPanelInternalPriority = (p: string) => {
+                        const rows = panelGroups[p] || [];
+                        let hasSugar = false;
+                        let hasUrine = false;
+                        let hasUric = false;
+                        for (const r of rows) {
+                            if (r.type === "TEST") {
+                                const tName = (r.name?.name || "").toUpperCase();
+                                if (tName.includes("SUGAR")) hasSugar = true;
+                                if (tName.includes("URINE")) hasUrine = true;
+                                if (tName.includes("URIC")) hasUric = true;
+                            }
+                        }
+                        if (hasSugar) return 1;
+                        if (hasUrine) return 2;
+                        if (hasUric) return 3;
+                        return 4;
+                    };
+
+                    return getPanelInternalPriority(a) - getPanelInternalPriority(b);
                 });
 
                 // Flatten panel groups to remove duplicate PANEL rows (e.g. 2 Biochemistry)
@@ -278,9 +374,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 panelOrder.forEach((p) => {
                     panelGroups[p].forEach(row => {
                         if (row.type === "PANEL") {
-                            const heading = row.mainHeading || row.name;
+                            const heading = normalizeHeading(row.mainHeading || row.name || "");
                             if (seenPanels.has(heading)) return;
                             seenPanels.add(heading);
+                            row.mainHeading = heading;
                         }
                         finalRows.push(row);
                     });
@@ -330,13 +427,6 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 if (pages.length === 0) pages.push([]);
 
-                // Overlay Watermark Background
-                const watermark = (
-                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.08] z-0">
-                        <img src={configuration().logo} alt="Watermark" className="w-[15cm] object-contain grayscale" />
-                    </div>
-                );
-
                 return pages.map((pageRows, pageIdx) => {
                     const isFirstPage = pageIdx === 0;
                     const isLastPage = pageIdx === pages.length - 1;
@@ -351,11 +441,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                     return (
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'} flex flex-col relative`}>
-                            {watermark}
                             <div className="flex-1 flex flex-col z-10 relative">
                                 {/* Header Section */}
-                                <div className="pt-6 px-10 pb-4 relative z-0">
-                                    <img src="/report-corner-icon.png" alt="Corner Icon" className="absolute top-0 right-0 w-1/2 object-contain object-right-top opacity-30 pointer-events-none mix-blend-multiply z-0" />
+                                <img src="/report-corner-icon.png" alt="Corner Icon" className="absolute top-0 right-0 w-1/2 object-contain object-right-top opacity-30 pointer-events-none mix-blend-multiply z-0" />
+                                <div className="py-3 px-5 relative z-0">
                                     <div className="flex justify-between items-start relative z-10">
                                         <div className="flex gap-4 items-center">
                                             <div className="w-[110px] h-[110px] rounded-full border border-teal-100 flex items-center justify-center bg-white shrink-0 overflow-hidden">
@@ -367,7 +456,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 <div className="flex items-center gap-6 mt-1 text-slate-500">
                                                     <div className="flex items-center gap-2">
                                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-[#89b9c4]"><path d="M20 10.999h2C22 5.869 18.127 2 12.99 2v2C17.052 4 20 6.943 20 10.999z" /><path d="M13 8c2.103 0 3 .897 3 3h2c0-3.225-1.775-5-5-5v2zm3.422 5.443a1.001 1.001 0 0 0-1.391.043l-2.393 2.461c-.576-.11-1.734-.471-2.926-1.66-1.192-1.193-1.553-2.354-1.66-2.926l2.459-2.394a1 1 0 0 0 .043-1.391L6.859 3.513a1 1 0 0 0-1.391-.087l-2.17 1.861a1 1 0 0 0-.29.649c-.015.25-.301 6.172 4.291 10.766C11.305 20.707 16.323 21 17.705 21c.202 0 .326-.006.359-.008a.992.992 0 0 0 .648-.291l1.86-2.171a1 1 0 0 0-.086-1.391l-4.064-3.696z" /></svg>
-                                                        <span className="text-[14px] font-medium text-slate-600">+91 {configuration().hospitalPhone}</span>
+                                                        <span className="text-[14px] font-medium text-slate-600">+91{configuration().hospitalPhone}</span>
                                                     </div>
                                                     <div className="flex items-center gap-2">
                                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-[#89b9c4]">
@@ -379,14 +468,14 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end gap-1 mt-2">
-                                            <h2 className="text-[32px] font-bold text-slate-800 leading-none">LAB REPORT</h2>
+                                            <h2 className="text-[24px] font-bold text-slate-800 leading-none">LAB REPORT</h2>
                                             <p className="text-[16px] text-slate-600 font-medium">Report No : {String(report.mrn || "0056").padStart(4, "0")}</p>
                                         </div>
                                     </div>
                                 </div>
 
                                 {/* Patient Info Banner */}
-                                <div className="bg-[#d9e9e8] w-full px-10 py-5 flex justify-between">
+                                <div className="bg-[#d9e9e8] w-full px-5 py-2.5 flex justify-between">
                                     <div className="flex flex-col space-y-2 text-[15px] text-slate-800">
                                         <div className="flex items-center"><span className="w-28 text-slate-700">Patient Name</span><span className="w-4">:</span><span className="font-semibold">{patient?.name || "Rashid"}</span></div>
                                         <div className="flex items-center"><span className="w-28 text-slate-700">Age/Sex</span><span className="w-4">:</span><span className="font-semibold">{patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "26Y 3M"} / {patient?.gender || "Male"}</span></div>
@@ -400,9 +489,11 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                 </div>
 
                                 {/* Results Table Section */}
-                                <div className="mt-4 px-10">
-
-                                    <div className="flex w-full gap-4 relative">
+                                <div className="mt-4 px-10 flex-1 relative">
+                                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.08] z-0">
+                                        <img src={configuration().logo} alt="Watermark" className="w-[15cm] object-contain grayscale" />
+                                    </div>
+                                    <div className="flex w-full gap-4 relative z-10">
                                         <div className={`${showHistograms ? 'w-[65%]' : 'w-full'} flex flex-col gap-6`}>
                                             {(() => {
                                                 const panelGroupsOnPage: { heading: string, rows: any[] }[] = [];
@@ -411,21 +502,26 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                                 pageRows.forEach((row) => {
                                                     if (row.type === "PANEL") {
-                                                        if (currentGroup.length > 0 || currentHeading !== "") {
-                                                            panelGroupsOnPage.push({ heading: currentHeading, rows: currentGroup });
+                                                        const newHeading = normalizeHeading(row.mainHeading || row.name || "");
+                                                        if (currentHeading !== "" && newHeading && normalizeHeading(currentHeading) === newHeading) {
+                                                            // Same heading, skip creating a new table
+                                                        } else {
+                                                            if (currentGroup.length > 0 || currentHeading !== "") {
+                                                                panelGroupsOnPage.push({ heading: normalizeHeading(currentHeading), rows: currentGroup });
+                                                            }
+                                                            currentHeading = newHeading;
+                                                            currentGroup = [];
                                                         }
-                                                        currentHeading = row.mainHeading || row.name;
-                                                        currentGroup = [];
                                                     } else {
                                                         if (currentHeading === "" && currentGroup.length === 0) {
                                                             const pConfig = panels?.find((p: any) => p.name === row.activePanel);
-                                                            currentHeading = pConfig?.mainHeading || row.activePanel || "";
+                                                            currentHeading = normalizeHeading(pConfig?.mainHeading || row.activePanel || "");
                                                         }
                                                         currentGroup.push(row);
                                                     }
                                                 });
                                                 if (currentGroup.length > 0 || currentHeading !== "") {
-                                                    panelGroupsOnPage.push({ heading: currentHeading, rows: currentGroup });
+                                                    panelGroupsOnPage.push({ heading: normalizeHeading(currentHeading), rows: currentGroup });
                                                 }
 
                                                 return panelGroupsOnPage.map((pg, pgIdx) => (
@@ -560,7 +656,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                 {/* Footer Section */}
                                 <div className="w-full mt-auto pt-8">
-                                    {isLastPage && (
+                                    {(
                                         <>
                                             {report.note && (
                                                 <div className="w-full px-10 pb-4 text-left">
@@ -572,7 +668,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                     </div>
                                                 </div>
                                             )}
-                                            <div className="px-10 pb-6 w-full flex justify-between items-end mt-4">
+                                            <div className="px-5 pb-1 w-full flex justify-between items-start">
                                                 <div className="text-center w-48">
                                                     <p className="font-bold text-slate-800 text-[14px]">LAB IN-CHARGE</p>
                                                     <p className="text-[12px] text-slate-600 font-medium uppercase mt-1">{inChargeTechnician?.name || "LABORATORY"}</p>
@@ -586,15 +682,18 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     )}
 
                                     {/* Bottom Banner */}
-                                    <div className="bg-[#b3d4d9] w-full px-10 py-4 flex justify-between items-center text-slate-800 footer">
+                                    <div className="bg-[#b3d4d9] w-full px-10 py-2 flex justify-between items-center text-slate-800 footer">
                                         <div className="text-[13px]">
-                                            <span className="font-medium">OP Working Hours :</span><br />
-                                            <span className="font-bold text-[14px]">3.00 pm to 8 pm</span>
+                                            <span className="font-medium">OP Time :</span><br />
+                                            <span className="font-bold text-[14px]">Monday-Sunday 3:00 PM to 8:00 PM</span>
                                         </div>
                                         <div className="text-[13px] text-right">
                                             <span className="font-medium">Lab Working Hours :</span><br />
-                                            <span className="font-bold text-[14px]">6.30 am To 8.00 pm <br /> Sunday 6.30 am To 12.00 pm</span>
+                                            <span className="font-bold text-[14px]">6:30 AM to 8:00 PM <br /> Sunday 6:30 AM to 12:00 PM</span>
                                         </div>
+                                        {/* <div className="text-[13px]">
+                                            <span className="font-medium">Page {pageIdx + 1} of {pages.length}</span>
+                                        </div> */}
                                     </div>
                                 </div>
                             </div>
