@@ -86,7 +86,7 @@ export default function PanelCatalogueRow({
     onRemoveTests,
     panelMutate,
 }: {
-    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; specimen?: string; method?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; };
+    panel: { _id: string; name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; specimen?: string; method?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; };
     idx: number;
     tests: any[];
     onAddTests: () => void;
@@ -192,7 +192,7 @@ export default function PanelCatalogueRow({
             };
 
 
-            await toast.promise(api.patch(`/lab/panels/${panel.name}`, updatePayload), {
+            await toast.promise(api.patch(`/lab/panels/${panel._id}`, updatePayload), {
                 loading: "Updating panel...",
                 success: "Panel updated successfully",
                 error: ({ response }) => response.data.message,
@@ -203,12 +203,12 @@ export default function PanelCatalogueRow({
         } catch (error) {
             console.error(error);
         }
-    }, [payload, selectedTests, panel.name, panelMutate]);
+    }, [payload, selectedTests, panel._id, panelMutate]);
 
     const deletePanel = useCallback(async () => {
         try {
             setIsDeleting(true);
-            await toast.promise(api.delete(`/lab/panels/${panel.name}`), {
+            await toast.promise(api.delete(`/lab/panels/${panel._id}`), {
                 loading: "Deleting Panel...",
                 success: "Panel deleted successfully",
                 error: ({ response }) => response.data.message,
@@ -220,7 +220,7 @@ export default function PanelCatalogueRow({
         } finally {
             setIsDeleting(false);
         }
-    }, [panel.name, panelMutate]);
+    }, [panel._id, panelMutate]);
 
     const handleAddTest = (test: any) => {
         if (!selectedTests.find(t => t._id === test._id)) {
