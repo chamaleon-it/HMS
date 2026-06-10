@@ -270,7 +270,7 @@ export default function LabResultsPage() {
         transition={{ duration: 0.4, delay: 0.5 }}
         className="print:hidden"
       >
-        <LabTable REPORT={REPORT} status={status} mutate={() => { mutate(); statsMutate(); }} autoGenerateSampleId={showSampleId} />
+        <LabTable REPORT={REPORT} status={status} mutate={() => { mutate(); statsMutate(); }} autoGenerateSampleId={showSampleId} onStatusChange={setStatus} />
       </motion.div>
     </div>
   );

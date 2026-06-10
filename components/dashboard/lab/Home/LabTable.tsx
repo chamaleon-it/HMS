@@ -61,6 +61,7 @@ interface PropsTypes {
   status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft";
   mutate: () => void;
   autoGenerateSampleId?: boolean;
+  onStatusChange?: (status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft") => void;
   REPORT: {
     _id: string;
     mrn: number;
@@ -139,7 +140,7 @@ interface PropsTypes {
   }[];
 }
 
-export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId }: PropsTypes) {
+export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId, onStatusChange }: PropsTypes) {
   const { updateDraft, removeDraft } = useLabDrafts();
   const { user } = useAuth();
   const { panels } = useGetPanels();
@@ -621,6 +622,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                           patientName={r.patient?.name}
                           mutate={mutate}
                           autoGenerateSampleId={autoGenerateSampleId}
+                          onStatusChange={onStatusChange}
                         />
                       )}
 
@@ -641,6 +643,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                                 }
                               );
                               mutate();
+                              onStatusChange?.("Waiting For Result");
                             } catch (error) {
                               toast.error(
                                 `Failed to start test : ${error}`
@@ -664,7 +667,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId 
                       }
 
                       {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Ready"} handlePrint={handlePrint} />}
-                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} handlePrint={handlePrint} />}
+                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} handlePrint={handlePrint} onStatusChange={onStatusChange} />}
                       {status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
 
                       {

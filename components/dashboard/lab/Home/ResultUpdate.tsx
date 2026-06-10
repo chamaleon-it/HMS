@@ -178,8 +178,9 @@ interface Props {
   mutate: () => void;
   buttonText?: "Ready" | "Completed" | "Update";
   handlePrint?: (report: any) => void;
+  onStatusChange?: (status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft") => void;
 }
-export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Props) {
+export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onStatusChange }: Props) {
   const [open, setOpen] = useState(false);
 
   const [payload, setPayload] = useState<{
@@ -392,6 +393,10 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
       setOpen(false);
       setShowWarning(false);
       setShowCompleteDialog(false);
+
+      if (markCompleted && onStatusChange) {
+        onStatusChange("Completed");
+      }
 
       if (shouldPrint && handlePrint) {
         // Need to pass the updated values back up to LabTable's print handler

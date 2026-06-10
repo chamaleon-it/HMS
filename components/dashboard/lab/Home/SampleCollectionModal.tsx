@@ -24,6 +24,7 @@ interface Props {
     patientName: string;
     mutate: () => void;
     autoGenerateSampleId?: boolean;
+    onStatusChange?: (status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft") => void;
 }
 
 const generateAutoNumber = () => {
@@ -35,7 +36,7 @@ const generateAutoNumber = () => {
     return `${day}${hours}${minutes}${sequence}`;
 };
 
-export default function SampleCollectionModal({ reportId, patientName, mutate, autoGenerateSampleId }: Props) {
+export default function SampleCollectionModal({ reportId, patientName, mutate, autoGenerateSampleId, onStatusChange }: Props) {
     const getNewId = () => autoGenerateSampleId ? generateAutoNumber() : "";
     const [open, setOpen] = useState(false);
     const [samples, setSamples] = useState<{ id: string; specimen: string }[]>([{ id: getNewId(), specimen: "Blood" }]);
@@ -99,6 +100,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
             mutate();
             setOpen(false);
             setSamples([{ id: getNewId(), specimen: "Blood" }]);
+            onStatusChange?.("Waiting For Result");
         } catch (error: any) {
             console.error(error);
         } finally {
