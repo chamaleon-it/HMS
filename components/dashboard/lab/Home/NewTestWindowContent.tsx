@@ -76,10 +76,10 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
 
     try {
       await toast.promise(
-        api.post("/lab/report", { 
-          ...payload, 
-          date: submitDate.toISOString(), 
-          doctor: payload.doctor === "self" ? null : payload.doctor 
+        api.post("/lab/report", {
+          ...payload,
+          date: submitDate.toISOString(),
+          doctor: payload.doctor === "self" ? null : payload.doctor
         }),
         {
           loading: "Creating lab test order...",
@@ -87,7 +87,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           error: ({ response }) => response.data.message,
         }
       );
-      
+
       removeDraft(draft.id);
       window.dispatchEvent(new CustomEvent('lab-test-created'));
     } catch (error) {
@@ -159,12 +159,12 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             if (name) updateDraft(draft.id, { patientName: name });
           }}
           register={(name) => {
-             window.dispatchEvent(new CustomEvent('open-lab-register-patient', { 
-               detail: { name, draftId: draft.id } 
-             }));
+            window.dispatchEvent(new CustomEvent('open-lab-register-patient', {
+              detail: { name, draftId: draft.id }
+            }));
           }}
         />
-        <Button 
+        {/* <Button 
           variant={"outline"} 
           onClick={() => window.dispatchEvent(new CustomEvent('open-lab-register-patient', { 
             detail: { name: draft.patientName, draftId: draft.id } 
@@ -172,7 +172,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white"
         >
           New Customer
-        </Button>
+        </Button> */}
         <div className="flex flex-col gap-3">
           <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
             {tabs.map(({ key, label, icon: Icon }) => {
@@ -255,7 +255,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
                   if (prev.groups?.includes(val)) return prev;
                   const groupTests = isGroup.tests || [];
                   const groupPanels = isGroup.panels || [];
-                  
+
                   let groupPanelTests: any[] = [];
                   groupPanels.forEach((gp) => {
                     if (gp.tests && gp.tests.length) {
@@ -483,14 +483,14 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           Grand Total: <span className="text-blue-600">{formatINR(grandTotal)}</span>
         </div>
         <div className="flex gap-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => {
               setDraftToDelete(draft.id);
-              }}
-            >
+            }}
+          >
             Cancel
-            </Button>
+          </Button>
           <Button
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
             onClick={handleSubmit}

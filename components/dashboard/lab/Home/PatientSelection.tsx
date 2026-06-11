@@ -12,6 +12,11 @@ import React, {
   useState,
 } from "react";
 import useSWR from "swr";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import { useAuth } from "@/auth/context/auth-context";
 
 type Patient = {
   _id: string;
@@ -40,6 +45,7 @@ const PatientSelection: React.FC<Props> = ({
   input: externalInput,
   setInput: setExternalInput,
 }) => {
+  const { user } = useAuth();
   const [internalInput, setInternalInput] = useState("");
   const input = externalInput !== undefined ? externalInput : internalInput;
   const setInput = setExternalInput || setInternalInput;
@@ -47,6 +53,37 @@ const PatientSelection: React.FC<Props> = ({
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
+
+  const [gender, setGender] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+
+  const handleInlineCreate = async () => {
+    if (!input.trim()) return toast.error("Please enter a customer name");
+    if (!gender) return toast.error("Please select gender");
+    
+    try {
+      setIsCreating(true);
+      const { data: responseData } = await api.post("/patients", { 
+        name: input.trim(), 
+        gender,
+        phoneNumber: "",
+        doctor: user?._id || "",
+        dateOfBirth: ""
+      });
+      const newPatient = responseData.data;
+      toast.success("Customer registered successfully.");
+      
+      setSelected(newPatient);
+      setValue(newPatient._id);
+      setInput(`${newPatient.name}${newPatient.mrn ? ` - (${newPatient.mrn})` : ""}`);
+      setOpen(false);
+      setGender("");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to create customer");
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   // Close on outside click
   const rootRef = useRef<HTMLDivElement>(null);
@@ -144,34 +181,65 @@ const PatientSelection: React.FC<Props> = ({
     <div ref={rootRef} className="relative w-full max-w-125">
       <Label className="block">Patient Name</Label>
 
-      <div
-        role="combobox"
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-owns="patient-listbox"
-        aria-controls="patient-listbox"
-        aria-label="Search and select patient"
-        className="relative"
-      >
-        <Input
-          placeholder="Search or type new"
-          value={input}
-          onFocus={() => setOpen(true)}
-          onChange={(e) => {
-            setInput(e.target.value);
-            setOpen(true);
-            setActiveIdx(-1);
-          }}
-          onKeyDown={onKeyDown}
-          className="w-full mt-2.5 pr-9"
-        />
+      <div className="flex items-center gap-2 mt-2.5">
+        <div
+          role="combobox"
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          aria-owns="patient-listbox"
+          aria-controls="patient-listbox"
+          aria-label="Search and select patient"
+          className="relative flex-1"
+        >
+          <Input
+            placeholder="Search or type new"
+            value={input}
+            onFocus={() => setOpen(true)}
+            onChange={(e) => {
+              const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+              setInput(capitalizedValue);
+              setOpen(true);
+              setActiveIdx(-1);
+              if (selected) {
+                 setSelected(null);
+                 setValue("");
+              }
+            }}
+            onKeyDown={onKeyDown}
+            className="w-full pr-9"
+          />
+        </div>
+
+        {!selected && input.length > 0 && (
+          <>
+            <Select value={gender} onValueChange={setGender}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="Gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Male">Male</SelectItem>
+                <SelectItem value="Female">Female</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Button
+              type="button"
+              onClick={handleInlineCreate}
+              disabled={isCreating}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
+            >
+              Create
+            </Button>
+          </>
+        )}
 
         {input && (
           <button
             type="button"
             aria-label="Clear"
             onClick={clearInput}
-            className="absolute right-2.5 top-[calc(50%)] -translate-y-1/2 rounded-full p-1 text-zinc-500 hover:bg-zinc-100"
+            className="rounded-full p-1 text-zinc-500 hover:bg-zinc-100 shrink-0"
           >
             <X className="h-4 w-4" />
           </button>

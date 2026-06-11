@@ -86,20 +86,20 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
             <PatientSelection
               patientName={patientName}
               autoFocus
-              actionElement={
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name: '', draftId: draft.id } }));
-                  }}
-                  className="h-7 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
-                >
-                  <UserPlus className="h-3.5 w-3.5 mr-1.5" />
-                  New Customer
-                </Button>
-              }
+              // actionElement={
+              //   <Button
+              //     type="button"
+              //     variant="outline"
+              //     size="sm"
+              //     onClick={() => {
+              //       window.dispatchEvent(new CustomEvent('open-register-patient', { detail: { name: '', draftId: draft.id } }));
+              //     }}
+              //     className="h-7 border-emerald-200 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
+              //   >
+              //     <UserPlus className="h-3.5 w-3.5 mr-1.5" />
+              //     New Customer
+              //   </Button>
+              // }
               setValue={(id: string, allergies?: string, name?: string) => {
                 setPayload((prev: any) => ({ ...prev, patient: id, allergies: allergies || undefined }));
                 updateDraft(draft.id, { patientName: name || "" });
