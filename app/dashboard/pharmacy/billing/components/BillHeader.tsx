@@ -71,7 +71,7 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                     <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold">Doctor Name</label>
                     <DoctorSelection
                         value={payload.doctor}
-                        onSelect={(name) =>
+                        onSelect={(name, id) =>
                             setPayload((prev: any) => ({
                                 ...prev,
                                 doctor: name,

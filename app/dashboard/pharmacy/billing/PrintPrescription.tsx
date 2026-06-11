@@ -13,6 +13,9 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
 
     const patient = order.patient;
     const doctor = order.doctor;
+    // doctorName stored on order takes priority; fall back to populated doctor name; null = Self = "-"
+    const rawDoctorName = order.doctorName || doctor?.name || null;
+    const displayDoctorName = !rawDoctorName || rawDoctorName === "-" ? "-" : `DR. ${rawDoctorName}`;
 
     return (
         <div className="print-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-visible">
@@ -66,16 +69,19 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                 {/* BODY */}
                 <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                     {/* PATIENT STRIP */}
-                    <div className="border border-slate-500 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
+                    <div className="border border-slate-500 rounded-lg px-6 py-4 flex flex-wrap gap-x-8 gap-y-2 bg-slate-50/50">
                         <Info label="Patient" value={patient?.name || "—"} />
                         <Info label="Age / G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / ${patient?.gender || "—"}`} />
                         <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
-                        <Info label="Date" value={fDateandTime(order.createdAt).split(",")[0]} />
                         <div className="col-span-2">
-                            <Info label="Doctor" value={`DR. ${doctor?.name || "—"}`} />
+
+                            <Info label="Date" value={fDateandTime(order.createdAt).split(",")[0]} />
+                        </div>
+                        <div className="col-span-2">
+                            <Info label="Doctor" value={displayDoctorName} />
                         </div>
                         <div className="col-span-2 text-right">
-                            <Info label="Dept" value={doctor?.specialization || "GENERAL MEDICINE"} />
+                            <Info label="Dept" value={displayDoctorName === "-" ? "-" : doctor?.specialization || "GENERAL MEDICINE"} />
                         </div>
                     </div>
 
@@ -124,7 +130,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                     <div className="mt-10 flex justify-end">
                         <div className="text-center w-64">
                             <div className="border-b-2 border-black mb-2 w-full"></div>
-                            <p className="font-black text-black uppercase leading-none tracking-tighter">DR. {doctor?.name || "—"}</p>
+                            <p className="font-black text-black uppercase leading-none tracking-tighter">{displayDoctorName}</p>
                             <p className="text-[10px] font-bold text-black mt-1 uppercase tracking-widest">{doctor?.specialization || "SPECIALIST"}</p>
                         </div>
                     </div>

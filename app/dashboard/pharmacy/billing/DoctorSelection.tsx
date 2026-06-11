@@ -13,12 +13,12 @@ interface Doctor {
 
 interface Props {
     value: string;
-    onSelect: (name: string) => void;
+    onSelect: (name: string, id?: string | null) => void;
 }
 
 const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
     const [open, setOpen] = useState(false);
-    const [search, setSearch] = useState(value || "");
+    const [search, setSearch] = useState(value === "-" ? "Self" : (value || ""));
     const [activeIndex, setActiveIndex] = useState(-1);
     const containerRef = useRef<HTMLDivElement>(null);
 
@@ -39,7 +39,7 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
 
     // Update search when external value changes (e.g. on clear)
     useEffect(() => {
-        setSearch(value || "");
+        setSearch(value === "-" ? "Self" : (value || ""));
     }, [value]);
 
     useEffect(() => {
@@ -53,7 +53,9 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
     }, []);
 
     const handleSelect = (doctor: Doctor) => {
-        onSelect(doctor.name);
+        const isSelf = doctor._id === "self";
+        const val = isSelf ? "-" : doctor.name;
+        onSelect(val, isSelf ? null : doctor._id);
         setSearch(doctor.name);
         setOpen(false);
     };
@@ -83,7 +85,7 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
                     value={search}
                     onChange={(e) => {
                         setSearch(e.target.value);
-                        onSelect(e.target.value); // Allow manual typing
+                        onSelect(e.target.value, undefined); // Allow manual typing
                         setOpen(true);
                         setActiveIndex(-1);
                     }}
@@ -95,7 +97,7 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
                     <button
                         onClick={() => {
                             setSearch("");
-                            onSelect("");
+                            onSelect("", undefined);
                         }}
                         className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-slate-400 hover:text-slate-600"
                     >
