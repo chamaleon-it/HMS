@@ -57,7 +57,7 @@ function ConsultingMenuContent() {
         dosage: "1 tab",
         name: "",
         duration: "",
-        food: "After food",
+        food: "",
         frequency: "",
         quantity: 0,
         referralName: "",

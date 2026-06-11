@@ -62,7 +62,7 @@ export default function PrescriptionCard({
           name: "",
           medicineName: "",
           duration: "",
-          food: "After food",
+          food: "",
           frequency: "",
           quantity: 0,
           availableQuantity: 0,

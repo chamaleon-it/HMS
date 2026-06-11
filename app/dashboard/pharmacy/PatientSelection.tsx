@@ -1,9 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { fAge , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import { ChevronRight, MapPin, Phone, X } from "lucide-react";
+import { ChevronRight, MapPin, Phone, X, UserPlus } from "lucide-react";
 import React, {
   useCallback,
   useEffect,
@@ -55,11 +55,11 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
   const handleInlineCreate = async () => {
     if (!input.trim()) return toast.error("Please enter a customer name");
     if (!gender) return toast.error("Please select gender");
-    
+
     try {
       setIsCreating(true);
-      const { data: responseData } = await api.post("/patients", { 
-        name: input.trim(), 
+      const { data: responseData } = await api.post("/patients", {
+        name: input.trim(),
         gender,
         phoneNumber: "",
         doctor: user?._id || "",
@@ -67,7 +67,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
       });
       const newPatient = responseData.data;
       toast.success("Customer registered successfully.");
-      
+
       setSelected(newPatient);
       setValue(newPatient._id, newPatient.allergies, newPatient.name);
       setInput(`${newPatient.name}${newPatient.mrn ? ` - (${newPatient.mrn})` : ""}`);
@@ -170,6 +170,8 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
 
 
 
+  const [trigger, setTrigger] = useState(false)
+
   return (
     <div ref={rootRef} className="relative w-full max-w-[500px]">
       <div className="flex items-center justify-between mb-1">
@@ -193,13 +195,12 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
             autoFocus={autoFocus}
             onFocus={() => setOpen(true)}
             onChange={(e) => {
+
               const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
               setInput(capitalizedValue);
-              setOpen(true);
-              setActiveIdx(-1);
               if (selected) {
-                 setSelected(null);
-                 setValue("");
+                setSelected(null);
+                setValue("");
               }
             }}
             onKeyDown={onKeyDown}
@@ -207,7 +208,17 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           />
         </div>
 
-        {!selected && input.length > 0 && (
+        {!trigger && <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => setTrigger(!trigger)}
+          className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 shrink-0 h-10 w-10"
+        >
+          <UserPlus className="h-4 w-4" />
+        </Button>}
+
+        {!selected && trigger && (
           <>
             <Select value={gender} onValueChange={setGender}>
               <SelectTrigger className="w-[120px]">
@@ -235,7 +246,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           <button
             type="button"
             aria-label="Clear"
-            onClick={clearInput}
+            onClick={() => { clearInput(); setTrigger(false) }}
             className="rounded-full p-1 text-zinc-500 hover:bg-zinc-100 shrink-0"
           >
             <X className="h-4 w-4" />

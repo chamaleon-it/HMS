@@ -152,8 +152,8 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
         <PatientSelection
-          input={draft.patientName}
-          setInput={(val) => updateDraft(draft.id, { patientName: val })}
+          patientName={draft.patientName}
+          autoFocus
           setValue={(id: string, allergies?: string, name?: string) => {
             setPayload((prev: any) => ({ ...prev, patient: id }));
             if (name) updateDraft(draft.id, { patientName: name });

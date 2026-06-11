@@ -1,9 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { fAge , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import { ChevronRight, MapPin, Phone, X } from "lucide-react";
+import { ChevronRight, MapPin, Phone, X, UserPlus } from "lucide-react";
 import React, {
   useCallback,
   useEffect,
@@ -26,33 +26,28 @@ type Patient = {
   dateOfBirth?: string | Date;
   address?: string;
   mrn?: string;
+  allergies?: string;
 };
 
 interface Props {
-  setValue: (id: string) => void;
+  setValue: (id: string, allergies?: string, name?: string) => void;
   register: (name?: string) => void;
-  input?: string;
-  setInput?: (val: string) => void;
+  patientName: string;
+  autoFocus?: boolean;
+  actionElement?: React.ReactNode;
 }
 
 const MIN_QUERY_LEN = 2;
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 100;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({
-  setValue,
-  register,
-  input: externalInput,
-  setInput: setExternalInput,
-}) => {
+const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus, actionElement }) => {
   const { user } = useAuth();
-  const [internalInput, setInternalInput] = useState("");
-  const input = externalInput !== undefined ? externalInput : internalInput;
-  const setInput = setExternalInput || setInternalInput;
-
+  const [input, setInput] = useState(patientName);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   const [gender, setGender] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -60,11 +55,11 @@ const PatientSelection: React.FC<Props> = ({
   const handleInlineCreate = async () => {
     if (!input.trim()) return toast.error("Please enter a customer name");
     if (!gender) return toast.error("Please select gender");
-    
+
     try {
       setIsCreating(true);
-      const { data: responseData } = await api.post("/patients", { 
-        name: input.trim(), 
+      const { data: responseData } = await api.post("/patients", {
+        name: input.trim(),
         gender,
         phoneNumber: "",
         doctor: user?._id || "",
@@ -72,9 +67,9 @@ const PatientSelection: React.FC<Props> = ({
       });
       const newPatient = responseData.data;
       toast.success("Customer registered successfully.");
-      
+
       setSelected(newPatient);
-      setValue(newPatient._id);
+      setValue(newPatient._id, newPatient.allergies, newPatient.name);
       setInput(`${newPatient.name}${newPatient.mrn ? ` - (${newPatient.mrn})` : ""}`);
       setOpen(false);
       setGender("");
@@ -84,6 +79,18 @@ const PatientSelection: React.FC<Props> = ({
       setIsCreating(false);
     }
   };
+
+  // Auto-scroll to active item
+  useEffect(() => {
+    if (activeIdx >= 0 && listRef.current) {
+      const activeElement = listRef.current.children[activeIdx] as HTMLElement;
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          block: "nearest",
+        });
+      }
+    }
+  }, [activeIdx]);
 
   // Close on outside click
   const rootRef = useRef<HTMLDivElement>(null);
@@ -125,37 +132,21 @@ const PatientSelection: React.FC<Props> = ({
   );
   const patients = data?.data ?? [];
 
-
-
-
   const handleSelect = useCallback(
     (p: Patient) => {
       setSelected(p);
-      setValue(p._id);
+      setValue(p._id, p.allergies, p.name);
       setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
       setOpen(false);
     },
     [setValue]
   );
 
-  const itemRefs = useRef<(HTMLLIElement | null)[]>([]);
 
-  useEffect(() => {
-    if (activeIdx >= 0 && itemRefs.current[activeIdx]) {
-      itemRefs.current[activeIdx]?.scrollIntoView({
-        block: "nearest",
-      });
-    }
-  }, [activeIdx]);
 
   // Keyboard navigation within the listbox
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Escape") {
-      setOpen(false);
-      return;
-    }
     if (!open) return;
-
     const max = patients.length - 1;
     if (e.key === "ArrowDown") {
       e.preventDefault();
@@ -177,9 +168,16 @@ const PatientSelection: React.FC<Props> = ({
     setValue("");
   };
 
+
+
+  const [trigger, setTrigger] = useState(false)
+
   return (
-    <div ref={rootRef} className="relative w-full max-w-125">
-      <Label className="block">Patient Name</Label>
+    <div ref={rootRef} className="relative w-full max-w-[500px]">
+      <div className="flex items-center justify-between mb-1">
+        <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+        {actionElement}
+      </div>
 
       <div className="flex items-center gap-2 mt-2.5">
         <div
@@ -194,15 +192,15 @@ const PatientSelection: React.FC<Props> = ({
           <Input
             placeholder="Search or type new"
             value={input}
+            autoFocus={autoFocus}
             onFocus={() => setOpen(true)}
             onChange={(e) => {
+
               const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
               setInput(capitalizedValue);
-              setOpen(true);
-              setActiveIdx(-1);
               if (selected) {
-                 setSelected(null);
-                 setValue("");
+                setSelected(null);
+                setValue("");
               }
             }}
             onKeyDown={onKeyDown}
@@ -210,7 +208,17 @@ const PatientSelection: React.FC<Props> = ({
           />
         </div>
 
-        {!selected && input.length > 0 && (
+        {!trigger && <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => setTrigger(!trigger)}
+          className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 shrink-0 h-10 w-10"
+        >
+          <UserPlus className="h-4 w-4" />
+        </Button>}
+
+        {!selected && trigger && (
           <>
             <Select value={gender} onValueChange={setGender}>
               <SelectTrigger className="w-[120px]">
@@ -238,7 +246,7 @@ const PatientSelection: React.FC<Props> = ({
           <button
             type="button"
             aria-label="Clear"
-            onClick={clearInput}
+            onClick={() => { clearInput(); setTrigger(false) }}
             className="rounded-full p-1 text-zinc-500 hover:bg-zinc-100 shrink-0"
           >
             <X className="h-4 w-4" />
@@ -271,7 +279,7 @@ const PatientSelection: React.FC<Props> = ({
                   }}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
                 >
-                  <span className="text-lg">➕</span> Add new Patient
+                  <span className="text-lg">➕</span> Add new customer
                 </button>
               </div>
             ) : (
@@ -281,6 +289,7 @@ const PatientSelection: React.FC<Props> = ({
 
           {patients.length > 0 && <ScrollArea className="h-[300px]">
             <ul
+              ref={listRef}
               id="patient-listbox"
               role="listbox"
               aria-label="Patients"
@@ -289,9 +298,6 @@ const PatientSelection: React.FC<Props> = ({
               {patients.map((p, idx) => (
                 <li
                   key={p._id}
-                  ref={(el) => {
-                    itemRefs.current[idx] = el;
-                  }}
                   role="option"
                   aria-selected={selected?._id === p._id}
                   onMouseDown={(e) => e.preventDefault()} // keep input focus
@@ -352,6 +358,27 @@ const safeAge = (dob?: string | Date) => {
   }
 };
 
+const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+  if (!highlight.trim()) {
+    return <span>{text}</span>;
+  }
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <span key={i} className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5">
+            {part}
+          </span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
+  );
+};
+
 const PatientCard: React.FC<{
   p: Patient;
   isActive: boolean;
@@ -390,7 +417,7 @@ const PatientCard: React.FC<{
         <div className="shrink-0">
           <div
             className={cn(
-              "rounded-2xl p-0.5 transition-transform duration-200",
+              "rounded-2xl p-[2px] transition-transform duration-200",
               "group-hover:scale-[1.02]",
               isSelected ? "bg-primary/15" : "bg-zinc-100 dark:bg-zinc-800"
             )}
@@ -487,38 +514,5 @@ const PatientCard: React.FC<{
         </div>
       </div>
     </div>
-  );
-};
-
-const HighlightText = ({
-  text,
-  highlight,
-}: {
-  text: string;
-  highlight: string;
-}) => {
-  if (!highlight.trim() || !text) {
-    return <span>{text}</span>;
-  }
-  const regex = new RegExp(
-    `(${highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-    "gi"
-  );
-  const parts = text.split(regex);
-  return (
-    <span>
-      {parts.map((part, i) =>
-        regex.test(part) ? (
-          <span
-            key={i}
-            className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5"
-          >
-            {part}
-          </span>
-        ) : (
-          <span key={i}>{part}</span>
-        )
-      )}
-    </span>
   );
 };

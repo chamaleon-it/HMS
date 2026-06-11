@@ -33,7 +33,7 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
         dosage: "1 tab",
         name: "",
         duration: "",
-        food: "After food",
+        food: "",
         frequency: "",
         quantity: 0,
         availableQuantity: 0,
