@@ -183,7 +183,7 @@ export default function PrintReceipt({
                     </div>
                     <div className="flex flex-col justify-center">
                         <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{payload.doctor || " "}</span>
+                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{payload.doctor || "-"}</span>
                     </div>
                 </div>
 

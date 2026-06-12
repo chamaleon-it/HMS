@@ -34,7 +34,17 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const saved = localStorage.getItem('pharmacy_order_drafts');
     if (saved) {
       try {
-        setDrafts(JSON.parse(saved));
+        const parsed: Draft[] = JSON.parse(saved);
+        // Sanitize: reset any doctor that was stored as an ObjectId string from old code
+        const sanitized = parsed.map(d => ({
+          ...d,
+          payload: {
+            ...d.payload,
+            doctor: null,
+            doctorName: d.payload.doctorName === "-" ? "" : (d.payload.doctorName || ""),
+          }
+        }));
+        setDrafts(sanitized);
       } catch (e) {
         console.error("Failed to parse drafts", e);
       }
@@ -59,7 +69,8 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       id,
       payload: {
         patient: "",
-        doctor: "",
+        doctor: null,
+        doctorName: "",
         items: [
           {
             rowId: Date.now().toString(),

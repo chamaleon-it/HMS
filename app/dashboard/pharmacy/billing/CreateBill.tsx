@@ -261,6 +261,7 @@ export default function CreateBill({
         }
       }>(`/pharmacy/orders/single?q=${orderMrn}`)
       .then(({ data }) => {
+        const order = data.data as any;
 
         const itemsFromApi: {
           name: string;
@@ -269,7 +270,7 @@ export default function CreateBill({
           discount: number;
           gst: number;
           total: number;
-        }[] = data.data.items.map(item => ({
+        }[] = order.items.map((item: any) => ({
           name: item.name.name,
           quantity: item.quantity,
           unitPrice: item.name.unitPrice,
@@ -295,16 +296,19 @@ export default function CreateBill({
         setPayload((prev) => ({
           ...prev,
           items: uniqueItems,
-          discount: (data.data.discount ?? 0),
+          discount: (order.discount ?? 0),
           cash: 0,
           insurance: 0,
           online: 0,
-          patient: data.data.patient._id || "",
-          doctor: data.data.doctor.name || "",
-          department: data.data.doctor.specialization || "",
+          patient: order.patient._id || "",
+          // Use stored doctorName first; fall back to populated doctor name; null/empty → "-"
+          doctor: order.doctorName && order.doctorName !== "-" && order.doctorName !== ""
+            ? order.doctorName
+            : (order.doctor?.name || ""),
+          department: order.doctor?.specialization || "",
         }));
-        setOrderPatient(data.data.patient)
-        setSelectedPatient(data.data.patient)
+        setOrderPatient(order.patient)
+        setSelectedPatient(order.patient)
       });
   }, []);
 

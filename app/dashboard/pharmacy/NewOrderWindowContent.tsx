@@ -11,6 +11,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { AlertTriangle, Eye, Printer, UserPlus } from "lucide-react";
 import PharmacistSelection from "./PharmacistSelection";
+import DoctorSelection from "./billing/DoctorSelection";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -114,7 +115,24 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
               }}
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 items-stretch">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2 items-stretch">
+              <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-stethoscope"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+                  </div>
+                  <Label className="text-sm font-semibold text-slate-700">Doctor</Label>
+                </div>
+                <div className="mt-auto">
+                  <DoctorSelection
+                    value={payload.doctorName || ""}
+                    onSelect={(name: string, id?: string | null) => {
+                      setPayload((prev: any) => ({ ...prev, doctorName: name, doctor: id ?? null }));
+                    }}
+                  />
+                </div>
+              </div>
+
               <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
