@@ -102,8 +102,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
       `}} />
 
             {(() => {
-                const FIRST_PAGE_LIMIT = 20;
-                const SUBSEQUENT_PAGE_LIMIT = 20;
+                const FIRST_PAGE_LIMIT = 16;
+                const SUBSEQUENT_PAGE_LIMIT = 17;
 
                 const allRows: any[] = [];
                 const testMap = new Map<string, any>();
@@ -113,6 +113,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 const normalizeHeading = (h: string) => {
                     let text = h.toUpperCase().trim();
+                    if (text.includes("COMPLETE BLOOD COUNT")) return "COMPLETE BLOOD COUNT";
                     if (text.includes("HEMATOLOGY") || text.includes("HAEMATOLOGY") || text.includes("HEAMATOLOGY")) {
                         return "HAEMATOLOGY";
                     }
@@ -127,6 +128,12 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     const bConfig = panels?.find((pItem: any) => pItem.name === b);
                     const aHeading = (aConfig?.mainHeading || a).toUpperCase();
                     const bHeading = (bConfig?.mainHeading || b).toUpperCase();
+
+                    const isACBC = aHeading.includes("COMPLETE BLOOD COUNT");
+                    const isBCBC = bHeading.includes("COMPLETE BLOOD COUNT");
+
+                    if (isACBC && !isBCBC) return -1;
+                    if (!isACBC && isBCBC) return 1;
 
                     const isAHematology = aHeading.includes("HAEMATOLOGY") || aHeading.includes("HEMATOLOGY") || aHeading.includes("HEAMATOLOGY") || aHeading.includes("CBC");
                     const isBHematology = bHeading.includes("HAEMATOLOGY") || bHeading.includes("HEMATOLOGY") || bHeading.includes("HEAMATOLOGY") || bHeading.includes("CBC");
@@ -259,11 +266,11 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     // Separate HEAMATOLOGY tests from other biochemistry tests
                     const heamTests = remainingTests.filter(t => {
                         const cat = (t.name?.category || "").toString().toUpperCase();
-                        return cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC");
+                        return cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC") || cat.includes("COMPLETE BLOOD COUNT");
                     });
                     const otherTests = remainingTests.filter(t => {
                         const cat = (t.name?.category || "").toString().toUpperCase();
-                        return !(cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC"));
+                        return !(cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC") || cat.includes("COMPLETE BLOOD COUNT"));
                     });
 
                     // Add HEAMATOLOGY panel if any tests belong to this category
@@ -317,7 +324,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 const getHaemCheck = (name: string) => {
                     const cfg = panels?.find((pItem: any) => pItem.name === name);
                     const heading = (cfg?.mainHeading || name || "").toUpperCase();
-                    return heading.includes("HEMATOLOGY") || heading.includes("HAEMATOLOGY") || heading.includes("HEAMATOLOGY") || heading.includes("CBC");
+                    return heading.includes("HEMATOLOGY") || heading.includes("HAEMATOLOGY") || heading.includes("HEAMATOLOGY") || heading.includes("CBC") || heading.includes("COMPLETE BLOOD COUNT");
                 };
                 const getBiochemCheck = (name: string) => {
                     const cfg = panels?.find((pItem: any) => pItem.name === name);
@@ -336,6 +343,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 panelOrder.sort((a, b) => {
                     const getPriority = (p: string) => {
+                        const cfg = panels?.find((pItem: any) => pItem.name === p);
+                        const heading = (cfg?.mainHeading || p || "").toUpperCase();
+                        if (heading.includes("COMPLETE BLOOD COUNT")) return -1;
                         if (getHaemCheck(p)) return 0;
                         if (getBiochemCheck(p)) return 1;
                         if (getUrineCheck(p)) return 4;
@@ -398,7 +408,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         if (!r) return false;
                         const pConfig = panels?.find((pItem: any) => pItem.name === r.activePanel);
                         const pHeading = (pConfig?.mainHeading || r.activePanel || r.mainHeading || r.name?.name || r.name || "")?.toUpperCase();
-                        return pHeading.includes("HEMATOLOGY") || pHeading.includes("HAEMATOLOGY") || pHeading.includes("HEAMATOLOGY") || pHeading.includes("CBC");
+                        return pHeading.includes("HEMATOLOGY") || pHeading.includes("HAEMATOLOGY") || pHeading.includes("HEAMATOLOGY") || pHeading.includes("CBC") || pHeading.includes("COMPLETE BLOOD COUNT");
                     };
 
                     const isPrevHaematology = getIsHaem(prevRow);
@@ -444,57 +454,50 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'} flex flex-col relative`}>
                             <div className="flex-1 flex flex-col z-10 relative">
                                 {/* Header Section */}
-                                <img src="/report-corner-icon.png" alt="Corner Icon" className="absolute top-0 right-0 w-1/2 object-contain object-right-top opacity-30 pointer-events-none mix-blend-multiply z-0" />
-                                <div className="py-3 px-5 relative z-0">
+                                <div className="pt-6 pb-3 px-10 relative z-10 bg-white">
                                     <div className="flex justify-between items-start relative z-10">
                                         <div className="flex gap-4 items-center">
-                                            <div className="w-[110px] h-[110px] rounded-full border border-teal-100 flex items-center justify-center bg-white shrink-0 overflow-hidden">
+                                            <div className="w-[100px] h-[100px] rounded-full flex items-center justify-center bg-white shrink-0 overflow-hidden border border-slate-200">
                                                 <img src={configuration().logo} alt="Logo" className="w-full h-full object-cover mix-blend-multiply p-1" />
                                             </div>
-                                            <div className="flex flex-col gap-1 ml-2">
-                                                <h1 className="text-[28px] font-bold text-slate-800 uppercase leading-none tracking-wide font-cinzel" style={{ fontFamily: "'Cinzel Decorative', serif" }}>{configuration().hospitalName}</h1>
-                                                <p className="text-[14px] text-slate-600 mt-1">{configuration().hospitalAddress}</p>
-                                                <div className="flex items-center gap-6 mt-1 text-slate-500">
-                                                    <div className="flex items-center gap-2">
-                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-[#89b9c4]"><path d="M20 10.999h2C22 5.869 18.127 2 12.99 2v2C17.052 4 20 6.943 20 10.999z" /><path d="M13 8c2.103 0 3 .897 3 3h2c0-3.225-1.775-5-5-5v2zm3.422 5.443a1.001 1.001 0 0 0-1.391.043l-2.393 2.461c-.576-.11-1.734-.471-2.926-1.66-1.192-1.193-1.553-2.354-1.66-2.926l2.459-2.394a1 1 0 0 0 .043-1.391L6.859 3.513a1 1 0 0 0-1.391-.087l-2.17 1.861a1 1 0 0 0-.29.649c-.015.25-.301 6.172 4.291 10.766C11.305 20.707 16.323 21 17.705 21c.202 0 .326-.006.359-.008a.992.992 0 0 0 .648-.291l1.86-2.171a1 1 0 0 0-.086-1.391l-4.064-3.696z" /></svg>
-                                                        <span className="text-[14px] font-medium text-slate-600">+91{configuration().hospitalPhone}</span>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none" className="text-[#89b9c4]">
-                                                            <path d="M20 4H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zm0 2v.511l-8 6.223-8-6.222V6h16zM4 18V9.044l7.386 5.745a.994.994 0 0 0 1.228 0L20 9.044 20.002 18H4z" />
-                                                        </svg>
-                                                        <span className="text-[14px] font-medium text-slate-600">arrahmamedicarelab@gmail.com</span>
-                                                    </div>
-                                                </div>
+                                            <div className="flex flex-col gap-0.5 ml-0">
+                                                <h1 className="text-[24px] text-black uppercase leading-none tracking-widest font-cinzel font-semibold" style={{ fontFamily: "'Cinzel Decorative', serif" }}>{configuration().hospitalName}</h1>
+                                                <p className="text-[15px] text-slate-800 mt-1">{configuration().hospitalAddress}</p>
                                             </div>
                                         </div>
-                                        <div className="flex flex-col items-end gap-1 mt-2">
-                                            <h2 className="text-[22px] font-bold text-slate-800 leading-none">LAB REPORT</h2>
-                                            <p className="text-[16px] text-slate-600 font-medium">Report No : {String(report.mrn || "0056").padStart(4, "0")}</p>
+                                        <div className="flex flex-col items-end mt-2">
+                                            <div className="bg-[#3E58A1] text-white px-4 py-1.5 text-center">
+                                                <h2 className="text-[16px] font-normal uppercase tracking-wide">LABORATORY TEST REPORT</h2>
+                                            </div>
+                                            <p className="text-[14px] text-black font-semibold mt-2 mr-2">Report No : {String(report.mrn || "0056").padStart(4, "0")}</p>
                                         </div>
                                     </div>
                                 </div>
+                                <div className="w-full flex h-[5px] shrink-0">
+                                    <div className="bg-[#48CFCB] w-[70%] h-full"></div>
+                                    <div className="bg-[#3E58A1] w-[30%] h-full"></div>
+                                </div>
 
                                 {/* Patient Info Banner */}
-                                <div className="bg-[#d9e9e8] w-full px-10 py-2.5 flex justify-between">
-                                    <div className="flex flex-col space-y-2 text-[15px] text-slate-800">
-                                        <div className="flex items-center"><span className="w-28 text-slate-700">Patient Name</span><span className="w-4">:</span><span className="font-semibold">{patient?.name || "Rashid"}</span></div>
-                                        <div className="flex items-center"><span className="w-28 text-slate-700">Age/Sex</span><span className="w-4">:</span><span className="font-semibold">{patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "26Y 3M"} / {patient?.gender || "Male"}</span></div>
-                                        <div className="flex items-center"><span className="w-28 text-slate-700">Ref. By.</span><span className="w-4">:</span><span className="font-semibold">Dr. {doctor?.name || "Self"}</span></div>
+                                <div className="w-full px-12 py-4 flex justify-between">
+                                    <div className="flex flex-col space-y-1.5 text-[15px] text-black">
+                                        <div className="flex items-start"><span className="w-32 font-medium">Name</span><span className="w-4 font-bold">:</span><span className="font-bold text-[16px] uppercase">{patient?.name || "Mohammed Rashid"}</span></div>
+                                        <div className="flex items-start"><span className="w-32 font-medium">Age/ Gender</span><span className="w-4 font-bold">:</span><span className="font-medium">{patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "23"} / {patient?.gender || "Male"}</span></div>
+                                        <div className="flex items-start"><span className="w-32 font-medium">Ref. By.</span><span className="w-4 font-bold">:</span><span className="font-medium uppercase">{doctor?.name || "Self"}</span></div>
                                     </div>
-                                    <div className="flex flex-col space-y-2 text-[15px] text-slate-800 w-[45%]">
-                                        {/* <div className="flex items-center border-b border-slate-400/30 pb-0.5"><span className="w-40 text-slate-700">Sample Collected On</span><span className="w-4">:</span><span className="font-semibold">{report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).toLowerCase() : "02/06/26 10:23 am"}</span></div> */}
-                                        <div className="flex items-center  pb-0.5"><span className="w-40 text-slate-700">Result Reported On</span><span className="w-4">:</span><span className="font-semibold">{report.testStartedAt ? fDateandTime(report.testStartedAt).toLowerCase() : "02/06/26 10:23 am"}</span></div>
-                                        <div className="flex items-center  pb-0.5"><span className="w-40 text-slate-700">Result Printed On</span><span className="w-4">:</span><span className="font-semibold">{fDateandTime(new Date()).toLowerCase()}</span></div>
+                                    <div className="flex flex-col space-y-1.5 text-[15px] text-black w-[40%]">
+                                        <div className="flex items-start"><span className="w-28 font-medium">Reported</span><span className="w-4 font-bold">:</span><span className="font-medium">{report.createdAt && fDateandTime(report.createdAt).toLowerCase()}</span></div>
+                                        <div className="flex items-start"><span className="w-28 font-medium">Received</span><span className="w-4 font-bold">:</span><span className="font-medium">{report.sampleCollectedAt && fDateandTime(report.sampleCollectedAt).toLowerCase()}</span></div>
+                                        <div className="flex items-start"><span className="w-28 font-medium">Printed</span><span className="w-4 font-bold">:</span><span className="font-medium">{fDateandTime(new Date()).toLowerCase()}</span></div>
                                     </div>
                                 </div>
 
                                 {/* Results Table Section */}
-                                <div className="mt-4 px-10 flex-1 relative">
+                                <div className="mt-1 px-10 flex-1 relative">
                                     <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.08] z-0">
-                                        <img src={configuration().logo} alt="Watermark" className="w-[15cm] object-contain grayscale mt-36" />
+                                        <img src={configuration().logo} alt="Watermark" className="w-[15cm] object-contain grayscale" />
                                     </div>
-                                    <div className="flex w-full gap-4 relative z-10">
+                                    <div className="flex w-full gap-3 relative z-10">
                                         <div className={`${showHistograms ? 'w-[65%]' : 'w-full'} flex flex-col gap-6`}>
                                             {(() => {
                                                 const panelGroupsOnPage: { heading: string, rows: any[] }[] = [];
@@ -528,16 +531,16 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 return panelGroupsOnPage.map((pg, pgIdx) => (
                                                     <div key={pgIdx} className="w-full">
                                                         {pg.heading && (
-                                                            <div className="w-full bg-[#7caabb] text-white py-1.5 px-4 mb-0">
-                                                                <h2 className="text-[16px] font-bold uppercase tracking-widest">{pg.heading}</h2>
+                                                            <div className="w-full bg-[#f1f5f9] text-black py-2 px-4 mb-0 text-center">
+                                                                <h2 className="text-[15px] font-bold uppercase tracking-wider">{pg.heading}</h2>
                                                             </div>
                                                         )}
                                                         <table className="w-full border-collapse">
                                                             <thead>
-                                                                <tr className="bg-[#e4eff0] text-slate-800 border-b border-white border-[3px]">
-                                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[40%]">Parameter</th>
-                                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[20%]">Result</th>
-                                                                    <th className="py-2 px-3 text-[14px] font-bold text-left w-[40%]">Ref. Range</th>
+                                                                <tr className="bg-[#f8fafc] text-black border-y border-white">
+                                                                    <th className="py-2.5 px-2 pl-8 text-[12px] font-bold text-left w-[45%] border-r-[3px] border-white">PARAMETER</th>
+                                                                    <th className="py-2.5 px-2 text-[12px] font-bold text-center w-[25%] border-r-[3px] border-white">RESULT</th>
+                                                                    <th className="py-2.5 px-2 pl-8 text-[12px] font-bold text-left w-[30%]">REFERENCE RANGE</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody>
@@ -554,18 +557,18 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                         return (
                                                                             <React.Fragment key={`sub-${rowIdx}`}>
                                                                                 <tr>
-                                                                                    <td colSpan={3} className="py-1.5 px-3 bg-[#e4eff0] mt-2 border-t-4 border-white text-slate-800">
-                                                                                        <h3 className="text-[14px] font-bold uppercase underline underline-offset-2">{row.name}</h3>
+                                                                                    <td colSpan={3} className="py-2 px-3 pl-8 pt-4 text-black">
+                                                                                        <h3 className="text-[15px] font-bold uppercase underline underline-offset-4 decoration-2">{row.name}</h3>
                                                                                     </td>
                                                                                 </tr>
                                                                                 {isFirstSub && panelMethod && (
                                                                                     <tr>
-                                                                                        <td colSpan={3} className="px-3 pt-1 text-[12px] text-slate-600">Method: {panelMethod}</td>
+                                                                                        <td colSpan={3} className="px-7 pt-1 text-[12px] text-slate-600">Method: {panelMethod}</td>
                                                                                     </tr>
                                                                                 )}
                                                                                 {isFirstSub && panelSpecimen && (
                                                                                     <tr>
-                                                                                        <td colSpan={3} className="px-3 pb-2 text-[12px] text-slate-600">Specimen: {panelSpecimen}</td>
+                                                                                        <td colSpan={3} className="px-7 pb-2 text-[12px] text-slate-600">Specimen: {panelSpecimen}</td>
                                                                                     </tr>
                                                                                 )}
                                                                             </React.Fragment>
@@ -575,35 +578,42 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                     if (row.type !== "TEST") return null;
 
                                                                     const v = parseFloat(row.value);
-                                                                    let min, max;
+                                                                    let min, max, upto;
                                                                     if (row.name?.range?.[0]) {
                                                                         min = row.name.range[0].min;
                                                                         max = row.name.range[0].max;
+                                                                        upto = row.name.range[0].upto;
                                                                     }
 
                                                                     let isAbnormal = false;
-                                                                    if (min !== undefined && v < min) isAbnormal = true;
-                                                                    else if (max !== undefined && v > max) isAbnormal = true;
+                                                                    if (min !== undefined && min !== null && min !== "" && v < min) isAbnormal = true;
+                                                                    else if (max !== undefined && max !== null && max !== "" && v > max) isAbnormal = true;
+                                                                    else if (upto !== undefined && upto !== null && upto !== "" && v > upto) isAbnormal = true;
 
                                                                     return (
                                                                         <tr key={"test-" + rowIdx}>
-                                                                            <td className="py-1.5 px-3 text-[13px] text-slate-800 align-top">
+                                                                            <td className="py-1.5 px-1 pl-12 text-[14px] text-slate-800 align-top">
                                                                                 <div>{row.name?.name || "TEST"}</div>
                                                                             </td>
-                                                                            <td className="py-1.5 px-3 text-[13px] text-slate-800 align-top flex gap-1 items-center">
-                                                                                <span className={isAbnormal ? "font-bold text-black" : "font-semibold"}>{row.value || " "}</span>
-                                                                                {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-slate-600 text-[12px] font-medium" dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
+                                                                            <td className="py-1.5 px-2 text-[14px] text-slate-800 align-top">
+                                                                                <div className="flex justify-center gap-1">
+                                                                                    <span className={isAbnormal ? "font-bold text-black" : "font-bold"}>{row.value || " "}</span>
+                                                                                    {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-black font-bold" dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
+                                                                                </div>
                                                                             </td>
-                                                                            <td className="py-1.5 px-3 text-[13px] text-slate-600 align-top font-medium">
+                                                                            <td className="py-1.5 px-2 pl-8 text-[14px] text-slate-800 align-top font-normal">
                                                                                 {row.name?.range && row.name.range.length > 0 ? (
                                                                                     row.name.range.map((r: any, idx: number) => {
                                                                                         const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
                                                                                         const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
-                                                                                        if (!hasMin && !hasMax) return null;
+                                                                                        const hasUpto = r.upto !== undefined && r.upto !== null && r.upto !== "";
+                                                                                        if (!hasMin && !hasMax && !hasUpto) return null;
 
                                                                                         let rangeDisplay = "";
-                                                                                        if (hasMin && hasMax) {
-                                                                                            rangeDisplay = `(${r.min} - ${r.max})`;
+                                                                                        if (hasUpto) {
+                                                                                            rangeDisplay = `Upto ${r.upto}`;
+                                                                                        } else if (hasMin && hasMax) {
+                                                                                            rangeDisplay = `${r.min} - ${r.max}`;
                                                                                         } else if (hasMin) {
                                                                                             rangeDisplay = `>${r.min}`;
                                                                                         } else if (hasMax) {
@@ -630,7 +640,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         </div>
 
                                         {showHistograms && (
-                                            <div className="w-[35%] pl-4 border-l border-slate-200">
+                                            <div className="w-[35%] pl-3 border-l border-slate-200">
                                                 <div className="bg-[#e4eff0] py-2 px-3 mb-4">
                                                     <h3 className="text-[14px] font-bold text-center text-slate-800">Histograms</h3>
                                                 </div>
@@ -669,7 +679,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                 <div className="w-full mt-auto pt-8">
                                     {(
                                         <>
-                                            {report.note && (
+                                            {isLastPage && report.note && (
                                                 <div className="w-full px-10 pb-4 text-left">
                                                     <div className="border-t border-slate-300 pt-2">
                                                         <p className="text-xs font-bold text-black uppercase tracking-wide">Note:</p>
@@ -679,12 +689,12 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                     </div>
                                                 </div>
                                             )}
-                                            <div className="px-5 pb-20 w-full flex justify-between items-start">
-                                                <div className="text-center w-48">
+                                            <div className="px-10 pb-36 w-full flex justify-between items-start">
+                                                <div className="text-left">
                                                     <p className="font-bold text-slate-800 text-[14px]">LAB IN-CHARGE</p>
-                                                    <p className="text-[12px] text-slate-600 font-medium uppercase mt-1">{inChargeTechnician?.name || "LABORATORY"}</p>
+                                                    <p className="text-[11px] text-slate-800 font-bold uppercase mt-0">{inChargeTechnician?.name || "LABORATORY"}</p>
                                                 </div>
-                                                <div className="text-center w-48">
+                                                <div className="text-right">
                                                     <p className="font-bold text-slate-800 text-[14px]">LAB TECHNICIAN</p>
                                                     {/* <p className="text-[12px] text-slate-600 font-medium mt-1 uppercase">{report.technician || ""}</p> */}
                                                 </div>
@@ -695,14 +705,38 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             </div>
 
                             {/* Bottom Banner */}
-                            <div className="absolute bottom-0 left-0 bg-[#b3d4d9] w-full px-10 py-3 flex justify-between items-center text-slate-800 footer z-20">
-                                <div className="text-[13px]">
-                                    <span className="font-medium">OP Time :</span><br />
-                                    <span className="font-bold text-[14px]">Monday-Sunday <br /> 3:00 PM to 8:00 PM</span>
+                            <div className="absolute bottom-0 left-0 w-full z-20">
+                                <div className="px-10 py-3 flex justify-between items-end text-black">
+                                    <div className="text-[12px] font-medium">
+                                        OP Time<br />
+                                        <span className="font-medium"> Monday-Saturday<br />3:00 PM to 8:00 PM</span>
+                                    </div>
+                                    <div className="text-[12px] text-right font-medium">
+                                        Working Hours<br />
+                                        <span className="font-medium">6:30 AM to 8:00 PM <br />Sunday 6:30 AM to 12:00 PM</span>
+                                    </div>
                                 </div>
-                                <div className="text-[13px] text-right">
-                                    <span className="font-medium">Lab Working Hours :</span><br />
-                                    <span className="font-bold text-[14px]">6:30 AM to 8:00 PM <br /> Sunday 6:30 AM to 12:00 PM</span>
+                                <div className="w-full flex h-[5px]">
+                                    <div className="bg-[#48CFCB] w-[70%] h-full"></div>
+                                    <div className="bg-[#3E58A1] w-[30%] h-full"></div>
+                                </div>
+                                <div className="flex w-full justify-between items-center p-4">
+                                    <div className="text-black">
+                                        <p className="text-[12px] font-medium mb-1">Note: This Report is subject to the terms and conditions mentioned overleaf</p>
+                                        <div className="flex gap-6 items-center text-[13px] font-medium">
+                                            <div className="flex items-center gap-1">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 10.999h2C22 5.869 18.127 2 12.99 2v2C17.052 4 20 6.943 20 10.999z" /><path d="M13 8c2.103 0 3 .897 3 3h2c0-3.225-1.775-5-5-5v2zm3.422 5.443a1.001 1.001 0 0 0-1.391.043l-2.393 2.461c-.576-.11-1.734-.471-2.926-1.66-1.192-1.193-1.553-2.354-1.66-2.926l2.459-2.394a1 1 0 0 0 .043-1.391L6.859 3.513a1 1 0 0 0-1.391-.087l-2.17 1.861a1 1 0 0 0-.29.649c-.015.25-.301 6.172 4.291 10.766C11.305 20.707 16.323 21 17.705 21c.202 0 .326-.006.359-.008a.992.992 0 0 0 .648-.291l1.86-2.171a1 1 0 0 0-.086-1.391l-4.064-3.696z" /></svg>
+                                                +91 {configuration().hospitalPhone || "9946336480"}
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zm0 2v.511l-8 6.223-8-6.222V6h16zM4 18V9.044l7.386 5.745a.994.994 0 0 0 1.228 0L20 9.044 20.002 18H4z" /></svg>
+                                                arrahmamedicarelab@gmail.com
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="text-sm">
+                                        Powered by <b>Caresoft Innovations LLP</b>
+                                    </div>
                                 </div>
                             </div>
                         </div>

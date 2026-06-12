@@ -42,6 +42,7 @@ export default function TestCatalogueRow({
             name: string;
             min: number | null | undefined;
             max: number | null | undefined;
+            upto: number | null | undefined;
             fromAge: number | null | undefined;
             toAge: number | null | undefined;
             gender: string;
@@ -75,6 +76,7 @@ export default function TestCatalogueRow({
             name: string;
             min: number | null | undefined;
             max: number | null | undefined;
+            upto: number | null | undefined;
             fromAge: number | null | undefined;
             toAge: number | null | undefined;
             gender: string;
@@ -97,7 +99,7 @@ export default function TestCatalogueRow({
         unit: test.unit,
         range: test.range?.length ? test.range : [{
             name: "Normal",
-            min: undefined, max: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year"
+            min: undefined, max: undefined, upto: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year"
         }],
         note: test.note || "",
         estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
@@ -121,7 +123,7 @@ export default function TestCatalogueRow({
                 unit: test.unit,
                 range: test.range?.length ? test.range : [{
                     name: "Normal",
-                    min: undefined, max: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year"
+                    min: undefined, max: undefined, upto: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year"
                 }],
                 note: test.note || "",
                 estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
@@ -136,7 +138,18 @@ export default function TestCatalogueRow({
     const handleRangeChange = (index: number, field: string, value: any) => {
         setPayload((prev) => {
             const updatedRange = [...(prev.range || [])];
-            updatedRange[index] = { ...updatedRange[index], [field]: value };
+            let newRangeItem = { ...updatedRange[index], [field]: value };
+            
+            if (field === 'upto' && value !== undefined && value !== null && value !== "") {
+                newRangeItem.min = undefined;
+                newRangeItem.max = undefined;
+            }
+            
+            if ((field === 'min' || field === 'max') && value !== undefined && value !== null && value !== "") {
+                newRangeItem.upto = undefined;
+            }
+            
+            updatedRange[index] = newRangeItem;
             return { ...prev, range: updatedRange };
         });
     };
@@ -146,7 +159,7 @@ export default function TestCatalogueRow({
             ...prev,
             range: [
                 ...(prev.range || []),
-                { name: "", min: undefined, max: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year" }
+                { name: "", min: undefined, max: undefined, upto: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year" }
             ]
         }));
     };
@@ -243,7 +256,7 @@ export default function TestCatalogueRow({
                 {(test.range && test.range.length > 0) ? (
                     test.range.map((r, i) => (
                         <div key={i} className="mb-1 last:mb-0">
-                            <strong>{r.name || "Default"}:</strong> {r.min ?? "-"} to {r.max ?? "-"}
+                            <strong>{r.name || "Default"}:</strong> {r.upto !== undefined && r.upto !== null ? `Upto ${r.upto}` : `${r.min ?? "-"} to ${r.max ?? "-"}`}
                         </div>
                     ))
                 ) : (
@@ -348,7 +361,7 @@ export default function TestCatalogueRow({
                                                     <div>
                                                         <span className="font-medium">{r.name || "Default"}</span>
                                                         <span className="text-slate-500 ml-2">
-                                                            {r.min ?? "Any"} min - {r.max ?? "Any"} max
+                                                            {r.upto !== undefined && r.upto !== null ? `Upto ${r.upto}` : `${r.min ?? "Any"} min - ${r.max ?? "Any"} max`}
                                                         </span>
                                                     </div>
                                                     <div className="text-xs text-slate-500">
@@ -582,8 +595,9 @@ export default function TestCatalogueRow({
                                                 <TableRow>
                                                     <TableHead className="w-12">Sl No</TableHead>
                                                     <TableHead>Range Name</TableHead>
-                                                    <TableHead className="w-26">Min</TableHead>
-                                                    <TableHead className="w-26">Max</TableHead>
+                                                    <TableHead className="w-24">Min</TableHead>
+                                                    <TableHead className="w-24">Max</TableHead>
+                                                    <TableHead className="w-24">UpTo</TableHead>
                                                     <TableHead className="w-20">From Age <br /> <span className="font-normal text-xs text-slate-500">(Optional)</span></TableHead>
                                                     <TableHead className="w-20">To Age <br /> <span className="font-normal text-xs text-slate-500">(Optional)</span></TableHead>
                                                     <TableHead className="w-20">Gender</TableHead>
@@ -618,6 +632,15 @@ export default function TestCatalogueRow({
                                                                 placeholder="Max"
                                                                 value={r.max ?? ""}
                                                                 onChange={(e) => handleRangeChange(i, "max", e.target.value ? Number(e.target.value) : undefined)}
+                                                                className="h-8 shadow-none bg-slate-50 px-2"
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Input
+                                                                type="number"
+                                                                placeholder="UpTo"
+                                                                value={r.upto ?? ""}
+                                                                onChange={(e) => handleRangeChange(i, "upto", e.target.value ? Number(e.target.value) : undefined)}
                                                                 className="h-8 shadow-none bg-slate-50 px-2"
                                                             />
                                                         </TableCell>
@@ -699,7 +722,7 @@ export default function TestCatalogueRow({
                                                 ))}
                                                 {(!payload.range || payload.range.length === 0) && (
                                                     <TableRow>
-                                                        <TableCell colSpan={9} className="text-center py-4">
+                                                        <TableCell colSpan={10} className="text-center py-4">
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"

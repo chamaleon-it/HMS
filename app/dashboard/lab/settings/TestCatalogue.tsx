@@ -234,6 +234,7 @@ export default function TestCatalogue({
       name: string;
       min: number | null | undefined;
       max: number | null | undefined;
+      upto: number | null | undefined;
       fromAge: number | null | undefined;
       toAge: number | null | undefined;
       gender: "Both" | "Male" | "Female";
@@ -256,6 +257,7 @@ export default function TestCatalogue({
       name: "Normal",
       min: undefined,
       max: undefined,
+      upto: undefined,
       fromAge: undefined,
       toAge: undefined,
       gender: "Both",
@@ -268,7 +270,18 @@ export default function TestCatalogue({
   const handleRangeChange = (index: number, field: string, value: any) => {
     setNewTest((prev) => {
       const updatedRange = [...(prev.range || [])];
-      updatedRange[index] = { ...updatedRange[index], [field]: value };
+      let newRangeItem = { ...updatedRange[index], [field]: value };
+      
+      if (field === 'upto' && value !== undefined && value !== null && value !== "") {
+        newRangeItem.min = undefined;
+        newRangeItem.max = undefined;
+      }
+      
+      if ((field === 'min' || field === 'max') && value !== undefined && value !== null && value !== "") {
+        newRangeItem.upto = undefined;
+      }
+      
+      updatedRange[index] = newRangeItem;
       return { ...prev, range: updatedRange };
     });
   };
@@ -278,7 +291,7 @@ export default function TestCatalogue({
       ...prev,
       range: [
         ...(prev.range || []),
-        { name: "", min: undefined, max: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year" }
+        { name: "", min: undefined, max: undefined, upto: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year" }
       ]
     }));
   };
@@ -334,6 +347,7 @@ export default function TestCatalogue({
           name: "",
           min: undefined,
           max: undefined,
+          upto: undefined,
           fromAge: undefined,
           toAge: undefined,
           gender: "Both",
@@ -611,10 +625,11 @@ export default function TestCatalogue({
                         <TableRow>
                           <TableHead className="w-12">Sl No</TableHead>
                           <TableHead>Range Name</TableHead>
-                          <TableHead className="w-26">Min</TableHead>
-                          <TableHead className="w-26">Max</TableHead>
-                          <TableHead className="w-24">From Age</TableHead>
-                          <TableHead className="w-24">To Age</TableHead>
+                          <TableHead className="w-24">Min</TableHead>
+                          <TableHead className="w-24">Max</TableHead>
+                          <TableHead className="w-24">UpTo</TableHead>
+                          <TableHead className="w-20">From Age</TableHead>
+                          <TableHead className="w-20">To Age</TableHead>
                           <TableHead className="w-20">Gender</TableHead>
                           <TableHead className="w-20">Y/M/D</TableHead>
                           <TableHead className="w-20">Actions</TableHead>
@@ -647,6 +662,15 @@ export default function TestCatalogue({
                                 placeholder="Max"
                                 value={r.max ?? ""}
                                 onChange={(e) => handleRangeChange(i, "max", e.target.value ? Number(e.target.value) : undefined)}
+                                className="h-8 shadow-none bg-slate-50 px-2"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                placeholder="UpTo"
+                                value={r.upto ?? ""}
+                                onChange={(e) => handleRangeChange(i, "upto", e.target.value ? Number(e.target.value) : undefined)}
                                 className="h-8 shadow-none bg-slate-50 px-2"
                               />
                             </TableCell>
@@ -728,7 +752,7 @@ export default function TestCatalogue({
                         ))}
                         {(!newTest.range || newTest.range.length === 0) && (
                           <TableRow>
-                            <TableCell colSpan={9} className="text-center py-4">
+                            <TableCell colSpan={10} className="text-center py-4">
                               <Button
                                 variant="outline"
                                 size="sm"
