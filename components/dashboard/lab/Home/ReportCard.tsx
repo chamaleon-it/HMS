@@ -461,7 +461,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 <img src={configuration().logo} alt="Logo" className="w-full h-full object-cover mix-blend-multiply p-1" />
                                             </div>
                                             <div className="flex flex-col gap-0.5 ml-0">
-                                                <h1 className="text-[24px] text-black uppercase leading-none tracking-widest font-cinzel font-semibold" style={{ fontFamily: "'Cinzel Decorative', serif" }}>{configuration().hospitalName}</h1>
+                                                <h1 className="text-[20px] text-black uppercase leading-none tracking-widest font-cinzel font-semibold" style={{ fontFamily: "'Cinzel Decorative', serif" }}>{configuration().hospitalName}</h1>
                                                 <p className="text-[15px] text-slate-800 mt-1">{configuration().hospitalAddress}</p>
                                             </div>
                                         </div>
