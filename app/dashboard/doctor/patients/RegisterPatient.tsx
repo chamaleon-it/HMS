@@ -105,7 +105,7 @@ export function RegisterPatient({
           : undefined,
         name: patient.name,
         notes: patient.notes,
-        phoneNumber: patient.phoneNumber.replace(/\s+/g, ""),
+        phoneNumber: patient?.phoneNumber?.replace(/\s+/g, ""),
         uhid: patient.uhid,
       });
     }

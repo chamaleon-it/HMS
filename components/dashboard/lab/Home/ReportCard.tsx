@@ -469,7 +469,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                             <div className="bg-[#3E58A1] text-white px-4 py-1.5 text-center">
                                                 <h2 className="text-[16px] font-normal uppercase tracking-wide">LABORATORY TEST REPORT</h2>
                                             </div>
-                                            <p className="text-[14px] text-black font-semibold mt-2 mr-2">Report No : {String(report.mrn || "0056").padStart(4, "0")}</p>
+                                         
                                         </div>
                                     </div>
                                 </div>
@@ -539,7 +539,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                             <thead>
                                                                 <tr className="bg-[#f8fafc] text-black border-y border-white">
                                                                     <th className="py-2.5 px-2 pl-8 text-[12px] font-bold text-left w-[45%] border-r-[3px] border-white">PARAMETER</th>
-                                                                    <th className="py-2.5 px-2 text-[12px] font-bold text-center w-[25%] border-r-[3px] border-white">RESULT</th>
+                                                                    <th className="py-2.5 px-2 text-[12px] font-bold text-left w-[25%] border-r-[3px] border-white">RESULT</th>
                                                                     <th className="py-2.5 px-2 pl-8 text-[12px] font-bold text-left w-[30%]">REFERENCE RANGE</th>
                                                                 </tr>
                                                             </thead>
@@ -595,8 +595,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                             <td className="py-1.5 px-1 pl-12 text-[14px] text-slate-800 align-top">
                                                                                 <div>{row.name?.name || "TEST"}</div>
                                                                             </td>
-                                                                            <td className="py-1.5 px-2 text-[14px] text-slate-800 align-top">
-                                                                                <div className="flex justify-center gap-1">
+                                                                            <td className="py-1.5 px-2 text-[14px] text-slate-800 align-top text-left">
+                                                                                <div className="flex justify-start gap-1">
                                                                                     <span className={isAbnormal ? "font-bold text-black" : "font-bold"}>{row.value || " "}</span>
                                                                                     {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-black font-bold" dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
                                                                                 </div>
@@ -689,13 +689,13 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                     </div>
                                                 </div>
                                             )}
-                                            <div className="px-10 pb-36 w-full flex justify-between items-start">
+                                            <div className="px-10 pb-32 w-full flex justify-between items-start">
                                                 <div className="text-left">
-                                                    <p className="font-bold text-slate-800 text-[14px]">LAB IN-CHARGE</p>
+                                                    <p className="font-bold text-slate-800 text-[12px]">LAB IN-CHARGE</p>
                                                     <p className="text-[11px] text-slate-800 font-bold uppercase mt-0">{inChargeTechnician?.name || "LABORATORY"}</p>
                                                 </div>
                                                 <div className="text-right">
-                                                    <p className="font-bold text-slate-800 text-[14px]">LAB TECHNICIAN</p>
+                                                    <p className="font-bold text-slate-800 text-[12px]">LAB TECHNICIAN</p>
                                                     {/* <p className="text-[12px] text-slate-600 font-medium mt-1 uppercase">{report.technician || ""}</p> */}
                                                 </div>
                                             </div>
@@ -722,7 +722,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                 </div>
                                 <div className="flex w-full justify-between items-center p-4">
                                     <div className="text-black">
-                                        <p className="text-[12px] font-medium mb-1">Note: This Report is subject to the terms and conditions mentioned overleaf</p>
+                                       
                                         <div className="flex gap-6 items-center text-[13px] font-medium">
                                             <div className="flex items-center gap-1">
                                                 <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 10.999h2C22 5.869 18.127 2 12.99 2v2C17.052 4 20 6.943 20 10.999z" /><path d="M13 8c2.103 0 3 .897 3 3h2c0-3.225-1.775-5-5-5v2zm3.422 5.443a1.001 1.001 0 0 0-1.391.043l-2.393 2.461c-.576-.11-1.734-.471-2.926-1.66-1.192-1.193-1.553-2.354-1.66-2.926l2.459-2.394a1 1 0 0 0 .043-1.391L6.859 3.513a1 1 0 0 0-1.391-.087l-2.17 1.861a1 1 0 0 0-.29.649c-.015.25-.301 6.172 4.291 10.766C11.305 20.707 16.323 21 17.705 21c.202 0 .326-.006.359-.008a.992.992 0 0 0 .648-.291l1.86-2.171a1 1 0 0 0-.086-1.391l-4.064-3.696z" /></svg>
@@ -734,7 +734,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="text-sm">
+                                    <div className="text-xs">
                                         Powered by <b>Caresoft Innovations LLP</b>
                                     </div>
                                 </div>

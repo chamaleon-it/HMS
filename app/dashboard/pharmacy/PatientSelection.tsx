@@ -16,6 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RegisterPatient } from "./RegisterPatient";
 import { useAuth } from "@/auth/context/auth-context";
 
 type Patient = {
@@ -49,36 +51,9 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
   const [selected, setSelected] = useState<Patient | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const [gender, setGender] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
+  const [openCreate, setOpenCreate] = useState(false);
 
-  const handleInlineCreate = async () => {
-    if (!input.trim()) return toast.error("Please enter a customer name");
-    if (!gender) return toast.error("Please select gender");
 
-    try {
-      setIsCreating(true);
-      const { data: responseData } = await api.post("/patients", {
-        name: input.trim(),
-        gender,
-        phoneNumber: "",
-        doctor: user?._id || "",
-        dateOfBirth: ""
-      });
-      const newPatient = responseData.data;
-      toast.success("Customer registered successfully.");
-
-      setSelected(newPatient);
-      setValue(newPatient._id, newPatient.allergies, newPatient.name);
-      setInput(`${newPatient.name}${newPatient.mrn ? ` - (${newPatient.mrn})` : ""}`);
-      setOpen(false);
-      setGender("");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to create customer");
-    } finally {
-      setIsCreating(false);
-    }
-  };
 
   // Auto-scroll to active item
   useEffect(() => {
@@ -170,7 +145,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
 
 
 
-  const [trigger, setTrigger] = useState(false)
+
 
   return (
     <div ref={rootRef} className="relative w-full max-w-[500px]">
@@ -208,45 +183,21 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           />
         </div>
 
-        {!trigger && <Button
+        <Button
           type="button"
           variant="outline"
           size="icon"
-          onClick={() => setTrigger(!trigger)}
+          onClick={() => setOpenCreate(true)}
           className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 shrink-0 h-10 w-10"
         >
           <UserPlus className="h-4 w-4" />
-        </Button>}
-
-        {!selected && trigger && (
-          <>
-            <Select value={gender} onValueChange={setGender}>
-              <SelectTrigger className="w-[120px]">
-                <SelectValue placeholder="Gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Male">Male</SelectItem>
-                <SelectItem value="Female">Female</SelectItem>
-                <SelectItem value="Other">Other</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              type="button"
-              onClick={handleInlineCreate}
-              disabled={isCreating}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white shrink-0"
-            >
-              Create
-            </Button>
-          </>
-        )}
+        </Button>
 
         {input && (
           <button
             type="button"
             aria-label="Clear"
-            onClick={() => { clearInput(); setTrigger(false) }}
+            onClick={() => { clearInput() }}
             className="rounded-full p-1 text-zinc-500 hover:bg-zinc-100 shrink-0"
           >
             <X className="h-4 w-4" />
@@ -323,6 +274,34 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           </ScrollArea>}
         </div>
       )}
+
+      {/* CREATE PATIENT DIALOG */}
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            patient={{ name: input }}
+            onClose={async (id?: string, name?: string, allergies?: string, mrn?: string) => {
+              setOpenCreate(false);
+              if (id && name) {
+                // To display instantly:
+                handleSelect({ _id: id, name, allergies: allergies || "", mrn: mrn || "" });
+                // Attempt to fetch full data (with mrn, age, etc.)
+                try {
+                  const { data } = await api.get(`/patients/${id}`);
+                  if (data && data.data) {
+                    handleSelect(data.data);
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch full patient details", error);
+                }
+              }
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
