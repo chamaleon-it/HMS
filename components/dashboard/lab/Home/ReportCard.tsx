@@ -117,38 +117,52 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     if (text.includes("HEMATOLOGY") || text.includes("HAEMATOLOGY") || text.includes("HEAMATOLOGY")) {
                         return "HAEMATOLOGY";
                     }
+                    if (text.includes("BIOCHEMISTRY")) return "BIOCHEMISTRY";
                     return text;
                 };
 
                 const processedTestIds = new Set<string>();
 
+                // Helper to classify panel/category names to priorities
+                const getPriority = (heading: string) => {
+                    const h = heading.toUpperCase();
+                    if (h.includes("COMPLETE BLOOD COUNT") || h.includes("CBC")) return 1;
+                    if (h.includes("HAEMATOLOGY") || h.includes("HEMATOLOGY") || h.includes("HEAMATOLOGY")) return 2;
+                    if (h.includes("BIOCHEMISTRY")) return 3;
+                    if (h.includes("LIPID")) return 4;
+                    if (h.includes("RFT") || h.includes("RENAL") || h.includes("KFT") || h.includes("KIDNEY")) return 5;
+                    if (h.includes("LFT") || h.includes("LIVER")) return 6;
+                    if (h.includes("HBA1C")) return 7;
+                    if (h.includes("SEROLOGY")) return 8;
+                    if (h.includes("URINE")) return 10;
+                    return 9; // Other Panels
+                };
+
+                const getTestInternalPriority = (testName: string, categoryName: string = "") => {
+                    const t = testName.toUpperCase();
+                    const cat = categoryName.toUpperCase();
+                    
+                    if (t.includes("SUGAR") || t.includes("FBS") || t.includes("PPBS") || t.includes("RBS") || cat.includes("SUGAR")) return 1;
+                    if (t.includes("LIPID") || t.includes("CHOLESTEROL") || t.includes("TRIGLYCERIDE") || t.includes("HDL") || t.includes("LDL") || t.includes("VLDL") || cat.includes("LIPID")) return 2;
+                    if (t.includes("KFT") || t.includes("RFT") || t.includes("UREA") || t.includes("CREATININE") || t.includes("URIC ACID") || cat.includes("KFT") || cat.includes("RFT") || cat.includes("KIDNEY")) return 3;
+                    if (t.includes("LFT") || t.includes("BILIRUBIN") || t.includes("SGPT") || t.includes("SGOT") || t.includes("ALKALINE") || t.includes("PROTEIN") || t.includes("ALBUMIN") || cat.includes("LFT") || cat.includes("LIVER")) return 4;
+                    if (t.includes("HBA1C") || t.includes("GLUCOSE") || cat.includes("HBA1C")) return 5;
+                    if (t.includes("HIV") || t.includes("HCV") || t.includes("HBSAG") || t.includes("VDRL") || t.includes("SEROLOGY") || t.includes("WIDAL") || cat.includes("SEROLOGY") || cat.includes("OLOGY")) return 6;
+                    if (t.includes("URINE") || cat.includes("URINE")) return 8;
+                    return 7;
+                };
+
+                const panelRowsGrouped: Record<string, any[]> = {};
+                
                 let sortedPanels = [...(report.panels || [])];
-                sortedPanels.sort((a: string, b: string) => {
-                    const aConfig = panels?.find((pItem: any) => pItem.name === a);
-                    const bConfig = panels?.find((pItem: any) => pItem.name === b);
-                    const aHeading = (aConfig?.mainHeading || a).toUpperCase();
-                    const bHeading = (bConfig?.mainHeading || b).toUpperCase();
-
-                    const isACBC = aHeading.includes("COMPLETE BLOOD COUNT");
-                    const isBCBC = bHeading.includes("COMPLETE BLOOD COUNT");
-
-                    if (isACBC && !isBCBC) return -1;
-                    if (!isACBC && isBCBC) return 1;
-
-                    const isAHematology = aHeading.includes("HAEMATOLOGY") || aHeading.includes("HEMATOLOGY") || aHeading.includes("HEAMATOLOGY") || aHeading.includes("CBC");
-                    const isBHematology = bHeading.includes("HAEMATOLOGY") || bHeading.includes("HEMATOLOGY") || bHeading.includes("HEAMATOLOGY") || bHeading.includes("CBC");
-
-                    if (isAHematology && !isBHematology) return -1;
-                    if (!isAHematology && isBHematology) return 1;
-                    return 0;
-                });
-
+                
                 sortedPanels.forEach((panelIdStr: string) => {
                     const panelId = panelIdStr.toString();
                     const panelTests = (report.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
                     if (panelTests.length === 0) return;
 
                     const panelConfig = panels?.find(p => p.name === panelId);
+                    const heading = normalizeHeading(panelConfig?.mainHeading || panelId);
 
                     let orderedIds: string[] = [];
                     for (const t of panelTests) {
@@ -164,46 +178,18 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     }
 
                     const testSubheadings = panelConfig?.testSubheadings || {};
-                    const subheadingsOrder = panelConfig?.subheadings || [];
 
-                    orderedIds.sort((a, b) => {
-                        const subA = testSubheadings[a];
-                        const subB = testSubheadings[b];
+                    if (!panelRowsGrouped[heading]) {
+                        panelRowsGrouped[heading] = [{
+                            type: "PANEL",
+                            name: heading,
+                            activePanel: panelId,
+                            mainHeading: heading
+                        }];
+                    }
 
-                        if (subA !== subB) {
-                            const indexA = subA ? subheadingsOrder.indexOf(subA) : -1;
-                            const indexB = subB ? subheadingsOrder.indexOf(subB) : -1;
-
-                            if (indexA !== -1 && indexB !== -1) return indexA - indexB;
-                            if (indexA !== -1) return -1;
-                            if (indexB !== -1) return 1;
-
-                            if (subA && subB) return subA.localeCompare(subB);
-                        }
-
-                        const tA = testMap.get(a)?.name?.name?.toUpperCase() || "";
-                        const tB = testMap.get(b)?.name?.name?.toUpperCase() || "";
-                        const getPriority = (testName: string) => {
-                            if (testName.includes("SUGAR")) return 1;
-                            if (testName.includes("URINE")) return 2;
-                            if (testName.includes("URIC")) return 3;
-                            return 4;
-                        };
-                        const pA = getPriority(tA);
-                        const pB = getPriority(tB);
-                        if (pA !== pB) return pA - pB;
-                        return 0;
-                    });
                     let currentSubheadingState: string | null = null;
                     let pendingSubheading: string | null = null;
-
-                    let panelRow: any = {
-                        type: "PANEL",
-                        name: panelId,
-                        activePanel: panelId,
-                        mainHeading: panelConfig?.mainHeading || panelId
-                    };
-                    let panelPushed = false;
 
                     orderedIds.forEach(id => {
                         const t = testMap.get(id);
@@ -221,15 +207,11 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             }
 
                             if (hasValue) {
-                                if (!panelPushed) {
-                                    allRows.push(panelRow);
-                                    panelPushed = true;
-                                }
                                 if (pendingSubheading) {
-                                    allRows.push({ type: "SUBHEADING", name: pendingSubheading, activePanel: panelId });
+                                    panelRowsGrouped[heading].push({ type: "SUBHEADING", name: pendingSubheading, activePanel: panelId, mainHeading: heading });
                                     pendingSubheading = null;
                                 }
-                                allRows.push({ type: "TEST", ...t, activePanel: panelId });
+                                panelRowsGrouped[heading].push({ type: "TEST", ...t, activePanel: panelId, mainHeading: heading });
                             }
 
                             processedTestIds.add(id);
@@ -238,167 +220,102 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     });
                 });
 
-                let remainingTests: any[] = [];
+                // Handle remaining tests (loose tests)
+                const looseTests: Record<string, any[]> = {};
                 Array.from(testMap.values()).forEach((t: any) => {
                     const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
                     if (valStr !== "") {
-                        remainingTests.push(t);
+                        const cat = (t.name?.category || "").toString().toUpperCase();
+                        let heading = "BIOCHEMISTRY";
+                        if (cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC") || cat.includes("COMPLETE BLOOD COUNT")) {
+                            heading = "HAEMATOLOGY";
+                        } else if (cat.includes("LIPID")) {
+                            heading = "LIPID PROFILE";
+                        } else if (cat.includes("KFT") || cat.includes("KIDNEY") || cat.includes("RFT")) {
+                            heading = "RFT";
+                        } else if (cat.includes("LFT") || cat.includes("LIVER")) {
+                            heading = "LFT";
+                        } else if (cat.includes("URINE")) {
+                            heading = "URINE ROUTINE EXAMINATION";
+                        }
+
+                        if (!looseTests[heading]) looseTests[heading] = [];
+                        looseTests[heading].push({ type: "TEST", ...t, activePanel: heading, mainHeading: heading });
                     }
                 });
 
-                if (remainingTests.length > 0) {
-                    // Sort remaining tests by priority (sugar, urine, uric)
-                    remainingTests.sort((a, b) => {
-                        const tA = a.name?.name?.toUpperCase() || "";
-                        const tB = b.name?.name?.toUpperCase() || "";
-                        const getPriority = (testName: string) => {
-                            if (testName.includes("SUGAR")) return 1;
-                            if (testName.includes("URINE")) return 2;
-                            if (testName.includes("URIC")) return 3;
-                            return 4;
-                        };
-                        const pA = getPriority(tA);
-                        const pB = getPriority(tB);
-                        if (pA !== pB) return pA - pB;
-                        return 0;
-                    });
-
-                    // Separate HEAMATOLOGY tests from other biochemistry tests
-                    const heamTests = remainingTests.filter(t => {
-                        const cat = (t.name?.category || "").toString().toUpperCase();
-                        return cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC") || cat.includes("COMPLETE BLOOD COUNT");
-                    });
-                    const otherTests = remainingTests.filter(t => {
-                        const cat = (t.name?.category || "").toString().toUpperCase();
-                        return !(cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC") || cat.includes("COMPLETE BLOOD COUNT"));
-                    });
-
-                    // Add HEAMATOLOGY panel if any tests belong to this category
-                    if (heamTests.length > 0) {
-                        const heamPanelId = "HAEMATOLOGY";
-                        allRows.push({
+                // Insert loose tests into their respective headings just after the PANEL row
+                Object.keys(looseTests).forEach(heading => {
+                    if (!panelRowsGrouped[heading]) {
+                        panelRowsGrouped[heading] = [{
                             type: "PANEL",
-                            name: heamPanelId,
-                            activePanel: heamPanelId,
-                            mainHeading: "HAEMATOLOGY"
-                        });
-                        heamTests.forEach(t => {
-                            allRows.push({ type: "TEST", ...t, activePanel: heamPanelId });
-                        });
+                            name: heading,
+                            activePanel: heading,
+                            mainHeading: heading
+                        }];
                     }
-
-                    // Add BIOCHEMISTRY panel for the remaining tests
-                    if (otherTests.length > 0) {
-                        const panelId = "BIOCHEMISTRY";
-                        // Add BIOCHEMISTRY panel only if not already added
-                        const bioExists = allRows.some(row => row.type === "PANEL" && (row.name === panelId || (row.mainHeading && row.mainHeading.toUpperCase() === "BIOCHEMISTRY")));
-                        if (!bioExists) {
-                            allRows.push({
-                                type: "PANEL",
-                                name: panelId,
-                                activePanel: panelId,
-                                mainHeading: "BIOCHEMISTRY"
-                            });
-                        }
-                        otherTests.forEach(t => {
-                            allRows.push({ type: "TEST", ...t, activePanel: panelId });
-                        });
-                    }
-                }
-                // Duplicate remainingTests block removed
-
-                // Group by activePanel first to maintain grouping
-                const panelGroups: Record<string, any[]> = {};
-                const panelOrder: string[] = [];
-
-                allRows.forEach((row) => {
-                    const p = row.activePanel || "BIOCHEMISTRY";
-                    if (!panelGroups[p]) {
-                        panelGroups[p] = [];
-                        panelOrder.push(p);
-                    }
-                    panelGroups[p].push(row);
-                });
-
-                // Sort panelOrder: 1) Hematology, 2) Biochemistry, 3) Category panels (with subheadings), 4) Others
-                const getHaemCheck = (name: string) => {
-                    const cfg = panels?.find((pItem: any) => pItem.name === name);
-                    const heading = (cfg?.mainHeading || name || "").toUpperCase();
-                    return heading.includes("HEMATOLOGY") || heading.includes("HAEMATOLOGY") || heading.includes("HEAMATOLOGY") || heading.includes("CBC") || heading.includes("COMPLETE BLOOD COUNT");
-                };
-                const getBiochemCheck = (name: string) => {
-                    const cfg = panels?.find((pItem: any) => pItem.name === name);
-                    const heading = (cfg?.mainHeading || name || "").toUpperCase();
-                    return heading.includes("BIOCHEMISTRY");
-                };
-                const getCategoryCheck = (name: string) => {
-                    const cfg = panels?.find((pItem: any) => pItem.name === name);
-                    return cfg?.subheadings && cfg.subheadings.length > 0;
-                };
-                const getUrineCheck = (name: string) => {
-                    const cfg = panels?.find((pItem: any) => pItem.name === name);
-                    const heading = (cfg?.mainHeading || name || "").toUpperCase();
-                    return heading.includes("URINE");
-                };
-
-                panelOrder.sort((a, b) => {
-                    const getPriority = (p: string) => {
-                        const cfg = panels?.find((pItem: any) => pItem.name === p);
-                        const heading = (cfg?.mainHeading || p || "").toUpperCase();
-                        if (heading.includes("COMPLETE BLOOD COUNT")) return -1;
-                        if (getHaemCheck(p)) return 0;
-                        if (getBiochemCheck(p)) return 1;
-                        if (getUrineCheck(p)) return 4;
-                        if (getCategoryCheck(p)) return 2;
-                        return 3;
-                    };
-                    const pA = getPriority(a);
-                    const pB = getPriority(b);
-                    if (pA !== pB) return pA - pB;
-
-                    const getPanelInternalPriority = (p: string) => {
-                        const rows = panelGroups[p] || [];
-                        let hasSugar = false;
-                        let hasUrine = false;
-                        let hasUric = false;
-                        for (const r of rows) {
-                            if (r.type === "TEST") {
-                                const tName = (r.name?.name || "").toUpperCase();
-                                if (tName.includes("SUGAR")) hasSugar = true;
-                                if (tName.includes("URINE")) hasUrine = true;
-                                if (tName.includes("URIC")) hasUric = true;
-                            }
-                        }
-                        if (hasSugar) return 1;
-                        if (hasUrine) return 2;
-                        if (hasUric) return 3;
-                        return 4;
-                    };
-
-                    return getPanelInternalPriority(a) - getPanelInternalPriority(b);
-                });
-
-                // Flatten panel groups to remove duplicate PANEL rows (e.g. 2 Biochemistry)
-                const finalRows: any[] = [];
-                const seenPanels = new Set<string>();
-
-                panelOrder.forEach((p) => {
-                    panelGroups[p].forEach(row => {
-                        if (row.type === "PANEL") {
-                            const heading = normalizeHeading(row.mainHeading || row.name || "");
-                            if (seenPanels.has(heading)) return;
-                            seenPanels.add(heading);
-                            row.mainHeading = heading;
-                        }
-                        finalRows.push(row);
+                    
+                    // Sort loose tests so Sugar/Lipid/etc have some priority, but keep them isolated at the top
+                    looseTests[heading].sort((a, b) => {
+                        const tA = a.name?.name || a.name || "";
+                        const catA = (a.name?.category || "").toString();
+                        const tB = b.name?.name || b.name || "";
+                        const catB = (b.name?.category || "").toString();
+                        return getTestInternalPriority(tA, catA) - getTestInternalPriority(tB, catB);
                     });
+
+                    // Insert loose tests right after the PANEL row (index 1)
+                    panelRowsGrouped[heading].splice(1, 0, ...looseTests[heading]);
                 });
 
-                // Chunk Into Pages with Continuous Flow, isolating Haematology
+                // Compile finalRows based on priority
+                const finalRows: any[] = [];
+                const sortedHeadings = Object.keys(panelRowsGrouped).sort((a, b) => getPriority(a) - getPriority(b));
+                
+                sortedHeadings.forEach(h => {
+                    // Only add if there's actually a test (length > 1 because first is PANEL)
+                    const rows = panelRowsGrouped[h];
+                    const hasTest = rows.some(r => r.type === "TEST");
+                    if (hasTest) {
+                        finalRows.push(...rows);
+                    }
+                });
+
+                // Chunk Into Pages with Continuous Flow, isolating Haematology based on CBC presence
                 const pages: any[][] = [];
                 let currentPageRows: any[] = [];
+                let currentPageWeight = 0;
                 let isFirstPageVar = true;
-                let currentLimit = FIRST_PAGE_LIMIT;
+
+                // Weight constants for accurate page height calculation
+                const MAX_PAGE_WEIGHT = 21.0; 
+                const getRowWeight = (r: any) => {
+                    if (r.type === "PANEL") return 3.2; // Panels have a gray box + table header
+                    if (r.type === "SUBHEADING") return 2.0; // Subheadings have top padding and potential Method/Specimen rows
+                    
+                    let weight = 1.0; // Normal test row
+                    const isCBC = (r.activePanel || r.mainHeading || "").toUpperCase().includes("COMPLETE BLOOD COUNT");
+                    
+                    // CBC tests are squished to 65% width, causing long names to wrap onto multiple lines
+                    if (isCBC) {
+                        weight = 1.2;
+                        if (r.name?.name && r.name.name.length > 18) {
+                            weight += 0.5; // Heavy wrapping
+                        }
+                    }
+                    
+                    // Multi-line reference ranges (like Male/Female splits) drastically increase row height
+                    if (r.name?.range && r.name.range.length > 1) {
+                        weight += (r.name.range.length - 1) * 0.8;
+                    }
+                    
+                    return weight;
+                };
+
+                const reportHasCBC = finalRows.some(r => {
+                    const h = (r.mainHeading || r.activePanel || "").toUpperCase();
+                    return h.includes("COMPLETE BLOOD COUNT") || h.includes("CBC");
+                });
 
                 for (let i = 0; i < finalRows.length; i++) {
                     const row = finalRows[i];
@@ -406,30 +323,43 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                     const getIsHaem = (r: any) => {
                         if (!r) return false;
-                        const pConfig = panels?.find((pItem: any) => pItem.name === r.activePanel);
-                        const pHeading = (pConfig?.mainHeading || r.activePanel || r.mainHeading || r.name?.name || r.name || "")?.toUpperCase();
+                        const pHeading = (r.mainHeading || r.activePanel || "").toUpperCase();
                         return pHeading.includes("HEMATOLOGY") || pHeading.includes("HAEMATOLOGY") || pHeading.includes("HEAMATOLOGY") || pHeading.includes("CBC") || pHeading.includes("COMPLETE BLOOD COUNT");
                     };
 
                     const isPrevHaematology = getIsHaem(prevRow);
                     const isCurrHaematology = getIsHaem(row);
 
-                    // Force page break when leaving Haematology
-                    if (isPrevHaematology && !isCurrHaematology && currentPageRows.length > 0) {
-                        pages.push(currentPageRows);
-                        currentPageRows = [];
-                        isFirstPageVar = false;
-                        currentLimit = SUBSEQUENT_PAGE_LIMIT;
-                    }
+                    const rowWeight = getRowWeight(row);
+                    const forceBreak = reportHasCBC && isPrevHaematology && !isCurrHaematology;
 
-                    if (currentPageRows.length >= currentLimit) {
+                    if ((currentPageWeight + rowWeight > MAX_PAGE_WEIGHT && currentPageRows.length > 0) || (forceBreak && currentPageRows.length > 0)) {
+                        // pull back trailing headings to avoid orphaned headers at bottom of page
+                        let orphaned = [];
+                        let orphanedWeight = 0;
+                        while (currentPageRows.length > 0 && 
+                               (currentPageRows[currentPageRows.length - 1].type === "PANEL" || 
+                                currentPageRows[currentPageRows.length - 1].type === "SUBHEADING")) {
+                            const popped = currentPageRows.pop();
+                            orphaned.unshift(popped);
+                            orphanedWeight += getRowWeight(popped);
+                        }
+                        
+                        // If we pulled everything (edge case), just put one back to avoid infinite loops
+                        if (currentPageRows.length === 0 && orphaned.length > 0) {
+                            const shifted = orphaned.shift();
+                            currentPageRows.push(shifted);
+                            orphanedWeight -= getRowWeight(shifted);
+                        }
+
                         pages.push(currentPageRows);
-                        currentPageRows = [];
+                        currentPageRows = [...orphaned];
+                        currentPageWeight = orphanedWeight;
                         isFirstPageVar = false;
-                        currentLimit = SUBSEQUENT_PAGE_LIMIT;
                     }
 
                     currentPageRows.push(row);
+                    currentPageWeight += rowWeight;
                 }
 
                 if (currentPageRows.length > 0) {
@@ -441,14 +371,16 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 return pages.map((pageRows, pageIdx) => {
                     const isFirstPage = pageIdx === 0;
                     const isLastPage = pageIdx === pages.length - 1;
-                    const pageHasCBC = pageRows.some(row => {
-                        const pName = row.activePanel || row.name;
-                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
-                    });
-                    const showHistograms = pageHasCBC && pages.findIndex(pr => pr.some(row => {
-                        const pName = row.activePanel || row.name;
-                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
-                    })) === pageIdx;
+                    
+                    const isCBCName = (pName: any) => {
+                        if (!pName || typeof pName !== 'string') return false;
+                        const upper = pName.toUpperCase();
+                        return upper.includes("CBC") || upper.includes("COMPLETE BLOOD COUNT");
+                    };
+
+                    const pageHasCBC = pageRows.some(row => isCBCName(row.activePanel) || isCBCName(row.name) || isCBCName(row.mainHeading));
+                    const showHistograms = pageHasCBC && pages.findIndex(pr => pr.some(row => isCBCName(row.activePanel) || isCBCName(row.name) || isCBCName(row.mainHeading))) === pageIdx;
+
 
                     return (
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'} flex flex-col relative`}>
@@ -467,7 +399,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         </div>
                                         <div className="flex flex-col items-end mt-2">
                                             <div className="bg-[#3E58A1] text-white px-4 py-1.5 text-center">
-                                                <h2 className="text-[16px] font-normal uppercase tracking-wide">LABORATORY TEST REPORT</h2>
+                                                <h2 className="text-[14px] font-normal uppercase tracking-wide">LABORATORY TEST REPORT</h2>
                                             </div>
                                          
                                         </div>
