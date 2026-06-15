@@ -54,6 +54,7 @@ export default function TestCatalogueRow({
         dataType: "number" | "text" | "boolean" | "options";
         options: string[];
         category?: string;
+        department?: string;
     };
     testMutate: () => void
 }) {
@@ -88,6 +89,7 @@ export default function TestCatalogueRow({
         dataType: "number" | "text" | "boolean" | "options";
         options: string[];
         category?: string;
+        department?: string;
     }>({
         code: test.code,
         name: test.name,
@@ -107,6 +109,7 @@ export default function TestCatalogueRow({
         dataType: test.dataType,
         options: test.options || [],
         category: test.category || "",
+        department: test.department || "",
     })
 
     // Reset payload when modal opens to avoid state persistence bug
@@ -131,6 +134,7 @@ export default function TestCatalogueRow({
                 dataType: test.dataType,
                 options: test.options || [],
                 category: test.category || "",
+                department: test.department || "",
             });
         }
     }, [editOpen, test]);
@@ -184,6 +188,7 @@ export default function TestCatalogueRow({
             estimatedTime?: string;
             options?: string[];
             category?: string;
+            department?: string;
         }) => {
             try {
                 let finalPayload = { ...data };
@@ -263,9 +268,10 @@ export default function TestCatalogueRow({
                     "No range"
                 )}
             </TableCell>
-            <TableCell className="text-slate-500">{test.unit}</TableCell>
+            <TableCell className="text-slate-500">{test.unit || "—"}</TableCell>
+            <TableCell className="text-slate-500">{test.department || "—"}</TableCell>
             <TableCell>{formatINR(test.price)}</TableCell>
-            <TableCell>{test.estimatedTime || ""}</TableCell>
+            <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : "—"}</TableCell>
             {/* <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell> */}
             <TableCell>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-blue-700' : 'bg-purple-50 text-purple-700'}`}>
@@ -319,6 +325,10 @@ export default function TestCatalogueRow({
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Category</Label>
                                         <p className="font-medium text-sm">{test.category || "N/A"}</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-slate-500">Department</Label>
+                                        <p className="font-medium text-sm">{test.department || "N/A"}</p>
                                     </div>
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Unit</Label>
@@ -535,6 +545,25 @@ export default function TestCatalogueRow({
                                             }
                                             className="h-9 bg-slate-50"
                                         />
+                                    </div>
+
+                                    <div className="col-span-3 space-y-1.5">
+                                        <Label className="text-xs font-medium text-slate-700">Department</Label>
+                                        <Select
+                                            value={payload.department || ""}
+                                            onValueChange={(val) => setPayload(prev => ({ ...prev, department: val }))}
+                                        >
+                                            <SelectTrigger className="h-9 bg-slate-50 w-full">
+                                                <SelectValue placeholder="Select department" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+                                                <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+                                                <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+                                                <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+                                                <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
 
                                     {payload.dataType === "options" && <>

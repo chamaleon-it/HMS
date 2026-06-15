@@ -405,7 +405,17 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             return (
               <TableRow key={t}>
                 <TableCell>{(payload.groups?.length || 0) + idx + 1}</TableCell>
-                <TableCell>{t}</TableCell>
+                <TableCell>
+                  <span className="font-semibold text-slate-800">{t}</span>
+                  {panels.find((p) => p.name === t)?.department && (
+                    <span className="text-[10px] text-blue-700 font-bold bg-blue-100/80 border border-blue-200 px-2 py-0.5 rounded-full ml-2 uppercase">
+                      {panels.find((p) => p.name === t)?.department}
+                    </span>
+                  )}
+                  <span className="text-[10px] text-slate-600 font-bold bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full ml-2 uppercase">
+                    Panel
+                  </span>
+                </TableCell>
                 <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
                 <TableCell>{totalTime || "-"}</TableCell>
                 <TableCell>
@@ -457,7 +467,14 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
                   return g?.panels?.some((p: any) => p.name === p);
                 });
               }).length + idx + 1}</TableCell>
-              <TableCell>{tests.find((test) => test._id === t.name)?.name}</TableCell>
+              <TableCell>
+                <span className="font-semibold text-slate-800">{tests.find((test) => test._id === t.name)?.name}</span>
+                {tests.find((test) => test._id === t.name)?.department && (
+                  <span className="text-[10px] text-purple-700 font-bold bg-purple-100/80 border border-purple-200 px-2 py-0.5 rounded-full ml-2 uppercase">
+                    {tests.find((test) => test._id === t.name)?.department}
+                  </span>
+                )}
+              </TableCell>
               <TableCell>{formatINR(tests.find((test) => test._id === t.name)?.price || 0)}</TableCell>
               <TableCell>{tests.find((test) => test._id === t.name)?.estimatedTime}</TableCell>
               <TableCell>

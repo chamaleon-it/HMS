@@ -6,7 +6,7 @@ import useSWR from "swr";
 
 interface ReportCardProps {
     report: any | null;
-    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string }[];
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string; department?: string; }[];
     panelPerPage?: boolean;
 }
 
@@ -115,7 +115,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     let text = h.toUpperCase().trim();
                     if (text.includes("COMPLETE BLOOD COUNT")) return "COMPLETE BLOOD COUNT";
                     if (text.includes("HEMATOLOGY") || text.includes("HAEMATOLOGY") || text.includes("HEAMATOLOGY")) {
-                        return "HAEMATOLOGY";
+                        return "HEAMATOLOGY";
                     }
                     if (text.includes("BIOCHEMISTRY")) return "BIOCHEMISTRY";
                     return text;
@@ -123,19 +123,26 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 const processedTestIds = new Set<string>();
 
-                // Helper to classify panel/category names to priorities
-                const getPriority = (heading: string) => {
+                const deptPriority: Record<string, number> = {
+                    "HEAMATOLOGY": 1,
+                    "BIOCHEMISTRY": 2,
+                    "SEROLOGY": 3,
+                    "IMMUNOLOGY": 4,
+                    "CLINICAL PATHOLOGY": 5
+                };
+                const getDeptPriority = (dept: string) => deptPriority[dept] || 99;
+
+                const getHeadingInternalPriority = (heading: string, isSingleTestsGroup: boolean) => {
                     const h = heading.toUpperCase();
-                    if (h.includes("COMPLETE BLOOD COUNT") || h.includes("CBC")) return 1;
-                    if (h.includes("HAEMATOLOGY") || h.includes("HEMATOLOGY") || h.includes("HEAMATOLOGY")) return 2;
-                    if (h.includes("BIOCHEMISTRY")) return 3;
-                    if (h.includes("LIPID")) return 4;
-                    if (h.includes("RFT") || h.includes("RENAL") || h.includes("KFT") || h.includes("KIDNEY")) return 5;
-                    if (h.includes("LFT") || h.includes("LIVER")) return 6;
-                    if (h.includes("HBA1C")) return 7;
-                    if (h.includes("SEROLOGY")) return 8;
-                    if (h.includes("URINE")) return 10;
-                    return 9; // Other Panels
+                    if (isSingleTestsGroup) return 0; // Single tests first within the department
+                    
+                    // For Biochemistry panels
+                    if (h.includes("GTT")) return 1;
+                    if (h.includes("LIPID")) return 2;
+                    if (h.includes("RFT") || h.includes("RENAL") || h.includes("KFT") || h.includes("KIDNEY")) return 3;
+                    if (h.includes("LFT") || h.includes("LIVER")) return 4;
+                    
+                    return 10;
                 };
 
                 const getTestInternalPriority = (testName: string, categoryName: string = "") => {
@@ -153,6 +160,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 };
 
                 const panelRowsGrouped: Record<string, any[]> = {};
+                const headingToDepartment: Record<string, string> = {};
                 
                 let sortedPanels = [...(report.panels || [])];
                 
@@ -163,6 +171,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                     const panelConfig = panels?.find(p => p.name === panelId);
                     const heading = normalizeHeading(panelConfig?.mainHeading || panelId);
+                    const department = (panelConfig?.department || "BIOCHEMISTRY").toUpperCase();
+                    headingToDepartment[heading] = department;
 
                     let orderedIds: string[] = [];
                     for (const t of panelTests) {
@@ -225,22 +235,21 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 Array.from(testMap.values()).forEach((t: any) => {
                     const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
                     if (valStr !== "") {
-                        const cat = (t.name?.category || "").toString().toUpperCase();
-                        let heading = "BIOCHEMISTRY";
-                        if (cat.includes("HEAMATOLOGY") || cat.includes("HEMATOLOGY") || cat.includes("HAEMATOLOGY") || cat.includes("CBC") || cat.includes("COMPLETE BLOOD COUNT")) {
-                            heading = "HAEMATOLOGY";
-                        } else if (cat.includes("LIPID")) {
-                            heading = "LIPID PROFILE";
-                        } else if (cat.includes("KFT") || cat.includes("KIDNEY") || cat.includes("RFT")) {
-                            heading = "RFT";
-                        } else if (cat.includes("LFT") || cat.includes("LIVER")) {
-                            heading = "LFT";
-                        } else if (cat.includes("URINE")) {
-                            heading = "URINE ROUTINE EXAMINATION";
+                        let dept = (t.name?.department || "").toString().toUpperCase();
+                        if (!dept) {
+                            // Fallback if department is missing
+                            const cat = (t.name?.category || "").toString().toUpperCase();
+                            if (cat.includes("HEAMAT") || cat.includes("HEMAT") || cat.includes("HAEMAT") || cat.includes("CBC")) dept = "HEAMATOLOGY";
+                            else if (cat.includes("SEROLOGY")) dept = "SEROLOGY";
+                            else if (cat.includes("IMMUNOLOGY")) dept = "IMMUNOLOGY";
+                            else if (cat.includes("CLINICAL")) dept = "CLINICAL PATHOLOGY";
+                            else dept = "BIOCHEMISTRY";
                         }
-
+                        
+                        let heading = dept; // Group loose tests by department name
                         if (!looseTests[heading]) looseTests[heading] = [];
                         looseTests[heading].push({ type: "TEST", ...t, activePanel: heading, mainHeading: heading });
+                        headingToDepartment[heading] = dept;
                     }
                 });
 
@@ -270,7 +279,23 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 // Compile finalRows based on priority
                 const finalRows: any[] = [];
-                const sortedHeadings = Object.keys(panelRowsGrouped).sort((a, b) => getPriority(a) - getPriority(b));
+                const sortedHeadings = Object.keys(panelRowsGrouped).sort((a, b) => {
+                    const deptA = headingToDepartment[a] || "UNKNOWN";
+                    const deptB = headingToDepartment[b] || "UNKNOWN";
+                    
+                    if (deptA !== deptB) {
+                        return getDeptPriority(deptA) - getDeptPriority(deptB);
+                    }
+                    
+                    // Same department
+                    const isSingleA = a === deptA; // If the heading is exactly the department name, it's the loose tests group
+                    const isSingleB = b === deptB;
+                    
+                    if (isSingleA && !isSingleB) return -1;
+                    if (!isSingleA && isSingleB) return 1;
+                    
+                    return getHeadingInternalPriority(a, isSingleA) - getHeadingInternalPriority(b, isSingleB);
+                });
                 
                 sortedHeadings.forEach(h => {
                     // Only add if there's actually a test (length > 1 because first is PANEL)
@@ -460,13 +485,25 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                     panelGroupsOnPage.push({ heading: normalizeHeading(currentHeading), rows: currentGroup });
                                                 }
 
-                                                return panelGroupsOnPage.map((pg, pgIdx) => (
-                                                    <div key={pgIdx} className="w-full">
-                                                        {pg.heading && (
-                                                            <div className="w-full bg-[#f1f5f9] text-black py-2 px-4 mb-0 text-center">
-                                                                <h2 className="text-[15px] font-bold uppercase tracking-wider">{pg.heading}</h2>
-                                                            </div>
-                                                        )}
+                                                return panelGroupsOnPage.map((pg, pgIdx) => {
+                                                    const dept = headingToDepartment[pg.heading] || "";
+                                                    const isFirstOfDept = pgIdx === 0 || headingToDepartment[panelGroupsOnPage[pgIdx - 1].heading] !== dept;
+                                                    
+                                                    const showDeptHeader = isFirstOfDept && dept !== "";
+                                                    const showPanelHeader = pg.heading !== dept;
+
+                                                    return (
+                                                        <div key={pgIdx} className="w-full">
+                                                            {showDeptHeader && (
+                                                                <div className="w-full bg-[#f1f5f9] text-black py-2 px-4 mb-0 text-center">
+                                                                    <h2 className="text-[15px] font-bold uppercase tracking-wider">{dept}</h2>
+                                                                </div>
+                                                            )}
+                                                            {showPanelHeader && pg.heading && (
+                                                                <div className="w-full bg-[#f8fafc] text-slate-700 py-1.5 px-4 mb-0 text-center border-b border-white">
+                                                                    <h2 className="text-[13px] font-bold uppercase tracking-wider">{pg.heading}</h2>
+                                                                </div>
+                                                            )}
                                                         <table className="w-full border-collapse">
                                                             <thead>
                                                                 <tr className="bg-[#f8fafc] text-black border-y border-white">
@@ -567,8 +604,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                             </tbody>
                                                         </table>
                                                     </div>
-                                                ));
-                                            })()}
+                                                );
+                                            });
+                                        })()}
                                         </div>
 
                                         {showHistograms && (
@@ -666,8 +704,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="text-xs">
-                                        Powered by <b>Caresoft Innovations LLP</b>
+                                    <div className="text-[10px]">
+                                        Powered by Caresoft Innovations LLP
                                     </div>
                                 </div>
                             </div>

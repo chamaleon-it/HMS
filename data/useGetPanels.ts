@@ -11,6 +11,7 @@ export interface PanelItemType {
     subheadings?: string[];
     testSubheadings?: Record<string, string>;
     tests?: any[];
+    department?: string;
 }
 
 export default function useGetPanels(): { panels: PanelItemType[], mutate: () => void } {

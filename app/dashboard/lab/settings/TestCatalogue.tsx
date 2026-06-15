@@ -243,6 +243,7 @@ export default function TestCatalogue({
     }[],
     note: string;
     category: string;
+    department: string;
   }>({
     code: "",
     name: "",
@@ -265,6 +266,7 @@ export default function TestCatalogue({
     }],
     note: "",
     category: "",
+    department: "",
   });
 
   const handleRangeChange = (index: number, field: string, value: any) => {
@@ -355,6 +357,7 @@ export default function TestCatalogue({
         }],
         note: "",
         category: "",
+        department: "",
       });
       setIsNewTestModalOpen(false);
 
@@ -565,6 +568,25 @@ export default function TestCatalogue({
                       }
                       className="h-9 bg-slate-50"
                     />
+                  </div>
+
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Department</Label>
+                    <Select
+                      value={newTest.department || ""}
+                      onValueChange={(val) => setNewTest(prev => ({ ...prev, department: val }))}
+                    >
+                      <SelectTrigger className="h-9 bg-slate-50 w-full">
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+                        <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+                        <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+                        <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+                        <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   {newTest.dataType === "options" && <>
                     <div className="col-span-4 space-y-1.5 ">
@@ -830,6 +852,7 @@ export default function TestCatalogue({
                     <TableHead className="w-20">Code</TableHead>
                     <TableHead>Range</TableHead>
                     <TableHead>Unit</TableHead>
+                    <TableHead>Department</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>ETA (Minutes)</TableHead>
                     {/* <TableHead>Panels</TableHead> */}
@@ -842,7 +865,7 @@ export default function TestCatalogue({
                 <TableBody>
                   {filteredTests.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={10} className="text-center py-8 text-slate-500 text-xs">
+                      <TableCell colSpan={12} className="text-center py-8 text-slate-500 text-xs">
                         {searchQuery ? "No tests found matching search criteria." : "No tests configured yet. Add one above."}
                       </TableCell>
                     </TableRow>
@@ -917,6 +940,7 @@ export default function TestCatalogue({
                       <TableHead>ETA (Minutes)</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Specimen</TableHead>
+                      <TableHead>Department</TableHead>
                       <TableHead align="right" className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -924,7 +948,7 @@ export default function TestCatalogue({
 
                     {filteredPanels.length === 0 ? (
                       <TableRow>
-                        <TableCell colSpan={7} className="text-center py-8 text-slate-500 text-xs">
+                        <TableCell colSpan={8} className="text-center py-8 text-slate-500 text-xs">
                           {panelSearchQuery ? "No panels found matching search criteria." : "No panels configured yet. Add one above."}
                         </TableCell>
                       </TableRow>
@@ -1198,6 +1222,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     specimen: string;
     subheadings: string[];
     testSubheadings: Record<string, string>;
+    department: string;
   }>({
     name: "",
     price: 0,
@@ -1207,6 +1232,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     specimen: "",
     subheadings: [],
     testSubheadings: {},
+    department: "",
   });
   const [loading, setLoading] = useState(false);
   const [selectedTests, setSelectedTests] = useState<any[]>([]);
@@ -1288,6 +1314,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         method: "",
         subheadings: [],
         testSubheadings: {},
+        department: "",
       });
       setSelectedTests([]);
       onSuccess();
@@ -1321,6 +1348,24 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
             value={payload.mainHeading}
             onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
           />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="add-panel-department">Department</Label>
+          <Select
+            value={payload.department || ""}
+            onValueChange={(val) => setPayload({ ...payload, department: val })}
+          >
+            <SelectTrigger id="add-panel-department">
+              <SelectValue placeholder="Select department" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+              <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+              <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+              <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+              <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div className="space-y-2">
           <Label htmlFor="add-panel-method">Method <span className="text-slate-500 font-normal">(Optional)</span></Label>

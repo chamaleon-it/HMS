@@ -32,7 +32,8 @@ export interface TestItemType {
         dateType: "Year" | "Month" | "Day";
 
     }[],
-    note: string
+    note: string;
+    department?: string;
 }
 
 
