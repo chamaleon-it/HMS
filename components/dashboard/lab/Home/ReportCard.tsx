@@ -362,6 +362,26 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         // pull back trailing headings to avoid orphaned headers at bottom of page
                         let orphaned = [];
                         let orphanedWeight = 0;
+
+                        if (currentPageRows.length > 0 && row && currentPageRows[currentPageRows.length - 1].activePanel === row.activePanel) {
+                            let testsOfCurrentPanel = 0;
+                            for (let j = currentPageRows.length - 1; j >= 0; j--) {
+                                const r = currentPageRows[j];
+                                if (r.activePanel !== row.activePanel) break;
+                                if (r.type === "TEST") {
+                                    testsOfCurrentPanel++;
+                                }
+                            }
+                            
+                            if (testsOfCurrentPanel > 0 && testsOfCurrentPanel <= 2) {
+                                while (currentPageRows.length > 0 && currentPageRows[currentPageRows.length - 1].activePanel === row.activePanel) {
+                                    const popped = currentPageRows.pop();
+                                    orphaned.unshift(popped);
+                                    orphanedWeight += getRowWeight(popped);
+                                }
+                            }
+                        }
+
                         while (currentPageRows.length > 0 && 
                                (currentPageRows[currentPageRows.length - 1].type === "PANEL" || 
                                 currentPageRows[currentPageRows.length - 1].type === "SUBHEADING")) {
@@ -660,11 +680,16 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 </div>
                                             )}
                                             <div className="px-10 pb-32 w-full flex justify-between items-start">
-                                                <div className="text-left">
+                                                <div className="text-left w-1/3">
                                                     <p className="font-bold text-slate-800 text-[12px]">LAB IN-CHARGE</p>
                                                     <p className="text-[11px] text-slate-800 font-bold uppercase mt-0">{inChargeTechnician?.name || "LABORATORY"}</p>
                                                 </div>
-                                                <div className="text-right">
+                                                <div className="text-center w-1/3 mt-2">
+                                                    <p className="font-bold text-slate-500 text-[11px] tracking-widest uppercase">
+                                                        {isLastPage ? "--- End Of the Result ---" : "--- Continue ---"}
+                                                    </p>
+                                                </div>
+                                                <div className="text-right w-1/3">
                                                     <p className="font-bold text-slate-800 text-[12px]">LAB TECHNICIAN</p>
                                                     {/* <p className="text-[12px] text-slate-600 font-medium mt-1 uppercase">{report.technician || ""}</p> */}
                                                 </div>
