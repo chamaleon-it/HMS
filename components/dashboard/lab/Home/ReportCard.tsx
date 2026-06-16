@@ -515,18 +515,18 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                     return (
                                                         <div key={pgIdx} className="w-full">
                                                             {showDeptHeader && (
-                                                                <div className="w-full bg-gray-200 text-black py-2 px-4 mb-1 text-center">
+                                                                <div className="w-full bg-gray-300 text-black py-2 px-4 mb-1 text-center">
                                                                     <h2 className="text-[15px] font-bold uppercase tracking-wider">{dept}</h2>
                                                                 </div>
                                                             )}
                                                             {showPanelHeader && pg.heading && (
-                                                                <div className="w-full bg-gray-200/60 text-black py-1.5 px-4 mb-0 text-center border-b border-white">
+                                                                <div className="w-full bg-gray-300/60 text-black py-1.5 px-4 mb-0 text-center border-b border-white">
                                                                     <h2 className="text-[13px] font-bold uppercase tracking-wider">{pg.heading}</h2>
                                                                 </div>
                                                             )}
                                                             <table className="w-full border-collapse">
                                                                 <thead>
-                                                                    <tr className="bg-gray-200/60 text-black border-y border-white">
+                                                                    <tr className="bg-gray-300/60 text-black border-y border-white">
                                                                         <th className="py-2.5 px-2 pl-8 text-[12px] font-bold text-left w-[45%] border-r-[3px] border-white">PARAMETER</th>
                                                                         <th className="py-2.5 px-2 text-[12px] font-bold text-left w-[25%] border-r-[3px] border-white">RESULT</th>
                                                                         <th className="py-2.5 px-2 pl-8 text-[12px] font-bold text-left w-[30%]">REFERENCE RANGE</th>
@@ -631,7 +631,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                         {showHistograms && (
                                             <div className="w-[35%] pl-3 border-l border-slate-200">
-                                                <div className="bg-gray-200 py-2 px-3 mb-4">
+                                                <div className="bg-gray-300 py-2 px-3 mb-4">
                                                     <h3 className="text-[14px] font-bold text-center text-slate-800">Histograms</h3>
                                                 </div>
 
