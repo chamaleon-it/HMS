@@ -276,17 +276,24 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     }
                 });
 
-                const cbcRows = allRows.filter(row => {
-                    const isCBC = (typeof row.activePanel === 'string' && row.activePanel.toUpperCase().includes("CBC")) || 
-                                  (typeof row.name === 'string' && row.name.toUpperCase().includes("CBC"));
-                    return isCBC;
-                });
-                const nonCbcRows = allRows.filter(row => {
-                    const isCBC = (typeof row.activePanel === 'string' && row.activePanel.toUpperCase().includes("CBC")) || 
-                                  (typeof row.name === 'string' && row.name.toUpperCase().includes("CBC"));
-                    return !isCBC;
-                });
-                const sortedAllRows = [...cbcRows, ...nonCbcRows];
+                const getPageGroup = (row: any) => {
+                    const activePanelStr = typeof row.activePanel === 'string' ? row.activePanel.toUpperCase() : "";
+                    const nameStr = typeof row.name === 'string' ? row.name.toUpperCase() : "";
+                    const deptStr = typeof row.department === 'string' ? row.department.toUpperCase() : "";
+                    
+                    if (activePanelStr.includes("CBC") || nameStr.includes("CBC")) {
+                        return "CBC";
+                    }
+                    if (deptStr.includes("CLINICAL PATHOLOGY") || activePanelStr.includes("CLINICAL PATHOLOGY") || nameStr.includes("CLINICAL PATHOLOGY")) {
+                        return "CLINICAL PATHOLOGY";
+                    }
+                    return "GENERAL";
+                };
+
+                const cbcRows = allRows.filter(row => getPageGroup(row) === "CBC");
+                const cpRows = allRows.filter(row => getPageGroup(row) === "CLINICAL PATHOLOGY");
+                const generalRows = allRows.filter(row => getPageGroup(row) === "GENERAL");
+                const sortedAllRows = [...cbcRows, ...generalRows, ...cpRows];
 
                 // 2. Chunk Into Pages
                 const pages: any[][] = [];
@@ -326,25 +333,24 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     });
                 } else {
                     let currentChunk: any[] = [];
-                    let currentIsCBC = false;
+                    let currentPageGroup: string | null = null;
 
                     for (let i = 0; i < sortedAllRows.length; i++) {
                         const row = sortedAllRows[i];
-                        const isCBC = (typeof row.activePanel === 'string' && row.activePanel.toUpperCase().includes("CBC")) || 
-                                      (typeof row.name === 'string' && row.name.toUpperCase().includes("CBC"));
+                        const pageGroup = getPageGroup(row);
 
                         const isFirstPage = pages.length === 0;
                         const limit = isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
 
                         if (currentChunk.length > 0) {
-                            if (isCBC !== currentIsCBC || currentChunk.length >= limit) {
+                            if ((currentPageGroup !== null && pageGroup !== currentPageGroup) || currentChunk.length >= limit) {
                                 pages.push(currentChunk);
                                 currentChunk = [];
                             }
                         }
 
                         currentChunk.push(row);
-                        currentIsCBC = isCBC;
+                        currentPageGroup = pageGroup;
                     }
                     if (currentChunk.length > 0) {
                         pages.push(currentChunk);
