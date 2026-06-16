@@ -155,10 +155,48 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
 
                 const processedTestIds = new Set<string>();
 
+                const getPanelWeight = (panelName: string) => {
+                    const p = panelName?.toUpperCase() || "";
+                    if (p.includes("LIPID PROFILE")) return 1;
+                    if (p.includes("RENAL FUNCTION") || p.includes("RFT")) return 2;
+                    if (p.includes("LIVER FUNCTION") || p.includes("LFT")) return 3;
+                    return 99;
+                };
+
+                const getSingleTestWeight = (testName: string) => {
+                    const t = testName?.toUpperCase() || "";
+                    if (t.includes("SUGAR") || t.includes("FBS") || t.includes("RBS") || t.includes("PPBS") || t.includes("FASTING") || t.includes("RANDOM")) return 1;
+                    return 99;
+                };
+
                 const sortedPanels = [...(report.panels || [])].sort((a, b) => {
                     const deptA = panels?.find(p => p.name === a.toString())?.department || "";
                     const deptB = panels?.find(p => p.name === b.toString())?.department || "";
-                    return deptA.localeCompare(deptB);
+                    if (deptA !== deptB) return deptA.localeCompare(deptB);
+                    const pA = panels?.find(p => p.name === a.toString())?.name || a.toString();
+                    const pB = panels?.find(p => p.name === b.toString())?.name || b.toString();
+                    const wA = getPanelWeight(pA);
+                    const wB = getPanelWeight(pB);
+                    if (wA !== wB) return wA - wB;
+                    return pA.localeCompare(pB);
+                });
+
+                const independentTests = Array.from(testMap.values()).sort((a: any, b: any) => {
+                    const deptA = a.name?.department || "";
+                    const deptB = b.name?.department || "";
+                    if (deptA !== deptB) return deptA.localeCompare(deptB);
+                    const wA = getSingleTestWeight(a.name?.name);
+                    const wB = getSingleTestWeight(b.name?.name);
+                    if (wA !== wB) return wA - wB;
+                    return (a.name?.name || "").localeCompare(b.name?.name || "");
+                });
+
+                independentTests.forEach((t: any) => {
+                    const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
+                    if (valStr !== "") {
+                        const testGroup = t.name?.department ? `DEPT_${String(t.name.department).trim().toUpperCase()}` : "";
+                        allRows.push({ type: "TEST", ...t, activePanel: testGroup, department: t.name?.department });
+                    }
                 });
 
                 sortedPanels.forEach((panelIdStr: string) => {
@@ -167,6 +205,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                     if (panelTests.length === 0) return;
 
                     const panelConfig = panels?.find(p => p.name === panelId);
+                    const panelDept = panelConfig?.department;
 
                     let orderedIds: string[] = [];
                     for (const t of panelTests) {
@@ -185,12 +224,13 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                     let currentSubheadingState: string | null = null;
                     let pendingSubheading: string | null = null;
 
-                    const isBiochemistry = panelConfig?.mainHeading?.toUpperCase() === "BIOCHEMISTRY";
+                    const isBiochemistry = panelConfig?.mainHeading?.toUpperCase() === "BIOCHEMISTRY" || panelConfig?.name?.toUpperCase() === "BIOCHEMISTRY";
                     let panelRow: any = {
                         type: "PANEL",
                         name: panelId,
                         activePanel: isBiochemistry ? "" : panelId,
-                        mainHeading: panelConfig?.mainHeading || panelId
+                        mainHeading: panelConfig?.mainHeading || panelConfig?.name || panelId,
+                        department: panelDept
                     };
                     let panelPushed = isBiochemistry;
 
@@ -215,10 +255,23 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                     panelPushed = true;
                                 }
                                 if (pendingSubheading) {
-                                    allRows.push({ type: "SUBHEADING", name: pendingSubheading, activePanel: isBiochemistry ? "" : panelId });
+                                    allRows.push({ 
+                                        type: "SUBHEADING", 
+                                        name: pendingSubheading, 
+                                        activePanel: isBiochemistry ? "" : panelId, 
+                                        department: panelDept,
+                                        mainHeading: panelConfig?.mainHeading || panelConfig?.name 
+                                    });
                                     pendingSubheading = null;
                                 }
-                                allRows.push({ type: "TEST", ...t, activePanel: isBiochemistry ? "" : panelId });
+                                allRows.push({ 
+                                    type: "TEST", 
+                                    ...t, 
+                                    activePanel: isBiochemistry ? "" : panelId, 
+                                    hasSubheading: !!expectedSubheading, 
+                                    department: panelDept,
+                                    mainHeading: panelConfig?.mainHeading || panelConfig?.name 
+                                });
                             }
 
                             processedTestIds.add(id);
@@ -227,28 +280,18 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                     });
                 });
 
-                const independentTests = Array.from(testMap.values()).sort((a: any, b: any) => {
-                    const deptA = a.name?.department || "";
-                    const deptB = b.name?.department || "";
-                    return deptA.localeCompare(deptB);
-                });
-
-                independentTests.forEach((t: any) => {
-                    const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
-                    if (valStr !== "") {
-                        const testGroup = t.name?.department ? `DEPT_${String(t.name.department).trim().toUpperCase()}` : (t.name?.category ? `CATEGORY_${String(t.name.category).trim().toUpperCase()}` : "");
-                        allRows.push({ type: "TEST", ...t, activePanel: testGroup });
-                    }
-                });
+                const hematologyRows = allRows.filter(row => getPageGroup(row) === "HEAMATOLOGY");
+                const cpRows = allRows.filter(row => getPageGroup(row) === "CLINICAL PATHOLOGY");
+                const generalRows = allRows.filter(row => getPageGroup(row) === "GENERAL");
+                const sortedAllRows = [...hematologyRows, ...generalRows, ...cpRows];
 
                 // 2. Chunk Into Pages
                 const pages: any[][] = [];
                 if (panelPerPage) {
-                    // Group all rows by panel ID to handle non-adjacent rows (like merged Biochemistry tests)
                     const panelGroups: Record<string, any[]> = {};
                     const panelOrder: string[] = [];
 
-                    allRows.forEach((row) => {
+                    sortedAllRows.forEach((row) => {
                         const p = row.activePanel || "misc";
                         if (!panelGroups[p]) {
                             panelGroups[p] = [];
@@ -261,9 +304,10 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                         const rows = panelGroups[p];
                         let pIdx = 0;
                         let panelPageCount = 0;
+                        const pageGroup = getPageGroup(rows[0]);
                         while (pIdx < rows.length) {
                             const isFirstPageOfPanel = panelPageCount === 0;
-                            const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                            const limit = getRowLimit(pageGroup, isFirstPageOfPanel);
                             const slice = rows.slice(pIdx, pIdx + limit);
                             const isLastPageOfPanel = (pIdx + limit) >= rows.length;
 
@@ -279,25 +323,24 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                     });
                 } else {
                     let currentChunk: any[] = [];
-                    let currentIsCBC = false;
+                    let currentGroup = "";
 
-                    for (let i = 0; i < allRows.length; i++) {
-                        const row = allRows[i];
-                        const isCBC = (typeof row.activePanel === 'string' && row.activePanel.toUpperCase().includes("CBC")) || 
-                                      (typeof row.name === 'string' && row.name.toUpperCase().includes("CBC"));
+                    for (let i = 0; i < sortedAllRows.length; i++) {
+                        const row = sortedAllRows[i];
+                        const rowGroup = getPageGroup(row);
 
-                        const isFirstPage = pages.length === 0;
-                        const limit = isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                        const isFirstPageInGroup = currentChunk.length === 0;
+                        const limit = getRowLimit(rowGroup, isFirstPageInGroup);
 
                         if (currentChunk.length > 0) {
-                            if (isCBC !== currentIsCBC || currentChunk.length >= limit) {
+                            if (rowGroup !== currentGroup || currentChunk.length >= limit) {
                                 pages.push(currentChunk);
                                 currentChunk = [];
                             }
                         }
 
                         currentChunk.push(row);
-                        currentIsCBC = isCBC;
+                        currentGroup = rowGroup;
                     }
                     if (currentChunk.length > 0) {
                         pages.push(currentChunk);
@@ -311,10 +354,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                 return pages.map((pageRows, pageIdx) => {
                     const isFirstPage = panelPerPage ? (pageRows[0]?.isPanelStart || false) : pageIdx === 0;
                     const isLastPage = panelPerPage ? (pageRows[pageRows.length - 1]?.isPanelEnd || false) : pageIdx === pages.length - 1;
-                    const pageHasCBC = pageRows.some(row => {
-                        const pName = row.activePanel || row.name;
-                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
-                    });
+                    const pageHasCBC = pageRows.some(row => getPageGroup(row) === "HEAMATOLOGY");
 
                     return (
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
@@ -363,6 +403,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                     const activePanelId = pageRows.find(r => r.activePanel)?.activePanel;
                                     const headingText = firstPanelRow?.mainHeading ||
                                         panels?.find(p => p.name === activePanelId)?.mainHeading ||
+                                        panels?.find(p => p.name === activePanelId)?.name ||
                                         activePanelId || "BIOCHEMISTRY";
 
                                     return isFirstPage && (

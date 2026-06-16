@@ -233,7 +233,6 @@ export default function TestCatalogue({
 
     }[],
     note: string;
-    category: string;
     department?: string;
     
   }>({
@@ -257,7 +256,6 @@ export default function TestCatalogue({
       dateType: "Year"
     }],
     note: "",
-    category: "",
     department: "",
     
   });
@@ -349,7 +347,6 @@ export default function TestCatalogue({
           dateType: "Year"
         }],
         note: "",
-        category: "",
         department: "",
         
       });
@@ -362,8 +359,7 @@ export default function TestCatalogue({
 
   const { panels, mutate: panelMutate } = useGetPanels();
   const filteredPanels = panels.filter((panel) =>
-    panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase()) ||
-    panel.mainHeading?.toLowerCase().includes(panelSearchQuery.toLowerCase())
+    panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase())
   );
 
   const { data, mutate: testMutate } = useSWR<{
@@ -551,18 +547,7 @@ export default function TestCatalogue({
                     </Select>
                   </div>
 
-                  <div className="col-span-3 space-y-1.5">
-                    <Label className="text-xs font-medium text-slate-700">Category</Label>
-                    <Input
-                      placeholder="e.g. Haematology"
-                      value={newTest.category || ""}
 
-                      onChange={(e) =>
-                        setNewTest((prev) => ({ ...prev, category: e.target.value }))
-                      }
-                      className="h-9 bg-slate-50"
-                    />
-                  </div>
 
                   <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Department</Label>
@@ -1232,16 +1217,12 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
           <Label htmlFor="add-panel-eta">ETA (Minutes)</Label>
           <Input id="add-panel-eta" type="number" placeholder="e.g. 60" value={payload.estimatedTime || ""} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report)</span></Label>
-          <Input
-            id="add-panel-main-heading"
-            placeholder="e.g. Haematology"
-            value={payload.mainHeading}
-            onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
-          />
+        <div className="space-y-2 col-span-3">
+          <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report instead of name)</span></Label>
+          <Input id="add-panel-main-heading" type="text" placeholder="e.g. Complete Blood Count" value={payload.mainHeading} onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })} />
         </div>
-        <div className="space-y-2">
+
+        <div className="space-y-2 col-span-1">
           <Label htmlFor="add-panel-method">Method <span className="text-slate-500 font-normal">(Optional)</span></Label>
           <Input id="add-panel-method" type="text" placeholder="" value={payload.method} onChange={(e) => setPayload({ ...payload, method: e.target.value })} />
         </div>

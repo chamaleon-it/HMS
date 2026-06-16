@@ -53,7 +53,7 @@ export default function TestCatalogueRow({
         panels: { name: string }[]
         dataType: "number" | "text" | "boolean" | "options";
         options: string[];
-        category?: string;
+
         department?: string;
         
     };
@@ -110,7 +110,6 @@ export default function TestCatalogueRow({
         _id: test._id,
         dataType: test.dataType,
         options: test.options || [],
-        category: test.category || "",
         department: test.department || "",
         
     })
@@ -136,7 +135,6 @@ export default function TestCatalogueRow({
                 _id: test._id,
                 dataType: test.dataType,
                 options: test.options || [],
-                category: test.category || "",
                 department: test.department || "",
                 
             });
@@ -191,7 +189,6 @@ export default function TestCatalogueRow({
             note?: string;
             estimatedTime?: string;
             options?: string[];
-            category?: string;
             department?: string;
             
         }) => {
@@ -328,10 +325,7 @@ export default function TestCatalogueRow({
                                         <Label className="text-slate-500">Data Type</Label>
                                         <p className="font-medium text-sm">{test.dataType}</p>
                                     </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-slate-500">Category</Label>
-                                        <p className="font-medium text-sm">{test.category || "N/A"}</p>
-                                    </div>
+
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Unit</Label>
                                         <p className="font-medium text-sm">{test.unit || "N/A"}</p>
@@ -542,17 +536,7 @@ export default function TestCatalogueRow({
                                         </Select>
                                     </div>
 
-                                    <div className="col-span-3 space-y-1.5">
-                                        <Label className="text-xs font-medium text-slate-700">Category</Label>
-                                        <Input
-                                            placeholder="e.g. Haematology"
-                                            value={payload.category || ""}
-                                            onChange={(e) =>
-                                                setPayload((prev) => ({ ...prev, category: e.target.value }))
-                                            }
-                                            className="h-9 bg-slate-50"
-                                        />
-                                    </div>
+
                                     <div className="col-span-3 space-y-1.5">
                                         <Label className="text-xs font-medium text-slate-700">Department</Label>
                                         <Select
