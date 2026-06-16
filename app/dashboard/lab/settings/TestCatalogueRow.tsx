@@ -48,7 +48,6 @@ export default function TestCatalogueRow({
             gender: string;
             dateType: "Year" | "Month" | "Day",
         }[];
-        note?: string;
         estimatedTime?: string;
         panels: { name: string }[]
         dataType: "number" | "text" | "boolean" | "options";
@@ -84,7 +83,6 @@ export default function TestCatalogueRow({
             gender: string;
             dateType: "Year" | "Month" | "Day",
         }[];
-        note: string;
         estimatedTime?: string;
         _id: string;
         dataType: "number" | "text" | "boolean" | "options";
@@ -105,7 +103,6 @@ export default function TestCatalogueRow({
             name: "Normal",
             min: undefined, max: undefined, upto: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year"
         }],
-        note: test.note || "",
         estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
         _id: test._id,
         dataType: test.dataType,
@@ -130,7 +127,6 @@ export default function TestCatalogueRow({
                     name: "Normal",
                     min: undefined, max: undefined, upto: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year"
                 }],
-                note: test.note || "",
                 estimatedTime: test.estimatedTime ? `${String(Math.floor(Number(test.estimatedTime) / 60)).padStart(2, '0')}:${String(Number(test.estimatedTime) % 60).padStart(2, '0')}` : undefined,
                 _id: test._id,
                 dataType: test.dataType,
@@ -186,7 +182,6 @@ export default function TestCatalogueRow({
             dataType: "number" | "text" | "boolean" | "options";
             unit?: string | null;
             range?: any[];
-            note?: string;
             estimatedTime?: string;
             options?: string[];
             department?: string;
@@ -197,14 +192,12 @@ export default function TestCatalogueRow({
 
                 if (data.dataType === "options") {
                     finalPayload.range = [];
-                    finalPayload.note = "";
                     finalPayload.unit = null;
                 }
 
                 // Defer clearing fields until save if data type is not number
                 if (data.dataType !== "number") {
                     finalPayload.range = [];
-                    finalPayload.note = "";
                     if (data.dataType === "boolean") {
                         finalPayload.unit = null;
                     }
@@ -384,12 +377,7 @@ export default function TestCatalogueRow({
                                                 <p className="text-xs text-slate-500 italic">No ranges defined.</p>
                                             )}
                                         </div>
-                                        {test.note && (
-                                            <div className="mt-3 space-y-1">
-                                                <Label className="text-slate-500 text-xs">Notes</Label>
-                                                <p className="text-sm whitespace-break-spaces border p-2 rounded bg-slate-50 text-slate-700">{test.note}</p>
-                                            </div>
-                                        )}
+                                        {/* Notes removed */}
                                     </>
                                 )}
                             </div>
@@ -761,24 +749,14 @@ export default function TestCatalogueRow({
                                         </Table>
                                         <div className="space-y-2 mt-3">
                                             <Label className="font-medium text-slate-700">Alert</Label>
-                                            <p className="text-sm text-slate-500">When only a minimum value is specified, all values greater than that are considered normal. When only a maximum value is specified, all values less than that are considered normal. If no value is specified or only a note is given, then the system will not highlight abnormal values automatically.
+                                            <p className="text-sm text-slate-500">When only a minimum value is specified, all values greater than that are considered normal. When only a maximum value is specified, all values less than that are considered normal. If no value is specified, then the system will not highlight abnormal values automatically.
                                                 <br /> <br />
                                                 When only a from age is specified, all ages greater than that are considered. When only a top age is specified, all ages less than that are considered normal. If no age is specified, then the system will consider all ages.
                                             </p>
                                         </div>
                                     </div>}
 
-                                    <div className="col-span-full space-y-1.5">
-                                        <Label className="text-xs font-medium text-slate-700">Notes</Label>
-                                        <Textarea
-                                            placeholder="Note"
-                                            value={payload.note || ""}
-                                            onChange={(e) =>
-                                                setPayload((prev) => ({ ...prev, note: e.target.value }))
-                                            }
-                                            className="h-9 bg-slate-50"
-                                        />
-                                    </div>
+                                    {/* Notes removed */}
 
                                     <div className="grid grid-cols-12 gap-4 col-span-full mt-4">
                                         <div className="col-span-full flex justify-end items-end w-full gap-2">

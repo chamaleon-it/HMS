@@ -14,13 +14,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
 
 
-    const isCBCPanelIncluded = report?.panels?.some((panelId: any) => {
-        const pStr = String(panelId).toUpperCase();
-        if (pStr.includes("COMPLETE BLOOD COUNT") || pStr.includes("CBC")) return true;
-        const panelConfig = panels?.find(p => p.name === panelId);
-        if (panelConfig?.mainHeading?.toUpperCase().includes("COMPLETE BLOOD COUNT") || panelConfig?.mainHeading?.toUpperCase().includes("CBC")) return true;
-        return false;
-    }) ?? false;
+
 
     const [mounted, setMounted] = useState(false);
 

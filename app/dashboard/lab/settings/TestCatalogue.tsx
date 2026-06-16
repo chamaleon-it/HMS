@@ -232,7 +232,6 @@ export default function TestCatalogue({
       dateType: "Year" | "Month" | "Day";
 
     }[],
-    note: string;
     department?: string;
     
   }>({
@@ -255,7 +254,6 @@ export default function TestCatalogue({
       gender: "Both",
       dateType: "Year"
     }],
-    note: "",
     department: "",
     
   });
@@ -346,7 +344,6 @@ export default function TestCatalogue({
           gender: "Both",
           dateType: "Year"
         }],
-        note: "",
         department: "",
         
       });
@@ -775,7 +772,7 @@ export default function TestCatalogue({
 
                     <div className="space-y-2 mt-3">
                       <Label className="font-medium text-slate-700">Alert</Label>
-                      <p className="text-sm text-slate-500">When only a minimum value is specified, all values greater than that are considered normal. When only a maximum value is specified, all values less than that are considered normal. If no value is specified or only a note is given, then the system will not highlight abnormal values automatically.
+                      <p className="text-sm text-slate-500">When only a minimum value is specified, all values greater than that are considered normal. When only a maximum value is specified, all values less than that are considered normal. If no value is specified, then the system will not highlight abnormal values automatically.
                         <br /> <br />
                         When only a from age is specified, all ages greater than that are considered. When only a to age is specified, all ages less than that are considered. If no age is specified, then the system will consider all ages.
                       </p>
@@ -785,17 +782,7 @@ export default function TestCatalogue({
                   }
 
 
-                  <div className="col-span-full space-y-1.5">
-                    <Label className="text-xs font-medium text-slate-700">Notes</Label>
-                    <Textarea
-                      placeholder="Note"
-                      value={newTest.note || ""}
-                      onChange={(e) =>
-                        setNewTest((prev) => ({ ...prev, note: e.target.value }))
-                      }
-                      className="h-9 bg-slate-50"
-                    />
-                  </div>
+                  {/* Notes removed */}
 
 
                   <div className="grid grid-cols-12 gap-4 col-span-full mt-4">
