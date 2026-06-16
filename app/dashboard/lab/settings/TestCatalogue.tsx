@@ -225,6 +225,7 @@ export default function TestCatalogue({
       name: string;
       min: number | null | undefined;
       max: number | null | undefined;
+      upto: number | null | undefined;
       fromAge: number | null | undefined;
       toAge: number | null | undefined;
       gender: "Both" | "Male" | "Female";
@@ -233,6 +234,8 @@ export default function TestCatalogue({
     }[],
     note: string;
     category: string;
+    department?: string;
+    
   }>({
     code: "",
     name: "",
@@ -247,6 +250,7 @@ export default function TestCatalogue({
       name: "Normal",
       min: undefined,
       max: undefined,
+      upto: undefined,
       fromAge: undefined,
       toAge: undefined,
       gender: "Both",
@@ -254,12 +258,25 @@ export default function TestCatalogue({
     }],
     note: "",
     category: "",
+    department: "",
+    
   });
 
   const handleRangeChange = (index: number, field: string, value: any) => {
     setNewTest((prev) => {
       const updatedRange = [...(prev.range || [])];
-      updatedRange[index] = { ...updatedRange[index], [field]: value };
+      let newRangeItem = { ...updatedRange[index], [field]: value };
+      
+      if (field === 'upto' && value !== undefined && value !== null && value !== "") {
+          newRangeItem.min = undefined;
+          newRangeItem.max = undefined;
+      }
+      
+      if ((field === 'min' || field === 'max') && value !== undefined && value !== null && value !== "") {
+          newRangeItem.upto = undefined;
+      }
+      
+      updatedRange[index] = newRangeItem;
       return { ...prev, range: updatedRange };
     });
   };
@@ -269,7 +286,7 @@ export default function TestCatalogue({
       ...prev,
       range: [
         ...(prev.range || []),
-        { name: "", min: undefined, max: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year" }
+        { name: "", min: undefined, max: undefined, upto: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year" }
       ]
     }));
   };
@@ -322,9 +339,10 @@ export default function TestCatalogue({
         unit: null,
         options: [],
         range: [{
-          name: "",
+          name: "Normal",
           min: undefined,
           max: undefined,
+          upto: undefined,
           fromAge: undefined,
           toAge: undefined,
           gender: "Both",
@@ -332,6 +350,8 @@ export default function TestCatalogue({
         }],
         note: "",
         category: "",
+        department: "",
+        
       });
       setIsNewTestModalOpen(false);
 
@@ -543,6 +563,27 @@ export default function TestCatalogue({
                       className="h-9 bg-slate-50"
                     />
                   </div>
+
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Department</Label>
+                    <Select
+                      value={newTest.department || ""}
+                      onValueChange={(val) => setNewTest(prev => ({ ...prev, department: val }))}
+                    >
+                      <SelectTrigger className="h-9 bg-slate-50 w-full">
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+                        <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+                        <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+                        <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+                        <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+
                   {newTest.dataType === "options" && <>
                     <div className="col-span-4 space-y-1.5 ">
                       <Label className="text-xs font-medium text-slate-700">Add Options</Label>
@@ -604,6 +645,7 @@ export default function TestCatalogue({
                           <TableHead>Range Name</TableHead>
                           <TableHead className="w-26">Min</TableHead>
                           <TableHead className="w-26">Max</TableHead>
+                          <TableHead className="w-24">UpTo</TableHead>
                           <TableHead className="w-24">From Age</TableHead>
                           <TableHead className="w-24">To Age</TableHead>
                           <TableHead className="w-20">Gender</TableHead>
@@ -633,14 +675,23 @@ export default function TestCatalogue({
                               />
                             </TableCell>
                             <TableCell>
-                              <Input
-                                type="number"
-                                placeholder="Max"
-                                value={r.max ?? ""}
-                                onChange={(e) => handleRangeChange(i, "max", e.target.value ? Number(e.target.value) : undefined)}
-                                className="h-8 shadow-none bg-slate-50 px-2"
-                              />
-                            </TableCell>
+                                <Input
+                                  type="number"
+                                  placeholder="Max"
+                                  value={r.max ?? ""}
+                                  onChange={(e) => handleRangeChange(i, "max", e.target.value ? Number(e.target.value) : undefined)}
+                                  className="h-8 shadow-none bg-slate-50 px-2"
+                                />
+                              </TableCell>
+                              <TableCell>
+                                <Input
+                                  type="number"
+                                  placeholder="UpTo"
+                                  value={r.upto ?? ""}
+                                  onChange={(e) => handleRangeChange(i, "upto", e.target.value ? Number(e.target.value) : undefined)}
+                                  className="h-8 shadow-none bg-slate-50 px-2"
+                                />
+                              </TableCell>
                             <TableCell>
                               <Input
                                 type="number"
@@ -799,10 +850,10 @@ export default function TestCatalogue({
                     <TableHead>Unit</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>ETA (Minutes)</TableHead>
-                    <TableHead>Panels</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Method</TableHead>
                     <TableHead>Specimen</TableHead>
+                    <TableHead>Department</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -884,6 +935,7 @@ export default function TestCatalogue({
                       <TableHead>ETA (Minutes)</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Specimen</TableHead>
+                      <TableHead>Department</TableHead>
                       <TableHead align="right" className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1062,6 +1114,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     specimen: string;
     subheadings: string[];
     testSubheadings: Record<string, string>;
+    department: string;
   }>({
     name: "",
     price: 0,
@@ -1071,6 +1124,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     specimen: "",
     subheadings: [],
     testSubheadings: {},
+    department: "",
   });
   const [loading, setLoading] = useState(false);
   const [selectedTests, setSelectedTests] = useState<any[]>([]);
@@ -1152,6 +1206,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         method: "",
         subheadings: [],
         testSubheadings: {},
+        department: "",
       });
       setSelectedTests([]);
       onSuccess();
@@ -1193,6 +1248,21 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         <div className="space-y-2">
           <Label htmlFor="add-panel-specimen">Specimen Type <span className="text-slate-500 font-normal">(Optional)</span></Label>
           <Input id="add-panel-specimen" type="text" placeholder="" value={payload.specimen} onChange={(e) => setPayload({ ...payload, specimen: e.target.value })} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="add-panel-department">Department <span className="text-slate-500 font-normal">(Optional)</span></Label>
+          <Select value={payload.department} onValueChange={(val) => setPayload({ ...payload, department: val })}>
+              <SelectTrigger id="add-panel-department">
+                  <SelectValue placeholder="Select department" />
+              </SelectTrigger>
+              <SelectContent>
+                  <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+                  <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+                  <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+                  <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+                  <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+              </SelectContent>
+          </Select>
         </div>
       </div>
 

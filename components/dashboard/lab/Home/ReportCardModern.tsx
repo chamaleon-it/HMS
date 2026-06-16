@@ -5,7 +5,7 @@ import useSWR from "swr";
 
 interface ReportCardModernProps {
     report: any | null;
-    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string; }[];
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string; department?: string; }[];
     panelPerPage?: boolean;
 }
 
@@ -47,7 +47,7 @@ const RangeBar = ({ min, max, value, markerColor }: { min: any, max: any, value:
                 }}
             >
                 {value}
-                <div className="absolute -bottom-[11px] left-1/2 -translate-x-1/2 w-px h-[12px] bg-black"
+                <div className="absolute bottom-[-11px] left-1/2 -translate-x-1/2 w-px h-[12px] bg-black"
                     style={{ borderTopColor: markerColor }}></div>
             </div>
         </div>
@@ -155,7 +155,13 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
 
                 const processedTestIds = new Set<string>();
 
-                (report.panels || []).forEach((panelIdStr: string) => {
+                const sortedPanels = [...(report.panels || [])].sort((a, b) => {
+                    const deptA = panels?.find(p => p.name === a.toString())?.department || "";
+                    const deptB = panels?.find(p => p.name === b.toString())?.department || "";
+                    return deptA.localeCompare(deptB);
+                });
+
+                sortedPanels.forEach((panelIdStr: string) => {
                     const panelId = panelIdStr.toString();
                     const panelTests = (report.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
                     if (panelTests.length === 0) return;
@@ -221,10 +227,17 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                     });
                 });
 
-                Array.from(testMap.values()).forEach((t: any) => {
+                const independentTests = Array.from(testMap.values()).sort((a: any, b: any) => {
+                    const deptA = a.name?.department || "";
+                    const deptB = b.name?.department || "";
+                    return deptA.localeCompare(deptB);
+                });
+
+                independentTests.forEach((t: any) => {
                     const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
                     if (valStr !== "") {
-                        allRows.push({ type: "TEST", ...t, activePanel: "" });
+                        const testGroup = t.name?.department ? `DEPT_${String(t.name.department).trim().toUpperCase()}` : (t.name?.category ? `CATEGORY_${String(t.name.category).trim().toUpperCase()}` : "");
+                        allRows.push({ type: "TEST", ...t, activePanel: testGroup });
                     }
                 });
 
@@ -265,12 +278,29 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                         }
                     });
                 } else {
-                    let currentIndex = 0;
-                    while (currentIndex < allRows.length) {
+                    let currentChunk: any[] = [];
+                    let currentIsCBC = false;
+
+                    for (let i = 0; i < allRows.length; i++) {
+                        const row = allRows[i];
+                        const isCBC = (typeof row.activePanel === 'string' && row.activePanel.toUpperCase().includes("CBC")) || 
+                                      (typeof row.name === 'string' && row.name.toUpperCase().includes("CBC"));
+
                         const isFirstPage = pages.length === 0;
                         const limit = isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
-                        pages.push(allRows.slice(currentIndex, currentIndex + limit));
-                        currentIndex += limit;
+
+                        if (currentChunk.length > 0) {
+                            if (isCBC !== currentIsCBC || currentChunk.length >= limit) {
+                                pages.push(currentChunk);
+                                currentChunk = [];
+                            }
+                        }
+
+                        currentChunk.push(row);
+                        currentIsCBC = isCBC;
+                    }
+                    if (currentChunk.length > 0) {
+                        pages.push(currentChunk);
                     }
                 }
 
@@ -337,7 +367,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
 
                                     return isFirstPage && (
                                         <div className="w-full text-center mb-3">
-                                            <h2 className="text-[14px] font-black text-[#6eb269] uppercase tracking-[0.05em]">{headingText}</h2>
+                                            <h2 className="text-[14px] font-black text-[#6eb269] uppercase tracking-wider">{headingText}</h2>
                                         </div>
                                     );
                                 })()}
@@ -399,19 +429,25 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                     if (row.type !== "TEST") return null;
 
                                                     const v = parseFloat(row.value);
-                                                    let min, max;
+                                                    let min, max, upto;
                                                     if (row.name?.range?.[0]) {
                                                         min = row.name.range[0].min;
                                                         max = row.name.range[0].max;
+                                                        upto = row.name.range[0].upto;
                                                     }
 
                                                     let label = "NORMAL";
                                                     let color = "#6eb269"; // green
                                                     let pillClass = "bg-[#6eb269]";
-                                                    if (min !== undefined && v < min) { label = "LOW"; color = "#f39130"; pillClass = "bg-[#f39130]" }
-                                                    else if (max !== undefined && v > max) { label = "HIGH"; color = "#e12a32"; pillClass = "bg-[#e12a32]" }
-                                                    else if (min !== undefined && v === min) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
-                                                    else if (max !== undefined && v === max) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                    
+                                                    if (!isNaN(v)) {
+                                                        if (min !== undefined && min !== null && v < min) { label = "LOW"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                        else if (max !== undefined && max !== null && v > max) { label = "HIGH"; color = "#e12a32"; pillClass = "bg-[#e12a32]" }
+                                                        else if (upto !== undefined && upto !== null && v > upto) { label = "HIGH"; color = "#e12a32"; pillClass = "bg-[#e12a32]" }
+                                                        else if (min !== undefined && min !== null && v === min) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                        else if (max !== undefined && max !== null && v === max) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                        else if (upto !== undefined && upto !== null && v === upto) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                    }
 
                                                     // Special cases for visualization accuracy against the image
                                                     if (row.name?.name?.toUpperCase() === 'GLOBULIN') { label = 'BORDERLINE'; color = "#f39130"; pillClass = "bg-[#f39130]" }
@@ -430,11 +466,22 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                                 {row.name?.unit ? <span dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
                                                             </td>
                                                             <td className="pt-[4px] px-0 text-center align-top">
-                                                                {min !== undefined && max !== undefined ? (
-                                                                    <RangeBar min={min} max={max} value={row.value} markerColor={color} />
-                                                                ) : (
-                                                                    <div className="text-[11px] font-bold text-slate-600 mt-2">{row.name?.range?.[0]?.min} - {row.name?.range?.[0]?.max}</div>
-                                                                )}
+                                                                {(() => {
+                                                                    const hasMin = min !== undefined && min !== null && min !== "";
+                                                                    const hasMax = max !== undefined && max !== null && max !== "";
+                                                                    const hasUpto = upto !== undefined && upto !== null && upto !== "";
+                                                                    if (hasMin && hasMax) {
+                                                                        return <RangeBar min={min} max={max} value={row.value} markerColor={color} />
+                                                                    } else {
+                                                                        let rangeDisplay = "";
+                                                                        if (hasUpto) rangeDisplay = `Upto ${upto}`;
+                                                                        else if (hasMin) rangeDisplay = `> ${min}`;
+                                                                        else if (hasMax) rangeDisplay = `< ${max}`;
+                                                                        else return null;
+
+                                                                        return <div className="text-[11px] font-bold text-slate-600 mt-2">{rangeDisplay}</div>
+                                                                    }
+                                                                })()}
                                                             </td>
                                                             <td className="pt-[13px] px-4 text-center align-top">
                                                                 <div className={`${pillClass} text-white text-[9.5px] uppercase font-extrabold h-6 px-[2px] rounded-[6px] w-[78px] shadow-sm flex justify-center items-center`}>
@@ -460,7 +507,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
 
                             {/* Footer Section - Pinned to bottom manually by flex-1 above */}
                             <div className="w-full mt-auto">
-                                {isLastPage && (
+                                {isLastPage ? (
                                     <>
 
                                         <div className="text-center w-full mt-2">
@@ -511,6 +558,10 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
 
 
                                     </>
+                                ) : (
+                                    <div className="text-center w-full mt-3 mb-2">
+                                        <p className="text-[10px] font-extrabold text-slate-800 uppercase tracking-[0.2em]">*** Continue... ***</p>
+                                    </div>
                                 )}
 
                                 <div className="flex justify-between items-center w-full mt-4 ml-1 pr-[18px]">

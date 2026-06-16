@@ -2,17 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import api from "@/lib/axios";
+
 import { fAge } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/auth/context/auth-context";
 import { ChevronRight, Loader2, MapPin, Phone, UserPlus, X } from "lucide-react";
 import React, {
   useCallback,
@@ -47,16 +39,12 @@ const PAGE_SIZE = 100;
 const DEBOUNCE_MS = 250;
 
 const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus }) => {
-  const { user } = useAuth();
   const [input, setInput] = useState(patientName);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const [showInlineRegister, setShowInlineRegister] = useState(false);
-  const [inlineGender, setInlineGender] = useState<"Male" | "Female" | "">("");
-  const [isRegistering, setIsRegistering] = useState(false);
 
   // Auto-scroll to active item
   useEffect(() => {
@@ -138,38 +126,6 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
     }
   };
 
-  const handleInlineRegister = async () => {
-    if (!inlineGender) {
-      toast.error("Please select gender");
-      return;
-    }
-    if (!input.trim()) {
-      toast.error("Please enter a name");
-      return;
-    }
-    
-    const capitalizedName = input.replace(/\b\w/g, (char) => char.toUpperCase());
-
-    try {
-      setIsRegistering(true);
-      const { data } = await api.post("/patients", {
-        name: capitalizedName,
-        gender: inlineGender,
-        phoneNumber: "",
-        doctor: user?._id || "",
-        dateOfBirth: "",
-      });
-      const p = data.data; 
-      toast.success("Customer registered successfully.");
-      handleSelect(p);
-      setShowInlineRegister(false);
-      setInlineGender("");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to register customer");
-    } finally {
-      setIsRegistering(false);
-    }
-  };
 
   const clearInput = () => {
     setInput("");
@@ -207,7 +163,6 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
               setInput(capitalizedValue);
               setOpen(true);
               setActiveIdx(-1);
-              setShowInlineRegister(false);
             }}
             onKeyDown={onKeyDown}
             className="w-full pr-9"
@@ -225,50 +180,16 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           )}
         </div>
 
-        {!showInlineRegister ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="shrink-0 h-10 w-10 border-zinc-200"
-            onClick={() => setShowInlineRegister(true)}
-          >
-            <UserPlus className="h-4 w-4 text-green-600" />
-          </Button>
-        ) : (
-          <div className="flex items-center gap-2 shrink-0">
-            <Select
-              onValueChange={(val: any) => setInlineGender(val)}
-              value={inlineGender}
-            >
-              <SelectTrigger className="w-[100px] h-10">
-                <SelectValue placeholder="Gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Male">Male</SelectItem>
-                <SelectItem value="Female">Female</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              type="button"
-              onClick={handleInlineRegister}
-              disabled={isRegistering}
-              className="bg-green-600 hover:bg-green-700 text-white h-10 px-3"
-            >
-              {isRegistering && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              Create
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-10 w-8 shrink-0 text-zinc-400 hover:text-zinc-600"
-              onClick={() => setShowInlineRegister(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          className="shrink-0 h-10 w-10 border-zinc-200 hover:bg-green-50"
+          onClick={() => register?.(input)}
+        >
+          <UserPlus className="h-[18px] w-[18px] text-green-600" strokeWidth={2.5} />
+        </Button>
+
       </div>
 
       {/* POPUP */}

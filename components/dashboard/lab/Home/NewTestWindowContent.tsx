@@ -117,29 +117,22 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex justify-between items-center">
-        <PatientSelection
-          input={draft.patientName}
-          setInput={(val) => updateDraft(draft.id, { patientName: val })}
-          setValue={(id: string, allergies?: string, name?: string) => {
-            setPayload((prev: any) => ({ ...prev, patient: id }));
-            if (name) updateDraft(draft.id, { patientName: name });
-          }}
-          register={(name) => {
-             window.dispatchEvent(new CustomEvent('open-lab-register-patient', { 
-               detail: { name, draftId: draft.id } 
-             }));
-          }}
-        />
-        <Button 
-          variant={"outline"} 
-          onClick={() => window.dispatchEvent(new CustomEvent('open-lab-register-patient', { 
-            detail: { name: draft.patientName, draftId: draft.id } 
-          }))} 
-          className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white"
-        >
-          New Customer
-        </Button>
+      <div className="flex justify-between items-center w-full">
+        <div className="flex-1 max-w-[500px]">
+          <PatientSelection
+            input={draft.patientName}
+            setInput={(val) => updateDraft(draft.id, { patientName: val })}
+            setValue={(id: string, allergies?: string, name?: string) => {
+              setPayload((prev: any) => ({ ...prev, patient: id }));
+              if (name) updateDraft(draft.id, { patientName: name });
+            }}
+            register={(name) => {
+               window.dispatchEvent(new CustomEvent('open-lab-register-patient', { 
+                 detail: { name, draftId: draft.id } 
+               }));
+            }}
+          />
+        </div>
         <div className="flex flex-col gap-3">
           <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
             {tabs.map(({ key, label, icon: Icon }) => {
@@ -212,7 +205,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
       </div>
 
       <div className="flex gap-2 justify-between w-full">
-        <div className="w-[300px]">
+        <div className="w-[400px]">
           <TestSelection
             onSelect={(val) => {
               if (!val) return;
@@ -251,14 +244,14 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
               }
             }}
             options={[
-              ...panels.filter((p) => !payload.panels.includes(p.name)).map(e => e.name),
+              ...panels.filter((p) => !payload.panels.includes(p.name)).map(e => ({ label: e.name, value: e.name, type: 'Panel', department: e.department })),
               ...tests
                 .filter(
                   (t) =>
                     !t.panels?.find((p) => payload.panels.includes(p.name)) &&
                     !payload.test.some((pt: any) => pt.name === t._id)
                 )
-                .map((t) => t.name),
+                .map((t) => ({ label: t.name, value: t.name, type: 'Test', department: t.department })),
             ]}
           />
         </div>
@@ -292,7 +285,13 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             return (
               <TableRow key={t}>
                 <TableCell>{idx + 1}</TableCell>
-                <TableCell>{t}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <span className="font-semibold text-slate-800">{t}</span>
+                    {panels.find((p) => p.name === t)?.department && <span className="text-[10px] uppercase font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">{panels.find((p) => p.name === t)?.department}</span>}
+                    <span className="text-[10px] uppercase font-semibold bg-slate-50 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">PANEL</span>
+                  </div>
+                </TableCell>
                 <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
                 <TableCell>{totalTime || "-"}</TableCell>
                 <TableCell>
@@ -331,7 +330,13 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           }).map((t: any, idx: number) => (
             <TableRow key={t.name}>
               <TableCell>{idx + 1}</TableCell>
-              <TableCell>{tests.find((test) => test._id === t.name)?.name}</TableCell>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-slate-800">{tests.find((test) => test._id === t.name)?.name}</span>
+                  {tests.find((test) => test._id === t.name)?.department && <span className="text-[10px] uppercase font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">{tests.find((test) => test._id === t.name)?.department}</span>}
+                  <span className="text-[10px] uppercase font-semibold bg-slate-50 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">TEST</span>
+                </div>
+              </TableCell>
               <TableCell>{formatINR(tests.find((test) => test._id === t.name)?.price || 0)}</TableCell>
               <TableCell>{tests.find((test) => test._id === t.name)?.estimatedTime}</TableCell>
               <TableCell>

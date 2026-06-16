@@ -86,7 +86,7 @@ export default function PanelCatalogueRow({
     onRemoveTests,
     panelMutate,
 }: {
-    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; specimen?: string; method?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; };
+    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; specimen?: string; method?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; department?: string; };
     idx: number;
     tests: any[];
     onAddTests: () => void;
@@ -113,6 +113,7 @@ export default function PanelCatalogueRow({
         method: string;
         subheadings: string[];
         testSubheadings: Record<string, string>;
+        department: string;
     }>({
         name: panel.name,
         price: panel.price,
@@ -121,7 +122,8 @@ export default function PanelCatalogueRow({
         specimen: panel.specimen ?? "",
         method: panel.method ?? "",
         subheadings: panel.subheadings || [],
-        testSubheadings: panel.testSubheadings || {}
+        testSubheadings: panel.testSubheadings || {},
+        department: panel.department || ""
     });
 
     const [selectedTests, setSelectedTests] = useState<any[]>(initialPanelTests);
@@ -176,7 +178,8 @@ export default function PanelCatalogueRow({
                 specimen: panel.specimen ?? "",
                 method: panel.method ?? "",
                 subheadings: panel.subheadings || [],
-                testSubheadings: panel.testSubheadings || {}
+                testSubheadings: panel.testSubheadings || {},
+                department: panel.department || ""
             });
             setSearchTestQuery("");
         }
@@ -257,6 +260,7 @@ export default function PanelCatalogueRow({
             <TableCell>{panel.estimatedTime ? `${panel.estimatedTime} Minutes` : "N/A"}</TableCell>
             <TableCell className='uppercase'>{panel.method || "-"}</TableCell>
             <TableCell className='uppercase'>{panel.specimen || "-"}</TableCell>
+            <TableCell className='uppercase'>{panel.department || "-"}</TableCell>
             <TableCell align="left">
                 <div className="flex gap-1 items-center justify-end">
 
@@ -286,6 +290,10 @@ export default function PanelCatalogueRow({
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Estimated Duration</Label>
                                         {panel?.estimatedTime ? <p className="font-medium text-sm">{panel?.estimatedTime > 0 ? `${panel?.estimatedTime} Minutes` : "N/A"}</p> : <p className="font-medium text-sm">N/A</p>}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-slate-500">Department</Label>
+                                        <p className="font-medium text-sm">{panel.department || "N/A"}</p>
                                     </div>
                                 </div>
 
@@ -374,6 +382,21 @@ export default function PanelCatalogueRow({
                                     <div className="space-y-2 col-span-1">
                                         <Label htmlFor={`panel-specimen-${idx}`}>Specimen Type <span className="text-slate-500 font-normal">(Optional)</span></Label>
                                         <Input id={`panel-specimen-${idx}`} type="text" value={payload.specimen} onChange={(e) => setPayload({ ...payload, specimen: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2 col-span-1">
+                                        <Label htmlFor={`panel-department-${idx}`}>Department <span className="text-slate-500 font-normal">(Optional)</span></Label>
+                                        <Select value={payload.department} onValueChange={(val) => setPayload({ ...payload, department: val })}>
+                                            <SelectTrigger id={`panel-department-${idx}`}>
+                                                <SelectValue placeholder="Select department" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+                                                <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+                                                <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+                                                <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+                                                <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
 
