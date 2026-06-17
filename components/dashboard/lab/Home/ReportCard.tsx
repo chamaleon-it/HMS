@@ -127,8 +127,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             width: 100%;
             border-collapse: collapse;
           }
-          .col-investigation { width: 45%; }
-          .col-result { width: 25%; }
+          .col-investigation { width: 40%; }
+          .col-result { width: 18%; }
+          .col-unit { width: 12%; }
           .col-ref { width: 30%; }
           .col-note { width: 14%; }
 
@@ -537,12 +538,14 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                             <colgroup>
                                                 <col className="col-investigation" />
                                                 <col className="col-result" />
+                                                <col className="col-unit" />
                                                 <col className="col-ref" />
                                             </colgroup>
                                             <thead className="bg-transparent border-none">
                                                 <tr>
                                                     <th className="px-2 py-[5.5px] text-left">Parameter</th>
                                                     <th className="px-2 py-[5.5px] text-left">Result</th>
+                                                    <th className="px-2 py-[5.5px] text-left">Unit</th>
                                                     <th className="px-2 py-[5.5px] text-left">Ref. Range</th>
                                                 </tr>
                                             </thead>
@@ -562,6 +565,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                             <colgroup>
                                                 <col className="col-investigation" />
                                                 <col className="col-result" />
+                                                <col className="col-unit" />
                                                 <col className="col-ref" />
                                             </colgroup>
                                             <tbody>
@@ -575,7 +579,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                         
                                                         const deptRow = showDept ? (
                                                             <tr key={`dept-${rowIdx}`}>
-                                                                <td colSpan={3} className="px-0 pt-3 pb-2 text-center">
+                                                                <td colSpan={4} className="px-0 pt-3 pb-2 text-center">
                                                                     <p className="font-bold text-black text-[17px] uppercase mt-1 underline underline-offset-4 mb-1">
                                                                         {currentDept.toLowerCase().includes("department") ? currentDept : `${currentDept}`}
                                                                     </p>
@@ -601,7 +605,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                     {deptRow}
                                                                     {row.mainHeading ? (
                                                                         <tr>
-                                                                            <td colSpan={3} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                            <td colSpan={4} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                                 <p className="font-semibold text-black text-[13px] uppercase underline underline-offset-2">{row.mainHeading}</p>
                                                                             </td>
                                                                         </tr>
@@ -624,7 +628,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                 <React.Fragment key={`subheading-wrap-${rowIdx}`}>
                                                                     {deptRow}
                                                                     <tr key={`subheading-${rowIdx}`}>
-                                                                    <td colSpan={3} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <td colSpan={4} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <p className="font-semibold text-black text-[13px] underline underline-offset-2">{row.name}</p>
                                                                         {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
                                                                         {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
@@ -679,8 +683,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                         <span className={isAbnormal ? "font-bold" : "text-black font-bold"}>
                                                                             {row.value || " "}
                                                                         </span>
+                                                                    </td>
+                                                                    <td className={`px-2 pt-[3px] text-left text-[11px] leading-tight whitespace-nowrap font-semibold text-black ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
-                                                                            <span className="text-[11px] text-black font-semibold ml-1" dangerouslySetInnerHTML={{ __html: row.name.unit }} />
+                                                                            <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
                                                                         ) : null}
                                                                     </td>
                                                                     <td className={`px-2 pt-[3px] text-[12px] font-semibold text-black ${rowIdx === 0 ? "pt-0" : ""}`}>
