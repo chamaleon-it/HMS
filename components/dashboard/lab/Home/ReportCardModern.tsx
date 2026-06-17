@@ -280,6 +280,18 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                     });
                 });
 
+                const getPageGroup = (row: any): string => {
+                    const dept = (row?.department || row?.name?.department || "").toString().trim().toUpperCase();
+                    if (dept.includes("HEMAT") || dept.includes("HAEMATO") || dept.includes("HAEMAT") || dept.includes("CBC") || dept.includes("BLOOD COUNT")) return "HEAMATOLOGY";
+                    if (dept.includes("CLINICAL PATH") || dept.includes("URINE") || dept.includes("STOOL") || dept.includes("MICRO")) return "CLINICAL PATHOLOGY";
+                    return "GENERAL";
+                };
+
+                const getRowLimit = (pageGroup: string, isFirstPage: boolean): number => {
+                    if (pageGroup === "HEAMATOLOGY") return isFirstPage ? 12 : 18;
+                    return isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                };
+
                 const hematologyRows = allRows.filter(row => getPageGroup(row) === "HEAMATOLOGY");
                 const cpRows = allRows.filter(row => getPageGroup(row) === "CLINICAL PATHOLOGY");
                 const generalRows = allRows.filter(row => getPageGroup(row) === "GENERAL");
