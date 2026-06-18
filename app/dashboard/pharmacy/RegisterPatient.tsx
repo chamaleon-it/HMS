@@ -34,7 +34,7 @@ import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
 import ExistingPatientCard from "./ExistingPatientCard";
 import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 
-export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string, allergies?: string) => void, patient?: any, mutate?: () => void }) {
+export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string, allergies?: string, mrn?: string) => void, patient?: any, mutate?: () => void }) {
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
@@ -145,7 +145,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           success: `Customer register successfully.`,
         });
         reset();
-        onClose(responseData.data._id, responseData.data.name, responseData.data.allergies);
+        onClose(responseData.data._id, responseData.data.name, responseData.data.allergies, responseData.data.mrn);
       }
     } catch (error) {
       console.log(error);
@@ -294,7 +294,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           </div>
 
           <div className="grid gap-2">
-            <Label>Date of Birth </Label>
+            <Label>Date of Birth</Label>
 
             <Popover open={openCalander} onOpenChange={setOpenCalander}>
               <PopoverTrigger asChild>
@@ -363,7 +363,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
           <div className="">
             <div className="grid grid-cols-2 gap-4">
               <div className="grid gap-2">
-                <Label>Age (Years)</Label>
+                <Label>Age (Years) </Label>
                 <Input
                   {...register("age")}
                   ref={mergeRefs(refs.age, register("age").ref)}

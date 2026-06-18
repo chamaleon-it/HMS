@@ -46,6 +46,12 @@ const DEBOUNCE_MS = 250;
 const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus, actionElement }) => {
   const { user } = useAuth();
   const [input, setInput] = useState(patientName);
+
+  useEffect(() => {
+    if (patientName && patientName !== input) {
+      setInput(patientName);
+    }
+  }, [patientName]);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
@@ -110,8 +116,9 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
   const handleSelect = useCallback(
     (p: Patient) => {
       setSelected(p);
-      setValue(p._id, p.allergies, p.name);
-      setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
+      const displayName = `${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`;
+      setValue(p._id, p.allergies, displayName);
+      setInput(displayName);
       setOpen(false);
     },
     [setValue]
@@ -192,17 +199,6 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
         >
           <UserPlus className="h-4 w-4" />
         </Button>
-
-        {input && (
-          <button
-            type="button"
-            aria-label="Clear"
-            onClick={() => { clearInput() }}
-            className="rounded-full p-1 text-zinc-500 hover:bg-zinc-100 shrink-0"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
       </div>
 
       {/* POPUP */}

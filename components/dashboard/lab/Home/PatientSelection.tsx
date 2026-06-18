@@ -3,7 +3,8 @@ import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { fAge } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import { ChevronRight, MapPin, Phone, X } from "lucide-react";
+import { ChevronRight, MapPin, Phone, X, UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import React, {
   useCallback,
   useEffect,
@@ -144,38 +145,44 @@ const PatientSelection: React.FC<Props> = ({
     <div ref={rootRef} className="relative w-full max-w-125">
       <Label className="block">Patient Name</Label>
 
-      <div
-        role="combobox"
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-owns="patient-listbox"
-        aria-controls="patient-listbox"
-        aria-label="Search and select patient"
-        className="relative"
-      >
-        <Input
-          placeholder="Search or type new"
-          value={input}
-          onFocus={() => setOpen(true)}
-          onChange={(e) => {
-            setInput(e.target.value);
-            setOpen(true);
-            setActiveIdx(-1);
-          }}
-          onKeyDown={onKeyDown}
-          className="w-full mt-2.5 pr-9"
-        />
+      <div className="flex items-center gap-2 mt-2.5">
+        <div
+          role="combobox"
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          aria-owns="patient-listbox"
+          aria-controls="patient-listbox"
+          aria-label="Search and select patient"
+          className="relative flex-1"
+        >
+          <Input
+            placeholder="Search or type new"
+            value={input}
+            onFocus={() => setOpen(true)}
+            onChange={(e) => {
+              const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+              setInput(capitalizedValue);
+              setOpen(true);
+              setActiveIdx(-1);
+              if (selected) {
+                setSelected(null);
+                setValue("");
+              }
+            }}
+            onKeyDown={onKeyDown}
+            className="w-full pr-9"
+          />
+        </div>
 
-        {input && (
-          <button
-            type="button"
-            aria-label="Clear"
-            onClick={clearInput}
-            className="absolute right-2.5 top-[calc(50%)] -translate-y-1/2 rounded-full p-1 text-zinc-500 hover:bg-zinc-100"
-          >
-            <X className="h-4 w-4" />
-          </button>
-        )}
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => register?.(input)}
+          className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 shrink-0 h-10 w-10"
+        >
+          <UserPlus className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* POPUP */}
