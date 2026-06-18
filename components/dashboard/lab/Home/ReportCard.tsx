@@ -159,7 +159,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
             {(() => {
                 const getRowLimit = (pageGroup: string, isFirstPageInGroup: boolean) => {
-                    if (pageGroup === "HEAMATOLOGY") return isFirstPageInGroup ? 29 : 20;
+                    if (pageGroup === "HEAMATOLOGY_CBC") return isFirstPageInGroup ? 29 : 20;
                     return 25; // Adjusted down from 38 to ensure footer is visible without overflowing
                 };
 
@@ -344,8 +344,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     const deptStr = typeof row.department === 'string' ? row.department.toUpperCase() : "";
                     const mainHeadingStr = typeof row.mainHeading === 'string' ? row.mainHeading.toUpperCase() : "";
                     
-                    if (deptStr.includes("HEMATOLOGY") || deptStr.includes("HEAMATOLOGY") || activePanelStr.includes("COMPLETE BLOOD COUNT") || nameStr.includes("COMPLETE BLOOD COUNT") || mainHeadingStr.includes("COMPLETE BLOOD COUNT")) {
-                        return "HEAMATOLOGY";
+                    const isCBC = activePanelStr.includes("COMPLETE BLOOD COUNT") || nameStr.includes("COMPLETE BLOOD COUNT") || mainHeadingStr.includes("COMPLETE BLOOD COUNT") || activePanelStr.includes("CBC") || nameStr.includes("CBC") || mainHeadingStr.includes("CBC");
+                    
+                    if (isCBC) {
+                        return "HEAMATOLOGY_CBC";
                     }
                     if (deptStr.includes("CLINICAL PATHOLOGY") || activePanelStr.includes("CLINICAL PATHOLOGY") || nameStr.includes("CLINICAL PATHOLOGY") || mainHeadingStr.includes("CLINICAL PATHOLOGY")) {
                         return "CLINICAL PATHOLOGY";
@@ -353,10 +355,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     return "GENERAL";
                 };
 
-                const hematologyRows = allRows.filter(row => getPageGroup(row) === "HEAMATOLOGY");
+                const cbcRows = allRows.filter(row => getPageGroup(row) === "HEAMATOLOGY_CBC");
                 const cpRows = allRows.filter(row => getPageGroup(row) === "CLINICAL PATHOLOGY");
                 const generalRows = allRows.filter(row => getPageGroup(row) === "GENERAL");
-                const sortedAllRows = [...hematologyRows, ...generalRows, ...cpRows];
+                const sortedAllRows = [...cbcRows, ...generalRows, ...cpRows];
 
                 // 2. Chunk Into Pages
                 const pages: any[][] = [];
