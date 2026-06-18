@@ -1,11 +1,9 @@
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
 import { fAge } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Loader2, MapPin, Phone, UserPlus, X } from "lucide-react";
+import { ChevronRight, MapPin, Phone, X, UserPlus } from "lucide-react";
 import React, {
   useCallback,
   useEffect,
@@ -13,8 +11,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import toast from "react-hot-toast";
 import useSWR from "swr";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RegisterPatient } from "./RegisterPatient";
+import { useAuth } from "@/auth/context/auth-context";
 
 type Patient = {
   _id: string;
@@ -32,18 +36,23 @@ interface Props {
   register: (name?: string) => void;
   patientName: string;
   autoFocus?: boolean;
+  actionElement?: React.ReactNode;
 }
 
 const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 100;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus }) => {
+const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus, actionElement }) => {
+  const { user } = useAuth();
   const [input, setInput] = useState(patientName);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
+
+  const [openCreate, setOpenCreate] = useState(false);
+
 
 
   // Auto-scroll to active item
@@ -126,7 +135,6 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
     }
   };
 
-
   const clearInput = () => {
     setInput("");
     setOpen(false);
@@ -137,11 +145,16 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
 
 
 
+
+
   return (
     <div ref={rootRef} className="relative w-full max-w-[500px]">
-      <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+      <div className="flex items-center justify-between mb-1">
+        <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+        {actionElement}
+      </div>
 
-      <div className="flex items-center gap-2 mt-2.5 w-full">
+      <div className="flex items-center gap-2 mt-2.5">
         <div
           role="combobox"
           aria-expanded={open}
@@ -157,39 +170,39 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
             autoFocus={autoFocus}
             onFocus={() => setOpen(true)}
             onChange={(e) => {
-              const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
-                char.toUpperCase()
-              );
+
+              const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
               setInput(capitalizedValue);
-              setOpen(true);
-              setActiveIdx(-1);
+              if (selected) {
+                setSelected(null);
+                setValue("");
+              }
             }}
             onKeyDown={onKeyDown}
             className="w-full pr-9"
           />
-
-          {input && (
-            <button
-              type="button"
-              aria-label="Clear"
-              onClick={clearInput}
-              className="absolute right-2.5 top-[calc(50%)] -translate-y-1/2 rounded-full p-1 text-zinc-500 hover:bg-zinc-100"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
         </div>
 
         <Button
           type="button"
           variant="outline"
           size="icon"
-          className="shrink-0 h-10 w-10 border-zinc-200 hover:bg-green-50"
-          onClick={() => register?.(input)}
+          onClick={() => setOpenCreate(true)}
+          className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 shrink-0 h-10 w-10"
         >
-          <UserPlus className="h-[18px] w-[18px] text-green-600" strokeWidth={2.5} />
+          <UserPlus className="h-4 w-4" />
         </Button>
 
+        {input && (
+          <button
+            type="button"
+            aria-label="Clear"
+            onClick={() => { clearInput() }}
+            className="rounded-full p-1 text-zinc-500 hover:bg-zinc-100 shrink-0"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* POPUP */}
@@ -261,6 +274,34 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           </ScrollArea>}
         </div>
       )}
+
+      {/* CREATE PATIENT DIALOG */}
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            patient={{ name: input }}
+            onClose={async (id?: string, name?: string, allergies?: string, mrn?: string) => {
+              setOpenCreate(false);
+              if (id && name) {
+                // To display instantly:
+                handleSelect({ _id: id, name, allergies: allergies || "", mrn: mrn || "" });
+                // Attempt to fetch full data (with mrn, age, etc.)
+                try {
+                  const { data } = await api.get(`/patients/${id}`);
+                  if (data && data.data) {
+                    handleSelect(data.data);
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch full patient details", error);
+                }
+              }
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
