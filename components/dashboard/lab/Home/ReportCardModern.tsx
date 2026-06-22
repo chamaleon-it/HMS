@@ -255,22 +255,22 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                     panelPushed = true;
                                 }
                                 if (pendingSubheading) {
-                                    allRows.push({ 
-                                        type: "SUBHEADING", 
-                                        name: pendingSubheading, 
-                                        activePanel: isBiochemistry ? "" : panelId, 
+                                    allRows.push({
+                                        type: "SUBHEADING",
+                                        name: pendingSubheading,
+                                        activePanel: isBiochemistry ? "" : panelId,
                                         department: panelDept,
-                                        mainHeading: panelConfig?.mainHeading || panelConfig?.name 
+                                        mainHeading: panelConfig?.mainHeading || panelConfig?.name
                                     });
                                     pendingSubheading = null;
                                 }
-                                allRows.push({ 
-                                    type: "TEST", 
-                                    ...t, 
-                                    activePanel: isBiochemistry ? "" : panelId, 
-                                    hasSubheading: !!expectedSubheading, 
+                                allRows.push({
+                                    type: "TEST",
+                                    ...t,
+                                    activePanel: isBiochemistry ? "" : panelId,
+                                    hasSubheading: !!expectedSubheading,
                                     department: panelDept,
-                                    mainHeading: panelConfig?.mainHeading || panelConfig?.name 
+                                    mainHeading: panelConfig?.mainHeading || panelConfig?.name
                                 });
                             }
 
@@ -282,17 +282,17 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
 
                 const getPageGroup = (row: any): string => {
                     const dept = (row?.department || row?.name?.department || "").toString().trim().toUpperCase();
-                    if (dept.includes("HEMAT") || dept.includes("HAEMATO") || dept.includes("HAEMAT") || dept.includes("CBC") || dept.includes("BLOOD COUNT")) return "HEAMATOLOGY";
+                    if (dept.includes("HEMAT") || dept.includes("HAEMATO") || dept.includes("HAEMAT") || dept.includes("CBC") || dept.includes("BLOOD COUNT")) return "HAEMATOLOGY";
                     if (dept.includes("CLINICAL PATH") || dept.includes("URINE") || dept.includes("STOOL") || dept.includes("MICRO")) return "CLINICAL PATHOLOGY";
                     return "GENERAL";
                 };
 
                 const getRowLimit = (pageGroup: string, isFirstPage: boolean): number => {
-                    if (pageGroup === "HEAMATOLOGY") return isFirstPage ? 12 : 18;
+                    if (pageGroup === "HAEMATOLOGY") return isFirstPage ? 12 : 18;
                     return isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
                 };
 
-                const hematologyRows = allRows.filter(row => getPageGroup(row) === "HEAMATOLOGY");
+                const hematologyRows = allRows.filter(row => getPageGroup(row) === "HAEMATOLOGY");
                 const cpRows = allRows.filter(row => getPageGroup(row) === "CLINICAL PATHOLOGY");
                 const generalRows = allRows.filter(row => getPageGroup(row) === "GENERAL");
                 const sortedAllRows = [...hematologyRows, ...generalRows, ...cpRows];
@@ -366,7 +366,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                 return pages.map((pageRows, pageIdx) => {
                     const isFirstPage = panelPerPage ? (pageRows[0]?.isPanelStart || false) : pageIdx === 0;
                     const isLastPage = panelPerPage ? (pageRows[pageRows.length - 1]?.isPanelEnd || false) : pageIdx === pages.length - 1;
-                    const pageHasCBC = pageRows.some(row => getPageGroup(row) === "HEAMATOLOGY");
+                    const pageHasCBC = pageRows.some(row => getPageGroup(row) === "HAEMATOLOGY");
 
                     return (
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
@@ -492,7 +492,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                     let label = "NORMAL";
                                                     let color = "#6eb269"; // green
                                                     let pillClass = "bg-[#6eb269]";
-                                                    
+
                                                     if (!isNaN(v)) {
                                                         if (min !== undefined && min !== null && v < min) { label = "LOW"; color = "#f39130"; pillClass = "bg-[#f39130]" }
                                                         else if (max !== undefined && max !== null && v > max) { label = "HIGH"; color = "#e12a32"; pillClass = "bg-[#e12a32]" }
@@ -508,7 +508,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                     return (
                                                         <tr key={"test-" + rowIdx} className="">
                                                             <td className="pt-[15px] px-6 text-left align-top border-b border-transparent">
-                                                                <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight">{row.name?.name  || "TEST"}</div>
+                                                                <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight">{row.name?.name || "TEST"}</div>
                                                                 {row?.name?.method && <div className="text-[9px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method}</div>}
                                                                 {row?.name?.specimen && <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Specimen : {row.name?.specimen}</div>}
                                                             </td>

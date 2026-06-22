@@ -233,7 +233,7 @@ export default function TestCatalogue({
 
     }[],
     department?: string;
-    
+
   }>({
     code: "",
     name: "",
@@ -255,23 +255,23 @@ export default function TestCatalogue({
       dateType: "Year"
     }],
     department: "",
-    
+
   });
 
   const handleRangeChange = (index: number, field: string, value: any) => {
     setNewTest((prev) => {
       const updatedRange = [...(prev.range || [])];
       let newRangeItem = { ...updatedRange[index], [field]: value };
-      
+
       if (field === 'upto' && value !== undefined && value !== null && value !== "") {
-          newRangeItem.min = undefined;
-          newRangeItem.max = undefined;
+        newRangeItem.min = undefined;
+        newRangeItem.max = undefined;
       }
-      
+
       if ((field === 'min' || field === 'max') && value !== undefined && value !== null && value !== "") {
-          newRangeItem.upto = undefined;
+        newRangeItem.upto = undefined;
       }
-      
+
       updatedRange[index] = newRangeItem;
       return { ...prev, range: updatedRange };
     });
@@ -345,7 +345,7 @@ export default function TestCatalogue({
           dateType: "Year"
         }],
         department: "",
-        
+
       });
       setIsNewTestModalOpen(false);
 
@@ -556,7 +556,7 @@ export default function TestCatalogue({
                         <SelectValue placeholder="Select department" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+                        <SelectItem value="HAEMATOLOGY">HAEMATOLOGY</SelectItem>
                         <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
                         <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
                         <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
@@ -657,23 +657,23 @@ export default function TestCatalogue({
                               />
                             </TableCell>
                             <TableCell>
-                                <Input
-                                  type="number"
-                                  placeholder="Max"
-                                  value={r.max ?? ""}
-                                  onChange={(e) => handleRangeChange(i, "max", e.target.value ? Number(e.target.value) : undefined)}
-                                  className="h-8 shadow-none bg-slate-50 px-2"
-                                />
-                              </TableCell>
-                              <TableCell>
-                                <Input
-                                  type="number"
-                                  placeholder="UpTo"
-                                  value={r.upto ?? ""}
-                                  onChange={(e) => handleRangeChange(i, "upto", e.target.value ? Number(e.target.value) : undefined)}
-                                  className="h-8 shadow-none bg-slate-50 px-2"
-                                />
-                              </TableCell>
+                              <Input
+                                type="number"
+                                placeholder="Max"
+                                value={r.max ?? ""}
+                                onChange={(e) => handleRangeChange(i, "max", e.target.value ? Number(e.target.value) : undefined)}
+                                className="h-8 shadow-none bg-slate-50 px-2"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                placeholder="UpTo"
+                                value={r.upto ?? ""}
+                                onChange={(e) => handleRangeChange(i, "upto", e.target.value ? Number(e.target.value) : undefined)}
+                                className="h-8 shadow-none bg-slate-50 px-2"
+                              />
+                            </TableCell>
                             <TableCell>
                               <Input
                                 type="number"
@@ -1220,16 +1220,16 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         <div className="space-y-2">
           <Label htmlFor="add-panel-department">Department <span className="text-slate-500 font-normal">(Optional)</span></Label>
           <Select value={payload.department} onValueChange={(val) => setPayload({ ...payload, department: val })}>
-              <SelectTrigger id="add-panel-department">
-                  <SelectValue placeholder="Select department" />
-              </SelectTrigger>
-              <SelectContent>
-                  <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
-                  <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
-                  <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
-                  <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
-                  <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
-              </SelectContent>
+            <SelectTrigger id="add-panel-department">
+              <SelectValue placeholder="Select department" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="HAEMATOLOGY">HAEMATOLOGY</SelectItem>
+              <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+              <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+              <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+              <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+            </SelectContent>
           </Select>
         </div>
       </div>

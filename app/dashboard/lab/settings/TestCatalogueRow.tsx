@@ -54,7 +54,7 @@ export default function TestCatalogueRow({
         options: string[];
 
         department?: string;
-        
+
     };
     testMutate: () => void
 }) {
@@ -89,7 +89,7 @@ export default function TestCatalogueRow({
         options: string[];
         category?: string;
         department?: string;
-        
+
     }>({
         code: test.code,
         name: test.name,
@@ -108,7 +108,7 @@ export default function TestCatalogueRow({
         dataType: test.dataType,
         options: test.options || [],
         department: test.department || "",
-        
+
     })
 
     // Reset payload when modal opens to avoid state persistence bug
@@ -132,7 +132,7 @@ export default function TestCatalogueRow({
                 dataType: test.dataType,
                 options: test.options || [],
                 department: test.department || "",
-                
+
             });
         }
     }, [editOpen, test]);
@@ -141,16 +141,16 @@ export default function TestCatalogueRow({
         setPayload((prev) => {
             const updatedRange = [...(prev.range || [])];
             let newRangeItem = { ...updatedRange[index], [field]: value };
-            
+
             if (field === 'upto' && value !== undefined && value !== null && value !== "") {
                 newRangeItem.min = undefined;
                 newRangeItem.max = undefined;
             }
-            
+
             if ((field === 'min' || field === 'max') && value !== undefined && value !== null && value !== "") {
                 newRangeItem.upto = undefined;
             }
-            
+
             updatedRange[index] = newRangeItem;
             return { ...prev, range: updatedRange };
         });
@@ -185,7 +185,7 @@ export default function TestCatalogueRow({
             estimatedTime?: string;
             options?: string[];
             department?: string;
-            
+
         }) => {
             try {
                 let finalPayload = { ...data };
@@ -331,7 +331,7 @@ export default function TestCatalogueRow({
                                         <Label className="text-slate-500">Department</Label>
                                         <p className="font-medium text-sm">{test.department || "N/A"}</p>
                                     </div>
-                                    
+
                                 </div>
 
                                 {test.dataType === 'options' && (
@@ -535,7 +535,7 @@ export default function TestCatalogueRow({
                                                 <SelectValue placeholder="Select department" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+                                                <SelectItem value="HAEMATOLOGY">HAEMATOLOGY</SelectItem>
                                                 <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
                                                 <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
                                                 <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
@@ -543,7 +543,7 @@ export default function TestCatalogueRow({
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    
+
 
                                     {payload.dataType === "options" && <>
                                         <div className="col-span-4 space-y-1.5 ">

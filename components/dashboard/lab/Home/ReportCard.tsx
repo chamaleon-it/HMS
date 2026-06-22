@@ -159,7 +159,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
             {(() => {
                 const getRowLimit = (pageGroup: string, isFirstPageInGroup: boolean) => {
-                    if (pageGroup === "HEAMATOLOGY_CBC") return isFirstPageInGroup ? 29 : 20;
+                    if (pageGroup === "HAEMATOLOGY_CBC") return isFirstPageInGroup ? 29 : 20;
                     return 25; // Adjusted down from 38 to ensure footer is visible without overflowing
                 };
 
@@ -175,7 +175,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 const getDepartmentWeight = (dept: string) => {
                     if (!dept) return 99;
                     const d = dept.toUpperCase();
-                    if (d.includes("HEMATOLOGY") || d.includes("HEAMATOLOGY")) return 1;
+                    if (d.includes("HEMATOLOGY") || d.includes("HAEMATOLOGY")) return 1;
                     if (d.includes("BIOCHEMISTRY")) return 2;
                     if (d.includes("SEROLOGY")) return 3;
                     if (d.includes("IMMUNOLOGY")) return 4;
@@ -250,22 +250,22 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     panelPushed = true;
                                 }
                                 if (pendingSubheading) {
-                                    currentPanelRows.push({ 
-                                        type: "SUBHEADING", 
-                                        name: pendingSubheading, 
-                                        activePanel: isBiochemistry ? "" : panelId, 
+                                    currentPanelRows.push({
+                                        type: "SUBHEADING",
+                                        name: pendingSubheading,
+                                        activePanel: isBiochemistry ? "" : panelId,
                                         department: panelDept,
-                                        mainHeading: panelConfig?.mainHeading || panelConfig?.name 
+                                        mainHeading: panelConfig?.mainHeading || panelConfig?.name
                                     });
                                     pendingSubheading = null;
                                 }
-                                currentPanelRows.push({ 
-                                    type: "TEST", 
-                                    ...t, 
-                                    activePanel: isBiochemistry ? "" : panelId, 
-                                    hasSubheading: !!expectedSubheading, 
+                                currentPanelRows.push({
+                                    type: "TEST",
+                                    ...t,
+                                    activePanel: isBiochemistry ? "" : panelId,
+                                    hasSubheading: !!expectedSubheading,
                                     department: panelDept,
-                                    mainHeading: panelConfig?.mainHeading || panelConfig?.name 
+                                    mainHeading: panelConfig?.mainHeading || panelConfig?.name
                                 });
                             }
 
@@ -273,7 +273,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             testMap.delete(id);
                         }
                     });
-                    
+
                     if (currentPanelRows.length > 0) {
                         getGroup(panelDept).panels.push(currentPanelRows);
                     }
@@ -311,7 +311,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 sortedDepts.forEach(dept => {
                     const group = deptGroups.get(dept)!;
-                    
+
                     // Sort single tests
                     group.singles.sort((a, b) => {
                         const wA = getSingleTestWeight(a.name?.name);
@@ -329,10 +329,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         if (wA !== wB) return wA - wB;
                         return aName.localeCompare(bName);
                     });
-                    
+
                     // Single tests before panels
                     group.singles.forEach(row => allRows.push(row));
-                    
+
                     group.panels.forEach(panelRows => {
                         panelRows.forEach(row => allRows.push(row));
                     });
@@ -343,11 +343,11 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     const nameStr = typeof row.name === 'string' ? row.name.toUpperCase() : "";
                     const deptStr = typeof row.department === 'string' ? row.department.toUpperCase() : "";
                     const mainHeadingStr = typeof row.mainHeading === 'string' ? row.mainHeading.toUpperCase() : "";
-                    
+
                     const isCBC = activePanelStr.includes("COMPLETE BLOOD COUNT") || nameStr.includes("COMPLETE BLOOD COUNT") || mainHeadingStr.includes("COMPLETE BLOOD COUNT") || activePanelStr.includes("CBC") || nameStr.includes("CBC") || mainHeadingStr.includes("CBC");
-                    
+
                     if (isCBC) {
-                        return "HEAMATOLOGY_CBC";
+                        return "HAEMATOLOGY_CBC";
                     }
                     if (deptStr.includes("CLINICAL PATHOLOGY") || activePanelStr.includes("CLINICAL PATHOLOGY") || nameStr.includes("CLINICAL PATHOLOGY") || mainHeadingStr.includes("CLINICAL PATHOLOGY")) {
                         return "CLINICAL PATHOLOGY";
@@ -355,7 +355,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     return "GENERAL";
                 };
 
-                const cbcRows = allRows.filter(row => getPageGroup(row) === "HEAMATOLOGY_CBC");
+                const cbcRows = allRows.filter(row => getPageGroup(row) === "HAEMATOLOGY_CBC");
                 const cpRows = allRows.filter(row => getPageGroup(row) === "CLINICAL PATHOLOGY");
                 const generalRows = allRows.filter(row => getPageGroup(row) === "GENERAL");
                 const sortedAllRows = [...cbcRows, ...generalRows, ...cpRows];
@@ -451,7 +451,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         const pName = row.activePanel || row.name;
                         const mHeading = row.mainHeading;
                         return (pName && typeof pName === 'string' && (pName.toUpperCase().includes("COMPLETE BLOOD COUNT") || pName.toUpperCase().includes("CBC"))) ||
-                               (mHeading && typeof mHeading === 'string' && (mHeading.toUpperCase().includes("COMPLETE BLOOD COUNT") || mHeading.toUpperCase().includes("CBC")));
+                            (mHeading && typeof mHeading === 'string' && (mHeading.toUpperCase().includes("COMPLETE BLOOD COUNT") || mHeading.toUpperCase().includes("CBC")));
                     });
 
                     return (
@@ -525,7 +525,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                 {(() => {
                                     const firstRow = pageRows[0];
                                     const departmentText = firstRow?.department || "";
-                                    
+
                                     return departmentText ? (
                                         <div className="w-full text-center pb-2 pt-1 flex flex-col items-center justify-center gap-1">
                                             <p className="font-bold text-black text-[18px] uppercase underline underline-offset-4">
@@ -578,7 +578,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                         const currentDept = row.department;
                                                         const prevDept = rowIdx > 0 ? pageRows[rowIdx - 1].department : currentDept;
                                                         const showDept = rowIdx > 0 && currentDept && currentDept !== prevDept;
-                                                        
+
                                                         const deptRow = showDept ? (
                                                             <tr key={`dept-${rowIdx}`}>
                                                                 <td colSpan={4} className="px-0 pt-3 pb-2 text-center">
@@ -595,7 +595,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                             const isNextSame = isNextRowSubheading && (
                                                                 nextRow.name?.toUpperCase() === row.mainHeading?.toUpperCase()
                                                             );
-                                                            
+
                                                             const isSameAsDept = row.mainHeading?.toUpperCase() === row.department?.toUpperCase();
 
                                                             if (isNextSame || isSameAsDept) {
@@ -630,32 +630,32 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                 <React.Fragment key={`subheading-wrap-${rowIdx}`}>
                                                                     {deptRow}
                                                                     <tr key={`subheading-${rowIdx}`}>
-                                                                    <td colSpan={4} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        <p className="font-semibold text-black text-[13px] underline underline-offset-2">{row.name}</p>
-                                                                        {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
-                                                                        {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
+                                                                        <td colSpan={4} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                            <p className="font-semibold text-black text-[13px] underline underline-offset-2">{row.name}</p>
+                                                                            {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                            {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
 
-                                                                        {graphKey && pageHasCBC && (
-                                                                            <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
-                                                                                <div className="flex flex-col pt-2">
-                                                                                    <div className="text-[12px] font-extrabold text-black pl-1 mb-1">{graphKey} HISTOGRAM</div>
-                                                                                    {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
-                                                                                        <img
-                                                                                            src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
-                                                                                            alt={`${graphKey} Histogram`}
-                                                                                            className="w-full h-[130px] object-contain object-left mix-blend-multiply"
-                                                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                                                        />
-                                                                                    ) : (
-                                                                                        <div className="w-full h-[130px] border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">
-                                                                                            {graphKey} Graph Area
-                                                                                        </div>
-                                                                                    )}
+                                                                            {graphKey && pageHasCBC && (
+                                                                                <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
+                                                                                    <div className="flex flex-col pt-2">
+                                                                                        <div className="text-[12px] font-extrabold text-black pl-1 mb-1">{graphKey} HISTOGRAM</div>
+                                                                                        {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
+                                                                                            <img
+                                                                                                src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
+                                                                                                alt={`${graphKey} Histogram`}
+                                                                                                className="w-full h-[130px] object-contain object-left mix-blend-multiply"
+                                                                                                style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
+                                                                                            />
+                                                                                        ) : (
+                                                                                            <div className="w-full h-[130px] border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">
+                                                                                                {graphKey} Graph Area
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
-                                                                        )}
-                                                                    </td>
-                                                                </tr>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
                                                                 </React.Fragment>
                                                             );
                                                         }
@@ -698,7 +698,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                                 const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
                                                                                 const hasUpto = r.upto !== undefined && r.upto !== null && r.upto !== "";
                                                                                 if (!hasMin && !hasMax && !hasUpto) return null;
-                                                                                
+
                                                                                 let rangeDisplay = "";
                                                                                 if (hasUpto) {
                                                                                     rangeDisplay = `Upto ${r.upto}`;
