@@ -226,7 +226,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               {...register("mrn")}
               ref={mergeRefs(refs.mrn, register("mrn").ref)}
               value={values.mrn ?? ""}
-              disabled={patient?._id}
               onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
             />
             {errors.mrn && (

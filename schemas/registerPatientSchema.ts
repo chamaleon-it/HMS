@@ -13,7 +13,7 @@ export const registerPatientSchema = z.object({
         .replace(/\b\w/g, (char) => char.toUpperCase())
     ),
 
-  mrn: z.string().max(10, "MRN is too long").optional(),
+  mrn: z.string().max(10, "MRN is too long").optional().transform(v => v === "" ? undefined : v),
 
   phoneNumber: z
     .string()
