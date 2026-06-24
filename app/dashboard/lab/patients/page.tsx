@@ -31,14 +31,41 @@ import {
 } from "@/components/ui/dialog";
 import { useState } from "react";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
+import Filter, { FilterType } from "./Filter";
+import { PaginationBar } from "../../pharmacy/components/PaginationBar";
+import { TableSkeleton } from "../../pharmacy/components/PharmacySkeleton";
 
 const Patients: React.FC = () => {
     const router = useRouter();
     const [editPatient, setEditPatient] = useState<any>(null);
     const [openCreate, setOpenCreate] = useState(false);
 
-    const { data: patientsData, mutate } = useSWR<{
+    const [filter, setFilter] = useState<FilterType>({
+        query: undefined,
+        gender: undefined,
+        doctor: undefined,
+        age: [0, 100],
+        lastVisit: undefined,
+        page: 1,
+        limit: 20,
+        dateRange: { from: undefined, to: undefined },
+    });
+
+    const params = new URLSearchParams();
+
+    params.set("page", String(filter.page));
+    params.set("limit", String(filter.limit));
+    if (filter.query) params.set("q", filter.query);
+    if (filter.gender) params.set("gender", filter.gender);
+    if (filter.doctor) params.set("doctor", filter.doctor);
+    if (filter.dateRange.from) params.set("from", filter.dateRange.from);
+    if (filter.dateRange.to) params.set("to", filter.dateRange.to);
+    if (filter.age[0] !== 0 || filter.age[1] !== 100) params.set("age", `${filter.age[0]}-${filter.age[1]}`);
+    if (filter.lastVisit) params.set("lastVisit", String(filter.lastVisit));
+
+    const { data: patientsData, mutate, isLoading } = useSWR<{
         message: string;
+        total: number;
         data: {
             lastVisit: Date;
             visits: number;
@@ -50,9 +77,10 @@ const Patients: React.FC = () => {
             address: string;
             mrn: string;
         }[];
-    }>("/lab/report/patients");
+    }>(`/lab/report/patients?${params.toString()}`);
 
     const patients = patientsData?.data ?? [];
+    const total = patientsData?.total ?? 0;
 
     return (
         <AppShell>
@@ -66,11 +94,16 @@ const Patients: React.FC = () => {
                             />
                             <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
                                 Showing <span className="font-semibold">{patients.length}</span>{" "}
-                                of <span className="font-semibold">{patients.length}</span>{" "}
+                                of <span className="font-semibold">{total}</span>{" "}
                                 patients
                             </div>
                         </div>
 
+                        <Filter filter={filter} setFilter={setFilter} />
+
+                        {isLoading ? (
+                            <TableSkeleton rows={10} columns={8} />
+                        ) : (
                         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
                             <Table>
                                 <TableHeader className="">
@@ -112,15 +145,15 @@ const Patients: React.FC = () => {
                                                 }
                                             >
                                                 <TableCell className="py-3 align-middle text-slate-500">
-                                                    {idx + 1}
+                                                    {(filter.page - 1) * filter.limit + idx + 1}
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle font-medium">
                                                     <div className="flex flex-col gap-0.5">
                                                         <span className="text-[15px] text-slate-900">
-                                                            {p.name}
+                                                            <HighlightText text={p.name} highlight={filter.query || ""} />
                                                         </span>
                                                         <span className="text-[12px] text-slate-500 truncate max-w-65">
-                                                            {p.address}
+                                                            <HighlightText text={p.address} highlight={filter.query || ""} />
                                                         </span>
                                                         <div className="flex flex-wrap gap-1 mt-0.5">
                                                             {!hasHistory && (
@@ -137,13 +170,13 @@ const Patients: React.FC = () => {
                                                     </div>
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle text-slate-700">
-                                                    {p.mrn}
+                                                    <HighlightText text={p.mrn} highlight={filter.query || ""} />
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle text-slate-700">
                                                     {fAgeString(p.dateOfBirth)} / {p.gender}
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle text-slate-700">
-                                                    {p.phoneNumber}
+                                                    <HighlightText text={p.phoneNumber.length < 5 ? "-" : p.phoneNumber} highlight={filter.query || ""} />
                                                 </TableCell>
                                                 <TableCell className="py-3 align-middle text-right text-slate-900">
                                                     {p.visits}
@@ -210,7 +243,19 @@ const Patients: React.FC = () => {
                                     )}
                                 </TableBody>
                             </Table>
+                            {total > filter.limit && (
+                                <div className="px-2 py-0 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
+                                    <PaginationBar
+                                        page={filter.page}
+                                        limit={filter.limit}
+                                        total={total}
+                                        setFilter={setFilter}
+                                        disabled={isLoading}
+                                    />
+                                </div>
+                            )}
                         </div>
+                        )}
                     </main>
                 </div>
             </TooltipProvider>
@@ -243,6 +288,28 @@ const Patients: React.FC = () => {
                 </DialogContent>
             </Dialog>
         </AppShell>
+    );
+};
+
+const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+    if (!text) return null;
+    if (!highlight || !highlight.trim()) {
+        return <span>{text}</span>;
+    }
+    const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
+    const parts = text.split(regex);
+    return (
+        <span>
+            {parts.map((part, i) =>
+                regex.test(part) ? (
+                    <span key={i} className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5">
+                        {part}
+                    </span>
+                ) : (
+                    <span key={i}>{part}</span>
+                )
+            )}
+        </span>
     );
 };
 
