@@ -62,7 +62,6 @@ export function PatientForm({
 
   const refs = {
     name: useRef<HTMLInputElement>(null),
-    mrn: useRef<HTMLInputElement>(null),
     phoneNumber: useRef<HTMLInputElement>(null),
   };
 
@@ -198,7 +197,7 @@ export function PatientForm({
               placeholder="Enter patient name"
               {...register("name")}
               ref={mergeRefs(refs.name, register("name").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.mrn)}
+              onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
               onChange={(e) => {
                 const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
                   char.toUpperCase()
@@ -222,23 +221,7 @@ export function PatientForm({
             )}
           </div>
 
-          <div className="grid gap-1.5">
-            <Label className="text-sm font-medium text-slate-700">Customer ID</Label>
-            <Input
-              placeholder="PID"
-              {...register("mrn")}
-              ref={mergeRefs(refs.mrn, register("mrn").ref)}
-              value={values.mrn ?? ""}
-              disabled={patient?._id}
-              onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
-              className="h-9 rounded-xl"
-            />
-            {errors.mrn && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.mrn.message as string}
-              </p>
-            )}
-          </div>
+
 
           <div className="grid gap-1.5 relative">
             <Label className="text-sm font-medium text-slate-700">Phone</Label>
