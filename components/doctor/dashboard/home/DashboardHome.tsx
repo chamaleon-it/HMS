@@ -32,7 +32,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-67px)]">
+    <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-slate-50 flex flex-col">
       <Statistics />
 
       <div className="flex flex-1 gap-6 px-6 pb-6 overflow-hidden">

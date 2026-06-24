@@ -130,7 +130,7 @@ export default function PatientsEnhanced() {
 
   return (
     <AppShell>
-      <div className="min-h-screen w-full bg-linear-to-b from-white to-slate-50 p-6 space-y-5">
+      <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-slate-50 p-6 space-y-5">
         <DoctorHeader
           title="Patients"
           subtitle="Search, filter & review patient history"
