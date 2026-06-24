@@ -1,4 +1,4 @@
-import { fAge, fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import History from "./History";
@@ -199,7 +199,7 @@ export default function PatientTable({
                     {serial}
                   </td>
                   <td className="px-2 py-3">
-                    <Link href={`/dashboard/doctor/patients/${r._id}`}>
+                    <Link href={`/dashboard/doctor/patients/single?id=${r._id}`}>
                       <div className="font-medium text-gray-900">
                         {r.name}{" "}
                         <span className="text-sm text-gray-500">
@@ -213,7 +213,7 @@ export default function PatientTable({
                     {r.phoneNumber}
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">
-                    {fAge(r.dateOfBirth)}{" "}
+                    {fAgeString(r.dateOfBirth)}{" "}
                     <span className="text-gray-400">/</span> {r.gender}
                   </td>
                   <td className="px-2 py-3 text-sm text-gray-700">

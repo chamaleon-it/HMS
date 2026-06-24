@@ -1,4 +1,4 @@
-import { Eye, Search } from "lucide-react";
+import { Eye, Search, Edit, Printer, CheckCircle2 } from "lucide-react";
 import React from "react";
 import Link from "next/link";
 import Filters from "./Filter";
@@ -19,6 +19,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import AddPaymentDialog from "./AddPaymentDialog";
+import api from "@/lib/axios";
+import toast from "react-hot-toast";
+import LabBillReceipt from "@/components/dashboard/lab/Home/LabBillReceipt";
 
 interface BillRow {
   status: "Paid" | "Partial" | "Unpaid";
@@ -35,6 +39,7 @@ interface PropsType {
     cash: number;
     online: number;
     insurance: number;
+    discount: number;
     items: {
       total: number;
     }[];
@@ -43,9 +48,32 @@ interface PropsType {
       mrn: string;
     };
   }[];
+  billingMutate: () => void;
 }
 
-export default function AllBill({ billing, filter, setFilter }: PropsType) {
+export default function AllBill({ billing, filter, setFilter, billingMutate }: PropsType) {
+  const [paymentModelOpen, setPaymentModelOpen] = React.useState(false);
+  const [selectedBill, setSelectedBill] = React.useState<any>(null);
+  const [printBill, setPrintBill] = React.useState<any | null>(null);
+
+  const handlePrint = (bill: any) => {
+    setPrintBill(bill);
+    setTimeout(() => {
+      window.print();
+      setPrintBill(null);
+    }, 100);
+  };
+
+  const handleMarkAsPaid = async (billId: string, dueAmount: number) => {
+    try {
+      await api.patch(`/billing/mark_as_paid/${billId}`, { amount: dueAmount });
+      toast.success("Payment marked as paid successfully.");
+      billingMutate();
+    } catch (error: any) {
+      toast.error(`Failed to mark as paid: ${error.response?.data?.message || error.message}`);
+    }
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <Filters filter={filter} setFilter={setFilter} />
@@ -73,10 +101,16 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                 Total
               </TableHead>
               <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
+                Discount
+              </TableHead>
+              <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
                 Paid
               </TableHead>
               <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
                 Due
+              </TableHead>
+              <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider">
+                State
               </TableHead>
               <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider">
                 Status
@@ -89,7 +123,7 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
           <TableBody>
             {billing.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={10} className="py-20 text-center">
+                <TableCell colSpan={11} className="py-20 text-center">
                   <div className="flex flex-col items-center gap-2">
                     <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center dark:bg-slate-800">
                       <Search className="h-6 w-6 text-slate-300" />
@@ -141,22 +175,32 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                   <TableCell className="py-3 text-right tabular-nums font-medium text-slate-900">
                     {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
                   </TableCell>
+                  <TableCell className="py-3 text-right tabular-nums text-slate-600 font-medium">
+                    {formatINR(b.discount || 0)}
+                  </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
                     {formatINR(b.insurance + b.cash + b.online)}
                   </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
                     {formatINR(
                       b.items.reduce((a, b) => a + b.total, 0) -
+                      (b.discount || 0) -
                       (b.insurance + b.cash + b.online)
                     )}
                   </TableCell>
                   <TableCell className="py-3 text-center">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${(b as any).status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-amber-50 text-amber-700 border-amber-200'} border`}>
+                      {(b as any).status || 'Draft'}
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-3 text-center">
                     <StatusPill
                       s={(() => {
-                        const total = b.items.reduce(
+                        const subtotal = b.items.reduce(
                           (sum, i) => sum + i.total,
                           0
                         );
+                        const total = subtotal - (b.discount || 0);
                         const paid = b.cash + b.online + b.insurance;
                         return total <= paid
                           ? "Paid"
@@ -168,6 +212,69 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                   </TableCell>
                   <TableCell className="py-3 pr-4">
                     <div className="flex justify-end items-center gap-1">
+                      {(() => {
+                        const subtotal = b.items.reduce((sum, i) => sum + i.total, 0);
+                        const total = subtotal - (b.discount || 0);
+                        const paid = b.cash + b.online + b.insurance;
+                        const due = total - paid;
+
+                        return (
+                          <>
+                            {due > 0 && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleMarkAsPaid(b._id, due)}
+                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                  >
+                                    <CheckCircle2 className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Mark as Paid</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </>
+                        );
+                      })()}
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handlePrint(b)}
+                            className="h-8 w-8 text-teal-600 hover:text-teal-700 hover:bg-teal-50"
+                          >
+                            <Printer className="h-4 w-4" />
+                          </Button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Print Bill</p>
+                        </TooltipContent>
+                      </Tooltip>
+                      {(b as any).status !== 'Completed' && (
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => {
+                                setSelectedBill(b);
+                                setPaymentModelOpen(true);
+                              }}
+                              className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>Edit Bill</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      )}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <Button
@@ -176,7 +283,7 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                             asChild
                             className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                           >
-                            <Link href={`/dashboard/lab/billing/${b._id}`}>
+                            <Link href={`/dashboard/lab/billing/single?id=${b._id}`}>
                               <Eye className="h-4 w-4" />
                             </Link>
                           </Button>
@@ -220,6 +327,13 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
           </div>
         </div>
       </div>
+      <AddPaymentDialog
+        open={paymentModelOpen}
+        setOpen={setPaymentModelOpen}
+        bill={selectedBill}
+        billingMutate={billingMutate}
+      />
+      <LabBillReceipt bill={printBill} />
     </div>
   );
 }

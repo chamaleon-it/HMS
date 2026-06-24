@@ -1,9 +1,9 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { fAge } from "@/lib/fDateAndTime";
+import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import { ChevronRight, MapPin, Phone, X } from "lucide-react";
+import { ChevronRight, MapPin, Phone, X, UserPlus } from "lucide-react";
 import React, {
   useCallback,
   useEffect,
@@ -12,6 +12,13 @@ import React, {
   useState,
 } from "react";
 import useSWR from "swr";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RegisterPatient } from "../../../../app/dashboard/pharmacy/RegisterPatient";
+import { useAuth } from "@/auth/context/auth-context";
 
 type Patient = {
   _id: string;
@@ -21,22 +28,44 @@ type Patient = {
   dateOfBirth?: string | Date;
   address?: string;
   mrn?: string;
+  allergies?: string;
 };
 
 interface Props {
-  setValue: (id: string) => void;
-  register: () => void
+  setValue: (id: string, allergies?: string, name?: string) => void;
+  register: (name?: string) => void;
+  patientName: string;
+  autoFocus?: boolean;
+  actionElement?: React.ReactNode;
 }
 
 const MIN_QUERY_LEN = 2;
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 100;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
-  const [input, setInput] = useState("");
+const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus, actionElement }) => {
+  const { user } = useAuth();
+  const [input, setInput] = useState(patientName);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  const [openCreate, setOpenCreate] = useState(false);
+
+
+
+  // Auto-scroll to active item
+  useEffect(() => {
+    if (activeIdx >= 0 && listRef.current) {
+      const activeElement = listRef.current.children[activeIdx] as HTMLElement;
+      if (activeElement) {
+        activeElement.scrollIntoView({
+          block: "nearest",
+        });
+      }
+    }
+  }, [activeIdx]);
 
   // Close on outside click
   const rootRef = useRef<HTMLDivElement>(null);
@@ -78,18 +107,17 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
   );
   const patients = data?.data ?? [];
 
-
-
-
   const handleSelect = useCallback(
     (p: Patient) => {
       setSelected(p);
-      setValue(p._id);
+      setValue(p._id, p.allergies, p.name);
       setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
       setOpen(false);
     },
     [setValue]
   );
+
+
 
   // Keyboard navigation within the listbox
   const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -117,38 +145,60 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
 
 
 
-  return (
-    <div ref={rootRef} className="relative w-full max-w-125">
-      <Label className="block">Patient Name</Label>
 
-      <div
-        role="combobox"
-        aria-expanded={open}
-        aria-haspopup="listbox"
-        aria-owns="patient-listbox"
-        aria-controls="patient-listbox"
-        aria-label="Search and select patient"
-        className="relative"
-      >
-        <Input
-          placeholder="Search or type new"
-          value={input}
-          onFocus={() => setOpen(true)}
-          onChange={(e) => {
-            setInput(e.target.value);
-            setOpen(true);
-            setActiveIdx(-1);
-          }}
-          onKeyDown={onKeyDown}
-          className="w-full mt-2.5 pr-9"
-        />
+
+  return (
+    <div ref={rootRef} className="relative w-full max-w-[500px]">
+      <div className="flex items-center justify-between mb-1">
+        <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+        {actionElement}
+      </div>
+
+      <div className="flex items-center gap-2 mt-2.5">
+        <div
+          role="combobox"
+          aria-expanded={open}
+          aria-haspopup="listbox"
+          aria-owns="patient-listbox"
+          aria-controls="patient-listbox"
+          aria-label="Search and select patient"
+          className="relative flex-1"
+        >
+          <Input
+            placeholder="Search or type new"
+            value={input}
+            autoFocus={autoFocus}
+            onFocus={() => setOpen(true)}
+            onChange={(e) => {
+
+              const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
+              setInput(capitalizedValue);
+              if (selected) {
+                setSelected(null);
+                setValue("");
+              }
+            }}
+            onKeyDown={onKeyDown}
+            className="w-full pr-9"
+          />
+        </div>
+
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => setOpenCreate(true)}
+          className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 shrink-0 h-10 w-10"
+        >
+          <UserPlus className="h-4 w-4" />
+        </Button>
 
         {input && (
           <button
             type="button"
             aria-label="Clear"
-            onClick={clearInput}
-            className="absolute right-2.5 top-[calc(50%)] -translate-y-1/2 rounded-full p-1 text-zinc-500 hover:bg-zinc-100"
+            onClick={() => { clearInput() }}
+            className="rounded-full p-1 text-zinc-500 hover:bg-zinc-100 shrink-0"
           >
             <X className="h-4 w-4" />
           </button>
@@ -176,11 +226,11 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
                 </div>
                 <button
                   onClick={() => {
-                    register?.()
+                    register?.(input)
                   }}
                   className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
                 >
-                  <span className="text-lg">➕</span> Add new Patient
+                  <span className="text-lg">➕</span> Add new customer
                 </button>
               </div>
             ) : (
@@ -188,8 +238,9 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
             )}
           </div>
 
-          <ScrollArea className="">
+          {patients.length > 0 && <ScrollArea className="h-[300px]">
             <ul
+              ref={listRef}
               id="patient-listbox"
               role="listbox"
               aria-label="Patients"
@@ -220,9 +271,37 @@ const PatientSelection: React.FC<Props> = ({ setValue, register }) => {
                 </li>
               ))}
             </ul>
-          </ScrollArea>
+          </ScrollArea>}
         </div>
       )}
+
+      {/* CREATE PATIENT DIALOG */}
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            patient={{ name: input }}
+            onClose={async (id?: string, name?: string, allergies?: string, mrn?: string) => {
+              setOpenCreate(false);
+              if (id && name) {
+                // To display instantly:
+                handleSelect({ _id: id, name, allergies: allergies || "", mrn: mrn || "" });
+                // Attempt to fetch full data (with mrn, age, etc.)
+                try {
+                  const { data } = await api.get(`/patients/${id}`);
+                  if (data && data.data) {
+                    handleSelect(data.data);
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch full patient details", error);
+                }
+              }
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
@@ -252,10 +331,31 @@ const safeAge = (dob?: string | Date) => {
   try {
     const d = typeof dob === "string" ? new Date(dob) : dob;
     if (Number.isNaN(d.getTime())) return "—";
-    return `${fAge(d)} yrs`;
+    return `${fAgeString(d)}`;
   } catch {
     return "—";
   }
+};
+
+const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
+  if (!highlight.trim()) {
+    return <span>{text}</span>;
+  }
+  const regex = new RegExp(`(${highlight.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, "gi");
+  const parts = text.split(regex);
+  return (
+    <span>
+      {parts.map((part, i) =>
+        regex.test(part) ? (
+          <span key={i} className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5">
+            {part}
+          </span>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </span>
+  );
 };
 
 const PatientCard: React.FC<{
@@ -296,7 +396,7 @@ const PatientCard: React.FC<{
         <div className="shrink-0">
           <div
             className={cn(
-              "rounded-2xl p-0.5 transition-transform duration-200",
+              "rounded-2xl p-[2px] transition-transform duration-200",
               "group-hover:scale-[1.02]",
               isSelected ? "bg-primary/15" : "bg-zinc-100 dark:bg-zinc-800"
             )}
@@ -393,38 +493,5 @@ const PatientCard: React.FC<{
         </div>
       </div>
     </div>
-  );
-};
-
-const HighlightText = ({
-  text,
-  highlight,
-}: {
-  text: string;
-  highlight: string;
-}) => {
-  if (!highlight.trim() || !text) {
-    return <span>{text}</span>;
-  }
-  const regex = new RegExp(
-    `(${highlight.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`,
-    "gi"
-  );
-  const parts = text.split(regex);
-  return (
-    <span>
-      {parts.map((part, i) =>
-        regex.test(part) ? (
-          <span
-            key={i}
-            className="bg-yellow-200 text-slate-900 rounded-[1px] px-0.5"
-          >
-            {part}
-          </span>
-        ) : (
-          <span key={i}>{part}</span>
-        )
-      )}
-    </span>
   );
 };

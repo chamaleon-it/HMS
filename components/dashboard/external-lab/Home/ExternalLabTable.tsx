@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Eye, Upload } from "lucide-react";
 import SendToLabDialog from "./SendToLabDialog";
-import { fAge, fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
 
 // Reusing types roughly matching LabTable
 interface Report {
@@ -65,7 +65,7 @@ export default function ExternalLabTable({ data, mode }: Props) {
                                             <span className="font-medium text-gray-600">
                                                 {row.patientMrn}
                                             </span>{" "}
-                                            • {row.patientDob ? `${fAge(new Date(row.patientDob))} yrs` : "-"} • {row.patientGender || "-"}
+                                            • {row.patientDob ? `${fAge(new Date(row.patientDob)).years}y ${fAge(new Date(row.patientDob)).months}m` : "-"} • {row.patientGender || "-"}
                                         </span>
                                     )}
                                 </div>

@@ -261,22 +261,12 @@ export default function LabViewOrder({ open, setOpen, sample, onUpdateStatus }: 
                     {sample.status === "Pending" && (
                         <Button
                             className="bg-blue-600 hover:bg-blue-700 text-white"
-                            onClick={() => handleStatusUpdate("Sample Collected")}
-                            disabled={updatingStatus}
-                        >
-                            <TestTube2 className="w-4 h-4 mr-2" />
-                            {updatingStatus ? "Updating..." : "Sample Collected"}
-                        </Button>
-                    )}
-
-                    {sample.status === "Sample Collected" && (
-                        <Button
-                            className="bg-amber-600 hover:bg-amber-700 text-white"
+                            // onClick={() => handleStatusUpdate("Sample Collected")}
                             onClick={() => handleStatusUpdate("Waiting for Result")}
                             disabled={updatingStatus}
                         >
-                            <FlaskConical className="w-4 h-4 mr-2" />
-                            {updatingStatus ? "Updating..." : "Process Sample"}
+                            <TestTube2 className="w-4 h-4 mr-2" />
+                            {updatingStatus ? "Updating..." : "Waiting for Result"}
                         </Button>
                     )}
 

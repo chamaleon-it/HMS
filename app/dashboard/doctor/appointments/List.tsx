@@ -1,4 +1,4 @@
-import { fTime } from "@/lib/fDateAndTime";
+import { fDateandTime, fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video, Search } from "lucide-react";
 import React, { useState } from "react";
 import useAppointmentList from "./data/useAppointmentList";
@@ -17,12 +17,14 @@ export default function List({
   query,
   activeStatuses,
   date,
+  activeDate
 }: {
   query: string;
   activeStatuses: string[];
   date: Date;
+  activeDate: "Today" | "7 days" | "30 days" | "Custom";
 }) {
-  const { data, mutate } = useAppointmentList({ activeStatuses, date });
+  const { data, mutate } = useAppointmentList({ activeStatuses, date, activeDate });
 
   const [edit, setEdit] = useState<null | {
     _id: string;
@@ -109,7 +111,7 @@ export default function List({
                 }
               >
                 <TableCell className="py-3 pl-4 font-medium text-slate-900">
-                  {fTime(row.date)}
+                  {fDateandTime(row.date)}
                 </TableCell>
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
@@ -129,27 +131,27 @@ export default function List({
                 </TableCell>
                 <TableCell className="py-3">
                   <div className="flex items-center gap-3">
-                    <Initials text={row.doctor.name} />
+                    <Initials text={row?.doctor?.name} />
                     <div className="">
                       <div className="truncate text-sm font-medium text-slate-900">
-                        {row.doctor.name}
+                        {row?.doctor?.name}
                       </div>
                       <div className="text-[11px] text-zinc-500 truncate">
-                        {row.doctor.email}
+                        {row?.doctor?.email}
                       </div>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell className="py-3">
                   <span className="inline-flex items-center gap-2 text-xs text-slate-600">
-                    {row.method === "In clinic" && <MapPin className="h-3.5 w-3.5 text-slate-400" />}
-                    {row.method === "Video" && <Video className="h-3.5 w-3.5 text-slate-400" />}
-                    {row.method === "Phone" && <Phone className="h-3.5 w-3.5 text-slate-400" />}
-                    {row.method}
+                    {row?.method === "In clinic" && <MapPin className="h-3.5 w-3.5 text-slate-400" />}
+                    {row?.method === "Video" && <Video className="h-3.5 w-3.5 text-slate-400" />}
+                    {row?.method === "Phone" && <Phone className="h-3.5 w-3.5 text-slate-400" />}
+                    {row?.method}
                   </span>
                 </TableCell>
                 <TableCell className="py-3">
-                  <Chip label={row.status} tone={row.status || "gray"} />
+                  <Chip label={row?.status} tone={row?.status || "gray"} />
                 </TableCell>
                 <TableCell className="py-3 pr-4">
                   <div className="flex items-center justify-end gap-2">
@@ -174,7 +176,6 @@ export default function List({
       >
         <CreateAppointmentForm
           onClose={() => setEdit(null)}
-          mutate={mutate}
           appointment={edit}
         />
       </Drawer>}

@@ -47,15 +47,15 @@ const StatCard: React.FC<{
             borderClass
         )}>
             <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />
-            <div className="relative p-5 flex items-center gap-5">
+            <div className="relative p-3 flex items-center gap-5">
                 <div className={cn(
                     "h-14 w-14 rounded-2xl flex items-center justify-center shadow-sm border border-white/50 shrink-0",
                     iconBgClass
                 )}>{icon}</div>
                 <div>
-                    <div className="text-3xl font-bold tracking-tight text-zinc-900">{value}</div>
+                    <div className="text-xl font-bold tracking-tight text-zinc-900">{value}</div>
                     <div className="text-sm font-medium text-zinc-500 uppercase tracking-wider">{label}</div>
-                    {subtext && <div className="text-xs text-zinc-400 mt-1">{subtext}</div>}
+                    {/* {subtext && <div className="text-xs text-zinc-400 mt-1">{subtext}</div>} */}
                 </div>
             </div>
         </Card>
@@ -90,7 +90,7 @@ export default function Payments() {
     const totalCollection = totalCash + totalOnline + totalInsurance;
 
     return (
-        <div className="min-h-[calc(100vh-80px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-8">
+        <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-zinc-50/50 p-6 space-y-8">
             <LabHeader
                 title="Payments"
                 subtitle="Financial overview and daily collection analysis"
@@ -170,6 +170,7 @@ export default function Payments() {
                                     <TableHead>Patient</TableHead>
                                     <TableHead>Date</TableHead>
                                     <TableHead>Mode</TableHead>
+                                    <TableHead>State</TableHead>
                                     <TableHead className="text-right">Amount</TableHead>
                                 </TableRow>
                             </TableHeader>
@@ -185,6 +186,11 @@ export default function Payments() {
                                                 {bill.online > 0 && <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">Online</span>}
                                                 {bill.insurance > 0 && <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">Ins</span>}
                                             </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", (bill as any).status === 'Completed' ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700")}>
+                                                {(bill as any).status || 'Draft'}
+                                            </span>
                                         </TableCell>
                                         <TableCell className="text-right font-bold text-zinc-700">
                                             ${(bill.cash + bill.online + bill.insurance).toFixed(2)}

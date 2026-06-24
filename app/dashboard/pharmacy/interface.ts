@@ -14,6 +14,7 @@ export interface OrderType {
     updatedAt?: Date;
     billNo?: string;
     pharmacist?: string
+    doctorName?: string
     isDeleted: boolean;
 }
 
@@ -84,9 +85,12 @@ export interface Patient {
 
 export interface DataType {
     patient: string;
-    doctor: string;
+    doctor: string | null;
+    doctorName?: string;
     items: {
+        rowId: string;
         name: string;
+        medicineName: string;
         dosage: string;
         frequency: string;
         food: string;

@@ -174,7 +174,7 @@ export default function Appointment({
             }
             onClick={async () => {
               if (ring) {
-                router.push(`/dashboard/doctor/consulting/${a._id}`);
+                router.push(`/dashboard/doctor/consulting/single?id=${a._id}`);
               }
             }}
           >

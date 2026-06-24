@@ -9,9 +9,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Save, Store } from "lucide-react";
+import { Save, Store, Check, FileText, LayoutTemplate } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { ProfileType } from "./interface";
+import { Switch } from "@/components/ui/switch";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 
@@ -42,6 +43,13 @@ export default function General({
       address: profile?.address ?? "",
     }));
   }, [profile]);
+
+  const [panelPerPage, setPanelPerPage] = useState<boolean>(profile?.lab?.panelPerPage || false);
+
+  useEffect(() => {
+    setPanelPerPage(profile?.lab?.panelPerPage || false)
+  }, [profile?.lab?.panelPerPage])
+
 
   const [loading, setLoading] = useState(false);
 
@@ -187,28 +195,81 @@ export default function General({
         </CardContent>
       </Card>
 
-      {/* Helper card */}
-      <Card className="border border-dashed border-slate-200 bg-white/80 shadow-sm rounded-2xl">
-        <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-semibold text-slate-900">
-            Where this appears
-          </CardTitle>
-          <CardDescription className="text-xs text-slate-500">
-            These details are shown on printed bills, prescription headers and
-            Lab reports.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-3 text-xs text-slate-500">
-          <ul className="list-disc space-y-1 pl-4">
-            <li>Lab name and address in bill header.</li>
-            <li>GSTIN included in tax summary section.</li>
-            <li>Contact number and email on patient copy.</li>
-          </ul>
-          <p className="mt-2 text-[11px] text-slate-500">
-            Keep this updated whenever license, GST or contact details change.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="space-y-6">
+        {/* Helper card */}
+        <Card className="border border-dashed border-slate-200 bg-white/80 shadow-sm rounded-2xl">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-semibold text-slate-900">
+              Where this appears
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-500">
+              These details are shown on printed bills, prescription headers and
+              Lab reports.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3 text-xs text-slate-500">
+            <ul className="list-disc space-y-1 pl-4">
+              <li>Lab name and address in bill header.</li>
+              <li>GSTIN included in tax summary section.</li>
+              <li>Contact number and email on patient copy.</li>
+            </ul>
+            <p className="mt-2 text-[11px] text-slate-500">
+              Keep this updated whenever license, GST or contact details change.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card className="border border-slate-200 bg-white/80 shadow-sm rounded-2xl">
+          <CardHeader className="pb-4 text-center">
+            <CardTitle className="text-sm font-bold text-slate-900 tracking-wide text-left">
+              Report Layout Settings
+            </CardTitle>
+            <CardDescription className="text-xs text-slate-500 text-left">
+              Configure how lab reports are printed.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col items-center pb-6">
+            <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 w-full mb-6 mt-2">
+              <div className="space-y-0.5 text-left">
+                <p className="text-sm font-medium text-slate-900">
+                  Panel per page
+                </p>
+                <p className="text-xs text-slate-500">
+                  Each panel will start on a new page in the report.
+                </p>
+              </div>
+              <Switch
+                checked={panelPerPage}
+                onCheckedChange={(v) => setPanelPerPage(v)}
+              />
+            </div>
+            <div className="flex justify-end w-full">
+
+
+              <Button
+                size="default"
+                className="h-9 rounded-full bg-[#11212B] px-8 text-[13px] font-semibold text-white shadow hover:bg-slate-800 tracking-wide"
+                onClick={async () => {
+                  try {
+                    await toast.promise(api.patch("/users/lab/update_report_layout", {
+                      panelPerPage: panelPerPage
+                    }), {
+                      loading: "Updating settings...",
+                      success: "Settings updated successfully!",
+                      error: "Failed to update settings!"
+                    })
+                    await profileMutate()
+                  } catch (error) {
+                    console.log(error)
+                  }
+                }}
+              >
+                Save Settings
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

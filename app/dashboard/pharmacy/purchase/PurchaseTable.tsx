@@ -45,7 +45,7 @@ export default function PurchaseTable({ purchase, total }: Props) {
                 }
                 key={i}>
                 <TableCell className="py-3 pl-4 font-medium text-slate-900">{row.mrn}</TableCell>
-                <TableCell className="py-3 text-slate-700">{row.wholesaler.name}</TableCell>
+                <TableCell className="py-3 text-slate-700">{row?.wholesaler?.name}</TableCell>
                 <TableCell className="py-3 text-slate-600">{fDateandTime(row.createdAt)}</TableCell>
                 <TableCell className="py-3 text-slate-600">{fDate(row.expectedDelivery)}</TableCell>
                 <TableCell className="text-center py-3">

@@ -84,7 +84,7 @@ const History = ({
         </ol>
         <button
           onClick={() => {
-            router.push(`/dashboard/doctor/patients/${history?._id}`);
+            router.push(`/dashboard/doctor/patients/single?id=${history?._id}`);
           }}
           className="mt-6 w-full h-11 rounded-xl bg-black text-white"
         >

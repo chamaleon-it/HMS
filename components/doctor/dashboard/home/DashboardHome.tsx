@@ -18,11 +18,11 @@ export default function Dashboard() {
     false
   );
 
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
-    () => new Date()
+  const [selectedDate, setSelectedDate] = useState<Date>(
+    new Date()
   );
 
-  const { mutate } = useAppointmentList({ date: selectedDate });
+  const { mutate } = useAppointmentList({ date: selectedDate, activeDate: "Custom" });
 
   const [activeTab, setActiveTab] = useState("day");
 
@@ -33,7 +33,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-[calc(100vh-80px)]">
+    <div className="min-h-[calc(100vh-67px)]">
       <Statistics />
 
       <div className="flex flex-1 gap-6 px-6 pb-6 overflow-hidden">
@@ -110,7 +110,6 @@ export default function Dashboard() {
         title="Create Appointment"
       >
         <CreateAppointmentForm
-          mutate={mutate}
           onClose={() => {
             setOpenAppointment(false);
           }}

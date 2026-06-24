@@ -25,7 +25,7 @@ export default function Footer() {
 
         {/* Right social icons */}
         <div className="flex items-center gap-4">
-          <p className="text-white text-xs">Powered by <span className="font-bold">SYNAPSE IT SERVICES LLP</span></p>
+          <p className="text-white text-xs">Powered by <span className="font-bold">CARESOFT INNOVATIONS LLP</span></p>
           {/* <a href="#" className="rounded-full p-2 hover:bg-white/20 transition"><Github className="h-5 w-5"/></a>
           <a href="#" className="rounded-full p-2 hover:bg-white/20 transition"><Twitter className="h-5 w-5 text-sky-300"/></a>
           <a href="#" className="rounded-full p-2 hover:bg-white/20 transition"><Linkedin className="h-5 w-5 text-blue-200"/></a> */}

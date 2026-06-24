@@ -40,10 +40,17 @@ export const pharmacyItemAddSchema = z.object({
 
   purchasePrice: z.coerce
     .number({ error: "Purchase price must be a number" })
+    .transform((n) => Number(n.toFixed(2)))
+    .optional(),
+
+  mrp: z.coerce
+    .number({ error: "MRP must be a number" })
+    .transform((n) => Number(n.toFixed(2)))
     .optional(),
 
   unitPrice: z.coerce
     .number({ error: "Unit price must be a number" })
+    .transform((n) => Number(n.toFixed(2)))
     .optional(),
 
   openingStockQuantity: z.coerce
@@ -71,9 +78,15 @@ export const pharmacyItemAddSchema = z.object({
     .int({ error: "Packing must be an integer" })
     .optional(),
 
+  noOfPacking: z.coerce
+    .number({ error: "No. of Packing must be a number" })
+    .int({ error: "No. of Packing must be an integer" })
+    .optional(),
+
   gst: z.coerce
     .number({ error: "GST must be a number" })
     .max(100, { error: "GST cannot be above 100" })
+    .transform((n) => Number(n.toFixed(2)))
     .optional(),
 
   status: z.enum(["Active", "Inactive"], {

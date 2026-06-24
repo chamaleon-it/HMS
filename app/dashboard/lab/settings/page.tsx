@@ -14,6 +14,7 @@ import useSWR from "swr";
 import { ProfileType } from "./interface";
 import TestCatalogue from "./TestCatalogue";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
+import Technician from "./Technician";
 
 const LabSettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
@@ -33,11 +34,7 @@ const LabSettingsPage: React.FC = () => {
           subtitle="Manage your profile, specialization, and security"
           icon={<Shield className="h-5 w-5" />}
         >
-          <div className="hidden md:flex items-center gap-2">
-            <Badge className="bg-emerald-600 text-white">Mark Hospital</Badge>
-            <Badge variant="secondary">HIPAA-ready</Badge>
-            <Badge variant="outline">ISO 27001-minded</Badge>
-          </div>
+
         </LabHeader>
       </div>
       <div className="p-5 w-full">
@@ -45,14 +42,14 @@ const LabSettingsPage: React.FC = () => {
           options={[
             { label: "General", value: "general" },
             { label: "Billing", value: "billing" },
-            // { label: "Test Catalogue", value: "catalogue" },
+            { label: "Technicians", value: "technician" },
             { label: "Notifications", value: "notifications" },
             { label: "Security", value: "security" },
           ]}
           value={activeSection}
           onChange={setActiveSection}
           layoutId="settings-tabs"
-          className="w-full grid grid-cols-4"
+          className="w-full grid grid-cols-5"
         />
       </div>
       <div className="flex flex-col gap-6 p-5 w-full text-slate-900">
@@ -63,9 +60,11 @@ const LabSettingsPage: React.FC = () => {
         {activeSection === "billing" && (
           <Billing profile={profile} profileMutate={profileMutate} />
         )}
-        {/* activeSection === "catalogue" && (
-          <TestCatalogue profile={profile} profileMutate={profileMutate} />
-        ) */}
+
+
+        {activeSection === "technician" &&
+          <Technician />
+        }
         {activeSection === "notifications" && (
           <Notifications profile={profile} profileMutate={profileMutate} />
         )}

@@ -1,16 +1,17 @@
 import React from "react";
 import { formatINR } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import Watermark from "@/components/print/Watermark";
-import HospitalName from "@/components/print/HospitalName";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import useSWR from "swr";
+import configuration from "@/config/configuration";
 
 interface PrintReceiptProps {
     payload?: {
         patient: string;
         items: {
             name: string;
+            generic?: string;
+            batchNumber?: string;
+            expiryDate?: string | Date;
             quantity: number;
             unitPrice: number;
             gst: number;
@@ -41,25 +42,70 @@ interface PrintReceiptProps {
     };
 }
 
+const formatExpiry = (dateStr?: string | Date) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return String(dateStr);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+};
+
 export default function PrintReceipt({
     payload,
     patient,
     invoiceDetails,
 }: PrintReceiptProps) {
 
+    const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
+    const dbItems = itemsData?.data || [];
+
+    const getBatchInfo = (itemName: string) => {
+        const matched = dbItems.find(
+            (it) => it.name.trim().toLowerCase() === itemName.trim().toLowerCase()
+        );
+        if (!matched) return { batchNumber: "", expiryDate: undefined, generic: undefined };
+
+        let batchNumber = matched.batchNumber || "";
+        if (batchNumber === "—") batchNumber = "";
+        let expiryDate = matched.expiryDate;
+
+        if (matched.batches && matched.batches.length > 0) {
+            const sorted = [...matched.batches].sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            batchNumber = sorted[0].batchNumber || "";
+            if (batchNumber === "—") batchNumber = "";
+            expiryDate = sorted[0].expiryDate || matched.expiryDate;
+        }
+
+        return {
+            batchNumber,
+            expiryDate,
+            generic: matched.generic,
+        };
+    };
+
     if (!patient || !payload || !invoiceDetails) return null;
 
     const invoiceNo = `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
-    const paymentMethod = payload.insurance ? "Insurance" : payload.online ? "Online" : "Cash";
+
+    // Total rows for fixed height table padding
+    const totalRowsNeeded = 21;
+    const itemsCount = payload.items.length;
+    const emptyRowsCount = Math.max(0, totalRowsNeeded - itemsCount);
 
     return (
-        <div className="print-receipt hidden print:block bg-white text-slate-900 font-sans leading-relaxed overflow-visible">
+        <div className="print-receipt hidden print:block bg-white text-black font-sans leading-tight overflow-visible relative">
             <style dangerouslySetInnerHTML={{
                 __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
         @media print {
           @page {
-            margin: 0;
             size: A4;
+            margin: 4mm;
           }
           body { 
             visibility: hidden !important; 
@@ -69,14 +115,21 @@ export default function PrintReceipt({
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
+          .font-cinzel {
+            font-family: 'Cinzel Decorative', serif !important;
+          }
           .print-receipt { 
             visibility: visible !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100% !important;
-            display: block !important;
+            width: 202mm !important;
+            height: 289mm !important;
             padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            box-sizing: border-box !important;
+            display: block !important;
           }
           .no-print, aside, header, footer, nav, button {
             display: none !important;
@@ -84,140 +137,195 @@ export default function PrintReceipt({
         }
       `}} />
 
-            <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col">
-                {/* HEADER */}
-                <div className="bg-white text-slate-900 border-b border-slate-200 px-10 py-8">
-                    <div className="flex justify-between items-start">
-                        <HospitalName />
-                        <div className="text-right space-y-2">
-                            <Badge className="bg-slate-900 text-white border-none px-3 py-1 font-bold text-xs hover:bg-slate-800">CASH RECEIPT</Badge>
-                            <div className="space-y-0.5">
-                                <p className="text-sm font-medium">Invoice No: <span className="font-bold">{invoiceNo}</span></p>
-                                <p className="text-[11px] text-slate-500">{fDateandTime(new Date())}</p>
+            <div className="w-full h-full relative flex flex-col">
+                {/* 1. Header Layout */}
+                <div className="flex justify-between items-start pb-3 py-2">
+                    {/* Left: Logo & Hospital Info */}
+                    <div className="flex gap-3 items-center">
+                        <div className="shrink-0 flex items-center justify-center">
+
+                            <img src="/print/image.png" alt="Logo" className="w-[90px] h-auto object-contain" />
+                        
+                        </div>
+                        <div className="flex flex-col gap-0 select-none">
+                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
+                            <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
+                            <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
+                            {/*<p className="text-[12px] font-bold text-black uppercase mt-1">DIGIPIN: MC9-955-6F2F</p>*/}
+                        </div>
+                    </div>
+
+                    {/* Right: Cash Receipt Title & Invoice Info */}
+                    <div className="text-right flex flex-col items-end gap-2 pt-1">
+                        <div className="border border-black rounded-[8px] px-6 py-1.5 text-center select-none">
+                            <span className="text-[16px] font-bold text-black uppercase tracking-wider">CASH RECEIPT</span>
+                        </div>
+                        <div className="text-[12px] text-gray-500 font-medium space-y-0.5 mt-2 italic">
+                            <p>Invoice No: <span className="font-bold text-black">{invoiceNo}</span></p>
+                            <p>Date : <span className="font-bold text-black">{fDateandTime(new Date())}</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* 2. Patient Information Strip */}
+                <div className="grid grid-cols-4 bg-[#eaeaea] text-black select-none py-2 px-6">
+                    <div className="flex flex-col justify-center">
+                        <span className="text-[11px] text-gray-500 font-medium leading-none">Patient</span>
+                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.name}</span>
+                    </div>
+                    <div className="flex flex-col justify-center">
+                        <span className="text-[11px] text-gray-500 font-medium leading-none">PID</span>
+                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.mrn?.replace("MRN", "P-") || " "}</span>
+                    </div>
+                    <div className="flex flex-col justify-center">
+                        <span className="text-[11px] text-gray-500 font-medium leading-none">Phone</span>
+                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.phoneNumber || " "}</span>
+                    </div>
+                    <div className="flex flex-col justify-center">
+                        <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
+                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{payload.doctor || "-"}</span>
+                    </div>
+                </div>
+
+                {/* 3. Medicine Table with Watermark & Fixed Height */}
+                <div className="relative border border-[#c5c9cf] rounded-tr-2xl rounded-tl-2xl overflow-hidden w-full mt-3 mb-3">
+                    {/* Watermark */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0 select-none">
+                        
+                        <img src="/print/image.png" alt="watermark" className="w-[70%] object-contain" />
+                    
+                    </div>
+
+                    <table className="w-full border-collapse relative z-10 table-layout-fixed">
+                        <thead className="bg-[#d9d9d9] border-b border-[#c5c9cf] text-[11px] font-semibold text-black">
+                            <tr>
+                                <th style={{ width: "5%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
+                                <th style={{ width: "28%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Medicine Description</th>
+                                <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Batch No</th>
+                                <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Expiry Date</th>
+                                <th style={{ width: "6%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Qty</th>
+                                <th style={{ width: "10%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">Unit Price</th>
+                                <th style={{ width: "5%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">GST</th>
+                                <th style={{ width: "12%" }} className="px-3 py-2 text-right">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {payload.items.map((item, index) => {
+                                const dbInfo = getBatchInfo(item.name);
+                                const rawBatch = item.batchNumber && item.batchNumber !== " " && item.batchNumber !== "—" ? item.batchNumber : dbInfo.batchNumber;
+                                const displayBatch = rawBatch === "—" ? "" : rawBatch;
+                                const displayExpiry = item.expiryDate ? item.expiryDate : dbInfo.expiryDate;
+                                const displayGeneric = item.generic || dbInfo.generic;
+
+                                return (
+                                    <tr key={index} className="h-[38px] bg-transparent">
+                                        <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{index + 1}</td>
+                                        <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug">
+                                            <p className="font-bold text-black text-[12px]">{item.name}</p>
+                                            {displayGeneric && <p className="text-[10px] text-gray-500 font-medium leading-none mt-0.5">{displayGeneric}</p>}
+                                        </td>
+                                        <td className="px-2 py-0.5 text-center text-black text-[12px] border-r border-[#c5c9cf]">{displayBatch}</td>
+                                        <td className="px-2 py-0.5 text-center text-black text-[12px] border-r border-[#c5c9cf]">{formatExpiry(displayExpiry)}</td>
+                                        <td className="px-2 py-0.5 text-center font-bold text-black text-[12px] border-r border-[#c5c9cf]">{item.quantity}</td>
+                                        <td className="px-2 py-0.5 text-right font-medium text-black text-[12px] border-r border-[#c5c9cf]">{formatINR(item.unitPrice)}</td>
+                                        <td className="px-2 py-0.5 text-right font-medium text-black text-[12px] border-r border-[#c5c9cf]">{item.gst}%</td>
+                                        <td className="px-3 py-0.5 text-right font-bold text-black text-[12px]">{formatINR(item.total)}</td>
+                                    </tr>
+                                );
+                            })}
+                            {Array.from({ length: emptyRowsCount }).map((_, idx) => (
+                                <tr key={`empty-${idx}`} className="h-[38px] bg-transparent select-none">
+                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
+                                    <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
+                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
+                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
+                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
+                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
+                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
+                                    <td className="px-3 py-0.5">&nbsp;</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* 4. Bottom Section */}
+                <div className="flex justify-between items-stretch gap-1 select-none mt-auto mb-6">
+                    {/* Left: Appointments & Legal validation */}
+                    <div className="w-[64%] flex flex-col gap-1.5">
+                        <div className="bg-[#c6c8cc] border border-[#8f949c] rounded-none px-2 py-1 flex items-center font-bold text-[13px] italic uppercase text-black">
+                            FOR APPOINTMENTS / BOOKING :
+                        </div>
+                        <div className="flex-1 border border-[#9ca3af] rounded-bl-2xl rounded-br-2xl px-4 py-2 flex text-[12px] text-black font-bold justify-between items-center bg-white">
+                            <div className="flex items-center gap-2">
+                                <div className="w-[22px] h-[22px] rounded-full border border-black flex items-center justify-center shrink-0">
+                                    <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                    </svg>
+                                </div>
+                                <span>+91 8075016480, +91 9496172670</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="w-[22px] h-[22px] rounded-full border border-black flex items-center justify-center shrink-0">
+                                    <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                {/*<span>hospitalmark@gmail.com</span>*/}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Right: Consolidated Billing Summary Box */}
+                    <div className="w-[36%] border border-[#9ca3af] rounded-br-2xl rounded-bl-2xl overflow-hidden bg-white flex flex-col justify-between">
+                        {/* Top: Gross Amount & GST */}
+                        <div className="px-4 py-1.5 flex flex-col justify-center text-[12px] bg-white gap-0.5 flex-1">
+                            <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
+                                <span className="font-semibold text-gray-700">Gross Amount</span>
+                                <span className="font-bold">:</span>
+                                <span className="font-bold text-right">{formatINR(invoiceDetails.subtotal)}</span>
+                            </div>
+                            <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
+                                <span className="font-semibold text-gray-700">CGST/SGST Total</span>
+                                <span className="font-bold">:</span>
+                                <span className="font-bold text-right">{formatINR(invoiceDetails.totalGst)}</span>
+                            </div>
+                            {payload.discount > 0 && (
+                                <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
+                                    <span className="font-semibold text-gray-700">Discount</span>
+                                    <span className="font-bold">:</span>
+                                    <span className="font-bold text-right">-{formatINR(payload.discount)}</span>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Divider Line */}
+                        <div className="border-t border-[#9ca3af]"></div>
+
+                        {/* Bottom: Net Payable */}
+                        <div className="bg-[#eaeaea] px-4 py-2 flex items-center">
+                            <div className="grid grid-cols-[115px_10px_1fr] items-center w-full">
+                                <span className="font-extrabold text-black text-[13px] uppercase">NET PAYABLE</span>
+                                <span className="font-black text-black text-[14px]">:</span>
+                                <span className="font-black text-black text-[14px] text-right">{formatINR(invoiceDetails.grandTotal)}</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* BODY */}
-                <div className="p-10 flex-1 flex flex-col gap-6 text-[13px]">
-                    {/* PATIENT STRIP - 4 COL COMPACT */}
-                    <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
-                        <Compact label="Patient" value={patient.name} />
-                        <Compact label="PID" value={patient.mrn?.replace("MRN", "P-") || "—"} />
-                        <Compact label="Age/G" value={`${patient.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}` : "—"} / ${patient.gender || "—"}`} />
-                        <Compact label="Phone" value={patient.phoneNumber || "—"} />
-                        <Compact label="Doctor" value={payload.doctor || "—"} />
-                        <Compact label="Dept" value={payload.department || "—"} />
-                        <Compact label="Pay" value={paymentMethod} />
-                        <Compact label="Bill" value="OP Pharmacy" />
-                    </div>
-
-                    {/* MEDICINES TABLE */}
-                    <div className="border border-slate-200 rounded-lg overflow-hidden flex-1 box-border">
-                        <table className="w-full border-collapse">
-                            <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 border-b border-slate-200">
-                                <tr>
-                                    <th className="px-3 py-3 text-center w-10">SL</th>
-                                    <th className="px-3 py-3 text-left">Medicine Description</th>
-                                    <th className="px-3 py-3 text-center w-20">Qty</th>
-                                    <th className="px-3 py-3 text-right w-24">Unit Price</th>
-                                    <th className="px-3 py-3 text-right w-20">GST</th>
-                                    <th className="px-3 py-3 text-right w-28">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {payload.items.map((item, index) => (
-                                    <tr key={index} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
-                                        <td className="px-3 py-2.5 text-center font-medium text-slate-400 text-xs">{index + 1}</td>
-                                        <td className="px-3 py-2.5">
-                                            <p className="font-bold text-slate-900 uppercase text-[12px]">{item.name}</p>
-                                            <p className="text-[10px] text-slate-500 font-medium tracking-tight">B‑7721 · 12/26 · HSN 3004</p>
-                                        </td>
-                                        <td className="px-3 py-2.5 text-center font-bold text-slate-700">{item.quantity}</td>
-                                        <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(item.unitPrice)}</td>
-                                        <td className="px-3 py-2.5 text-right font-medium text-slate-500">{item.gst}%</td>
-                                        <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* TOTALS AND T&C */}
-                    <div className="flex justify-end gap-10 items-start">
-                        {/* T&C - Right aligned next to totals as requested */}
-                        <div className="flex-1 max-w-[400px] text-left">
-                            <h4 className="text-[11px] font-bold uppercase text-slate-900 mb-2">Terms & Conditions</h4>
-                            <ul className="text-[10px] text-slate-600 space-y-1 font-medium italic">
-                                <li>Invoice once generated cannot be cancelled.</li>
-                                <li className="text-slate-900 font-bold not-italic">Check medicines before leaving (Returns within 24H with original invoice).</li>
-                                <li>Refrigerated items will not be accepted for return.</li>
-                            </ul>
-                            {payload.note && (
-                                <div className="mt-4 text-xs text-slate-500">
-                                    <span className="font-bold uppercase text-[9px]">Note:</span> {payload.note}
-                                </div>
-                            )}
-                        </div>
-
-                        <div className="w-[320px] border border-slate-200 rounded-lg p-5 space-y-2 bg-slate-50">
-                            <Line label="Gross Amount" value={formatINR(invoiceDetails.subtotal)} />
-                            <Line label="CGST/SGST Total" value={formatINR(invoiceDetails.totalGst)} />
-                            {payload.discount > 0 && (
-                                <Line label="Discount (Billing level)" value={`-${formatINR(payload.discount)}`} />
-                            )}
-                            <Separator className="bg-slate-200" />
-                            <Line label="NET PAYABLE" value={formatINR(invoiceDetails.grandTotal)} bold large />
-                        </div>
-                    </div>
-
-                    {/* SIGNATURES */}
-                    {/* <div className="mt-10 grid grid-cols-3 gap-12 text-xs">
-                        <div className="border-t border-slate-300 pt-4 text-center">
-                            <p className="font-bold text-slate-900 uppercase tracking-wider">Receiver’s Signature</p>
-                        </div>
-                        <div className="border-t border-slate-300 pt-4 text-center">
-                            <p className="font-bold text-slate-900 uppercase tracking-wider">Authorised Pharmacist</p>
-                        </div>
-                        <div className="border-t border-slate-300 pt-4 text-center h-24">
-                            <p className="font-bold text-slate-900 uppercase tracking-wider">Hospital Seal</p>
-                        </div>
-                    </div> */}
-                </div>
-
-                {/* FOOTER */}
-                <div className="bg-slate-50 border-t border-slate-200 px-10 py-6 text-[10px] text-slate-500 flex justify-between items-center">
-                    <div className="space-y-1">
-                        <p className="text-slate-700 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
-                        <p className="text-slate-500">
-                            For Appointments / Booking: <span className="text-slate-700 font-semibold">+91 83019 26155 · 04931 240077 · hospitalmark@gmail.com</span>
-                        </p>
-                    </div>
-                    <p className="text-slate-500">
-                        Powered by <span className="font-bold text-slate-700 tracking-tight uppercase">Synapse IT Services LLP</span>
+                {/* Prescription validation disclaimer */}
+                <div className="w-[64%] select-none mt-1">
+                    <p className="text-[10px] text-gray-500 font-semibold leading-tight">
+                        * This prescription is valid only if signed by registered medical practitioner.
                     </p>
                 </div>
+
+                {/* 5. Powered by Footer */}
+                <div className="absolute bottom-0 right-0 text-right select-none leading-tight">
+                    <p className="text-[9px] text-gray-500 font-medium">Powered by</p>
+                    <p className="text-[10px] text-gray-800 font-bold tracking-tight uppercase">CARESOFT INNOVATIONS LLP</p>
+                </div>
             </div>
-            <Watermark />
-        </div>
-    );
-}
-
-function Compact({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex gap-2 min-h-6 items-start">
-            <span className="text-slate-400 font-medium uppercase text-[10px] min-w-[50px] mt-0.5">{label}:</span>
-            <span className="font-bold text-slate-900 line-clamp-2 leading-tight">{value}</span>
-        </div>
-    );
-}
-
-function Line({ label, value, bold, large }: { label: string; value: string; bold?: boolean; large?: boolean }) {
-    return (
-        <div className={`flex justify-between items-center ${large ? "text-base mt-2" : "text-[12px]"}`}>
-            <span className={bold ? "font-bold text-slate-900" : "text-slate-500 font-medium"}>{label}</span>
-            <span className={bold ? "font-black text-slate-900 text-lg" : "font-bold text-slate-800"}>{value}</span>
         </div>
     );
 }

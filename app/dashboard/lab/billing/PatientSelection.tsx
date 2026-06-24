@@ -9,7 +9,11 @@ import React, {
 import { createPortal } from "react-dom";
 import useSWR from "swr";
 import { Input } from "@/components/ui/input";
-import { fAge } from "@/lib/fDateAndTime";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RegisterPatient } from "../../pharmacy/RegisterPatient";
+import api from "@/lib/axios";
+import { fAge , fAgeString} from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import { ChevronRight, MapPin, Phone, UserPlus, X } from "lucide-react";
 
@@ -311,7 +315,7 @@ const safeAge = (dob?: string | Date) => {
   try {
     const d = typeof dob === "string" ? new Date(dob) : dob;
     if (Number.isNaN(d.getTime())) return "—";
-    return `${fAge(d)} yrs`;
+    return `${fAgeString(d)}`;
   } catch {
     return "—";
   }

@@ -17,9 +17,11 @@ import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { RegisterPatient } from "../RegisterPatient";
+import { useRouter } from "next/navigation";
 
 export default function NewOrder({ mutate }: { mutate: () => void }) {
   const { user } = useAuth();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [openCreate, setOpenCreate] = useState(false);
 
@@ -31,7 +33,7 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
         dosage: "1 tab",
         name: "",
         duration: "",
-        food: "After food",
+        food: "",
         frequency: "",
         quantity: 0,
         availableQuantity: 0,
@@ -100,10 +102,11 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
 
   const [showAllFields, setShowAllFields] = useState(false);
   const [patientName, setpatientName] = useState("")
+  const [nameToRegister, setNameToRegister] = useState("");
 
   return (
     <>
-      <Button variant={"outline"} onClick={() => setOpenCreate(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
+      <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button
@@ -126,7 +129,9 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
               setValue={(id: string) => {
                 setPayload((prev) => ({ ...prev, patient: id }));
               }}
-              register={() => {
+              register={(name) => {
+                if (name) setNameToRegister(name);
+                else setNameToRegister("");
                 setOpenCreate(true);
                 setOpen(false);
               }}
@@ -156,13 +161,15 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient onClose={(id?: string, name?: string) => {
+          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
             setOpenCreate(false);
-            mutate()
-            // setPayload((prev) => ({ ...prev, patient: id ?? "" }));
-            // setOpen(true)
-            // setpatientName(name ?? "")
-
+            mutate();
+            setNameToRegister("");
+            if (id && name) {
+              router.push(
+                `/dashboard/pharmacy?id=${id}&mrn=${mrn || ""}&name=${encodeURIComponent(name)}&allergies=${encodeURIComponent(allergies || "")}#newOrder`
+              );
+            }
           }} />
         </DialogContent>
       </Dialog>

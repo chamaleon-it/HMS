@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/popover";
 import { ChevronDownIcon, Search } from "lucide-react";
 import React, { useState } from "react";
+import DateFilter from "../DateFilter";
 
 export const STATUSES = [
   "Upcoming",
@@ -26,19 +27,18 @@ export const STATUSES = [
 export default function Filter({
   query,
   setQuery,
-  activeStatuses,
-  setActiveStatuses,
   date,
   setDate,
+  activeDate,
+  setActiveDate,
 }: {
   query: string;
   setQuery: React.Dispatch<React.SetStateAction<string>>;
-  activeStatuses: string[];
-  setActiveStatuses: React.Dispatch<React.SetStateAction<string[]>>;
   date: Date;
   setDate: React.Dispatch<React.SetStateAction<Date>>;
+  activeDate: "Today" | "7 days" | "30 days" | "Custom";
+  setActiveDate: React.Dispatch<React.SetStateAction<"Today" | "7 days" | "30 days" | "Custom">>;
 }) {
-  const [open, setOpen] = useState(false);
 
 
   return (
@@ -58,30 +58,17 @@ export default function Filter({
               />
             </div>
 
-            <Popover open={open} onOpenChange={setOpen}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="h-11 px-4 justify-between font-medium border-zinc-200 bg-zinc-50/50 hover:bg-white hover:border-indigo-200 transition-all rounded-xl min-w-[160px]"
-                >
-                  <span className="flex items-center gap-2">
-                    <ChevronDownIcon className="h-4 w-4 text-zinc-400" />
-                    {date ? date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : "Select date"}
-                  </span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 rounded-2xl border-zinc-200 shadow-xl" align="start">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={(date) => {
-                    setDate(date || new Date());
-                    setOpen(false);
-                  }}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+
+          </div>
+
+          <div className="flex items-center gap-3">
+            <DateFilter
+              activeDate={activeDate}
+              setActiveDate={setActiveDate}
+              date={date}
+              setDate={setDate}
+              isLoading={false}
+            />
           </div>
 
         </div>

@@ -66,7 +66,7 @@ const SuppliersPage: React.FC = () => {
     if (error) {
         return (
             <AppShell>
-                <div className="p-5 flex items-center justify-center min-h-[calc(100vh-80px)]">
+                <div className="p-5 flex items-center justify-center min-h-[calc(100vh-67px)]">
                     <div className="text-center">
                         <p className="text-red-500 font-medium">Failed to load suppliers</p>
                         <Button variant="outline" className="mt-4" onClick={() => mutate()}>
@@ -81,7 +81,7 @@ const SuppliersPage: React.FC = () => {
 
     return (
         <AppShell>
-            <div className="p-5 min-h-[calc(100vh-80px)]">
+            <div className="p-5 min-h-[calc(100vh-67px)]">
                 <main className="flex flex-col gap-6">
                     <PharmacyHeader
                         title="Suppliers"
@@ -103,7 +103,7 @@ const SuppliersPage: React.FC = () => {
                                     <Users className="w-4 h-4 text-blue-600/70" />
                                     <p className="text-[11px] font-semibold text-blue-800/70 uppercase tracking-widest">Total Suppliers</p>
                                 </div>
-                                <h3 className="text-3xl font-bold text-blue-900 leading-none">{stats.totalSuppliers}</h3>
+                                <h3 className="text-xl font-bold text-blue-900 leading-none">{stats.totalSuppliers}</h3>
                             </div>
                         </div>
 
@@ -113,7 +113,7 @@ const SuppliersPage: React.FC = () => {
                                     <ShoppingBag className="w-4 h-4 text-emerald-600/70" />
                                     <p className="text-[11px] font-semibold text-emerald-800/70 uppercase tracking-widest">Total Purchase</p>
                                 </div>
-                                <h3 className="text-3xl font-bold text-emerald-900 leading-none">{formatINR(stats.totalPurchase)}</h3>
+                                <h3 className="text-xl font-bold text-emerald-900 leading-none">{formatINR(stats.totalPurchase)}</h3>
                             </div>
                         </div>
 
@@ -123,7 +123,7 @@ const SuppliersPage: React.FC = () => {
                                     <BarChart3 className="w-4 h-4 text-sky-600/70" />
                                     <p className="text-[11px] font-semibold text-sky-800/70 uppercase tracking-widest">Purchase Count</p>
                                 </div>
-                                <h3 className="text-3xl font-bold text-sky-900 leading-none">{stats.totalPurchaseCount}</h3>
+                                <h3 className="text-xl font-bold text-sky-900 leading-none">{stats.totalPurchaseCount}</h3>
                             </div>
                         </div>
 
@@ -133,7 +133,7 @@ const SuppliersPage: React.FC = () => {
                                     <CreditCard className="w-4 h-4 text-rose-600/70" />
                                     <p className="text-[11px] font-semibold text-rose-800/70 uppercase tracking-widest">Total Due</p>
                                 </div>
-                                <h3 className="text-3xl font-bold text-rose-900 leading-none">{formatINR(stats.totalDue)}</h3>
+                                <h3 className="text-xl font-bold text-rose-900 leading-none">{formatINR(stats.totalDue)}</h3>
                             </div>
                         </div>
                     </div>

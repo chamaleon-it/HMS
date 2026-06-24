@@ -42,12 +42,12 @@ export default function DailyViewTimeline({
   selectedDate,
 }: {
   setOpenAppointment: Dispatch<SetStateAction<"walk-in" | boolean>>;
-  selectedDate: Date | undefined;
+  selectedDate: Date;
 }) {
-  const day = selectedDate ? new Date(selectedDate) : new Date();
+  const day = selectedDate;
 
 
-  const { data: appointmentData, mutate } = useAppointmentList({ date: day });
+  const { data: appointmentData, mutate } = useAppointmentList({ date: day, activeDate: "Custom" });
   const appointment = useMemo(
     () => appointmentData?.data ?? [],
     [appointmentData]
@@ -184,8 +184,8 @@ export default function DailyViewTimeline({
                   <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
                     <span
                       className={`text-[11px] select-none ${labelBold
-                          ? "font-semibold text-gray-900"
-                          : "text-gray-500"
+                        ? "font-semibold text-gray-900"
+                        : "text-gray-500"
                         }`}
                     >
                       {fromMinutes(m)}
@@ -226,8 +226,8 @@ export default function DailyViewTimeline({
                     <div className="sticky left-0 z-10 bg-white flex items-center justify-between px-3 py-3">
                       <span
                         className={`text-[11px] select-none rounded-full border px-2 py-0.5 ${labelBold
-                            ? "font-semibold border-gray-300 text-gray-800 bg-white"
-                            : "font-medium border-gray-200 text-gray-500 bg-white"
+                          ? "font-semibold border-gray-300 text-gray-800 bg-white"
+                          : "font-medium border-gray-200 text-gray-500 bg-white"
                           }`}
                       >
                         {fromMinutes(m)}

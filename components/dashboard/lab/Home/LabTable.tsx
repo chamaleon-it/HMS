@@ -1,11 +1,12 @@
 import { useAuth } from "@/auth/context/auth-context";
-import { fAge, fDateandTime } from "@/lib/fDateAndTime";
+import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
+import { formatINR } from "@/lib/fNumber";
 import React from "react";
 import ViewResultModal from "./ViewResultModal";
 import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { Clock, Flag, FlagOff, Play, Printer,  RotateCcw, Trash2, X } from "lucide-react";
+import { Clock, Flag, FlagOff, Play, Printer, RotateCcw, X } from "lucide-react";
 import ResultUpdate from "./ResultUpdate";
 import ReportCard from "./ReportCard";
 import SampleCollectionModal from "./SampleCollectionModal";
@@ -23,6 +24,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import useGetPanels from "@/data/useGetPanels";
+
+import LabBillReceipt from "./LabBillReceipt";
+import useSWR from "swr";
+import useGetGroups from "@/data/useGetGroups";
+import { useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
+import { Eye, Trash2, FileEdit } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
   const [timeLeft, setTimeLeft] = React.useState(5);
@@ -49,8 +58,10 @@ const CountdownToast = ({ t, onUndo }: { t: any; onUndo: () => void }) => {
 };
 
 interface PropsTypes {
-  status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted";
+  status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft";
   mutate: () => void;
+  autoGenerateSampleId?: boolean;
+  onStatusChange?: (status: "Upcoming" | "Sample Collected" | "Waiting For Result" | "Completed" | "Flagged" | "Deleted" | "Draft") => void;
   REPORT: {
     _id: string;
     mrn: number;
@@ -95,14 +106,18 @@ interface PropsTypes {
         type: string;
         unit?: string;
         estimatedTime?: number;
-        min?: number;
-        max?: number;
-        womenMin?: number;
-        womenMax?: number;
-        childMin?: number;
-        childMax?: number;
-        nbMin?: number;
-        nbMax?: number;
+        price?: number;
+        range: {
+          name: string;
+          min: number | null | undefined;
+          max: number | null | undefined;
+          fromAge: number | null | undefined;
+          toAge: number | null | undefined;
+          gender: "Both" | "Male" | "Female";
+          dateType: "Year" | "Month" | "Day";
+
+        }[],
+        note: string
         _id: string;
         panels: {
           _id: string;
@@ -116,16 +131,112 @@ interface PropsTypes {
     }[];
     sampleType: string;
     panels: string[];
+    groups?: string[];
     sampleCollectedAt: Date | null;
     status: string;
+    technician?: string;
     createdAt: Date;
     updatedAt: Date;
   }[];
 }
 
-export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
+export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId, onStatusChange }: PropsTypes) {
+  const { updateDraft, removeDraft } = useLabDrafts();
   const { user } = useAuth();
+  const { panels } = useGetPanels();
+  const { groups } = useGetGroups();
   const [printReport, setPrintReport] = React.useState<any | null>(null);
+  const [printBillReport, setPrintBillReport] = React.useState<any | null>(null);
+  const [printBill, setPrintBill] = React.useState<any | null>(null);
+
+  const containerRef = React.useRef<HTMLDivElement>(null);
+  const isDragging = React.useRef(false);
+  const startX = React.useRef(0);
+  const startY = React.useRef(0);
+  const startScrollLeft = React.useRef(0);
+  const startScrollTop = React.useRef(0);
+  const startWindowY = React.useRef(0);
+  const hasMoved = React.useRef(false);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button !== 0) return;
+
+    const target = e.target as HTMLElement;
+    if (
+      target.closest(
+        "button, a, input, select, textarea, [role='button'], svg, .cursor-pointer"
+      )
+    ) {
+      return;
+    }
+
+    isDragging.current = true;
+    hasMoved.current = false;
+    startX.current = e.clientX;
+    startY.current = e.clientY;
+
+    if (containerRef.current) {
+      startScrollLeft.current = containerRef.current.scrollLeft;
+      startScrollTop.current = containerRef.current.scrollTop;
+      containerRef.current.style.userSelect = "none";
+      containerRef.current.style.webkitUserSelect = "none";
+    }
+    startWindowY.current = window.scrollY;
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging.current) return;
+
+    const dx = e.clientX - startX.current;
+    const dy = e.clientY - startY.current;
+
+    if (!hasMoved.current && (Math.abs(dx) > 5 || Math.abs(dy) > 5)) {
+      hasMoved.current = true;
+    }
+
+    if (hasMoved.current) {
+      e.preventDefault();
+
+      if (containerRef.current) {
+        containerRef.current.scrollLeft = startScrollLeft.current - dx;
+
+        const isScrollableVertically =
+          containerRef.current.scrollHeight > containerRef.current.clientHeight;
+
+        if (isScrollableVertically) {
+          containerRef.current.scrollTop = startScrollTop.current - dy;
+        } else {
+          window.scrollTo(0, startWindowY.current - dy);
+        }
+      }
+    }
+  };
+
+  const handleMouseUp = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    if (containerRef.current) {
+      containerRef.current.style.userSelect = "";
+      containerRef.current.style.webkitUserSelect = "";
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    if (containerRef.current) {
+      containerRef.current.style.userSelect = "";
+      containerRef.current.style.webkitUserSelect = "";
+    }
+  };
+
+  const handleCaptureClick = (e: React.MouseEvent) => {
+    if (hasMoved.current) {
+      e.preventDefault();
+      e.stopPropagation();
+      hasMoved.current = false;
+    }
+  };
 
   const handlePrint = (report: any) => {
     setPrintReport(report);
@@ -135,23 +246,58 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
     }, 100);
   };
 
+  const handlePrintBill = async (report: any) => {
+    try {
+      const res = await api.get(`/billing/report/${report._id}`);
+      if (res.data?.data) {
+        setPrintBill(res.data.data);
+        setTimeout(() => {
+          window.print();
+          setPrintBill(null);
+        }, 100);
+        return;
+      }
+    } catch (err) {
+      console.error("Failed to fetch bill by report id, falling back to calculation", err);
+    }
+
+    setPrintBillReport(report);
+    setTimeout(() => {
+      window.print();
+      setPrintBillReport(null);
+    }, 100);
+  };
+
+  const { data: profileData } = useSWR<{ message: string, data: { lab: { reportLayout: "Classic" | "Modern", panelPerPage: boolean } } }>("/users/profile")
+
+  const panelPerPage: boolean = profileData?.data?.lab?.panelPerPage ?? false
+
   return (
-    <div className="rounded-2xl   bg-white ring-1 ring-gray-200 shadow-sm overflow-x-scroll">
+    <div
+      ref={containerRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseLeave}
+      onClickCapture={handleCaptureClick}
+      className="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm overflow-x-auto cursor-grab active:cursor-grabbing"
+    >
       <table className="w-full whitespace-nowrap  overflow-scroll">
         <thead className="bg-slate-700 hover:bg-slate-700">
           <tr className="bg-slate-700 hover:bg-slate-700 border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
             {headerCell("SL No.")}
-            {headerCell("Report No.")}
+            {status !== "Draft" && headerCell("Report No.")}
             {headerCell("Patient")}
             {headerCell("Test")}
+            {headerCell("Amount")}
             {status === "Upcoming" && headerCell("Scheduled Date")}
-            {status !== "Upcoming" && headerCell("Sample Id")}
+            {status !== "Upcoming" && status !== "Draft" && headerCell("Sample Id")}
             {headerCell("Created At")}
             {status === "Completed" && headerCell("Collected At")}
             {status === "Completed" && headerCell("Started At")}
             {status === "Sample Collected" && headerCell("Sample Collected")}
             {status === "Completed" && headerCell("Test Reported At")}
-            {headerCell("Doctor")}
+            {status !== "Draft" && headerCell("Doctor")}
             {/* {headerCell("Status")} */}
             {/* {status === "Completed" && headerCell("Collected Time")} */}
             {status === "Waiting For Result" && headerCell("Estimated Time")}
@@ -204,7 +350,12 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
               return (
                 <tr
                   key={r._id}
-                  className={`group transition-colors duration-200 last:border-0 relative ${expired && r.priority === "Urgent"
+                  onClick={() => {
+                    if (status === "Draft") {
+                      updateDraft(r._id, { isOpen: true, minimized: false });
+                    }
+                  }}
+                  className={`group transition-colors duration-200 last:border-0 relative ${status === "Draft" ? "cursor-pointer" : ""} ${expired && r.priority === "Urgent"
                     ? "bg-orange-100 hover:bg-orange-200/70 border-b-2 border-emerald-500"
                     : expired
                       ? "bg-green-100/80 hover:bg-green-200/60 border-b border-gray-100"
@@ -218,25 +369,42 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   <td className="px-3 py-2 text-sm text-gray-500">
                     {String(idx + 1).padStart(2, "0")}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-500">
+                  {status !== "Draft" && <td className="px-3 py-2 text-sm text-gray-500">
                     {String(r.mrn).padStart(4, "0")}
-                  </td>
+                  </td>}
                   <td className="px-3 py-2">
                     <div className="flex flex-col">
                       <span className="font-semibold text-gray-900 text-sm">
                         {r?.patient?.name}
                       </span>
-                      <span className="text-xs text-gray-500 mt-0.5">
+                      {status !== "Draft" && <span className="text-xs text-gray-500 mt-0.5">
                         <span className="font-medium text-gray-600">
                           {r?.patient?.mrn}
                         </span>{" "}
-                        • {fAge(r?.patient?.dateOfBirth)} yrs • {r?.patient?.gender}
-                      </span>
+                        • {fAgeString(r?.patient?.dateOfBirth)} • {r?.patient?.gender}
+                      </span>}
                     </div>
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-700">
                     <div className="flex flex-col gap-2">
-                      {r?.panels?.map((p) => (
+                      {r?.groups?.map((g) => (
+                        <div
+                          key={g}
+                          className="flex items-center gap-1 h-5 font-medium text-sm"
+                        >
+                          <span className="font-semibold text-slate-800">{g}</span>
+                          <span className="text-[10px] text-emerald-700 font-bold bg-emerald-100/80 border border-emerald-200 px-2 py-0.5 rounded-full ml-1">
+                            Group
+                          </span>
+                        </div>
+                      ))}
+                      {r?.panels?.filter(p => {
+                        const isInGroup = (r.groups || []).some(gName => {
+                          const group = groups.find(g => g.name === gName);
+                          return group?.panels?.some(gp => gp.name === p);
+                        });
+                        return !isInGroup;
+                      }).map((p) => (
                         <div
                           key={p}
                           className="flex items-center gap-1 h-5 font-medium text-sm"
@@ -246,11 +414,23 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       ))}
                       {r?.test
                         ?.filter(
-                          (t) =>
-                            !(t.name?.panels || [])
-                              .map((p: any) => r.panels?.includes(p.name))
-                              .includes(true)
+                          (t) => {
+                            const groupPanelNames = new Set<string>();
+                            const groupTestIds = new Set<string>();
+                            (r.groups || []).forEach(gName => {
+                                const group = groups.find(g => g.name === gName);
+                                group?.panels?.forEach(p => groupPanelNames.add(p.name));
+                                group?.tests?.forEach(test => groupTestIds.add(test._id));
+                            });
+                            
+                            const allSelectedPanels = Array.from(new Set([...(r.panels || []), ...Array.from(groupPanelNames)]));
+                            const selectedPanels = panels.filter(p => allSelectedPanels.includes(p.name));
+                            const panelTests = selectedPanels.flatMap(e => e.tests || []).map((e: any) => e._id);
+                            
+                            return !panelTests.includes(t.name?._id) && !groupTestIds.has(t.name?._id);
+                          }
                         )
+
                         .map((e) => (
                           <div
                             key={e._id}
@@ -261,12 +441,70 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         ))}
                     </div>
                   </td>
+                  <td className="px-3 py-2 text-sm text-gray-700">
+                    <div className="flex flex-col gap-2">
+                      {r?.groups?.map((g) => {
+                        const groupObj = groups.find((group) => group.name === g);
+                        return (
+                          <div
+                            key={g}
+                            className="flex items-center gap-1 h-5 font-medium text-sm text-gray-600"
+                          >
+                            {formatINR(groupObj?.price ?? 0)}
+                          </div>
+                        );
+                      })}
+                      {r?.panels?.filter(p => {
+                        const isInGroup = (r.groups || []).some(gName => {
+                          const group = groups.find(g => g.name === gName);
+                          return group?.panels?.some(gp => gp.name === p);
+                        });
+                        return !isInGroup;
+                      }).map((p) => {
+                        const panelObj = panels.find((panel) => panel.name === p);
+                        return (
+                          <div
+                            key={p}
+                            className="flex items-center gap-1 h-5 font-medium text-sm text-gray-600"
+                          >
+                            {formatINR(panelObj?.price ?? 0)}
+                          </div>
+                        );
+                      })}
+                      {r?.test
+                        ?.filter(
+                          (t) => {
+                            const groupPanelNames = new Set<string>();
+                            const groupTestIds = new Set<string>();
+                            (r.groups || []).forEach(gName => {
+                                const group = groups.find(g => g.name === gName);
+                                group?.panels?.forEach(p => groupPanelNames.add(p.name));
+                                group?.tests?.forEach(test => groupTestIds.add(test._id));
+                            });
+                            
+                            const allSelectedPanels = Array.from(new Set([...(r.panels || []), ...Array.from(groupPanelNames)]));
+                            const selectedPanels = panels.filter(p => allSelectedPanels.includes(p.name));
+                            const panelTests = selectedPanels.flatMap(e => e.tests || []).map((e: any) => e._id);
+                            
+                            return !panelTests.includes(t.name?._id) && !groupTestIds.has(t.name?._id);
+                          }
+                        )
+                        .map((e) => (
+                          <div
+                            key={e._id}
+                            className="flex items-center gap-1 h-5 font-medium text-sm text-gray-600"
+                          >
+                            {formatINR(e.name?.price ?? 0)}
+                          </div>
+                        ))}
+                    </div>
+                  </td>
 
                   {status === "Upcoming" && <td className="px-3 py-2 text-sm text-gray-500">
                     {fDateandTime(r.date)}
                   </td>}
 
-                  {status !== "Upcoming" && (
+                  {status !== "Upcoming" && status !== "Draft" && (
                     <td className="px-3 py-2 text-sm text-gray-500">
                       {r.sampleId}
                     </td>
@@ -305,9 +543,9 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                     </td>
                   )}
 
-                  <td className="px-3 py-2 text-sm text-gray-600">
+                  {status !== "Draft" && <td className="px-3 py-2 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      {r.doctor._id !== user?._id ? (
+                      {r?.doctor?._id ? (
                         <span
                           className="truncate max-w-25"
                           title={r.doctor.name}
@@ -315,10 +553,10 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                           Dr. {r.doctor.name}
                         </span>
                       ) : (
-                        <span>Direct</span>
+                        <span>Self</span>
                       )}
                     </div>
-                  </td>
+                  </td>}
 
                   {/* <td className="px-3 py-2">
                     <Chip label={r.status} tone={statusTone(r.status)} />
@@ -342,11 +580,49 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                   )}
                   <td className="px-3 py-2 text-right">
                     <div className="flex items-center justify-end gap-2  transition-opacity duration-200">
+                      {status === "Draft" && (
+                        <div className="flex items-center justify-end gap-1">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  updateDraft(r._id, { isOpen: true, minimized: false });
+                                }}
+                                className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Open Draft</p></TooltipContent>
+                          </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeDraft(r._id);
+                                }}
+                                className="h-8 w-8 text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>Discard Draft</p></TooltipContent>
+                          </Tooltip>
+                        </div>
+                      )}
                       {status === "Upcoming" && (
                         <SampleCollectionModal
                           reportId={r._id}
                           patientName={r.patient?.name}
                           mutate={mutate}
+                          autoGenerateSampleId={autoGenerateSampleId}
+                          onStatusChange={onStatusChange}
                         />
                       )}
 
@@ -367,6 +643,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                                 }
                               );
                               mutate();
+                              onStatusChange?.("Waiting For Result");
                             } catch (error) {
                               toast.error(
                                 `Failed to start test : ${error}`
@@ -390,7 +667,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                       }
 
                       {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Ready"} handlePrint={handlePrint} />}
-                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} handlePrint={handlePrint} />}
+                      {status === "Waiting For Result" && <ResultUpdate mutate={mutate} r={r} buttonText={"Completed"} handlePrint={handlePrint} onStatusChange={onStatusChange} />}
                       {status === "Completed" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
 
                       {
@@ -455,6 +732,16 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
                         Report
                       </Button>}
 
+                      {status === "Completed" && <Button
+                        variant={"outline"}
+                        size="sm"
+                        className="gap-2 h-8 text-xs text-teal-700 border-teal-200 hover:bg-teal-50 hover:text-teal-800 bg-white"
+                        onClick={() => handlePrintBill(r)}
+                      >
+                        <Printer className="h-3.5 w-3.5" />
+                        Bill
+                      </Button>}
+
                       {(status === "Completed" || status === "Flagged") && <ViewResultModal r={r} />}
 
                       {status === "Flagged" && <ResultUpdate mutate={mutate} r={r} buttonText={"Update"} handlePrint={handlePrint} />}
@@ -473,7 +760,7 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
 
                       {status === "Upcoming" && <EditTest report={r} mutate={mutate} />}
 
-                      {status !== "Deleted" && <AlertDialog>
+                      {status !== "Deleted" && status !== "Draft" && <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button
                             variant={"outline"}
@@ -580,7 +867,8 @@ export default function LabTable({ REPORT, status, mutate }: PropsTypes) {
             })}
         </tbody>
       </table>
-      {printReport && <ReportCard report={printReport} />}
+      {printReport && <ReportCard report={printReport} panels={panels} panelPerPage={panelPerPage} />}
+      <LabBillReceipt report={printBillReport} bill={printBill} panels={panels} />
     </div>
   );
 }

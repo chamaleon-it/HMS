@@ -1,0 +1,50 @@
+[
+  {
+    "AllowMultiple": "false",
+    "Description": "\"Imported useGetGroups hook in TestCatalogue.tsx\"",
+    "EndLine": "32",
+    "Instruction": "\"Import useGetGroups and GroupItemType at the top of TestCatalogue.tsx\"",
+    "ReplacementContent": "\"import useGetPanels from \\\"@/data/useGetPanels\\\";\\nimport useGetGroups, { GroupItemType } from \\\"@/data/useGetGroups\\\";\\nimport useSWR from \\\"swr\\\";\"",
+    "StartLine": "27",
+    "TargetContent": "\"import useGetPanels from \\\"@/data/useGetPanels\\\";\\nimport useSWR from \\\"swr\\\";\"",
+    "TargetFile": "\"/Users/rashid/Developer/Chameleon/hms/hms-frontend/app/dashboard/lab/settings/TestCatalogue.tsx\"",
+    "toolAction": "\"Adding useGetGroups import to TestCatalogue.tsx\"",
+    "toolSummary": "\"Add useGetGroups import to TestCatalogue.tsx\""
+  },
+  {
+    "AllowMultiple": "false",
+    "Description": "\"Added grouping state variables in TestCatalogue component\"",
+    "EndLine": "197",
+    "Instruction": "\"Add isNewGroupModalOpen, groupSearchQuery, editingGroup, and isEditGroupModalOpen states, and useGetGroups hook call inside TestCatalogue.\"",
+    "ReplacementContent": "\"  const [panelSearchQuery, setPanelSearchQuery] = useState(\\\"\\\");\\n  const { groups, mutate: groupMutate } = useGetGroups();\\n  const [isNewGroupModalOpen, setIsNewGroupModalOpen] = useState(false);\\n  const [groupSearchQuery, setGroupSearchQuery] = useState(\\\"\\\");\\n  const [editingGroup, setEditingGroup] = useState<GroupItemType | null>(null);\\n  const [isEditGroupModalOpen, setIsEditGroupModalOpen] = useState(false);\\n  const filteredGroups = groups.filter((g) =>\\n    g.name.toLowerCase().includes(groupSearchQuery.toLowerCase())\\n  );\\n\\n  const testsRef = useDragScroll();\\n  const panelsRef = useDragScroll();\"",
+    "StartLine": "192",
+    "TargetContent": "\"  const [panelSearchQuery, setPanelSearchQuery] = useState(\\\"\\\");\\n\\n  const testsRef = useDragScroll();\\n  const panelsRef = useDragScroll();\"",
+    "TargetFile": "\"/Users/rashid/Developer/Chameleon/hms/hms-frontend/app/dashboard/lab/settings/TestCatalogue.tsx\"",
+    "toolAction": "\"Adding grouping states to TestCatalogue.tsx\"",
+    "toolSummary": "\"Add grouping states to TestCatalogue.tsx\""
+  },
+  {
+    "AllowMultiple": "false",
+    "Description": "\"Render Grouping administration section in TestCatalogue.tsx\"",
+    "EndLine": "936",
+    "Instruction": "\"Add the Test Grouping & Discount Pricing card section between Panels card and Settings card.\"",
+    "ReplacementContent": "\"          </CardContent>\\n\\n        </Card>\\n\\n\\n        <Card className=\\\"border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!\\\">\\n          <CardContent className=\\\"p-6\\\">\\n            <div className=\\\"flex gap-3 justify-between items-center\\\">\\n              <SectionHeader\\n                title=\\\"Test Grouping & Discount Pricing\\\"\\n                description=\\\"Manage customized test packages with special discounted rates.\\\"\\n                emoji=\\\"\ud83c\udf81\\\"\\n              />\\n              <div className=\\\"flex items-center justify-end gap-3 w-full\\\">\\n                <Input\\n                  placeholder=\\\"Search groups...\\\"\\n                  value={groupSearchQuery}\\n                  onChange={(e) => setGroupSearchQuery(e.target.value)}\\n                  className=\\\"h-9 w-64 bg-slate-50\\\"\\n                />\\n                <Button\\n                  className=\\\"bg-emerald-600 hover:bg-emerald-700 text-white shrink-0\\\"\\n                  onClick={() => setIsNewGroupModalOpen(true)}\\n                >\\n                  Create New Group\\n                </Button>\\n              </div>\\n            </div>\\n\\n            <Dialog open={isNewGroupModalOpen} onOpenChange={setIsNewGroupModalOpen}>\\n              <DialogContent className=\\\"sm:max-w-4xl max-h-[90vh] overflow-y-auto\\\">\\n                <DialogHeader>\\n                  <DialogTitle>Create New Group</DialogTitle>\\n                  <DialogDescription>Group tests and panels together with a custom discounted price.</DialogDescription>\\n                </DialogHeader>\\n                <AddGroupForm\\n                  tests={tests}\\n                  panels={panels}\\n                  onSuccess={() => {\\n                    groupMutate();\\n                    setIsNewGroupModalOpen(false);\\n                  }}\\n                  onCancel={() => setIsNewGroupModalOpen(false)}\\n                />\\n              </DialogContent>\\n            </Dialog>\\n\\n            <Dialog open={isEditGroupModalOpen} onOpenChange={setIsEditGr\n<truncated 3145 bytes>",
+    "StartLine": "930",
+    "TargetContent": "\"          </CardContent>\\n\\n        </Card>\\n\\n\\n        <Card className=\\\"border border-slate-200 bg-white/90 shadow-sm backdrop-blur-sm rounded-2xl p-0!\\\">\"",
+    "TargetFile": "\"/Users/rashid/Developer/Chameleon/hms/hms-frontend/app/dashboard/lab/settings/TestCatalogue.tsx\"",
+    "toolAction": "\"Inserting group section card into TestCatalogue.tsx\"",
+    "toolSummary": "\"Add grouping Section to TestCatalogue.tsx\""
+  },
+  {
+    "AllowMultiple": "false",
+    "Description": "\"Appended GroupCatalogueRow and AddGroupForm to TestCatalogue.tsx\"",
+    "EndLine": "1667",
+    "Instruction": "\"Append GroupCatalogueRow and AddGroupForm implementations to the end of the file.\"",
+    "ReplacementContent": "\"  );\\n};\\n\\nconst GroupCatalogueRow = ({\\n  group,\\n  idx,\\n  groupMutate,\\n  onEdit,\\n}: {\\n  group: GroupItemType;\\n  idx: number;\\n  groupMutate: () => void;\\n  onEdit: () => void;\\n}) => {\\n  const handleDelete = async () => {\\n    if (confirm(`Are you sure you want to delete group \\\"${group.name}\\\"?`)) {\\n      try {\\n        await toast.promise(api.delete(`/lab/panels/groups/${group.name}`), {\\n          loading: \\\"Deleting group...\\\",\\n          success: \\\"Group deleted successfully\\\",\\n          error: ({ response }) => response.data.message,\\n        });\\n        groupMutate();\\n      } catch (error) {\\n        console.log(error);\\n      }\\n    }\\n  };\\n\\n  return (\\n    <TableRow>\\n      <TableCell className=\\\"font-medium\\\">{idx + 1}</TableCell>\\n      <TableCell className=\\\"font-semibold text-slate-800\\\">{group.name}</TableCell>\\n      <TableCell className=\\\"font-medium text-emerald-600\\\">\u20b9{group.price}</TableCell>\\n      <TableCell className=\\\"max-w-[200px] truncate\\\">\\n        {group.tests?.map((t) => t.name).join(\\\", \\\") || \\\"-\\\"}\\n      </TableCell>\\n      <TableCell className=\\\"max-w-[200px] truncate\\\">\\n        {group.panels?.map((p) => p.name).join(\\\", \\\") || \\\"-\\\"}\\n      </TableCell>\\n      <TableCell align=\\\"right\\\" className=\\\"text-right\\\">\\n        <div className=\\\"flex justify-end gap-2\\\">\\n          <Button variant=\\\"outline\\\" size=\\\"sm\\\" className=\\\"h-8 px-2 text-slate-600\\\" onClick={onEdit}>\\n            Edit\\n          </Button>\\n          <Button variant=\\\"outline\\\" size=\\\"sm\\\" className=\\\"h-8 px-2 text-red-600 hover:bg-red-50 border-red-200\\\" onClick={handleDelete}>\\n            Delete\\n          </Button>\\n        </div>\\n      </TableCell>\\n    </TableRow>\\n  );\\n};\\n\\nconst AddGroupForm = ({\\n  onSuccess,\\n  onCancel,\\n  tests,\\n  panels,\\n  initialGroup,\\n}: {\\n  onSuccess: () => void;\\n  onCancel: () => void;\\n  tests: any[];\\n  panels: any[];\\n  initialGroup?: GroupItemType | null;\\n}) => {\\n  const [name, setName] = useState(initialGroup?.name || \\\"\\\");\\n  const [price, set\n<truncated 7807 bytes>",
+    "StartLine": "1665",
+    "TargetContent": "\"  );\\n};\"",
+    "TargetFile": "\"/Users/rashid/Developer/Chameleon/hms/hms-frontend/app/dashboard/lab/settings/TestCatalogue.tsx\"",
+    "toolAction": "\"Appending group subcomponents to TestCatalogue.tsx\"",
+    "toolSummary": "\"Append group subcomponents to TestCatalogue.tsx\""
+  }
+]

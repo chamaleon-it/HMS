@@ -1,4 +1,4 @@
-import { fAge } from "@/lib/fDateAndTime";
+import { fAge , fAgeString} from "@/lib/fDateAndTime";
 import { MapPin, MousePointerClick, Phone, X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -8,7 +8,7 @@ interface ExistingPatientCardProps {
         name: string;
         phoneNumber: string;
         email: string;
-        gender: "Male" | "Female" | "Other" | "Prefer not to say";
+        gender: "Male" | "Female" | "Other";
         dateOfBirth: Date;
         address: string;
         mrn: string;
@@ -65,7 +65,7 @@ export default function ExistingPatientCard({
                         </div>
                         <div className="flex items-center gap-2 mt-1">
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-medium">
-                                {fAge(new Date(patient.dateOfBirth))}
+                                {fAge(new Date(patient.dateOfBirth)).years}y {fAge(new Date(patient.dateOfBirth)).months}m
                             </span>
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-pink-50 text-pink-700 text-[10px] font-medium">
                                 {patient.gender}

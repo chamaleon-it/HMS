@@ -199,7 +199,7 @@ export default function CreateBill({
       return;
     }
     try {
-      await toast.promise(api.post("/billing", payload), {
+      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
         loading: "We are generating this bill.",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
@@ -211,6 +211,29 @@ export default function CreateBill({
       // Handle error
     }
   }, [payload, billingMutate, defaultPayload]);
+
+  const saveBill = useCallback(async () => {
+    if (!payload.patient) {
+      toast.error("Please select patient.");
+      return;
+    }
+    if (payload.items.length === 0) {
+      toast.error("Please add atleast one item.");
+      return;
+    }
+    try {
+      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+        loading: "Saving bill...",
+        success: ({ data }) => data.message,
+        error: ({ response }) => response.data.message,
+      });
+      setPayload(defaultPayload);
+      billingMutate();
+      router.push("/dashboard/pharmacy");
+    } catch (error) {
+      // Handle error
+    }
+  }, [payload, billingMutate, defaultPayload, router]);
 
 
   const [orderPatient, setOrderPatient] = useState<{ _id: string, mrn: string, name: string } | undefined>(undefined)
@@ -238,6 +261,7 @@ export default function CreateBill({
         }
       }>(`/pharmacy/orders/single?q=${orderMrn}`)
       .then(({ data }) => {
+        const order = data.data as any;
 
         const itemsFromApi: {
           name: string;
@@ -246,7 +270,7 @@ export default function CreateBill({
           discount: number;
           gst: number;
           total: number;
-        }[] = data.data.items.map(item => ({
+        }[] = order.items.map((item: any) => ({
           name: item.name.name,
           quantity: item.quantity,
           unitPrice: item.name.unitPrice,
@@ -272,16 +296,19 @@ export default function CreateBill({
         setPayload((prev) => ({
           ...prev,
           items: uniqueItems,
-          discount: (data.data.discount ?? 0),
+          discount: (order.discount ?? 0),
           cash: 0,
           insurance: 0,
           online: 0,
-          patient: data.data.patient._id || "",
-          doctor: data.data.doctor.name || "",
-          department: data.data.doctor.specialization || "",
+          patient: order.patient._id || "",
+          // Use stored doctorName first; fall back to populated doctor name; null/empty → "-"
+          doctor: order.doctorName && order.doctorName !== "-" && order.doctorName !== ""
+            ? order.doctorName
+            : (order.doctor?.name || ""),
+          department: order.doctor?.specialization || "",
         }));
-        setOrderPatient(data.data.patient)
-        setSelectedPatient(data.data.patient)
+        setOrderPatient(order.patient)
+        setSelectedPatient(order.patient)
       });
   }, []);
 
@@ -316,6 +343,7 @@ export default function CreateBill({
         payload={payload}
         setPayload={setPayload}
         orderPatient={orderPatient}
+        selectedPatient={selectedPatient}
         setSelectedPatient={setSelectedPatient}
         openCreate={openCreate}
         setOpenCreate={setOpenCreate}
@@ -355,6 +383,7 @@ export default function CreateBill({
               totalPaid={totalPaid}
               dueAmount={dueAmount}
               payload={payload}
+              saveBill={saveBill}
               generateBill={generateBill}
               onPrint={onClick}
               downloadPdf={downloadPdf}

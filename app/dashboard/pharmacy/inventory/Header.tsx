@@ -41,7 +41,10 @@ export default function Header({ handleAdd, items, lowStockCount, setFilter, low
 
           // Build a downloadable file from the blob
           const blob = new Blob([resp.data], {
-            type: resp.headers["content-type"] || "text/csv",
+            type:
+              typeof resp.headers["content-type"] === "string"
+              ? resp.headers["content-type"]
+              : "text/csv",
           });
 
           const filename =
@@ -99,7 +102,7 @@ export default function Header({ handleAdd, items, lowStockCount, setFilter, low
 
 function LowStockButton({ lowStockThreshold, setFilter, lowStockItemsView }: { lowStockThreshold?: number, setFilter: React.Dispatch<React.SetStateAction<FilterType>>, lowStockItemsView: boolean }) {
   return (
-    <Button className={`relative cursor-pointer outline-none ${lowStockItemsView ? "bg-red-700 hover:bg-red-700 text-white" : "bg-red-600 hover:bg-red-600 text-white"}`} onClick={() => setFilter((prev) => ({ ...prev, lowStockItemsView: !prev.lowStockItemsView }))}>
+    <Button className={`relative cursor-pointer outline-none ${lowStockItemsView ? "bg-red-700 hover:bg-red-700 text-white" : "bg-red-600 hover:bg-red-600 text-white"}`} onClick={() => setFilter((prev) => ({ ...prev, lowStockItemsView: !prev.lowStockItemsView, page: 1 }))}>
       Low Stock Alert
       <span className="ml-2 inline-flex items-center justify-center text-[10px] leading-none font-semibold bg-white text-red-600 rounded-full h-5 min-w-[20px] px-1 border border-red-300">
         {lowStockThreshold}

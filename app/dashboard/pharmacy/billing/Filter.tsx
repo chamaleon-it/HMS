@@ -13,7 +13,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { fDate } from "@/lib/fDateAndTime";
+import DateFilter from "../DateFilter";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
 
@@ -23,10 +23,9 @@ interface PropsType {
 }
 
 export default function Filters({ filter, setFilter }: PropsType) {
-  const [openCalander, setOpenCalander] = useState(false);
 
   const handleReset = () => {
-    setFilter({ q: null, status: "all", method: "all", date: undefined, page: 1, limit: 10 });
+    setFilter({ q: null, qEnd: null, status: "all", method: "all", activeDate: "Today", date: new Date(), page: 1, limit: 10, doctor: [] });
   };
 
   return (
@@ -39,18 +38,31 @@ export default function Filters({ filter, setFilter }: PropsType) {
         {/* Search */}
         <div className="space-y-2 flex-1 min-w-[280px]">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-            Search Invoice
+            Search Invoice Range
           </label>
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-            <Input
-              value={filter.q ?? ""}
-              onChange={(e) =>
-                setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
-              }
-              placeholder="Invoice no..."
-              className="pl-9 h-8 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
-            />
+          <div className="flex gap-2">
+            <div className="relative group flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+              <Input
+                value={filter.q ?? ""}
+                onChange={(e) =>
+                  setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
+                }
+                placeholder="From..."
+                className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+              />
+            </div>
+            <div className="relative group flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+              <Input
+                value={filter.qEnd ?? ""}
+                onChange={(e) =>
+                  setFilter((prev) => ({ ...prev, qEnd: e.target.value, page: 1 }))
+                }
+                placeholder="To..."
+                className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+              />
+            </div>
           </div>
         </div>
 
@@ -66,7 +78,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
                 setFilter((prev) => ({ ...prev, method: value, page: 1 }))
               }
             >
-              <SelectTrigger className="h-8 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all">
+              <SelectTrigger className="h-10! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all">
                 <div className="flex items-center gap-2">
                   <FilterIcon className="h-4 w-4 text-slate-400" />
                   <SelectValue placeholder="Select method" />
@@ -90,39 +102,21 @@ export default function Filters({ filter, setFilter }: PropsType) {
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Date Filter
           </label>
-          <Popover onOpenChange={setOpenCalander} open={openCalander}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="h-8 w-full bg-slate-50/50 border-slate-200 rounded-lg justify-between font-semibold text-slate-700 hover:bg-slate-100 transition-all px-4"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-xs">
-                    {filter.date ? fDate(filter.date) : "Select date"}
-                  </span>
-                </div>
-                <ChevronDownIcon className="h-4 w-4 text-slate-400" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto overflow-hidden p-0 border-slate-200 shadow-xl rounded-xl" align="start">
-              <Calendar
-                mode="single"
-                selected={filter.date}
-                captionLayout="dropdown"
-                onSelect={(date) => {
-                  setFilter((prev) => ({ ...prev, date, page: 1 }));
-                  setOpenCalander(false);
-                }}
-              />
-            </PopoverContent>
-          </Popover>
+          <div className="block">
+            <DateFilter
+              activeDate={filter.activeDate}
+              setActiveDate={(activeDate) => setFilter((prev) => ({ ...prev, activeDate, page: 1 }))}
+              date={filter.date}
+              setDate={(date) => setFilter((prev) => ({ ...prev, date, page: 1 }))}
+            />
+          </div>
         </div>
 
         {/* Reset Button */}
         <div className="ml-auto">
           <Button
             variant="outline"
-            className="h-8 px-6 border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold rounded-lg flex items-center gap-2 transition-all active:scale-95 shadow-sm"
+            className="h-10 px-7! border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold rounded-lg flex items-center gap-2 transition-all active:scale-95 shadow-sm"
             onClick={handleReset}
           >
             <RefreshCcw className="h-4 w-4" />
