@@ -14,7 +14,7 @@ import { ActionButton } from "@/components/doctor/dashboard/home/PatientCard";
 import toast from "react-hot-toast";
 import useGetLabReport from "./useGetLabReport";
 import { Button } from "@/components/ui/button";
-import DoctorHeader from "../../components/DoctorHeader";
+import DoctorHeader from "../components/DoctorHeader";
 
 export default function Header({
   activeTab,

@@ -173,9 +173,7 @@ export default function Appointment({
                 : undefined
             }
             onClick={async () => {
-              if (ring) {
-                router.push(`/dashboard/doctor/consulting/single?id=${a._id}`);
-              }
+                router.push(`/dashboard/doctor/consulting?id=${a._id}`);
             }}
           >
             <DoorOpen className="h-4 w-4 mr-2" /> <p> Start Consult</p>
