@@ -395,57 +395,7 @@ export function CreateAppointmentForm({
           </div>
         </section>
 
-        <section className="space-y-3 print:hidden">
-          <div className="flex items-center justify-between">
-            <h3 className="font-medium">Advanced</h3>
-          </div>
 
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <Label>Appointment Type</Label>
-
-                <Select
-                  value={values.type || "New"}
-                  onChange={(v) => setValue("type", v)}
-                  placeholder="Appointment Type"
-                  options={
-                    ["New", "Follow up"].map((s) => ({ label: s, value: s })) ??
-                    []
-                  }
-                  ref={refs.type}
-                  onKeyDown={(e) => handleKeyDown(e, refs.isPaid)}
-                />
-                {errors.type && (
-                  <p className="text-red-500 text-xs mt-1.5">
-                    {errors.type.message}
-                  </p>
-                )}
-              </div>
-              <div>
-                <Label>Payment Status</Label>
-
-                <Select
-                  value={values.isPaid}
-                  onChange={(v) => setValue("isPaid", v)}
-                  placeholder="Payment Status"
-                  options={[
-                    { value: "false", label: "Unpaid" },
-                    { value: "true", label: "Paid" },
-                  ]}
-                  ref={refs.isPaid}
-                  onKeyDown={(e) => handleKeyDown(e, refs.internalNotes)}
-                />
-                {errors.isPaid && (
-                  <p className="text-red-500 text-xs mt-1.5">
-                    {errors.isPaid.message}
-                  </p>
-                )}
-              </div>
-            </div>
-
-          </div>
-        </section>
 
         <div className="flex items-center justify-between pt-2 print:hidden">
           <Button variant="ghost" onClick={onClose} type="button">

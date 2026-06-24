@@ -223,17 +223,17 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     <div className="col-span-full">
       <Label>Date and time</Label>
       <div className="flex gap-2.5 mt-2.5">
-        <Card className="w-[45%]">
+        <Card className="w-[45%] flex items-center justify-center">
           <Calendar
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
             disabled={disabledMatchers}
-            className="w-full"
+            className="w-full p-1.5 [--cell-size:32px]"
           />
         </Card>
 
-        <div className="grid grid-cols-3 h-80 overflow-y-scroll overflow-hidden gap-1.5 w-[55%]">
+        <div className="grid grid-cols-3 h-[260px] overflow-y-scroll overflow-hidden gap-1.5 w-[55%] pr-1">
           {generateTimeSlots(
             availability?.startTime ?? "09:00",
             availability?.endTime ?? "18:00",
