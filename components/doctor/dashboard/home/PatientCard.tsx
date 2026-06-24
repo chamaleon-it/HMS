@@ -103,7 +103,7 @@ export function PatientCard({
       );
       mutate();
     } catch (error) {
-      console.log(error);
+
     }
   };
 

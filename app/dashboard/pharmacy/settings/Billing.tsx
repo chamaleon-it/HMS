@@ -64,7 +64,7 @@ export default function Billing({
       });
       profileMutate();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }

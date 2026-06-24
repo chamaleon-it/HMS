@@ -74,7 +74,7 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
       });
       setOpen(false);
     } catch (error) {
-      console.log(error);
+
     }
   };
 

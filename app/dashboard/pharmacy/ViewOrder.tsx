@@ -252,7 +252,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             });
             OrderMutate();
         } catch (error) {
-            console.log(error);
+
         } finally {
             setMarkingAllPacked(false);
         }
@@ -307,7 +307,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             setUpdatePayload(syncState);
 
         } catch (error) {
-            console.log(error);
+
         }
     };
 
@@ -333,7 +333,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
             handlePrintBill(orderToComplete);
             setOpen(false); // Close the modal after completing/printing
         } catch (error) {
-            console.log(error);
+
         }
     };
 

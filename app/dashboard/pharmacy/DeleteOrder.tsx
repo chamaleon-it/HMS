@@ -55,7 +55,7 @@ export default function DeleteOrder({
         onDeleted?.();
         return result;
       } catch (err) {
-        console.log(err);
+
       } finally {
         setLoading(false);
       }

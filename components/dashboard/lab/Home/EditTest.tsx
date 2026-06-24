@@ -88,7 +88,7 @@ export default function EditTest({ report, mutate }: EditTestProps) {
             setOpen(false);
             mutate();
         } catch (error) {
-            console.log(error);
+
         }
     };
 

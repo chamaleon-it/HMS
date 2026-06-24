@@ -139,7 +139,7 @@ export default function BookNowModal({
             onOpenChange(false);
             mutate?.();
         } catch (error) {
-            console.log(error);
+
         }
     };
 

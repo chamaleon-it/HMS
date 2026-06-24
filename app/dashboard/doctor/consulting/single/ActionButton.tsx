@@ -55,7 +55,7 @@ export default function ActionButton({ data,testIsOK }: { data: DataType ,testIs
       router.push("/dashboard/doctor");
       setAlreadySubmitted(true);
     } catch (error) {
-      console.log(error);
+
     }
   };
 

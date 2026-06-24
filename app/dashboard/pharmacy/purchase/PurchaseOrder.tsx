@@ -150,7 +150,7 @@ function PurchaseOrder({
       mutate();
       onBack();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }

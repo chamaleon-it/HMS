@@ -34,7 +34,7 @@ export default function ForgotPassword({
 
       setView("sent");
     } catch (error) {
-      console.log(error);
+
     }
   });
 

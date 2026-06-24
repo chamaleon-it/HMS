@@ -173,7 +173,7 @@ export function PatientForm({
         mutate();
       }
     } catch (error) {
-      console.log(error);
+
     }
   });
 

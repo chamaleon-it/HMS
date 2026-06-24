@@ -37,7 +37,7 @@ export default function ItemSelected({
         await api.post("/billing/billing_item", { item: trimmed });
         await mutate();
       } catch (err) {
-        console.log(err);
+
       }
     },
     [mutate]
@@ -51,7 +51,7 @@ export default function ItemSelected({
         await api.delete(`/billing/billing_item?item=${encodeURIComponent(trimmed)}`);
         await mutate();
       } catch (err) {
-        console.log(err);
+
       }
     },
     [mutate]

@@ -54,7 +54,7 @@ export default function ItemSelected({
         await api.post("/billing/billing_item", { item: trimmed, price });
         await mutate();
       } catch (err) {
-        console.log(err);
+
       }
     },
     [mutate]
@@ -68,7 +68,7 @@ export default function ItemSelected({
         await api.delete(`/billing/billing_item?item=${encodeURIComponent(trimmed)}`);
         await mutate();
       } catch (err) {
-        console.log(err);
+
       }
     },
     [mutate]
@@ -251,7 +251,7 @@ export default function ItemSelected({
                   setIsEditModalOpen(false);
                   mutate(); // Refresh the list
                 } catch (error) {
-                  console.log(error);
+
                 }
               }}
               disabled={!editingItem?.item?.trim() || !editingItem?.code?.trim()}

@@ -59,7 +59,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
       });
       profileMutate();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }

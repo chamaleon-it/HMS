@@ -249,7 +249,7 @@ export default function CreateBill({
       setPayload(defaultPayload);
       billingMutate();
     } catch (error) {
-      console.log(error);
+
     }
   }, [payload, billingMutate]);
 

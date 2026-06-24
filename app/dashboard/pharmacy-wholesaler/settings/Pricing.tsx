@@ -58,7 +58,7 @@ export default function Pricing({ profile, profileMutate }: PropTypes) {
       );
       profileMutate();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }

@@ -51,7 +51,7 @@ export default function Appointment({
       );
       mutate();
     } catch (error) {
-      console.log(error);
+
     }
   };
 

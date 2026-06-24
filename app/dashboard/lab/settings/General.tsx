@@ -63,7 +63,7 @@ export default function General({
       });
       profileMutate();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }

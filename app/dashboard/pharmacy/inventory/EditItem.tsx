@@ -106,7 +106,7 @@ export function EditItem({
       reset();
       onClose();
     } catch (error) {
-      console.log(error);
+
     }
   });
 

@@ -68,7 +68,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
     }, 100);
   };
 
-  console.log(billing)
+
   return (
     <>
       <div className="flex flex-col gap-6 print:hidden mt-3">

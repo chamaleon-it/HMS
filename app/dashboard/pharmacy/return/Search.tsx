@@ -81,7 +81,7 @@ export default function Search({
     } else if (e.key === "Enter") {
       if (selectedIndex >= 0) {
         e.preventDefault();
-        console.log(orders[selectedIndex])
+
         setFilter((prev) => ({ ...prev, q: orders[selectedIndex].mrn }));
         setShowDropdown(false);
         setTimeout(async () => await fetchOrder(orders[selectedIndex].mrn), 220);

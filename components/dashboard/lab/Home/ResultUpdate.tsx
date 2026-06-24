@@ -425,7 +425,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
       }
 
     } catch (error) {
-      console.log(error);
+
       toast.error("Failed to Update Result");
     }
   };

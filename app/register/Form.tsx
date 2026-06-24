@@ -31,7 +31,7 @@ export default function Form() {
         router.push("/");
       }, 1500);
     } catch (error) {
-      console.log(error);
+
     }
   });
 

@@ -4,7 +4,7 @@ import { format, addDays, isSameDay } from "date-fns";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 
-import { Plus, CalendarDays, Clock, FlaskConical, Bed, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Plus, CalendarDays, Clock, FlaskConical, Bed, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import Calendar from "./Calender";
 import List from "./List";
@@ -279,7 +279,7 @@ function AppointmentSidePanel({ appointment, onClose, onEdit, onUpdateStatus }: 
   )
 }
 
-export default function AppointmentPage() {
+function AppointmentPageContent() {
   const [query, setQuery] = useState("");
   const [activeStatuses, setActiveStatuses] = useState<string[]>(["Upcoming"]);
   const [openCreate, setOpenCreate] = useState<"walk-in" | boolean | any>(false);
@@ -650,5 +650,13 @@ export default function AppointmentPage() {
         />
       </div>
     </AppShell>
+  );
+}
+
+export default function AppointmentPage() {
+  return (
+    <React.Suspense fallback={<AppShell><div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-slate-500" /></div></AppShell>}>
+      <AppointmentPageContent />
+    </React.Suspense>
   );
 }

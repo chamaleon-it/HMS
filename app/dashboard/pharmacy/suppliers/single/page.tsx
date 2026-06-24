@@ -35,7 +35,7 @@ import { addDays } from "date-fns";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data.data);
 
-const SingleSupplierPage: React.FC = () => {
+const SingleSupplierPageContent: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const id = searchParams.get("id");
@@ -713,4 +713,10 @@ const SingleSupplierPage: React.FC = () => {
     );
 };
 
-export default SingleSupplierPage;
+export default function SingleSupplierPage() {
+    return (
+        <React.Suspense fallback={<AppShell><div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-slate-500" /></div></AppShell>}>
+            <SingleSupplierPageContent />
+        </React.Suspense>
+    );
+}

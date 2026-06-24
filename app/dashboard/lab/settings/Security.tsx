@@ -38,7 +38,7 @@ export default function Security() {
         error: ({ response }) => response.data.message,
       });
     } catch (error) {
-      console.log(error);
+
     }
   });
 

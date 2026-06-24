@@ -43,7 +43,7 @@ export default function DeletePatient({
       tableMutate();
       setOpen(false);
     } catch (err) {
-      console.log("Delete failed:", err);
+
     } finally {
       setLoading(false);
     }

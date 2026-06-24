@@ -53,7 +53,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
       reset();
       onClose();
     } catch (error) {
-      console.log(error);
+
     }
   });
 

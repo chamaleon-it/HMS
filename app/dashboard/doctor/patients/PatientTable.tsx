@@ -83,7 +83,7 @@ export default function PatientTable({
       setSelectedIds([]);
       setOpen(false);
     } catch (error) {
-      console.log(error);
+
     }
   }, [selectedIds, tableMutate]);
 

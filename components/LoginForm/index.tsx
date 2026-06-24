@@ -38,7 +38,7 @@ export default function LoginForm({
       setUser({ _id, email, name, role });
       tokenStore.set(accessToken, refreshToken);
     } catch (error) {
-      console.log(error);
+
     }
   });
 

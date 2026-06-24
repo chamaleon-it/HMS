@@ -53,7 +53,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
       reset();
       onClose();
     } catch (error) {
-      console.log(error);
+
     }
   });
 

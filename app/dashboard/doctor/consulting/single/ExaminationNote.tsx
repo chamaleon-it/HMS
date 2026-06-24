@@ -86,7 +86,9 @@ function safeWrite<T>(key: string, val: T) {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(key, JSON.stringify(val));
-  } catch {}
+  } catch (error) {
+    console.error("Error in fetching or processing templates:", error);
+  }
 }
 
 const uid = () => Math.random().toString(36).slice(2, 9);
@@ -183,7 +185,7 @@ export default function ExaminationNote({
               className="relative w-10 h-5 rounded-full bg-green-600 transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
             >
               <motion.div
-                className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 to-blue-500 opacity-30"
+                className="absolute inset-0 rounded-full bg-linear-to-r from-cyan-500 to-blue-500 opacity-30"
                 animate={{ opacity: isFahrenheit ? 0.6 : 0.25 }}
                 transition={{ duration: 0.3 }}
               />
@@ -447,7 +449,7 @@ export default function ExaminationNote({
                     transition={{ duration: 0.15 }}
                     className="absolute right-0 mt-3 w-[340px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-30 overflow-hidden backdrop-blur"
                   >
-                    <div className="p-3 border-b bg-gradient-to-r from-violet-50 to-slate-50">
+                    <div className="p-3 border-b bg-linear-to-r from-violet-50 to-slate-50">
                       <div className="flex items-center justify-between mb-2">
                         <span className="text-sm font-medium text-slate-700">
                           Templates
@@ -541,7 +543,7 @@ export default function ExaminationNote({
                       )}
                     </div>
 
-                    <div className="p-3 bg-gradient-to-r from-slate-50 to-violet-50 flex items-center justify-end gap-2">
+                    <div className="p-3 bg-linear-to-r from-slate-50 to-violet-50 flex items-center justify-end gap-2">
                       <button
                         onClick={() => setManageOpen(true)}
                         className="text-xs px-3 py-1.5 rounded-lg border hover:bg-slate-100"

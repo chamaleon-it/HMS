@@ -213,7 +213,7 @@ export default function TestCatalogue({
       });
       profileMutate();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }
@@ -362,7 +362,7 @@ export default function TestCatalogue({
       setIsNewTestModalOpen(false);
 
     } catch (error) {
-      console.log(error);
+
     }
   };
 
@@ -1319,7 +1319,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
       setSelectedTests([]);
       onSuccess();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }
@@ -1748,7 +1748,7 @@ const GroupCatalogueRow = ({
         });
         groupMutate();
       } catch (error) {
-        console.log(error);
+
       }
     }
   };
@@ -1833,7 +1833,7 @@ const AddGroupForm = ({
       }
       onSuccess();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }

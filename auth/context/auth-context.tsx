@@ -63,7 +63,7 @@ export function AuthProvider({
       const { _id, name, email, role, profilePic, specialization } = data?.data;
       setUser({ _id, email, name, role, profilePic, specialization });
     } catch (error) {
-      console.log(error);
+
       setLoading(false);
     } finally {
       setLoading(false);

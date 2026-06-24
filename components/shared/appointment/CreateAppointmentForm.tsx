@@ -236,7 +236,7 @@ export function CreateAppointmentForm({
 
       await refreshCalendars();
     } catch (error) {
-      console.log(error);
+
     }
   });
 

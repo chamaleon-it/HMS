@@ -39,7 +39,7 @@ export default function SecurityForm() {
         error: ({ response }) => response.data.message,
       });
     } catch (error) {
-      console.log(error);
+
     }
   });
 

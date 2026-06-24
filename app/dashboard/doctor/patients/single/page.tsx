@@ -8,6 +8,7 @@ import {
   Download,
   FileArchive,
 } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -243,7 +244,7 @@ function PatientFullDetailContent() {
                             <Button
                               size="sm"
                               variant="outline"
-                              onClick={() => alert(`Downloading ${d}...`)}
+                              onClick={() => toast(`Downloading ${d}... Coming soon`)}
                             >
                               <Download className="h-4 w-4 mr-2" />
                               Download
@@ -282,7 +283,7 @@ function PatientFullDetailContent() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => alert("Collect payment flow")}
+                          onClick={() => toast("Collect payment flow coming soon")}
                         >
                           {" "}
                           <Wallet className="h-4 w-4 mr-2" />

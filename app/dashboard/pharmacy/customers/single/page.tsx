@@ -39,7 +39,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const Customer: React.FC = () => {
+const CustomerPageContent: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
     const id = searchParams.get("id");
@@ -975,4 +975,10 @@ const Customer: React.FC = () => {
     );
 };
 
-export default Customer;
+export default function Customer() {
+    return (
+        <React.Suspense fallback={<AppShell><div className="flex h-screen items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-slate-500" /></div></AppShell>}>
+            <CustomerPageContent />
+        </React.Suspense>
+    );
+}

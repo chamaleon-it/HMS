@@ -50,7 +50,7 @@ export default function Inventory({
       });
       profileMutate();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }

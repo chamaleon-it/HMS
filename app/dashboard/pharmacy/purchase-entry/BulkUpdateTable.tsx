@@ -288,7 +288,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             toast.success("Purchase entry saved successfully");
             try {
                 localStorage.removeItem("purchase_entry_draft");
-            } catch (e) {}
+            } catch (e) {
+                console.error("Error setting focus to next input:", e);
+            }
             setNewItems([]);
             setBillDetails({
                 invoiceNumber: "",

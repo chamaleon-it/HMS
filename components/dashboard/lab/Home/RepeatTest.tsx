@@ -105,7 +105,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
             setOpen(false);
             mutate();
         } catch (error) {
-            console.log(error);
+
         }
 
     };

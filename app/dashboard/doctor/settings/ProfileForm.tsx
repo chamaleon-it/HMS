@@ -83,7 +83,7 @@ export default function ProfileForm() {
     },
   });
 
-  console.log(errors);
+
 
   const values = watch();
 
@@ -109,7 +109,7 @@ export default function ProfileForm() {
       });
       mutate();
     } catch (error) {
-      console.log(error);
+
     }
   });
   const [openSpec, setOpenSpec] = useState(false);
@@ -303,7 +303,7 @@ export default function ProfileForm() {
                               toast.error("Please select a file.");
                             }
                           } catch (error) {
-                            console.log(error);
+
                           }
                         }}
                       />
@@ -376,7 +376,7 @@ export default function ProfileForm() {
                             toast.error("Please select a file.");
                           }
                         } catch (error) {
-                          console.log(error);
+
                         }
                       }}
                     />

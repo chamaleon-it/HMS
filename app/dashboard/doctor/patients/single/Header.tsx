@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/tooltip";
 import { fAge , fAgeString} from "@/lib/fDateAndTime";
 import { Download, FileText, Plus, Printer, Share2, User2 } from "lucide-react";
+import toast from "react-hot-toast";
 import React from "react";
 import { PatientType } from "./interface";
 
@@ -81,7 +82,7 @@ export default function Header({
             <Button
               size="sm"
               variant="outline"
-              onClick={() => alert("Print triggered (hook to /print)")}
+              onClick={() => toast("Print feature coming soon")}
             >
               <Printer className="h-4 w-4 mr-2" />
               Print
@@ -98,13 +99,13 @@ export default function Header({
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Share</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => alert("Downloading PDF...")}>
+            <DropdownMenuItem onClick={() => toast("Downloading PDF... Coming soon")}>
               {" "}
               <Download className="h-4 w-4 mr-2" />
               Download PDF
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => alert("Email modal -> send summary")}
+              onClick={() => toast("Email summary coming soon")}
             >
               {" "}
               <FileText className="h-4 w-4 mr-2" />

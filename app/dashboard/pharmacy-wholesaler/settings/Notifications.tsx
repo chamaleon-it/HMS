@@ -59,7 +59,7 @@ export default function Notifications({ profile, profileMutate }: PropTypes) {
       );
       profileMutate();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }

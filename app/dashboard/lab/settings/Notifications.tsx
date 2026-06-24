@@ -51,7 +51,7 @@ export default function Notifications({
       });
       profileMutate();
     } catch (error) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }
