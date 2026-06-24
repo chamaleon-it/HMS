@@ -27,6 +27,7 @@ import { useDebounce } from "@/hooks/useDebounce";
 import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
 import ExistingPatientCard from "./ExistingPatientCard";
 import { useAuth } from "@/auth/context/auth-context";
+import useSWR from "swr";
 
 export function PatientForm({
   onClose,
@@ -40,6 +41,11 @@ export function PatientForm({
   const capitalizeFirstLetter = (str: string) => {
     return str.charAt(0).toUpperCase() + str.slice(1);
   };
+
+  const { data: doctorsData } = useSWR<{
+    data: { _id: string; name: string }[];
+    message: string;
+  }>("/users/doctors");
 
   const { user } = useAuth();
   const {
@@ -147,6 +153,10 @@ export function PatientForm({
       const addressParts = [data.addressLine1, data.addressLine2, data.locality, data.state, data.pinCode, data.country].filter(Boolean);
       data.address = addressParts.join(', ');
 
+      if (!data.doctor || data.doctor === "none") {
+        delete data.doctor;
+      }
+
       if (patient?._id) {
         await toast.promise(api.patch(`/patients/${patient._id}`, data), {
           loading: "Patient is updating...!",
@@ -246,6 +256,31 @@ export function PatientForm({
                   onDismiss={() => setDismissed(true)}
                 />
               </div>
+            )}
+          </div>
+
+          <div className="grid gap-1.5">
+            <Label className="text-sm font-medium text-slate-700">Doctor</Label>
+            <Select
+              onValueChange={(value) => setValue("doctor", value === "none" ? "" : value)}
+              value={values.doctor || "none"}
+            >
+              <SelectTrigger className="w-full h-9 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                <SelectValue placeholder="Select Doctor" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">Unassigned / None</SelectItem>
+                {doctorsData?.data?.map((doc) => (
+                  <SelectItem key={doc._id} value={doc._id}>
+                    {doc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.doctor && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.doctor.message as string}
+              </p>
             )}
           </div>
 

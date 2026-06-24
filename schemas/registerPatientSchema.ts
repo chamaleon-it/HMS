@@ -25,7 +25,7 @@ export const registerPatientSchema = z.object({
 
   email: z.string().email("Invalid email address").optional().or(z.literal("")),
 
-  doctor: z.string().trim().min(1, "Select a doctor."),
+  doctor: z.string().optional().or(z.literal("")).nullable(),
 
   gender: z.enum(["Male", "Female"], {
     message: "Gender is mandatory",
