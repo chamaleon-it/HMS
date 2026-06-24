@@ -60,7 +60,7 @@ export function PatientForm({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
       phoneNumber: patient?.phoneNumber || "",
-      doctor: patient?.doctor || user?._id,
+      doctor: patient?.doctor || "none",
       state: patient?.state || "Kerala",
       country: patient?.country || "India",
     },
@@ -112,7 +112,7 @@ export function PatientForm({
         state: patient.state || "Kerala",
         pinCode: patient.pinCode,
         country: patient.country || "India",
-        doctor: patient.doctor?._id || patient.doctor || user?._id,
+        doctor: patient.doctor?._id || patient.doctor || "none",
       });
     }
   }, [patient, reset, user]);
