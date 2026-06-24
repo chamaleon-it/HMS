@@ -298,7 +298,7 @@ const CustomerContent: React.FC = () => {
 
                       if (searchQuery) {
                         const query = searchQuery.toLowerCase();
-                        const idDisplay = String(o.mrn).padStart(4, "0").toLowerCase();
+                        const idDisplay = String(o.mrn).padStart(5, "0").toLowerCase();
 
                         if (!idDisplay.includes(query)) {
                           return false;
@@ -325,7 +325,7 @@ const CustomerContent: React.FC = () => {
                           >
                             <div className="flex items-center justify-between gap-2">
                               <span className="font-medium">
-                                Report ID: {String(bill.mrn).padStart(4, "0")} - Date: {fDate(bill.createdAt)}
+                                Report ID: {String(bill.mrn).padStart(5, "0")} - Date: {fDate(bill.createdAt)}
                               </span>
                               <span className="text-xs font-semibold">
                                 {formatINR(bill.test?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0)}
@@ -351,7 +351,7 @@ const CustomerContent: React.FC = () => {
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit
-                        ? `Details — ${String(selectedVisit.mrn).padStart(4, "0")}`
+                        ? `Details — ${String(selectedVisit.mrn).padStart(5, "0")}`
                         : "Details"}
                     </div>
                     {selectedVisit && (
@@ -365,7 +365,7 @@ const CustomerContent: React.FC = () => {
                         <span>
                           RX ID:{" "}
                           <span className="font-medium text-slate-700">
-                            {String(selectedVisit.mrn).padStart(4, "0")}
+                            {String(selectedVisit.mrn).padStart(5, "0")}
                           </span>
                         </span>
                       </div>

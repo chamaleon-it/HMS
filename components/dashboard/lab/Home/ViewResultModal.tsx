@@ -121,7 +121,7 @@ export default function ViewResultModal({ r }: Props) {
                             <div>
                                 <h3 className="text-sm font-semibold text-gray-900">Report No.</h3>
                                 {/* @ts-ignore */}
-                                <p className="text-xs text-gray-500">{String(r?.mrn).padStart(4, "0")}</p>
+                                <p className="text-xs text-gray-500">{String(r?.mrn).padStart(5, "0")}</p>
                             </div>
                         </div>
                         <div className="flex items-center gap-3">

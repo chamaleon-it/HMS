@@ -370,7 +370,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                     {String(idx + 1).padStart(2, "0")}
                   </td>
                   {status !== "Draft" && <td className="px-3 py-2 text-sm text-gray-500">
-                    {String(r.mrn).padStart(4, "0")}
+                    {String(r.mrn).padStart(5, "0")}
                   </td>}
                   <td className="px-3 py-2">
                     <div className="flex flex-col">
