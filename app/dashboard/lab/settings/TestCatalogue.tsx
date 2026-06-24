@@ -27,9 +27,10 @@ import TestCatalogueRow from "./TestCatalogueRow";
 import PanelCatalogueRow from "./PanelCatalogueRow";
 import useGetPanels from "@/data/useGetPanels";
 import useGetGroups, { GroupItemType } from "@/data/useGetGroups";
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import AddTestsToPanelDialog from "./AddTestsToPanelDialog";
 import RemoveTestsFromPanelDialog from "./RemoveTestsFromPanelDialog";
+import AddCustomItemDialog from "./AddCustomItemDialog";
 import {
   Dialog,
   DialogContent,
@@ -1189,6 +1190,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
   const [searchTestQuery, setSearchTestQuery] = useState("");
   const [addTestDropdownOpen, setAddTestDropdownOpen] = useState(false);
   const [cancelAlertOpen, setCancelAlertOpen] = useState(false);
+  const [isCustomItemOpen, setIsCustomItemOpen] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -1521,6 +1523,22 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
                                 })}
                             </CommandGroup>
                           </CommandList>
+                          {searchTestQuery.trim() !== "" && (
+                            <div className="border-t border-slate-100 p-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                className="w-full justify-start text-xs font-medium text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50/50 h-8 px-2"
+                                onClick={() => {
+                                  setIsCustomItemOpen(true);
+                                  setAddTestDropdownOpen(false);
+                                }}
+                              >
+                                <Plus className="h-3.5 w-3.5 mr-1" />
+                                Create "{searchTestQuery}" as custom item
+                              </Button>
+                            </div>
+                          )}
                         </Command>
                       </PopoverContent>
                     </Popover>
@@ -1541,6 +1559,16 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         )}
         <Button className="bg-emerald-600 hover:bg-emerald-700 text-white" onClick={addPanel} disabled={loading}>{loading ? "Adding..." : "Save Panel"}</Button>
       </div>
+
+      <AddCustomItemDialog
+        open={isCustomItemOpen}
+        onOpenChange={setIsCustomItemOpen}
+        defaultName={searchTestQuery}
+        onSuccess={(newItem) => {
+          setSelectedTests((prev) => [...prev, newItem]);
+          mutate("/lab/panels/tests");
+        }}
+      />
 
       <AlertDialog open={cancelAlertOpen} onOpenChange={setCancelAlertOpen}>
         <AlertDialogContent>

@@ -441,7 +441,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                         ))}
                     </div>
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-700">
+                   <td className="px-3 py-2 text-sm text-gray-700">
                     <div className="flex flex-col gap-2">
                       {r?.groups?.map((g) => {
                         const groupObj = groups.find((group) => group.name === g);
