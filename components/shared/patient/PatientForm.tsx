@@ -49,6 +49,7 @@ export function PatientForm({
     setValue,
     reset,
     watch,
+    getValues,
   } = useForm({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
@@ -269,14 +270,14 @@ export function PatientForm({
           <div className="grid gap-1.5">
             <Label className="text-sm font-medium text-slate-700">Gender *</Label>
             <Select
-              onValueChange={(value: "Male" | "Female" | "Other") => setValue("gender", value)}
+              onValueChange={(value: "Male" | "Female") => setValue("gender", value)}
               value={patient?.gender || values.gender}
             >
               <SelectTrigger className="w-full h-9 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
                 <SelectValue placeholder="Choose gender" />
               </SelectTrigger>
               <SelectContent>
-                {["Male", "Female", "Other"].map((v) => (
+                {["Male", "Female"].map((v) => (
                   <SelectItem value={v} key={v}>
                     {v}
                   </SelectItem>
@@ -337,7 +338,11 @@ export function PatientForm({
                 {...register("age")}
                 onChange={(e) => {
                   setValue("age", e.target.value);
-                  setValue("dateOfBirth", ""); // clear DOB if manual age
+                  const yrs = parseInt(e.target.value) || 0;
+                  const mths = parseInt(getValues("month") as string) || 0;
+                  const today = new Date();
+                  const dob = new Date(today.getFullYear() - yrs, today.getMonth() - mths, today.getDate());
+                  setValue("dateOfBirth", dob.toISOString());
                 }}
                 className="h-9 rounded-xl"
               />
@@ -350,7 +355,11 @@ export function PatientForm({
                 {...register("month")}
                 onChange={(e) => {
                   setValue("month", e.target.value);
-                  setValue("dateOfBirth", ""); // clear DOB if manual month
+                  const yrs = parseInt(getValues("age") as string) || 0;
+                  const mths = parseInt(e.target.value) || 0;
+                  const today = new Date();
+                  const dob = new Date(today.getFullYear() - yrs, today.getMonth() - mths, today.getDate());
+                  setValue("dateOfBirth", dob.toISOString());
                 }}
                 className="h-9 rounded-xl"
               />
