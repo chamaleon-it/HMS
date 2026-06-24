@@ -64,7 +64,7 @@ export const pharmacyItemAddSchema = z.object({
     .optional(),
 
   // Zod v4 provides z.iso.date() for ISO date strings
-  expiryDate: z.string({ error: "Expiry date is required" }),
+  expiryDate: z.string({ error: "Expiry date is required" }).optional().or(z.literal("")).nullable().transform(val => val === "" ? undefined : val),
   // iso.date({
   //   error: "Expiry date must be an ISO date (YYYY-MM-DD)",
   // }),
