@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FilterType } from "./page";
-import { CONDITIONS } from "./data";
+import { CONDITIONS } from "@/components/shared/patient/data/index";
 import useSWR from "swr";
 import {
   Popover,

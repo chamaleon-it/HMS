@@ -16,7 +16,7 @@ import PatientSelection from "./PatientSelection";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { RegisterPatient } from "../RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { useRouter } from "next/navigation";
 
 export default function NewOrder({ mutate }: { mutate: () => void }) {
@@ -106,7 +106,7 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
 
   return (
     <>
-      <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Customer</Button>
+      <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Patient</Button>
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button
@@ -161,7 +161,7 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
+          <PatientForm patient={{ name: nameToRegister }} onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
             setOpenCreate(false);
             mutate();
             setNameToRegister("");

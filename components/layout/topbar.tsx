@@ -3,8 +3,9 @@
 import React, { useState } from "react";
 import { Bell, Plus, Menu } from "lucide-react";
 import DoctorProfile from "./Profile";
-import { CreateAppointmentForm } from "@/app/dashboard/doctor/appointments/CreateAppointmentForm";
-import Drawer from "../ui/drawer";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import useAppointmentList from "@/app/dashboard/doctor/appointments/data/useAppointmentList";
 import { useAuth } from "@/auth/context/auth-context";
 import SearchBar from "./SearchBar";
@@ -15,6 +16,7 @@ import { motion } from "framer-motion";
 
 export default function Header() {
   const [openCreate, setOpenCreate] = useState(false);
+  const [openPatient, setOpenPatient] = useState(false);
 
 
   const { user } = useAuth();
@@ -40,7 +42,7 @@ export default function Header() {
       { key: "suppliers", label: "Suppliers", link: "/dashboard/pharmacy/suppliers/" },
       { key: "customers", label: "Customers", link: "/dashboard/pharmacy/customers/" },
       { key: "return", label: "Return", link: "/dashboard/pharmacy/return/" },
-      { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
+      // { key: "purchase", label: "Purchase", link: "/dashboard/pharmacy/purchase/" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy/billing/" },
     ]) ||
     (user?.role === "Pharmacy Wholesaler" && [
@@ -172,6 +174,30 @@ export default function Header() {
                 <Plus className="h-4 w-4" /> New Appointment
               </button>
             )}
+            {user?.role === "Pharmacy" && (
+              <button
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-new-order'))}
+              >
+                <Plus className="h-4 w-4" /> New Order
+              </button>
+            )}
+            {user?.role === "Lab" && (
+              <button
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
+                onClick={() => window.dispatchEvent(new CustomEvent('open-add-test'))}
+              >
+                <Plus className="h-4 w-4" /> Book Now
+              </button>
+            )}
+            {(user?.role === "Doctor" || user?.role === "Pharmacy" || user?.role === "Lab") && (
+              <button
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 cursor-pointer"
+                onClick={() => setOpenPatient(true)}
+              >
+                <Plus className="h-4 w-4" /> New Patient
+              </button>
+            )}
             {/* <button
               className="relative rounded-xl border border-slate-200 bg-white/90 p-2 shadow-sm transition hover:bg-slate-50 cursor-pointer"
               aria-label="Notifications"
@@ -190,17 +216,20 @@ export default function Header() {
           data-testid="header-divider"
         />
       </header>
-      {user?.role === "Doctor" && (
+      {(user?.role === "Doctor" || user?.role === "Lab" || user?.role === "Pharmacy") && (
         <div className="w-full overflow-hidden">
-          <Drawer
+          <AppointmentDialog
             open={openCreate}
-            onClose={() => setOpenCreate(false)}
-            title="Create Appointment"
-          >
-            <CreateAppointmentForm
-              onClose={() => setOpenCreate(false)}
-            />
-          </Drawer>
+            onOpenChange={(v) => !v && setOpenCreate(false)}
+          />
+          <Dialog open={openPatient} onOpenChange={(v) => !v && setOpenPatient(false)}>
+            <DialogContent className="max-w-3xl! max-h-[90dvh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Patient Register</DialogTitle>
+              </DialogHeader>
+              <PatientForm onClose={() => setOpenPatient(false)} />
+            </DialogContent>
+          </Dialog>
         </div>
       )}
     </>

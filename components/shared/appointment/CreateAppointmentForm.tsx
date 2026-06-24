@@ -14,7 +14,7 @@ import PatientSelection from "./PatientSelection";
 import Select from "./AppointmentSelect";
 import BlankPrescription from "./BlankPrescription";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RegisterPatient } from "../RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 const METHODS = ["In clinic", "Video", "Phone"] as const;
 
 export function CreateAppointmentForm({
@@ -463,7 +463,7 @@ export function CreateAppointmentForm({
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient
+          <PatientForm
             patient={{ name: input }}
             onClose={async (id?: string, name?: string) => {
               setOpenCreate(false);

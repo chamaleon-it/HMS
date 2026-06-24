@@ -20,7 +20,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { RegisterPatient } from "./RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { useRouter } from "next/navigation";
 import { AlertTriangle } from "lucide-react";
 import PharmacistSelection from "./PharmacistSelection";
@@ -80,7 +80,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient
+          <PatientForm
             patient={{ name: nameToRegister }}
             onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
               setOpenCreate(false);

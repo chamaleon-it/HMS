@@ -9,7 +9,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
-import { RegisterPatient } from "../../RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 
 interface BillHeaderProps {
     theme: { from: string; to: string };
@@ -85,7 +85,7 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                         <DialogHeader>
                             <DialogTitle>Customer Register</DialogTitle>
                         </DialogHeader>
-                        <RegisterPatient
+                        <PatientForm
                             onClose={(id?: string, name?: string) => {
                                 setOpenCreate(false);
                                 if (id) {

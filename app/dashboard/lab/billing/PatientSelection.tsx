@@ -11,7 +11,7 @@ import useSWR from "swr";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RegisterPatient } from "../../pharmacy/RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 import api from "@/lib/axios";
 import { fAge , fAgeString} from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";

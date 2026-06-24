@@ -11,10 +11,9 @@ import AppShell from "@/components/layout/app-shell";
 import Calendar from "./Calender";
 import List from "./List";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CreateAppointmentForm } from "./CreateAppointmentForm";
+import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import Statistics from "./Statistics";
 import Filter from "./Filter";
-import Drawer from "@/components/ui/drawer";
 import useAppointmentList from "./data/useAppointmentList";
 
 export default function AppointmentPage() {
@@ -113,13 +112,10 @@ export default function AppointmentPage() {
           </Tabs>
         </div>
 
-        <Drawer
+        <AppointmentDialog
           open={openCreate}
-          onClose={() => setOpenCreate(false)}
-          title="Create Appointment"
-        >
-          <CreateAppointmentForm onClose={() => setOpenCreate(false)} />
-        </Drawer>
+          onOpenChange={(v) => !v && setOpenCreate(false)}
+        />
       </div>
     </AppShell>
   );

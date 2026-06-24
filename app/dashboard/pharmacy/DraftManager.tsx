@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useDrafts, Draft } from './DraftContext';
 import { DraggableWindow } from './DraggableWindow';
 import NewOrderWindowContent from './NewOrderWindowContent';
-import { RegisterPatient } from './RegisterPatient';
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 import {
@@ -21,7 +21,7 @@ import { Trash2, AlertCircle } from "lucide-react";
 import { usePathname } from 'next/navigation';
 
 export const DraftManager: React.FC = () => {
-  const { drafts, removeDraft, updateDraft, bringToFront, activeDraftId } = useDrafts();
+  const { drafts, addDraft, removeDraft, updateDraft, bringToFront, activeDraftId } = useDrafts();
   const [registerData, setRegisterData] = useState<{ name: string; draftId: string } | null>(null);
   const [draftToDelete, setDraftToDelete] = useState<string | null>(null);
   const pathname = usePathname();
@@ -37,6 +37,12 @@ export const DraftManager: React.FC = () => {
     return () => window.removeEventListener('open-register-patient', handleRegister);
   }, []);
 
+  useEffect(() => {
+    const handleNewOrder = () => addDraft();
+    window.addEventListener('open-new-order', handleNewOrder);
+    return () => window.removeEventListener('open-new-order', handleNewOrder);
+  }, []);
+
   // Listen for delete requests from children
   useEffect(() => {
     const handleDeleteRequest = (e: any) => setDraftToDelete(e.detail);
@@ -48,8 +54,7 @@ export const DraftManager: React.FC = () => {
 
   if (!isMounted) return null;
 
-  // Only show windows on the main pharmacy dashboard page
-  if (pathname !== "/dashboard/pharmacy/") return null;
+
 
   return (
     <div ref={containerRef} className="fixed inset-0 pointer-events-none z-40">
@@ -125,7 +130,7 @@ export const DraftManager: React.FC = () => {
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
           {registerData && (
-            <RegisterPatient
+            <PatientForm
               patient={{ name: registerData.name }}
               onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
                 if (id && name) {

@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { RegisterPatient } from "./RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { useAuth } from "@/auth/context/auth-context";
 
 type Patient = {
@@ -281,7 +281,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient
+          <PatientForm
             patient={{ name: input }}
             onClose={async (id?: string, name?: string, allergies?: string, mrn?: string) => {
               setOpenCreate(false);

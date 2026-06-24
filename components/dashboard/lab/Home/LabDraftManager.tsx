@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useLabDrafts, LabDraft } from '@/app/dashboard/lab/LabDraftContext';
 import { DraggableWindow } from '@/app/dashboard/lab/DraggableWindow';
 import NewTestWindowContent from './NewTestWindowContent';
-import { RegisterPatient } from './RegisterPatient';
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -18,7 +18,7 @@ import {
 import { Trash2, AlertCircle } from "lucide-react";
 
 export const LabDraftManager: React.FC = () => {
-  const { drafts, removeDraft, updateDraft, bringToFront, activeDraftId, draftToDelete, setDraftToDelete } = useLabDrafts();
+  const { drafts, addDraft, removeDraft, updateDraft, bringToFront, activeDraftId, draftToDelete, setDraftToDelete } = useLabDrafts();
   const [registerData, setRegisterData] = useState<{ name: string; draftId: string } | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -27,6 +27,12 @@ export const LabDraftManager: React.FC = () => {
     const handleRegister = (e: any) => setRegisterData(e.detail);
     window.addEventListener('open-lab-register-patient', handleRegister);
     return () => window.removeEventListener('open-lab-register-patient', handleRegister);
+  }, []);
+
+  useEffect(() => {
+    const handleAddTest = () => addDraft();
+    window.addEventListener('open-add-test', handleAddTest);
+    return () => window.removeEventListener('open-add-test', handleAddTest);
   }, []);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -106,7 +112,7 @@ export const LabDraftManager: React.FC = () => {
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
           {registerData && (
-            <RegisterPatient
+            <PatientForm
               patient={{ name: registerData.name }}
               onClose={(id?: string, name?: string) => {
                 if (id && name) {

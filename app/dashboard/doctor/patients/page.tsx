@@ -3,8 +3,8 @@
 import React, { useEffect, useMemo, useState } from "react";
 import useSWR from "swr";
 import AppShell from "@/components/layout/app-shell";
-import Drawer from "@/components/ui/drawer";
-import { RegisterPatient } from "./RegisterPatient";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 import PatientTable from "./PatientTable";
 import Filter from "./Filter";
 import Statistics from "./Statistics";
@@ -175,17 +175,21 @@ export default function PatientsEnhanced() {
         </div>
       </div>
 
-      {/* Drawer for new patient */}
-      <Drawer
+      {/* Dialog for new patient */}
+      <Dialog
         open={openCreate}
-        onClose={() => setOpenCreate(false)}
-        title="Patient Register"
+        onOpenChange={(v) => !v && setOpenCreate(false)}
       >
-        <RegisterPatient
-          onClose={() => setOpenCreate(false)}
-          mutate={refreshData}
-        />
-      </Drawer>
+        <DialogContent className="max-w-3xl! max-h-[90dvh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Patient Register</DialogTitle>
+          </DialogHeader>
+          <PatientForm
+            onClose={() => setOpenCreate(false)}
+            mutate={refreshData}
+          />
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }

@@ -15,7 +15,7 @@ import {
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { FieldErrors, UseFormSetValue } from "react-hook-form";
 import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
-import { TopInsuranceCompany } from "./data";
+import { TopInsuranceCompany } from "./data/index";
 import { X } from "lucide-react";
 
 export default function InsuranceSelection({

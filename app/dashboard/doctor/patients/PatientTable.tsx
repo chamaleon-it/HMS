@@ -18,8 +18,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import Drawer from "@/components/ui/drawer";
-import { RegisterPatient } from "./RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 
 export interface Data {
   _id: string;
@@ -257,7 +256,7 @@ export default function PatientTable({
                         Edit
                       </button>
                       <Link
-                        href={`/dashboard/doctor/patients/${r._id}`}
+                        href={`/dashboard/doctor/patients/single?id=${r._id}`}
                         className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
                       >
                         View
@@ -298,17 +297,21 @@ export default function PatientTable({
       </div>
 
       {edit?._id && (
-        <Drawer
+        <Dialog
           open={Boolean(edit)}
-          onClose={() => setEdit(null)}
-          title="Patient Edit"
+          onOpenChange={(v) => !v && setEdit(null)}
         >
-          <RegisterPatient
-            onClose={() => setEdit(null)}
-            mutate={tableMutate}
-            patient={edit}
-          />
-        </Drawer>
+          <DialogContent className="max-w-3xl! max-h-[90dvh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Patient Edit</DialogTitle>
+            </DialogHeader>
+            <PatientForm
+              onClose={() => setEdit(null)}
+              mutate={tableMutate}
+              patient={edit}
+            />
+          </DialogContent>
+        </Dialog>
       )}
     </>
   );

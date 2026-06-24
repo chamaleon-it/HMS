@@ -90,20 +90,20 @@ export default function SearchBar() {
   };
 
   return (
-    <div className="flex-1 max-w-md">
+    <div className="hidden md:block w-48 lg:w-56 xl:w-64">
       <div className="relative" ref={dropdownRef}>
         <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" />
         <input
           type="text"
-          placeholder="Search patients or appointments…"
+          placeholder="Search patients..."
           value={q ?? ""}
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={handleKeyDown}
           data-testid="search-input"
-          className="w-full rounded-2xl border border-slate-200 bg-white/90 pl-12 pr-24 py-2.5 text-sm shadow-sm outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
+          className="w-full rounded-2xl border border-slate-200 bg-white/90 pl-10 pr-4 py-2.5 text-sm shadow-sm outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
         />
         {isOpen && Boolean(data?.data.length) && (
-          <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-[400px] overflow-y-auto">
+          <div className="absolute right-0 w-[300px] sm:w-[400px] lg:w-[450px] top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-[400px] overflow-y-auto">
             {data?.data.map((p, index) => (
               <Link
                 href={generateLink(p._id)}

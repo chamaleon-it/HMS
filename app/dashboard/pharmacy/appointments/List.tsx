@@ -1,10 +1,9 @@
 import { fDateandTime, fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer } from "lucide-react";
 import React, { useState } from "react";
-import BlankPrescription from "./BlankPrescription";
+import BlankPrescription from "@/components/shared/appointment/BlankPrescription";
 import useAppointmentList from "./data/useAppointmentList";
-import Drawer from "@/components/ui/drawer";
-import { CreateAppointmentForm } from "./CreateAppointmentForm";
+import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import {
@@ -227,19 +226,14 @@ export default function List({
         </TableBody>
       </Table>
 
-      <Drawer
-        open={Boolean(edit)}
-        onClose={() => setEdit(null)}
-        title="Edit Appointment"
-      >
-        {edit && (
-          <CreateAppointmentForm
-            onClose={() => setEdit(null)}
-            mutate={mutate}
-            appointment={edit}
-          />
-        )}
-      </Drawer>
+      {edit && (
+        <AppointmentDialog
+          open={Boolean(edit)}
+          onOpenChange={(v) => !v && setEdit(null)}
+          mutate={mutate}
+          appointment={edit}
+        />
+      )}
 
       {printData && <BlankPrescription data={printData} />}
     </div>

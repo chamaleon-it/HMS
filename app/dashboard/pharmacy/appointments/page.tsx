@@ -9,16 +9,15 @@ import AppShell from "@/components/layout/app-shell";
 import Calendar from "./Calender";
 import List from "./List";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
-import { CreateAppointmentForm } from "./CreateAppointmentForm";
+import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import Statistics from "./Statistics";
 import Filter, { STATUSES } from "./Filter";
 import { ArrowLeft, ArrowRight, ChevronLeft, ChevronRight, Check, Keyboard } from "lucide-react";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
-import Drawer from "@/components/ui/drawer";
 import useAppointmentList from "./data/useAppointmentList";
 import PharmacyHeader from "../components/PharmacyHeader";
-import Select from "./AppointmentSelect";
+import Select from "@/components/shared/appointment/AppointmentSelect";
 import useSWR, { useSWRConfig } from "swr";
 import { User, Calendar as CalendarIcon, Clock as ClockIcon, Phone, Mail, MapPin, X } from "lucide-react";
 import { motion } from "framer-motion";
@@ -642,18 +641,13 @@ export default function AppointmentPage() {
           </Tabs>
         </div>
 
-        <Drawer
+        <AppointmentDialog
           open={!!openCreate}
-          onClose={() => setOpenCreate(false)}
-          title={openCreate?._id ? "Edit Appointment" : "Create Appointment"}
-        >
-          <CreateAppointmentForm
-            onClose={() => setOpenCreate(false)}
-            mutate={mutate}
-            walkIn={openCreate === "walk-in" || openCreate?.walkIn}
-            appointment={typeof openCreate === 'object' ? openCreate : undefined}
-          />
-        </Drawer>
+          onOpenChange={(v) => !v && setOpenCreate(false)}
+          mutate={mutate}
+          walkIn={openCreate === "walk-in" || openCreate?.walkIn}
+          appointment={typeof openCreate === 'object' ? openCreate : undefined}
+        />
       </div>
     </AppShell>
   );

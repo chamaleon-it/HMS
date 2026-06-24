@@ -2,8 +2,7 @@ import { fDateandTime, fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video, Search } from "lucide-react";
 import React, { useState } from "react";
 import useAppointmentList from "./data/useAppointmentList";
-import Drawer from "@/components/ui/drawer";
-import { CreateAppointmentForm } from "./CreateAppointmentForm";
+import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import {
   Table,
   TableBody,
@@ -169,16 +168,12 @@ export default function List({
         </TableBody>
       </Table>
 
-      {edit?._id && <Drawer
+      {edit?._id && <AppointmentDialog
         open={Boolean(edit)}
-        onClose={() => setEdit(null)}
-        title="Edit Appointment"
-      >
-        <CreateAppointmentForm
-          onClose={() => setEdit(null)}
-          appointment={edit}
-        />
-      </Drawer>}
+        onOpenChange={(v) => !v && setEdit(null)}
+        appointment={edit}
+        mutate={mutate}
+      />}
     </div>
   );
 }

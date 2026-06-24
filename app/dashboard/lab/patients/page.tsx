@@ -30,11 +30,12 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog";
 import { useState } from "react";
-import { RegisterPatient } from "../../pharmacy/RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 
 const Patients: React.FC = () => {
     const router = useRouter();
     const [editPatient, setEditPatient] = useState<any>(null);
+    const [openCreate, setOpenCreate] = useState(false);
 
     const { data: patientsData, mutate } = useSWR<{
         message: string;
@@ -60,10 +61,9 @@ const Patients: React.FC = () => {
                     <main className="space-y-6">
                         <div className="flex items-center justify-between gap-3 w-full">
                             <LabHeader
-                                title="Customers"
-                                subtitle="Click a row to open full lab history for that Customers."
-                            >
-                            </LabHeader>
+                                title="Patients"
+                                subtitle="Click a row to open full lab history for that patient."
+                            />
                             <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
                                 Showing <span className="font-semibold">{patients.length}</span>{" "}
                                 of <span className="font-semibold">{patients.length}</span>{" "}
@@ -223,10 +223,22 @@ const Patients: React.FC = () => {
                     <DialogHeader>
                         <DialogTitle>Edit Patient</DialogTitle>
                     </DialogHeader>
-                    <RegisterPatient
+                    <PatientForm
                         onClose={() => setEditPatient(null)}
                         mutate={mutate}
                         patient={editPatient}
+                    />
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={openCreate} onOpenChange={(v) => !v && setOpenCreate(false)}>
+                <DialogContent className="max-w-3xl! max-h-[90dvh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Patient Register</DialogTitle>
+                    </DialogHeader>
+                    <PatientForm
+                        onClose={() => setOpenCreate(false)}
+                        mutate={mutate}
                     />
                 </DialogContent>
             </Dialog>

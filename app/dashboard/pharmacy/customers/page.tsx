@@ -27,7 +27,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { RegisterPatient } from "../RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, Pencil, Plus, ClipboardPlus, CalendarPlus } from "lucide-react";
 const Customers: React.FC = () => {
@@ -335,7 +335,7 @@ const Customers: React.FC = () => {
           <DialogHeader>
             <DialogTitle>Customer Edit</DialogTitle>
           </DialogHeader>
-          <RegisterPatient
+          <PatientForm
             onClose={() => setEditCustomer(null)}
             mutate={mutate}
             patient={editCustomer}

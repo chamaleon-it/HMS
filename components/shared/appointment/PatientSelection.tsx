@@ -18,7 +18,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { RegisterPatient } from "../RegisterPatient";
+import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { Button } from "@/components/ui/button";
 import { UseFormSetValue } from "react-hook-form";
 import useSWR from "swr";

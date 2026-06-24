@@ -145,12 +145,12 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         icon: Undo2,
         link: "/dashboard/pharmacy/return/",
       },
-      {
-        key: "purchase",
-        label: "Purchase",
-        icon: ShoppingCart,
-        link: "/dashboard/pharmacy/purchase/",
-      },
+      // {
+      //   key: "purchase",
+      //   label: "Purchase",
+      //   icon: ShoppingCart,
+      //   link: "/dashboard/pharmacy/purchase/",
+      // },
       {
         key: "billing",
         label: "Billing",
