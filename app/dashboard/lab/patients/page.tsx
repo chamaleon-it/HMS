@@ -46,6 +46,7 @@ const Patients: React.FC = () => {
         doctor: undefined,
         age: [0, 100],
         lastVisit: undefined,
+        alreadyPurchase: false,
         page: 1,
         limit: 20,
         dateRange: { from: undefined, to: undefined },
@@ -53,6 +54,7 @@ const Patients: React.FC = () => {
 
     const params = new URLSearchParams();
 
+    params.set("alreadyPurchase", filter.alreadyPurchase ? "true" : "false");
     params.set("page", String(filter.page));
     params.set("limit", String(filter.limit));
     if (filter.query) params.set("q", filter.query);

@@ -72,6 +72,7 @@ export default function Filter({
                 from: undefined,
                 to: undefined,
               },
+              consultedOnly: false,
             })
           }
           className="h-11 px-4 rounded-xl bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 cursor-pointer transition-all flex items-center gap-2 font-medium"
@@ -106,6 +107,48 @@ export default function Filter({
               value: s,
             }))}
           />
+        </div>
+
+        {/* Patient Status Toggle */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+            <User className="h-3 w-3" /> Patient Status
+          </span>
+          <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-fit">
+            {[
+              { label: "All Patients", value: false },
+              { label: "Consulted Only", value: true },
+            ].map((opt) => {
+              const active = filter.consultedOnly === opt.value;
+              return (
+                <button
+                  key={opt.label}
+                  onClick={() =>
+                    setFilter((prev) => ({ ...prev, consultedOnly: opt.value }))
+                  }
+                  className={cn(
+                    "relative px-3.5 h-8.5 rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
+                    active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
+                  )}
+                  type="button"
+                >
+                  <AnimatePresence>
+                    {active && (
+                      <motion.span
+                        layoutId="consulted-bg"
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="absolute inset-0 bg-indigo-600"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                      />
+                    )}
+                  </AnimatePresence>
+                  <span className="relative z-10">{opt.label}</span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Gender — attractive pills */}

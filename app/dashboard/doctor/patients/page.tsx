@@ -25,6 +25,7 @@ export interface FilterType {
     from?: string;
     to?: string;
   };
+  consultedOnly?: boolean;
 }
 
 export default function PatientsEnhanced() {
@@ -39,6 +40,7 @@ export default function PatientsEnhanced() {
     date: undefined,
     status: undefined,
     dateRange: { from: undefined, to: undefined },
+    consultedOnly: false,
   });
 
   // ✅ Build query params efficiently using useMemo (avoids recomputation)
@@ -57,6 +59,7 @@ export default function PatientsEnhanced() {
     addParam("minAge", filter.age?.[0]);
     addParam("maxAge", filter.age?.[1]);
     addParam("status", filter.status);
+    addParam("consultedOnly", filter.consultedOnly ? "true" : "false");
 
     // Handle date filters
     if (typeof filter.lastVisit === "number") {
