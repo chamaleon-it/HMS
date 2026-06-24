@@ -298,7 +298,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             online: printBill.online,
             insurance: printBill.insurance,
             discount: printBill.discount,
-            doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor)
+            doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor),
+            department: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.specialization : (printBill as any).department,
           }}
           patient={{
             name: printBill.patient.name,

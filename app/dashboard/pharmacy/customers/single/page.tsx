@@ -215,7 +215,7 @@ const CustomerPageContent: React.FC = () => {
                     online: bill.online,
                     patient: bill.patient._id,
                     department: "Pharmacy",
-                    doctor: "N/A",
+                    doctor: (bill as any).doctor || "N/A",
                     note: "",
                 },
                 invoiceDetails: {

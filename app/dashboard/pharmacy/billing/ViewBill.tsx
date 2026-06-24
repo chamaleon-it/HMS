@@ -257,6 +257,8 @@ export default function ViewBill({ id }: { id: string }) {
                         online: printBill.online,
                         insurance: printBill.insurance,
                         discount: printBill.discount,
+                        doctor: typeof printBill.doctor === "object" ? printBill.doctor?.name : (printBill.doctor === "Self" ? "" : printBill.doctor),
+                        department: typeof printBill.doctor === "object" ? printBill.doctor?.specialization : printBill.department,
                     }}
                     patient={{
                         name: printBill.patient.name,
