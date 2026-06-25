@@ -41,6 +41,56 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preload" href="/fonts/roboto/Roboto-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/roboto/Roboto-Medium.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/roboto/Roboto-Bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/cinzel-decorative/CinzelDecorative-Regular.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/cinzel-decorative/CinzelDecorative-Bold.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/cinzel-decorative/CinzelDecorative-Black.woff2" as="font" type="font/woff2" crossOrigin="anonymous" />
+        <style dangerouslySetInnerHTML={{ __html: `
+          @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('/fonts/roboto/Roboto-Regular.woff2') format('woff2');
+          }
+          @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 500;
+            font-display: swap;
+            src: url('/fonts/roboto/Roboto-Medium.woff2') format('woff2');
+          }
+          @font-face {
+            font-family: 'Roboto';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url('/fonts/roboto/Roboto-Bold.woff2') format('woff2');
+          }
+          @font-face {
+            font-family: 'Cinzel Decorative';
+            font-style: normal;
+            font-weight: 400;
+            font-display: swap;
+            src: url('/fonts/cinzel-decorative/CinzelDecorative-Regular.woff2') format('woff2');
+          }
+          @font-face {
+            font-family: 'Cinzel Decorative';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url('/fonts/cinzel-decorative/CinzelDecorative-Bold.woff2') format('woff2');
+          }
+          @font-face {
+            font-family: 'Cinzel Decorative';
+            font-style: normal;
+            font-weight: 900;
+            font-display: swap;
+            src: url('/fonts/cinzel-decorative/CinzelDecorative-Black.woff2') format('woff2');
+          }
+        `}} />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

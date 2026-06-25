@@ -1,3 +1,6 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
 @font-face {
   font-family: 'Roboto';
   font-style: normal;
@@ -40,10 +43,6 @@
   font-display: swap;
   src: url('/fonts/cinzel-decorative/CinzelDecorative-Black.woff2') format('woff2');
 }
-
-@import "tailwindcss";
-@import "tw-animate-css";
-
 
 .font-roboto {
   font-family: 'Roboto', sans-serif;
