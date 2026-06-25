@@ -44,6 +44,48 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             </svg>
             <style dangerouslySetInnerHTML={{
                 __html: `
+        @font-face {
+          font-family: 'RobotoLocal';
+          font-style: normal;
+          font-weight: 400;
+          font-display: swap;
+          src: url('/fonts/roboto/Roboto-Regular.woff2') format('woff2');
+        }
+        @font-face {
+          font-family: 'RobotoLocal';
+          font-style: normal;
+          font-weight: 500;
+          font-display: swap;
+          src: url('/fonts/roboto/Roboto-Medium.woff2') format('woff2');
+        }
+        @font-face {
+          font-family: 'RobotoLocal';
+          font-style: normal;
+          font-weight: 700;
+          font-display: swap;
+          src: url('/fonts/roboto/Roboto-Bold.woff2') format('woff2');
+        }
+        @font-face {
+          font-family: 'Cinzel Decorative';
+          font-style: normal;
+          font-weight: 400;
+          font-display: swap;
+          src: url('/fonts/cinzel-decorative/CinzelDecorative-Regular.woff2') format('woff2');
+        }
+        @font-face {
+          font-family: 'Cinzel Decorative';
+          font-style: normal;
+          font-weight: 700;
+          font-display: swap;
+          src: url('/fonts/cinzel-decorative/CinzelDecorative-Bold.woff2') format('woff2');
+        }
+        @font-face {
+          font-family: 'Cinzel Decorative';
+          font-style: normal;
+          font-weight: 900;
+          font-display: swap;
+          src: url('/fonts/cinzel-decorative/CinzelDecorative-Black.woff2') format('woff2');
+        }
         @media print {
           @page {
             margin: 0;
@@ -56,10 +98,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-            font-family: 'Roboto', sans-serif;
+            font-family: 'RobotoLocal', Arial, sans-serif;
           }
           * {
-              font-family: 'Roboto', Arial, sans-serif !important;
+              font-family: 'RobotoLocal', Arial, sans-serif !important;
               text-rendering: geometricPrecision !important;
               -webkit-font-smoothing: antialiased !important;
               -moz-osx-font-smoothing: grayscale !important;
