@@ -44,8 +44,6 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             </svg>
             <style dangerouslySetInnerHTML={{
                 __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel+Decorative:wght@400;700;900&family=Italianno&display=swap');
         @media print {
           @page {
             margin: 0;
