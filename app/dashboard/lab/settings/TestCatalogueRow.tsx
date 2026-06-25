@@ -143,16 +143,16 @@ export default function TestCatalogueRow({
         setPayload((prev) => {
             const updatedRange = [...(prev.range || [])];
             let newRangeItem = { ...updatedRange[index], [field]: value };
-            
+
             if (field === 'upto' && value !== undefined && value !== null && value !== "") {
                 newRangeItem.min = undefined;
                 newRangeItem.max = undefined;
             }
-            
+
             if ((field === 'min' || field === 'max') && value !== undefined && value !== null && value !== "") {
                 newRangeItem.upto = undefined;
             }
-            
+
             updatedRange[index] = newRangeItem;
             return { ...prev, range: updatedRange };
         });
@@ -561,6 +561,8 @@ export default function TestCatalogueRow({
                                                 <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
                                                 <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
                                                 <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+                                                <SelectItem value="MICROBIOLOGY">MICROBIOLOGY</SelectItem>
+                                                <SelectItem value="HORMONES">HORMONES</SelectItem>
                                                 <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
                                             </SelectContent>
                                         </Select>

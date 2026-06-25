@@ -128,7 +128,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     "BIOCHEMISTRY": 2,
                     "SEROLOGY": 3,
                     "IMMUNOLOGY": 4,
-                    "CLINICAL PATHOLOGY": 5
+                    "MICROBIOLOGY": 5,
+                    "HORMONES": 6,
+                    "CLINICAL PATHOLOGY": 7
                 };
                 const getDeptPriority = (dept: string) => deptPriority[dept] || 99;
 
@@ -242,6 +244,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             if (cat.includes("HEAMAT") || cat.includes("HEMAT") || cat.includes("HAEMAT") || cat.includes("CBC")) dept = "HAEMATOLOGY";
                             else if (cat.includes("SEROLOGY")) dept = "SEROLOGY";
                             else if (cat.includes("IMMUNOLOGY")) dept = "IMMUNOLOGY";
+                            else if (cat.includes("MICROBIOLOGY")) dept = "MICROBIOLOGY";
+                            else if (cat.includes("HORMONES")) dept = "HORMONES";
                             else if (cat.includes("CLINICAL")) dept = "CLINICAL PATHOLOGY";
                             else dept = "BIOCHEMISTRY";
                         }

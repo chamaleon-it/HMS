@@ -389,6 +389,8 @@ export default function PanelCatalogueRow({
                                                 <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
                                                 <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
                                                 <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+                                                <SelectItem value="MICROBIOLOGY">MICROBIOLOGY</SelectItem>
+                                                <SelectItem value="HORMONES">HORMONES</SelectItem>
                                                 <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
                                             </SelectContent>
                                         </Select>
