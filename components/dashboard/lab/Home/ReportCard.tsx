@@ -114,8 +114,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 const normalizeHeading = (h: string) => {
                     let text = h.toUpperCase().trim();
                     if (text.includes("COMPLETE BLOOD COUNT")) return "COMPLETE BLOOD COUNT";
-                    if (text.includes("HEMATOLOGY") || text.includes("HAEMATOLOGY") || text.includes("HEAMATOLOGY")) {
-                        return "HEAMATOLOGY";
+                    if (text.includes("HEMATOLOGY") || text.includes("HAEMATOLOGY") || text.includes("HAEMATOLOGY")) {
+                        return "HAEMATOLOGY";
                     }
                     if (text.includes("BIOCHEMISTRY")) return "BIOCHEMISTRY";
                     return text;
@@ -124,7 +124,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 const processedTestIds = new Set<string>();
 
                 const deptPriority: Record<string, number> = {
-                    "HEAMATOLOGY": 1,
+                    "HAEMATOLOGY": 1,
                     "BIOCHEMISTRY": 2,
                     "SEROLOGY": 3,
                     "IMMUNOLOGY": 4,
@@ -239,7 +239,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         if (!dept) {
                             // Fallback if department is missing
                             const cat = (t.name?.category || "").toString().toUpperCase();
-                            if (cat.includes("HEAMAT") || cat.includes("HEMAT") || cat.includes("HAEMAT") || cat.includes("CBC")) dept = "HEAMATOLOGY";
+                            if (cat.includes("HEAMAT") || cat.includes("HEMAT") || cat.includes("HAEMAT") || cat.includes("CBC")) dept = "HAEMATOLOGY";
                             else if (cat.includes("SEROLOGY")) dept = "SEROLOGY";
                             else if (cat.includes("IMMUNOLOGY")) dept = "IMMUNOLOGY";
                             else if (cat.includes("CLINICAL")) dept = "CLINICAL PATHOLOGY";
@@ -349,7 +349,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     const getIsHaem = (r: any) => {
                         if (!r) return false;
                         const pHeading = (r.mainHeading || r.activePanel || "").toUpperCase();
-                        return pHeading.includes("HEMATOLOGY") || pHeading.includes("HAEMATOLOGY") || pHeading.includes("HEAMATOLOGY") || pHeading.includes("CBC") || pHeading.includes("COMPLETE BLOOD COUNT");
+                        return pHeading.includes("HEMATOLOGY") || pHeading.includes("HAEMATOLOGY") || pHeading.includes("HAEMATOLOGY") || pHeading.includes("CBC") || pHeading.includes("COMPLETE BLOOD COUNT");
                     };
 
                     const isPrevHaematology = getIsHaem(prevRow);
