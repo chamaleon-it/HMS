@@ -59,7 +59,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             font-family: 'Roboto', sans-serif;
           }
           * {
-              font-family: 'Roboto', sans-serif !important;
+              font-family: 'Roboto', Arial, sans-serif !important;
+              text-rendering: geometricPrecision !important;
+              -webkit-font-smoothing: antialiased !important;
+              -moz-osx-font-smoothing: grayscale !important;
           }
           .print-prescription { 
             visibility: visible !important;
