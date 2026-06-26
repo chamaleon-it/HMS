@@ -71,6 +71,23 @@ export default function LoginPage() {
           className="relative  h-screen w-full flex justify-center items-center"
           style={{ backgroundColor: "var(--color-cosmo-dark)" }}
         >
+          {/* Logo */}
+          <div className="absolute top-6 left-6 md:top-8 md:left-10 z-20 animate-fade-up flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl">
+            <img 
+              src="/logo.png" 
+              alt="Cosmo Home Icon" 
+              className="h-10 md:h-12 w-auto object-contain drop-shadow-sm" 
+            />
+            <div className="flex flex-col justify-center">
+              <span className="text-[#a6906c] font-fraunces text-xl md:text-[26px] font-medium tracking-wide leading-none drop-shadow-sm">
+                COSMO HOME
+              </span>
+              <span className="text-[#a6906c] text-[10px] md:text-[11px] font-medium tracking-[0.15em] mt-1 opacity-95 drop-shadow-sm">
+                AESTHETIC MEDICINE
+              </span>
+            </div>
+          </div>
+
           {/* grid overlay */}
           <div
             className="pointer-events-none absolute inset-0"
