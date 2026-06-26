@@ -124,13 +124,13 @@ export default function AddPaymentDialog({
                                         key: "online",
                                         label: "Card / UPI",
                                         icon: CreditCard,
-                                        tint: "bg-indigo-50 text-indigo-700 border-indigo-200",
+                                        tint: "bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
                                     },
                                     {
                                         key: "insurance",
                                         label: "Insurance",
                                         icon: Building2,
-                                        tint: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200",
+                                        tint: "bg-fuchsia-50 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
                                     },
                                 ].map(({ key, label, icon: Icon, tint }) => (
                                     <div key={key} className="col-span-12 md:col-span-6">

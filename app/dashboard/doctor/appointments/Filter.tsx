@@ -49,14 +49,14 @@ export default function Filter({
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
           <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <div className="relative flex-1 min-w-[260px] group">
-              <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-indigo-500" />
+              <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-[var(--color-cosmo-copper)]" />
               <Input
                 value={query}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setQuery(e.target.value)
                 }
                 placeholder="Search by patient, doctor, or #ID"
-                className="pl-9 h-11 bg-zinc-50/50 border-zinc-200 focus-visible:ring-indigo-500/20 focus-visible:border-indigo-500 transition-all"
+                className="pl-9 h-11 bg-zinc-50/50 border-zinc-200 focus-visible:ring-[var(--color-cosmo-copper)]/20 focus-visible:border-[var(--color-cosmo-copper)] transition-all"
               />
             </div>
 

@@ -115,7 +115,7 @@ export default function ConsultationNotes({
             <button
               type="button"
               onClick={() => setAddValues("presentHistory")}
-              className="inline-flex items-center rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-cyan-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="inline-flex items-center rounded-lg bg-gradient-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-[var(--color-cosmo-brown)] hover:to-[var(--color-cosmo-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--color-cosmo-copper)]"
             >
               + Add Condition
             </button>
@@ -137,7 +137,7 @@ export default function ConsultationNotes({
                   setValue("");
                   setAddValues(null);
                 }}
-                className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+                className="inline-flex items-center rounded-md bg-[var(--color-cosmo-copper)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-cosmo-copper)] disabled:opacity-40"
                 disabled={!value.trim()}
               >
                 Save
@@ -197,7 +197,7 @@ export default function ConsultationNotes({
                 <button
                   type="button"
                   onClick={() => setAddValues("pastHistory")}
-                  className="inline-flex items-center rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-cyan-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                    className="inline-flex items-center rounded-lg bg-gradient-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-[var(--color-cosmo-brown)] hover:to-[var(--color-cosmo-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--color-cosmo-copper)]"
                 >
                   + Add Condition
                 </button>
@@ -219,7 +219,7 @@ export default function ConsultationNotes({
                       setValue("");
                       setAddValues(null);
                     }}
-                    className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+                    className="inline-flex items-center rounded-md bg-[var(--color-cosmo-copper)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-cosmo-copper)] disabled:opacity-40"
                     disabled={!value.trim()}
                   >
                     Save
@@ -285,7 +285,7 @@ export default function ConsultationNotes({
               <button
                 type="button"
                 onClick={() => setAddValues("diagnosis")}
-                className="inline-flex items-center rounded-lg bg-gradient-to-r from-blue-500 to-cyan-600 px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-cyan-500 hover:to-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                  className="inline-flex items-center rounded-lg bg-gradient-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-[var(--color-cosmo-brown)] hover:to-[var(--color-cosmo-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--color-cosmo-copper)]"
               >
                 + Add Condition
               </button>
@@ -307,7 +307,7 @@ export default function ConsultationNotes({
                     setValue("");
                     setAddValues(null);
                   }}
-                  className="inline-flex items-center rounded-md bg-blue-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-40"
+                  className="inline-flex items-center rounded-md bg-[var(--color-cosmo-copper)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-cosmo-copper)] disabled:opacity-40"
                   disabled={!value.trim()}
                 >
                   Save

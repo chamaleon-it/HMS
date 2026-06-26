@@ -74,7 +74,7 @@ export default function LoginPage() {
     <div>
       {/* Brand palette + India tricolour + animations */}
       <style>{`
-        :root{ --brand:#2563eb; --brand-dark:#1e40af; --brand-soft:#eaf1ff; --accent-start:#60a5fa; --accent-end:#7c3aed; --saffron:#FF8F1F; --india-white:#ffffff; --india-green:#138808; }
+        :root{ --brand:var(--color-cosmo-copper); --brand-dark:var(--color-cosmo-brown); --brand-soft:var(--color-cosmo-copper); --accent-start:var(--color-cosmo-copper); --accent-end:var(--color-cosmo-brown); --saffron:#FF8F1F; --india-white:#ffffff; --india-green:#138808; }
         @keyframes ribbonPan { 0%{ background-position:0% 50%; } 100%{ background-position:200% 50%; } }
         @keyframes fadeUp { 0%{ opacity:0; transform:translateY(12px);} 100%{ opacity:1; transform:translateY(0);} }
         @keyframes floatSoft { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-4px);} }
@@ -87,7 +87,7 @@ export default function LoginPage() {
 
       <div
         className="relative  h-screen w-full flex justify-center items-center"
-        style={{ backgroundColor: "#082242" }}
+        style={{ backgroundColor: "var(--color-cosmo-dark)" }}
       >
         {/* grid overlay */}
         <div
@@ -105,7 +105,7 @@ export default function LoginPage() {
             <h1 className="text-5xl font-semibold leading-tight">
               Welcome back
             </h1>
-            <p className="mt-4 text-slate-200/90 max-w-xl text-lg">
+            <p className="mt-4 text-slate-300 max-w-xl text-lg">
               Sign in to manage appointments, billing, labs and reports from one
               clean dashboard.
             </p>
@@ -123,7 +123,7 @@ export default function LoginPage() {
                 <div
                   key={label}
                   style={{ animationDelay: `${0.05 * (idx + 1)}s` }}
-                  className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-slate-100 text-sm"
+                  className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-[var(--color-cosmo-copper)]/20 bg-black/20 px-3 py-1.5 text-slate-200 text-sm"
                 >
                   <Icon className="h-5 w-5 text-white" />
                   <span dangerouslySetInnerHTML={{ __html: label }} />

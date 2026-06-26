@@ -402,7 +402,7 @@ export default function ProfileForm() {
             </div>
           </CardContent>
           <CardFooter className="justify-end">
-            <Button className="gap-2 bg-gradient-to-r from-sky-600 to-indigo-600 text-white hover:from-sky-700 hover:to-indigo-700 shadow-sm">
+            <Button className="gap-2 bg-gradient-to-r from-[var(--color-cosmo-dark)] to-[var(--color-cosmo-brown)] text-white hover:from-[var(--color-cosmo-brown)] hover:to-[var(--color-cosmo-brown)] shadow-sm">
               <Save className="h-4 w-4" /> Save changes
             </Button>
           </CardFooter>

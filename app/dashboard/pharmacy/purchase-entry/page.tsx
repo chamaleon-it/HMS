@@ -38,7 +38,7 @@ export default function PurchaseEntryPage() {
                             subtitle="Record new purchases and update inventory"
                         >
                             <Button
-                                className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md font-semibold"
+                                className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md font-semibold"
                                 onClick={() => setIsAddDrawerOpen(true)}
                             >
                                 <Plus className="w-4 h-4 mr-2" />

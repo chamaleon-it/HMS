@@ -91,7 +91,7 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
                     }}
                     onFocus={() => setOpen(true)}
                     onKeyDown={onKeyDown}
-                    className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 pr-8 text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all placeholder:text-slate-400"
+                    className="h-8 w-full rounded-lg border border-slate-200 bg-slate-50/50 px-3 pr-8 text-sm outline-none focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 focus:border-[var(--color-cosmo-copper)] transition-all placeholder:text-slate-400"
                 />
                 {search && (
                     <button
@@ -119,7 +119,7 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
                                 onMouseEnter={() => setActiveIndex(index)}
                                 className={cn(
                                     "flex items-center gap-3 rounded-lg p-2 cursor-pointer transition-colors",
-                                    activeIndex === index ? "bg-indigo-50" : "hover:bg-slate-50"
+                                    activeIndex === index ? "bg-[var(--color-cosmo-copper)]/10" : "hover:bg-slate-50"
                                 )}
                             >
                                 <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 overflow-hidden">
@@ -133,7 +133,7 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
                                     <span className="text-sm font-medium text-slate-700 truncate">{doctor.name}</span>
                                     {doctor.email && <span className="text-[10px] text-slate-400 truncate">{doctor.email}</span>}
                                 </div>
-                                {value === doctor.name && <Check className="ml-auto h-3 w-3 text-indigo-500" />}
+                                {value === doctor.name && <Check className="ml-auto h-3 w-3 text-[var(--color-cosmo-copper)]" />}
                             </div>
                         ))
                     )}

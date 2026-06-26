@@ -460,7 +460,7 @@ export function EditSupplier({
                     <Button
                         type="submit"
                         disabled={isSubmitting || !isDirty}
-                        className="bg-slate-900 text-white hover:bg-slate-800 font-semibold"
+                        className="bg-[var(--color-cosmo-dark)] text-white hover:bg-[var(--color-cosmo-brown)] font-semibold"
                         ref={refs.submitButton}
                     >
                         {isSubmitting ? "Saving..." : "Save Changes"}

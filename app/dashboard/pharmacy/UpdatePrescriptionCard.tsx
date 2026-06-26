@@ -105,7 +105,7 @@ export default function UpdatePrescriptionCard({
     <div className="rounded-lg border overflow-x-auto">
       <div className="rounded-t-lg min-w-[1000px]">
         <table className="w-full text-[15px]">
-          <thead className="bg-slate-700 hover:bg-slate-700 text-white">
+          <thead className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white">
             <tr className="w-full">
               <th className="w-[5%] p-2 text-left">Sl</th>
               <th className="w-[25%] p-2 text-left">Drug</th>

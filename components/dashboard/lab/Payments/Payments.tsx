@@ -100,7 +100,7 @@ export default function Payments() {
                         <Calendar className="h-4 w-4" />
                         {format(new Date(), "MMMM yyyy")}
                     </Button>
-                    <Button className="gap-2 bg-indigo-600 hover:bg-indigo-700">
+                    <Button className="gap-2 bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)]">
                         <Download className="h-4 w-4" /> Export
                     </Button>
                 </div>
@@ -113,9 +113,9 @@ export default function Payments() {
                     label="Total Revenue"
                     value={formatINR(totalCollection)}
                     subtext="+12% from last month"
-                    colorClass="from-indigo-500/10 to-indigo-500/5"
-                    iconBgClass="bg-indigo-100 text-indigo-600"
-                    borderClass="hover:border-indigo-200"
+                    colorClass="from-[var(--color-cosmo-copper)]/10 to-[var(--color-cosmo-brown)]/5"
+                    iconBgClass="bg-[var(--color-cosmo-copper)]/20 text-[var(--color-cosmo-copper)]"
+                    borderClass="hover:border-[var(--color-cosmo-copper)]/30"
                 />
                 <StatCard
                     delay={0.2}
@@ -133,8 +133,8 @@ export default function Payments() {
                     label="Digital Payments"
                     value={formatINR(totalOnline)}
                     subtext={`${((totalOnline / (totalCollection || 1)) * 100).toFixed(1)}% of total`}
-                    colorClass="from-blue-500/10 to-blue-500/5"
-                    iconBgClass="bg-blue-100 text-blue-600"
+                    colorClass="from-[var(--color-cosmo-copper)]/10 to-blue-500/5"
+                    iconBgClass="bg-blue-100 text-[var(--color-cosmo-copper)]"
                     borderClass="hover:border-blue-200"
                 />
                 <StatCard
@@ -183,7 +183,7 @@ export default function Payments() {
                                         <TableCell>
                                             <div className="flex gap-1">
                                                 {bill.cash > 0 && <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 text-xs font-medium">Cash</span>}
-                                                {bill.online > 0 && <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">Online</span>}
+                                                {bill.online > 0 && <span className="px-2 py-0.5 rounded-full bg-blue-100 text-[var(--color-cosmo-copper)] text-xs font-medium">Online</span>}
                                                 {bill.insurance > 0 && <span className="px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 text-xs font-medium">Ins</span>}
                                             </div>
                                         </TableCell>
@@ -227,7 +227,7 @@ export default function Payments() {
                                 <span className="text-zinc-500">{((totalCash / (totalCollection || 1)) * 100).toFixed(0)}%</span>
                             </div>
                             <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-emerald-500 rounded-full" style={{ width: `${(totalCash / (totalCollection || 1)) * 100}%` }} />
+                                <div className="h-full bg-[var(--color-cosmo-dark)] rounded-full" style={{ width: `${(totalCash / (totalCollection || 1)) * 100}%` }} />
                             </div>
                         </div>
 
@@ -237,7 +237,7 @@ export default function Payments() {
                                 <span className="text-zinc-500">{((totalOnline / (totalCollection || 1)) * 100).toFixed(0)}%</span>
                             </div>
                             <div className="h-2 w-full bg-zinc-100 rounded-full overflow-hidden">
-                                <div className="h-full bg-blue-500 rounded-full" style={{ width: `${(totalOnline / (totalCollection || 1)) * 100}%` }} />
+                                <div className="h-full bg-[var(--color-cosmo-copper)] rounded-full" style={{ width: `${(totalOnline / (totalCollection || 1)) * 100}%` }} />
                             </div>
                         </div>
 

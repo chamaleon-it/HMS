@@ -51,6 +51,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --color-cosmo-dark: #160A05;
+  --color-cosmo-brown: #2E1B13;
+  --color-cosmo-copper: #C9956A;
 }
 
 :root {

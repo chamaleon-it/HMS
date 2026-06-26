@@ -78,8 +78,8 @@ export default function List({
   return (
     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 mt-6">
       <Table className="text-sm">
-        <TableHeader className="bg-slate-700 hover:bg-slate-700">
-          <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+        <TableHeader className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
+          <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
             <TableHead className="py-2.5 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider">Time</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Patient</TableHead>
             <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Doctor</TableHead>

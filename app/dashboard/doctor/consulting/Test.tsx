@@ -62,7 +62,7 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ mode, onChange }) => (
           "px-4 py-1.5 rounded-full text-sm font-medium transition",
           mode === m
             ? m === "inhouse"
-              ? "bg-emerald-500 text-white shadow"
+              ? "bg-[var(--color-cosmo-dark)] text-white shadow"
               : "bg-amber-500 text-white shadow"
             : "text-zinc-600 hover:bg-zinc-50",
         ].join(" ")}
@@ -150,7 +150,7 @@ const TestItem: React.FC<TestItemProps> = ({
           className={cn(
             "h-5 w-5 rounded-full border flex items-center justify-center transition-colors cursor-pointer",
             selected
-              ? "border-emerald-500 bg-emerald-500 text-white"
+              ? "border-emerald-500 bg-[var(--color-cosmo-dark)] text-white"
               : "border-zinc-300 bg-transparent text-transparent group-hover:border-emerald-400"
           )}
         >
@@ -355,7 +355,7 @@ export default function Test({
           {!show && (
             <Button
               onClick={() => setShow(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-full px-6 shadow-md shadow-emerald-200"
+              className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white rounded-full px-6 shadow-md shadow-[var(--color-cosmo-copper)]/30"
             >
               Start Booking
             </Button>
@@ -726,7 +726,7 @@ export default function Test({
                     className={cn(
                       "w-full py-3 rounded-xl font-semibold shadow-sm transition-all flex items-center justify-center gap-2",
                       canBook
-                        ? "bg-emerald-600 text-white hover:bg-emerald-700 hover:shadow-emerald-200 hover:-translate-y-0.5"
+                        ? "bg-[var(--color-cosmo-dark)] text-white hover:bg-[var(--color-cosmo-dark)] hover:shadow-[var(--color-cosmo-copper)]/30 hover:-translate-y-0.5"
                         : "bg-zinc-200 text-zinc-400 cursor-not-allowed"
                     )}
                   >

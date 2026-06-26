@@ -12,7 +12,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { fAge , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { Download, FileText, Plus, Printer, Share2, User2 } from "lucide-react";
 import toast from "react-hot-toast";
 import React from "react";
@@ -61,7 +61,7 @@ export default function Header({
             </Badge>
           )}
           {patient?.insurance && (
-            <Badge className="rounded-full bg-blue-500">
+            <Badge className="rounded-full bg-[var(--color-cosmo-copper)]">
               Insurance: {patient.insurance}
             </Badge>
           )}
@@ -113,14 +113,7 @@ export default function Header({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <Button
-          size="sm"
-          className={"bg-[#6E59F9] hover:bg-[#5b46f4]"}
-          onClick={() => setOpenAddNote(true)}
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          New Note
-        </Button>
+
       </div>
     </div>
   );

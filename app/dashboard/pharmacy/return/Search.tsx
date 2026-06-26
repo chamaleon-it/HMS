@@ -144,7 +144,7 @@ export default function Search({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="text-[9px] bg-indigo-50 text-indigo-600 px-1.5 py-0.5 rounded-sm font-bold uppercase tracking-wider border border-indigo-100">
+                      <div className="text-[9px] bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] px-1.5 py-0.5 rounded-sm font-bold uppercase tracking-wider border border-[var(--color-cosmo-copper)]/20">
                         {item.mrn}
                       </div>
                       {item.patient?.address && (
@@ -159,7 +159,7 @@ export default function Search({
             )}
           </div>
           <Button
-            className="h-9 rounded-lg bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-4 text-xs font-medium shadow-md flex items-center gap-2 transition-all active:scale-95"
+            className="h-9 rounded-lg bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white px-4 text-xs font-medium shadow-md flex items-center gap-2 transition-all active:scale-95"
             onClick={() => fetchOrder()}
           >
             <Download className="w-3.5 h-3.5" />
@@ -186,9 +186,9 @@ export default function Search({
       <div className="xl:col-span-2 bg-white border rounded-2xl p-4 shadow-sm shadow-slate-100 grid grid-cols-2 md:grid-cols-4 gap-4 text-[11px] text-slate-600">
         <div className="flex flex-col">
           <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500 font-medium text-xs">
-            <User className="w-3 h-3 text-blue-500" /> Patient
+            <User className="w-3 h-3 text-[var(--color-cosmo-copper)]" /> Patient
           </span>
-          <span className="text-blue-700 font-semibold text-sm leading-tight mt-1">
+          <span className="text-[var(--color-cosmo-copper)] font-semibold text-sm leading-tight mt-1">
             {order?.patient.name}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">
@@ -197,7 +197,7 @@ export default function Search({
         </div>
         <div className="flex flex-col">
           <span className="uppercase tracking-wide flex items-center gap-1.5 text-slate-500 font-medium text-xs">
-            <Stethoscope className="w-3 h-3 text-purple-500" /> Doctor
+            <Stethoscope className="w-3 h-3 text-[var(--color-cosmo-copper)]" /> Doctor
           </span>
           <span className="text-slate-900 font-medium text-sm leading-tight mt-1">
             Dr. {order?.doctor.name}

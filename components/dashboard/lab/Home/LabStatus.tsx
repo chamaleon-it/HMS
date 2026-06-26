@@ -49,7 +49,7 @@ export default function LabStatus({
               <motion.span
                 layoutId="tab-indicator"
                 className="absolute inset-0 rounded-full"
-                style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                style={{ background: "var(--color-cosmo-copper)" }}
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />
             )}

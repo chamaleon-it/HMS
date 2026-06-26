@@ -9,7 +9,7 @@ const colorMap = {
     chip: "bg-blue-100 text-blue-800",
     block: "bg-blue-100 text-blue-800",
     ring: "ring-blue-200",
-    dot: "bg-blue-500",
+    dot: "bg-[var(--color-cosmo-copper)]",
     label: "Consultation",
   },
   "Lab Test": {
@@ -23,7 +23,7 @@ const colorMap = {
     chip: "bg-emerald-100 text-emerald-800",
     block: "bg-emerald-100 text-emerald-800",
     ring: "ring-emerald-200",
-    dot: "bg-emerald-500",
+    dot: "bg-[var(--color-cosmo-dark)]",
     label: "Follow-up",
   },
 } as const;
@@ -129,7 +129,7 @@ export default function MonthlyCalender({
                     key={j}
                     className={cn(
                       "mt-1 text-[11px] rounded px-1 truncate bg-gray-200",
-                      ev.status === "Upcoming" && "bg-blue-500",
+                      ev.status === "Upcoming" && "bg-[var(--color-cosmo-copper)]",
                       ev.status === "Consulted" && "bg-gray-200",
                       ev.status === "Test" && "bg-amber-500"
                     )}

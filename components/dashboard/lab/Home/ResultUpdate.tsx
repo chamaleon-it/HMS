@@ -438,7 +438,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
             className={`h-8 text-xs font-semibold rounded-lg transition-all duration-200 shadow-sm border flex items-center gap-2 ${buttonText === "Ready"
               ? "text-emerald-600 bg-white border-emerald-100 hover:bg-emerald-50 hover:text-emerald-700"
               : buttonText === "Completed"
-                ? "text-blue-600 bg-white border-blue-100 hover:bg-blue-50 hover:text-blue-700"
+                ? "text-[var(--color-cosmo-copper)] bg-white border-blue-100 hover:bg-blue-50 hover:text-[var(--color-cosmo-copper)]"
                 : "text-amber-600 bg-white border-amber-100 hover:bg-amber-50 hover:text-amber-700"
               }`}
           >
@@ -451,7 +451,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
         <DialogContent className="sm:max-w-225 p-0 overflow-hidden gap-0">
           <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-blue-100/50 text-blue-600 rounded-xl">
+              <div className="p-2.5 bg-blue-100/50 text-[var(--color-cosmo-copper)] rounded-xl">
                 <FlaskConical className="w-5 h-5" />
               </div>
               <div>
@@ -609,7 +609,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
                         >
                           <TableCell className="pl-6 py-4">
                             <div className="flex items-center gap-3">
-                              <div className="p-2 bg-white border border-gray-100 text-blue-600 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all">
+                              <div className="p-2 bg-white border border-gray-100 text-[var(--color-cosmo-copper)] rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all">
                                 <Beaker className="w-4 h-4" />
                               </div>
                               <div className="">
@@ -795,7 +795,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
             </DialogClose>
             <Button
               onClick={() => updateResult(false, false)}
-              className="gap-2 bg-blue-600 hover:bg-blue-700 text-white shadow-blue-100 shadow-lg"
+              className="gap-2 bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white shadow-blue-100 shadow-lg"
             >
               <Save className="w-4 h-4" />
               Save Changes
@@ -809,7 +809,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
             </Button>
             <Button
               onClick={() => setShowCompleteDialog(true)}
-              className="gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-100 shadow-lg"
+              className="gap-2 bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white shadow-[var(--color-cosmo-copper)]/30 shadow-lg"
             >
               <CheckCircle2 className="w-4 h-4" />
               Complete Test
@@ -884,7 +884,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
             <AlertDialogAction asChild>
               <Button
                 variant="default"
-                className="bg-emerald-600 text-white hover:bg-emerald-700"
+                className="bg-[var(--color-cosmo-dark)] text-white hover:bg-[var(--color-cosmo-dark)]"
                 onClick={() => {
                   updateResult(false, true);
                 }}
