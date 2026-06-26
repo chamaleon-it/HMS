@@ -5,7 +5,9 @@ import LoginForm from "@/components/LoginForm";
 import ForgotPassword from "@/components/LoginForm/ForgotPassword";
 import { Lock, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Preloader } from "@/components/Preloader";
 
 const quotes = [
   {
@@ -38,6 +40,8 @@ export default function LoginPage() {
   const { isAuthenticated, user, loading } = useAuth();
 
   const [view, setView] = useState<"login" | "forgot" | "sent">("login");
+  const [ready, setReady] = useState(false);
+  const handlePreloaderDone = useCallback(() => setReady(true), []);
 
   const selectedQuote = useMemo(
     () => quotes[Math.floor(Math.random() * quotes.length)],
@@ -72,6 +76,14 @@ export default function LoginPage() {
 
   return (
     <div>
+      <AnimatePresence mode="wait">
+        {!ready && <Preloader key="preloader" onDone={handlePreloaderDone} />}
+      </AnimatePresence>
+      <motion.div
+        initial={false}
+        animate={ready ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 0.6 }}
+      >
       {/* Brand palette + India tricolour + animations */}
       <style>{`
         :root{ --brand:var(--color-cosmo-copper); --brand-dark:var(--color-cosmo-brown); --brand-soft:var(--color-cosmo-copper); --accent-start:var(--color-cosmo-copper); --accent-end:var(--color-cosmo-brown); --saffron:#FF8F1F; --india-white:#ffffff; --india-green:#138808; }
@@ -219,6 +231,7 @@ export default function LoginPage() {
           </section>
         </div>
       </div>
+      </motion.div>
     </div>
   );
 }
