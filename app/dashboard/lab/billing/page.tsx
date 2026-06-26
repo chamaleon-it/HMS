@@ -77,12 +77,12 @@ export default function BillingPage() {
               title="Billing"
               subtitle="Search, filter & review billing history"
             >
-              <button
+              {/* <button
                 onClick={() => setTab("new")}
                 className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-indigo-700 hover:shadow-md active:scale-95"
               >
                 <FilePlus2 className="h-4 w-4" /> New Invoice
-              </button>
+              </button> */}
             </LabHeader>
           </div>
 

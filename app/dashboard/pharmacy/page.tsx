@@ -81,23 +81,23 @@ function RxQueue() {
   const apiTotal = ordersData?.total ?? 0;
 
   // Combine draft mapping
-  const orders = filter.q === "Draft" 
+  const orders = filter.q === "Draft"
     ? drafts.filter(d => !d.isOpen).map((d) => ({
-        _id: d.id,
-        mrn: "-",
-        rxNumber: `DRFT-${d.id.slice(-4)}`,
-        patient: { name: d.patientName || "Unknown" } as any,
-        status: "Draft",
-        priority: d.payload?.priority || "Normal",
-        items: d.payload?.items || [],
-        createdAt: new Date(parseInt(d.id)).toISOString(), // fallback timestamp
-        department: "Walk-in",
-        paymentStatus: "Pending",
-        grandTotal: 0,
-        doctor: null,
-      })) as unknown as OrderType[]
+      _id: d.id,
+      mrn: "-",
+      rxNumber: `DRFT-${d.id.slice(-4)}`,
+      patient: { name: d.patientName || "Unknown" } as any,
+      status: "Draft",
+      priority: d.payload?.priority || "Normal",
+      items: d.payload?.items || [],
+      createdAt: new Date(parseInt(d.id)).toISOString(), // fallback timestamp
+      department: "Walk-in",
+      paymentStatus: "Pending",
+      grandTotal: 0,
+      doctor: null,
+    })) as unknown as OrderType[]
     : apiOrders;
-    
+
   const total = filter.q === "Draft" ? drafts.filter(d => !d.isOpen).length : apiTotal;
 
   return (
@@ -107,7 +107,7 @@ function RxQueue() {
         title="RX Queue"
         subtitle="Manage prescriptions and pharmacy operations"
       >
-        <NewOrder OrderMutate={OrderMutate} />
+        {/* <NewOrder OrderMutate={OrderMutate} /> */}
         <DateFilter
           activeDate={activeDate}
           setActiveDate={setActiveDate}

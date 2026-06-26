@@ -78,9 +78,9 @@ export default function BillingPage() {
             title="Billing"
             subtitle="Search, filter & review billing history"
           >
-            <PrimaryButton onClick={() => setTab("new")}>
+            {/* <PrimaryButton onClick={() => setTab("new")}>
               <Plus className="mr-2 inline h-4 w-4" /> New Invoice
-            </PrimaryButton>
+            </PrimaryButton> */}
           </DoctorHeader>
 
           <Tabs

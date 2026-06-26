@@ -40,11 +40,11 @@ export default function AppointmentPage() {
           title="Appointments"
           subtitle="Manage patient appointments and schedules"
         >
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <PrimaryButton onClick={() => setOpenCreate(true)}>
               <Plus className="h-4 w-4 mr-2" /> Create
             </PrimaryButton>
-          </div>
+          </div> */}
         </DoctorHeader>
 
         <Statistics />

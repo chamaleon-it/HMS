@@ -244,11 +244,10 @@ export default function WeeklyCalender({
                     >
                       <div className="flex items-center gap-2 mb-0.5">
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            (isConsulted && consultedStyles.dot) ||
+                          className={`w-1.5 h-1.5 rounded-full ${(isConsulted && consultedStyles.dot) ||
                             (isNotShow && "bg-red-500") ||
                             typeStyles.dot
-                          }`}
+                            }`}
                         />
                         <span className="font-medium truncate">
                           {e.patient?.name ?? "—"}
@@ -274,16 +273,7 @@ export default function WeeklyCalender({
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end relative z-10">
-        <Button
-          size="sm"
-          onClick={() => setOpenAppointment(true)}
-          className="cursor-pointer"
-        >
-          <PlusCircle className="w-4 h-4 mr-0.5" />
-          Add Appointment
-        </Button>
-      </div>
+
     </TabsContent>
   );
 }

@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import AppShell from "@/components/layout/app-shell";
-import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fDate, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
@@ -97,7 +97,7 @@ const Customers: React.FC = () => {
               subtitle="Click a row to open full pharmacy history for that customer"
             >
 
-              <NewOrder mutate={mutate} />
+              {/* <NewOrder mutate={mutate} /> */}
             </PharmacyHeader>
 
             <Filter filter={filter} setFilter={setFilter} />
@@ -193,7 +193,7 @@ const Customers: React.FC = () => {
                             />
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
-                           {fAgeString(p.patient.dateOfBirth)}/ {p.patient.gender}
+                            {fAgeString(p.patient.dateOfBirth)}/ {p.patient.gender}
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
                             <HighlightText

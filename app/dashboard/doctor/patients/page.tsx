@@ -138,9 +138,9 @@ export default function PatientsEnhanced() {
           title="Patients"
           subtitle="Search, filter & review patient history"
         >
-          <PrimaryButton onClick={() => setOpenCreate(true)}>
+          {/* <PrimaryButton onClick={() => setOpenCreate(true)}>
             <Plus className="mr-2 inline h-4 w-4" /> New Patient
-          </PrimaryButton>
+          </PrimaryButton> */}
         </DoctorHeader>
 
         {/* Statistics */}
