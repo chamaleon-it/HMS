@@ -110,7 +110,7 @@ export default function LoginForm({
         <button
           type="button"
           onClick={() => setView("forgot")}
-          className="text-[var(--brand)] hover:text-[var(--brand-dark)] underline decoration-[rgba(37,99,235,.25)]"
+          className="text-[var(--brand)] hover:text-[var(--brand-dark)] underline decoration-[rgba(201,149,106,.25)]"
         >
           Forgot password?
         </button>
@@ -119,7 +119,7 @@ export default function LoginForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] shadow-[0_6px_20px_-6px_rgba(37,99,235,0.6)] hover:shadow-[0_12px_30px_-10px_rgba(37,99,235,0.75)]"
+        className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] shadow-[0_6px_20px_-6px_rgba(201,149,106,0.6)] hover:shadow-[0_12px_30px_-10px_rgba(201,149,106,0.75)]"
         style={{
           background: "linear-gradient(90deg, var(--brand), var(--accent-end))",
         }}
