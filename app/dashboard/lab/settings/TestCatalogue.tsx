@@ -242,7 +242,6 @@ export default function TestCatalogue({
 
     }[],
     note: string;
-    category: string;
     department: string;
   }>({
     code: "",
@@ -265,7 +264,6 @@ export default function TestCatalogue({
       dateType: "Year"
     }],
     note: "",
-    category: "",
     department: "",
   });
 
@@ -273,16 +271,16 @@ export default function TestCatalogue({
     setNewTest((prev) => {
       const updatedRange = [...(prev.range || [])];
       let newRangeItem = { ...updatedRange[index], [field]: value };
-      
+
       if (field === 'upto' && value !== undefined && value !== null && value !== "") {
         newRangeItem.min = undefined;
         newRangeItem.max = undefined;
       }
-      
+
       if ((field === 'min' || field === 'max') && value !== undefined && value !== null && value !== "") {
         newRangeItem.upto = undefined;
       }
-      
+
       updatedRange[index] = newRangeItem;
       return { ...prev, range: updatedRange };
     });
@@ -356,7 +354,6 @@ export default function TestCatalogue({
           dateType: "Year"
         }],
         note: "",
-        category: "",
         department: "",
       });
       setIsNewTestModalOpen(false);
@@ -558,19 +555,6 @@ export default function TestCatalogue({
                   </div>
 
                   <div className="col-span-3 space-y-1.5">
-                    <Label className="text-xs font-medium text-slate-700">Category</Label>
-                    <Input
-                      placeholder="e.g. Haematology"
-                      value={newTest.category || ""}
-
-                      onChange={(e) =>
-                        setNewTest((prev) => ({ ...prev, category: e.target.value }))
-                      }
-                      className="h-9 bg-slate-50"
-                    />
-                  </div>
-
-                  <div className="col-span-3 space-y-1.5">
                     <Label className="text-xs font-medium text-slate-700">Department</Label>
                     <Select
                       value={newTest.department || ""}
@@ -580,7 +564,7 @@ export default function TestCatalogue({
                         <SelectValue placeholder="Select department" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+                        <SelectItem value="HAEMATOLOGY">HAEMATOLOGY</SelectItem>
                         <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
                         <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
                         <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
@@ -1355,11 +1339,11 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
             value={payload.department || ""}
             onValueChange={(val) => setPayload({ ...payload, department: val })}
           >
-            <SelectTrigger id="add-panel-department">
+            <SelectTrigger id="add-panel-department" className="w-full">
               <SelectValue placeholder="Select department" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+              <SelectItem value="HAEMATOLOGY">HAEMATOLOGY</SelectItem>
               <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
               <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
               <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>

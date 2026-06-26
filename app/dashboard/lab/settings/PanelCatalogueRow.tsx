@@ -385,7 +385,7 @@ export default function PanelCatalogueRow({
                                                 <SelectValue placeholder="Select department" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="HEAMATOLOGY">HEAMATOLOGY</SelectItem>
+                                                <SelectItem value="HAEMATOLOGY">HAEMATOLOGY</SelectItem>
                                                 <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
                                                 <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
                                                 <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
