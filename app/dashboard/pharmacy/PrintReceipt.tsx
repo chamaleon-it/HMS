@@ -144,8 +144,8 @@ export default function PrintReceipt({
                     <div className="flex gap-3 items-center">
                         <div className="shrink-0 flex items-center justify-center">
 
-                            <img src="/print/image.png" alt="Logo" className="w-[90px] h-auto object-contain" />
-                        
+                            <img src="/print/logo.png" alt="Logo" className="w-[90px] h-auto object-contain" />
+
                         </div>
                         <div className="flex flex-col gap-0 select-none">
                             <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
@@ -191,9 +191,9 @@ export default function PrintReceipt({
                 <div className="relative border border-[#c5c9cf] rounded-tr-2xl rounded-tl-2xl overflow-hidden w-full mt-3 mb-3">
                     {/* Watermark */}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0 select-none">
-                        
-                        <img src="/print/image.png" alt="watermark" className="w-[70%] object-contain" />
-                    
+
+                        <img src="/print/logo.png" alt="watermark" className="w-[70%] object-contain" />
+
                     </div>
 
                     <table className="w-full border-collapse relative z-10 table-layout-fixed">
