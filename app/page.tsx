@@ -181,8 +181,10 @@ export default function LoginPage() {
                 )}
               </div>
 
-              {/* Stats Row */}
-              <div className="flex items-center justify-between px-2 animate-fade-up-delay-2">
+              {/* Stats Row with Separator */}
+              <div className="flex flex-col gap-6 animate-fade-up-delay-2 w-full">
+                <div className="w-full h-px bg-white/20" />
+                <div className="flex items-center justify-between px-2">
                 <div className="flex flex-col gap-1">
                   <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">20+</span>
                   <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">Years of Care</span>
@@ -196,6 +198,7 @@ export default function LoginPage() {
                   <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">On your side</span>
                 </div>
               </div>
+            </div>
 
             </section>
           </div>
