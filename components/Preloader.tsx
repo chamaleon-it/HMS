@@ -10,7 +10,7 @@ const M = { fontFamily: "'DM Mono', monospace" };
 
 export function Preloader({ onDone }: { onDone: () => void }) {
   useEffect(() => {
-    const t = setTimeout(onDone, 4500); // 4500ms to allow animation to finish
+    const t = setTimeout(onDone, 5100); // 5100ms matches exact loader finish time (2.6s delay + 2.5s duration)
     return () => clearTimeout(t);
   }, [onDone]);
 
@@ -77,6 +77,21 @@ export function Preloader({ onDone }: { onDone: () => void }) {
             </motion.p>
           </motion.div>
         </div>
+        
+        {/* Linear Loader */}
+        <motion.div 
+          className="w-48 h-[3px] bg-[#7d5745]/20 mt-10 rounded-full overflow-hidden relative"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.6, duration: 0.5 }}
+        >
+          <motion.div 
+            className="absolute top-0 left-0 h-full bg-[#a6906c]"
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ delay: 2.6, duration: 2.5, ease: "easeInOut" }}
+          />
+        </motion.div>
       </div>
     </motion.div>
   );
