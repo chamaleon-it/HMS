@@ -69,6 +69,9 @@ export default function PatientsEnhanced() {
 
     addParam("query", filter.query);
     addParam("address", filter.address);
+    addParam("locality", filter.locality);
+    addParam("state", filter.state);
+    addParam("pincode", filter.pincode);
     addParam("gender", filter.gender);
     addParam("doctor", filter.doctor);
     addParam("minAge", filter.age?.[0]);
