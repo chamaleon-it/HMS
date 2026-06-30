@@ -3,8 +3,13 @@ import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import History from "./History";
 import Share from "./Share";
-import { Trash } from "lucide-react";
+import { Trash, Eye, Pencil, ClipboardPlus, CalendarPlus, Pill, FlaskConical, History as HistoryIcon, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/auth/context/auth-context";
+import { useDrafts } from "@/app/dashboard/pharmacy/DraftContext";
+import { useLabDrafts } from "@/app/dashboard/lab/LabDraftContext";
+import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import { Checkbox } from "@/components/ui/checkbox";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
@@ -64,6 +69,11 @@ export default function PatientTable({
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [edit, setEdit] = useState<Data | null>(null);
   const [open, setOpen] = useState(false);
+  const [appointmentPatient, setAppointmentPatient] = useState<Data | null>(null);
+
+  const { user } = useAuth();
+  const { addDraft: addPharmacyDraft } = useDrafts();
+  const { addDraft: addLabDraft } = useLabDrafts();
 
   const deleteBulkPatient = useCallback(async () => {
     try {
@@ -248,33 +258,110 @@ export default function PatientTable({
                     {r.allergies}
                   </td>
                   <td className="px-2 py-3 text-right">
-                    <div className="inline-flex gap-1">
-                      <button
-                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => setEdit(r)}
-                      >
-                        Edit
-                      </button>
-                      <Link
-                        href={`/dashboard/doctor/patients/single?id=${r._id}`}
-                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                      >
-                        View
-                      </Link>
+                    <TooltipProvider delayDuration={100}>
+                      <div className="flex flex-nowrap justify-end gap-1">
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              onClick={(e) => { e.stopPropagation(); setHistory(r); }}
+                            >
+                              <HistoryIcon className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>History</p></TooltipContent>
+                        </Tooltip>
 
-                      <button
-                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => setHistory(r)}
-                      >
-                        History
-                      </button>
-                      <button
-                        className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
-                        onClick={() => setShare(r)}
-                      >
-                        Share
-                      </button>
-                    </div>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Link href={`/dashboard/doctor/patients/single?id=${r._id}`}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-sky-600 hover:text-sky-700 hover:bg-sky-50"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
+                          </TooltipTrigger>
+                          <TooltipContent><p>View Patient</p></TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                              onClick={(e) => { e.stopPropagation(); setEdit(r); }}
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Edit Patient</p></TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAppointmentPatient(r);
+                              }}
+                            >
+                              <CalendarPlus className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>New Appointment</p></TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addLabDraft({ patient: r._id }, "Book Now", r.mrn ? `${r.name} - (${r.mrn})` : r.name);
+                              }}
+                            >
+                              <FlaskConical className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>Book Lab Test</p></TooltipContent>
+                        </Tooltip>
+
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addPharmacyDraft(
+                                  {
+                                    patient: r._id,
+                                    doctor: user?._id || "",
+                                    allergies: r.allergies || "",
+                                  },
+                                  r.mrn ? `${r.name} - (${r.mrn})` : r.name
+                                );
+                              }}
+                            >
+                              <Pill className="h-4 w-4" />
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent><p>New Pharmacy Order</p></TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </TooltipProvider>
                   </td>
                 </tr>
               );
@@ -295,6 +382,15 @@ export default function PatientTable({
         {history && <History setHistory={setHistory} history={history} />}
         {share && <Share setShare={setShare} share={share} />}
       </div>
+
+      {appointmentPatient && (
+        <AppointmentDialog
+          open={!!appointmentPatient}
+          onOpenChange={(open) => !open && setAppointmentPatient(null)}
+          appointment={{ patient: appointmentPatient }}
+          mutate={tableMutate}
+        />
+      )}
 
       {edit?._id && (
         <Dialog

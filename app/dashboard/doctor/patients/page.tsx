@@ -11,6 +11,11 @@ import Statistics from "./Statistics";
 import DoctorHeader from "../components/DoctorHeader";
 import { Data } from "./PatientTable";
 import { Plus } from "lucide-react";
+import { DraftProvider } from "@/app/dashboard/pharmacy/DraftContext";
+import { DraftManager } from "@/app/dashboard/pharmacy/DraftManager";
+import { LabDraftProvider } from "@/app/dashboard/lab/LabDraftContext";
+import { LabDraftManager } from "@/components/dashboard/lab/Home/LabDraftManager";
+import { useAuth } from "@/auth/context/auth-context";
 
 export interface FilterType {
   query?: string;
@@ -30,6 +35,7 @@ export interface FilterType {
 }
 
 export default function PatientsEnhanced() {
+  const { user } = useAuth();
   const [openCreate, setOpenCreate] = useState(false);
   const [filter, setFilter] = useState<FilterType>({
     query: undefined,
@@ -135,7 +141,9 @@ export default function PatientsEnhanced() {
   };
 
   return (
-    <AppShell>
+    <LabDraftProvider userId={user?._id ?? ""}>
+      <DraftProvider>
+        <AppShell>
       <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-slate-50 p-6 space-y-5">
         <DoctorHeader
           title="Patients"
@@ -196,7 +204,11 @@ export default function PatientsEnhanced() {
           />
         </DialogContent>
       </Dialog>
+      <DraftManager />
+      <LabDraftManager />
     </AppShell>
+      </DraftProvider>
+    </LabDraftProvider>
   );
 }
 
