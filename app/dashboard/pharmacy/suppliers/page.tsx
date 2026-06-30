@@ -150,7 +150,7 @@ const SuppliersPage: React.FC = () => {
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Phone Number</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">GSTIN</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">DL No</TableHead>
-                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Action</TableHead>
+
 
 
                                     <SortableHeader
@@ -177,6 +177,7 @@ const SuppliersPage: React.FC = () => {
                                         onSort={handleSort}
                                         className="text-right pr-4"
                                     />
+                                    <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 text-right" align="right">Action</TableHead>
                                 </TableRow>
                             </TableHeader>
 
