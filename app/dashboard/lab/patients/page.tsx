@@ -16,7 +16,10 @@ import LabHeader from "@/components/dashboard/lab/LabHeader";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { Button } from "@/components/ui/button";
-import { Eye, Pencil } from "lucide-react";
+import { Eye, Pencil, ClipboardPlus, CalendarPlus } from "lucide-react";
+import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
+import { useAuth } from "@/auth/context/auth-context";
+import { useLabDrafts } from "../LabDraftContext";
 import {
     Tooltip,
     TooltipContent,
@@ -37,11 +40,15 @@ import { TableSkeleton } from "../../pharmacy/components/PharmacySkeleton";
 
 const Patients: React.FC = () => {
     const router = useRouter();
+    const { user } = useAuth();
+    const { addDraft } = useLabDrafts();
     const [editPatient, setEditPatient] = useState<any>(null);
+    const [appointmentPatient, setAppointmentPatient] = useState<any>(null);
     const [openCreate, setOpenCreate] = useState(false);
 
     const [filter, setFilter] = useState<FilterType>({
         query: undefined,
+        address: undefined,
         gender: undefined,
         doctor: undefined,
         age: [0, 100],
@@ -58,6 +65,7 @@ const Patients: React.FC = () => {
     params.set("page", String(filter.page));
     params.set("limit", String(filter.limit));
     if (filter.query) params.set("q", filter.query);
+    if (filter.address) params.set("address", filter.address);
     if (filter.gender) params.set("gender", filter.gender);
     if (filter.doctor) params.set("doctor", filter.doctor);
     if (filter.dateRange.from) params.set("from", filter.dateRange.from);
@@ -227,6 +235,44 @@ const Patients: React.FC = () => {
                                                                 <p>Edit Patient</p>
                                                             </TooltipContent>
                                                         </Tooltip>
+                                                        
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                                                    onClick={(e: React.MouseEvent) => {
+                                                                        e.stopPropagation();
+                                                                        addDraft({ patient: p._id }, "Book Now", p.mrn ? `${p.name} - (${p.mrn})` : p.name);
+                                                                    }}
+                                                                >
+                                                                    <ClipboardPlus className="h-4 w-4" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>Book Now</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
+                                                        
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="icon"
+                                                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                                                    onClick={(e: React.MouseEvent) => {
+                                                                        e.stopPropagation();
+                                                                        setAppointmentPatient(p);
+                                                                    }}
+                                                                >
+                                                                    <CalendarPlus className="h-4 w-4" />
+                                                                </Button>
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>
+                                                                <p>New Appointment</p>
+                                                            </TooltipContent>
+                                                        </Tooltip>
                                                     </div>
                                                 </TableCell>
                                             </TableRow>
@@ -260,6 +306,16 @@ const Patients: React.FC = () => {
                         )}
                     </main>
                 </div>
+
+                {appointmentPatient && (
+                    <AppointmentDialog
+                        open={!!appointmentPatient}
+                        onOpenChange={(open) => !open && setAppointmentPatient(null)}
+                        appointment={{ patient: appointmentPatient }}
+                        mutate={mutate}
+                    />
+                )}
+
             </TooltipProvider>
 
             <Dialog

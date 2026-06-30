@@ -26,7 +26,7 @@ export interface LabDraft {
 
 interface LabDraftContextType {
   drafts: LabDraft[];
-  addDraft: (initialData?: Partial<LabDraft['payload']>, bookingType?: "Book Now" | "Schedule") => void;
+  addDraft: (initialData?: Partial<LabDraft['payload']>, bookingType?: "Book Now" | "Schedule", patientName?: string) => void;
   updateDraft: (id: string, updates: Partial<LabDraft> | ((prev: LabDraft) => Partial<LabDraft>)) => void;
   removeDraft: (id: string) => void;
   bringToFront: (id: string) => void;
@@ -72,7 +72,7 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
     }
   }, [drafts]);
 
-  const addDraft = (initialData?: Partial<LabDraft['payload']>, bookingType: "Book Now" | "Schedule" = "Book Now") => {
+  const addDraft = (initialData?: Partial<LabDraft['payload']>, bookingType: "Book Now" | "Schedule" = "Book Now", patientName: string = "") => {
     const id = Date.now().toString();
     const maxZ = Math.max(40, ...drafts.map(d => d.zIndex), 40);
     const newDraft: LabDraft = {
@@ -95,7 +95,7 @@ export const LabDraftProvider: React.FC<{ children: React.ReactNode; userId: str
       zIndex: maxZ + 1,
       isOpen: true,
       minimized: false,
-      patientName: "",
+      patientName: patientName || "",
       bookingType
     };
     setDrafts([...drafts, newDraft]);
