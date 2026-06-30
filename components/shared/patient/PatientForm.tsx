@@ -83,7 +83,8 @@ export function PatientForm({
         guardianRelation: patient.guardianRelation,
         addressLine1: patient.addressLine1,
         addressLine2: patient.addressLine2,
-        locality: patient.locality,
+        city: patient.city,
+        district: patient.district,
         state: patient.state || "Kerala",
         pinCode: patient.pinCode,
         country: patient.country || "India",
@@ -106,7 +107,7 @@ export function PatientForm({
 
   const createEditPatient = handleSubmit(async (data) => {
     try {
-      const addressParts = [data.addressLine1, data.addressLine2, data.locality, data.state, data.pinCode, data.country].filter(Boolean);
+      const addressParts = [data.addressLine1, data.addressLine2, data.city, data.district, data.state, data.pinCode, data.country].filter(Boolean);
       data.address = addressParts.join(', ');
 
       if (!data.doctor || data.doctor === "none") {

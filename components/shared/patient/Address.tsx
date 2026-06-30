@@ -18,7 +18,8 @@ export default function Address({
 
   const addressLine1 = watch("addressLine1");
   const addressLine2 = watch("addressLine2");
-  const locality = watch("locality");
+  const city = watch("city");
+  const district = watch("district");
   const state = watch("state");
   const pinCode = watch("pinCode");
   const country = watch("country");
@@ -53,12 +54,24 @@ export default function Address({
         </div>
 
         <div className="grid gap-1.5">
-          <Label className="text-sm font-medium text-slate-700">Locality/Place</Label>
+          <Label className="text-sm font-medium text-slate-700">City</Label>
           <Input
-            placeholder="Locality/Place"
-            value={locality ?? ""}
+            placeholder="City"
+            value={city ?? ""}
             onChange={(e) =>
-              setValue("locality", capitalizeWords(e.target.value))
+              setValue("city", capitalizeWords(e.target.value))
+            }
+            className="h-9 rounded-xl"
+          />
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label className="text-sm font-medium text-slate-700">District</Label>
+          <Input
+            placeholder="District"
+            value={district ?? ""}
+            onChange={(e) =>
+              setValue("district", capitalizeWords(e.target.value))
             }
             className="h-9 rounded-xl"
           />
@@ -91,8 +104,7 @@ export default function Address({
             placeholder="Country"
             value={country ?? ""}
             onChange={(e) => setValue("country", capitalizeWords(e.target.value))}
-            disabled
-            className="h-9 rounded-xl bg-slate-50"
+            className="h-9 rounded-xl"
           />
         </div>
       </div>

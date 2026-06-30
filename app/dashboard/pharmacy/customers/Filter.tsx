@@ -15,7 +15,8 @@ import { Input } from "@/components/ui/input";
 export interface FilterType {
   query?: string;
   address?: string;
-  locality?: string;
+  city?: string;
+  district?: string;
   state?: string;
   pincode?: string;
   gender?: string;
@@ -53,7 +54,8 @@ export default function Filter({
     setFilter({
       query: undefined,
       address: undefined,
-      locality: undefined,
+      city: undefined,
+      district: undefined,
       state: undefined,
       pincode: undefined,
       gender: undefined,
@@ -113,15 +115,29 @@ export default function Filter({
           </div>
         </div>
 
-        {/* Locality */}
+        {/* City */}
         <div className="space-y-2 flex-1 max-w-[200px]">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">Locality</label>
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">City</label>
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
             <Input
-              value={filter?.locality || ""}
-              onChange={(e) => setFilter((prev) => ({ ...prev, locality: e.target.value, page: 1 }))}
-              placeholder="Locality..."
+              value={filter?.city || ""}
+              onChange={(e) => setFilter((prev) => ({ ...prev, city: e.target.value, page: 1 }))}
+              placeholder="City..."
+              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+
+        {/* District */}
+        <div className="space-y-2 flex-1 max-w-[200px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">District</label>
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Input
+              value={filter?.district || ""}
+              onChange={(e) => setFilter((prev) => ({ ...prev, district: e.target.value, page: 1 }))}
+              placeholder="District..."
               className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
             />
           </div>

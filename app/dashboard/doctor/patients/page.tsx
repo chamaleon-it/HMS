@@ -20,7 +20,8 @@ import { useAuth } from "@/auth/context/auth-context";
 export interface FilterType {
   query?: string;
   address?: string;
-  locality?: string;
+  city?: string;
+  district?: string;
   state?: string;
   pincode?: string;
   gender?: string;
@@ -43,7 +44,8 @@ export default function PatientsEnhanced() {
   const [filter, setFilter] = useState<FilterType>({
     query: undefined,
     address: undefined,
-    locality: undefined,
+    city: undefined,
+    district: undefined,
     state: undefined,
     pincode: undefined,
     gender: undefined,
@@ -69,7 +71,8 @@ export default function PatientsEnhanced() {
 
     addParam("query", filter.query);
     addParam("address", filter.address);
-    addParam("locality", filter.locality);
+    addParam("city", filter.city);
+    addParam("district", filter.district);
     addParam("state", filter.state);
     addParam("pincode", filter.pincode);
     addParam("gender", filter.gender);
@@ -153,69 +156,69 @@ export default function PatientsEnhanced() {
     <LabDraftProvider userId={user?._id ?? ""}>
       <DraftProvider>
         <AppShell>
-      <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-slate-50 p-6 space-y-5">
-        <DoctorHeader
-          title="Patients"
-          subtitle="Search, filter & review patient history"
-        >
-          {/* <PrimaryButton onClick={() => setOpenCreate(true)}>
+          <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-slate-50 p-6 space-y-5">
+            <DoctorHeader
+              title="Patients"
+              subtitle="Search, filter & review patient history"
+            >
+              {/* <PrimaryButton onClick={() => setOpenCreate(true)}>
             <Plus className="mr-2 inline h-4 w-4" /> New Patient
           </PrimaryButton> */}
-        </DoctorHeader>
+            </DoctorHeader>
 
-        {/* Statistics */}
-        <Statistics statistics={statistics} />
+            {/* Statistics */}
+            <Statistics statistics={statistics} />
 
-        {/* Filters */}
-        <Filter filter={filter} setFilter={setFilter} />
+            {/* Filters */}
+            <Filter filter={filter} setFilter={setFilter} />
 
-        {/* Table */}
-        <PatientTable data={tableData} tableMutate={refreshData} />
+            {/* Table */}
+            <PatientTable data={tableData} tableMutate={refreshData} />
 
-        {/* Pagination (future ready) */}
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-gray-500">
-            Showing <span className="font-medium text-gray-700">100</span> of{" "}
-            <span className="font-medium text-gray-700">100</span> patients
-          </p>
-          <div className="flex gap-2">
-            <button
-              className="px-3 h-10 rounded-xl bg-white ring-1 ring-gray-200 disabled:opacity-50"
-              disabled
-            >
-              Prev
-            </button>
-            <div className="px-3 h-10 grid place-items-center rounded-xl bg-gray-100 text-sm">
-              1 / 1
+            {/* Pagination (future ready) */}
+            <div className="flex items-center justify-between mt-4">
+              <p className="text-sm text-gray-500">
+                Showing <span className="font-medium text-gray-700">100</span> of{" "}
+                <span className="font-medium text-gray-700">100</span> patients
+              </p>
+              <div className="flex gap-2">
+                <button
+                  className="px-3 h-10 rounded-xl bg-white ring-1 ring-gray-200 disabled:opacity-50"
+                  disabled
+                >
+                  Prev
+                </button>
+                <div className="px-3 h-10 grid place-items-center rounded-xl bg-gray-100 text-sm">
+                  1 / 1
+                </div>
+                <button
+                  className="px-3 h-10 rounded-xl bg-white ring-1 ring-gray-200 disabled:opacity-50"
+                  disabled
+                >
+                  Next
+                </button>
+              </div>
             </div>
-            <button
-              className="px-3 h-10 rounded-xl bg-white ring-1 ring-gray-200 disabled:opacity-50"
-              disabled
-            >
-              Next
-            </button>
           </div>
-        </div>
-      </div>
 
-      {/* Dialog for new patient */}
-      <Dialog
-        open={openCreate}
-        onOpenChange={(v) => !v && setOpenCreate(false)}
-      >
-        <DialogContent className="max-w-3xl! max-h-[90dvh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Patient Register</DialogTitle>
-          </DialogHeader>
-          <PatientForm
-            onClose={() => setOpenCreate(false)}
-            mutate={refreshData}
-          />
-        </DialogContent>
-      </Dialog>
-      <DraftManager />
-      <LabDraftManager />
-    </AppShell>
+          {/* Dialog for new patient */}
+          <Dialog
+            open={openCreate}
+            onOpenChange={(v) => !v && setOpenCreate(false)}
+          >
+            <DialogContent className="max-w-3xl! max-h-[90dvh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Patient Register</DialogTitle>
+              </DialogHeader>
+              <PatientForm
+                onClose={() => setOpenCreate(false)}
+                mutate={refreshData}
+              />
+            </DialogContent>
+          </Dialog>
+          <DraftManager />
+          <LabDraftManager />
+        </AppShell>
       </DraftProvider>
     </LabDraftProvider>
   );
