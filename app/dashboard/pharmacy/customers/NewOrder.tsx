@@ -19,10 +19,12 @@ import api from "@/lib/axios";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { useRouter } from "next/navigation";
 
-export default function NewOrder({ mutate }: { mutate: () => void }) {
+export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDialog, initialPatient }: { mutate: () => void, asDialogOnly?: boolean, openDialog?: boolean, setOpenDialog?: (open: boolean) => void, initialPatient?: any }) {
   const { user } = useAuth();
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = openDialog !== undefined ? openDialog : internalOpen;
+  const setOpen = setOpenDialog !== undefined ? setOpenDialog : setInternalOpen;
   const [openCreate, setOpenCreate] = useState(false);
 
   const [payload, setPayload] = useState<DataType>({
@@ -97,25 +99,33 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
         priority: "Normal",
         status: "Pending",
       });
+      setpatientName("");
+    } else if (open === true && initialPatient) {
+      setPayload((prev) => ({ ...prev, patient: initialPatient._id }));
+      setpatientName(initialPatient.name);
     }
-  }, [open, user?._id]);
+  }, [open, user?._id, initialPatient]);
 
   const [showAllFields, setShowAllFields] = useState(false);
-  const [patientName, setpatientName] = useState("")
+  const [patientName, setpatientName] = useState("");
   const [nameToRegister, setNameToRegister] = useState("");
 
   return (
     <>
-      <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white">New Patient</Button>
+      {!asDialogOnly && (
+        <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white mr-2">New Patient</Button>
+      )}
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-          <Button
-            className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg active:scale-95"
-            size={"sm"}
-          >
-            New Order
-          </Button>
-        </DialogTrigger>
+        {!asDialogOnly && (
+          <DialogTrigger asChild>
+            <Button
+              className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+              size={"sm"}
+            >
+              New Order
+            </Button>
+          </DialogTrigger>
+        )}
         <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-3xl"}>
           <DialogHeader>
             <DialogTitle>Add new order</DialogTitle>

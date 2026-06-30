@@ -42,6 +42,7 @@ const Patients: React.FC = () => {
 
     const [filter, setFilter] = useState<FilterType>({
         query: undefined,
+        address: undefined,
         gender: undefined,
         doctor: undefined,
         age: [0, 100],
@@ -58,6 +59,7 @@ const Patients: React.FC = () => {
     params.set("page", String(filter.page));
     params.set("limit", String(filter.limit));
     if (filter.query) params.set("q", filter.query);
+    if (filter.address) params.set("address", filter.address);
     if (filter.gender) params.set("gender", filter.gender);
     if (filter.doctor) params.set("doctor", filter.doctor);
     if (filter.dateRange.from) params.set("from", filter.dateRange.from);

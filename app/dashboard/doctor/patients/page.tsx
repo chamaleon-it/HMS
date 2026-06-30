@@ -14,6 +14,7 @@ import { Plus } from "lucide-react";
 
 export interface FilterType {
   query?: string;
+  address?: string;
   gender?: string;
   doctor?: string;
   date?: Date;
@@ -32,6 +33,7 @@ export default function PatientsEnhanced() {
   const [openCreate, setOpenCreate] = useState(false);
   const [filter, setFilter] = useState<FilterType>({
     query: undefined,
+    address: undefined,
     gender: undefined,
     doctor: undefined,
     age: [0, 100],
@@ -54,6 +56,7 @@ export default function PatientsEnhanced() {
     };
 
     addParam("query", filter.query);
+    addParam("address", filter.address);
     addParam("gender", filter.gender);
     addParam("doctor", filter.doctor);
     addParam("minAge", filter.age?.[0]);

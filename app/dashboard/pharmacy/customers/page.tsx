@@ -28,14 +28,21 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
+import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, Pencil, Plus, ClipboardPlus, CalendarPlus } from "lucide-react";
+import { useDrafts } from "../DraftContext";
+import { useAuth } from "@/auth/context/auth-context";
 const Customers: React.FC = () => {
   const router = useRouter();
+  const { user } = useAuth();
+  const { addDraft } = useDrafts();
   const [editCustomer, setEditCustomer] = useState<any>(null);
+  const [appointmentPatient, setAppointmentPatient] = useState<any>(null);
 
   const [filter, setFilter] = useState<FilterType>({
     query: undefined,
+    address: undefined,
     gender: undefined,
     doctor: undefined,
     age: [0, 100],
@@ -52,6 +59,7 @@ const Customers: React.FC = () => {
   params.set("page", String(filter.page));
   params.set("limit", String(filter.limit));
   if (filter.query) params.set("q", filter.query);
+  if (filter.address) params.set("address", filter.address);
   if (filter.gender) params.set("gender", filter.gender);
   if (filter.doctor) params.set("doctor", filter.doctor);
   if (filter.dateRange.from) params.set("from", filter.dateRange.from);
@@ -97,7 +105,7 @@ const Customers: React.FC = () => {
               subtitle="Click a row to open full pharmacy history for that customer"
             >
 
-              {/* <NewOrder mutate={mutate} /> */}
+              <NewOrder mutate={mutate} />
             </PharmacyHeader>
 
             <Filter filter={filter} setFilter={setFilter} />
@@ -260,9 +268,14 @@ const Customers: React.FC = () => {
                                     className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
-                                      router.push(
-                                        `/dashboard/pharmacy?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}&allergies=${p.patient.allergies || ""}#newOrder`
-                                      )
+                                      addDraft(
+                                        {
+                                          patient: p.patient._id,
+                                          doctor: user?._id || "",
+                                          allergies: p.patient.allergies || "",
+                                        },
+                                        p.patient.mrn ? `${p.patient.name} - (${p.patient.mrn})` : p.patient.name
+                                      );
                                     }}
                                   >
                                     <ClipboardPlus className="h-4 w-4" />
@@ -281,9 +294,7 @@ const Customers: React.FC = () => {
                                     className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
-                                      router.push(
-                                        `/dashboard/pharmacy/appointments?id=${p.patient._id}&mrn=${p.patient.mrn}&name=${p.patient.name}#newAppointment`
-                                      )
+                                      setAppointmentPatient(p.patient);
                                     }}
                                   >
                                     <CalendarPlus className="h-4 w-4" />
@@ -328,24 +339,32 @@ const Customers: React.FC = () => {
             )}
           </main>
         </div>
-      </TooltipProvider>
 
-      <Dialog open={Boolean(editCustomer)} onOpenChange={(v) => !v && setEditCustomer(null)}>
-        <DialogContent className="max-w-3xl!">
-          <DialogHeader>
-            <DialogTitle>Customer Edit</DialogTitle>
-          </DialogHeader>
-          <PatientForm
-            onClose={() => setEditCustomer(null)}
+        <Dialog open={Boolean(editCustomer)} onOpenChange={(v) => !v && setEditCustomer(null)}>
+          <DialogContent className="max-w-3xl!">
+            <DialogHeader>
+              <DialogTitle>Customer Edit</DialogTitle>
+            </DialogHeader>
+            <PatientForm
+              onClose={() => setEditCustomer(null)}
+              mutate={mutate}
+              patient={editCustomer}
+            />
+          </DialogContent>
+        </Dialog>
+
+        {appointmentPatient && (
+          <AppointmentDialog
+            open={!!appointmentPatient}
+            onOpenChange={(open) => !open && setAppointmentPatient(null)}
+            appointment={{ patient: appointmentPatient }}
             mutate={mutate}
-            patient={editCustomer}
           />
-        </DialogContent>
-      </Dialog>
+        )}
+      </TooltipProvider>
     </AppShell>
   );
 };
-
 
 const HighlightText = ({ text, highlight }: { text: string; highlight: string }) => {
   if (!text) return null;
