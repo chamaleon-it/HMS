@@ -64,24 +64,6 @@ export function PatientForm({
   });
 
 
-  const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<any>) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      nextRef.current?.focus();
-    }
-  };
-
-  const mergeRefs = (...refs: any[]) => {
-    return (node: any) => {
-      refs.forEach((ref) => {
-        if (typeof ref === "function") {
-          ref(node);
-        } else if (ref != null) {
-          ref.current = node;
-        }
-      });
-    };
-  };
 
   useEffect(() => {
     if (patient) {
@@ -113,7 +95,6 @@ export function PatientForm({
   const values = watch();
   const { dateOfBirth } = values;
 
-  // Auto-calculate age and months when dateOfBirth changes
   useEffect(() => {
     if (dateOfBirth) {
       const ageObj = fAge(new Date(dateOfBirth));
