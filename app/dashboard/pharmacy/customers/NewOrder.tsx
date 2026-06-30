@@ -112,20 +112,30 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
 
   return (
     <>
-      {!asDialogOnly && (
-        <Button variant={"outline"} onClick={() => { setNameToRegister(""); setOpenCreate(true); }} className="bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white mr-2">New Patient</Button>
-      )}
-      <Dialog open={open} onOpenChange={setOpen}>
-        {!asDialogOnly && (
-          <DialogTrigger asChild>
-            <Button
-              className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg active:scale-95"
-              size={"sm"}
-            >
-              New Order
-            </Button>
-          </DialogTrigger>
-        )}
+{!asDialogOnly && (
+  <Button
+    variant="outline"
+    onClick={() => {
+      setNameToRegister("");
+      setOpenCreate(true);
+    }}
+    className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white hover:text-white mr-2"
+  >
+    New Patient
+  </Button>
+)}
+
+<Dialog open={open} onOpenChange={setOpen}>
+  {!asDialogOnly && (
+    <DialogTrigger asChild>
+      <Button
+        className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+        size="sm"
+      >
+        New Order
+      </Button>
+    </DialogTrigger>
+  )}
         <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-3xl"}>
           <DialogHeader>
             <DialogTitle>Add new order</DialogTitle>
@@ -147,7 +157,7 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
               }}
             />
 
-            <Button className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-sm" onClick={() => setShowAllFields(!showAllFields)}>
+            <Button className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-sm" onClick={() => setShowAllFields(!showAllFields)}>
               {showAllFields ? "Hide optional fields" : "Display all fields"}
             </Button>
           </div>
@@ -158,7 +168,7 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
-              className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
+              className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md"
               onClick={createOrder}
             >
               Place Order

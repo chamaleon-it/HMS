@@ -142,7 +142,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                 >
                                                     {items.map((item) => {
                                                         const isConsultation = catName === "Consultation";
-                                                        let tierStyles = "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-indigo-600";
+                                                        let tierStyles = "border-slate-200 bg-white text-slate-600 hover:bg-slate-50 hover:border-slate-300 hover:text-[var(--color-cosmo-copper)]";
                                                         let Icon = null;
 
                                                         if (isConsultation) {
@@ -165,7 +165,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                                 );
                                                             } else if (item.code === "CF3") {
                                                                 // CF3: Evening (10pm-11pm) - Light Dark (Slate)
-                                                                tierStyles = "border-slate-400 bg-slate-600 text-white hover:bg-slate-700 hover:border-slate-600 shadow-slate-500/10";
+                                                                tierStyles = "border-slate-400 bg-slate-600 text-white hover:bg-[var(--color-cosmo-dark)] hover:border-slate-600 shadow-slate-500/10";
                                                                 Icon = (
                                                                     <div className="flex h-5 w-5 items-center justify-center rounded-md bg-white/10 text-white/90">
                                                                         <Moon className="h-3 w-3 fill-white/20" />
@@ -250,7 +250,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                             <col className="w-[14%]" />
                             <col className="w-[12%]" />
                         </colgroup>
-                        <thead className="bg-[#334155]">
+                        <thead className="bg-[var(--color-cosmo-dark)]">
                             <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-white font-semibold">
                                 <th className="py-2.5 pl-3 text-left">SL</th>
                                 <th className="py-2.5 pl-3 text-left">Item Name</th>
@@ -271,7 +271,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: -6 }}
                                                 transition={{ duration: 0.18 }}
-                                                className="border-b border-slate-100 last:border-0 hover:bg-indigo-50/30 group transition-colors"
+                                                className="border-b border-slate-100 last:border-0 hover:bg-[var(--color-cosmo-copper)]/10/30 group transition-colors"
                                             >
                                                 <td className="py-3 pl-3 text-left text-sm text-slate-500 font-medium">
                                                     {index + 1}
@@ -282,7 +282,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                             value={it.name}
                                                             readOnly
                                                             disabled
-                                                            className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                                            className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-[var(--color-cosmo-copper)] focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all"
                                                         />
                                                     </div>
                                                 </td>
@@ -297,7 +297,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updateQty(it.name, Number(e.target.value))
                                                         }
-                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-indigo-50/30 px-3 text-sm font-bold text-indigo-700 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-center"
+                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-[var(--color-cosmo-copper)]/10/30 px-3 text-sm font-bold text-[var(--color-cosmo-copper)] outline-none focus:border-[var(--color-cosmo-copper)] focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all text-center"
                                                     />
                                                 </td>
                                                 <td className="py-3 pr-2 text-right">
@@ -311,7 +311,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updatePrice(it.name, Number(e.target.value))
                                                         }
-                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-right"
+                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-[var(--color-cosmo-copper)] focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all text-right"
                                                     />
                                                 </td>
                                                 <td className="py-3 pr-2 text-right">
@@ -326,7 +326,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updateGST(it.name, Number(e.target.value))
                                                         }
-                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all text-right"
+                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-[var(--color-cosmo-copper)] focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all text-right"
                                                     />
                                                 </td>
                                                 <td className="py-3 pr-2 text-right font-bold text-slate-700 tabular-nums text-base">
@@ -410,7 +410,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                         procedureNameRef.current?.focus();
                                     }
                                 }}
-                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-cosmo-copper)] focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all"
                                 placeholder="e.g. CPT-12345"
                             />
                         </div>
@@ -426,7 +426,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                         unitPriceRef.current?.focus();
                                     }
                                 }}
-                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-cosmo-copper)] focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all"
                                 placeholder="ex. Consultation"
                             />
                         </div>
@@ -439,7 +439,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                 value={customItem.unitPrice === 0 ? "" : customItem.unitPrice.toString()}
                                 onChange={(e) => setCustomItem({ ...customItem, unitPrice: Number(e.target.value) })}
 
-                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-400 focus:ring-2 focus:ring-indigo-500/20 transition-all"
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-cosmo-copper)] focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all"
                                 placeholder="0"
                             />
                         </div>

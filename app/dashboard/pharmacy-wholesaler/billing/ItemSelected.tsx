@@ -4,8 +4,8 @@ import React, { useCallback } from "react";
 import useSWR from "swr";
 
 const theme = {
-  from: "#4f46e5",
-  to: "#ec4899",
+  from: "var(--color-cosmo-copper)",
+  to: "var(--color-cosmo-brown)",
   accent: "#06b6d4",
 };
 

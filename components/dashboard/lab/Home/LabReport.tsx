@@ -159,7 +159,7 @@ export default function LabResultsPage() {
           <div className="flex items-center gap-3 flex-wrap">
             {/* Lab In-charge Status */}
             <div className="flex items-center gap-3 px-3 py-2 rounded-2xl border border-slate-200 bg-white/80 backdrop-blur-sm shadow-xs transition-all duration-200 hover:shadow-sm">
-              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-blue-500 shadow-inner">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-50 text-[var(--color-cosmo-copper)] shadow-inner">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
               </div>
               <div className="flex flex-col leading-tight pr-1">
@@ -178,7 +178,7 @@ export default function LabResultsPage() {
                 onClick={() => setShowSampleId(!showSampleId)}
                 className={cn(
                   "relative flex items-center w-16 h-8 rounded-full p-1 transition-all duration-300 cursor-pointer shadow-inner ring-1 ring-slate-200/50",
-                  showSampleId ? "bg-linear-to-r from-indigo-600 to-fuchsia-600" : "bg-slate-100"
+                  showSampleId ? "bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)]" : "bg-slate-100"
                 )}
               >
                 <span className={cn(
@@ -236,9 +236,9 @@ export default function LabResultsPage() {
           icon={<FlaskConical className="h-6 w-6" />}
           label="Waiting For Result"
           value={statsData.waitingForResult}
-          colorClass="from-indigo-500/10 to-indigo-500/5"
-          iconBgClass="bg-indigo-100 text-indigo-600"
-          borderClass="hover:border-indigo-200"
+          colorClass="from-[var(--color-cosmo-copper)]/10 to-[var(--color-cosmo-brown)]/5"
+          iconBgClass="bg-[var(--color-cosmo-copper)]/20 text-[var(--color-cosmo-copper)]"
+          borderClass="hover:border-[var(--color-cosmo-copper)]/30"
         />
         <StatCard
           delay={0.4}

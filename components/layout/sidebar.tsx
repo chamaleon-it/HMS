@@ -246,7 +246,7 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
     >
       {/* Brand */}
       <div className="px-4 py-4 flex items-center justify-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-indigo-500 to-fuchsia-500 text-white font-semibold shadow-md shrink-0">
+        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] text-white font-semibold shadow-md shrink-0">
           S
         </div>
         {!collapsed && (
@@ -419,7 +419,7 @@ function NavItem({
           className={
             "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border cursor-pointer " +
             (isParentActive
-              ? "border-transparent bg-linear-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
+              ? "border-transparent bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
           }
         >
@@ -431,7 +431,7 @@ function NavItem({
           className={
             "group w-full flex items-center gap-3 rounded-2xl px-3 py-3.5 transition-all border " +
             (isParentActive
-              ? "border-transparent bg-linear-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md"
+              ? "border-transparent bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
           }
         >
@@ -448,14 +448,14 @@ function NavItem({
               className={
                 "group w-full flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-all " +
                 (pathname === child.link
-                  ? "bg-indigo-100 text-indigo-700 font-medium"
+                  ? "bg-[var(--color-cosmo-copper)]/20 text-[var(--color-cosmo-copper)] font-medium"
                   : "text-slate-600 hover:bg-slate-50")
               }
             >
               <span
                 className={
                   "h-2 w-2 rounded-full " +
-                  (pathname === child.link ? "bg-indigo-500" : "bg-slate-400")
+                  (pathname === child.link ? "bg-[var(--color-cosmo-copper)]" : "bg-slate-400")
                 }
               ></span>
               {child.label}

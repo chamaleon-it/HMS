@@ -6,7 +6,7 @@ export function TableSkeleton({ rows = 5, columns = 5 }: { rows?: number; column
     return (
         <div className="rounded-2xl border overflow-hidden">
             <Table>
-                <TableHeader className="bg-slate-700">
+                <TableHeader className="bg-[var(--color-cosmo-dark)]">
                     <TableRow>
                         {Array.from({ length: columns }).map((_, i) => (
                             <TableHead key={i}>

@@ -34,7 +34,7 @@ export default function AdminDashboardHome() {
                                         className="flex items-center justify-between border-b pb-4 last:border-0 last:pb-0"
                                     >
                                         <div className="flex items-center gap-4">
-                                            <div className="w-2 h-2 rounded-full bg-blue-500" />
+                                            <div className="w-2 h-2 rounded-full bg-[var(--color-cosmo-copper)]" />
                                             <div>
                                                 <p className="text-sm font-medium">
                                                     User {i} performed an action

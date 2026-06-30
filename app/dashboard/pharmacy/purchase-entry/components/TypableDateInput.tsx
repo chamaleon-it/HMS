@@ -116,7 +116,7 @@ const TypableDateInput = ({
                 type="text"
                 placeholder={placeholder}
                 className={cn(
-                    "h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all text-center pr-10",
+                    "h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all text-center pr-10",
                     className
                 )}
                 value={displayValue}
@@ -130,9 +130,9 @@ const TypableDateInput = ({
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-1 h-9 w-9 hover:bg-indigo-50 rounded-md transition-colors"
+                        className="absolute right-1 h-9 w-9 hover:bg-[var(--color-cosmo-copper)]/10 rounded-md transition-colors"
                     >
-                        <CalendarIcon className="h-4 w-4 text-indigo-500" />
+                        <CalendarIcon className="h-4 w-4 text-[var(--color-cosmo-copper)]" />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">

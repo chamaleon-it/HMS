@@ -17,10 +17,10 @@ export default function BillingStatusFilter({
 }: Props) {
     const tabs = useMemo(
         () => [
-            { key: "all", label: "All", icon: List, color: "linear-gradient(90deg,#4f46e5,#d946ef)" },
-            { key: "Paid", label: "Paid", icon: CheckCircle, color: "linear-gradient(90deg,#4f46e5,#d946ef)" },
-            { key: "Partial", label: "Partial", icon: Clock, color: "linear-gradient(90deg,#4f46e5,#d946ef)" },
-            { key: "Unpaid", label: "Unpaid", icon: XCircle, color: "linear-gradient(90deg,#4f46e5,#d946ef)" },
+            { key: "all", label: "All", icon: List, color: "var(--color-cosmo-copper)" },
+            { key: "Paid", label: "Paid", icon: CheckCircle, color: "var(--color-cosmo-copper)" },
+            { key: "Partial", label: "Partial", icon: Clock, color: "var(--color-cosmo-copper)" },
+            { key: "Unpaid", label: "Unpaid", icon: XCircle, color: "var(--color-cosmo-copper)" },
         ],
         []
     );

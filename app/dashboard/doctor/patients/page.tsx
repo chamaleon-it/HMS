@@ -213,8 +213,8 @@ export default function PatientsEnhanced() {
 }
 
 const theme = {
-  from: "#4f46e5",
-  to: "#ec4899",
+  from: "var(--color-cosmo-copper)",
+  to: "var(--color-cosmo-brown)",
 };
 
 const PrimaryButton: React.FC<

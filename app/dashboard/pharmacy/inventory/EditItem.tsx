@@ -440,7 +440,7 @@ export function EditItem({
             </SelectTrigger>
             <SelectContent className="rounded-lg border-slate-200">
               {suppliers.map((s: { _id: string; name: string }) => (
-                <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-indigo-50">
+                <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-[var(--color-cosmo-copper)]/10">
                   {s.name}
                 </SelectItem>
               ))}
@@ -572,7 +572,7 @@ export function EditItem({
 
 
       <div className="flex gap-2">
-        <Button className="bg-indigo-600 text-white flex-1" type="submit" ref={refs.saveButton}>
+        <Button className="bg-[var(--color-cosmo-copper)] text-white flex-1" type="submit" ref={refs.saveButton}>
           Save Changes
         </Button>
         <Button

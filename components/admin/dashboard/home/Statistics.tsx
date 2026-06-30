@@ -10,7 +10,7 @@ export default function Statistics() {
             title: "Total Users",
             value: "1,234",
             icon: Users,
-            color: "text-blue-500",
+            color: "text-[var(--color-cosmo-copper)]",
             change: "+12% from last month",
         },
         {
@@ -24,7 +24,7 @@ export default function Statistics() {
             title: "Active Sessions",
             value: "345",
             icon: Activity,
-            color: "text-purple-500",
+            color: "text-[var(--color-cosmo-copper)]",
             change: "+24% from last hour",
         },
         {

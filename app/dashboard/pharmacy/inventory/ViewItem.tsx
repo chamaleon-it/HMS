@@ -173,7 +173,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
               <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                <Tag className="w-3.5 h-3.5 text-blue-600" />
+                <Tag className="w-3.5 h-3.5 text-[var(--color-cosmo-copper)]" />
               </div>
               SKU
             </div>
@@ -182,8 +182,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-              <div className="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center">
-                <Building2 className="w-3.5 h-3.5 text-purple-600" />
+              <div className="w-6 h-6 rounded-full bg-[#FDF6ED] flex items-center justify-center">
+                <Building2 className="w-3.5 h-3.5 text-[var(--color-cosmo-copper)]" />
               </div>
               Supplier
             </div>
@@ -233,8 +233,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-              <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center">
-                <Building2 className="w-3.5 h-3.5 text-indigo-600" />
+              <div className="w-6 h-6 rounded-full bg-[var(--color-cosmo-copper)]/20 flex items-center justify-center">
+                <Building2 className="w-3.5 h-3.5 text-[var(--color-cosmo-copper)]" />
               </div>
               Manufacturer
             </div>
@@ -316,7 +316,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                   <motion.span
                     layoutId="tab-indicator-view"
                     className="absolute inset-0 rounded-full shadow-md"
-                    style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                    style={{ background: "var(--color-cosmo-copper)" }}
                     transition={{ type: "spring", stiffness: 500, damping: 40 }}
                   />
                 )}
@@ -337,7 +337,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                   size="sm"
                   className={cn(
                     "h-9 rounded-full px-4 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 gap-2",
-                    dateRange?.from && "border-indigo-500 bg-indigo-50 text-indigo-700"
+                    dateRange?.from && "border-[var(--color-cosmo-copper)] bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)]"
                   )}
                 >
                   <CalendarIcon size={14} />
@@ -406,24 +406,24 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-[var(--color-cosmo-copper)]">
                   <Coins className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-blue-600 uppercase tracking-wider">Avg. Unit Price</p>
+                  <p className="text-[10px] font-bold text-[var(--color-cosmo-copper)] uppercase tracking-wider">Avg. Unit Price</p>
                   <p className="text-xl font-bold text-blue-900">{formatINR(salesStats.averageUnitPrice)}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 shadow-sm">
+            <div className="bg-[var(--color-cosmo-copper)]/10 border border-[var(--color-cosmo-copper)]/20 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                <div className="w-10 h-10 rounded-full bg-[var(--color-cosmo-copper)]/20 flex items-center justify-center text-[var(--color-cosmo-copper)]">
                   <Banknote className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-indigo-600 uppercase tracking-wider">Total Sales</p>
-                  <p className="text-xl font-bold text-indigo-900">{formatINR(salesStats.totalSales)}</p>
+                  <p className="text-[10px] font-bold text-[var(--color-cosmo-copper)] uppercase tracking-wider">Total Sales</p>
+                  <p className="text-xl font-bold text-[var(--color-cosmo-copper)]">{formatINR(salesStats.totalSales)}</p>
                 </div>
               </div>
             </div>
@@ -433,8 +433,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
 
           <Table>
-            <TableHeader className="bg-slate-700 hover:bg-slate-700">
-              <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+            <TableHeader className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
+              <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
                 {activeTab === "Batch History" ? (
                   <>
                     <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
@@ -485,7 +485,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                         <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
                         <TableCell className="text-xs py-3 text-slate-600">{data.supplier || "-"}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(data.purchasePrice)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-[var(--color-cosmo-copper)] bg-[var(--color-cosmo-copper)]/10/20 pr-4 tabular-nums">{data.quantity}</TableCell>
                       </>
                     ) : (
                       <>
@@ -514,7 +514,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
       {/* Actions */}
       < div className="flex gap-3 pt-4 border-t mt-2" >
-        <Button className="flex-1 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
+        <Button className="flex-1 bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
         </Button>

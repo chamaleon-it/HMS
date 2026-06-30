@@ -135,9 +135,9 @@ export default function Imagine() {
           icon={<FlaskConical className="h-6 w-6" />}
           label="Waiting For Result"
           value={statsData.waitingForResult}
-          colorClass="from-indigo-500/10 to-indigo-500/5"
-          iconBgClass="bg-indigo-100 text-indigo-600"
-          borderClass="hover:border-indigo-200"
+          colorClass="from-[var(--color-cosmo-copper)]/10 to-[var(--color-cosmo-brown)]/5"
+          iconBgClass="bg-[var(--color-cosmo-copper)]/20 text-[var(--color-cosmo-copper)]"
+          borderClass="hover:border-[var(--color-cosmo-copper)]/30"
         />
         <StatCard
           delay={0.4}

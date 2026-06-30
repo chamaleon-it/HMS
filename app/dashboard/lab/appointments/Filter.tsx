@@ -121,7 +121,7 @@ export default function Filter({
                     {data?.data.map((p, index) => (
                       <Link 
                         href={`/dashboard/lab/patients/single/?id=${p._id}`} 
-                        className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-indigo-500 ring-offset-1' : ''}`} 
+                        className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-[var(--color-cosmo-copper)] ring-offset-1' : ''}`} 
                         key={p._id}
                         onClick={() => setIsOpen(false)}
                       >

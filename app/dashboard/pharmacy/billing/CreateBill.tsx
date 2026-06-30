@@ -16,8 +16,8 @@ import { BillSummary } from "./components/BillSummary";
 import { InvoiceNotes } from "./components/InvoiceNotes";
 
 const theme = {
-  from: "#4f46e5",
-  to: "#ec4899",
+  from: "var(--color-cosmo-copper)",
+  to: "var(--color-cosmo-brown)",
   accent: "#06b6d4",
 };
 

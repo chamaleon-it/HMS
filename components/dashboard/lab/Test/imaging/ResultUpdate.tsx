@@ -122,7 +122,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
             <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden gap-0">
                 <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-purple-100/50 text-purple-600 rounded-xl">
+                        <div className="p-2.5 bg-[#FDF6ED]/50 text-[var(--color-cosmo-copper)] rounded-xl">
                             <Scan className="w-5 h-5" />
                         </div>
                         <div>
@@ -137,10 +137,10 @@ export default function ResultUpdate({ r, mutate }: Props) {
                 <div className="p-6 bg-gray-50/30 max-h-[60vh] overflow-y-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {r.test.filter(item => item.name?.type === "Imaging").map((test) => (
-                            <div key={test._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-purple-200 transition-all duration-200 group">
+                            <div key={test._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-[var(--color-cosmo-copper)]/30 transition-all duration-200 group">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-fuchsia-50 text-fuchsia-600 rounded-lg group-hover:bg-fuchsia-100 transition-colors">
+                                        <div className="p-2 bg-fuchsia-50 text-[var(--color-cosmo-copper)] rounded-lg group-hover:bg-[#FDF6ED] transition-colors">
                                             <ImageIcon className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -155,11 +155,11 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                         <label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-1">Upload Report/Image</label>
                                         <div className="relative group/input">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Upload className="h-4 w-4 text-gray-400 group-hover/input:text-purple-500 transition-colors" />
+                                                <Upload className="h-4 w-4 text-gray-400 group-hover/input:text-[var(--color-cosmo-copper)] transition-colors" />
                                             </div>
                                             <Input
                                                 type="file"
-                                                className="pl-10 h-10 bg-gray-50 border-gray-200 focus:bg-white transition-all file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100 text-xs text-gray-600"
+                                                className="pl-10 h-10 bg-gray-50 border-gray-200 focus:bg-white transition-all file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-[var(--color-cosmo-copper)] hover:file:bg-[#FDF6ED] text-xs text-gray-600"
                                                 onChange={async (e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
@@ -199,7 +199,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                             Cancel
                         </Button>
                     </DialogClose>
-                    <Button type="button" onClick={updateResult} className="gap-2 bg-purple-600 hover:bg-purple-700 text-white shadow-purple-100 shadow-lg">
+                    <Button type="button" onClick={updateResult} className="gap-2 bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white shadow-purple-100 shadow-lg">
                         <Save className="w-4 h-4" />
                         Save Changes
                     </Button>

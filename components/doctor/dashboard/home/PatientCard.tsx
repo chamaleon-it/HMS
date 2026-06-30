@@ -21,7 +21,7 @@ function VisitBadge({ count }: { count: number }) {
   if (count === 1) {
     label = "First Visit";
     colorClass = "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200";
-    dotColor = "bg-emerald-500";
+    dotColor = "bg-[var(--color-cosmo-dark)]";
   } else if (count === 2) {
     label = "Second Visit";
     colorClass = "bg-sky-50 text-sky-700 ring-1 ring-sky-200";
@@ -32,8 +32,8 @@ function VisitBadge({ count }: { count: number }) {
     dotColor = "bg-amber-500";
   } else if (count === 4) {
     label = "Fourth Visit";
-    colorClass = "bg-purple-50 text-purple-700 ring-1 ring-purple-200";
-    dotColor = "bg-purple-500";
+    colorClass = "bg-purple-50 text-[var(--color-cosmo-copper)] ring-1 ring-purple-200";
+    dotColor = "bg-[var(--color-cosmo-copper)]";
   } else {
     label = `${ordinal(count)} Visit`;
     colorClass = "bg-gray-50 text-gray-700 ring-1 ring-gray-200";
@@ -115,7 +115,7 @@ export function PatientCard({
       {new Date(a.date) > new Date() ? (
         <div className="absolute z-10 -left-[100px] top-0 bottom-0 w-px bg-gray-300" />
       ) : (
-        <div className="absolute z-10 -left-[100px] top-0 bottom-0 w-px bg-blue-700" />
+        <div className="absolute z-10 -left-[100px] top-0 bottom-0 w-px bg-[var(--color-cosmo-copper)]" />
       )}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">

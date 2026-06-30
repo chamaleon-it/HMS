@@ -175,7 +175,7 @@ export default function PrescriptionCard({
         <div className="mt-4 flex gap-3">
           <Button
             onClick={addMedicineRow}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
+            className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white rounded-md"
           >
             + Add Medicine
           </Button>

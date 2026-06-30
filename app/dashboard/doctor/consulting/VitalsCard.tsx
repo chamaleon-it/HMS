@@ -255,7 +255,7 @@ export function getBmiInfo(bmi: number | null | undefined) {
       label: "Underweight",
       short: "Low",
       bg: "bg-blue-100",
-      text: "text-blue-600",
+      text: "text-[var(--color-cosmo-copper)]",
     } as const;
   if (v < 25)
     return {

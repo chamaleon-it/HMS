@@ -283,8 +283,8 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
       className="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm overflow-x-auto cursor-grab active:cursor-grabbing"
     >
       <table className="w-full whitespace-nowrap  overflow-scroll">
-        <thead className="bg-slate-700 hover:bg-slate-700">
-          <tr className="bg-slate-700 hover:bg-slate-700 border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
+        <thead className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
+          <tr className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
             {headerCell("SL No.")}
             {status !== "Draft" && headerCell("Report No.")}
             {headerCell("Patient")}
@@ -591,7 +591,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                                   e.stopPropagation();
                                   updateDraft(r._id, { isOpen: true, minimized: false });
                                 }}
-                                className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                                className="h-8 w-8 text-[var(--color-cosmo-copper)] hover:text-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)]/10"
                               >
                                 <Eye className="h-4 w-4" />
                               </Button>
@@ -629,7 +629,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                       {
                         status === "Sample Collected" && <Button
                           size="sm"
-                          className="h-8 bg-linear-to-br from-indigo-500 to-fuchsia-500 hover:from-indigo-600 hover:to-fuchsia-600 text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 px-4 font-semibold rounded-lg"
+                          className="h-8 bg-linear-to-br from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 px-4 font-semibold rounded-lg"
                           onClick={async () => {
                             try {
                               await toast.promise(
@@ -725,7 +725,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                       {status === "Completed" && <Button
                         variant={"outline"}
                         size="sm"
-                        className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
+                        className="gap-2 h-8 text-xs text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30 hover:bg-[var(--color-cosmo-copper)]/10 hover:text-[var(--color-cosmo-copper)] bg-white"
                         onClick={() => handlePrint(r)}
                       >
                         <Printer className="h-3.5 w-3.5" />
@@ -749,7 +749,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                       {status === "Flagged" && <Button
                         variant={"outline"}
                         size="sm"
-                        className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
+                        className="gap-2 h-8 text-xs text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30 hover:bg-[var(--color-cosmo-copper)]/10 hover:text-[var(--color-cosmo-copper)] bg-white"
                         onClick={() => {
 
                         }}
@@ -836,7 +836,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                                className="bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white"
                                 onClick={async () => {
                                   try {
                                     await toast.promise(
