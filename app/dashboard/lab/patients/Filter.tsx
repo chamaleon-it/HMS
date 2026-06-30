@@ -101,22 +101,7 @@ export default function Filter({
         </div>
 
         {/* Address */}
-        <div className="space-y-2 flex-1 max-w-[200px]">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-            Address (L1/L2)
-          </label>
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-            <Input
-              value={filter?.address || ""}
-              onChange={(e) =>
-                setFilter((prev) => ({ ...prev, address: e.target.value, page: 1 }))
-              }
-              placeholder="Address line..."
-              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
-            />
-          </div>
-        </div>
+
 
         {/* Row 1 fields end here, address fields will move to Row 2 */}
 
@@ -241,6 +226,22 @@ export default function Filter({
       </div>
 
       <div className="flex flex-wrap items-end gap-3 mt-3">
+        <div className="space-y-2 flex-1 max-w-[200px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Address (L1/L2)
+          </label>
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Input
+              value={filter?.address || ""}
+              onChange={(e) =>
+                setFilter((prev) => ({ ...prev, address: e.target.value, page: 1 }))
+              }
+              placeholder="Address line..."
+              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+            />
+          </div>
+        </div>
         {/* City */}
         <div className="space-y-2 flex-1 max-w-[200px]">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">City</label>
@@ -285,7 +286,7 @@ export default function Filter({
           />
         </div>
 
-        <div className="space-y-2 ml-auto">
+        <div className="space-y-2">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Patient Status
           </label>
