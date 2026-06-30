@@ -76,6 +76,7 @@ export function ServerAutocomplete({
           }}
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
+          autoComplete="new-password"
           className="w-full h-11 pl-9 pr-8 bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all placeholder:text-slate-400 text-sm"
         />
         <svg

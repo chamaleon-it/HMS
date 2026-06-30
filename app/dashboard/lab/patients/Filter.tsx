@@ -238,6 +238,7 @@ export default function Filter({
                 setFilter((prev) => ({ ...prev, address: e.target.value, page: 1 }))
               }
               placeholder="Address line..."
+              autoComplete="off"
               className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
             />
           </div>
