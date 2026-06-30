@@ -20,6 +20,9 @@ import { useAuth } from "@/auth/context/auth-context";
 export interface FilterType {
   query?: string;
   address?: string;
+  locality?: string;
+  state?: string;
+  pincode?: string;
   gender?: string;
   doctor?: string;
   date?: Date;
@@ -40,6 +43,9 @@ export default function PatientsEnhanced() {
   const [filter, setFilter] = useState<FilterType>({
     query: undefined,
     address: undefined,
+    locality: undefined,
+    state: undefined,
+    pincode: undefined,
     gender: undefined,
     doctor: undefined,
     age: [0, 100],

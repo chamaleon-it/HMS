@@ -57,22 +57,14 @@ export default function Filter({
             className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
           />
         </div>
-        <div className="relative flex-1 group">
-          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
-          <input
-            value={filter.address || ""}
-            onChange={(e) =>
-              setFilter((prev) => ({ ...prev, address: e.target.value }))
-            }
-            placeholder="Search by Address…"
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
-          />
-        </div>
         <button
           onClick={() =>
             setFilter({
               query: undefined,
               address: undefined,
+              locality: undefined,
+              state: undefined,
+              pincode: undefined,
               gender: undefined,
               doctor: undefined,
               age: [0, 100],
@@ -92,6 +84,54 @@ export default function Filter({
           <RotateCcw className="h-4 w-4" />
           <span>Reset all</span>
         </button>
+      </div>
+
+      {/* Address row */}
+      <div className="mt-3 flex flex-col md:flex-row gap-4 md:items-center">
+        <div className="relative flex-[2] group">
+          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
+          <input
+            value={filter.address || ""}
+            onChange={(e) =>
+              setFilter((prev) => ({ ...prev, address: e.target.value }))
+            }
+            placeholder="Search Address L1/L2…"
+            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+          />
+        </div>
+        <div className="relative flex-1 group">
+          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
+          <input
+            value={filter.locality || ""}
+            onChange={(e) =>
+              setFilter((prev) => ({ ...prev, locality: e.target.value }))
+            }
+            placeholder="Locality…"
+            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+          />
+        </div>
+        <div className="relative flex-1 group">
+          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
+          <input
+            value={filter.state || ""}
+            onChange={(e) =>
+              setFilter((prev) => ({ ...prev, state: e.target.value }))
+            }
+            placeholder="State…"
+            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+          />
+        </div>
+        <div className="relative flex-1 group">
+          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
+          <input
+            value={filter.pincode || ""}
+            onChange={(e) =>
+              setFilter((prev) => ({ ...prev, pincode: e.target.value }))
+            }
+            placeholder="Pincode…"
+            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+          />
+        </div>
       </div>
 
       {/* Row 2: Primary filters */}

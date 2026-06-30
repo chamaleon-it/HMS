@@ -15,6 +15,9 @@ import { Input } from "@/components/ui/input";
 export interface FilterType {
   query?: string;
   address?: string;
+  locality?: string;
+  state?: string;
+  pincode?: string;
   gender?: string;
   doctor?: string;
   age: [number, number];
@@ -50,6 +53,9 @@ export default function Filter({
     setFilter({
       query: undefined,
       address: undefined,
+      locality: undefined,
+      state: undefined,
+      pincode: undefined,
       gender: undefined,
       doctor: undefined,
       age: [0, 100],
@@ -89,9 +95,10 @@ export default function Filter({
           </div>
         </div>
 
-        <div className="space-y-2 flex-1 max-w-[400px]">
+        {/* Address */}
+        <div className="space-y-2 flex-1 max-w-[200px]">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-            Search Address
+            Address (L1/L2)
           </label>
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
@@ -100,7 +107,49 @@ export default function Filter({
               onChange={(e) =>
                 setFilter((prev) => ({ ...prev, address: e.target.value, page: 1 }))
               }
-              placeholder="Address..."
+              placeholder="Address line..."
+              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+
+        {/* Locality */}
+        <div className="space-y-2 flex-1 max-w-[200px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">Locality</label>
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Input
+              value={filter?.locality || ""}
+              onChange={(e) => setFilter((prev) => ({ ...prev, locality: e.target.value, page: 1 }))}
+              placeholder="Locality..."
+              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+
+        {/* State */}
+        <div className="space-y-2 flex-1 max-w-[150px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">State</label>
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Input
+              value={filter?.state || ""}
+              onChange={(e) => setFilter((prev) => ({ ...prev, state: e.target.value, page: 1 }))}
+              placeholder="State..."
+              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+
+        {/* Pincode */}
+        <div className="space-y-2 flex-1 max-w-[150px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">Pincode</label>
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Input
+              value={filter?.pincode || ""}
+              onChange={(e) => setFilter((prev) => ({ ...prev, pincode: e.target.value, page: 1 }))}
+              placeholder="Pincode..."
               className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
             />
           </div>
