@@ -456,7 +456,7 @@ export default function ExaminationNote({
                         </span>
                         <button
                           onClick={() => setSaveOpen(true)}
-                          className="text-violet-700 hover:text-violet-900 text-xs font-semibold"
+                          className="text-[var(--color-cosmo-copper)] hover:text-[var(--color-cosmo-copper)] text-xs font-semibold"
                         >
                           + Save Current
                         </button>
@@ -717,7 +717,7 @@ export default function ExaminationNote({
                 </button>
                 <button
                   onClick={saveCurrentAsTemplate}
-                  className="px-4 py-2 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700"
+                  className="px-4 py-2 bg-[var(--color-cosmo-dark)] text-white rounded-xl hover:bg-[var(--color-cosmo-dark)]"
                 >
                   Save
                 </button>

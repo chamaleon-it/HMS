@@ -120,7 +120,7 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                 <Button
                     variant={"outline"}
                     size="sm"
-                    className="h-8 bg-white text-blue-600 hover:bg-blue-50 hover:text-blue-700 border-blue-100"
+                    className="h-8 bg-white text-[var(--color-cosmo-copper)] hover:bg-blue-50 hover:text-[var(--color-cosmo-copper)] border-blue-100"
                 >
                     <Pencil className="h-4 w-4" />
                 </Button>
@@ -294,7 +294,7 @@ export default function EditTest({ report, mutate }: EditTestProps) {
 
                 <div className="flex justify-end items-center mt-4 pr-4">
                     <div className="text-lg font-semibold text-gray-700">
-                        Grand Total: <span className="text-blue-600">{formatINR(grandTotal)}</span>
+                        Grand Total: <span className="text-[var(--color-cosmo-copper)]">{formatINR(grandTotal)}</span>
                     </div>
                 </div>
 
@@ -303,7 +303,7 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                         <Button variant="outline">Cancel</Button>
                     </DialogClose>
                     <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white"
                         onClick={handleSubmit}
                     >
                         Update Order

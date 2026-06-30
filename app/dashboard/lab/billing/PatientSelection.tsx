@@ -273,7 +273,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, value }) => {
                     "m-1.5 rounded-2xl border bg-white/90 cursor-pointer transition-all duration-150 hover:shadow-sm",
                     activeIdx === idx && "ring-1 ring-primary/40",
                     selected?._id === p._id &&
-                    "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
+                    "border-primary/40 shadow-[0_0_0_3px_rgba(201,149,106,0.08)]"
                   )}
                 >
                   <PatientCard
@@ -344,7 +344,7 @@ const PatientCard: React.FC<{
         style={{
           background:
             isSelected || isActive
-              ? `linear-gradient(90deg, rgba(99,102,241,0.06), rgba(16,185,129,0.04))`
+              ? `linear-gradient(90deg, rgba(201,149,106,0.06), rgba(201,149,106,0.04))`
               : "transparent",
         }}
       />
@@ -385,7 +385,7 @@ const PatientCard: React.FC<{
               </div>
 
               <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[var(--color-cosmo-copper)] dark:bg-blue-900/40 dark:text-blue-300">
                   {safeAge(p.dateOfBirth)}
                 </span>
                 {p.gender ? (

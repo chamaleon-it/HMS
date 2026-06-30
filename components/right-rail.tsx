@@ -42,7 +42,7 @@ export function RightRail() {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm">Contacts</CardTitle>
-            <button className="text-xs text-violet-600">View All</button>
+            <button className="text-xs text-[var(--color-cosmo-copper)]">View All</button>
           </div>
         </CardHeader>
         <CardContent>
@@ -54,7 +54,7 @@ export function RightRail() {
                     <AvatarImage src="/diverse-avatars.png" alt={`${n} avatar`} />
                     <AvatarFallback>{n.slice(0, 1)}</AvatarFallback>
                   </Avatar>
-                  <span className="absolute -right-0.5 -bottom-0.5 inline-block h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+                  <span className="absolute -right-0.5 -bottom-0.5 inline-block h-2.5 w-2.5 rounded-full bg-[var(--color-cosmo-dark)] ring-2 ring-white" />
                 </div>
                 <div className="text-[11px] text-muted-foreground">{n}</div>
               </div>
@@ -68,7 +68,7 @@ export function RightRail() {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm">Messages</CardTitle>
-            <button className="text-xs text-violet-600">View All</button>
+            <button className="text-xs text-[var(--color-cosmo-copper)]">View All</button>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -96,14 +96,14 @@ export function RightRail() {
         </CardHeader>
         <CardContent>
           <div className="mb-4 inline-flex rounded-full bg-muted p-1">
-            <Badge className="rounded-full bg-violet-600 text-white hover:bg-violet-600">Activity</Badge>
+            <Badge className="rounded-full bg-[var(--color-cosmo-copper)] text-white hover:bg-[var(--color-cosmo-copper)]">Activity</Badge>
             <span className="ml-2 rounded-full px-3 py-1 text-xs text-muted-foreground">Update</span>
           </div>
           <ul className="space-y-3 text-sm">
             {[
-              { t: "Transaction Assets", time: "2 Hour Ago", tone: "bg-violet-500" },
+              { t: "Transaction Assets", time: "2 Hour Ago", tone: "bg-[var(--color-cosmo-copper)]" },
               { t: "New Email Register", time: "2 Hour Ago", tone: "bg-amber-500" },
-              { t: "Transaction Assets", time: "2 Hour Ago", tone: "bg-violet-500" },
+              { t: "Transaction Assets", time: "2 Hour Ago", tone: "bg-[var(--color-cosmo-copper)]" },
               { t: "New Email Register", time: "2 Hour Ago", tone: "bg-amber-500" },
             ].map((a, i) => (
               <li key={i} className="flex items-center justify-between">

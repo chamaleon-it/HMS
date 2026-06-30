@@ -118,25 +118,25 @@ export default function LabRegisterPage() {
                 </label>
                 <div className="flex gap-2">
                   <div className="relative group flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[var(--color-cosmo-copper)] transition-colors" />
                     <Input
                       value={filter.q ?? ""}
                       onChange={(e) =>
                         setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
                       }
                       placeholder="From..."
-                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all placeholder:text-slate-400"
                     />
                   </div>
                   <div className="relative group flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[var(--color-cosmo-copper)] transition-colors" />
                     <Input
                       value={filter.qEnd ?? ""}
                       onChange={(e) =>
                         setFilter((prev) => ({ ...prev, qEnd: e.target.value, page: 1 }))
                       }
                       placeholder="To..."
-                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all placeholder:text-slate-400"
                     />
                   </div>
                 </div>
@@ -176,14 +176,14 @@ export default function LabRegisterPage() {
               <TableSkeleton rows={10} columns={6} />
             ) : (
               <Table className="min-w-[1000px] text-sm" containerClassName="max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
-                <TableHeader className="bg-slate-700 sticky top-0 z-20 shadow-sm">
-                  <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
-                    <TableHead className="py-3 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Sl No</TableHead>
-                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Invoice</TableHead>
-                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Date</TableHead>
-                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Patient</TableHead>
-                    <TableHead className="py-3 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Paid Amount</TableHead>
-                    <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-slate-700">Total Bill</TableHead>
+                <TableHeader className="bg-[var(--color-cosmo-dark)] sticky top-0 z-20 shadow-sm">
+                  <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
+                    <TableHead className="py-3 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-cosmo-dark)]">Sl No</TableHead>
+                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-cosmo-dark)]">Invoice</TableHead>
+                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-cosmo-dark)]">Date</TableHead>
+                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-cosmo-dark)]">Patient</TableHead>
+                    <TableHead className="py-3 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-cosmo-dark)]">Paid Amount</TableHead>
+                    <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-cosmo-dark)]">Total Bill</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

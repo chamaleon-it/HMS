@@ -28,7 +28,7 @@ export function AnimatedTabs({ options, value, onChange, layoutId, className }: 
                         key={key}
                         onClick={() => onChange(key)}
                         className={cn(
-                            "relative flex items-center justify-center gap-2 rounded-full px-4 py-2 transition text-sm font-medium will-change-transform cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-indigo-500",
+                            "relative flex items-center justify-center gap-2 rounded-full px-4 py-2 transition text-sm font-medium will-change-transform cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-cosmo-copper)]",
                             active ? "text-white" : "text-gray-700 hover:text-gray-900"
                         )}
                         type="button"
@@ -37,7 +37,7 @@ export function AnimatedTabs({ options, value, onChange, layoutId, className }: 
                             <motion.span
                                 layoutId={layoutId}
                                 className="absolute inset-0 rounded-full"
-                                style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                                style={{ background: "var(--color-cosmo-copper)" }}
                                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
                             />
                         )}

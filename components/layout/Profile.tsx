@@ -56,11 +56,7 @@ export default function DoctorProfile() {
                 {/* {user?.name.slice(0, 1).toUpperCase()} */}
                 <img src="/logo.png" alt="" className="h-10 w-10" />
               </div>
-              <span
-                className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full ring-2 ring-white 
-    ${isNetworkLost ? 'bg-orange-500' : 'bg-emerald-500'}
-  `}
-              />
+
             </span>
             <span className="text-left">
               <span className="block text-[15px] font-semibold leading-tight">

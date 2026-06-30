@@ -127,7 +127,7 @@ export default function AddPaymentDialog({
             <DialogContent className="max-w-5xl! max-h-[92vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <FileEdit className="h-4 w-4 text-indigo-600" />
+                        <FileEdit className="h-4 w-4 text-[var(--color-cosmo-copper)]" />
                         Edit Draft Bill — {bill.mrn}
                     </DialogTitle>
                 </DialogHeader>
@@ -169,7 +169,7 @@ export default function AddPaymentDialog({
                                             <tr key={idx} className="hover:bg-slate-50/60">
                                                 <td className="px-3 py-1.5">
                                                     <input
-                                                        className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100"
+                                                        className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-[var(--color-cosmo-copper)] focus:ring-1 focus:ring-indigo-100"
                                                         value={item.name}
                                                         placeholder="Item name"
                                                         onChange={e => updateItemField(idx, "name", e.target.value)}
@@ -180,7 +180,7 @@ export default function AddPaymentDialog({
                                                         <input
                                                             type="number"
                                                             min={0}
-                                                            className="w-20 rounded-md border border-slate-200 px-2 py-1.5 text-xs text-right outline-none focus:border-indigo-400 focus:ring-1 focus:ring-indigo-100"
+                                                            className="w-20 rounded-md border border-slate-200 px-2 py-1.5 text-xs text-right outline-none focus:border-[var(--color-cosmo-copper)] focus:ring-1 focus:ring-indigo-100"
                                                             value={item[field] === 0 ? "" : item[field]}
                                                             placeholder="0"
                                                             onChange={e => updateItemField(idx, field, e.target.value)}
@@ -223,8 +223,8 @@ export default function AddPaymentDialog({
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {([
                                     { key: "cash", label: "Cash", icon: Banknote, tint: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-                                    { key: "online", label: "Card / UPI", icon: CreditCard, tint: "bg-indigo-50 text-indigo-700 border-indigo-200" },
-                                    { key: "insurance", label: "Insurance", icon: Building2, tint: "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200" },
+                                    { key: "online", label: "Card / UPI", icon: CreditCard, tint: "bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30" },
+                                    { key: "insurance", label: "Insurance", icon: Building2, tint: "bg-fuchsia-50 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30" },
                                 ] as const).map(({ key, label, icon: Icon, tint }) => (
                                     <div key={key} className={`rounded-xl border px-3 py-3 ${tint}`}>
                                         <div className="mb-1.5 flex items-center gap-2 text-xs font-semibold">
@@ -257,7 +257,7 @@ export default function AddPaymentDialog({
                                         placeholder="0"
                                         value={payment.discount === 0 ? "" : payment.discount}
                                         onChange={e => setPayment(p => ({ ...p, discount: Number(e.target.value) }))}
-                                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:border-indigo-400 text-right"
+                                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:border-[var(--color-cosmo-copper)] text-right"
                                     />
                                 </div>
                             </div>
@@ -281,7 +281,7 @@ export default function AddPaymentDialog({
                             </div>
 
                             <div className="mt-5">
-                                <Button className="w-full bg-indigo-600 hover:bg-indigo-700" onClick={handleSubmit}>
+                                <Button className="w-full bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)]" onClick={handleSubmit}>
                                     Save Changes
                                 </Button>
                             </div>

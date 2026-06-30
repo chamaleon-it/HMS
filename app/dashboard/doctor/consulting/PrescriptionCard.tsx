@@ -412,7 +412,7 @@ export default function PrescriptionCard({
 
                     <div className="col-span-2 flex justify-end gap-2">
                       <Button
-                        className="bg-emerald-600! hover:bg-emerald-700! text-white border-emerald-600!"
+                        className="bg-[var(--color-cosmo-dark)]! hover:bg-[var(--color-cosmo-dark)]! text-white border-emerald-600!"
                         onClick={addMedicineRow}
                         title="Add medicine"
                       >
@@ -435,7 +435,7 @@ export default function PrescriptionCard({
               <div className="mt-4 flex gap-3">
                 <Button
                   onClick={addMedicineRow}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
+                  className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white rounded-md"
                 >
                   + Add Medicine
                 </Button>
@@ -473,10 +473,10 @@ export default function PrescriptionCard({
                           <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
                             {med.referralName}
                           </span>
-                          <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">
+                          <span className="bg-blue-100 text-[var(--color-cosmo-copper)] px-2 py-0.5 rounded-md">
                             {med.dosage}
                           </span>
-                          <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-md">
+                          <span className="bg-[#FDF6ED] text-[var(--color-cosmo-copper)] px-2 py-0.5 rounded-md">
                             {med.frequency}
                           </span>
                           <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md">
@@ -491,7 +491,7 @@ export default function PrescriptionCard({
                     <Button
                       onClick={() => applyTemplate(fav)}
                       size="sm"
-                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-md"
+                      className="w-full bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white rounded-md"
                     >
                       Apply
                     </Button>
@@ -570,10 +570,10 @@ export default function PrescriptionCard({
                               <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
                                 {med.name}
                               </span>
-                              <span className="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-md">
+                              <span className="bg-blue-100 text-[var(--color-cosmo-copper)] px-2 py-0.5 rounded-md">
                                 {med.dosage}
                               </span>
-                              <span className="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-md">
+                              <span className="bg-[#FDF6ED] text-[var(--color-cosmo-copper)] px-2 py-0.5 rounded-md">
                                 {med.frequency}
                               </span>
                               <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md">
@@ -588,7 +588,7 @@ export default function PrescriptionCard({
                         <div className="flex gap-2">
                           <Button
                             size="sm"
-                            className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                            className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white"
                             onClick={() => applyTemplate(fav)}
                           >
                             Apply
@@ -640,7 +640,7 @@ export default function PrescriptionCard({
                     Cancel
                   </Button>
                   <Button
-                    className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                    className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white"
                     onClick={saveCurrentAsFavorite}
                   >
                     Save
@@ -743,7 +743,7 @@ export default function PrescriptionCard({
                       Cancel
                     </Button>
                     <Button
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white"
+                      className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white"
                       onClick={saveEditTemplate}
                     >
                       Save Changes

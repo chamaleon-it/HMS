@@ -32,7 +32,7 @@ export default function Clinical({ consult }: { consult: ConsultationType[] }) {
       <div className="rounded-xl border overflow-hidden">
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-700 hover:bg-slate-700">
+            <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
               <TableHead className="text-white w-[50px]">
                 <Checkbox className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700" />
               </TableHead>

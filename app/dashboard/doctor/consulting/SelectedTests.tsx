@@ -14,7 +14,7 @@ export default function SelectedTests({ test, toggleTest }: { test: TestItemType
             <div className="flex items-center gap-3 overflow-hidden">
                 <div className={cn(
                     "h-10 w-10 rounded-lg grid place-items-center shrink-0",
-                    test.type === 'Lab' ? 'bg-blue-50 text-blue-600' : 'bg-purple-50 text-purple-600'
+                    test.type === 'Lab' ? 'bg-blue-50 text-[var(--color-cosmo-copper)]' : 'bg-purple-50 text-[var(--color-cosmo-copper)]'
                 )}>
                     {test.type === 'Lab' ? <TestTubeDiagonal className="w-5 h-5" /> : <ImageIcon className="w-5 h-5" />}
                 </div>

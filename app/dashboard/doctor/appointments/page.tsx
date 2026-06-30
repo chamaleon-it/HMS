@@ -86,7 +86,7 @@ export default function AppointmentPage() {
                         layoutId="tab-indicator"
                         className="absolute inset-0 rounded-full"
                         style={{
-                          background: "linear-gradient(90deg,#4f46e5,#d946ef)",
+                          background: "var(--color-cosmo-copper)",
                         }}
                         transition={{
                           type: "spring",
@@ -122,8 +122,8 @@ export default function AppointmentPage() {
 }
 
 const theme = {
-  from: "#4f46e5",
-  to: "#ec4899",
+  from: "var(--color-cosmo-copper)",
+  to: "var(--color-cosmo-brown)",
 };
 
 const PrimaryButton: React.FC<

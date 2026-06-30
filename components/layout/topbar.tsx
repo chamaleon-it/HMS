@@ -66,7 +66,7 @@ export default function Header() {
         {/* Background glow (subtle) */}
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-28">
           <div className="mx-auto h-full w-full max-w-screen-2xl opacity-40 mask-[radial-gradient(60%_60%_at_50%_0%,#000_0%,transparent_70%)]">
-            <div className="h-full w-full bg-[radial-gradient(1000px_200px_at_15%_-20%,#818cf8_12%,transparent_60%),radial-gradient(1000px_200px_at_85%_-20%,#e879f9_12%,transparent_60%)]" />
+            <div className="h-full w-full bg-[radial-gradient(1000px_200px_at_15%_-20%,var(--color-cosmo-copper)_12%,transparent_60%),radial-gradient(1000px_200px_at_85%_-20%,var(--color-cosmo-copper)_12%,transparent_60%)]" />
           </div>
         </div>
 
@@ -110,7 +110,7 @@ export default function Header() {
                       {isActive && (
                         <motion.span
                           layoutId="topbar-active-indicator"
-                          className="absolute inset-0 rounded-full bg-linear-to-r from-indigo-500 to-fuchsia-500"
+                          className="absolute inset-0 rounded-full bg-[var(--color-cosmo-copper)]"
                           transition={{ type: "spring", stiffness: 500, damping: 40 }}
                         />
                       )}
@@ -124,7 +124,7 @@ export default function Header() {
                           <Link
                             key={child.key}
                             href={child.link}
-                            className={`px-4 py-2 transition-colors ${pathname.startsWith(child.link) ? "text-indigo-600 font-bold bg-indigo-50/50" : "text-slate-600 hover:bg-slate-50 hover:text-indigo-600"
+                            className={`px-4 py-2 transition-colors ${pathname.startsWith(child.link) ? "text-[var(--color-cosmo-copper)] font-bold bg-[var(--color-cosmo-copper)]/10/50" : "text-slate-600 hover:bg-slate-50 hover:text-[var(--color-cosmo-copper)]"
                               }`}
                           >
                             {child.label}
@@ -145,7 +145,7 @@ export default function Header() {
                     {isActive && (
                       <motion.span
                         layoutId="topbar-active-indicator"
-                        className="absolute inset-0 rounded-full bg-linear-to-r from-indigo-500 to-fuchsia-500"
+                        className="absolute inset-0 rounded-full bg-[var(--color-cosmo-copper)]"
                         transition={{ type: "spring", stiffness: 500, damping: 40 }}
                       />
                     )}
@@ -168,7 +168,7 @@ export default function Header() {
           >
             {user?.role === "Doctor" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[var(--color-cosmo-copper)] px-4 py-2 text-sm font-medium text-[var(--color-cosmo-dark)] shadow-sm hover:shadow-md cursor-pointer"
                 onClick={() => setOpenCreate(true)}
               >
                 <Plus className="h-4 w-4" /> New Appointment
@@ -176,7 +176,7 @@ export default function Header() {
             )}
             {user?.role === "Pharmacy" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[var(--color-cosmo-copper)] px-4 py-2 text-sm font-medium text-[var(--color-cosmo-dark)] shadow-sm hover:shadow-md cursor-pointer"
                 onClick={() => window.dispatchEvent(new CustomEvent('open-new-order'))}
               >
                 <Plus className="h-4 w-4" /> New Order
@@ -184,7 +184,7 @@ export default function Header() {
             )}
             {user?.role === "Lab" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-indigo-600 to-fuchsia-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[var(--color-cosmo-copper)] px-4 py-2 text-sm font-medium text-[var(--color-cosmo-dark)] shadow-sm hover:shadow-md cursor-pointer"
                 onClick={() => window.dispatchEvent(new CustomEvent('open-add-test'))}
               >
                 <Plus className="h-4 w-4" /> Book Now
@@ -192,7 +192,7 @@ export default function Header() {
             )}
             {(user?.role === "Doctor" || user?.role === "Pharmacy" || user?.role === "Lab") && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-emerald-700 cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[var(--color-cosmo-dark)] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[var(--color-cosmo-brown)] cursor-pointer"
                 onClick={() => setOpenPatient(true)}
               >
                 <Plus className="h-4 w-4" /> New Patient
@@ -212,7 +212,7 @@ export default function Header() {
 
         {/* Bottom divider (slimmer) */}
         <div
-          className="h-0.75 bg-linear-to-r from-indigo-600/15 via-fuchsia-600/15 to-indigo-600/15"
+          className="h-0.75 bg-linear-to-r from-[var(--color-cosmo-copper)]/15 via-[var(--color-cosmo-copper)]/30 to-[var(--color-cosmo-copper)]/15"
           data-testid="header-divider"
         />
       </header>

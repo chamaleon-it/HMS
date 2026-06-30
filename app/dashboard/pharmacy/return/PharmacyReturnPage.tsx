@@ -205,8 +205,8 @@ export default function PharmacyReturnPage() {
           ) : (
             <div className="overflow-x-auto">
               <Table className="min-w-[1000px] text-xs">
-                <TableHeader className="bg-slate-700 hover:bg-slate-700">
-                  <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+                <TableHeader className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
+                  <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
                     <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Sl No</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Medicine / Gen</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">HSN</TableHead>
@@ -499,7 +499,7 @@ export default function PharmacyReturnPage() {
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button disabled={returning} className="h-9 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(16,185,129,0.3)]">
+                      <Button disabled={returning} className="h-9 rounded-lg bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(201,149,106,0.3)]">
                         {returning ? "Returning..." : "Confirm & Refund"}
                       </Button>
                     </AlertDialogTrigger>
@@ -516,7 +516,7 @@ export default function PharmacyReturnPage() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          className="bg-emerald-600 hover:bg-emerald-700"
+                          className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]"
                           onClick={returnOrder}
                         >
                           Yes, Confirm

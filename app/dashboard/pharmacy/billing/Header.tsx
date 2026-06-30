@@ -82,12 +82,12 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
           className={cn(
             "flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all border cursor-pointer font-medium",
             filter.doctor.length > 0 
-              ? "bg-indigo-50 border-indigo-200 text-indigo-700 shadow-sm" 
+              ? "bg-[var(--color-cosmo-copper)]/10 border-[var(--color-cosmo-copper)]/30 text-[var(--color-cosmo-copper)] shadow-sm" 
               : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
           )}
           type="button"
         >
-          <User2 size={14} className={cn(filter.doctor.length > 0 ? "text-indigo-500" : "text-slate-400")} />
+          <User2 size={14} className={cn(filter.doctor.length > 0 ? "text-[var(--color-cosmo-copper)]" : "text-slate-400")} />
           <span>
             {filter.doctor.length === 0 
               ? "All Doctors" 
@@ -115,7 +115,7 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
                 className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
               >
                 <span className="font-medium">All Doctors</span>
-                {filter.doctor.length === 0 && <Check size={16} className="text-indigo-600" />}
+                {filter.doctor.length === 0 && <Check size={16} className="text-[var(--color-cosmo-copper)]" />}
               </button>
               
               <div className="my-1.5 h-px bg-slate-100" />
@@ -133,7 +133,7 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
                       className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                     >
                       <span className="truncate">{doctor}</span>
-                      {filter.doctor.includes(doctor) && <Check size={16} className="text-indigo-600" />}
+                      {filter.doctor.includes(doctor) && <Check size={16} className="text-[var(--color-cosmo-copper)]" />}
                     </button>
                   ))
                 )}
@@ -168,7 +168,7 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
                 <motion.span
                   layoutId="billing-tab-indicator-1"
                   className="absolute inset-0 rounded-full"
-                  style={{ background: "linear-gradient(90deg,#4f46e5,#d946ef)" }}
+                  style={{ background: "var(--color-cosmo-copper)" }}
                   transition={{ type: "spring", stiffness: 500, damping: 40 }}
                 />
               )}
@@ -185,8 +185,8 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
 
 
 const theme = {
-  from: "#4f46e5",
-  to: "#ec4899",
+  from: "var(--color-cosmo-copper)",
+  to: "var(--color-cosmo-brown)",
   accent: "#06b6d4",
 };
 

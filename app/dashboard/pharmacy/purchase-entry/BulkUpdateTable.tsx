@@ -451,12 +451,12 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     <div className="space-y-2">
                         <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Supplier*</label>
                         <Select value={selectedSupplierId} onValueChange={setSelectedSupplierId}>
-                            <SelectTrigger className="h-11! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all  ">
+                            <SelectTrigger className="h-11! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all  ">
                                 <SelectValue placeholder="Select Supplier" />
                             </SelectTrigger>
                             <SelectContent className="rounded-lg border-slate-200 ">
                                 {suppliers.map((s: { _id: string; name: string }) => (
-                                    <SelectItem key={s._id} value={s._id} className="rounded-md focus:bg-indigo-50 ">{s.name}</SelectItem>
+                                    <SelectItem key={s._id} value={s._id} className="rounded-md focus:bg-[var(--color-cosmo-copper)]/10 ">{s.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -474,7 +474,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         <label className="text-[11px]  text-slate-400 uppercase tracking-widest font-semibold">Invoice No*</label>
                         <Input
                             placeholder="Invoice no."
-                            className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all  "
+                            className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all  "
                             value={billDetails.invoiceNumber}
                             onChange={(e) => handleBillDetailChange("invoiceNumber", e.target.value)}
                         />
@@ -487,7 +487,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                             <Input
                                 type="number"
                                 placeholder="0.00"
-                                className="h-11 bg-slate-50/50 border-slate-200 rounded-lg pl-7 focus:ring-2 focus:ring-indigo-500/20 transition-all  text-slate-700 "
+                                className="h-11 bg-slate-50/50 border-slate-200 rounded-lg pl-7 focus:ring-2 focus:ring-[var(--color-cosmo-copper)]/20 transition-all  text-slate-700 "
                                 value={Number(billDetails.transportCharges) || ""}
                                 onChange={(e) => handleBillDetailChange("transportCharges", e.target.value)}
                             />
@@ -506,7 +506,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             onChange={() => setGstType("inclusive")}
                                             className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
                                         />
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all "></div>
+                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-[var(--color-cosmo-copper)] peer-checked:border-[6px] transition-all "></div>
                                     </div>
                                     <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Inclusive</span>
                                 </label>
@@ -519,7 +519,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             onChange={() => setGstType("exclusive")}
                                             className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
                                         />
-                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-indigo-600 peer-checked:border-[6px] transition-all "></div>
+                                        <div className="w-5 h-5 rounded-full border-2 border-slate-200 peer-checked:border-[var(--color-cosmo-copper)] peer-checked:border-[6px] transition-all "></div>
                                     </div>
                                     <span className="text-sm  text-slate-500 group-hover:text-slate-900 transition-colors font-semibold">GST Exclusive</span>
                                 </label>
@@ -534,7 +534,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                     onChange={(e) => setEnableTCS(e.target.checked)}
                                     className="peer w-5 h-5 opacity-0 absolute z-10 cursor-pointer "
                                 />
-                                <div className="w-5 h-5 rounded border-2 border-slate-200 peer-checked:bg-indigo-600 peer-checked:border-indigo-600 transition-all flex items-center justify-center ">
+                                <div className="w-5 h-5 rounded border-2 border-slate-200 peer-checked:bg-[var(--color-cosmo-copper)] peer-checked:border-[var(--color-cosmo-copper)] transition-all flex items-center justify-center ">
                                     <Check className="w-3.5 h-3.5 text-white opacity-0 peer-checked:opacity-100 transition-opacity " />
                                 </div>
                             </div>
@@ -556,27 +556,27 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                 <div className="overflow-x-auto relative">
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-[#334155] hover:bg-[#334155] border-none">
-                                <TableHead className="w-16 text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider border-r border-slate-600/30">SL NO</TableHead>
-                                <TableHead className="min-w-[150px] text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">PRODUCT NAME</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">BATCH</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">PACK</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">STRIP COUNT</TableHead>
+                            <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-none">
+                                <TableHead className="w-16 text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider border-r border-slate-600/30">SL NO</TableHead>
+                                <TableHead className="min-w-[150px] text-[11px] font-semibold uppercase text-white py-2.5 tracking-wider">PRODUCT NAME</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 tracking-wider">BATCH</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">PACK</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">STRIP COUNT</TableHead>
                                 
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">MRP</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">EXPIRY</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">Rate</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-[85px]">MRP</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 tracking-wider">EXPIRY</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-[85px]">Rate</TableHead>
                                 {gstType === "inclusive" && <>
-                                    <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SGST(%)</TableHead>
-                                    <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">CGST(%)</TableHead>
+                                    <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">SGST(%)</TableHead>
+                                    <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">CGST(%)</TableHead>
                                 </>}
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS(%)</TableHead>
-                                {/* <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS AMT</TableHead> */}
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA (FREE)</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA AMT</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">QTY</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">TOTAL</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">Action</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">DIS(%)</TableHead>
+                                {/* <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">DIS AMT</TableHead> */}
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">SCHEMA (FREE)</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider">SCHEMA AMT</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-center tracking-wider min-w-[85px]">QTY</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-right pr-8 tracking-wider">TOTAL</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-white py-2.5 text-right pr-8 tracking-wider">Action</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -589,9 +589,9 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0, x: -20 }}
-                                        className="hover:bg-indigo-50/30 transition-colors border-b border-slate-100 group"
+                                        className="hover:bg-[var(--color-cosmo-copper)]/10/30 transition-colors border-b border-slate-100 group"
                                     >
-                                        <TableCell className="text-center text-xs font-semibold text-slate-300 py-4 group-hover:text-indigo-500 transition-colors">
+                                        <TableCell className="text-center text-xs font-semibold text-slate-300 py-4 group-hover:text-[var(--color-cosmo-copper)] transition-colors">
                                             {String(index + 1)}
                                         </TableCell>
                                         <TableCell className="p-2 min-w-[150px] ">
@@ -619,12 +619,12 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 }}
                                             />
                                         </TableCell>
-                                        <TableCell className="p-2"><Input name="batch" className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} /></TableCell>
+                                        <TableCell className="p-2"><Input name="batch" className="h-11 text-xs  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-[var(--color-cosmo-copper)] focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/5 transition-all text-center" value={item.batch} onChange={(e) => updateNewItem(item.id, "batch", e.target.value)} onKeyDown={(e) => handleKeyDown(e, item.id, "batch")} /></TableCell>
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
                                                 data-field="pack"
-                                                className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center"
+                                                className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-[var(--color-cosmo-copper)] focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/5 transition-all text-center"
                                                 value={item.pack || ""}
                                                 onChange={(e) => updateNewItem(item.id, "pack", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "pack")}
@@ -634,7 +634,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <Input
                                                 type="number"
                                                 data-field="noOfPack"
-                                                className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center"
+                                                className="h-11 text-sm  border-slate-200 bg-white rounded-lg focus:bg-white focus:border-[var(--color-cosmo-copper)] focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/5 transition-all text-center"
                                                 value={item.noOfPack || ""}
                                                 onChange={(e) => updateNewItem(item.id, "noOfPack", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "noOfPack")}
@@ -645,7 +645,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <Input
                                                 type="number"
                                                 data-field="unitPrice"
-                                                className="h-11 text-sm font-semibold border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all text-center text-slate-700"
+                                                className="h-11 text-sm font-semibold border-slate-200 bg-white rounded-lg focus:bg-white focus:border-[var(--color-cosmo-copper)] focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/5 transition-all text-center text-slate-700"
                                                 value={item.unitPrice || ""}
                                                 onChange={(e) => updateNewItem(item.id, "unitPrice", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "unitPrice")}
@@ -682,7 +682,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 >
                                                     <SelectTrigger
                                                         data-field="sgst_p"
-                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all px-3"
+                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-[var(--color-cosmo-copper)] focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/5 transition-all px-3"
                                                     >
                                                         <SelectValue />
                                                     </SelectTrigger>
@@ -709,7 +709,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 >
                                                     <SelectTrigger
                                                         data-field="cgst_p"
-                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/5 transition-all px-3"
+                                                        className="h-11 border-slate-200 bg-white rounded-lg focus:bg-white focus:border-[var(--color-cosmo-copper)] focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/5 transition-all px-3"
                                                     >
                                                         <SelectValue />
                                                     </SelectTrigger>
@@ -739,14 +739,14 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                             <Input
                                                 type="number"
                                                 data-field="schema_free"
-                                                className="h-11 text-sm font-semibold border-indigo-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-600"
+                                                className="h-11 text-sm font-semibold border-[var(--color-cosmo-copper)]/30 bg-[var(--color-cosmo-copper)]/10/20 rounded-lg focus:bg-white focus:border-[var(--color-cosmo-copper)] focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/10 transition-all text-center text-[var(--color-cosmo-copper)]"
                                                 value={item.schema_free || ""}
                                                 onChange={(e) => updateNewItem(item.id, "schema_free", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "schema_free", true, true)}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2 text-center">
-                                            <div className="text-xs font-semibold text-indigo-700 bg-indigo-50/50 h-11 flex items-center justify-center rounded-lg border border-indigo-200/50 shadow-sm border-dashed">
+                                            <div className="text-xs font-semibold text-[var(--color-cosmo-copper)] bg-[var(--color-cosmo-copper)]/10/50 h-11 flex items-center justify-center rounded-lg border border-[var(--color-cosmo-copper)]/30/50 shadow-sm border-dashed">
                                                 ₹{(item.schema_amt || 0).toFixed(2)}
                                             </div>
                                         </TableCell>
@@ -755,14 +755,14 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 type="number"
                                                 name="qty"
                                                 data-field="qty"
-                                                className="h-11 text-sm font-semibold border-slate-200 bg-indigo-50/20 rounded-lg focus:bg-white focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 transition-all text-center text-indigo-700"
+                                                className="h-11 text-sm font-semibold border-slate-200 bg-[var(--color-cosmo-copper)]/10/20 rounded-lg focus:bg-white focus:border-[var(--color-cosmo-copper)] focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/10 transition-all text-center text-[var(--color-cosmo-copper)]"
                                                 value={item.qty || ""}
                                                 onChange={(e) => updateNewItem(item.id, "qty", Number(e.target.value))}
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "qty")}
                                             />
                                         </TableCell>
                                         <TableCell className="p-2 text-right pr-8">
-                                            <div className="text-base font-bold text-[#1e293b] group-hover:text-indigo-700 transition-colors drop-shadow-sm">
+                                            <div className="text-base font-bold text-[#1e293b] group-hover:text-[var(--color-cosmo-copper)] transition-colors drop-shadow-sm">
                                                 ₹{(item.amount || 0).toFixed(2)}
                                             </div>
                                         </TableCell>
@@ -781,7 +781,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         <Button
                             onClick={addNewRow}
                             variant="outline"
-                            className="bg-white text-indigo-600 hover:text-white hover:bg-indigo-600 border-indigo-200 font-semibold text-xs uppercase tracking-widest px-8 h-12 rounded-xl transition-all shadow-sm active:scale-95"
+                            className="bg-white text-[var(--color-cosmo-copper)] hover:text-white hover:bg-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30 font-semibold text-xs uppercase tracking-widest px-8 h-12 rounded-xl transition-all shadow-sm active:scale-95"
                         >
                             + Add Drug Row
                         </Button>
@@ -820,10 +820,10 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     { label: "TOTAL DISCOUNT", value: totals.discount, color: "text-red-500", prefix: "-" },
                     { label: "SGST PAYABLE", value: totals.sgst, color: "text-slate-600" },
                     { label: "CGST PAYABLE", value: totals.cgst, color: "text-slate-600" },
-                    { label: "SCHEMA TOTAL", value: totals.schema_amt, color: "text-indigo-600" },
+                    { label: "SCHEMA TOTAL", value: totals.schema_amt, color: "text-[var(--color-cosmo-copper)]" },
                 ].filter((stat) => gstType === "exclusive" ? stat.label !== "SGST PAYABLE" && stat.label !== "CGST PAYABLE" : true).map((stat, i) => (
-                    <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-indigo-200 transition-all">
-                        <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full group-hover:bg-indigo-50 transition-colors" />
+                    <div key={i} className="bg-white p-5 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden group hover:border-[var(--color-cosmo-copper)]/30 transition-all">
+                        <div className="absolute top-0 right-0 w-16 h-16 bg-slate-50 -mr-8 -mt-8 rounded-full group-hover:bg-[var(--color-cosmo-copper)]/10 transition-colors" />
                         <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest relative">{stat.label}</span>
                         <div className={cn("text-xl font-semibold mt-2 relative", stat.color)}>
                             {stat.prefix} ₹{stat.value.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
@@ -849,7 +849,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em] ml-2">Description</label>
                     <Textarea
                         placeholder="Type additional details about this transaction for records..."
-                        className="min-h-[140px] bg-white border-slate-200 rounded-2xl resize-none focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm text-sm p-5 font-medium leading-relaxed placeholder:text-slate-300 border-2"
+                        className="min-h-[140px] bg-white border-slate-200 rounded-2xl resize-none focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/10 transition-all shadow-sm text-sm p-5 font-medium leading-relaxed placeholder:text-slate-300 border-2"
                         value={billDetails.description}
                         onChange={(e) => handleBillDetailChange("description", e.target.value)}
                     />
@@ -858,7 +858,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     <div className="bg-white p-8 rounded-3xl border-2 border-slate-100 shadow-xl shadow-slate-200/50 space-y-6">
                         <div className="flex justify-between items-center border-b pb-4 border-slate-50">
                             <h3 className="text-xs font-black text-slate-800 uppercase tracking-[0.2em]">Bill Summary</h3>
-                            <div className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-bold">DRAFT</div>
+                            <div className="px-3 py-1 bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] rounded-full text-[10px] font-bold">DRAFT</div>
                         </div>
 
                         <div className="space-y-4">
@@ -883,7 +883,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         {/* <SummaryRow label="CreditNote Amt." value={0} isNegative /> */}
                                         {/* <SummaryRow label="DebitNote Amt." value={0} /> */}
 
-                                        <div className="bg-slate-900 -mx-8 px-8 py-6 mt-6 shadow-2xl shadow-indigo-900/20">
+                                        <div className="bg-[var(--color-cosmo-dark)] -mx-8 px-8 py-6 mt-6 shadow-2xl shadow-[var(--color-cosmo-brown)]/20">
                                             <div className="flex justify-between items-center text-white mb-1">
                                                 <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">Net Payable</span>
                                                 <span className="text-2xl font-black tracking-tight">₹{netPayable.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
@@ -898,11 +898,11 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         <div className="pt-2">
                             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-2 block">Capture Paid Amount</label>
                             <div className="relative group">
-                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold group-focus-within:text-indigo-500 transition-colors">₹</span>
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold group-focus-within:text-[var(--color-cosmo-copper)] transition-colors">₹</span>
                                 <Input
                                     type="number"
                                     placeholder="0.00"
-                                    className="h-14 bg-indigo-50/40 border-2 border-indigo-100/50 rounded-2xl pl-10 focus:ring-8 focus:ring-indigo-500/10 focus:border-indigo-400 transition-all font-black text-xl text-indigo-700 tabular-nums shadow-sm"
+                                    className="h-14 bg-[var(--color-cosmo-copper)]/10/40 border-2 border-[var(--color-cosmo-copper)]/20/50 rounded-2xl pl-10 focus:ring-8 focus:ring-[var(--color-cosmo-copper)]/10 focus:border-[var(--color-cosmo-copper)] transition-all font-black text-xl text-[var(--color-cosmo-copper)] tabular-nums shadow-sm"
                                     value={Number(billDetails.paidAmount) || ""}
                                     onChange={(e) => handleBillDetailChange("paidAmount", e.target.value)}
                                 />
@@ -913,7 +913,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                             onClick={handleSaveChanges}
                             disabled={isSaving}
                             className={cn(
-                                "w-full bg-emerald-600 hover:bg-emerald-700 text-white h-16 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-emerald-200/50 transition-all active:scale-95 flex items-center justify-center gap-3 border-b-4 border-emerald-800"
+                                "w-full bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white h-16 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-[var(--color-cosmo-copper)]/30 transition-all active:scale-95 flex items-center justify-center gap-3 border-b-4 border-[var(--color-cosmo-brown)]"
                             )}
                         >
                             {isSaving ? (

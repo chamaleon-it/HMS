@@ -179,7 +179,7 @@ export default function LabeledCombobox({
                     {text.trim() !== "" && !options.find(o => o.toLowerCase() === text.trim().toLowerCase()) && (
                         <button
                             type="button"
-                            className="w-full text-left px-2 py-2 mt-1 rounded-lg text-sm text-blue-600 bg-blue-50 hover:bg-blue-100 font-medium transition-colors flex items-center gap-2"
+                            className="w-full text-left px-2 py-2 mt-1 rounded-lg text-sm text-[var(--color-cosmo-copper)] bg-blue-50 hover:bg-blue-100 font-medium transition-colors flex items-center gap-2"
                             onMouseDown={(e) => {
                                 e.preventDefault(); // Prevent blur
                                 commit(text.trim());

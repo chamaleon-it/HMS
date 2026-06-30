@@ -148,7 +148,7 @@ export default function Notifications({
             </span>
             <Button
               size="default"
-              className="h-9 gap-2 rounded-full bg-slate-900 px-5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
+              className="h-9 gap-2 rounded-full bg-[var(--color-cosmo-dark)] px-5 text-sm font-medium text-white shadow-sm hover:bg-[var(--color-cosmo-brown)]"
               onClick={updateNotificationsSettings}
               disabled={loading}
             >

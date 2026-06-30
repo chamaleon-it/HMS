@@ -25,7 +25,7 @@ export default function ExistingPatientCard({
 }: ExistingPatientCardProps) {
     return (
         <div
-            className="absolute top-[calc(100%+4px)] left-0 w-full z-50 p-3 border rounded-xl shadow-xl bg-white cursor-pointer hover:border-indigo-300 transition-colors group"
+            className="absolute top-[calc(100%+4px)] left-0 w-full z-50 p-3 border rounded-xl shadow-xl bg-white cursor-pointer hover:border-[var(--color-cosmo-copper)]/30 transition-colors group"
             onClick={() => onSelect(patient._id, patient.name)}
         >
             <div
@@ -64,7 +64,7 @@ export default function ExistingPatientCard({
                             </span>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-medium">
+                            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-blue-50 text-[var(--color-cosmo-copper)] text-[10px] font-medium">
                                 {fAge(new Date(patient.dateOfBirth)).years}y {fAge(new Date(patient.dateOfBirth)).months}m
                             </span>
                             <span className="inline-flex items-center px-1.5 py-0.5 rounded-md bg-pink-50 text-pink-700 text-[10px] font-medium">
@@ -89,7 +89,7 @@ export default function ExistingPatientCard({
                         {patient.address || "No address provided"}
                     </span>
                 </div>
-                <MousePointerClick className="h-4 w-4 text-slate-400 group-hover:text-indigo-500 transition-colors" />
+                <MousePointerClick className="h-4 w-4 text-slate-400 group-hover:text-[var(--color-cosmo-copper)] transition-colors" />
             </div>
         </div>
     );

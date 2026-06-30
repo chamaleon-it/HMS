@@ -132,7 +132,7 @@ export default function SelectMedicine({
         <Button
           size="sm"
           variant="outline"
-          className="rounded-xl h-10 gap-1 text-sm bg-emerald-600 hover:bg-emerald-700 text-white hover:text-white"
+          className="rounded-xl h-10 gap-1 text-sm bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white hover:text-white"
           onClick={() => {
             if (!medicine) {
               setError(true);

@@ -133,7 +133,7 @@ const Hero = () => {
                                 <div className="space-y-4">
                                     {[...Array(8)].map((_, i) => (
                                         <div key={i} className="flex items-center gap-3 opacity-60 animate-pulse" style={{ animationDelay: `${i * 0.5}s`, animationDuration: '3s' }}>
-                                            <div className={`w-1.5 h-1.5 rounded-full ${i % 2 === 0 ? 'bg-emerald-500' : 'bg-blue-500'}`} />
+                                            <div className={`w-1.5 h-1.5 rounded-full ${i % 2 === 0 ? 'bg-[var(--color-cosmo-dark)]' : 'bg-[var(--color-cosmo-copper)]'}`} />
                                             <div className="h-1.5 w-20 bg-white/10 rounded-full" />
                                             <div className="h-1.5 w-8 bg-white/5 rounded-full ml-auto" />
                                         </div>

@@ -138,7 +138,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
                 <Button
                     variant={"outline"}
                     size="sm"
-                    className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800 bg-white"
+                    className="gap-2 h-8 text-xs text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30 hover:bg-[var(--color-cosmo-copper)]/10 hover:text-[var(--color-cosmo-copper)] bg-white"
                 >
                     <Repeat className="h-3.5 w-3.5" />
                     Repeat
@@ -315,7 +315,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
 
                 <div className="flex justify-end items-center mt-4 pr-4">
                     <div className="text-lg font-semibold text-gray-700">
-                        Grand Total: <span className="text-blue-600">{formatINR(grandTotal)}</span>
+                        Grand Total: <span className="text-[var(--color-cosmo-copper)]">{formatINR(grandTotal)}</span>
                     </div>
                 </div>
 
@@ -324,7 +324,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
                         <Button variant="outline">Cancel</Button>
                     </DialogClose>
                     <Button
-                        className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                        className="bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white"
                         onClick={handleSubmit}
                     >
                         Repeat Order

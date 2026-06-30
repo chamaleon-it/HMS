@@ -3,46 +3,20 @@
 import { useAuth } from "@/auth/context/auth-context";
 import LoginForm from "@/components/LoginForm";
 import ForgotPassword from "@/components/LoginForm/ForgotPassword";
-import { Lock, Shield } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Preloader } from "@/components/Preloader";
 
-const quotes = [
-  {
-    text: "Listen to your patient; he is telling you the diagnosis.",
-    author: "William Osler",
-  },
-  {
-    text: "The idea that some lives matter less is the root of all that is wrong with the world.",
-    author: "Paul Farmer",
-  },
-  {
-    text: "I attribute my success to this: I never gave or took any excuse.",
-    author: "Florence Nightingale",
-  },
-  {
-    text: "If a solution is not affordable, it is not a solution.",
-    author: "Dr. Devi Shetty",
-  },
-  {
-    text: "It is not easy to be a pioneer, but oh, it is fascinating!",
-    author: "Elizabeth Blackwell",
-  },
-  {
-    text: "Better is possible. It does not take genius. It takes diligence.",
-    author: "Atul Gawande",
-  },
-] as const;
+
 
 export default function LoginPage() {
   const { isAuthenticated, user, loading } = useAuth();
 
   const [view, setView] = useState<"login" | "forgot" | "sent">("login");
+  const [ready, setReady] = useState(false);
+  const handlePreloaderDone = useCallback(() => setReady(true), []);
 
-  const selectedQuote = useMemo(
-    () => quotes[Math.floor(Math.random() * quotes.length)],
-    []
-  );
 
 
 
@@ -72,9 +46,17 @@ export default function LoginPage() {
 
   return (
     <div>
-      {/* Brand palette + India tricolour + animations */}
-      <style>{`
-        :root{ --brand:#2563eb; --brand-dark:#1e40af; --brand-soft:#eaf1ff; --accent-start:#60a5fa; --accent-end:#7c3aed; --saffron:#FF8F1F; --india-white:#ffffff; --india-green:#138808; }
+      <AnimatePresence mode="wait">
+        {!ready && <Preloader key="preloader" onDone={handlePreloaderDone} />}
+      </AnimatePresence>
+      <motion.div
+        initial={false}
+        animate={ready ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 0.6 }}
+      >
+        {/* Brand palette + India tricolour + animations */}
+        <style>{`
+        :root{ --brand:var(--color-cosmo-copper); --brand-dark:var(--color-cosmo-brown); --brand-soft:var(--color-cosmo-copper); --accent-start:var(--color-cosmo-copper); --accent-end:var(--color-cosmo-brown); --saffron:#FF8F1F; --india-white:#ffffff; --india-green:#138808; }
         @keyframes ribbonPan { 0%{ background-position:0% 50%; } 100%{ background-position:200% 50%; } }
         @keyframes fadeUp { 0%{ opacity:0; transform:translateY(12px);} 100%{ opacity:1; transform:translateY(0);} }
         @keyframes floatSoft { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-4px);} }
@@ -85,140 +67,143 @@ export default function LoginPage() {
         .animate-float { animation: floatSoft 5s ease-in-out infinite; }
       `}</style>
 
-      <div
-        className="relative  h-screen w-full flex justify-center items-center"
-        style={{ backgroundColor: "#082242" }}
-      >
-        {/* grid overlay */}
         <div
-          className="pointer-events-none absolute inset-0 opacity-30"
-          style={{
-            backgroundImage:
-              "radial-gradient(rgba(255,255,255,0.12) 1px, transparent 1px), radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)",
-            backgroundSize: "22px 22px, 44px 44px",
-            backgroundPosition: "0 0, 11px 11px",
-          }}
-        />
-
-        <div className="relative grid grid-cols-2 gap-16 items-center w-3/4 mx-auto">
-          <section className="block animate-fade-up-delay-1 text-white">
-            <h1 className="text-5xl font-semibold leading-tight">
-              Welcome back
-            </h1>
-            <p className="mt-4 text-slate-200/90 max-w-xl text-lg">
-              Sign in to manage appointments, billing, labs and reports from one
-              clean dashboard.
-            </p>
-
-            {/* Trust chips */}
-            <div className="mt-6 grid grid-cols-3 gap-5">
-              {[
-                { label: "256-bit SSL", icon: Lock },
-                { label: "HIPAA-ready", icon: Shield },
-                { label: "HL7&reg; FHIR", icon: Shield },
-                { label: "ISO 27001", icon: Shield },
-                { label: "ABDM-ready", icon: Shield },
-                { label: "Proudly made in India", icon: IndiaFlagIcon },
-              ].map(({ label, icon: Icon }, idx) => (
-                <div
-                  key={label}
-                  style={{ animationDelay: `${0.05 * (idx + 1)}s` }}
-                  className="animate-fade-up inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-slate-100 text-sm"
-                >
-                  <Icon className="h-5 w-5 text-white" />
-                  <span dangerouslySetInnerHTML={{ __html: label }} />
-                </div>
-              ))}
+          className="relative  h-screen w-full flex justify-center items-center"
+          style={{ backgroundColor: "var(--color-cosmo-dark)" }}
+        >
+          {/* Logo */}
+          <div className="absolute top-6 left-6 md:top-8 md:left-10 z-20 animate-fade-up flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl">
+            <img 
+              src="/logo.png" 
+              alt="Cosmo Home Icon" 
+              className="h-10 md:h-12 w-auto object-contain drop-shadow-sm" 
+            />
+            <div className="flex flex-col justify-center">
+              <span className="text-[#a6906c] font-fraunces text-xl md:text-[26px] font-medium tracking-wide leading-none drop-shadow-sm">
+                COSMO HOME
+              </span>
+              <span className="text-[#a6906c] text-[10px] md:text-[11px] font-medium tracking-[0.15em] mt-1 opacity-95 drop-shadow-sm">
+                AESTHETIC MEDICINE
+              </span>
             </div>
+          </div>
 
+          {/* grid overlay */}
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage:
+                "url(/login/banner.webp)",
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          />
 
-            <div className="mt-6 rounded-xl border border-white/15 bg-white/10 backdrop-blur-sm animate-fade-up">
-              <blockquote className="rounded-[12px] bg-white/10 p-5 text-slate-100 shadow-sm">
-                <p className="italic text-sm">
-                  &ldquo;{selectedQuote.text}&rdquo;
+          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-16 items-stretch w-11/12 lg:w-3/4 mx-auto h-screen py-12 lg:py-20">
+            <div className="hidden lg:flex flex-col justify-end h-full pb-12">
+              <div className="animate-fade-up-delay-2 max-w-md p-6 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/10 shadow-xl">
+                <p className="text-lg xl:text-xl text-white font-medium leading-snug italic drop-shadow-sm">
+                  "I want every patient to leave feeling more like themselves — not different. More radiant. More free."
                 </p>
-                <footer className="mt-2 text-xs text-slate-300">
-                  &mdash; {selectedQuote.author}
-                </footer>
-              </blockquote>
-            </div>
-          </section>
-
-
-          <section className="w-full max-w-lg ml-auto animate-fade-up-delay-2">
-            <div className="rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-[2px] shadow-[0_12px_36px_-12px_rgba(2,6,23,0.25)] p-6 md:p-8 relative overflow-hidden">
-
-              <div
-                className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full opacity-20"
-                style={{
-                  background:
-                    "radial-gradient(50% 50% at 50% 50%, rgba(37,99,235,.18) 0%, transparent 70%)",
-                }}
-              />
-
-              <div
-                className="absolute -top-px left-6 right-6 h-[3px] rounded-full animate-ribbon"
-                style={{
-                  background:
-                    "linear-gradient(90deg, var(--brand), var(--accent-end), var(--brand))",
-                }}
-              />
-
-              {view === "login" && (
-                <>
-                  <h2 className="text-2xl xl:text-3xl font-semibold text-slate-900">
-                    Sign in
-                  </h2>
-                  <p className="mt-1 text-slate-500 text-sm">
-                    Use your email and password
-                  </p>
-
-                  <LoginForm setView={setView} />
-                </>
-              )}
-
-              {view === "forgot" && <ForgotPassword setView={setView} />}
-
-              {view === "sent" && (
-                <div className="text-center py-10 animate-fade-up">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-(--brand-soft) text-(--brand)">
-                    <svg
-                      className="h-7 w-7"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M20 6 9 17l-5-5" />
-                    </svg>
-                  </div>
-                  <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
-                    Check your email
-                  </h2>
-                  <p className="mt-2 text-slate-600 max-w-sm mx-auto">
-                    We emailed a secure reset link. It expires in 15 minutes. If
-                    it doesn&apos;t arrive, check spam or{" "}
-                    <button className="underline text-(--brand) hover:text-(--brand-dark)">
-                      resend
-                    </button>
-                    .
-                  </p>
-                  <button
-                    onClick={() => setView("login")}
-                    className="mt-6 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50"
-                  >
-                    Back to login
-                  </button>
+                <div className="mt-4 flex flex-col gap-1.5 drop-shadow-sm">
+                  <span className="text-xl">🧡</span>
+                  <span className="text-base text-white font-semibold tracking-wide">— Dr. Ruxana</span>
+                  <img src="/login/sign.webp" alt="Dr. Ruxana Signature" className="h-12 w-auto object-contain object-left mt-1 opacity-90" />
                 </div>
-              )}
+              </div>
             </div>
 
-            <p className="mt-4 text-xs text-slate-200">
-              By continuing, you agree to our Terms & Privacy Policy.
-            </p>
-          </section>
+            <section className="w-full max-w-lg ml-auto self-center flex flex-col gap-10">
+              <div className="rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-[2px] shadow-[0_12px_36px_-12px_rgba(2,6,23,0.25)] p-6 md:p-8 relative overflow-hidden animate-fade-up-delay-2">
+
+                <div
+                  className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full opacity-20"
+                  style={{
+                    background:
+                      "radial-gradient(50% 50% at 50% 50%, rgba(37,99,235,.18) 0%, transparent 70%)",
+                  }}
+                />
+
+                <div
+                  className="absolute -top-px left-6 right-6 h-[3px] rounded-full animate-ribbon"
+                  style={{
+                    background:
+                      "linear-gradient(90deg, var(--brand), var(--accent-end), var(--brand))",
+                  }}
+                />
+
+                {view === "login" && (
+                  <>
+                    <h2 className="text-2xl xl:text-3xl font-semibold text-slate-900">
+                      Sign in
+                    </h2>
+                    <p className="mt-1 text-slate-500 text-sm">
+                      Use your email and password
+                    </p>
+
+                    <LoginForm setView={setView} />
+                  </>
+                )}
+
+                {view === "forgot" && <ForgotPassword setView={setView} />}
+
+                {view === "sent" && (
+                  <div className="text-center py-10 animate-fade-up">
+                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-(--brand-soft) text-(--brand)">
+                      <svg
+                        className="h-7 w-7"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M20 6 9 17l-5-5" />
+                      </svg>
+                    </div>
+                    <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
+                      Check your email
+                    </h2>
+                    <p className="mt-2 text-slate-600 max-w-sm mx-auto">
+                      We emailed a secure reset link. It expires in 15 minutes. If
+                      it doesn&apos;t arrive, check spam or{" "}
+                      <button className="underline text-(--brand) hover:text-(--brand-dark)">
+                        resend
+                      </button>
+                      .
+                    </p>
+                    <button
+                      onClick={() => setView("login")}
+                      className="mt-6 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50"
+                    >
+                      Back to login
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Stats Row with Separator */}
+              <div className="flex flex-col gap-6 animate-fade-up-delay-2 w-full">
+                <div className="w-full h-px bg-white/20" />
+                <div className="flex items-center justify-between px-2">
+                <div className="flex flex-col gap-1">
+                  <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">20+</span>
+                  <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">Years of Care</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">3,800+</span>
+                  <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">Transformations</span>
+                </div>
+                <div className="flex flex-col gap-1">
+                  <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">5 Doctors</span>
+                  <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">On your side</span>
+                </div>
+              </div>
+            </div>
+
+            </section>
+          </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

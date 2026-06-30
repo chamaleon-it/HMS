@@ -182,7 +182,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-bold ring-1 ring-indigo-100">
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] flex items-center justify-center text-xs font-bold ring-1 ring-indigo-100">
                         {row?.doctor?.name?.charAt(0)}
                       </div>
                       <div className="min-w-0 max-w-45">
@@ -252,14 +252,14 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
       </button>}
       <button
         onClick={onPrint}
-        className="p-1.5 rounded-md hover:bg-purple-50 text-purple-600 border border-transparent hover:border-purple-200 transition-all"
+        className="p-1.5 rounded-md hover:bg-purple-50 text-[var(--color-cosmo-copper)] border border-transparent hover:border-[var(--color-cosmo-copper)]/30 transition-all"
         title="Print Blank Prescription"
       >
         <Printer size={16} />
       </button>
       <button
         onClick={onEdit}
-        className="p-1.5 rounded-md hover:bg-blue-50 text-blue-600 border border-transparent hover:border-blue-200 transition-all"
+        className="p-1.5 rounded-md hover:bg-blue-50 text-[var(--color-cosmo-copper)] border border-transparent hover:border-blue-200 transition-all"
         title="Edit"
       >
         <Pencil size={16} />
@@ -299,7 +299,7 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
 
 const Chip: React.FC<{ label: string }> = ({ label }) => {
   const styles: Record<string, string> = {
-    Upcoming: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    Upcoming: "bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
     Consulted: "bg-emerald-50 text-emerald-700 border-emerald-200",
     Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
     "Not show": "bg-amber-50 text-amber-700 border-amber-200",
@@ -323,8 +323,8 @@ function Avatar({ text }: { text: string }) {
   const initial = text.charAt(0).toUpperCase();
   const colors = [
     "from-rose-400 to-orange-300",
-    "from-violet-400 to-purple-300",
-    "from-blue-400 to-cyan-300",
+    "from-violet-400 to-[var(--color-cosmo-brown)]",
+    "from-[var(--color-cosmo-copper)] to-cyan-300",
     "from-emerald-400 to-teal-300",
     "from-amber-400 to-yellow-300"
   ];

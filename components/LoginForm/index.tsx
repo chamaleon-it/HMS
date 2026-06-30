@@ -110,7 +110,7 @@ export default function LoginForm({
         <button
           type="button"
           onClick={() => setView("forgot")}
-          className="text-[var(--brand)] hover:text-[var(--brand-dark)] underline decoration-[rgba(37,99,235,.25)]"
+          className="text-[var(--brand)] hover:text-[var(--brand-dark)] underline decoration-[rgba(201,149,106,.25)]"
         >
           Forgot password?
         </button>
@@ -119,7 +119,7 @@ export default function LoginForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] shadow-[0_6px_20px_-6px_rgba(37,99,235,0.6)] hover:shadow-[0_12px_30px_-10px_rgba(37,99,235,0.75)]"
+        className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] shadow-[0_6px_20px_-6px_rgba(201,149,106,0.6)] hover:shadow-[0_12px_30px_-10px_rgba(201,149,106,0.75)]"
         style={{
           background: "linear-gradient(90deg, var(--brand), var(--accent-end))",
         }}
@@ -140,25 +140,7 @@ export default function LoginForm({
         </svg>
       </button>
 
-      <div className="flex items-center justify-center gap-4 text-xs text-slate-500">
-        <div className="inline-flex items-center gap-1.5">
-          <Shield className="h-4 w-4 text-[var(--brand)]" />
-          <span>HIPAA-ready</span>
-        </div>
-        <div className="inline-flex items-center gap-1.5">
-          <Shield className="h-4 w-4 text-[var(--brand)]" />
-          <span>HL7&reg; FHIR</span>
-        </div>
-        <div className="inline-flex items-center gap-1.5">
-          <Shield className="h-4 w-4 text-[var(--brand)]" />
-          <span>ISO 27001</span>
-        </div>
-      </div>
 
-      <p className="mt-2 text-center text-[10px] text-slate-400">
-        Badges indicate design readiness; formal compliance depends on your
-        deployment & policies.
-      </p>
     </form>
   );
 }

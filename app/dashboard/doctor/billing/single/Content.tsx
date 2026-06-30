@@ -52,7 +52,7 @@ export default function InvoiceView({ id }: { id: string }) {
     <AppShell>
       <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden m-5">
         {/* Header Section */}
-        <div className="flex justify-between items-center bg-gradient-to-r from-purple-600 to-blue-500 text-white px-8 py-6 border-b">
+        <div className="flex justify-between items-center bg-gradient-to-r from-[var(--color-cosmo-brown)] to-[var(--color-cosmo-dark)] text-white px-8 py-6 border-b">
           <div className="flex items-center space-x-3">
             <h2 className="text-lg font-semibold">{configuration().hospitalName}</h2>
           </div>

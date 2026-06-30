@@ -29,7 +29,7 @@ export default function History({ patientId }: { patientId: string }) {
 
       <Table className='rounded-2xl overflow-hidden'>
         <TableHeader>
-          <TableRow className='bg-slate-700 hover:bg-slate-700'>
+          <TableRow className='bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]'>
             <TableHead className='text-white'>SL</TableHead>
             <TableHead className='text-white'>Date</TableHead>
             <TableHead className='text-white'>Doctor</TableHead>

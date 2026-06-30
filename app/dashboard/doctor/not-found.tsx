@@ -25,7 +25,7 @@ export default function Notfound() {
         {/* Actions */}
         <div className="flex gap-4">
           <Link href="/">
-            <Button className="bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white shadow-md cursor-pointer">Go to Dashboard</Button>
+            <Button className="bg-gradient-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] text-white shadow-md cursor-pointer">Go to Dashboard</Button>
           </Link>
           {/* <Link href="/appointments">
             <Button variant="outline">View Appointments</Button>

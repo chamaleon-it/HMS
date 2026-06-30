@@ -250,8 +250,8 @@ export default function OrderTable({
   return (
     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
       <Table className="print:hidden min-w-fit">
-        <TableHeader className="bg-slate-700 hover:bg-slate-700">
-          <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
+        <TableHeader className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
+          <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4 w-16">
               Sl No
             </TableHead>
@@ -337,7 +337,7 @@ export default function OrderTable({
                             e.stopPropagation();
                             updateDraft(r._id, { isOpen: true, minimized: false });
                           }}
-                          className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50"
+                          className="h-8 w-8 text-[var(--color-cosmo-copper)] hover:text-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)]/10"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -373,7 +373,7 @@ export default function OrderTable({
                           setSelected(r);
                           setOpen(true);
                         }}
-                        className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        className="h-8 w-8 text-[var(--color-cosmo-copper)] hover:text-[var(--color-cosmo-copper)] hover:bg-blue-50"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
@@ -431,7 +431,7 @@ export default function OrderTable({
                   <Button
                     variant="outline"
                     size="sm"
-                    className="gap-2 h-8 text-xs text-purple-700 border-purple-200 hover:bg-purple-50 hover:text-purple-800"
+                    className="gap-2 h-8 text-xs text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30 hover:bg-purple-50 hover:text-[var(--color-cosmo-copper)]"
                     onClick={() => handlePrint(r)}
                   >
                     <Printer className="h-3.5 w-3.5" />
@@ -443,7 +443,7 @@ export default function OrderTable({
                       variant="outline"
                       size="sm"
                       disabled={!!printingOrderId}
-                      className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800"
+                      className="gap-2 h-8 text-xs text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30 hover:bg-[var(--color-cosmo-copper)]/10 hover:text-[var(--color-cosmo-copper)]"
                       onClick={() => { handlePrintBill(r) }}
                     >
                       <Printer className="h-3.5 w-3.5" />
@@ -453,7 +453,7 @@ export default function OrderTable({
                     <Button
                       variant="outline"
                       size="sm"
-                      className="gap-2 h-8 text-xs text-indigo-700 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-800"
+                      className="gap-2 h-8 text-xs text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30 hover:bg-[var(--color-cosmo-copper)]/10 hover:text-[var(--color-cosmo-copper)]"
                       asChild
                     >
                       <Link href={`/dashboard/pharmacy/billing?mrn=${r?.mrn}#new`}>
@@ -486,7 +486,7 @@ export default function OrderTable({
                         <AlertDialogFooter>
                           <AlertDialogCancel>Cancel</AlertDialogCancel>
                           <AlertDialogAction
-                            className="bg-indigo-600 hover:bg-indigo-700 text-white"
+                            className="bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white"
                             onClick={async () => {
                               try {
                                 await toast.promise(
@@ -547,7 +547,7 @@ export default function OrderTable({
 function PriorityBadge({ priority }: { priority: string }) {
   const map: Record<string, string> = {
     STAT: "bg-rose-100 text-rose-700",
-    VIP: "bg-purple-100 text-purple-700",
+    VIP: "bg-[#FDF6ED] text-[var(--color-cosmo-copper)]",
     Routine: "bg-sky-100 text-sky-700",
   };
   return (
@@ -559,7 +559,7 @@ function PriorityBadge({ priority }: { priority: string }) {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    Filling: "bg-blue-100 text-blue-700",
+    Filling: "bg-blue-100 text-[var(--color-cosmo-copper)]",
     "Clinical Check": "bg-amber-100 text-amber-700",
     Ready: "bg-emerald-100 text-emerald-700",
     Completed: "bg-emerald-100 text-emerald-700",

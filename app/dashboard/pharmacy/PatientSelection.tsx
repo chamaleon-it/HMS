@@ -228,7 +228,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
                   onClick={() => {
                     register?.(input)
                   }}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-blue-600 hover:bg-blue-50 font-medium"
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-[var(--color-cosmo-copper)] hover:bg-blue-50 font-medium"
                 >
                   <span className="text-lg">➕</span> Add new customer
                 </button>
@@ -259,7 +259,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
                     "transition-all duration-150 hover:shadow-sm",
                     activeIdx === idx && "ring-1 ring-primary/40",
                     selected?._id === p._id &&
-                    "border-primary/40 shadow-[0_0_0_3px_rgba(8,127,119,0.08)]"
+                    "border-primary/40 shadow-[0_0_0_3px_rgba(201,149,106,0.08)]"
                   )}
                 >
                   <PatientCard
@@ -436,7 +436,7 @@ const PatientCard: React.FC<{
 
               {/* Meta pills */}
               <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[var(--color-cosmo-copper)] dark:bg-blue-900/40 dark:text-blue-300">
                   {safeAge(p.dateOfBirth)}
                 </span>
 
