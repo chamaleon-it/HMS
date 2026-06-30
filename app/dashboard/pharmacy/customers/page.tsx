@@ -60,7 +60,8 @@ const Customers: React.FC = () => {
   params.set("limit", String(filter.limit));
   if (filter.query) params.set("q", filter.query);
   if (filter.address) params.set("address", filter.address);
-  if (filter.locality) params.set("locality", filter.locality);
+  if (filter.city) params.set("city", filter.city);
+  if (filter.district) params.set("district", filter.district);
   if (filter.state) params.set("state", filter.state);
   if (filter.pincode) params.set("pincode", filter.pincode);
   if (filter.gender) params.set("gender", filter.gender);

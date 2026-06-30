@@ -62,7 +62,8 @@ export default function Filter({
             setFilter({
               query: undefined,
               address: undefined,
-              locality: undefined,
+              city: undefined,
+              district: undefined,
               state: undefined,
               pincode: undefined,
               gender: undefined,
@@ -102,11 +103,22 @@ export default function Filter({
         <div className="relative flex-1 group">
           <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
           <input
-            value={filter.locality || ""}
+            value={filter.city || ""}
             onChange={(e) =>
-              setFilter((prev) => ({ ...prev, locality: e.target.value }))
+              setFilter((prev) => ({ ...prev, city: e.target.value }))
             }
-            placeholder="Locality…"
+            placeholder="City…"
+            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+          />
+        </div>
+        <div className="relative flex-1 group">
+          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
+          <input
+            value={filter.district || ""}
+            onChange={(e) =>
+              setFilter((prev) => ({ ...prev, district: e.target.value }))
+            }
+            placeholder="District…"
             className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
           />
         </div>

@@ -69,7 +69,8 @@ export const registerPatientSchema = z.object({
 
   addressLine1: z.string().max(500).optional(),
   addressLine2: z.string().max(500).optional(),
-  locality: z.string().max(100).optional(),
+  city: z.string().max(100).optional(),
+  district: z.string().max(100).optional(),
   state: z.string().max(100).optional(),
   pinCode: z.string().max(20).optional(),
   country: z.string().max(100).optional(),
