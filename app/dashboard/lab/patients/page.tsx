@@ -66,6 +66,9 @@ const Patients: React.FC = () => {
     params.set("limit", String(filter.limit));
     if (filter.query) params.set("q", filter.query);
     if (filter.address) params.set("address", filter.address);
+    if (filter.locality) params.set("locality", filter.locality);
+    if (filter.state) params.set("state", filter.state);
+    if (filter.pincode) params.set("pincode", filter.pincode);
     if (filter.gender) params.set("gender", filter.gender);
     if (filter.doctor) params.set("doctor", filter.doctor);
     if (filter.dateRange.from) params.set("from", filter.dateRange.from);
