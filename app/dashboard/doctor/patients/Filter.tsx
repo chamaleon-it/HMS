@@ -25,6 +25,7 @@ import {
 import { fDate } from "@/lib/fDateAndTime";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
+import { ServerAutocomplete } from "@/components/shared/ServerAutocomplete";
 
 export default function Filter({
   filter,
@@ -97,53 +98,38 @@ export default function Filter({
               setFilter((prev) => ({ ...prev, address: e.target.value }))
             }
             placeholder="Search Address L1/L2…"
+            autoComplete="off"
             className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
           />
         </div>
-        <div className="relative flex-1 group">
-          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
-          <input
-            value={filter.city || ""}
-            onChange={(e) =>
-              setFilter((prev) => ({ ...prev, city: e.target.value }))
-            }
-            placeholder="City…"
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
-          />
-        </div>
-        <div className="relative flex-1 group">
-          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
-          <input
-            value={filter.district || ""}
-            onChange={(e) =>
-              setFilter((prev) => ({ ...prev, district: e.target.value }))
-            }
-            placeholder="District…"
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
-          />
-        </div>
-        <div className="relative flex-1 group">
-          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
-          <input
-            value={filter.state || ""}
-            onChange={(e) =>
-              setFilter((prev) => ({ ...prev, state: e.target.value }))
-            }
-            placeholder="State…"
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
-          />
-        </div>
-        <div className="relative flex-1 group">
-          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
-          <input
-            value={filter.pincode || ""}
-            onChange={(e) =>
-              setFilter((prev) => ({ ...prev, pincode: e.target.value }))
-            }
-            placeholder="Pincode…"
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
-          />
-        </div>
+      </div>
+
+      {/* Location row */}
+      <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <ServerAutocomplete
+          field="city"
+          placeholder="City…"
+          value={filter.city}
+          onChange={(v) => setFilter((prev) => ({ ...prev, city: v }))}
+        />
+        <ServerAutocomplete
+          field="district"
+          placeholder="District…"
+          value={filter.district}
+          onChange={(v) => setFilter((prev) => ({ ...prev, district: v }))}
+        />
+        <ServerAutocomplete
+          field="state"
+          placeholder="State…"
+          value={filter.state}
+          onChange={(v) => setFilter((prev) => ({ ...prev, state: v }))}
+        />
+        <ServerAutocomplete
+          field="pinCode"
+          placeholder="Pincode…"
+          value={filter.pincode}
+          onChange={(v) => setFilter((prev) => ({ ...prev, pincode: v }))}
+        />
       </div>
 
       {/* Row 2: Primary filters */}

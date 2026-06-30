@@ -11,6 +11,7 @@ import { CalendarIcon, ShoppingBag, Users, RotateCcw, Search } from "lucide-reac
 import { fDate } from "@/lib/fDateAndTime";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
+import { ServerAutocomplete } from "@/components/shared/ServerAutocomplete";
 
 export interface FilterType {
   query?: string;
@@ -98,78 +99,9 @@ export default function Filter({
         </div>
 
         {/* Address */}
-        <div className="space-y-2 flex-1 max-w-[200px]">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-            Address (L1/L2)
-          </label>
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-            <Input
-              value={filter?.address || ""}
-              onChange={(e) =>
-                setFilter((prev) => ({ ...prev, address: e.target.value, page: 1 }))
-              }
-              placeholder="Address line..."
-              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
-            />
-          </div>
-        </div>
 
-        {/* City */}
-        <div className="space-y-2 flex-1 max-w-[200px]">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">City</label>
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-            <Input
-              value={filter?.city || ""}
-              onChange={(e) => setFilter((prev) => ({ ...prev, city: e.target.value, page: 1 }))}
-              placeholder="City..."
-              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
-            />
-          </div>
-        </div>
 
-        {/* District */}
-        <div className="space-y-2 flex-1 max-w-[200px]">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">District</label>
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-            <Input
-              value={filter?.district || ""}
-              onChange={(e) => setFilter((prev) => ({ ...prev, district: e.target.value, page: 1 }))}
-              placeholder="District..."
-              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
-            />
-          </div>
-        </div>
-
-        {/* State */}
-        <div className="space-y-2 flex-1 max-w-[150px]">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">State</label>
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-            <Input
-              value={filter?.state || ""}
-              onChange={(e) => setFilter((prev) => ({ ...prev, state: e.target.value, page: 1 }))}
-              placeholder="State..."
-              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
-            />
-          </div>
-        </div>
-
-        {/* Pincode */}
-        <div className="space-y-2 flex-1 max-w-[150px]">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">Pincode</label>
-          <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
-            <Input
-              value={filter?.pincode || ""}
-              onChange={(e) => setFilter((prev) => ({ ...prev, pincode: e.target.value, page: 1 }))}
-              placeholder="Pincode..."
-              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
-            />
-          </div>
-        </div>
+        {/* Row 1 fields end here, address fields will move to Row 2 */}
 
         {/* Gender */}
         <div className="space-y-2">
@@ -293,7 +225,68 @@ export default function Filter({
 
       </div>
 
-      <div className="flex flex-wrap items-end gap-3">
+      <div className="flex flex-wrap items-end gap-3 mt-3">
+
+        <div className="space-y-2 flex-1 max-w-[200px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Address
+          </label>
+          <div className="relative group">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />
+            <Input
+              value={filter?.address || ""}
+              onChange={(e) =>
+                setFilter((prev) => ({ ...prev, address: e.target.value, page: 1 }))
+              }
+              placeholder="Address line..."
+              autoComplete="off"
+              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500/20 transition-all placeholder:text-slate-400"
+            />
+          </div>
+        </div>
+        {/* City */}
+        <div className="space-y-2 flex-1 max-w-[200px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">City</label>
+          <ServerAutocomplete
+            field="city"
+            placeholder="City..."
+            value={filter.city}
+            onChange={(v) => setFilter((prev) => ({ ...prev, city: v, page: 1 }))}
+          />
+        </div>
+
+        {/* District */}
+        <div className="space-y-2 flex-1 max-w-[200px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">District</label>
+          <ServerAutocomplete
+            field="district"
+            placeholder="District..."
+            value={filter.district}
+            onChange={(v) => setFilter((prev) => ({ ...prev, district: v, page: 1 }))}
+          />
+        </div>
+
+        {/* State */}
+        <div className="space-y-2 flex-1 max-w-[150px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">State</label>
+          <ServerAutocomplete
+            field="state"
+            placeholder="State..."
+            value={filter.state}
+            onChange={(v) => setFilter((prev) => ({ ...prev, state: v, page: 1 }))}
+          />
+        </div>
+
+        {/* Pincode */}
+        <div className="space-y-2 flex-1 max-w-[150px]">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">Pincode</label>
+          <ServerAutocomplete
+            field="pinCode"
+            placeholder="Pincode..."
+            value={filter.pincode}
+            onChange={(v) => setFilter((prev) => ({ ...prev, pincode: v, page: 1 }))}
+          />
+        </div>
 
         <div className="space-y-2">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
