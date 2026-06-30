@@ -23,9 +23,6 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import Address from "./Address";
-import { useDebounce } from "@/hooks/useDebounce";
-import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
-import ExistingPatientCard from "./ExistingPatientCard";
 import { useAuth } from "@/auth/context/auth-context";
 import useSWR from "swr";
 
@@ -66,10 +63,6 @@ export function PatientForm({
     },
   });
 
-  const refs = {
-    name: useRef<HTMLInputElement>(null),
-    phoneNumber: useRef<HTMLInputElement>(null),
-  };
 
   const handleKeyDown = (e: React.KeyboardEvent, nextRef: React.RefObject<any>) => {
     if (e.key === "Enter") {
@@ -129,24 +122,6 @@ export function PatientForm({
     }
   }, [dateOfBirth, setValue]);
 
-  const debouncedName = useDebounce(values.name, 500);
-  const debouncedPhone = useDebounce(values.phoneNumber, 500);
-
-  const isExistByName = usePatientAlreadyExist({
-    name: debouncedName?.length > 2 ? debouncedName : undefined,
-  });
-
-  const isExistByPhone = usePatientAlreadyExist({
-    phoneNumber: (debouncedPhone?.length || 0) > 4 ? debouncedPhone : undefined,
-  });
-
-  const alreadyExistPatient = isExistByName?.data?.patient || isExistByPhone?.data?.patient;
-
-  const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    setDismissed(false);
-  }, [alreadyExistPatient]);
 
   const createEditPatient = handleSubmit(async (data) => {
     try {
@@ -196,18 +171,16 @@ export function PatientForm({
           <UserRound className="h-4 w-4" />
           <h3 className="font-medium text-[15px]">Customer</h3>
         </div>
-        
+
         {/* 3 Column Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
-          
+
           {/* Row 1 */}
           <div className="grid gap-1.5 relative">
             <Label className="text-sm font-medium text-slate-700">Name *</Label>
             <Input
               placeholder="Enter patient name"
               {...register("name")}
-              ref={mergeRefs(refs.name, register("name").ref)}
-              onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
               onChange={(e) => {
                 const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
                   char.toUpperCase()
@@ -220,15 +193,6 @@ export function PatientForm({
               <p className="text-red-500 text-xs mt-1">{errors.name.message as string}</p>
             )}
 
-            {isExistByName?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
-              <div className="absolute top-[calc(100%+4px)] left-0 w-[calc(200%+16px)] z-50">
-                <ExistingPatientCard
-                  patient={alreadyExistPatient}
-                  onSelect={onClose}
-                  onDismiss={() => setDismissed(true)}
-                />
-              </div>
-            )}
           </div>
 
 
@@ -238,24 +202,12 @@ export function PatientForm({
             <Input
               placeholder="Phone Number"
               {...register("phoneNumber")}
-              ref={mergeRefs(refs.phoneNumber, register("phoneNumber").ref)}
-              value={values.phoneNumber}
               className="h-9 rounded-xl"
             />
             {errors.phoneNumber && (
               <p className="text-red-500 text-xs mt-1">
                 {errors.phoneNumber.message as string}
               </p>
-            )}
-
-            {isExistByPhone?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
-              <div className="absolute top-[calc(100%+4px)] left-0 w-[calc(200%+16px)] z-50">
-                <ExistingPatientCard
-                  patient={alreadyExistPatient}
-                  onSelect={onClose}
-                  onDismiss={() => setDismissed(true)}
-                />
-              </div>
             )}
           </div>
 
@@ -319,10 +271,10 @@ export function PatientForm({
                 >
                   {dateOfBirth
                     ? new Date(dateOfBirth).toLocaleDateString("en-GB", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
                     : "Select date of birth"}
                   <ChevronDownIcon className="w-4 h-4 text-slate-500" />
                 </Button>
