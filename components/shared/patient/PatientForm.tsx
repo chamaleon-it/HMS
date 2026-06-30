@@ -83,7 +83,7 @@ export function PatientForm({
         guardianRelation: patient.guardianRelation,
         addressLine1: patient.addressLine1,
         addressLine2: patient.addressLine2,
-        city: patient.city,
+        city: patient.city || patient.locality,
         district: patient.district,
         state: patient.state || "Kerala",
         pinCode: patient.pinCode,
