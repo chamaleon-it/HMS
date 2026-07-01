@@ -1,6 +1,7 @@
 import { fDateandTime, fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video, Search } from "lucide-react";
 import React, { useState } from "react";
+import useSWR from "swr";
 import useAppointmentList from "./data/useAppointmentList";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import {
@@ -238,6 +239,18 @@ function VideoCallButton({ row }: { row: any }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
 
+  // Fetch consultation to see if a recording exists
+  const { data: consultationData } = useSWR(`/consultations/appointment/${row._id}`, async (url) => {
+    try {
+      const res = await api.get(url);
+      return res.data;
+    } catch {
+      return null;
+    }
+  });
+
+  const recordingUrl = consultationData?.data?.recordingUrl;
+
   const handleStartConsultation = async () => {
     try {
       setIsLoading(true);
@@ -288,6 +301,17 @@ function VideoCallButton({ row }: { row: any }) {
 
   return (
     <div className="flex items-center gap-1">
+      {recordingUrl && (
+        <a
+          href={recordingUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-center gap-1 px-2.5 py-1.5 text-sm rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white cursor-pointer"
+          title="Play Recording"
+        >
+          Play
+        </a>
+      )}
       <button
         onClick={handleStartConsultation}
         disabled={isLoading}

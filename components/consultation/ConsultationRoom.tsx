@@ -55,7 +55,8 @@ export default function ConsultationRoom({
           TOOLBAR_BUTTONS: [
             'microphone', 'camera', 'closedcaptions', 'desktop', 'fullscreen',
             'fodeviceselection', 'hangup', 'profile', 'chat', 'settings',
-            'raisehand', 'videoquality', 'filmstrip', 'tileview', 'videobackgroundblur'
+            'raisehand', 'videoquality', 'filmstrip', 'tileview', 'videobackgroundblur',
+            'recording', 'localrecording'
           ],
         }}
         userInfo={{
