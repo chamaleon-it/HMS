@@ -11,6 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import api from "@/lib/axios";
+import { useRouter } from "next/navigation";
+import toast from "react-hot-toast";
+import { Copy, Video as VideoIcon } from "lucide-react";
 
 export default function List({
   query,
@@ -154,6 +158,9 @@ export default function List({
                 </TableCell>
                 <TableCell className="py-3 pr-4">
                   <div className="flex items-center justify-end gap-2">
+                    {row?.method === "Video" && (
+                      <VideoCallButton row={row} />
+                    )}
                     <button
                       className="px-2.5 py-1.5 text-sm rounded-lg ring-1 ring-gray-200 hover:bg-gray-50 cursor-pointer"
                       onClick={() => setEdit(row)}
@@ -223,6 +230,81 @@ function Initials({ text }: { text: string }) {
       aria-hidden
     >
       {initials}
+    </div>
+  );
+}
+
+function VideoCallButton({ row }: { row: any }) {
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleStartConsultation = async () => {
+    try {
+      setIsLoading(true);
+      const payload = {
+        appointmentId: row._id,
+        doctorId: row.doctor._id,
+        patientId: row.patient._id,
+      };
+      
+      const res = await api.post('/consultations', payload);
+      const consultationId = res.data?.data?._id;
+      
+      if (consultationId) {
+        router.push(`/consultation?id=${consultationId}`);
+      } else {
+        toast.error("Failed to create consultation.");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Failed to start consultation");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      setIsLoading(true);
+      const payload = {
+        appointmentId: row._id,
+        doctorId: row.doctor._id,
+        patientId: row.patient._id,
+      };
+      
+      const res = await api.post('/consultations', payload);
+      const consultationId = res.data?.data?._id;
+      
+      if (consultationId) {
+        const url = `${window.location.origin}/consultation?id=${consultationId}`;
+        await navigator.clipboard.writeText(url);
+        toast.success("Patient link copied to clipboard!");
+      }
+    } catch (error: any) {
+      toast.error("Failed to generate link");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex items-center gap-1">
+      <button
+        onClick={handleStartConsultation}
+        disabled={isLoading}
+        className="flex items-center gap-1 px-2.5 py-1.5 text-sm rounded-lg bg-sky-500 hover:bg-sky-600 text-white cursor-pointer disabled:opacity-50"
+        title="Start Video Call"
+      >
+        <VideoIcon className="h-3.5 w-3.5" />
+        Join
+      </button>
+      <button
+        onClick={handleCopyLink}
+        disabled={isLoading}
+        className="flex items-center gap-1 px-2.5 py-1.5 text-sm rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-700 cursor-pointer disabled:opacity-50"
+        title="Copy Patient Link"
+      >
+        <Copy className="h-3.5 w-3.5" />
+      </button>
     </div>
   );
 }

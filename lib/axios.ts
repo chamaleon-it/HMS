@@ -161,8 +161,20 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
   return api;
 }
 
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    const hostname = window.location.hostname;
+    const configuredUrl = configuration().backendUrl || "";
+    // If we are accessing via 192.168.x.x but backendUrl is localhost, rewrite it dynamically
+    if (hostname !== "localhost" && configuredUrl.includes("localhost")) {
+      return configuredUrl.replace("localhost", hostname);
+    }
+  }
+  return configuration().backendUrl;
+};
+
 const api = createApi({
-    baseURL:configuration().backendUrl
+    baseURL: getBaseUrl()
 })
 
 export default api
