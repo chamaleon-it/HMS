@@ -55,14 +55,15 @@ export interface Data {
 export default function PatientTable({
   data,
   tableMutate,
+  isAdmin,
 }: {
   tableMutate: () => void;
+  isAdmin?: boolean;
   data:
   | {
     message: string;
     data: Data[];
-  }
-  | undefined;
+  } | undefined;
 }) {
   const [history, setHistory] = useState<Data | null>(null);
   const [share, setShare] = useState<Data | null>(null);
@@ -99,7 +100,7 @@ export default function PatientTable({
 
   return (
     <>
-      {Boolean(selectedIds.length) && (
+      {Boolean(selectedIds.length) && !isAdmin && (
         <div className=" z-10 mb-2 flex items-center justify-between rounded-xl bg-black text-white px-4 py-2">
           <div className="text-sm">{selectedIds.length} selected</div>
           <div className="flex gap-2">
@@ -152,17 +153,19 @@ export default function PatientTable({
         <table className="w-full">
           <thead>
             <tr className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
-              <th className="w-14  px-4 py-2.5">
-                <Checkbox
-                  className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700"
-                  checked={selectedIds.length === data?.data.length}
-                  onCheckedChange={(checked: boolean) =>
-                    checked
-                      ? setSelectedIds(data?.data.map((e) => e._id) ?? [])
-                      : setSelectedIds([])
-                  }
-                />
-              </th>
+              {!isAdmin && (
+                <th className="w-14  px-4 py-2.5">
+                  <Checkbox
+                    className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700"
+                    checked={selectedIds.length === data?.data.length}
+                    onCheckedChange={(checked: boolean) =>
+                      checked
+                        ? setSelectedIds(data?.data.map((e) => e._id) ?? [])
+                        : setSelectedIds([])
+                    }
+                  />
+                </th>
+              )}
               <th className="w-14 text-left px-4 py-2.5 text-white font-bold text-[11px] uppercase tracking-wider">No.</th>
               {headerCell("Patient")}
               {headerCell("Phone Number")}
@@ -187,20 +190,22 @@ export default function PatientTable({
                     : "bg-slate-100 hover:bg-slate-100/60"
                     }`}
                 >
-                  <td align="center">
-                    <Checkbox
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedIds((prev) => [...prev, r._id]);
-                        } else {
-                          setSelectedIds((prev) =>
-                            prev.filter((e) => e !== r._id)
-                          );
-                        }
-                      }}
-                      checked={selectedIds.includes(r._id)}
-                    />
-                  </td>
+                  {!isAdmin && (
+                    <td align="center">
+                      <Checkbox
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setSelectedIds((prev) => [...prev, r._id]);
+                          } else {
+                            setSelectedIds((prev) =>
+                              prev.filter((e) => e !== r._id)
+                            );
+                          }
+                        }}
+                        checked={selectedIds.includes(r._id)}
+                      />
+                    </td>
+                  )}
                   <td
                     className="px-2 py-3 text-sm text-gray-500"
                     align="center"
@@ -260,19 +265,21 @@ export default function PatientTable({
                   <td className="px-2 py-3 text-right">
                     <TooltipProvider delayDuration={100}>
                       <div className="flex flex-nowrap justify-end gap-1">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                              onClick={(e) => { e.stopPropagation(); setHistory(r); }}
-                            >
-                              <HistoryIcon className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>History</p></TooltipContent>
-                        </Tooltip>
+                        {!isAdmin && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                onClick={(e) => { e.stopPropagation(); setHistory(r); }}
+                              >
+                                <HistoryIcon className="h-4 w-4" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent><p>History</p></TooltipContent>
+                          </Tooltip>
+                        )}
 
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -289,77 +296,81 @@ export default function PatientTable({
                           <TooltipContent><p>View Patient</p></TooltipContent>
                         </Tooltip>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                              onClick={(e) => { e.stopPropagation(); setEdit(r); }}
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Edit Patient</p></TooltipContent>
-                        </Tooltip>
+                        {!isAdmin && (
+                          <>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                                  onClick={(e) => { e.stopPropagation(); setEdit(r); }}
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>Edit Patient</p></TooltipContent>
+                            </Tooltip>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setAppointmentPatient(r);
-                              }}
-                            >
-                              <CalendarPlus className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>New Appointment</p></TooltipContent>
-                        </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setAppointmentPatient(r);
+                                  }}
+                                >
+                                  <CalendarPlus className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>New Appointment</p></TooltipContent>
+                            </Tooltip>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                addLabDraft({ patient: r._id }, "Book Now", r.mrn ? `${r.name} - (${r.mrn})` : r.name);
-                              }}
-                            >
-                              <FlaskConical className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>Book Lab Test</p></TooltipContent>
-                        </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    addLabDraft({ patient: r._id }, "Book Now", r.mrn ? `${r.name} - (${r.mrn})` : r.name);
+                                  }}
+                                >
+                                  <FlaskConical className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>Book Lab Test</p></TooltipContent>
+                            </Tooltip>
 
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                addPharmacyDraft(
-                                  {
-                                    patient: r._id,
-                                    doctor: user?._id || "",
-                                    allergies: r.allergies || "",
-                                  },
-                                  r.mrn ? `${r.name} - (${r.mrn})` : r.name
-                                );
-                              }}
-                            >
-                              <Pill className="h-4 w-4" />
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent><p>New Pharmacy Order</p></TooltipContent>
-                        </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    addPharmacyDraft(
+                                      {
+                                        patient: r._id,
+                                        doctor: user?._id || "",
+                                        allergies: r.allergies || "",
+                                      },
+                                      r.mrn ? `${r.name} - (${r.mrn})` : r.name
+                                    );
+                                  }}
+                                >
+                                  <Pill className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent><p>New Pharmacy Order</p></TooltipContent>
+                            </Tooltip>
+                          </>
+                        )}
                       </div>
                     </TooltipProvider>
                   </td>
