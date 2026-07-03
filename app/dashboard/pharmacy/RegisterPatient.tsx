@@ -17,7 +17,6 @@ import {
 } from "@/components/ui/select";
 
 import api from "@/lib/axios";
-import { fAge , fAgeString} from "@/lib/fDateAndTime";
 import registerPatientSchema from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -29,9 +28,6 @@ import toast from "react-hot-toast";
 import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/auth/context/auth-context";
 import Address from "./Address";
-import { useDebounce } from "@/hooks/useDebounce";
-import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
-import ExistingPatientCard from "./ExistingPatientCard";
 import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 
 export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string, allergies?: string, mrn?: string) => void, patient?: any, mutate?: () => void }) {
@@ -47,7 +43,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     setValue,
     reset,
     watch,
-    setError,
   } = useForm<RegisterPatientSchema>({
     resolver: zodResolver(registerPatientSchema),
     defaultValues: {
@@ -162,24 +157,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     if (name) setValue("name", name);
   }, [name, setValue]);
 
-  const debouncedName = useDebounce(values.name, 500);
-  const debouncedPhone = useDebounce(values.phoneNumber, 500);
 
-  const isExistByName = usePatientAlreadyExist({
-    name: debouncedName?.length > 2 ? debouncedName : undefined,
-  });
-
-  const isExistByPhone = usePatientAlreadyExist({
-    phoneNumber: (debouncedPhone?.length || 0) > 4 ? debouncedPhone : undefined,
-  });
-
-  const alreadyExistPatient = isExistByName?.data?.patient || isExistByPhone?.data?.patient;
-
-  const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    setDismissed(false);
-  }, [alreadyExistPatient]);
 
   return (
     <form className="space-y-5" onSubmit={createEditPatient}>
@@ -205,17 +183,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
             />
             {errors.name && (
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
-            )}
-
-            {/* Existing Patient Card for Name */}
-            {isExistByName?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
-              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(300%+32px)] z-50">
-                <ExistingPatientCard
-                  patient={alreadyExistPatient}
-                  onSelect={onClose}
-                  onDismiss={() => setDismissed(true)}
-                />
-              </div>
             )}
           </div>
 
@@ -249,17 +216,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               <p className="text-red-500 text-xs my-1">
                 {errors.phoneNumber.message}
               </p>
-            )}
-
-            {/* Existing Patient Card for Phone */}
-            {isExistByPhone?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
-              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(300%+32px)] z-50">
-                <ExistingPatientCard
-                  patient={alreadyExistPatient}
-                  onSelect={onClose}
-                  onDismiss={() => setDismissed(true)}
-                />
-              </div>
             )}
           </div>
 
