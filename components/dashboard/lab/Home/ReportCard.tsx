@@ -179,6 +179,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 const getHeadingInternalPriority = (heading: string, isSingleTestsGroup: boolean) => {
                     const h = heading.toUpperCase();
+                    if (h.includes("COMPLETE BLOOD COUNT") || h.includes("CBC")) return -1;
                     if (isSingleTestsGroup) return 0; // Single tests first within the department
 
                     // For Biochemistry panels
@@ -353,26 +354,26 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     }
                 });
 
-                // Chunk Into Pages with Continuous Flow, isolating Haematology based on CBC presence
+                // Chunk Into Pages with Continuous Flow, isolating based on groups
                 const pages: any[][] = [];
                 let currentPageRows: any[] = [];
                 let currentPageWeight = 0;
                 let isFirstPageVar = true;
 
                 // Weight constants for accurate page height calculation
-                const MAX_PAGE_WEIGHT = 17.0;
+                const MAX_PAGE_WEIGHT = 23.5; // Adjusted to 23.5 to avoid overlapping with footer while minimizing blank space
                 const getRowWeight = (r: any) => {
-                    if (r.type === "PANEL") return 3.2; // Panels have a gray box + table header
-                    if (r.type === "SUBHEADING") return 2.0; // Subheadings have top padding and potential Method/Specimen rows
+                    if (r.type === "PANEL") return 4.5; // Panels have a gray box + table header
+                    if (r.type === "SUBHEADING") return 2.5; // Subheadings have top padding and potential Method/Specimen rows
 
                     let weight = 1.0; // Normal test row
-                    const isCBC = (r.activePanel || r.mainHeading || "").toUpperCase().includes("COMPLETE BLOOD COUNT");
+                    const isCBC = (r.activePanel || r.mainHeading || "").toUpperCase().includes("COMPLETE BLOOD COUNT") || (r.activePanel || r.mainHeading || "").toUpperCase().includes("CBC");
 
                     // CBC tests are squished to 65% width, causing long names to wrap onto multiple lines
                     if (isCBC) {
-                        weight = 1.2;
+                        weight = 1.1;
                         if (r.name?.name && r.name.name.length > 18) {
-                            weight += 0.5; // Heavy wrapping
+                            weight += 0.6; // Heavy wrapping
                         }
                     }
 
@@ -384,64 +385,63 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     return weight;
                 };
 
-                const reportHasCBC = finalRows.some(r => {
+                const getRowGroup = (r: any) => {
                     const h = (r.mainHeading || r.activePanel || "").toUpperCase();
-                    return h.includes("COMPLETE BLOOD COUNT") || h.includes("CBC");
-                });
+                    const dept = (headingToDepartment[r.mainHeading] || headingToDepartment[r.activePanel] || "").toUpperCase();
+                    if (h.includes("COMPLETE BLOOD COUNT") || h.includes("CBC")) return 1;
+                    if (dept.includes("CLINICAL PATHOLOGY") || h.includes("CLINICAL PATHOLOGY")) return 3;
+                    return 2;
+                };
 
                 for (let i = 0; i < finalRows.length; i++) {
                     const row = finalRows[i];
                     const prevRow = i > 0 ? finalRows[i - 1] : null;
 
-                    const getIsHaem = (r: any) => {
-                        if (!r) return false;
-                        const pHeading = (r.mainHeading || r.activePanel || "").toUpperCase();
-                        return pHeading.includes("HEMATOLOGY") || pHeading.includes("HAEMATOLOGY") || pHeading.includes("HAEMATOLOGY") || pHeading.includes("CBC") || pHeading.includes("COMPLETE BLOOD COUNT");
-                    };
-
-                    const isPrevHaematology = getIsHaem(prevRow);
-                    const isCurrHaematology = getIsHaem(row);
+                    const rowGroup = getRowGroup(row);
+                    const prevRowGroup = prevRow ? getRowGroup(prevRow) : rowGroup;
 
                     const rowWeight = getRowWeight(row);
-                    const forceBreak = reportHasCBC && isPrevHaematology && !isCurrHaematology;
+                    const forceBreak = rowGroup !== prevRowGroup;
 
                     if ((currentPageWeight + rowWeight > MAX_PAGE_WEIGHT && currentPageRows.length > 0) || (forceBreak && currentPageRows.length > 0)) {
                         // pull back trailing headings to avoid orphaned headers at bottom of page
                         let orphaned = [];
                         let orphanedWeight = 0;
 
-                        if (currentPageRows.length > 0 && row && currentPageRows[currentPageRows.length - 1].activePanel === row.activePanel) {
-                            let testsOfCurrentPanel = 0;
-                            for (let j = currentPageRows.length - 1; j >= 0; j--) {
-                                const r = currentPageRows[j];
-                                if (r.activePanel !== row.activePanel) break;
-                                if (r.type === "TEST") {
-                                    testsOfCurrentPanel++;
+                        if (!forceBreak) {
+                            if (currentPageRows.length > 0 && row && currentPageRows[currentPageRows.length - 1].activePanel === row.activePanel) {
+                                let testsOfCurrentPanel = 0;
+                                for (let j = currentPageRows.length - 1; j >= 0; j--) {
+                                    const r = currentPageRows[j];
+                                    if (r.activePanel !== row.activePanel) break;
+                                    if (r.type === "TEST") {
+                                        testsOfCurrentPanel++;
+                                    }
+                                }
+
+                                if (testsOfCurrentPanel > 0 && testsOfCurrentPanel <= 2) {
+                                    while (currentPageRows.length > 0 && currentPageRows[currentPageRows.length - 1].activePanel === row.activePanel) {
+                                        const popped = currentPageRows.pop();
+                                        orphaned.unshift(popped);
+                                        orphanedWeight += getRowWeight(popped);
+                                    }
                                 }
                             }
 
-                            if (testsOfCurrentPanel > 0 && testsOfCurrentPanel <= 2) {
-                                while (currentPageRows.length > 0 && currentPageRows[currentPageRows.length - 1].activePanel === row.activePanel) {
-                                    const popped = currentPageRows.pop();
-                                    orphaned.unshift(popped);
-                                    orphanedWeight += getRowWeight(popped);
-                                }
+                            while (currentPageRows.length > 0 &&
+                                (currentPageRows[currentPageRows.length - 1].type === "PANEL" ||
+                                    currentPageRows[currentPageRows.length - 1].type === "SUBHEADING")) {
+                                const popped = currentPageRows.pop();
+                                orphaned.unshift(popped);
+                                orphanedWeight += getRowWeight(popped);
                             }
-                        }
 
-                        while (currentPageRows.length > 0 &&
-                            (currentPageRows[currentPageRows.length - 1].type === "PANEL" ||
-                                currentPageRows[currentPageRows.length - 1].type === "SUBHEADING")) {
-                            const popped = currentPageRows.pop();
-                            orphaned.unshift(popped);
-                            orphanedWeight += getRowWeight(popped);
-                        }
-
-                        // If we pulled everything (edge case), just put one back to avoid infinite loops
-                        if (currentPageRows.length === 0 && orphaned.length > 0) {
-                            const shifted = orphaned.shift();
-                            currentPageRows.push(shifted);
-                            orphanedWeight -= getRowWeight(shifted);
+                            // If we pulled everything (edge case), just put one back to avoid infinite loops
+                            if (currentPageRows.length === 0 && orphaned.length > 0) {
+                                const shifted = orphaned.shift();
+                                currentPageRows.push(shifted);
+                                orphanedWeight -= getRowWeight(shifted);
+                            }
                         }
 
                         pages.push(currentPageRows);
@@ -577,26 +577,26 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                     return (
                                                         <div key={pgIdx} className="w-full">
                                                             {showDeptHeader && (
-                                                                <div className="w-full bg-[#19988b] text-white py-2 px-4 mb-3 text-center">
+                                                                <div className="w-full bg-[#19988b] text-white py-1.5 px-4 mb-2 text-center">
                                                                     <h2 className="text-[16px] font-bold uppercase tracking-wider">{dept}</h2>
                                                                 </div>
                                                             )}
                                                             {showPanelHeader && pg.heading && (
-                                                                <div className="w-full bg-[#19988b]/90 text-white py-1.5 px-4 mb-2 text-center">
+                                                                <div className="w-full bg-[#19988b]/90 text-white py-1 px-4 mb-1.5 text-center">
                                                                     <h2 className="text-[14px] font-bold uppercase tracking-wider">{pg.heading}</h2>
                                                                 </div>
                                                             )}
                                                             <table className="w-full border-collapse">
                                                                 <thead>
                                                                     <tr>
-                                                                        <th className="pb-4 w-[45%]">
-                                                                            <div className="bg-[#164687] text-white py-2.5 px-4 pl-8 text-[13px] font-bold text-left uppercase tracking-wide">PARAMETER</div>
+                                                                        <th className="pb-2 w-[45%]">
+                                                                            <div className="bg-[#164687] text-white py-1.5 px-4 pl-8 text-[13px] font-bold text-left uppercase tracking-wide">PARAMETER</div>
                                                                         </th>
-                                                                        <th className="pb-4 w-[25%] px-1.5">
-                                                                            <div className="bg-[#19988b] text-white py-2.5 px-4 text-[13px] font-bold text-center uppercase tracking-wide">RESULT</div>
+                                                                        <th className="pb-2 w-[25%] px-1.5">
+                                                                            <div className="bg-[#19988b] text-white py-1.5 px-4 text-[13px] font-bold text-center uppercase tracking-wide">RESULT</div>
                                                                         </th>
-                                                                        <th className="pb-4 w-[30%]">
-                                                                            <div className="bg-[#164687] text-white py-2.5 px-4 pl-8 text-[13px] font-bold text-left uppercase tracking-wide">REFERENCE RANGE</div>
+                                                                        <th className="pb-2 w-[30%]">
+                                                                            <div className="bg-[#164687] text-white py-1.5 px-4 pl-8 text-[13px] font-bold text-left uppercase tracking-wide">REFERENCE RANGE</div>
                                                                         </th>
                                                                     </tr>
                                                                 </thead>
@@ -614,18 +614,18 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                             return (
                                                                                 <React.Fragment key={`sub-${rowIdx}`}>
                                                                                     <tr>
-                                                                                        <td colSpan={3} className="py-3 px-3 pl-8 text-black">
+                                                                                        <td colSpan={3} className="py-1.5 px-3 pl-8 text-black">
                                                                                             <h3 className="text-[15px] font-bold uppercase tracking-wide">{row.name}</h3>
                                                                                         </td>
                                                                                     </tr>
                                                                                     {isFirstSub && panelMethod && (
                                                                                         <tr>
-                                                                                            <td colSpan={3} className="px-8 pt-1 pb-1 text-[12px] text-slate-600 font-medium">Method: {panelMethod}</td>
+                                                                                            <td colSpan={3} className="px-8 pt-0.5 pb-0.5 text-[12px] text-slate-600 font-medium">Method: {panelMethod}</td>
                                                                                         </tr>
                                                                                     )}
                                                                                     {isFirstSub && panelSpecimen && (
                                                                                         <tr>
-                                                                                            <td colSpan={3} className="px-8 pb-2 text-[12px] text-slate-600 font-medium">Specimen: {panelSpecimen}</td>
+                                                                                            <td colSpan={3} className="px-8 pb-1 text-[12px] text-slate-600 font-medium">Specimen: {panelSpecimen}</td>
                                                                                         </tr>
                                                                                     )}
                                                                                 </React.Fragment>
@@ -649,16 +649,16 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                                                         return (
                                                                             <tr key={"test-" + rowIdx}>
-                                                                                <td className="py-2.5 px-1 pl-12 text-[14px] text-slate-800 align-top font-medium">
+                                                                                <td className="py-1 px-1 pl-12 text-[14px] text-slate-800 align-top font-medium">
                                                                                     <div>{row.name?.name || "TEST"}</div>
                                                                                 </td>
-                                                                                <td className="py-2.5 px-2 text-[14px] text-slate-800 align-top text-center">
+                                                                                <td className="py-1 px-2 text-[14px] text-slate-800 align-top text-center">
                                                                                     <div className="flex justify-center gap-1.5">
                                                                                         <span className={isAbnormal ? "font-bold text-black" : "font-bold text-black"}>{row.value || " "}</span>
                                                                                         {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? <span className="text-black font-bold" dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
                                                                                     </div>
                                                                                 </td>
-                                                                                <td className="py-2.5 px-2 pl-12 text-[14px] text-slate-800 align-top font-medium">
+                                                                                <td className="py-1 px-2 pl-12 text-[14px] text-slate-800 align-top font-medium">
                                                                                     {row.name?.range && row.name.range.length > 0 ? (
                                                                                         row.name.range.map((r: any, idx: number) => {
                                                                                             const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
