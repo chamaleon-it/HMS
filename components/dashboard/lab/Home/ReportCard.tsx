@@ -771,7 +771,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             <div className="absolute bottom-0 left-0 w-full z-20">
                                 <div className="w-full bg-[#164687] text-white py-3.5 flex justify-center items-center">
                                     <p className="text-[14px] font-medium tracking-wide">
-                                        <span className="font-bold">Working Hours :</span> 6:30 AM to 8:00 PM | Sunday 6:30 AM to 12:00 PM
+                                        <span className="font-bold">Working Hours :</span> 6:30 AM to 8:00 PM
                                     </p>
                                 </div>
                             </div>
