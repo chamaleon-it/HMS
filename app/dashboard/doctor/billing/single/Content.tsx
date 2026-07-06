@@ -5,7 +5,20 @@ import { Separator } from "@/components/ui/separator";
 import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import useSWR from "swr";
+import { useState } from "react";
+import PrintReceipt from "./PrintReceipt";
+import { Printer, Download } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
 export default function InvoiceView({ id }: { id: string }) {
+  const [printBill, setPrintBill] = useState<any>(null);
+
+  const handlePrint = (bill: any) => {
+    setPrintBill(bill);
+    setTimeout(() => {
+        window.print();
+    }, 100);
+  };
 
   const { data: billingData } = useSWR<{
     message: string;
@@ -49,7 +62,7 @@ export default function InvoiceView({ id }: { id: string }) {
 
   return (
     <AppShell>
-      <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden m-5">
+      <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden m-5 print:hidden">
         {/* Header Section */}
         <div className="flex justify-between items-center bg-gradient-to-r from-purple-600 to-blue-500 text-white px-8 py-6 border-b">
           <div className="flex items-center space-x-3">
@@ -248,14 +261,14 @@ export default function InvoiceView({ id }: { id: string }) {
             </p>
             <div className="h-10 mt-4 border-b border-gray-400 w-48"></div>
           </div>
-          {/* <div className="text-right">
-            <Button variant="outline" size="sm" className="mr-2">
+          <div className="text-right">
+            <Button variant="outline" size="sm" className="mr-2" onClick={() => handlePrint(billing)}>
               <Printer className="w-4 h-4 mr-1" /> Print
             </Button>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" disabled>
               <Download className="w-4 h-4 mr-1" /> PDF
             </Button>
-          </div> */}
+          </div>
         </div>
         <Separator /> {/* Footer */}
         <div className="relative text-center text-xs text-gray-500 py-6 bg-gradient-to-r from-gray-50 to-gray-100">
@@ -276,6 +289,37 @@ export default function InvoiceView({ id }: { id: string }) {
           ></div>
         </div>
       </div>
+
+      {printBill && (
+        <PrintReceipt
+            payload={{
+                patient: printBill.patient.name,
+                items: printBill.items.map((i: any) => ({ ...i, name: i.name })),
+                cash: printBill.cash,
+                online: printBill.online,
+                insurance: printBill.insurance,
+                doctor: "Doctor", // Add dynamic value if available
+            }}
+            patient={{
+                name: printBill.patient.name,
+                mrn: printBill.patient.mrn,
+                phoneNumber: printBill.patient.phoneNumber,
+            }}
+            invoiceDetails={{
+                prefix: "INV",
+                mrn: printBill.mrn,
+                subtotal: printBill.items.reduce(
+                    (a: any, b: any) => a + b.unitPrice * b.quantity,
+                    0
+                ),
+                totalGst: printBill.items.reduce(
+                    (a: any, b: any) => a + (b.total - b.unitPrice * b.quantity + b.discount),
+                    0
+                ),
+                grandTotal: printBill.items.reduce((a: any, b: any) => a + b.total, 0),
+            }}
+        />
+      )}
     </AppShell>
   );
 }
