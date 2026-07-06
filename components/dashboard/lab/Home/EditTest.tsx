@@ -133,7 +133,7 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                 </DialogHeader>
 
                 <div className="flex gap-2 justify-between w-full mt-4">
-                    <div className="w-[300px]">
+                    <div className="w-[400px]">
                         <TestSelection
 
                             onSelect={(val) => {
@@ -177,14 +177,14 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                                 }
                             }}
                             options={[
-                                ...panels.filter((p) => !payload.panels.includes(p.name)).map(e => e.name),
+                                ...panels.filter((p) => !payload.panels.includes(p.name)).map(e => ({ label: e.name, value: e.name, type: 'Panel', department: e.department })),
                                 ...tests
                                     .filter(
                                         (t) =>
                                             !t.panels?.find((p) => payload.panels.includes(p.name)) &&
                                             !payload.test.some((pt) => pt.name === t._id)
                                     )
-                                    .map((t) => t.name),
+                                    .map((t) => ({ label: t.name, value: t.name, type: 'Test', department: t.department })),
                             ]}
                         />
                     </div>
@@ -223,7 +223,13 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                         {payload.panels.map((t, idx) => (
                             <TableRow key={t}>
                                 <TableCell>{idx + 1}</TableCell>
-                                <TableCell>{t}</TableCell>
+                                <TableCell>
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-semibold text-slate-800">{t}</span>
+                                        {panels.find(p => p.name === t)?.department && <span className="text-[10px] uppercase font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">{panels.find(p => p.name === t)?.department}</span>}
+                                        <span className="text-[10px] uppercase font-semibold bg-slate-50 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">PANEL</span>
+                                    </div>
+                                </TableCell>
                                 <TableCell>{formatINR(panels.find((p) => p.name === t)?.price || 0)}</TableCell>
                                 <TableCell>-</TableCell>
                                 <TableCell>
@@ -265,7 +271,11 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                             <TableRow key={t.name}>
                                 <TableCell>{idx + 1}</TableCell>
                                 <TableCell>
-                                    {tests.find((test) => test._id === t.name)?.name}
+                                    <div className="flex items-center gap-2">
+                                        <span className="font-semibold text-slate-800">{tests.find((test) => test._id === t.name)?.name}</span>
+                                        {tests.find((test) => test._id === t.name)?.department && <span className="text-[10px] uppercase font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">{tests.find((test) => test._id === t.name)?.department}</span>}
+                                        <span className="text-[10px] uppercase font-semibold bg-slate-50 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">TEST</span>
+                                    </div>
                                 </TableCell>
                                 <TableCell>
                                     {formatINR(tests.find((test) => test._id === t.name)?.price || 0)}

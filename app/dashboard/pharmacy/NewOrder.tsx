@@ -64,7 +64,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
         onClick={() => { setNameToRegister(""); setOpenCreate(true); }}
         className="bg-emerald-600 hover:bg-emerald-700 text-white"
       >
-        New Customer
+        Create Customer
       </Button>
 
       <Button

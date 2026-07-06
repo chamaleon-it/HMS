@@ -107,6 +107,7 @@ export function RegisterPatient({
         notes: patient.notes,
         phoneNumber: patient.phoneNumber.replace(/\s+/g, ""),
         uhid: patient.uhid,
+        mrn: patient.mrn,
       });
     }
   }, [patient, reset]);
@@ -279,6 +280,19 @@ export function RegisterPatient({
             />
             {errors.name && (
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
+            )}
+          </div>
+          <div className="grid gap-2">
+            <Label>Customer ID</Label>
+            <Input
+              placeholder="PID"
+              {...register("mrn")}
+              value={values.mrn ?? ""}
+            />
+            {errors.mrn && (
+              <p className="text-red-500 text-xs my-1">
+                {errors.mrn.message}
+              </p>
             )}
           </div>
           <div className="grid gap-2">

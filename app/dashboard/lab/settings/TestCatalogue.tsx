@@ -225,14 +225,15 @@ export default function TestCatalogue({
       name: string;
       min: number | null | undefined;
       max: number | null | undefined;
+      upto: number | null | undefined;
       fromAge: number | null | undefined;
       toAge: number | null | undefined;
       gender: "Both" | "Male" | "Female";
       dateType: "Year" | "Month" | "Day";
 
     }[],
-    note: string;
-    category: string;
+    department?: string;
+
   }>({
     code: "",
     name: "",
@@ -247,19 +248,31 @@ export default function TestCatalogue({
       name: "Normal",
       min: undefined,
       max: undefined,
+      upto: undefined,
       fromAge: undefined,
       toAge: undefined,
       gender: "Both",
       dateType: "Year"
     }],
-    note: "",
-    category: "",
+    department: "",
+
   });
 
   const handleRangeChange = (index: number, field: string, value: any) => {
     setNewTest((prev) => {
       const updatedRange = [...(prev.range || [])];
-      updatedRange[index] = { ...updatedRange[index], [field]: value };
+      let newRangeItem = { ...updatedRange[index], [field]: value };
+
+      if (field === 'upto' && value !== undefined && value !== null && value !== "") {
+        newRangeItem.min = undefined;
+        newRangeItem.max = undefined;
+      }
+
+      if ((field === 'min' || field === 'max') && value !== undefined && value !== null && value !== "") {
+        newRangeItem.upto = undefined;
+      }
+
+      updatedRange[index] = newRangeItem;
       return { ...prev, range: updatedRange };
     });
   };
@@ -269,7 +282,7 @@ export default function TestCatalogue({
       ...prev,
       range: [
         ...(prev.range || []),
-        { name: "", min: undefined, max: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year" }
+        { name: "", min: undefined, max: undefined, upto: undefined, fromAge: undefined, toAge: undefined, gender: "Both", dateType: "Year" }
       ]
     }));
   };
@@ -322,16 +335,17 @@ export default function TestCatalogue({
         unit: null,
         options: [],
         range: [{
-          name: "",
+          name: "Normal",
           min: undefined,
           max: undefined,
+          upto: undefined,
           fromAge: undefined,
           toAge: undefined,
           gender: "Both",
           dateType: "Year"
         }],
-        note: "",
-        category: "",
+        department: "",
+
       });
       setIsNewTestModalOpen(false);
 
@@ -342,8 +356,7 @@ export default function TestCatalogue({
 
   const { panels, mutate: panelMutate } = useGetPanels();
   const filteredPanels = panels.filter((panel) =>
-    panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase()) ||
-    panel.mainHeading?.toLowerCase().includes(panelSearchQuery.toLowerCase())
+    panel.name.toLowerCase().includes(panelSearchQuery.toLowerCase())
   );
 
   const { data, mutate: testMutate } = useSWR<{
@@ -531,18 +544,28 @@ export default function TestCatalogue({
                     </Select>
                   </div>
 
-                  <div className="col-span-3 space-y-1.5">
-                    <Label className="text-xs font-medium text-slate-700">Category</Label>
-                    <Input
-                      placeholder="e.g. Haematology"
-                      value={newTest.category || ""}
 
-                      onChange={(e) =>
-                        setNewTest((prev) => ({ ...prev, category: e.target.value }))
-                      }
-                      className="h-9 bg-slate-50"
-                    />
+
+                  <div className="col-span-3 space-y-1.5">
+                    <Label className="text-xs font-medium text-slate-700">Department</Label>
+                    <Select
+                      value={newTest.department || ""}
+                      onValueChange={(val) => setNewTest(prev => ({ ...prev, department: val }))}
+                    >
+                      <SelectTrigger className="h-9 bg-slate-50 w-full">
+                        <SelectValue placeholder="Select department" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="HAEMATOLOGY">HAEMATOLOGY</SelectItem>
+                        <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+                        <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+                        <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+                        <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
+
+
                   {newTest.dataType === "options" && <>
                     <div className="col-span-4 space-y-1.5 ">
                       <Label className="text-xs font-medium text-slate-700">Add Options</Label>
@@ -604,6 +627,7 @@ export default function TestCatalogue({
                           <TableHead>Range Name</TableHead>
                           <TableHead className="w-26">Min</TableHead>
                           <TableHead className="w-26">Max</TableHead>
+                          <TableHead className="w-24">UpTo</TableHead>
                           <TableHead className="w-24">From Age</TableHead>
                           <TableHead className="w-24">To Age</TableHead>
                           <TableHead className="w-20">Gender</TableHead>
@@ -638,6 +662,15 @@ export default function TestCatalogue({
                                 placeholder="Max"
                                 value={r.max ?? ""}
                                 onChange={(e) => handleRangeChange(i, "max", e.target.value ? Number(e.target.value) : undefined)}
+                                className="h-8 shadow-none bg-slate-50 px-2"
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <Input
+                                type="number"
+                                placeholder="UpTo"
+                                value={r.upto ?? ""}
+                                onChange={(e) => handleRangeChange(i, "upto", e.target.value ? Number(e.target.value) : undefined)}
                                 className="h-8 shadow-none bg-slate-50 px-2"
                               />
                             </TableCell>
@@ -739,7 +772,7 @@ export default function TestCatalogue({
 
                     <div className="space-y-2 mt-3">
                       <Label className="font-medium text-slate-700">Alert</Label>
-                      <p className="text-sm text-slate-500">When only a minimum value is specified, all values greater than that are considered normal. When only a maximum value is specified, all values less than that are considered normal. If no value is specified or only a note is given, then the system will not highlight abnormal values automatically.
+                      <p className="text-sm text-slate-500">When only a minimum value is specified, all values greater than that are considered normal. When only a maximum value is specified, all values less than that are considered normal. If no value is specified, then the system will not highlight abnormal values automatically.
                         <br /> <br />
                         When only a from age is specified, all ages greater than that are considered. When only a to age is specified, all ages less than that are considered. If no age is specified, then the system will consider all ages.
                       </p>
@@ -749,17 +782,7 @@ export default function TestCatalogue({
                   }
 
 
-                  <div className="col-span-full space-y-1.5">
-                    <Label className="text-xs font-medium text-slate-700">Notes</Label>
-                    <Textarea
-                      placeholder="Note"
-                      value={newTest.note || ""}
-                      onChange={(e) =>
-                        setNewTest((prev) => ({ ...prev, note: e.target.value }))
-                      }
-                      className="h-9 bg-slate-50"
-                    />
-                  </div>
+                  {/* Notes removed */}
 
 
                   <div className="grid grid-cols-12 gap-4 col-span-full mt-4">
@@ -799,10 +822,10 @@ export default function TestCatalogue({
                     <TableHead>Unit</TableHead>
                     <TableHead>Price</TableHead>
                     <TableHead>ETA (Minutes)</TableHead>
-                    <TableHead>Panels</TableHead>
                     <TableHead>Type</TableHead>
                     <TableHead>Method</TableHead>
                     <TableHead>Specimen</TableHead>
+                    <TableHead>Department</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -884,6 +907,7 @@ export default function TestCatalogue({
                       <TableHead>ETA (Minutes)</TableHead>
                       <TableHead>Method</TableHead>
                       <TableHead>Specimen</TableHead>
+                      <TableHead>Department</TableHead>
                       <TableHead align="right" className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -1062,6 +1086,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     specimen: string;
     subheadings: string[];
     testSubheadings: Record<string, string>;
+    department: string;
   }>({
     name: "",
     price: 0,
@@ -1071,6 +1096,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
     specimen: "",
     subheadings: [],
     testSubheadings: {},
+    department: "",
   });
   const [loading, setLoading] = useState(false);
   const [selectedTests, setSelectedTests] = useState<any[]>([]);
@@ -1152,6 +1178,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         method: "",
         subheadings: [],
         testSubheadings: {},
+        department: "",
       });
       setSelectedTests([]);
       onSuccess();
@@ -1177,22 +1204,33 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
           <Label htmlFor="add-panel-eta">ETA (Minutes)</Label>
           <Input id="add-panel-eta" type="number" placeholder="e.g. 60" value={payload.estimatedTime || ""} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
         </div>
-        <div className="space-y-2">
-          <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report)</span></Label>
-          <Input
-            id="add-panel-main-heading"
-            placeholder="e.g. Haematology"
-            value={payload.mainHeading}
-            onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
-          />
+        <div className="space-y-2 col-span-3">
+          <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report instead of name)</span></Label>
+          <Input id="add-panel-main-heading" type="text" placeholder="e.g. Complete Blood Count" value={payload.mainHeading} onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })} />
         </div>
-        <div className="space-y-2">
+
+        <div className="space-y-2 col-span-1">
           <Label htmlFor="add-panel-method">Method <span className="text-slate-500 font-normal">(Optional)</span></Label>
           <Input id="add-panel-method" type="text" placeholder="" value={payload.method} onChange={(e) => setPayload({ ...payload, method: e.target.value })} />
         </div>
         <div className="space-y-2">
           <Label htmlFor="add-panel-specimen">Specimen Type <span className="text-slate-500 font-normal">(Optional)</span></Label>
           <Input id="add-panel-specimen" type="text" placeholder="" value={payload.specimen} onChange={(e) => setPayload({ ...payload, specimen: e.target.value })} />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="add-panel-department">Department <span className="text-slate-500 font-normal">(Optional)</span></Label>
+          <Select value={payload.department} onValueChange={(val) => setPayload({ ...payload, department: val })}>
+            <SelectTrigger id="add-panel-department">
+              <SelectValue placeholder="Select department" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="HAEMATOLOGY">HAEMATOLOGY</SelectItem>
+              <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+              <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+              <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+              <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

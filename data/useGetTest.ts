@@ -18,6 +18,7 @@ export interface TestItemType {
     estimatedTime?: number;
     price?: number;
     unit?: string;
+    department?: string;
     panels?: {
         name: string;
         _id: string;

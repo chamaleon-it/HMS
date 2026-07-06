@@ -108,11 +108,12 @@ export const LabDraftManager: React.FC = () => {
           {registerData && (
             <RegisterPatient
               patient={{ name: registerData.name }}
-              onClose={(id?: string, name?: string) => {
+              onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
                 if (id && name) {
+                  const displayName = `${name}${mrn ? ` - (${mrn})` : ""}`;
                   updateDraft(registerData.draftId, (prev) => ({
                     payload: { ...prev.payload, patient: id },
-                    patientName: name
+                    patientName: displayName
                   }));
                 }
                 setRegisterData(null);

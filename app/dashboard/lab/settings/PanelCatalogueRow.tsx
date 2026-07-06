@@ -86,7 +86,7 @@ export default function PanelCatalogueRow({
     onRemoveTests,
     panelMutate,
 }: {
-    panel: { name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; specimen?: string; method?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; };
+    panel: { _id: string; name: string; price: number; tests?: any[]; estimatedTime?: number; mainHeading?: string; specimen?: string; method?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; department?: string; };
     idx: number;
     tests: any[];
     onAddTests: () => void;
@@ -113,15 +113,17 @@ export default function PanelCatalogueRow({
         method: string;
         subheadings: string[];
         testSubheadings: Record<string, string>;
+        department: string;
     }>({
         name: panel.name,
         price: panel.price,
         estimatedTime: panel.estimatedTime || 0,
-        mainHeading: panel.mainHeading ?? "",
+        mainHeading: panel.mainHeading || "",
         specimen: panel.specimen ?? "",
         method: panel.method ?? "",
         subheadings: panel.subheadings || [],
-        testSubheadings: panel.testSubheadings || {}
+        testSubheadings: panel.testSubheadings || {},
+        department: panel.department || ""
     });
 
     const [selectedTests, setSelectedTests] = useState<any[]>(initialPanelTests);
@@ -172,11 +174,12 @@ export default function PanelCatalogueRow({
                 name: panel.name,
                 price: panel.price,
                 estimatedTime: panel.estimatedTime || 0,
-                mainHeading: panel.mainHeading ?? "",
+                mainHeading: panel.mainHeading || "",
                 specimen: panel.specimen ?? "",
                 method: panel.method ?? "",
                 subheadings: panel.subheadings || [],
-                testSubheadings: panel.testSubheadings || {}
+                testSubheadings: panel.testSubheadings || {},
+                department: panel.department || ""
             });
             setSearchTestQuery("");
         }
@@ -186,13 +189,14 @@ export default function PanelCatalogueRow({
         try {
             const updatePayload = {
                 ...payload,
+                mainHeading: payload.mainHeading || undefined,
                 tests: selectedTests.map(t => t._id),
                 subheadings: payload.subheadings.filter(s => s.trim() !== ""),
                 testSubheadings: payload.testSubheadings
             };
 
 
-            await toast.promise(api.patch(`/lab/panels/${panel.name}`, updatePayload), {
+            await toast.promise(api.patch(`/lab/panels/${panel._id}`, updatePayload), {
                 loading: "Updating panel...",
                 success: "Panel updated successfully",
                 error: ({ response }) => response.data.message,
@@ -203,12 +207,12 @@ export default function PanelCatalogueRow({
         } catch (error) {
             console.error(error);
         }
-    }, [payload, selectedTests, panel.name, panelMutate]);
+    }, [payload, selectedTests, panel._id, panelMutate]);
 
     const deletePanel = useCallback(async () => {
         try {
             setIsDeleting(true);
-            await toast.promise(api.delete(`/lab/panels/${panel.name}`), {
+            await toast.promise(api.delete(`/lab/panels/${panel._id}`), {
                 loading: "Deleting Panel...",
                 success: "Panel deleted successfully",
                 error: ({ response }) => response.data.message,
@@ -220,7 +224,7 @@ export default function PanelCatalogueRow({
         } finally {
             setIsDeleting(false);
         }
-    }, [panel.name, panelMutate]);
+    }, [panel._id, panelMutate]);
 
     const handleAddTest = (test: any) => {
         if (!selectedTests.find(t => t._id === test._id)) {
@@ -257,6 +261,7 @@ export default function PanelCatalogueRow({
             <TableCell>{panel.estimatedTime ? `${panel.estimatedTime} Minutes` : "N/A"}</TableCell>
             <TableCell className='uppercase'>{panel.method || "-"}</TableCell>
             <TableCell className='uppercase'>{panel.specimen || "-"}</TableCell>
+            <TableCell className='uppercase'>{panel.department || "-"}</TableCell>
             <TableCell align="left">
                 <div className="flex gap-1 items-center justify-end">
 
@@ -286,6 +291,10 @@ export default function PanelCatalogueRow({
                                     <div className="space-y-1">
                                         <Label className="text-slate-500">Estimated Duration</Label>
                                         {panel?.estimatedTime ? <p className="font-medium text-sm">{panel?.estimatedTime > 0 ? `${panel?.estimatedTime} Minutes` : "N/A"}</p> : <p className="font-medium text-sm">N/A</p>}
+                                    </div>
+                                    <div className="space-y-1">
+                                        <Label className="text-slate-500">Department</Label>
+                                        <p className="font-medium text-sm">{panel.department || "N/A"}</p>
                                     </div>
                                 </div>
 
@@ -358,15 +367,11 @@ export default function PanelCatalogueRow({
                                         <Label htmlFor={`panel-eta-${idx}`}>ETA (Minutes)</Label>
                                         <Input id={`panel-eta-${idx}`} type="number" value={payload.estimatedTime} onChange={(e) => setPayload({ ...payload, estimatedTime: Number(e.target.value) })} />
                                     </div>
-                                    <div className="space-y-2 col-span-1">
-                                        <Label htmlFor="add-panel-main-heading">Main Heading <span className="text-slate-500 font-normal">(Printed on report)</span></Label>
-                                        <Input
-                                            id={`panel-main-heading-${idx}`}
-                                            placeholder="e.g. Haematology"
-                                            value={payload.mainHeading}
-                                            onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })}
-                                        />
+                                    <div className="space-y-2 col-span-3">
+                                        <Label htmlFor={`panel-mainHeading-${idx}`}>Main Heading <span className="text-slate-500 font-normal">(Printed on report instead of name)</span></Label>
+                                        <Input id={`panel-mainHeading-${idx}`} type="text" placeholder="e.g. Complete Blood Count" value={payload.mainHeading} onChange={(e) => setPayload({ ...payload, mainHeading: e.target.value })} />
                                     </div>
+
                                     <div className="space-y-2 col-span-1">
                                         <Label htmlFor={`panel-method-${idx}`}>Method <span className="text-slate-500 font-normal">(Optional)</span></Label>
                                         <Input id={`panel-method-${idx}`} type="text" value={payload.method} onChange={(e) => setPayload({ ...payload, method: e.target.value })} />
@@ -374,6 +379,21 @@ export default function PanelCatalogueRow({
                                     <div className="space-y-2 col-span-1">
                                         <Label htmlFor={`panel-specimen-${idx}`}>Specimen Type <span className="text-slate-500 font-normal">(Optional)</span></Label>
                                         <Input id={`panel-specimen-${idx}`} type="text" value={payload.specimen} onChange={(e) => setPayload({ ...payload, specimen: e.target.value })} />
+                                    </div>
+                                    <div className="space-y-2 col-span-1">
+                                        <Label htmlFor={`panel-department-${idx}`}>Department <span className="text-slate-500 font-normal">(Optional)</span></Label>
+                                        <Select value={payload.department} onValueChange={(val) => setPayload({ ...payload, department: val })}>
+                                            <SelectTrigger id={`panel-department-${idx}`}>
+                                                <SelectValue placeholder="Select department" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="HAEMATOLOGY">HAEMATOLOGY</SelectItem>
+                                                <SelectItem value="BIOCHEMISTRY">BIOCHEMISTRY</SelectItem>
+                                                <SelectItem value="SEROLOGY">SEROLOGY</SelectItem>
+                                                <SelectItem value="IMMUNOLOGY">IMMUNOLOGY</SelectItem>
+                                                <SelectItem value="CLINICAL PATHOLOGY">CLINICAL PATHOLOGY</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
 

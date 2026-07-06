@@ -1,19 +1,9 @@
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import api from "@/lib/axios";
 import { fAge } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@/auth/context/auth-context";
-import { ChevronRight, Loader2, MapPin, Phone, UserPlus, X } from "lucide-react";
+import { ChevronRight, MapPin, Phone, X, UserPlus } from "lucide-react";
 import React, {
   useCallback,
   useEffect,
@@ -21,8 +11,14 @@ import React, {
   useRef,
   useState,
 } from "react";
-import toast from "react-hot-toast";
 import useSWR from "swr";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { RegisterPatient } from "./RegisterPatient";
+import { useAuth } from "@/auth/context/auth-context";
 
 type Patient = {
   _id: string;
@@ -40,23 +36,30 @@ interface Props {
   register: (name?: string) => void;
   patientName: string;
   autoFocus?: boolean;
+  actionElement?: React.ReactNode;
 }
 
 const MIN_QUERY_LEN = 2;
 const PAGE_SIZE = 100;
 const DEBOUNCE_MS = 250;
 
-const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus }) => {
+const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, autoFocus, actionElement }) => {
   const { user } = useAuth();
   const [input, setInput] = useState(patientName);
+
+  useEffect(() => {
+    if (patientName && patientName !== input) {
+      setInput(patientName);
+    }
+  }, [patientName]);
   const [open, setOpen] = useState(false);
   const [activeIdx, setActiveIdx] = useState<number>(-1);
   const [selected, setSelected] = useState<Patient | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const [showInlineRegister, setShowInlineRegister] = useState(false);
-  const [inlineGender, setInlineGender] = useState<"Male" | "Female" | "">("");
-  const [isRegistering, setIsRegistering] = useState(false);
+  const [openCreate, setOpenCreate] = useState(false);
+
+
 
   // Auto-scroll to active item
   useEffect(() => {
@@ -113,8 +116,9 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
   const handleSelect = useCallback(
     (p: Patient) => {
       setSelected(p);
-      setValue(p._id, p.allergies, p.name);
-      setInput(`${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`);
+      const displayName = `${p.name}${p.mrn ? ` - (${p.mrn})` : ""}`;
+      setValue(p._id, p.allergies, displayName);
+      setInput(displayName);
       setOpen(false);
     },
     [setValue]
@@ -138,39 +142,6 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
     }
   };
 
-  const handleInlineRegister = async () => {
-    if (!inlineGender) {
-      toast.error("Please select gender");
-      return;
-    }
-    if (!input.trim()) {
-      toast.error("Please enter a name");
-      return;
-    }
-    
-    const capitalizedName = input.replace(/\b\w/g, (char) => char.toUpperCase());
-
-    try {
-      setIsRegistering(true);
-      const { data } = await api.post("/patients", {
-        name: capitalizedName,
-        gender: inlineGender,
-        phoneNumber: "",
-        doctor: user?._id || "",
-        dateOfBirth: "",
-      });
-      const p = data.data; 
-      toast.success("Customer registered successfully.");
-      handleSelect(p);
-      setShowInlineRegister(false);
-      setInlineGender("");
-    } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to register customer");
-    } finally {
-      setIsRegistering(false);
-    }
-  };
-
   const clearInput = () => {
     setInput("");
     setOpen(false);
@@ -181,11 +152,16 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
 
 
 
+
+
   return (
     <div ref={rootRef} className="relative w-full max-w-[500px]">
-      <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+      <div className="flex items-center justify-between mb-1">
+        <Label className="block">Customer Name <span className="text-xs">*</span></Label>
+        {actionElement}
+      </div>
 
-      <div className="flex items-center gap-2 mt-2.5 w-full">
+      <div className="flex items-center gap-2 mt-2.5">
         <div
           role="combobox"
           aria-expanded={open}
@@ -201,74 +177,28 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
             autoFocus={autoFocus}
             onFocus={() => setOpen(true)}
             onChange={(e) => {
-              const capitalizedValue = e.target.value.replace(/\b\w/g, (char) =>
-                char.toUpperCase()
-              );
+
+              const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
               setInput(capitalizedValue);
-              setOpen(true);
-              setActiveIdx(-1);
-              setShowInlineRegister(false);
+              if (selected) {
+                setSelected(null);
+                setValue("");
+              }
             }}
             onKeyDown={onKeyDown}
             className="w-full pr-9"
           />
-
-          {input && (
-            <button
-              type="button"
-              aria-label="Clear"
-              onClick={clearInput}
-              className="absolute right-2.5 top-[calc(50%)] -translate-y-1/2 rounded-full p-1 text-zinc-500 hover:bg-zinc-100"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
         </div>
 
-        {!showInlineRegister ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            className="shrink-0 h-10 w-10 border-zinc-200"
-            onClick={() => setShowInlineRegister(true)}
-          >
-            <UserPlus className="h-4 w-4 text-green-600" />
-          </Button>
-        ) : (
-          <div className="flex items-center gap-2 shrink-0">
-            <Select
-              onValueChange={(val: any) => setInlineGender(val)}
-              value={inlineGender}
-            >
-              <SelectTrigger className="w-[100px] h-10">
-                <SelectValue placeholder="Gender" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Male">Male</SelectItem>
-                <SelectItem value="Female">Female</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              type="button"
-              onClick={handleInlineRegister}
-              disabled={isRegistering}
-              className="bg-green-600 hover:bg-green-700 text-white h-10 px-3"
-            >
-              {isRegistering && <Loader2 className="w-4 h-4 animate-spin mr-1" />}
-              Create
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="h-10 w-8 shrink-0 text-zinc-400 hover:text-zinc-600"
-              onClick={() => setShowInlineRegister(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          onClick={() => setOpenCreate(true)}
+          className="border-emerald-200 text-emerald-700 hover:bg-emerald-50 shrink-0 h-10 w-10"
+        >
+          <UserPlus className="h-4 w-4" />
+        </Button>
       </div>
 
       {/* POPUP */}
@@ -340,6 +270,34 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
           </ScrollArea>}
         </div>
       )}
+
+      {/* CREATE PATIENT DIALOG */}
+      <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+        <DialogContent className="max-w-3xl!">
+          <DialogHeader>
+            <DialogTitle>Customer Register</DialogTitle>
+          </DialogHeader>
+          <RegisterPatient
+            patient={{ name: input }}
+            onClose={async (id?: string, name?: string, allergies?: string, mrn?: string) => {
+              setOpenCreate(false);
+              if (id && name) {
+                // To display instantly:
+                handleSelect({ _id: id, name, allergies: allergies || "", mrn: mrn || "" });
+                // Attempt to fetch full data (with mrn, age, etc.)
+                try {
+                  const { data } = await api.get(`/patients/${id}`);
+                  if (data && data.data) {
+                    handleSelect(data.data);
+                  }
+                } catch (error) {
+                  console.error("Failed to fetch full patient details", error);
+                }
+              }
+            }}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

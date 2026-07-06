@@ -6,7 +6,7 @@ import HospitalName from "@/components/print/HospitalName";
 
 interface ReportCardProps {
     report: any | null;
-    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string }[];
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string; department?: string }[];
     panelPerPage?: boolean;
 }
 
@@ -14,9 +14,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
 
 
-    const isCBCPanelIncluded = report?.panels?.some((panel: any) =>
-        panel.includes("CBC")
-    ) ?? false;
+
 
     const [mounted, setMounted] = useState(false);
 
@@ -130,9 +128,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             border-collapse: collapse;
           }
           .col-investigation { width: 40%; }
-          .col-result { width: 10%; }
-          .col-unit { width: 14%; }
-          .col-ref { width: 22%; }
+          .col-result { width: 18%; }
+          .col-unit { width: 12%; }
+          .col-ref { width: 30%; }
           .col-note { width: 14%; }
 
           .bottom-grouping {
@@ -160,8 +158,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
       `}} />
 
             {(() => {
-                const FIRST_PAGE_LIMIT = isCBCPanelIncluded ? 28 : 20;
-                const SUBSEQUENT_PAGE_LIMIT = isCBCPanelIncluded ? 20 : 20;
+                const getRowLimit = (pageGroup: string, isFirstPageInGroup: boolean) => {
+                    if (pageGroup === "HAEMATOLOGY_CBC") return isFirstPageInGroup ? 29 : 20;
+                    return 25; // Adjusted down from 38 to ensure footer is visible without overflowing
+                };
 
                 // 1. Prepare All Rows (Panel Headers + Tests)
                 const allRows: any[] = [];
@@ -172,12 +172,34 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 const processedTestIds = new Set<string>();
 
-                (report.panels || []).forEach((panelIdStr: string) => {
+                const getDepartmentWeight = (dept: string) => {
+                    if (!dept) return 99;
+                    const d = dept.toUpperCase();
+                    if (d.includes("HEMATOLOGY") || d.includes("HAEMATOLOGY")) return 1;
+                    if (d.includes("BIOCHEMISTRY")) return 2;
+                    if (d.includes("SEROLOGY")) return 3;
+                    if (d.includes("IMMUNOLOGY")) return 4;
+                    if (d.includes("CLINICAL PATHOLOGY")) return 5;
+                    return 99;
+                };
+
+                const deptGroups = new Map<string, { panels: any[][], singles: any[] }>();
+
+                const getGroup = (dept: string) => {
+                    const d = dept || "";
+                    if (!deptGroups.has(d)) {
+                        deptGroups.set(d, { panels: [], singles: [] });
+                    }
+                    return deptGroups.get(d)!;
+                };
+
+                [...(report.panels || [])].forEach((panelIdStr: string) => {
                     const panelId = panelIdStr.toString();
                     const panelTests = (report.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
                     if (panelTests.length === 0) return;
 
                     const panelConfig = panels?.find(p => p.name === panelId);
+                    const panelDept = panelConfig?.department || panelTests[0]?.name?.department || "";
 
                     let orderedIds: string[] = [];
                     for (const t of panelTests) {
@@ -196,14 +218,16 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     let currentSubheadingState: string | null = null;
                     let pendingSubheading: string | null = null;
 
-                    const isBiochemistry = panelConfig?.mainHeading?.toUpperCase() === "BIOCHEMISTRY";
+                    const isBiochemistry = panelConfig?.mainHeading?.toUpperCase() === "BIOCHEMISTRY" || panelConfig?.name?.toUpperCase() === "BIOCHEMISTRY";
                     let panelRow: any = {
                         type: "PANEL",
                         name: panelId,
                         activePanel: isBiochemistry ? "" : panelId,
-                        mainHeading: panelConfig?.mainHeading
+                        mainHeading: panelConfig?.mainHeading || panelConfig?.name,
+                        department: panelDept
                     };
                     let panelPushed = isBiochemistry;
+                    const currentPanelRows: any[] = [];
 
                     orderedIds.forEach(id => {
                         const t = testMap.get(id);
@@ -222,29 +246,119 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                             if (hasValue) {
                                 if (!panelPushed) {
-                                    allRows.push(panelRow);
+                                    currentPanelRows.push(panelRow);
                                     panelPushed = true;
                                 }
                                 if (pendingSubheading) {
-                                    allRows.push({ type: "SUBHEADING", name: pendingSubheading, activePanel: isBiochemistry ? "" : panelId });
+                                    currentPanelRows.push({
+                                        type: "SUBHEADING",
+                                        name: pendingSubheading,
+                                        activePanel: isBiochemistry ? "" : panelId,
+                                        department: panelDept,
+                                        mainHeading: panelConfig?.mainHeading || panelConfig?.name
+                                    });
                                     pendingSubheading = null;
                                 }
-                                allRows.push({ type: "TEST", ...t, activePanel: isBiochemistry ? "" : panelId, hasSubheading: !!expectedSubheading });
+                                currentPanelRows.push({
+                                    type: "TEST",
+                                    ...t,
+                                    activePanel: isBiochemistry ? "" : panelId,
+                                    hasSubheading: !!expectedSubheading,
+                                    department: panelDept,
+                                    mainHeading: panelConfig?.mainHeading || panelConfig?.name
+                                });
                             }
 
                             processedTestIds.add(id);
                             testMap.delete(id);
                         }
                     });
+
+                    if (currentPanelRows.length > 0) {
+                        getGroup(panelDept).panels.push(currentPanelRows);
+                    }
                 });
 
                 Array.from(testMap.values()).forEach((t: any) => {
                     const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
                     if (valStr !== "") {
-                        const testCategory = t.name?.category ? `CATEGORY_${String(t.name.category).trim().toUpperCase()}` : "";
-                        allRows.push({ type: "TEST", ...t, activePanel: testCategory });
+                        const dept = t.name?.department || "";
+                        const testGroup = dept ? `DEPT_${String(dept).trim().toUpperCase()}` : "";
+                        getGroup(dept).singles.push({ type: "TEST", ...t, activePanel: testGroup, department: dept });
                     }
                 });
+
+                const getPanelWeight = (panelName: string) => {
+                    const p = panelName?.toUpperCase() || "";
+                    if (p.includes("LIPID PROFILE")) return 1;
+                    if (p.includes("RENAL FUNCTION") || p.includes("RFT")) return 2;
+                    if (p.includes("LIVER FUNCTION") || p.includes("LFT")) return 3;
+                    return 99;
+                };
+
+                const getSingleTestWeight = (testName: string) => {
+                    const t = testName?.toUpperCase() || "";
+                    if (t.includes("SUGAR") || t.includes("FBS") || t.includes("RBS") || t.includes("PPBS") || t.includes("FASTING") || t.includes("RANDOM")) return 1;
+                    return 99;
+                };
+
+                const sortedDepts = Array.from(deptGroups.keys()).sort((a, b) => {
+                    const weightA = getDepartmentWeight(a);
+                    const weightB = getDepartmentWeight(b);
+                    if (weightA !== weightB) return weightA - weightB;
+                    return a.localeCompare(b);
+                });
+
+                sortedDepts.forEach(dept => {
+                    const group = deptGroups.get(dept)!;
+
+                    // Sort single tests
+                    group.singles.sort((a, b) => {
+                        const wA = getSingleTestWeight(a.name?.name);
+                        const wB = getSingleTestWeight(b.name?.name);
+                        if (wA !== wB) return wA - wB;
+                        return (a.name?.name || "").localeCompare(b.name?.name || "");
+                    });
+
+                    // Sort panels
+                    group.panels.sort((aRows, bRows) => {
+                        const aName = aRows[0]?.activePanel || "";
+                        const bName = bRows[0]?.activePanel || "";
+                        const wA = getPanelWeight(aName);
+                        const wB = getPanelWeight(bName);
+                        if (wA !== wB) return wA - wB;
+                        return aName.localeCompare(bName);
+                    });
+
+                    // Single tests before panels
+                    group.singles.forEach(row => allRows.push(row));
+
+                    group.panels.forEach(panelRows => {
+                        panelRows.forEach(row => allRows.push(row));
+                    });
+                });
+
+                const getPageGroup = (row: any) => {
+                    const activePanelStr = typeof row.activePanel === 'string' ? row.activePanel.toUpperCase() : "";
+                    const nameStr = typeof row.name === 'string' ? row.name.toUpperCase() : "";
+                    const deptStr = typeof row.department === 'string' ? row.department.toUpperCase() : "";
+                    const mainHeadingStr = typeof row.mainHeading === 'string' ? row.mainHeading.toUpperCase() : "";
+
+                    const isCBC = activePanelStr.includes("COMPLETE BLOOD COUNT") || nameStr.includes("COMPLETE BLOOD COUNT") || mainHeadingStr.includes("COMPLETE BLOOD COUNT") || activePanelStr.includes("CBC") || nameStr.includes("CBC") || mainHeadingStr.includes("CBC");
+
+                    if (isCBC) {
+                        return "HAEMATOLOGY_CBC";
+                    }
+                    if (deptStr.includes("CLINICAL PATHOLOGY") || activePanelStr.includes("CLINICAL PATHOLOGY") || nameStr.includes("CLINICAL PATHOLOGY") || mainHeadingStr.includes("CLINICAL PATHOLOGY")) {
+                        return "CLINICAL PATHOLOGY";
+                    }
+                    return "GENERAL";
+                };
+
+                const cbcRows = allRows.filter(row => getPageGroup(row) === "HAEMATOLOGY_CBC");
+                const cpRows = allRows.filter(row => getPageGroup(row) === "CLINICAL PATHOLOGY");
+                const generalRows = allRows.filter(row => getPageGroup(row) === "GENERAL");
+                const sortedAllRows = [...cbcRows, ...generalRows, ...cpRows];
 
                 // 2. Chunk Into Pages
                 const pages: any[][] = [];
@@ -253,7 +367,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     const panelGroups: Record<string, any[]> = {};
                     const panelOrder: string[] = [];
 
-                    allRows.forEach((row) => {
+                    sortedAllRows.forEach((row) => {
                         const p = row.activePanel || "misc";
                         if (!panelGroups[p]) {
                             panelGroups[p] = [];
@@ -268,7 +382,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         let panelPageCount = 0;
                         while (pIdx < rows.length) {
                             const isFirstPageOfPanel = panelPageCount === 0;
-                            const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                            const pageGroup = getPageGroup(rows[0] || {});
+                            const limit = getRowLimit(pageGroup, isFirstPageOfPanel);
                             const slice = rows.slice(pIdx, pIdx + limit);
                             const isLastPageOfPanel = (pIdx + limit) >= rows.length;
 
@@ -283,12 +398,45 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         }
                     });
                 } else {
-                    let currentIndex = 0;
-                    while (currentIndex < allRows.length) {
-                        const isFirstPage = pages.length === 0;
-                        const limit = isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
-                        pages.push(allRows.slice(currentIndex, currentIndex + limit));
-                        currentIndex += limit;
+                    let currentChunk: any[] = [];
+                    let currentPageGroup: string | null = null;
+                    let lastPanel: string | null = null;
+                    let lastDept: string | null = null;
+
+                    for (let i = 0; i < sortedAllRows.length; i++) {
+                        const row = sortedAllRows[i];
+                        const pageGroup = getPageGroup(row);
+                        const rowPanel = row.activePanel;
+                        const rowDept = row.department;
+
+                        const limit = getRowLimit(pageGroup, pages.filter(p => getPageGroup(p[0]) === pageGroup).length === 0);
+
+                        let forceBreak = false;
+                        if (currentChunk.length > 0) {
+                            if ((currentPageGroup !== null && pageGroup !== currentPageGroup) || currentChunk.length >= limit) {
+                                forceBreak = true;
+                            } else {
+                                const isNewPanel = rowPanel && rowPanel !== lastPanel;
+                                const isNewDept = rowDept && rowDept !== lastDept;
+                                // If a new panel or department is starting and there's 4 or fewer rows of space left, break early.
+                                if ((isNewPanel || isNewDept) && (limit - currentChunk.length) <= 4) {
+                                    forceBreak = true;
+                                }
+                            }
+                        }
+
+                        if (forceBreak) {
+                            pages.push(currentChunk);
+                            currentChunk = [];
+                        }
+
+                        currentChunk.push(row);
+                        currentPageGroup = pageGroup;
+                        lastPanel = rowPanel;
+                        lastDept = rowDept;
+                    }
+                    if (currentChunk.length > 0) {
+                        pages.push(currentChunk);
                     }
                 }
 
@@ -301,7 +449,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     const isLastPage = panelPerPage ? (pageRows[pageRows.length - 1]?.isPanelEnd || false) : pageIdx === pages.length - 1;
                     const pageHasCBC = pageRows.some(row => {
                         const pName = row.activePanel || row.name;
-                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
+                        const mHeading = row.mainHeading;
+                        return (pName && typeof pName === 'string' && (pName.toUpperCase().includes("COMPLETE BLOOD COUNT") || pName.toUpperCase().includes("CBC"))) ||
+                            (mHeading && typeof mHeading === 'string' && (mHeading.toUpperCase().includes("COMPLETE BLOOD COUNT") || mHeading.toUpperCase().includes("CBC")));
                     });
 
                     return (
@@ -312,7 +462,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             </div>
 
                             {/* 🏥 DIGITAL HEADER */}
-                            {isFirstPage && (
+                            {true && (
                                 <div className="relative w-full bg-white text-black flex flex-col pt-0 break-inside-avoid">
                                     {/* Content Wrapper */}
                                     <div className="w-full relative flex justify-between items-start pt-5 pb-1.25 px-10">
@@ -350,7 +500,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                             {/* BODY */}
                             <div className="report-body">
-                                {isFirstPage && (
+                                {true && (
                                     <div className="mb-3 pt-3 pb-3 border-y border-slate-300">
                                         <div className="grid grid-cols-2 gap-x-8 text-[13px] font-semibold text-black tracking-tight px-2">
                                             <div className="space-y-1">
@@ -371,19 +521,15 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     </div>
                                 )}
 
-                                {/* PANEL HEADINGS (Moved above the table headings) */}
+                                {/* DEPARTMENT HEADING (Moved above the table headings) */}
                                 {(() => {
                                     const firstRow = pageRows[0];
-                                    const activePanelId = firstRow?.activePanel || firstRow?.name;
-                                    const activePanelConfig = panels?.find(p => p?.name === activePanelId);
+                                    const departmentText = firstRow?.department || "";
 
-                                    const firstTestRow = pageRows.find(r => r.type === "TEST");
-                                    const categoryText = firstTestRow?.name?.category ? String(firstTestRow.name.category).trim() : "";
-                                    const headingText = activePanelConfig?.mainHeading || categoryText || "Biochemistry";
-                                    return isFirstPage && Boolean(headingText) ? (
-                                        <div className="w-full text-center pb-2 pt-1">
-                                            <p className="font-bold text-black text-[17px] uppercase">
-                                                {headingText}
+                                    return departmentText ? (
+                                        <div className="w-full text-center pb-2 pt-1 flex flex-col items-center justify-center gap-1">
+                                            <p className="font-bold text-black text-[18px] uppercase underline underline-offset-4">
+                                                {departmentText.toLowerCase().includes("department") ? departmentText : `${departmentText}`}
                                             </p>
                                         </div>
                                     ) : <div className="h-12"></div>;
@@ -396,15 +542,13 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 <col className="col-result" />
                                                 <col className="col-unit" />
                                                 <col className="col-ref" />
-                                                <col className="col-note" />
                                             </colgroup>
                                             <thead className="bg-transparent border-none">
                                                 <tr>
                                                     <th className="px-2 py-[5.5px] text-left">Parameter</th>
-                                                    <th className="px-2 py-[5.5px] text-center">Result</th>
-                                                    <th className="px-2 py-[5.5px] text-center">Unit</th>
+                                                    <th className="px-2 py-[5.5px] text-left">Result</th>
+                                                    <th className="px-2 py-[5.5px] text-left">Unit</th>
                                                     <th className="px-2 py-[5.5px] text-left">Ref. Range</th>
-                                                    <th className="px-2 py-[5.5px] text-left">Note</th>
                                                 </tr>
                                             </thead>
                                         </table>
@@ -425,21 +569,50 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 <col className="col-result" />
                                                 <col className="col-unit" />
                                                 <col className="col-ref" />
-                                                <col className="col-note" />
                                             </colgroup>
                                             <tbody>
 
 
                                                 {(() => {
                                                     return pageRows.map((row, rowIdx) => {
+                                                        const currentDept = row.department;
+                                                        const prevDept = rowIdx > 0 ? pageRows[rowIdx - 1].department : currentDept;
+                                                        const showDept = rowIdx > 0 && currentDept && currentDept !== prevDept;
+
+                                                        const deptRow = showDept ? (
+                                                            <tr key={`dept-${rowIdx}`}>
+                                                                <td colSpan={4} className="px-0 pt-3 pb-2 text-center">
+                                                                    <p className="font-bold text-black text-[17px] uppercase mt-1 underline underline-offset-4 mb-1">
+                                                                        {currentDept.toLowerCase().includes("department") ? currentDept : `${currentDept}`}
+                                                                    </p>
+                                                                </td>
+                                                            </tr>
+                                                        ) : null;
+
                                                         if (row.type === "PANEL") {
-                                                            if (rowIdx === 0) return null;
+                                                            const nextRow = pageRows[rowIdx + 1];
+                                                            const isNextRowSubheading = nextRow && nextRow.type === "SUBHEADING";
+                                                            const isNextSame = isNextRowSubheading && (
+                                                                nextRow.name?.toUpperCase() === row.mainHeading?.toUpperCase()
+                                                            );
+
+                                                            const isSameAsDept = row.mainHeading?.toUpperCase() === row.department?.toUpperCase();
+
+                                                            if (isNextSame || isSameAsDept) {
+                                                                return <React.Fragment key={`panel-${rowIdx}`}>{deptRow}</React.Fragment>;
+                                                            }
+
                                                             return (
-                                                                row.mainHeading && <tr key={`panel-${rowIdx}`}>
-                                                                    <td colSpan={5} className="px-0 pt-2">
-                                                                        <p className="font-bold text-black text-[15px] uppercase mt-1 text-center">{row.mainHeading}</p>
-                                                                    </td>
-                                                                </tr>
+                                                                <React.Fragment key={`panel-${rowIdx}`}>
+                                                                    {deptRow}
+                                                                    {row.mainHeading ? (
+                                                                        <tr>
+                                                                            <td colSpan={4} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                                <p className="font-semibold text-black text-[13px] uppercase underline underline-offset-2">{row.mainHeading}</p>
+                                                                            </td>
+                                                                        </tr>
+                                                                    ) : null}
+                                                                </React.Fragment>
                                                             );
                                                         }
                                                         if (row.type === "SUBHEADING") {
@@ -454,33 +627,36 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                             const panelSpecimen = panel?.specimen
                                                             const subheadings = panel?.subheadings ?? []
                                                             return (
-                                                                <tr key={`subheading-${rowIdx}`}>
-                                                                    <td colSpan={5} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        <p className="font-semibold text-black text-[13px]">{row.name}</p>
-                                                                        {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
-                                                                        {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
+                                                                <React.Fragment key={`subheading-wrap-${rowIdx}`}>
+                                                                    {deptRow}
+                                                                    <tr key={`subheading-${rowIdx}`}>
+                                                                        <td colSpan={4} className={`pl-1 pt-1 relative ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                            <p className="font-semibold text-black text-[13px] underline underline-offset-2">{row.name}</p>
+                                                                            {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelMethod && <p className="text-[9px] text-black pl-0">Method: {panelMethod}</p>}
+                                                                            {(subheadings.length === 0 || subheadings[0] === row.name) && !!panelSpecimen && <p className="text-[9px] text-black pl-0">Specimen: {panelSpecimen}</p>}
 
-                                                                        {graphKey && pageHasCBC && (
-                                                                            <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
-                                                                                <div className="flex flex-col pt-2">
-                                                                                    <div className="text-[12px] font-extrabold text-black pl-1 mb-1">{graphKey} HISTOGRAM</div>
-                                                                                    {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
-                                                                                        <img
-                                                                                            src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
-                                                                                            alt={`${graphKey} Histogram`}
-                                                                                            className="w-full h-[130px] object-contain object-left mix-blend-multiply"
-                                                                                            style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
-                                                                                        />
-                                                                                    ) : (
-                                                                                        <div className="w-full h-[130px] border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">
-                                                                                            {graphKey} Graph Area
-                                                                                        </div>
-                                                                                    )}
+                                                                            {graphKey && pageHasCBC && (
+                                                                                <div className="absolute top-0 pointer-events-none" style={{ left: '100%', marginLeft: '25px', width: '240px' }}>
+                                                                                    <div className="flex flex-col pt-2">
+                                                                                        <div className="text-[12px] font-extrabold text-black pl-1 mb-1">{graphKey} HISTOGRAM</div>
+                                                                                        {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
+                                                                                            <img
+                                                                                                src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
+                                                                                                alt={`${graphKey} Histogram`}
+                                                                                                className="w-full h-[130px] object-contain object-left mix-blend-multiply"
+                                                                                                style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
+                                                                                            />
+                                                                                        ) : (
+                                                                                            <div className="w-full h-[130px] border border-dashed border-slate-200 rounded flex items-center justify-center text-black text-[10px]">
+                                                                                                {graphKey} Graph Area
+                                                                                            </div>
+                                                                                        )}
+                                                                                    </div>
                                                                                 </div>
-                                                                            </div>
-                                                                        )}
-                                                                    </td>
-                                                                </tr>
+                                                                            )}
+                                                                        </td>
+                                                                    </tr>
+                                                                </React.Fragment>
                                                             );
                                                         }
 
@@ -488,14 +664,15 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                         let isAbnormal = false;
                                                         const min = row.name?.range?.[0]?.min;
                                                         const max = row.name?.range?.[0]?.max;
-                                                        if (!isNaN(value) && ((min !== undefined && min !== null && value < min) || (max !== undefined && max !== null && value > max))) {
-                                                            isAbnormal = true;
+                                                        const upto = row.name?.range?.[0]?.upto;
+                                                        if (!isNaN(value)) {
+                                                            if (min !== undefined && min !== null && value < min) isAbnormal = true;
+                                                            else if (max !== undefined && max !== null && value > max) isAbnormal = true;
+                                                            else if (upto !== undefined && upto !== null && value > upto) isAbnormal = true;
                                                         }
-
-
                                                         return (
                                                             <React.Fragment key={`test-wrap-${rowIdx}`}>
-
+                                                                {deptRow}
                                                                 <tr key={`test-${rowIdx}`}>
                                                                     <td className={`pl-2 pt-[3px] ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <p className={`text-[12px]  text-black font-semibold pl-0`}>
@@ -504,37 +681,45 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                                         {!!row?.name?.method && <p className="text-[9px] text-black pl-0">Method: {row.name?.method}</p>}
                                                                         {!!row?.name?.specimen && <p className="text-[9px] text-black pl-0">Specimen: {row.name?.specimen}</p>}
                                                                     </td>
-                                                                    <td className={`px-2 pt-[3px] text-center text-[12px] leading-tight whitespace-nowrap ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <td className={`px-2 pt-[3px] text-left text-[12px] leading-tight whitespace-nowrap ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         <span className={isAbnormal ? "font-bold" : "text-black font-bold"}>
                                                                             {row.value || " "}
                                                                         </span>
                                                                     </td>
-                                                                    <td className={`px-2 pt-[3px] text-center text-black text-[12px] font-medium leading-tight ${rowIdx === 0 ? "pt-0" : ""}`}>
+                                                                    <td className={`px-2 pt-[3px] text-left text-[11px] leading-tight whitespace-nowrap font-semibold text-black ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         {row.name?.unit && String(row.name.unit).trim() !== "-" && String(row.name.unit).trim() !== "—" ? (
                                                                             <span dangerouslySetInnerHTML={{ __html: row.name.unit }} />
-                                                                        ) : (
-                                                                            " "
-                                                                        )}
+                                                                        ) : null}
                                                                     </td>
                                                                     <td className={`px-2 pt-[3px] text-[12px] font-semibold text-black ${rowIdx === 0 ? "pt-0" : ""}`}>
                                                                         {row.name?.range && row.name.range.length > 0 ? (
                                                                             row.name.range.map((r: any, idx: number) => {
                                                                                 const hasMin = r.min !== undefined && r.min !== null && r.min !== "";
                                                                                 const hasMax = r.max !== undefined && r.max !== null && r.max !== "";
-                                                                                if (!hasMin && !hasMax) return null;
+                                                                                const hasUpto = r.upto !== undefined && r.upto !== null && r.upto !== "";
+                                                                                if (!hasMin && !hasMax && !hasUpto) return null;
+
+                                                                                let rangeDisplay = "";
+                                                                                if (hasUpto) {
+                                                                                    rangeDisplay = `Upto ${r.upto}`;
+                                                                                } else if (hasMin && hasMax) {
+                                                                                    rangeDisplay = `${r.min} - ${r.max}`;
+                                                                                } else if (hasMin) {
+                                                                                    rangeDisplay = `> ${r.min}`;
+                                                                                } else if (hasMax) {
+                                                                                    rangeDisplay = `< ${r.max}`;
+                                                                                }
+
                                                                                 return (
                                                                                     <div key={idx} className="whitespace-nowrap pb-[2px]">
                                                                                         {r.name && (row.name.range.length > 1 || r.name.toLowerCase() !== "normal") ? (
                                                                                             <span className="font-medium opacity-80 pr-1">{r.name}:</span>
                                                                                         ) : null}
-                                                                                        {hasMin ? r.min : "0"} - {hasMax ? r.max : "N/A"}
+                                                                                        {rangeDisplay}
                                                                                     </div>
                                                                                 );
                                                                             })
                                                                         ) : "\u00A0"}
-                                                                    </td>
-                                                                    <td className={`px-2 pt-[3px] text-[12px] text-black whitespace-pre-wrap ${rowIdx === 0 ? "pt-0" : ""}`}>
-                                                                        {row.name?.note}
                                                                     </td>
                                                                 </tr>
 
@@ -552,7 +737,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                             {/* SIGNATURE & FOOTER (Pinned to Bottom) */}
                             <div className="bottom-grouping">
-                                {isLastPage && (
+                                {isLastPage ? (
                                     <>
                                         <div className="text-center w-full mb-1 mt-1">
                                             <p className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">*** End of Report ***</p>
@@ -570,9 +755,11 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                             </div>
                                         </div>
-
-
                                     </>
+                                ) : (
+                                    <div className="text-center w-full mb-3 mt-2">
+                                        <p className="text-[10px] font-bold text-black uppercase tracking-[0.2em]">*** Continue ***</p>
+                                    </div>
                                 )}
 
                                 <div className="px-10 py-3 text-black flex justify-between items-center footer" style={{ backgroundColor: '#f2cdbf' }}>

@@ -5,7 +5,7 @@ import useSWR from "swr";
 
 interface ReportCardModernProps {
     report: any | null;
-    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string; }[];
+    panels?: { name: string; price: number; estimatedTime?: number; mainHeading?: string; subheadings?: string[]; testSubheadings?: Record<string, string>; tests?: any[]; method?: string; specimen?: string; department?: string; }[];
     panelPerPage?: boolean;
 }
 
@@ -47,7 +47,7 @@ const RangeBar = ({ min, max, value, markerColor }: { min: any, max: any, value:
                 }}
             >
                 {value}
-                <div className="absolute -bottom-[11px] left-1/2 -translate-x-1/2 w-px h-[12px] bg-black"
+                <div className="absolute bottom-[-11px] left-1/2 -translate-x-1/2 w-px h-[12px] bg-black"
                     style={{ borderTopColor: markerColor }}></div>
             </div>
         </div>
@@ -155,12 +155,57 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
 
                 const processedTestIds = new Set<string>();
 
-                (report.panels || []).forEach((panelIdStr: string) => {
+                const getPanelWeight = (panelName: string) => {
+                    const p = panelName?.toUpperCase() || "";
+                    if (p.includes("LIPID PROFILE")) return 1;
+                    if (p.includes("RENAL FUNCTION") || p.includes("RFT")) return 2;
+                    if (p.includes("LIVER FUNCTION") || p.includes("LFT")) return 3;
+                    return 99;
+                };
+
+                const getSingleTestWeight = (testName: string) => {
+                    const t = testName?.toUpperCase() || "";
+                    if (t.includes("SUGAR") || t.includes("FBS") || t.includes("RBS") || t.includes("PPBS") || t.includes("FASTING") || t.includes("RANDOM")) return 1;
+                    return 99;
+                };
+
+                const sortedPanels = [...(report.panels || [])].sort((a, b) => {
+                    const deptA = panels?.find(p => p.name === a.toString())?.department || "";
+                    const deptB = panels?.find(p => p.name === b.toString())?.department || "";
+                    if (deptA !== deptB) return deptA.localeCompare(deptB);
+                    const pA = panels?.find(p => p.name === a.toString())?.name || a.toString();
+                    const pB = panels?.find(p => p.name === b.toString())?.name || b.toString();
+                    const wA = getPanelWeight(pA);
+                    const wB = getPanelWeight(pB);
+                    if (wA !== wB) return wA - wB;
+                    return pA.localeCompare(pB);
+                });
+
+                const independentTests = Array.from(testMap.values()).sort((a: any, b: any) => {
+                    const deptA = a.name?.department || "";
+                    const deptB = b.name?.department || "";
+                    if (deptA !== deptB) return deptA.localeCompare(deptB);
+                    const wA = getSingleTestWeight(a.name?.name);
+                    const wB = getSingleTestWeight(b.name?.name);
+                    if (wA !== wB) return wA - wB;
+                    return (a.name?.name || "").localeCompare(b.name?.name || "");
+                });
+
+                independentTests.forEach((t: any) => {
+                    const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
+                    if (valStr !== "") {
+                        const testGroup = t.name?.department ? `DEPT_${String(t.name.department).trim().toUpperCase()}` : "";
+                        allRows.push({ type: "TEST", ...t, activePanel: testGroup, department: t.name?.department });
+                    }
+                });
+
+                sortedPanels.forEach((panelIdStr: string) => {
                     const panelId = panelIdStr.toString();
                     const panelTests = (report.test || []).filter((t: any) => t.name?.panels?.some((p: any) => p.name === panelId));
                     if (panelTests.length === 0) return;
 
                     const panelConfig = panels?.find(p => p.name === panelId);
+                    const panelDept = panelConfig?.department;
 
                     let orderedIds: string[] = [];
                     for (const t of panelTests) {
@@ -179,12 +224,13 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                     let currentSubheadingState: string | null = null;
                     let pendingSubheading: string | null = null;
 
-                    const isBiochemistry = panelConfig?.mainHeading?.toUpperCase() === "BIOCHEMISTRY";
+                    const isBiochemistry = panelConfig?.mainHeading?.toUpperCase() === "BIOCHEMISTRY" || panelConfig?.name?.toUpperCase() === "BIOCHEMISTRY";
                     let panelRow: any = {
                         type: "PANEL",
                         name: panelId,
                         activePanel: isBiochemistry ? "" : panelId,
-                        mainHeading: panelConfig?.mainHeading || panelId
+                        mainHeading: panelConfig?.mainHeading || panelConfig?.name || panelId,
+                        department: panelDept
                     };
                     let panelPushed = isBiochemistry;
 
@@ -209,10 +255,23 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                     panelPushed = true;
                                 }
                                 if (pendingSubheading) {
-                                    allRows.push({ type: "SUBHEADING", name: pendingSubheading, activePanel: isBiochemistry ? "" : panelId });
+                                    allRows.push({
+                                        type: "SUBHEADING",
+                                        name: pendingSubheading,
+                                        activePanel: isBiochemistry ? "" : panelId,
+                                        department: panelDept,
+                                        mainHeading: panelConfig?.mainHeading || panelConfig?.name
+                                    });
                                     pendingSubheading = null;
                                 }
-                                allRows.push({ type: "TEST", ...t, activePanel: isBiochemistry ? "" : panelId });
+                                allRows.push({
+                                    type: "TEST",
+                                    ...t,
+                                    activePanel: isBiochemistry ? "" : panelId,
+                                    hasSubheading: !!expectedSubheading,
+                                    department: panelDept,
+                                    mainHeading: panelConfig?.mainHeading || panelConfig?.name
+                                });
                             }
 
                             processedTestIds.add(id);
@@ -221,21 +280,30 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                     });
                 });
 
-                Array.from(testMap.values()).forEach((t: any) => {
-                    const valStr = t.value !== undefined && t.value !== null ? String(t.value).trim() : "";
-                    if (valStr !== "") {
-                        allRows.push({ type: "TEST", ...t, activePanel: "" });
-                    }
-                });
+                const getPageGroup = (row: any): string => {
+                    const dept = (row?.department || row?.name?.department || "").toString().trim().toUpperCase();
+                    if (dept.includes("HEMAT") || dept.includes("HAEMATO") || dept.includes("HAEMAT") || dept.includes("CBC") || dept.includes("BLOOD COUNT")) return "HAEMATOLOGY";
+                    if (dept.includes("CLINICAL PATH") || dept.includes("URINE") || dept.includes("STOOL") || dept.includes("MICRO")) return "CLINICAL PATHOLOGY";
+                    return "GENERAL";
+                };
+
+                const getRowLimit = (pageGroup: string, isFirstPage: boolean): number => {
+                    if (pageGroup === "HAEMATOLOGY") return isFirstPage ? 12 : 18;
+                    return isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                };
+
+                const hematologyRows = allRows.filter(row => getPageGroup(row) === "HAEMATOLOGY");
+                const cpRows = allRows.filter(row => getPageGroup(row) === "CLINICAL PATHOLOGY");
+                const generalRows = allRows.filter(row => getPageGroup(row) === "GENERAL");
+                const sortedAllRows = [...hematologyRows, ...generalRows, ...cpRows];
 
                 // 2. Chunk Into Pages
                 const pages: any[][] = [];
                 if (panelPerPage) {
-                    // Group all rows by panel ID to handle non-adjacent rows (like merged Biochemistry tests)
                     const panelGroups: Record<string, any[]> = {};
                     const panelOrder: string[] = [];
 
-                    allRows.forEach((row) => {
+                    sortedAllRows.forEach((row) => {
                         const p = row.activePanel || "misc";
                         if (!panelGroups[p]) {
                             panelGroups[p] = [];
@@ -248,9 +316,10 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                         const rows = panelGroups[p];
                         let pIdx = 0;
                         let panelPageCount = 0;
+                        const pageGroup = getPageGroup(rows[0]);
                         while (pIdx < rows.length) {
                             const isFirstPageOfPanel = panelPageCount === 0;
-                            const limit = isFirstPageOfPanel ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
+                            const limit = getRowLimit(pageGroup, isFirstPageOfPanel);
                             const slice = rows.slice(pIdx, pIdx + limit);
                             const isLastPageOfPanel = (pIdx + limit) >= rows.length;
 
@@ -265,12 +334,28 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                         }
                     });
                 } else {
-                    let currentIndex = 0;
-                    while (currentIndex < allRows.length) {
-                        const isFirstPage = pages.length === 0;
-                        const limit = isFirstPage ? FIRST_PAGE_LIMIT : SUBSEQUENT_PAGE_LIMIT;
-                        pages.push(allRows.slice(currentIndex, currentIndex + limit));
-                        currentIndex += limit;
+                    let currentChunk: any[] = [];
+                    let currentGroup = "";
+
+                    for (let i = 0; i < sortedAllRows.length; i++) {
+                        const row = sortedAllRows[i];
+                        const rowGroup = getPageGroup(row);
+
+                        const isFirstPageInGroup = currentChunk.length === 0;
+                        const limit = getRowLimit(rowGroup, isFirstPageInGroup);
+
+                        if (currentChunk.length > 0) {
+                            if (rowGroup !== currentGroup || currentChunk.length >= limit) {
+                                pages.push(currentChunk);
+                                currentChunk = [];
+                            }
+                        }
+
+                        currentChunk.push(row);
+                        currentGroup = rowGroup;
+                    }
+                    if (currentChunk.length > 0) {
+                        pages.push(currentChunk);
                     }
                 }
 
@@ -281,10 +366,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                 return pages.map((pageRows, pageIdx) => {
                     const isFirstPage = panelPerPage ? (pageRows[0]?.isPanelStart || false) : pageIdx === 0;
                     const isLastPage = panelPerPage ? (pageRows[pageRows.length - 1]?.isPanelEnd || false) : pageIdx === pages.length - 1;
-                    const pageHasCBC = pageRows.some(row => {
-                        const pName = row.activePanel || row.name;
-                        return pName && typeof pName === 'string' && pName.toUpperCase().includes("CBC");
-                    });
+                    const pageHasCBC = pageRows.some(row => getPageGroup(row) === "HAEMATOLOGY");
 
                     return (
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'}`}>
@@ -333,11 +415,12 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                     const activePanelId = pageRows.find(r => r.activePanel)?.activePanel;
                                     const headingText = firstPanelRow?.mainHeading ||
                                         panels?.find(p => p.name === activePanelId)?.mainHeading ||
+                                        panels?.find(p => p.name === activePanelId)?.name ||
                                         activePanelId || "BIOCHEMISTRY";
 
                                     return isFirstPage && (
                                         <div className="w-full text-center mb-3">
-                                            <h2 className="text-[14px] font-black text-[#6eb269] uppercase tracking-[0.05em]">{headingText}</h2>
+                                            <h2 className="text-[14px] font-black text-[#6eb269] uppercase tracking-wider">{headingText}</h2>
                                         </div>
                                     );
                                 })()}
@@ -399,19 +482,25 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                     if (row.type !== "TEST") return null;
 
                                                     const v = parseFloat(row.value);
-                                                    let min, max;
+                                                    let min, max, upto;
                                                     if (row.name?.range?.[0]) {
                                                         min = row.name.range[0].min;
                                                         max = row.name.range[0].max;
+                                                        upto = row.name.range[0].upto;
                                                     }
 
                                                     let label = "NORMAL";
                                                     let color = "#6eb269"; // green
                                                     let pillClass = "bg-[#6eb269]";
-                                                    if (min !== undefined && v < min) { label = "LOW"; color = "#f39130"; pillClass = "bg-[#f39130]" }
-                                                    else if (max !== undefined && v > max) { label = "HIGH"; color = "#e12a32"; pillClass = "bg-[#e12a32]" }
-                                                    else if (min !== undefined && v === min) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
-                                                    else if (max !== undefined && v === max) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+
+                                                    if (!isNaN(v)) {
+                                                        if (min !== undefined && min !== null && v < min) { label = "LOW"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                        else if (max !== undefined && max !== null && v > max) { label = "HIGH"; color = "#e12a32"; pillClass = "bg-[#e12a32]" }
+                                                        else if (upto !== undefined && upto !== null && v > upto) { label = "HIGH"; color = "#e12a32"; pillClass = "bg-[#e12a32]" }
+                                                        else if (min !== undefined && min !== null && v === min) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                        else if (max !== undefined && max !== null && v === max) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                        else if (upto !== undefined && upto !== null && v === upto) { label = "BORDERLINE"; color = "#f39130"; pillClass = "bg-[#f39130]" }
+                                                    }
 
                                                     // Special cases for visualization accuracy against the image
                                                     if (row.name?.name?.toUpperCase() === 'GLOBULIN') { label = 'BORDERLINE'; color = "#f39130"; pillClass = "bg-[#f39130]" }
@@ -419,7 +508,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                     return (
                                                         <tr key={"test-" + rowIdx} className="">
                                                             <td className="pt-[15px] px-6 text-left align-top border-b border-transparent">
-                                                                <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight">{row.name?.name  || "TEST"}</div>
+                                                                <div className="font-extrabold text-slate-800 tracking-wide text-[12px] leading-tight">{row.name?.name || "TEST"}</div>
                                                                 {row?.name?.method && <div className="text-[9px] text-slate-500 mt-[3px] font-medium tracking-wide">Method : {row.name?.method}</div>}
                                                                 {row?.name?.specimen && <div className="text-[8px] text-slate-500 mt-[3px] font-medium tracking-wide">Specimen : {row.name?.specimen}</div>}
                                                             </td>
@@ -430,11 +519,22 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
                                                                 {row.name?.unit ? <span dangerouslySetInnerHTML={{ __html: row.name.unit }} /> : ""}
                                                             </td>
                                                             <td className="pt-[4px] px-0 text-center align-top">
-                                                                {min !== undefined && max !== undefined ? (
-                                                                    <RangeBar min={min} max={max} value={row.value} markerColor={color} />
-                                                                ) : (
-                                                                    <div className="text-[11px] font-bold text-slate-600 mt-2">{row.name?.range?.[0]?.min} - {row.name?.range?.[0]?.max}</div>
-                                                                )}
+                                                                {(() => {
+                                                                    const hasMin = min !== undefined && min !== null && min !== "";
+                                                                    const hasMax = max !== undefined && max !== null && max !== "";
+                                                                    const hasUpto = upto !== undefined && upto !== null && upto !== "";
+                                                                    if (hasMin && hasMax) {
+                                                                        return <RangeBar min={min} max={max} value={row.value} markerColor={color} />
+                                                                    } else {
+                                                                        let rangeDisplay = "";
+                                                                        if (hasUpto) rangeDisplay = `Upto ${upto}`;
+                                                                        else if (hasMin) rangeDisplay = `> ${min}`;
+                                                                        else if (hasMax) rangeDisplay = `< ${max}`;
+                                                                        else return null;
+
+                                                                        return <div className="text-[11px] font-bold text-slate-600 mt-2">{rangeDisplay}</div>
+                                                                    }
+                                                                })()}
                                                             </td>
                                                             <td className="pt-[13px] px-4 text-center align-top">
                                                                 <div className={`${pillClass} text-white text-[9.5px] uppercase font-extrabold h-6 px-[2px] rounded-[6px] w-[78px] shadow-sm flex justify-center items-center`}>
@@ -460,7 +560,7 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
 
                             {/* Footer Section - Pinned to bottom manually by flex-1 above */}
                             <div className="w-full mt-auto">
-                                {isLastPage && (
+                                {isLastPage ? (
                                     <>
 
                                         <div className="text-center w-full mt-2">
@@ -511,6 +611,10 @@ export default function ReportCardModern({ report, panels, panelPerPage = false 
 
 
                                     </>
+                                ) : (
+                                    <div className="text-center w-full mt-3 mb-2">
+                                        <p className="text-[10px] font-extrabold text-slate-800 uppercase tracking-[0.2em]">*** Continue... ***</p>
+                                    </div>
                                 )}
 
                                 <div className="flex justify-between items-center w-full mt-4 ml-1 pr-[18px]">

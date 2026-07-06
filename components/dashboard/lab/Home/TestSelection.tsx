@@ -1,8 +1,15 @@
 import React, { useMemo, useRef, useState } from "react";
 
+export type TestOption = {
+    label: string;
+    value: string;
+    type?: string;
+    department?: string;
+};
+
 type TestSelectionProps = {
     onSelect?: (v: string) => void;
-    options: string[];
+    options: TestOption[];
 };
 
 export default function TestSelection({
@@ -30,7 +37,7 @@ export default function TestSelection({
     };
 
 
-    const filteredOptions = options.filter(opt => opt.toLowerCase().includes(text.toLowerCase()))
+    const filteredOptions = options.filter(opt => opt.label.toLowerCase().includes(text.toLowerCase()))
     const listboxRef = useRef<HTMLDivElement>(null);
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -55,15 +62,15 @@ export default function TestSelection({
             case "Enter":
                 e.preventDefault();
                 if (focusedIndex >= 0 && focusedIndex < filteredOptions.length) {
-                    commit(filteredOptions[focusedIndex]);
+                    commit(filteredOptions[focusedIndex].value);
                 } else {
                     // Utility: if text exactly matches an option, select it immediately
-                    const exactMatch = filteredOptions.find(o => o.toLowerCase() === text.toLowerCase());
+                    const exactMatch = filteredOptions.find(o => o.label.toLowerCase() === text.toLowerCase());
                     if (exactMatch) {
-                        commit(exactMatch);
+                        commit(exactMatch.value);
                     } else if (filteredOptions.length === 1 && text.length > 0) {
                         // Utility: auto-select the only option on Enter
-                        commit(filteredOptions[0]);
+                        commit(filteredOptions[0].value);
                     } else if (text.trim() !== "") {
                         // Allow completely custom free-text entry by committing typed text natively
                         commit(text);
@@ -99,21 +106,25 @@ export default function TestSelection({
                     ref={listboxRef}
                     className="absolute left-0 right-0 z-30 mt-1 rounded-xl border border-slate-200 bg-white shadow-lg max-h-64 overflow-y-auto p-1"
                 >
-                    {filteredOptions.map((opt: string, index: number) => (
+                    {filteredOptions.map((opt: TestOption, index: number) => (
                         <button
                             key={index}
                             type="button"
-                            className={`w-full text-left px-2 py-1.5 rounded-lg text-sm transition-colors ${index === focusedIndex
+                            className={`w-full flex items-center justify-between text-left px-3 py-2 rounded-lg text-sm transition-colors ${index === focusedIndex
                                 ? "bg-emerald-100 text-emerald-800 font-medium"
                                 : "bg-white hover:bg-emerald-50 hover:text-emerald-700"
                                 }`}
                             onMouseDown={(e) => {
                                 e.preventDefault();
-                                commit(opt);
+                                commit(opt.value);
                             }}
                             onMouseEnter={() => setFocusedIndex(index)}
                         >
-                            {opt}
+                            <div className="flex items-center gap-2">
+                                <span className="font-semibold text-slate-800">{opt.label}</span>
+                                {opt.department && <span className="text-[10px] uppercase font-semibold bg-blue-50 text-blue-700 border border-blue-200 px-2 py-0.5 rounded-full">{opt.department}</span>}
+                                {opt.type && <span className="text-[10px] uppercase font-semibold bg-slate-50 text-slate-600 border border-slate-200 px-2 py-0.5 rounded-full">{opt.type}</span>}
+                            </div>
                         </button>
                     ))}
 

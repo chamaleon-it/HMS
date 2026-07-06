@@ -127,14 +127,15 @@ export const DraftManager: React.FC = () => {
           {registerData && (
             <RegisterPatient
               patient={{ name: registerData.name }}
-              onClose={(id?: string, name?: string, allergies?: string) => {
+              onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
                 if (id && name) {
                   const draft = drafts.find(d => d.id === registerData.draftId);
                   if (draft) {
                     const isNoAllergy = (a?: string) => !a || ["none", "n/a", "no", "nil"].includes(a.trim().toLowerCase());
+                    const displayName = `${name}${mrn ? ` - (${mrn})` : ""}`;
                     updateDraft(registerData.draftId, {
                       payload: { ...draft.payload, patient: id, allergies: allergies || draft.payload.allergies },
-                      patientName: name,
+                      patientName: displayName,
                       hasAllergy: !isNoAllergy(allergies)
                     });
                   }

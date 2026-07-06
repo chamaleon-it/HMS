@@ -1,56 +1,36 @@
 import React from "react";
 import { formatINR } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import useSWR from "swr";
 
 interface PrintReceiptProps {
     payload?: {
         patient: string;
         items: {
             name: string;
-            generic?: string;
-            batchNumber?: string;
-            expiryDate?: string | Date;
             quantity: number;
             unitPrice: number;
+            discount: number;
             gst: number;
             total: number;
         }[];
         cash: number;
         online: number;
         insurance: number;
-        discount: number;
         doctor?: string;
-        department?: string;
-        note?: string;
     };
     patient?: {
         name: string;
         mrn?: string;
         phoneNumber?: string;
-        gender?: string;
-        dateOfBirth?: string | Date;
-        address?: string;
     } | null;
     invoiceDetails?: {
         prefix: string;
-        roundOffAmount: number;
         subtotal: number;
         totalGst: number;
         grandTotal: number;
+        mrn?: string;
     };
 }
-
-const formatExpiry = (dateStr?: string | Date) => {
-    if (!dateStr) return "";
-    const date = new Date(dateStr);
-    if (isNaN(date.getTime())) return String(dateStr);
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = months[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day} ${month} ${year}`;
-};
 
 export default function PrintReceipt({
     payload,
@@ -58,38 +38,9 @@ export default function PrintReceipt({
     invoiceDetails,
 }: PrintReceiptProps) {
 
-    const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
-    const dbItems = itemsData?.data || [];
-
-    const getBatchInfo = (itemName: string) => {
-        const matched = dbItems.find(
-            (it) => it.name.trim().toLowerCase() === itemName.trim().toLowerCase()
-        );
-        if (!matched) return { batchNumber: "", expiryDate: undefined, generic: undefined };
-        
-        let batchNumber = matched.batchNumber || "";
-        if (batchNumber === "—") batchNumber = "";
-        let expiryDate = matched.expiryDate;
-        
-        if (matched.batches && matched.batches.length > 0) {
-            const sorted = [...matched.batches].sort(
-                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-            batchNumber = sorted[0].batchNumber || "";
-            if (batchNumber === "—") batchNumber = "";
-            expiryDate = sorted[0].expiryDate || matched.expiryDate;
-        }
-        
-        return {
-            batchNumber,
-            expiryDate,
-            generic: matched.generic,
-        };
-    };
-
     if (!patient || !payload || !invoiceDetails) return null;
 
-    const invoiceNo = `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
+    const invoiceNo = invoiceDetails.mrn || `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
 
     // Total rows for fixed height table padding
     const ITEMS_PER_PAGE = 19;
@@ -207,7 +158,7 @@ export default function PrintReceipt({
                             </div>
                         </div>
 
-                        {/* 3. Medicine Table with Watermark & Fixed Height */}
+                        {/* 3. Item Table with Watermark & Fixed Height */}
                         <div className="relative border border-[#c5c9cf] rounded-tr-2xl rounded-tl-2xl overflow-hidden w-full mt-3 mb-2">
                             {/* Watermark */}
                             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0 select-none">
@@ -217,36 +168,25 @@ export default function PrintReceipt({
                             <table className="w-full border-collapse relative z-10 table-layout-fixed">
                                 <thead className="bg-[#d9d9d9] border-b border-[#c5c9cf] text-[11px] font-semibold text-black">
                                     <tr>
-                                        <th style={{ width: "5%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
-                                        <th style={{ width: "28%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Medicine Description</th>
-                                        <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Batch No</th>
-                                        <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Expiry Date</th>
-                                        <th style={{ width: "6%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Qty</th>
-                                        <th style={{ width: "10%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">Unit Price</th>
-                                        <th style={{ width: "5%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">GST</th>
-                                        <th style={{ width: "12%" }} className="px-3 py-2 text-right">Amount</th>
+                                        <th style={{ width: "6%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
+                                        <th style={{ width: "40%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Description</th>
+                                        <th style={{ width: "8%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Qty</th>
+                                        <th style={{ width: "12%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">Unit Price</th>
+                                        <th style={{ width: "10%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">Discount</th>
+                                        <th style={{ width: "8%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">GST</th>
+                                        <th style={{ width: "16%" }} className="px-3 py-2 text-right">Amount</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {pageItems.map((item, index) => {
                                         const globalIndex = (pageIndex * ITEMS_PER_PAGE) + index;
-                                        const dbInfo = getBatchInfo(item.name);
-                                        const rawBatch = item.batchNumber && item.batchNumber !== " " && item.batchNumber !== "—" ? item.batchNumber : dbInfo.batchNumber;
-                                        const displayBatch = rawBatch === "—" ? "" : rawBatch;
-                                        const displayExpiry = item.expiryDate ? item.expiryDate : dbInfo.expiryDate;
-                                        const displayGeneric = item.generic || dbInfo.generic;
-
                                         return (
                                             <tr key={globalIndex} className="h-[38px] bg-transparent">
                                                 <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{globalIndex + 1}</td>
-                                                <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug">
-                                                    <p className="font-bold text-black text-[12px]">{item.name}</p>
-                                                    {displayGeneric && <p className="text-[10px] text-gray-500 font-medium leading-none mt-0.5">{displayGeneric}</p>}
-                                                </td>
-                                                <td className="px-2 py-0.5 text-center text-black text-[12px] border-r border-[#c5c9cf]">{displayBatch}</td>
-                                                <td className="px-2 py-0.5 text-center text-black text-[12px] border-r border-[#c5c9cf]">{formatExpiry(displayExpiry)}</td>
+                                                <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug font-bold text-black text-[12px]">{item.name}</td>
                                                 <td className="px-2 py-0.5 text-center font-bold text-black text-[12px] border-r border-[#c5c9cf]">{item.quantity}</td>
                                                 <td className="px-2 py-0.5 text-right font-medium text-black text-[12px] border-r border-[#c5c9cf]">{formatINR(item.unitPrice)}</td>
+                                                <td className="px-2 py-0.5 text-right font-medium text-black text-[12px] border-r border-[#c5c9cf]">{formatINR(item.discount)}</td>
                                                 <td className="px-2 py-0.5 text-right font-medium text-black text-[12px] border-r border-[#c5c9cf]">{item.gst}%</td>
                                                 <td className="px-3 py-0.5 text-right font-bold text-black text-[12px]">{formatINR(item.total)}</td>
                                             </tr>
@@ -256,7 +196,6 @@ export default function PrintReceipt({
                                         <tr key={`empty-${idx}`} className="h-[38px] bg-transparent select-none">
                                             <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                             <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
-                                            <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                             <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                             <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                             <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
@@ -309,13 +248,6 @@ export default function PrintReceipt({
                                     <span className="font-bold">:</span>
                                     <span className="font-bold text-right">{formatINR(invoiceDetails.totalGst)}</span>
                                 </div>
-                                {payload.discount > 0 && (
-                                    <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
-                                        <span className="font-semibold text-gray-700">Discount</span>
-                                        <span className="font-bold">:</span>
-                                        <span className="font-bold text-right">-{formatINR(payload.discount)}</span>
-                                    </div>
-                                )}
                             </div>
 
                             {/* Divider Line */}
@@ -335,7 +267,7 @@ export default function PrintReceipt({
                     {/* Prescription validation disclaimer */}
                     <div className="w-[64%] select-none mt-1">
                         <p className="text-[10px] text-gray-500 font-semibold leading-tight">
-                            * This prescription is valid only if signed by registered medical practitioner.
+                            * This is a computer-generated invoice and does not require a signature.
                         </p>
                     </div>
 
