@@ -105,10 +105,40 @@ const CustomerContent: React.FC = () => {
                   <p className="text-sm text-slate-500 mt-0.5">
                     {patient?.address}
                   </p>
+
+                  {(patient?.weight || (patient?.allergies && patient?.allergies !== "Nil") || patient?.guardian || patient?.guardianPhoneNumber) && (
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-y-3 gap-x-4 mt-4 pt-4 border-t border-slate-100">
+                      {patient?.weight && (
+                        <div>
+                          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Weight</p>
+                          <p className="text-sm text-slate-900">{patient.weight} kg</p>
+                        </div>
+                      )}
+                      {patient?.allergies && patient?.allergies !== "Nil" && (
+                        <div>
+                          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Allergies</p>
+                          <p className="text-sm text-slate-900">{patient.allergies}</p>
+                        </div>
+                      )}
+                      {patient?.guardian && (
+                        <div>
+                          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Guardian ({patient.guardianRelation || 'Relation'})</p>
+                          <p className="text-sm text-slate-900">{patient.guardian}</p>
+                        </div>
+                      )}
+                      {patient?.guardianPhoneNumber && (
+                        <div>
+                          <p className="text-[11px] font-medium text-slate-500 uppercase tracking-wide">Guardian Phone</p>
+                          <p className="text-sm text-slate-900">{patient.guardianPhoneNumber}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
                     {reports?.length === 0 && (
                       <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
-                        No purchase history yet
+                        No lab history yet
                       </span>
                     )}
                   </div>
