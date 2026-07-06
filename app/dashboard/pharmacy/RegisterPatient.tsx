@@ -47,7 +47,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     defaultValues: {
       name: patient?.name || "",
       phoneNumber: patient?.phoneNumber || "",
-      doctor: patient?.doctor || user?._id,
+      doctor: patient?.doctor?._id || patient?.doctor || user?._id,
       gender: patient?.gender,
       dateOfBirth: patient?.dateOfBirth || "",
       age: patient?.age || "",
@@ -111,7 +111,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       reset({
         name: patient?.name || "",
         phoneNumber: patient?.phoneNumber || "",
-        doctor: patient?.doctor || user?._id,
+        doctor: patient?.doctor?._id || patient?.doctor || user?._id,
         gender: patient?.gender,
         dateOfBirth: patient?.dateOfBirth || "",
         age: patient?.age || "",

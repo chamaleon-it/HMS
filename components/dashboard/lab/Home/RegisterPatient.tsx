@@ -46,7 +46,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     defaultValues: {
       name: patient?.name || "",
       phoneNumber: patient?.phoneNumber || "",
-      doctor: patient?.doctor || user?._id,
+      doctor: patient?.doctor?._id || patient?.doctor || user?._id,
       gender: patient?.gender,
       dateOfBirth: patient?.dateOfBirth || "",
       age: patient?.age || "",
@@ -108,7 +108,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
       reset({
         name: patient?.name || "",
         phoneNumber: patient?.phoneNumber || "",
-        doctor: patient?.doctor || user?._id,
+        doctor: patient?.doctor?._id || patient?.doctor || user?._id,
         gender: patient?.gender,
         dateOfBirth: patient?.dateOfBirth || "",
         age: patient?.age || "",
@@ -118,29 +118,35 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
     }
   }, [patient]);
 
-  const createEditPatient = handleSubmit(async (data) => {
-    try {
-      if (patient?._id) {
-        await toast.promise(api.patch(`/patients/${patient._id}`, data), {
-          loading: "Updating customer...!",
-          error: ({ response }) => response.data.message,
-          success: `Customer updated successfully.`,
-        });
-        if (mutate) mutate();
-        onClose();
-      } else {
-        const { data: responseData } = await toast.promise(api.post("/patients", data), {
-          loading: "Customer is registering...!",
-          error: ({ response }) => response.data.message,
-          success: `Customer register successfully.`,
-        });
-        reset();
-        onClose(responseData.data._id, responseData.data.name, responseData.data.allergies, responseData.data.mrn);
+  const createEditPatient = handleSubmit(
+    async (data) => {
+      try {
+        if (patient?._id) {
+          await toast.promise(api.patch(`/patients/${patient._id}`, data), {
+            loading: "Updating customer...!",
+            error: ({ response }) => response.data.message,
+            success: `Customer updated successfully.`,
+          });
+          if (mutate) mutate();
+          onClose();
+        } else {
+          const { data: responseData } = await toast.promise(api.post("/patients", data), {
+            loading: "Customer is registering...!",
+            error: ({ response }) => response.data.message,
+            success: `Customer register successfully.`,
+          });
+          reset();
+          onClose(responseData.data._id, responseData.data.name, responseData.data.allergies, responseData.data.mrn);
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
+    },
+    (errors) => {
+      console.log("Validation errors:", errors);
+      toast.error("Please fill all required fields correctly.");
     }
-  });
+  );
 
   const [openCalander, setOpenCalander] = useState(false);
   const [dobSetFromAge, setDobSetFromAge] = useState(false);
