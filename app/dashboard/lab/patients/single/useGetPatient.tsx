@@ -2,12 +2,13 @@
 import useSWR from 'swr';
 
 export default function useGetPatient(id?: string) {
-    const { data: patient, error } = useSWR<DataTypes>(
+    const { data: patient, error, mutate } = useSWR<DataTypes>(
         id ? `patients/single/${id}` : null
     );
     return {
         data: patient?.data,
         error,
+        mutate,
     };
 }
 
@@ -34,4 +35,8 @@ export interface Data {
     mrn: string;
     createdAt: Date;
     updatedAt: Date;
+    weight?: number;
+    guardian?: string;
+    guardianRelation?: string;
+    guardianPhoneNumber?: string;
 }

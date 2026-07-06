@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps, Search } from "lucide-react";
+import { ArrowLeft, ChevronDownIcon, FlaskConical, Image as ImageIcon, LucideProps, Search, Pencil } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import AppShell from "@/components/layout/app-shell";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -22,6 +22,13 @@ import useGetPatient from "./useGetPatient";
 import { motion } from "framer-motion";
 import ReportCard from "@/components/dashboard/lab/Home/ReportCard";
 import useGetPanels from "@/data/useGetPanels";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { RegisterPatient } from "../../../pharmacy/RegisterPatient";
 
 const CustomerContent: React.FC = () => {
   const router = useRouter();
@@ -31,11 +38,12 @@ const CustomerContent: React.FC = () => {
     `/lab/report/patient/${id}`
   );
 
-  const { data: patient } = useGetPatient(id as string);
+  const { data: patient, mutate: mutatePatient } = useGetPatient(id as string);
   const { panels } = useGetPanels();
   const reports = reportData?.data;
   const [selectedVisit, setSelectedVisit] = useState<Datum | null>(null);
   const [selectedTests, setSelectedTests] = useState<string[]>([]);
+  const [editPatient, setEditPatient] = useState<any>(null);
 
   const [date, setDate] = React.useState<DateRange | undefined>(undefined);
   const [printReport, setPrintReport] = React.useState<any | null>(null);
@@ -70,7 +78,7 @@ const CustomerContent: React.FC = () => {
     <AppShell>
       <div className="bg-slate-50 p-5">
         <main className="space-y-6">
-          <div className="mb-2">
+          <div className="mb-2 flex justify-between items-center">
             <Button
               variant="outline"
               size="sm"
@@ -79,6 +87,15 @@ const CustomerContent: React.FC = () => {
             >
               <ArrowLeft className="w-4 h-4" />
               Back to customer
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-1 rounded-full border-slate-300 bg-white/80 hover:bg-slate-50 text-slate-700"
+              onClick={() => setEditPatient(patient)}
+            >
+              <Pencil className="w-4 h-4" />
+              Edit Patient
             </Button>
           </div>
           {error && <EmptyReport />}
@@ -610,6 +627,21 @@ const CustomerContent: React.FC = () => {
         </main>
       </div>
       {printReport && <ReportCard report={printReport} panels={panels} />}
+      <Dialog
+          open={Boolean(editPatient)}
+          onOpenChange={(v) => !v && setEditPatient(null)}
+      >
+          <DialogContent className="max-w-3xl!">
+              <DialogHeader>
+                  <DialogTitle>Edit Patient</DialogTitle>
+              </DialogHeader>
+              <RegisterPatient
+                  onClose={() => setEditPatient(null)}
+                  mutate={mutatePatient}
+                  patient={editPatient}
+              />
+          </DialogContent>
+      </Dialog>
     </AppShell>
   );
 };

@@ -17,22 +17,16 @@ import {
 } from "@/components/ui/select";
 
 import api from "@/lib/axios";
-import { fAge } from "@/lib/fDateAndTime";
-import registerPatientSchema from "@/schemas/registerPatientSchema";
+import registerPatientSchema, { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { ChevronDownIcon, UserRound, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { FieldErrors, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-
-import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/auth/context/auth-context";
 import Address from "./Address";
-import { useDebounce } from "@/hooks/useDebounce";
-import usePatientAlreadyExist from "@/data/usePatientAlreadyExist";
-import ExistingPatientCard from "./ExistingPatientCard";
-import { RegisterPatientSchema } from "@/schemas/registerPatientSchema";
+
 
 export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: string, name?: string, allergies?: string, mrn?: string) => void, patient?: any, mutate?: () => void }) {
   const capitalizeFirstLetter = (str: string) => {
@@ -151,32 +145,6 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   const [openCalander, setOpenCalander] = useState(false);
   const [dobSetFromAge, setDobSetFromAge] = useState(false);
 
-  const searchParams = useSearchParams();
-  const name = searchParams.get("name");
-
-  useEffect(() => {
-    if (name) setValue("name", name);
-  }, [name, setValue]);
-
-  const debouncedName = useDebounce(values.name, 500);
-  const debouncedPhone = useDebounce(values.phoneNumber, 500);
-
-  const isExistByName = usePatientAlreadyExist({
-    name: debouncedName?.length > 2 ? debouncedName : undefined,
-  });
-
-  const isExistByPhone = usePatientAlreadyExist({
-    phoneNumber: (debouncedPhone?.length || 0) > 4 ? debouncedPhone : undefined,
-  });
-
-  const alreadyExistPatient = isExistByName?.data?.patient || isExistByPhone?.data?.patient;
-
-  const [dismissed, setDismissed] = useState(false);
-
-  useEffect(() => {
-    setDismissed(false);
-  }, [alreadyExistPatient]);
-
   return (
     <form className="space-y-5" onSubmit={createEditPatient}>
       <section className="space-y-3">
@@ -203,16 +171,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               <p className="text-red-500 text-xs my-1">{errors.name.message}</p>
             )}
 
-            {/* Existing Patient Card for Name */}
-            {isExistByName?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
-              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(300%+32px)] z-50">
-                <ExistingPatientCard
-                  patient={alreadyExistPatient}
-                  onSelect={onClose}
-                  onDismiss={() => setDismissed(true)}
-                />
-              </div>
-            )}
+
           </div>
 
           <div className="grid gap-2">
@@ -246,16 +205,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               </p>
             )}
 
-            {/* Existing Patient Card for Phone */}
-            {isExistByPhone?.data?.isPatientAlreadyExists && alreadyExistPatient && !dismissed && !patient?._id && (
-              <div className="absolute top-[calc(100%-10px)] left-0 w-[calc(300%+32px)] z-50">
-                <ExistingPatientCard
-                  patient={alreadyExistPatient}
-                  onSelect={onClose}
-                  onDismiss={() => setDismissed(true)}
-                />
-              </div>
-            )}
+
           </div>
 
           <div className="grid gap-2">
