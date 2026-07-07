@@ -3,7 +3,7 @@ import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import PatientSelection from "./PatientSelection";
 import { useAuth } from "@/auth/context/auth-context";
-import { Zap, Calendar as CalendarIcon, AlertTriangle, Trash } from "lucide-react";
+import { Zap, Calendar as CalendarIcon, AlertTriangle, Trash, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import {
@@ -39,6 +39,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
   const { updateDraft, removeDraft, setDraftToDelete } = useLabDrafts();
   const { panels } = useGetPanels();
   const { tests } = useGetTest();
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const payload = draft.payload;
   const bookingType = draft.bookingType;
@@ -72,6 +73,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
       return;
     }
 
+    setIsLoading(true);
     try {
       await toast.promise(
         api.post("/lab/report", { 
@@ -90,6 +92,8 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
       window.dispatchEvent(new CustomEvent('lab-test-created'));
     } catch (error) {
       console.error(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -371,9 +375,11 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             Cancel
             </Button>
           <Button
+            disabled={isLoading}
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
             onClick={handleSubmit}
           >
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Book Test
           </Button>
         </div>

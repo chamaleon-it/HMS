@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { AlertTriangle, Eye, Printer } from "lucide-react";
+import { AlertTriangle, Eye, Printer, Loader2 } from "lucide-react";
 import PharmacistSelection from "./PharmacistSelection";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
   const { user } = useAuth();
   const router = useRouter();
   const { updateDraft, removeDraft } = useDrafts();
+  const [isLoading, setIsLoading] = useState(false);
 
   const payload = draft.payload;
   const setPayload = (updater: DataType | ((prev: DataType) => DataType)) => {
@@ -57,6 +58,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
           return;
         }
       }
+      setIsLoading(true);
       const payloadToSubmit = { ...payload, items: validItems };
       const { data } = await toast.promise(api.post("/pharmacy/orders", payloadToSubmit), {
         loading: "Order is creating...",
@@ -75,6 +77,8 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
 
     } catch (error) {
       // Handle error
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -202,9 +206,11 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
             window.dispatchEvent(new CustomEvent('request-delete-draft', { detail: draft.id }));
           }}>Cancel</Button>
           <Button
+            disabled={isLoading}
             className="bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md"
             onClick={createOrder}
           >
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Place Order
           </Button>
         </div>
