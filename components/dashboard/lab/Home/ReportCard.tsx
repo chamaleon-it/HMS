@@ -157,7 +157,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                 const normalizeHeading = (h: string) => {
                     let text = h.toUpperCase().trim();
                     if (text.includes("COMPLETE BLOOD COUNT")) return "COMPLETE BLOOD COUNT";
-                    if (text.includes("HEMATOLOGY") || text.includes("HAEMATOLOGY") || text.includes("HAEMATOLOGY")) {
+                    if (text.includes("HEMATOLOGY") || text.includes("HAEMATOLOGY") || text.includes("HEAMATOLOGY")) {
                         return "HAEMATOLOGY";
                     }
                     if (text.includes("BIOCHEMISTRY")) return "BIOCHEMISTRY";
@@ -175,7 +175,10 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                     "HORMONES": 6,
                     "CLINICAL PATHOLOGY": 7
                 };
-                const getDeptPriority = (dept: string) => deptPriority[dept] || 99;
+                const getDeptPriority = (dept: string) => {
+                    if (dept.includes("HEMATOLOGY") || dept.includes("HAEMATOLOGY") || dept.includes("HEAMATOLOGY")) return 1;
+                    return deptPriority[dept] || 99;
+                };
 
                 const getHeadingInternalPriority = (heading: string, isSingleTestsGroup: boolean) => {
                     const h = heading.toUpperCase();
