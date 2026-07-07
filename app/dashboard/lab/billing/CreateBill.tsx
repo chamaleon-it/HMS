@@ -12,9 +12,10 @@ import {
   Printer,
   Share2,
   Trash2,
-  User2,
   UserPlus,
   Wallet2,
+  Loader2,
+  User2,
 } from "lucide-react";
 import React, { useCallback, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -66,9 +67,10 @@ export default function CreateBill({
     payer?: string;
     policyNo?: string;
     tpa?: string;
-    preAuthNo?: string;
     note?: string;
+    preAuthNo?: string;
   }>(defaultPayload);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const registerPatient = useCallback(async () => {
     router.push("/dashboard/doctor/patients#register");
@@ -209,6 +211,7 @@ export default function CreateBill({
       toast.error("Please add atleast one item.");
       return;
     }
+    setIsGenerating(true);
     try {
       await toast.promise(api.post("/billing", payload), {
         loading: "We are generating this bill.",
@@ -219,6 +222,8 @@ export default function CreateBill({
       billingMutate();
     } catch (error) {
       console.log(error);
+    } finally {
+      setIsGenerating(false);
     }
   }, [payload, billingMutate]);
 
@@ -746,10 +751,11 @@ export default function CreateBill({
 
             <div className="mt-3 grid grid-cols-3 gap-2">
               <PrimaryButton
-                className="col-span-full cursor-pointer"
+                disabled={isGenerating}
+                className="col-span-full cursor-pointer disabled:opacity-50"
                 onClick={generateBill}
               >
-                <FilePlus2 className="mr-2 inline h-4 w-4" />
+                {isGenerating ? <Loader2 className="mr-2 inline h-4 w-4 animate-spin" /> : <FilePlus2 className="mr-2 inline h-4 w-4" />}
                 Generate
               </PrimaryButton>
               <button className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900">

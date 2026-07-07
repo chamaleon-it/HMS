@@ -1,5 +1,5 @@
 import React from "react";
-import { Wallet2, FilePlus2, Printer, Download } from "lucide-react";
+import { Wallet2, FilePlus2, Printer, Download, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
@@ -34,7 +34,10 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
     downloadPdf,
     PrimaryButton,
 }) => {
-    const handleAction = (action: () => void) => {
+    const [isSaving, setIsSaving] = React.useState(false);
+    const [isGenerating, setIsGenerating] = React.useState(false);
+
+    const handleAction = async (action: () => Promise<void> | void, setLoading?: React.Dispatch<React.SetStateAction<boolean>>) => {
         if (!payload.patient) {
             toast.error("Please select patient.");
             return;
@@ -43,7 +46,12 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
             toast.error("Please add at least one item.");
             return;
         }
-        action();
+        if (setLoading) setLoading(true);
+        try {
+            await action();
+        } finally {
+            if (setLoading) setLoading(false);
+        }
     };
 
     return (
@@ -93,20 +101,22 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
 
             <div className="mt-4 grid grid-cols-2 gap-3">
                 <PrimaryButton
-                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
-                    onClick={() => handleAction(saveBill)}
+                    disabled={isSaving || isGenerating}
+                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50 disabled:opacity-50"
+                    onClick={() => handleAction(saveBill, setIsSaving)}
                 >
                     <div className="flex items-center justify-center gap-2">
-                        <FilePlus2 className="h-5 w-5" />
+                        {isSaving ? <Loader2 className="h-5 w-5 animate-spin" /> : <FilePlus2 className="h-5 w-5" />}
                         Generate & Save Invoice
                     </div>
                 </PrimaryButton>
                 <PrimaryButton
-                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
-                    onClick={() => handleAction(generateBill)}
+                    disabled={isSaving || isGenerating}
+                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50 disabled:opacity-50"
+                    onClick={() => handleAction(generateBill, setIsGenerating)}
                 >
                     <div className="flex items-center justify-center gap-2">
-                        <Printer className="h-5 w-5" />
+                        {isGenerating ? <Loader2 className="h-5 w-5 animate-spin" /> : <Printer className="h-5 w-5" />}
                         Generate & Print Invoice
                     </div>
                 </PrimaryButton>
