@@ -25,6 +25,7 @@ export default function General({
 }) {
   const [payload, setPayload] = useState({
     name: "",
+    username: "",
     owner: "",
     phoneNumber: "",
     email: "",
@@ -36,6 +37,7 @@ export default function General({
     setPayload((prev) => ({
       ...prev,
       name: profile?.name ?? "",
+      username: profile?.username ?? "",
       owner: profile?.lab?.general?.owner ?? "",
       phoneNumber: profile?.phoneNumber ?? "",
       email: profile?.email ?? "",
@@ -101,6 +103,20 @@ export default function General({
               value={payload.name}
               onChange={(e) =>
                 setPayload((prev) => ({ ...prev, name: e.target.value }))
+              }
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-medium text-slate-700">
+              Username
+            </Label>
+            <Input
+              className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
+              placeholder="Enter username"
+              value={payload.username}
+              onChange={(e) =>
+                setPayload((prev) => ({ ...prev, username: e.target.value }))
               }
             />
           </div>

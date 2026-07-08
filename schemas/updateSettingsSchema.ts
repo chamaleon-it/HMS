@@ -6,6 +6,13 @@ export const updateSettingsSchema = z.object({
     .trim()
     .min(2, "Name must be at least 2 characters")
     .max(50, "Name must be at most 50 characters"),
+  username: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(3, "Username must be at least 3 characters")
+    .regex(/^[a-zA-Z0-9]+$/, "Username can only contain letters and numbers")
+    .optional(),
   phoneNumber: z.string().trim().toLowerCase(),
   email: z.string().trim().toLowerCase().email("Enter a valid email address"),
   hospital: z.string().trim().nullable(),

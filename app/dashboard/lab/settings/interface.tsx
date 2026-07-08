@@ -1,5 +1,6 @@
 export interface ProfileType {
   name: string;
+  username?: string;
   phoneNumber?: string;
   email: string;
   address?: string;

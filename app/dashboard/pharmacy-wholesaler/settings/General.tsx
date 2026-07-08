@@ -24,6 +24,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
   const [loading, setLoading] = useState(false)
   const [payload, setPayload] = useState<{
     name: string;
+    username: string;
     contactPerson: string;
     phoneNumber: string;
     email: string;
@@ -31,6 +32,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
     address: string;
   }>({
     name: "",
+    username: "",
     contactPerson: "",
     phoneNumber: "",
     email: "",
@@ -45,6 +47,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
       email: profile?.email ?? "",
       gstin: profile?.pharmacyWholesaler?.general.gstin ?? "",
       name: profile?.name ?? "",
+      username: profile?.username ?? "",
       phoneNumber: profile?.phoneNumber ?? "",
     });
   }, [profile]);
@@ -98,6 +101,18 @@ export default function General({ profile, profileMutate }: PropTypes) {
               placeholder="Enter wholesaler name"
               value={payload.name}
               onChange={e=>setPayload(prev=>({...prev,name:e.target.value}))}
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label className="text-xs font-medium text-slate-700">
+              Username
+            </Label>
+            <Input
+              className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-emerald-500/70"
+              placeholder="Enter username"
+              value={payload.username}
+              onChange={e=>setPayload(prev=>({...prev,username:e.target.value}))}
             />
           </div>
 

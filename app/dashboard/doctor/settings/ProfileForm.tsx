@@ -41,6 +41,7 @@ export default function ProfileForm() {
     message: string;
     data: {
       email: string;
+      username: string;
       name: string;
       phoneNumber: string | null;
       profilePic: string | null;
@@ -73,6 +74,7 @@ export default function ProfileForm() {
     resolver: zodResolver(updateSettingsSchema),
     defaultValues: {
       name: userData?.data.name,
+      username: userData?.data.username,
       phoneNumber: userData?.data.phoneNumber || "+91",
       email: userData?.data.email,
       hospital: userData?.data.hospital || null,
@@ -90,6 +92,7 @@ export default function ProfileForm() {
   useEffect(() => {
     reset({
       name: userData?.data.name,
+      username: userData?.data.username,
       phoneNumber: userData?.data.phoneNumber || "+91",
       email: userData?.data.email,
       hospital: userData?.data.hospital || null,
@@ -138,6 +141,21 @@ export default function ProfileForm() {
                   placeholder="Dr. Full Name"
                   className="h-9"
                   {...register("name")}
+                />
+              </div>
+
+              <div className="grid gap-2">
+                <Label
+                  htmlFor="username"
+                  className="mb-0.5 text-[13px] leading-tight text-slate-700"
+                >
+                  Username
+                </Label>
+                <Input
+                  id="username"
+                  placeholder="doctor_username"
+                  className="h-9"
+                  {...register("username")}
                 />
               </div>
 

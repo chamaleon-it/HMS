@@ -60,7 +60,28 @@ export default function Form() {
         )}
       </div>
 
-
+      <div>
+        <label className="block text-slate-700 text-sm mb-1" htmlFor="username">
+          Username
+        </label>
+        <div
+          className={`flex items-center rounded-lg bg-white border ${errors.username ? "border-red-400" : "border-slate-300"
+            } focus-within:ring-4 focus-within:ring-(--brand-soft) focus-within:border-(--brand) hover:border-slate-400 transition`}
+        >
+          <CircleUser className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
+          <input
+            id="username"
+            type="text"
+            autoComplete="username"
+            className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 px-3.5 py-2.5 outline-none"
+            placeholder="Choose a unique username"
+            {...register("username")}
+          />
+        </div>
+        {errors.username && (
+          <p className="mt-1 text-xs text-red-600">{errors.username.message}</p>
+        )}
+      </div>
 
       <div>
         <label className="block text-slate-700 text-sm mb-1" htmlFor="email">
