@@ -16,6 +16,9 @@ export default function LoginPage() {
     if (!isAuthenticated || !user?.role) return;
 
     switch (user.role) {
+      case "Admin":
+        router.replace("/dashboard/admin");
+        break;
       case "Doctor":
         router.replace("/dashboard/doctor");
         break;

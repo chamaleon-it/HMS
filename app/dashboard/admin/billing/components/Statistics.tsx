@@ -103,7 +103,7 @@ export default function Statistics({ billing }: StatisticsProps) {
             icon: Receipt,
             bg: "bg-blue-50/50",
             border: "border-blue-100",
-            iconColor: "text-[var(--color-synapse-light)]/70",
+            iconColor: "text-[var(--color-cosmo-copper)]/70",
             textColor: "text-blue-800/70",
             headingColor: "text-blue-900"
         },
@@ -111,21 +111,21 @@ export default function Statistics({ billing }: StatisticsProps) {
             label: "Total Consultations",
             value: totalConsultation,
             icon: UserRound,
-            bg: "bg-[var(--color-synapse-light)]/10/50",
-            border: "border-[var(--color-synapse-light)]/20",
-            iconColor: "text-[var(--color-synapse-light)]/70",
-            textColor: "text-[var(--color-synapse-light)]/70",
-            headingColor: "text-[var(--color-synapse-light)]"
+            bg: "bg-[var(--color-cosmo-copper)]/10/50",
+            border: "border-[var(--color-cosmo-copper)]/20",
+            iconColor: "text-[var(--color-cosmo-copper)]/70",
+            textColor: "text-[var(--color-cosmo-copper)]/70",
+            headingColor: "text-[var(--color-cosmo-copper)]"
         },
         {
             label: "Consulting Fees",
             value: formatINR(consultingFee),
             icon: UserRound,
-            bg: "bg-[var(--color-synapse-light)]/10/50",
-            border: "border-[var(--color-synapse-light)]/20",
-            iconColor: "text-[var(--color-synapse-light)]/70",
-            textColor: "text-[var(--color-synapse-light)]/70",
-            headingColor: "text-[var(--color-synapse-light)]"
+            bg: "bg-[var(--color-cosmo-copper)]/10/50",
+            border: "border-[var(--color-cosmo-copper)]/20",
+            iconColor: "text-[var(--color-cosmo-copper)]/70",
+            textColor: "text-[var(--color-cosmo-copper)]/70",
+            headingColor: "text-[var(--color-cosmo-copper)]"
         },
         {
             label: "Pharmacy Sales",

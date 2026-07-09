@@ -64,6 +64,23 @@ export default function Header() {
       { key: "billing", label: "Billing", link: "/dashboard/lab/billing/" },
       { key: "payments", label: "Payments", link: "/dashboard/lab/payments/" },
       { key: "register", label: "Lab Register", link: "/dashboard/lab/register/" },
+    ]) ||
+    (user?.role === "Admin" && [
+      { key: "dashboard", label: "Dashboard", link: "/dashboard/admin/" },
+      { key: "users", label: "Users & Staff", childrens: [
+          { key: "doctors", label: "Doctors", link: "/dashboard/admin/doctors/" },
+          { key: "pharmacists", label: "Pharmacists", link: "/dashboard/admin/pharmacists/" },
+          { key: "technicians", label: "Technicians", link: "/dashboard/admin/technicians/" },
+          { key: "patients", label: "Patients", link: "/dashboard/admin/patients/" },
+      ]},
+      { key: "appointments", label: "Appointments", link: "/dashboard/admin/appointments/" },
+      { key: "clinical", label: "Clinical Services", childrens: [
+          { key: "pharmacy", label: "Pharmacy", link: "/dashboard/admin/pharmacy/" },
+          { key: "laboratory", label: "Laboratory", link: "/dashboard/admin/laboratory/" },
+          { key: "inventory", label: "Inventory", link: "/dashboard/admin/inventory/" },
+      ]},
+      { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },
+
     ]) || [];
 
   return (

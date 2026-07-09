@@ -229,32 +229,149 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/lab/payments/",
       },
     ]) ||
-    (user?.role === "Reception" && [
+(user?.role === "Admin" && [
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    link: "/dashboard/admin/",
+  },
+  {
+    key: "users",
+    label: "Users & Staff",
+    icon: Users,
+    childrens: [
       {
-        key: "dashboard",
-        label: "Dashboard",
-        icon: LayoutDashboard,
-        link: "/dashboard/reception/",
+        key: "all-users",
+        label: "All Users",
+        link: "/dashboard/admin/users/",
       },
       {
-        key: "ip",
-        label: "IP (In Patient)",
-        icon: Bed,
-        link: "/dashboard/reception/ip/",
+        key: "doctors",
+        label: "Doctors",
+        link: "/dashboard/admin/doctors/",
       },
       {
-        key: "customers",
-        label: "Customers",
-        icon: Users,
-        link: "/dashboard/reception/customers/",
+        key: "staff",
+        label: "Staff",
+        link: "/dashboard/admin/staff/",
       },
+      {
+        key: "patients",
+        label: "Patients",
+        link: "/dashboard/admin/patients/",
+      },
+    ],
+  },
+  {
+    key: "operations",
+    label: "Operations",
+    icon: CalendarClock,
+    childrens: [
+      {
+        key: "appointments",
+        label: "Appointments",
+        link: "/dashboard/admin/appointments/",
+      },
+      {
+        key: "attendance",
+        label: "Attendance",
+        link: "/dashboard/admin/attendance/",
+      },
+      {
+        key: "departments",
+        label: "Departments",
+        link: "/dashboard/admin/departments/",
+      },
+    ],
+  },
+  {
+    key: "clinical",
+    label: "Clinical Services",
+    icon: FlaskConical,
+    childrens: [
+      {
+        key: "pharmacy",
+        label: "Pharmacy",
+        link: "/dashboard/admin/pharmacy/",
+      },
+      {
+        key: "laboratory",
+        label: "Laboratory",
+        link: "/dashboard/admin/laboratory/",
+      },
+      {
+        key: "inventory",
+        label: "Inventory",
+        link: "/dashboard/admin/inventory/",
+      },
+    ],
+  },
+  {
+    key: "finance",
+    label: "Finance & Billing",
+    icon: Banknote,
+    childrens: [
       {
         key: "billing",
         label: "Billing",
-        icon: CreditCard,
-        link: "/dashboard/reception/billing/",
+        link: "/dashboard/admin/billing/",
       },
-    ]) ||
+      {
+        key: "finance-overview",
+        label: "Finance",
+        link: "/dashboard/admin/finance/",
+      },
+    ],
+  },
+  {
+    key: "reports",
+    label: "Reports & Logs",
+    icon: FileBarChart,
+    childrens: [
+      {
+        key: "reports-main",
+        label: "Reports",
+        link: "/dashboard/admin/reports/",
+      },
+      {
+        key: "audit-logs",
+        label: "Audit Logs",
+        link: "/dashboard/admin/audit-logs/",
+      },
+    ],
+  },
+]) ||
+
+(user?.role === "Reception" && [
+  {
+    key: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+    link: "/dashboard/reception/",
+  },
+  {
+    key: "ip",
+    label: "IP (In Patient)",
+    icon: Bed,
+    link: "/dashboard/reception/ip/",
+  },
+  {
+    key: "customers",
+    label: "Customers",
+    icon: Users,
+    link: "/dashboard/reception/customers/",
+  },
+  {
+    key: "billing",
+    label: "Billing",
+    icon: CreditCard,
+    link: "/dashboard/reception/billing/",
+  },
+]) ||
+
+[];
+ ||
     [];
   const pathname = usePathname();
   const settingsLink: string | undefined = user?.role ? settingsLinks[user.role] : undefined
