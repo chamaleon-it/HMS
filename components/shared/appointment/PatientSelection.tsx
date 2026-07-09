@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { fAge , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import { ChevronRight, MapPin, Phone, X } from "lucide-react";
 import Link from "next/link";
@@ -182,7 +182,7 @@ const PatientSelection = React.forwardRef<HTMLInputElement, Props & { onKeyDown?
 
   return (
     <div ref={rootRef} className="relative w-full">
-      <Label className="block">Patient Name</Label>
+      <Label className="block">Patient Name <span className="text-red-500">*</span></Label>
 
       <div
         role="combobox"

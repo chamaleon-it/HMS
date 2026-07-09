@@ -49,6 +49,12 @@ export default function Header() {
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy-wholesaler" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy-wholesaler/billing/" },
     ]) ||
+    (user?.role === "Reception" && [
+      { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
+      { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
+      { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
+      { key: "billing", label: "Billing", link: "/dashboard/reception/billing/" },
+    ]) ||
     (user?.role === "Lab" && [
       // { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },
@@ -166,7 +172,7 @@ export default function Header() {
             className="ml-4 flex items-center gap-3 sm:gap-4"
             data-testid="actions"
           >
-            {user?.role === "Doctor" && (
+            {(user?.role === "Doctor" || user?.role === "Reception") && (
               <button
                 className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-synapse-purple)] to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenCreate(true)}
@@ -190,7 +196,7 @@ export default function Header() {
                 <Plus className="h-4 w-4" /> Book Now
               </button>
             )}
-            {(user?.role === "Doctor" || user?.role === "Pharmacy" || user?.role === "Lab") && (
+            {(user?.role === "Doctor" || user?.role === "Pharmacy" || user?.role === "Lab" || user?.role === "Reception") && (
               <button
                 className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#10b981] to-[#0d9488] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenPatient(true)}
@@ -216,7 +222,7 @@ export default function Header() {
           data-testid="header-divider"
         />
       </header>
-      {(user?.role === "Doctor" || user?.role === "Lab" || user?.role === "Pharmacy") && (
+      {(user?.role === "Doctor" || user?.role === "Lab" || user?.role === "Pharmacy" || user?.role === "Reception") && (
         <div className="w-full overflow-hidden">
           <AppointmentDialog
             open={openCreate}

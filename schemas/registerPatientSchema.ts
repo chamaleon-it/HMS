@@ -45,7 +45,7 @@ export const registerPatientSchema = z.object({
     .optional()
     .transform((val) => (val === "" ? null : val)),
 
-  allergies: z.string().max(500).optional(),
+
 
   insurance: z.string().max(100).optional(),
 
@@ -76,23 +76,7 @@ export const registerPatientSchema = z.object({
   country: z.string().max(100).optional(),
   address: z.string().max(500).optional(),
 
-  guardian: z.string().max(100).optional(),
 
-  guardianPhoneNumber: z
-    .string()
-    .optional()
-    .transform((val) => val?.trim() || "")
-    .transform((val) => {
-      if (!val) return val;
-
-      if (val.length === 10) {
-        return `${val.slice(0, 5)} ${val.slice(5)}`;
-      } else {
-        return `${val.slice(0, 3)} ${val.slice(3, 7)} ${val.slice(7)}`;
-      }
-    }),
-
-  guardianRelation: z.string().max(100).optional(),
 
   notes: z.string().max(2000).optional(),
 });

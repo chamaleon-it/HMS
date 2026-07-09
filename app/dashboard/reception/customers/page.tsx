@@ -17,9 +17,9 @@ import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import Filter, { FilterType } from "./Filter";
 import NewOrder from "./NewOrder";
-import { TableSkeleton } from "../components/PharmacySkeleton";
+import { TableSkeleton } from "@/app/dashboard/pharmacy/components/PharmacySkeleton";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
-import { PaginationBar } from "../components/PaginationBar";
+import { PaginationBar } from "@/app/dashboard/pharmacy/components/PaginationBar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,7 +31,7 @@ import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Eye, Pencil, Plus, ClipboardPlus, CalendarPlus } from "lucide-react";
-import { useDrafts } from "../DraftContext";
+import { useDrafts } from "@/app/dashboard/pharmacy/DraftContext";
 import { useAuth } from "@/auth/context/auth-context";
 const Customers: React.FC = () => {
   const router = useRouter();

@@ -77,10 +77,7 @@ export function PatientForm({
           : undefined,
         age: patient.age,
         month: patient.month,
-        allergies: patient.allergies,
-        guardian: patient.guardian,
-        guardianPhoneNumber: patient.guardianPhoneNumber,
-        guardianRelation: patient.guardianRelation,
+
         addressLine1: patient.addressLine1,
         addressLine2: patient.addressLine2,
         city: patient.city || patient.locality,
@@ -135,7 +132,7 @@ export function PatientForm({
       });
 
       reset();
-      onClose(res.data.data._id, res.data.data.name, res.data.data.allergies, res.data.data.mrn);
+      onClose(res.data.data._id, res.data.data.name, undefined, res.data.data.mrn);
       if (mutate) {
         mutate();
       }
@@ -318,53 +315,7 @@ export function PatientForm({
             </div>
           </div>
 
-          {/* Row 3 */}
-          <div className="grid gap-1.5">
-            <Label className="text-sm font-medium text-slate-700">Allergies</Label>
-            <Input
-              placeholder="Allergies"
-              {...register("allergies")}
-              onChange={(e) => {
-                setValue("allergies", capitalizeFirstLetter(e.target.value), {
-                  shouldValidate: true,
-                });
-              }}
-              className="h-9 rounded-xl"
-            />
-            {errors.allergies && (
-              <p className="text-red-500 text-xs mt-1">
-                {errors.allergies.message as string}
-              </p>
-            )}
-          </div>
 
-          <div className="grid gap-1.5">
-            <Label className="text-sm font-medium text-slate-700">Guardian Name</Label>
-            <Input
-              placeholder="Guardian Name"
-              {...register("guardian")}
-              className="h-9 rounded-xl"
-            />
-          </div>
-
-          <div className="grid gap-1.5">
-            <Label className="text-sm font-medium text-slate-700">Guardian Phone Number</Label>
-            <Input
-              placeholder="Guardian Phone Number"
-              {...register("guardianPhoneNumber")}
-              className="h-9 rounded-xl"
-            />
-          </div>
-
-          {/* Row 4 */}
-          <div className="grid gap-1.5">
-            <Label className="text-sm font-medium text-slate-700">Guardian Relation</Label>
-            <Input
-              placeholder="Guardian Relation"
-              {...register("guardianRelation")}
-              className="h-9 rounded-xl"
-            />
-          </div>
         </div>
       </section>
 

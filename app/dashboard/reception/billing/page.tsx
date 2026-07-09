@@ -7,7 +7,7 @@ import CreateBill from "./CreateBill";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import Header from "./Header";
 import useSWR from "swr";
-import { BillingFormSkeleton, TableSkeleton } from "../components/PharmacySkeleton";
+import { BillingFormSkeleton, TableSkeleton } from "@/app/dashboard/pharmacy/components/PharmacySkeleton";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Filters from "./Filter";
 import { endOfDay, startOfDay, subDays } from "date-fns";

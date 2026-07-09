@@ -55,7 +55,7 @@ import AddPaymentDialog from "./AddPaymentDialog";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import PrintReceipt from "./PrintReceipt";
-import { PaginationBar } from "../components/PaginationBar";
+import { PaginationBar } from "@/app/dashboard/pharmacy/components/PaginationBar";
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);

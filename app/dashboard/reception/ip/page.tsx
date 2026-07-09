@@ -4,6 +4,7 @@ import AppShell from "@/components/layout/app-shell";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import useSWR from "swr";
 import Link from "next/link";
+import IPAdmissionDialog from "./IPAdmissionDialog";
 import { Plus, Search, Bed, User, FileText, ArrowRight } from "lucide-react";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import { format } from "date-fns";
@@ -11,7 +12,8 @@ import { format } from "date-fns";
 export default function IPList() {
   const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
-  const { data, isLoading } = useSWR(`/in-patients?page=${page}&limit=20&q=${query}`);
+  const [openAdmission, setOpenAdmission] = useState(false);
+  const { data, isLoading, mutate } = useSWR(`/in-patients?page=${page}&limit=20&q=${query}`);
 
   const ipList = data?.data || [];
   const total = data?.total || 0;
@@ -21,12 +23,12 @@ export default function IPList() {
       <TooltipProvider>
         <div className="p-5 flex flex-col gap-6 min-h-[calc(100vh-67px)]">
           <PharmacyHeader title="In-Patients" subtitle="Manage admitted patients">
-            <Link
-              href="/dashboard/reception/ip/new"
-              className="flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 shadow-md bg-[var(--color-synapse-dark)] hover:bg-slate-800"
+            <button
+              onClick={() => setOpenAdmission(true)}
+              className="flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 shadow-md bg-[var(--color-synapse-dark)] hover:bg-slate-800 cursor-pointer"
             >
               <Plus className="h-4 w-4 mr-2" /> Admit Patient
-            </Link>
+            </button>
           </PharmacyHeader>
 
           <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between">
@@ -128,6 +130,12 @@ export default function IPList() {
           </div>
         </div>
       </TooltipProvider>
+
+      <IPAdmissionDialog 
+        open={openAdmission} 
+        onOpenChange={setOpenAdmission} 
+        mutate={mutate} 
+      />
     </AppShell>
   );
 }
