@@ -288,34 +288,7 @@ export default function Filter({
           />
         </div>
 
-        <div className="space-y-2">
-          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-            Purchase Status
-          </label>
-          <div className="flex gap-1.5 p-1 bg-slate-50 border border-slate-100 rounded-xl w-fit">
-            {[
-              { label: "All Customers", value: false, icon: Users },
-              { label: "Purchased Only", value: true, icon: ShoppingBag },
-            ].map((opt) => {
-              const active = filter.alreadyPurchase === opt.value;
-              const Icon = opt.icon;
-              return (
-                <button
-                  key={opt.label}
-                  type="button"
-                  onClick={() =>
-                    setFilter((prev) => ({ ...prev, alreadyPurchase: opt.value, page: 1 }))
-                  }
-                  className={`px-4 h-9 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${active ? "bg-[var(--color-synapse-light)] text-white shadow-md shadow-indigo-100" : "text-slate-500 hover:text-slate-800 hover:bg-white/80"
-                    }`}
-                >
-                  <Icon size={14} className={active ? "text-white" : "text-slate-400"} />
-                  {opt.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+
 
         {/* Reset Button */}
         <div className="ml-auto">

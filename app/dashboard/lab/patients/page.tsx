@@ -64,7 +64,7 @@ const Patients: React.FC = () => {
     params.set("alreadyPurchase", filter.alreadyPurchase ? "true" : "false");
     params.set("page", String(filter.page));
     params.set("limit", String(filter.limit));
-    if (filter.query) params.set("q", filter.query);
+    if (filter.query) params.set("query", filter.query);
     if (filter.address) params.set("address", filter.address);
     if (filter.city) params.set("city", filter.city);
     if (filter.district) params.set("district", filter.district);
@@ -74,7 +74,10 @@ const Patients: React.FC = () => {
     if (filter.doctor) params.set("doctor", filter.doctor);
     if (filter.dateRange.from) params.set("from", filter.dateRange.from);
     if (filter.dateRange.to) params.set("to", filter.dateRange.to);
-    if (filter.age[0] !== 0 || filter.age[1] !== 100) params.set("age", `${filter.age[0]}-${filter.age[1]}`);
+    if (filter.age[0] !== 0 || filter.age[1] !== 100) {
+        params.set("minAge", filter.age[0].toString());
+        params.set("maxAge", filter.age[1].toString());
+    }
     if (filter.lastVisit) params.set("lastVisit", String(filter.lastVisit));
 
     const { data: patientsData, mutate, isLoading } = useSWR<{

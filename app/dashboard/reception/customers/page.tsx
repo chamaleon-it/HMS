@@ -58,7 +58,7 @@ const Customers: React.FC = () => {
   params.set("alreadyPurchase", filter.alreadyPurchase ? "true" : "false");
   params.set("page", String(filter.page));
   params.set("limit", String(filter.limit));
-  if (filter.query) params.set("q", filter.query);
+  if (filter.query) params.set("query", filter.query);
   if (filter.address) params.set("address", filter.address);
   if (filter.city) params.set("city", filter.city);
   if (filter.district) params.set("district", filter.district);
@@ -66,31 +66,36 @@ const Customers: React.FC = () => {
   if (filter.pincode) params.set("pincode", filter.pincode);
   if (filter.gender) params.set("gender", filter.gender);
   if (filter.doctor) params.set("doctor", filter.doctor);
-  if (filter.dateRange.from) params.set("from", filter.dateRange.from);
-  if (filter.dateRange.to) params.set("to", filter.dateRange.to);
-  if (filter.age[0] !== 0 || filter.age[1] !== 100) params.set("age", `${filter.age[0]}-${filter.age[1]}`);
-  if (filter.lastVisit) params.set("lastVisit", String(filter.lastVisit));
+  if (filter.age[0] !== 0 || filter.age[1] !== 100) {
+    params.set("minAge", filter.age[0].toString());
+    params.set("maxAge", filter.age[1].toString());
+  }
+
+  if (filter.lastVisit && filter.lastVisit !== "Custom") {
+    const to = new Date();
+    const from = new Date();
+    from.setDate(to.getDate() - Number(filter.lastVisit));
+    params.set("from", from.toISOString());
+    params.set("to", to.toISOString());
+  } else if (filter.lastVisit === "Custom") {
+    if (filter.dateRange.from) params.set("from", filter.dateRange.from);
+    if (filter.dateRange.to) params.set("to", filter.dateRange.to);
+  }
 
   const { data: customersData, isLoading, mutate } = useSWR<{
     message: string;
     total: number;
     data: {
-      totalSpend: number;
-      visits: number;
-      patient: {
-        _id: string;
-        name: string;
-        phoneNumber: string;
-        gender: string;
-        dateOfBirth: Date;
-        address: string;
-        mrn: string;
-        doctor: string;
-        allergies: string;
-      };
-      lastPurchase: Date;
+      _id: string;
+      name: string;
+      phoneNumber: string;
+      gender: string;
+      dateOfBirth: Date;
+      address: string;
+      mrn: string;
+      doctor: string;
     }[];
-  }>(`/pharmacy/orders/customers?${params.toString()}`);
+  }>(`/patients?${params.toString()}`);
 
   const customers = customersData?.data ?? [];
   const total = customersData?.total ?? 0;
@@ -106,10 +111,14 @@ const Customers: React.FC = () => {
           <main className="flex flex-col gap-4">
             <PharmacyHeader
               title="Customers"
-              subtitle="Click a row to open full pharmacy history for that customer"
+              subtitle="View and manage registered customers"
             >
-
-              <NewOrder mutate={mutate} />
+              <Button
+                onClick={() => setAppointmentPatient(null)}
+                className="flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 shadow-md bg-[var(--color-synapse-dark)] hover:bg-slate-800"
+              >
+                <Plus className="h-4 w-4 mr-2" /> Add Customer
+              </Button>
             </PharmacyHeader>
 
             <Filter filter={filter} setFilter={setFilter} />
@@ -128,28 +137,16 @@ const Customers: React.FC = () => {
                         Age / Gender
                       </TableHead>
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Phone</TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right">
-                        Visits
-                      </TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right">
-                        Last Purchase
-                      </TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
-                        Total Spend
-                      </TableHead>
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 text-right pr-4">
                         Actions
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="text-[15px]">
-                    {customers.map((p, idx) => {
-                      const hasHistory = p.visits > 0;
-                      const isRepeat = p.visits > 1;
-
+                    {customers.map((p: any, idx: number) => {
                       return (
                         <TableRow
-                          key={p.patient._id}
+                          key={p._id}
                           className={`cursor-pointer transition-all duration-150 ease-out ${idx % 2 === 0
                             ? "bg-white hover:bg-white/60"
                             : "bg-slate-100 hover:bg-slate-100/60"
@@ -161,37 +158,25 @@ const Customers: React.FC = () => {
                           </TableCell>
                           <TableCell className="py-1.5 align-middle font-medium cursor-pointer" onClick={() =>
                             router.push(
-                              `/dashboard/reception/customers/single?id=${p.patient._id}`
+                              `/dashboard/reception/customers/single?id=${p._id}`
                             )
                           }>
                             <div className="flex flex-col gap-0.5">
                               <div className="flex items-center gap-2">
                                 <span className="text-[15px] text-slate-900">
                                   <HighlightText
-                                    text={p.patient.name}
+                                    text={p.name}
                                     highlight={filter.query || ""}
                                   />
                                 </span>
-                                <div className="flex flex-wrap gap-1">
-                                  {!hasHistory && (
-                                    <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-[10px] font-medium">
-                                      New
-                                    </Badge>
-                                  )}
-                                  {isRepeat && (
-                                    <Badge className="bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border border-[var(--color-synapse-light)]/20 text-[10px] font-medium">
-                                      Repeat
-                                    </Badge>
-                                  )}
-                                </div>
                               </div>
                               <div className="flex items-center gap-2">
-                                {p.patient.mrn && (
-                                  <span className="text-[11px] text-[var(--color-synapse-light)] font-medium">{p.patient.mrn}</span>
+                                {p.mrn && (
+                                  <span className="text-[11px] text-[var(--color-synapse-light)] font-medium">{p.mrn}</span>
                                 )}
                                 <span className="text-[12px] text-slate-500 truncate max-w-[220px]">
                                   <HighlightText
-                                    text={p.patient.address}
+                                    text={p.address || ""}
                                     highlight={filter.query || ""}
                                   />
                                 </span>
@@ -200,27 +185,18 @@ const Customers: React.FC = () => {
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
                             <HighlightText
-                              text={p.patient.mrn}
+                              text={p.mrn}
                               highlight={filter.query || ""}
                             />
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
-                            {fAgeString(p.patient.dateOfBirth)}/ {p.patient.gender}
+                            {fAgeString(p.dateOfBirth)}/ {p.gender}
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-slate-700">
                             <HighlightText
-                              text={p.patient.phoneNumber.length < 5 ? "-" : p.patient.phoneNumber}
+                              text={!p.phoneNumber || p.phoneNumber.length < 5 ? "-" : p.phoneNumber}
                               highlight={filter.query || ""}
                             />
-                          </TableCell>
-                          <TableCell className="py-1.5 align-middle text-right text-slate-900">
-                            {p.visits}
-                          </TableCell>
-                          <TableCell className="py-1.5 align-middle text-right text-slate-700">
-                            {fDate(p.lastPurchase)}
-                          </TableCell>
-                          <TableCell className="py-1.5 align-middle text-right font-semibold text-slate-900 pr-4">
-                            {formatINR(p.totalSpend)}
                           </TableCell>
                           <TableCell className="py-1.5 align-middle text-right font-semibold text-slate-900 pr-4">
                             <div className="flex justify-end items-center gap-1">
@@ -233,7 +209,7 @@ const Customers: React.FC = () => {
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
                                       router.push(
-                                        `/dashboard/reception/customers/single?id=${p.patient._id}`
+                                        `/dashboard/reception/customers/single?id=${p._id}`
                                       )
                                     }}
                                   >
@@ -241,7 +217,7 @@ const Customers: React.FC = () => {
                                   </Button>
                                 </TooltipTrigger>
                                 <TooltipContent>
-                                  <p>View History</p>
+                                  <p>View Details</p>
                                 </TooltipContent>
                               </Tooltip>
 
@@ -253,7 +229,7 @@ const Customers: React.FC = () => {
                                     className="h-8 w-8 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
-                                      setEditCustomer(p.patient);
+                                      setEditCustomer(p);
                                     }}
                                   >
                                     <Pencil className="h-4 w-4" />
@@ -272,33 +248,7 @@ const Customers: React.FC = () => {
                                     className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
-                                      addDraft(
-                                        {
-                                          patient: p.patient._id,
-                                          doctor: user?._id || "",
-                                          allergies: p.patient.allergies || "",
-                                        },
-                                        p.patient.mrn ? `${p.patient.name} - (${p.patient.mrn})` : p.patient.name
-                                      );
-                                    }}
-                                  >
-                                    <ClipboardPlus className="h-4 w-4" />
-                                  </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <p>New Order</p>
-                                </TooltipContent>
-                              </Tooltip>
-
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                                    onClick={(e: React.MouseEvent) => {
-                                      e.stopPropagation();
-                                      setAppointmentPatient(p.patient);
+                                      setAppointmentPatient(p);
                                     }}
                                   >
                                     <CalendarPlus className="h-4 w-4" />
@@ -308,8 +258,6 @@ const Customers: React.FC = () => {
                                   <p>New Appointment</p>
                                 </TooltipContent>
                               </Tooltip>
-
-
                             </div>
                           </TableCell>
                         </TableRow>

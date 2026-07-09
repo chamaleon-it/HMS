@@ -57,7 +57,7 @@ export default function MonthlyCalender({
       type: string;
       status: string;
     }[];
-  }>(`/appointments/calender-monthly`);
+  }>(`/appointments/calender-monthly?${param.toString()}`);
 
 
 

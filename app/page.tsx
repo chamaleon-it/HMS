@@ -31,6 +31,9 @@ export default function LoginPage() {
       case "Reception":
         router.replace("/dashboard/reception");
         break;
+      case "Admin":
+        router.replace("/dashboard/admin");
+        break;
     }
   }, [isAuthenticated, user, router]);
 
