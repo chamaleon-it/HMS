@@ -34,8 +34,8 @@ export default function LoginForm({
         }
       );
       const { accessToken, refreshToken, user } = loginData?.data;
-      const { _id, role, email, name } = user;
-      setUser({ _id, email, name, role });
+      const { _id, role, email, username, name } = user;
+      setUser({ _id, email, username, name, role });
       tokenStore.set(accessToken, refreshToken);
     } catch (error) {
 
@@ -47,25 +47,25 @@ export default function LoginForm({
   return (
     <form className="mt-5 space-y-4" onSubmit={login}>
       <div>
-        <label className="block text-slate-700 text-sm mb-1" htmlFor="email">
-          Email
+        <label className="block text-slate-700 text-sm mb-1" htmlFor="usernameOrEmail">
+          Email or Username
         </label>
         <div
-          className={`flex items-center rounded-lg bg-white border ${errors.email ? "border-red-400" : "border-slate-300"
+          className={`flex items-center rounded-lg bg-white border ${errors.usernameOrEmail ? "border-red-400" : "border-slate-300"
             } focus-within:ring-4 focus-within:ring-[color:var(--brand-soft)] focus-within:border-[var(--brand)] hover:border-slate-400 transition`}
         >
           <Mail className="ml-3 mr-2 h-4.5 w-4.5 text-slate-400" />
           <input
-            id="email"
-            {...register("email")}
-            type="email"
-            autoComplete="email"
+            id="usernameOrEmail"
+            {...register("usernameOrEmail")}
+            type="text"
+            autoComplete="username"
             className="flex-1 bg-transparent text-slate-900 placeholder-slate-400 px-3.5 py-2.5 outline-none"
-            placeholder="you@company.com"
+            placeholder="you@company.com or username"
           />
         </div>
-        {errors.email && (
-          <p className="mt-1 text-xs text-red-600">{errors.email.message}</p>
+        {errors.usernameOrEmail && (
+          <p className="mt-1 text-xs text-red-600">{errors.usernameOrEmail.message as string}</p>
         )}
       </div>
 
@@ -110,7 +110,7 @@ export default function LoginForm({
         <button
           type="button"
           onClick={() => setView("forgot")}
-          className="text-[var(--brand)] hover:text-[var(--brand-dark)] underline decoration-[rgba(201,149,106,.25)]"
+          className="text-[var(--brand)] hover:text-[var(--brand-dark)] underline decoration-[rgba(109,40,217,.25)]"
         >
           Forgot password?
         </button>
@@ -119,7 +119,7 @@ export default function LoginForm({
       <button
         type="submit"
         disabled={isSubmitting}
-        className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] shadow-[0_6px_20px_-6px_rgba(201,149,106,0.6)] hover:shadow-[0_12px_30px_-10px_rgba(201,149,106,0.75)]"
+        className="group w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-white font-medium transition active:scale-[.99] focus:outline-none focus:ring-4 focus:ring-[color:var(--brand-soft)] shadow-[0_6px_20px_-6px_rgba(109,40,217,0.6)] hover:shadow-[0_12px_30px_-10px_rgba(109,40,217,0.75)]"
         style={{
           background: "linear-gradient(90deg, var(--brand), var(--accent-end))",
         }}

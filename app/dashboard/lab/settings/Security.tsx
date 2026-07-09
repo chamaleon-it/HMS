@@ -123,7 +123,7 @@ export default function Security() {
         </CardContent>
         <CardFooter className="justify-between gap-2 flex-wrap">
           <Button
-            className="gap-2 bg-gradient-to-r from-[var(--color-cosmo-dark)] to-[var(--color-cosmo-brown)] text-white hover:from-[var(--color-cosmo-brown)] hover:to-[var(--color-cosmo-brown)] disabled:opacity-60 shadow-sm"
+            className="gap-2 bg-gradient-to-r from-[var(--color-synapse-dark)] to-[var(--color-synapse-purple)] text-white hover:from-[var(--color-synapse-purple)] hover:to-[var(--color-synapse-purple)] disabled:opacity-60 shadow-sm"
             type="submit"
           >
             <Save className="h-4 w-4" /> Update password

@@ -16,18 +16,18 @@ const STAT_CONFIG = {
   today: {
     label: "Today",
     icon: CalendarDays,
-    color: "from-[var(--color-cosmo-copper)]/10 to-blue-500/5",
-    iconColor: "text-[var(--color-cosmo-copper)]",
+    color: "from-[var(--color-synapse-light)]/10 to-blue-500/5",
+    iconColor: "text-[var(--color-synapse-light)]",
     iconBg: "bg-blue-100",
     border: "hover:border-blue-200",
   },
   upcoming: {
     label: "Upcoming",
     icon: Clock,
-    color: "from-[var(--color-cosmo-copper)]/10 to-[var(--color-cosmo-brown)]/5",
-    iconColor: "text-[var(--color-cosmo-copper)]",
-    iconBg: "bg-[var(--color-cosmo-copper)]/20",
-    border: "hover:border-[var(--color-cosmo-copper)]/30",
+    color: "from-[var(--color-synapse-light)]/10 to-[var(--color-synapse-purple)]/5",
+    iconColor: "text-[var(--color-synapse-light)]",
+    iconBg: "bg-[var(--color-synapse-light)]/20",
+    border: "hover:border-[var(--color-synapse-light)]/30",
   },
   consulted: {
     label: "Consulted",
@@ -48,10 +48,10 @@ const STAT_CONFIG = {
   test: {
     label: "Send to test",
     icon: FlaskConical,
-    color: "from-[var(--color-cosmo-copper)]/10 to-[var(--color-cosmo-brown)]/5",
-    iconColor: "text-[var(--color-cosmo-copper)]",
+    color: "from-[var(--color-synapse-light)]/10 to-[var(--color-synapse-purple)]/5",
+    iconColor: "text-[var(--color-synapse-light)]",
     iconBg: "bg-[#FDF6ED]",
-    border: "hover:border-[var(--color-cosmo-copper)]/30",
+    border: "hover:border-[var(--color-synapse-light)]/30",
   },
   admit: {
     label: "Admit",

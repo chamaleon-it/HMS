@@ -228,7 +228,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
                     .trim()
                     .replace(/\s+/g, " ")
                     .replace(/\b\w/g, (char) => char.toUpperCase())}#register`}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-[var(--color-cosmo-copper)] hover:bg-blue-50 font-medium"
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-[var(--color-synapse-light)] hover:bg-blue-50 font-medium"
                 >
                   <span className="text-lg">➕</span> Add new patient
                 </Link>
@@ -240,7 +240,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, values, patient }) => {
               //   <Button
               //     asChild
               //     variant={"default"}
-              //     className="bg-[var(--color-cosmo-dark)] text-white hover:bg-[var(--color-cosmo-dark)] transition"
+              //     className="bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-dark)] transition"
               //     size={"sm"}
               //   >
               //     <Link href="/dashboard/doctor/patients">Add New</Link>
@@ -396,7 +396,7 @@ const PatientCard: React.FC<{
 
               {/* Meta pills */}
               <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[var(--color-cosmo-copper)] dark:bg-blue-900/40 dark:text-blue-300">
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[var(--color-synapse-light)] dark:bg-blue-900/40 dark:text-blue-300">
                   {safeAge(p.dateOfBirth)}
                 </span>
 

@@ -107,7 +107,7 @@ export default function BillingPage() {
                         layoutId="tab-indicator"
                         className="absolute inset-0 rounded-full"
                         style={{
-                          background: "var(--color-cosmo-copper)",
+                          background: "var(--color-synapse-light)",
                         }}
                         transition={{
                           type: "spring",
@@ -141,8 +141,8 @@ export default function BillingPage() {
 }
 
 const theme = {
-  from: "var(--color-cosmo-copper)",
-  to: "var(--color-cosmo-brown)",
+  from: "var(--color-synapse-light)",
+  to: "var(--color-synapse-purple)",
 };
 
 const PrimaryButton: React.FC<

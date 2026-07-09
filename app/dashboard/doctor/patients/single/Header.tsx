@@ -61,7 +61,7 @@ export default function Header({
             </Badge>
           )}
           {patient?.insurance && (
-            <Badge className="rounded-full bg-[var(--color-cosmo-copper)]">
+            <Badge className="rounded-full bg-[var(--color-synapse-light)]">
               Insurance: {patient.insurance}
             </Badge>
           )}

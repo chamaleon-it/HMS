@@ -18,6 +18,7 @@ import {
   ReceiptText,
   FileBarChart,
   Banknote,
+  Bed,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -228,6 +229,32 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/lab/payments/",
       },
     ]) ||
+    (user?.role === "Reception" && [
+      {
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        link: "/dashboard/reception/",
+      },
+      {
+        key: "ip",
+        label: "IP (In Patient)",
+        icon: Bed,
+        link: "/dashboard/reception/ip/",
+      },
+      {
+        key: "customers",
+        label: "Customers",
+        icon: Users,
+        link: "/dashboard/reception/customers/",
+      },
+      {
+        key: "billing",
+        label: "Billing",
+        icon: CreditCard,
+        link: "/dashboard/reception/billing/",
+      },
+    ]) ||
     [];
   const pathname = usePathname();
   const settingsLink: string | undefined = user?.role ? settingsLinks[user.role] : undefined
@@ -246,7 +273,7 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
     >
       {/* Brand */}
       <div className="px-4 py-4 flex items-center justify-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] text-white font-semibold shadow-md shrink-0">
+        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] text-white font-semibold shadow-md shrink-0">
           S
         </div>
         {!collapsed && (
@@ -330,6 +357,7 @@ const settingsLinks: Record<string, string> = {
   Doctor: "/dashboard/doctor/settings/",
   Lab: "/dashboard/lab/settings/",
   Admin: "/dashboard/admin/settings/",
+  Reception: "/dashboard/reception/settings/",
 };
 
 function NavItem({
@@ -419,7 +447,7 @@ function NavItem({
           className={
             "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border cursor-pointer " +
             (isParentActive
-              ? "border-transparent bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] text-white shadow-md"
+              ? "border-transparent bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
           }
         >
@@ -431,7 +459,7 @@ function NavItem({
           className={
             "group w-full flex items-center gap-3 rounded-2xl px-3 py-3.5 transition-all border " +
             (isParentActive
-              ? "border-transparent bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] text-white shadow-md"
+              ? "border-transparent bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
           }
         >
@@ -448,14 +476,14 @@ function NavItem({
               className={
                 "group w-full flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-all " +
                 (pathname === child.link
-                  ? "bg-[var(--color-cosmo-copper)]/20 text-[var(--color-cosmo-copper)] font-medium"
+                  ? "bg-[var(--color-synapse-light)]/20 text-[var(--color-synapse-light)] font-medium"
                   : "text-slate-600 hover:bg-slate-50")
               }
             >
               <span
                 className={
                   "h-2 w-2 rounded-full " +
-                  (pathname === child.link ? "bg-[var(--color-cosmo-copper)]" : "bg-slate-400")
+                  (pathname === child.link ? "bg-[var(--color-synapse-light)]" : "bg-slate-400")
                 }
               ></span>
               {child.label}

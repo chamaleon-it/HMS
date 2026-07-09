@@ -81,8 +81,8 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
 
 
             <table className="w-full whitespace-nowrap  overflow-scroll">
-                <thead className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
-                    <tr className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
+                <thead className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
+                    <tr className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
                         <th className="w-10 text-left px-3 py-2">
                             <Checkbox />
                         </th>
@@ -159,7 +159,7 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                                                 href={e?.value?.toString()}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-[var(--color-cosmo-copper)] bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                                                                className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-[var(--color-synapse-light)] bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                                                             >
                                                                 View Result
                                                             </a> : `${e.value} ${e.name.unit}`}
@@ -246,7 +246,7 @@ const Chip: React.FC<{
         <span
             className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ring-1 ring-inset ${tones[tone]}`}
         >
-            <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === 'gray' ? 'bg-slate-400' : tone === 'green' ? 'bg-[var(--color-cosmo-dark)]' : tone === 'amber' ? 'bg-amber-500' : tone === 'blue' ? 'bg-sky-500' : 'bg-rose-500'}`}></span>
+            <span className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === 'gray' ? 'bg-slate-400' : tone === 'green' ? 'bg-[var(--color-synapse-dark)]' : tone === 'amber' ? 'bg-amber-500' : tone === 'blue' ? 'bg-sky-500' : 'bg-rose-500'}`}></span>
             {label}
         </span>
     );

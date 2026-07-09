@@ -203,7 +203,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
           <div className="shrink-0 pt-7">
             <Button
               variant="outline"
-              className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-sm"
+              className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-sm"
               onClick={() => setShowAllFields(!showAllFields)}
             >
               {showAllFields ? "Hide optional fields" : "Display all fields"}
@@ -233,7 +233,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
             window.dispatchEvent(new CustomEvent('request-delete-draft', { detail: draft.id }));
           }}>Cancel</Button>
           <Button
-            className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md"
+            className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md"
             onClick={createOrder}
           >
             Place Order

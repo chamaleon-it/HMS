@@ -67,7 +67,7 @@ export default function AppointmentPage() {
                       {active && (
                         <motion.span
                           layoutId="status-filter-indicator"
-                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)]"
+                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)]"
 
                           transition={{ type: "spring", stiffness: 400, damping: 35 }}
                         />

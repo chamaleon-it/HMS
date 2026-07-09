@@ -15,9 +15,9 @@ export function EmptyPurchases({
     <div className="">
       <div className="rounded-2xl border border-gray-100 bg-white shadow-sm p-8 text-center">
         {/* subtle illustration */}
-        <div className="mx-auto mb-6 w-28 h-28 flex items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)]">
+        <div className="mx-auto mb-6 w-28 h-28 flex items-center justify-center rounded-full bg-gradient-to-br from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)]">
           {/* shopping bag / empty icon */}
-          <svg className="w-12 h-12 text-[var(--color-cosmo-copper)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
+          <svg className="w-12 h-12 text-[var(--color-synapse-light)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 11h14l-1.5 9h-11L5 11z"/>
           </svg>
         </div>
@@ -26,7 +26,7 @@ export function EmptyPurchases({
         <p className="mt-2 text-sm text-gray-500">{description}</p>
 
         <div className="mt-6 flex justify-center gap-3">
-          <Link href={ctaHref} className="inline-flex items-center rounded-md border border-transparent bg-gradient-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-95">
+          <Link href={ctaHref} className="inline-flex items-center rounded-md border border-transparent bg-gradient-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] px-4 py-2 text-sm font-medium text-white shadow-sm hover:opacity-95">
               {ctaText}
           </Link>
 

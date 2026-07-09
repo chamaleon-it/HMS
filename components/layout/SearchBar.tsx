@@ -100,14 +100,14 @@ export default function SearchBar() {
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={handleKeyDown}
           data-testid="search-input"
-          className="w-full rounded-2xl border border-slate-200 bg-white/90 pl-10 pr-4 py-2.5 text-sm shadow-sm outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-[var(--color-cosmo-copper)] focus:ring-2 focus:ring-indigo-200"
+          className="w-full rounded-2xl border border-slate-200 bg-white/90 pl-10 pr-4 py-2.5 text-sm shadow-sm outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-indigo-200"
         />
         {isOpen && Boolean(data?.data.length) && (
           <div className="absolute right-0 w-[300px] sm:w-[400px] lg:w-[450px] top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-[400px] overflow-y-auto">
             {data?.data.map((p, index) => (
               <Link
                 href={generateLink(p._id)}
-                className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-[var(--color-cosmo-copper)] ring-offset-1' : ''}`}
+                className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-[var(--color-synapse-light)] ring-offset-1' : ''}`}
                 key={p._id}
                 onClick={() => setIsOpen(false)}
               >
@@ -221,7 +221,7 @@ export const PatientCard: React.FC<{
 
               {/* Meta pills */}
               <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[var(--color-cosmo-copper)] dark:bg-blue-900/40 dark:text-blue-300">
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[var(--color-synapse-light)] dark:bg-blue-900/40 dark:text-blue-300">
                   {fAgeString(p.dateOfBirth)}
                 </span>
 

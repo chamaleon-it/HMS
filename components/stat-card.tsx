@@ -12,7 +12,7 @@ export function StatCard({
   icon?: ReactNode
   tone?: "violet" | "amber" | "blue"
 }) {
-  const color = tone === "violet" ? "text-[var(--color-cosmo-copper)]" : tone === "amber" ? "text-amber-500" : "text-sky-500"
+  const color = tone === "violet" ? "text-[var(--color-synapse-light)]" : tone === "amber" ? "text-amber-500" : "text-sky-500"
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-2">

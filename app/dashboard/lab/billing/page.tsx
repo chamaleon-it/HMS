@@ -79,7 +79,7 @@ export default function BillingPage() {
             >
               {/* <button
                 onClick={() => setTab("new")}
-                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-cosmo-copper)] px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-[var(--color-cosmo-copper)] hover:shadow-md active:scale-95"
+                className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-synapse-light)] px-4 py-2 text-sm font-semibold text-white shadow transition-all hover:bg-[var(--color-synapse-light)] hover:shadow-md active:scale-95"
               >
                 <FilePlus2 className="h-4 w-4" /> New Invoice
               </button> */}

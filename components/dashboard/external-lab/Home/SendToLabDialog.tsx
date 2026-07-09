@@ -58,7 +58,7 @@ export default function SendToLabDialog({ testName, patientName, onSuccess }: Pr
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-                <Button size="sm" className="gap-2 bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)]">
+                <Button size="sm" className="gap-2 bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)]">
                     <Send className="h-3 w-3" />
                     Send to Lab
                 </Button>

@@ -2,11 +2,11 @@ import { z } from "zod";
 
 export const loginSchema = z
   .object({
-    email: z
+    usernameOrEmail: z
       .string()
       .trim()
       .toLowerCase()
-      .email("Enter a valid email address"),
+      .min(3, "Enter a valid email address or username"),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")

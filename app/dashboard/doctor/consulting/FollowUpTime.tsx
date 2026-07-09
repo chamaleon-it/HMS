@@ -214,7 +214,7 @@ export default function FollowUpTimePro({
       <div className="flex justify-start">
         <Button
           onClick={() => setShowFollowUp(true)}
-          className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]"
+          className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]"
         >
           Book Follow Up
         </Button>
@@ -227,7 +227,7 @@ export default function FollowUpTimePro({
       <div className="flex justify-start">
         <Button
           onClick={() => setShowFollowUp(false)}
-          className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]"
+          className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]"
         >
           Hide Follow Up
         </Button>

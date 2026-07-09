@@ -19,7 +19,7 @@ export default function Summery({ profile }: PropTypes) {
             <p className="flex items-center gap-2 text-base font-semibold text-slate-900">
               Live & Accepting Orders
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-cosmo-dark)]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-synapse-dark)]" />
                 Online
               </span>
             </p>

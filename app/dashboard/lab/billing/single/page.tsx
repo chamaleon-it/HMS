@@ -75,7 +75,7 @@ function InvoiceViewContent() {
         </div>
         <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden">
         {/* Header Section */}
-        <div className="flex justify-between items-center bg-linear-to-r from-[var(--color-cosmo-brown)] to-[var(--color-cosmo-dark)] text-white px-8 py-6 border-b">
+        <div className="flex justify-between items-center bg-linear-to-r from-[var(--color-synapse-purple)] to-[var(--color-synapse-dark)] text-white px-8 py-6 border-b">
           <div className="flex items-center space-x-3">
             <h2 className="text-lg font-semibold">{configuration().hospitalName}</h2>
           </div>

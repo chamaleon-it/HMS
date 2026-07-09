@@ -83,7 +83,7 @@ export default function ViewResultModal({ r }: Props) {
                 <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-blue-100/50 text-[var(--color-cosmo-copper)] rounded-xl">
+                            <div className="p-2.5 bg-blue-100/50 text-[var(--color-synapse-light)] rounded-xl">
                                 <FileText className="w-5 h-5" />
                             </div>
                             <div>
@@ -136,7 +136,7 @@ export default function ViewResultModal({ r }: Props) {
                             <div key={test._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-2 rounded-lg transition-colors ${test.name.type === 'Lab' ? 'bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)]' : 'bg-purple-50 text-[var(--color-cosmo-copper)]'}`}>
+                                        <div className={`p-2 rounded-lg transition-colors ${test.name.type === 'Lab' ? 'bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)]' : 'bg-purple-50 text-[var(--color-synapse-light)]'}`}>
                                             {test.name.type === 'Lab' ? <FlaskConical className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
                                         </div>
                                         <div>
@@ -166,7 +166,7 @@ export default function ViewResultModal({ r }: Props) {
                                                                 href={test.value.toString()}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-[var(--color-cosmo-copper)] hover:text-[var(--color-cosmo-copper)] hover:border-blue-200 hover:shadow-sm transition-all"
+                                                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-[var(--color-synapse-light)] hover:text-[var(--color-synapse-light)] hover:border-blue-200 hover:shadow-sm transition-all"
                                                             >
                                                                 <FileText className="w-3.5 h-3.5" />
                                                                 View Report / Image

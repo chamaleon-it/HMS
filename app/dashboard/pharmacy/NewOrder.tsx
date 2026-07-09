@@ -62,13 +62,13 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       <Button
         variant={"outline"}
         onClick={() => { setNameToRegister(""); setOpenCreate(true); }}
-        className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white"
+        className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white"
       >
         New Customer
       </Button>
 
       <Button
-        className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+        className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md transition-all hover:shadow-lg active:scale-95"
         size={"sm"}
         onClick={() => addDraft({ doctor: user?._id || "" })}
       >

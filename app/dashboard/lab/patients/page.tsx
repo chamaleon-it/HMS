@@ -121,7 +121,7 @@ const Patients: React.FC = () => {
                         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
                             <Table>
                                 <TableHeader className="">
-                                    <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white uppercase">
+                                    <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white uppercase">
                                         <TableHead className="text-white py-3">Sl</TableHead>
                                         <TableHead className="text-white py-3">Customer</TableHead>
                                         <TableHead className="text-white py-3">PID</TableHead>
@@ -176,7 +176,7 @@ const Patients: React.FC = () => {
                                                                 </Badge>
                                                             )}
                                                             {isRepeat && (
-                                                                <Badge className="bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border border-[var(--color-cosmo-copper)]/20 text-[10px] font-medium">
+                                                                <Badge className="bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border border-[var(--color-synapse-light)]/20 text-[10px] font-medium">
                                                                     Repeat
                                                                 </Badge>
                                                             )}
@@ -205,7 +205,7 @@ const Patients: React.FC = () => {
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="icon"
-                                                                    className="h-8 w-8 text-[var(--color-cosmo-copper)] hover:text-[var(--color-cosmo-copper)] hover:bg-blue-50"
+                                                                    className="h-8 w-8 text-[var(--color-synapse-light)] hover:text-[var(--color-synapse-light)] hover:bg-blue-50"
                                                                     onClick={(e: React.MouseEvent) => {
                                                                         e.stopPropagation();
                                                                         router.push(

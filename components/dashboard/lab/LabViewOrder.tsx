@@ -66,7 +66,7 @@ export default function LabViewOrder({ open, setOpen, sample, onUpdateStatus }: 
                             <span className={cn("text-xs px-2 py-1 rounded-full border",
                                 sample.status === "Completed" ? "bg-emerald-50 text-emerald-700 border-emerald-200" :
                                     sample.status === "Pending" ? "bg-amber-50 text-amber-700 border-amber-200" :
-                                        "bg-blue-50 text-[var(--color-cosmo-copper)] border-blue-200"
+                                        "bg-blue-50 text-[var(--color-synapse-light)] border-blue-200"
                             )}>
                                 {sample.status}
                             </span>
@@ -119,7 +119,7 @@ export default function LabViewOrder({ open, setOpen, sample, onUpdateStatus }: 
                     {/* Test List Section (Mocked Items) */}
                     <div className="rounded-lg border overflow-hidden">
                         <table className="w-full text-[15px]">
-                            <thead className="bg-[var(--color-cosmo-dark)] text-white">
+                            <thead className="bg-[var(--color-synapse-dark)] text-white">
                                 <tr>
                                     <th className="p-3 text-left w-[5%]">Sl</th>
                                     <th className="p-3 text-left w-[40%]">Test Name</th>
@@ -175,7 +175,7 @@ export default function LabViewOrder({ open, setOpen, sample, onUpdateStatus }: 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 {[
                                     { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50", shortcut: "C" },
-                                    { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-[var(--color-cosmo-copper)]", bg: "bg-[var(--color-cosmo-copper)]/10", shortcut: "U" },
+                                    { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-[var(--color-synapse-light)]", bg: "bg-[var(--color-synapse-light)]/10", shortcut: "U" },
                                     { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50", shortcut: "P" },
                                 ].map((method) => {
                                     const active = paymentMethod === method.id;
@@ -244,7 +244,7 @@ export default function LabViewOrder({ open, setOpen, sample, onUpdateStatus }: 
                             )}
 
                             <div className="flex justify-end pt-2">
-                                <Button className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white">
+                                <Button className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white">
                                     Update Payment
                                 </Button>
                             </div>
@@ -260,7 +260,7 @@ export default function LabViewOrder({ open, setOpen, sample, onUpdateStatus }: 
 
                     {sample.status === "Pending" && (
                         <Button
-                            className="bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white"
+                            className="bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] text-white"
                             // onClick={() => handleStatusUpdate("Sample Collected")}
                             onClick={() => handleStatusUpdate("Waiting for Result")}
                             disabled={updatingStatus}
@@ -272,7 +272,7 @@ export default function LabViewOrder({ open, setOpen, sample, onUpdateStatus }: 
 
                     {sample.status === "Waiting for Result" && (
                         <Button
-                            className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white"
+                            className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white"
                             onClick={() => handleStatusUpdate("Completed")}
                             disabled={updatingStatus}
                         >

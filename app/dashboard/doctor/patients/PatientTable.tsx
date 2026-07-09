@@ -151,7 +151,7 @@ export default function PatientTable({
       <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 mt-6">
         <table className="w-full">
           <thead>
-            <tr className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
+            <tr className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
               <th className="w-14  px-4 py-2.5">
                 <Checkbox
                   className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700"

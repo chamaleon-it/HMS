@@ -14,6 +14,7 @@ export type User = {
   _id: string;
   name: string;
   email: string;
+  username?: string;
   role: string;
   profilePic?: string | null;
   specialization?: string | null;
@@ -60,8 +61,8 @@ export function AuthProvider({
   const getUser = useCallback(async () => {
     try {
       const { data } = await api.get("/users/profile");
-      const { _id, name, email, role, profilePic, specialization } = data?.data;
-      setUser({ _id, email, name, role, profilePic, specialization });
+      const { _id, name, email, username, role, profilePic, specialization } = data?.data;
+      setUser({ _id, email, username, name, role, profilePic, specialization });
     } catch (error) {
 
       setLoading(false);

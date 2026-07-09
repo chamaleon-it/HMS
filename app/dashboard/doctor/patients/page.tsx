@@ -225,8 +225,8 @@ export default function PatientsEnhanced() {
 }
 
 const theme = {
-  from: "var(--color-cosmo-copper)",
-  to: "var(--color-cosmo-brown)",
+  from: "var(--color-synapse-light)",
+  to: "var(--color-synapse-purple)",
 };
 
 const PrimaryButton: React.FC<

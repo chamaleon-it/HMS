@@ -133,10 +133,10 @@ const CustomerContent: React.FC = () => {
                   </div>
                 </div>
                 <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                  <div className="text-xs font-medium text-[var(--color-cosmo-copper)] uppercase tracking-wide">
+                  <div className="text-xs font-medium text-[var(--color-synapse-light)] uppercase tracking-wide">
                     Last Visit
                   </div>
-                  <div className="text-sm font-semibold text-[var(--color-cosmo-copper)]">
+                  <div className="text-sm font-semibold text-[var(--color-synapse-light)]">
                     {fDate(reports?.[0]?.createdAt)}
                   </div>
                 </div>
@@ -152,9 +152,9 @@ const CustomerContent: React.FC = () => {
 
               <section className="grid gap-5 md:grid-cols-5 items-start">
                 <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
-                  <div className="px-4 py-3 bg-[var(--color-cosmo-dark)] text-slate-50 flex items-center justify-between">
+                  <div className="px-4 py-3 bg-[var(--color-synapse-dark)] text-slate-50 flex items-center justify-between">
                     <div className="text-sm font-medium flex items-center gap-2">
-                      <span className="h-7 w-7 rounded-full bg-[var(--color-cosmo-brown)] flex items-center justify-center text-[11px]">
+                      <span className="h-7 w-7 rounded-full bg-[var(--color-synapse-purple)] flex items-center justify-center text-[11px]">
                         {reports?.length}
                       </span>
                       Reports / Visits
@@ -256,7 +256,7 @@ const CustomerContent: React.FC = () => {
                                 <motion.span
                                   layoutId="tab-indicator-1"
                                   className="absolute inset-0 rounded-full"
-                                  style={{ background: "var(--color-cosmo-copper)" }}
+                                  style={{ background: "linear-gradient(to right, var(--color-synapse-purple), #d946ef)" }}
                                   transition={{ type: "spring", stiffness: 500, damping: 40 }}
                                 />
                               )}
@@ -319,7 +319,7 @@ const CustomerContent: React.FC = () => {
                               setSelectedTests([]);
                             }}
                             className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
-                              ? "bg-[var(--color-cosmo-dark)] text-slate-50"
+                              ? "bg-[var(--color-synapse-dark)] text-slate-50"
                               : "hover:bg-slate-50"
                               }`}
                           >
@@ -474,7 +474,7 @@ const CustomerContent: React.FC = () => {
                                         href={t.value?.toString()}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-[var(--color-cosmo-copper)] bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                                        className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-[var(--color-synapse-light)] bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                                       >
                                         View Result
                                         <svg
@@ -563,7 +563,7 @@ const CustomerContent: React.FC = () => {
                                 handlePrint(reportToPrint);
                               }
                             }}
-                            className="rounded-full text-sm px-6 py-2 bg-[var(--color-cosmo-dark)] text-white hover:bg-[var(--color-cosmo-brown)]"
+                            className="rounded-full text-sm px-6 py-2 bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-purple)]"
 
                           >
                             Print Report

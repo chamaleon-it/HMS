@@ -88,7 +88,7 @@ const SuppliersPage: React.FC = () => {
                         subtitle="Manage your pharmacy suppliers"
                     >
                         <Button
-                            className="bg-linear-to-r from-(--color-cosmo-copper) to-(--color-cosmo-brown) hover:from-(--color-cosmo-copper) hover:to-(--color-cosmo-brown) text-white shadow-md font-semibold"
+                            className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md font-semibold"
                             onClick={() => setIsAddDrawerOpen(true)}
                         >
                             <Plus className="w-4 h-4 mr-2" />
@@ -143,8 +143,8 @@ const SuppliersPage: React.FC = () => {
 
                     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
                         <Table className="min-w-[1000px]">
-                            <TableHeader className="bg-(--color-cosmo-dark) hover:bg-(--color-cosmo-dark)">
-                                <TableRow className="bg-(--color-cosmo-dark) hover:bg-(--color-cosmo-dark) border-b-0">
+                            <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+                                <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Seller Name</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Phone Number</TableHead>

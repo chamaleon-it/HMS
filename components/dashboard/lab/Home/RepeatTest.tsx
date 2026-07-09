@@ -138,7 +138,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
                 <Button
                     variant={"outline"}
                     size="sm"
-                    className="gap-2 h-8 text-xs text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30 hover:bg-[var(--color-cosmo-copper)]/10 hover:text-[var(--color-cosmo-copper)] bg-white"
+                    className="gap-2 h-8 text-xs text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30 hover:bg-[var(--color-synapse-light)]/10 hover:text-[var(--color-synapse-light)] bg-white"
                 >
                     <Repeat className="h-3.5 w-3.5" />
                     Repeat
@@ -315,7 +315,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
 
                 <div className="flex justify-end items-center mt-4 pr-4">
                     <div className="text-lg font-semibold text-gray-700">
-                        Grand Total: <span className="text-[var(--color-cosmo-copper)]">{formatINR(grandTotal)}</span>
+                        Grand Total: <span className="text-[var(--color-synapse-light)]">{formatINR(grandTotal)}</span>
                     </div>
                 </div>
 
@@ -324,7 +324,7 @@ export default function RepeatTest({ report, mutate }: RepeatTestProps) {
                         <Button variant="outline">Cancel</Button>
                     </DialogClose>
                     <Button
-                        className="bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white"
+                        className="bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] text-white"
                         onClick={handleSubmit}
                     >
                         Repeat Order
