@@ -119,7 +119,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                 <Button
                     variant="outline"
                     size="sm"
-                    className="bg-white text-[var(--color-cosmo-copper)] border-blue-200 hover:bg-blue-50 hover:text-[var(--color-cosmo-copper)] gap-2 h-8 text-xs font-semibold shadow-sm transition-all duration-200"
+                    className="bg-white text-[var(--color-synapse-light)] border-blue-200 hover:bg-blue-50 hover:text-[var(--color-synapse-light)] gap-2 h-8 text-xs font-semibold shadow-sm transition-all duration-200"
                 >
                     <FlaskConical className="w-3.5 h-3.5" />
                     Sample Collected
@@ -295,7 +295,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                         variant="outline"
                         size="sm"
                         onClick={() => setSamples([...samples, { id: getNewId(), specimen: "Blood" }])}
-                        className="mt-4 w-full border-dashed text-[var(--color-cosmo-copper)] border-blue-200 hover:bg-blue-50 hover:text-[var(--color-cosmo-copper)] h-9 font-medium"
+                        className="mt-4 w-full border-dashed text-[var(--color-synapse-light)] border-blue-200 hover:bg-blue-50 hover:text-[var(--color-synapse-light)] h-9 font-medium"
                     >
                         + Add Another Sample
                     </Button>
@@ -311,7 +311,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                     <Button
                         onClick={handleCollect}
                         disabled={loading}
-                        className="bg-linear-to-br from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white"
+                        className="bg-linear-to-br from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white"
                     >
                         <Save className="w-4 h-4 mr-2" />
                         Confirm Collection

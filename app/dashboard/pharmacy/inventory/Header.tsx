@@ -89,7 +89,7 @@ export default function Header({ handleAdd, items, lowStockCount, setFilter, low
       title="Inventory Management"
       subtitle="Manage your pharmacy stock and inventory"
     >
-      <Button className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md transition-all hover:shadow-lg active:scale-95 gap-2" onClick={handleAdd}>
+      <Button className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md transition-all hover:shadow-lg active:scale-95 gap-2" onClick={handleAdd}>
         + Add New Item
       </Button>
       <Button variant="outline" onClick={exportCsv} disabled={downloadingCsv}>

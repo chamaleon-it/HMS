@@ -421,7 +421,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
                             {[
                                 { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50", shortcut: "C" },
-                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-[var(--color-cosmo-copper)]", bg: "bg-[var(--color-cosmo-copper)]/10", shortcut: "U" },
+                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-[var(--color-synapse-light)]", bg: "bg-[var(--color-synapse-light)]/10", shortcut: "U" },
                                 { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50", shortcut: "P" },
                             ].map((method) => {
                                 const active = paymentMethod === method.id;
@@ -441,7 +441,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                             <kbd className={cn(
                                                 "px-1.5 py-0.5 text-[9px] font-bold rounded shadow-xs border",
                                                 method.id === "Cash" && "bg-emerald-50 border-emerald-200 text-emerald-600",
-                                                method.id === "UPI" && "bg-[var(--color-cosmo-copper)]/10 border-[var(--color-cosmo-copper)]/30 text-[var(--color-cosmo-copper)]",
+                                                method.id === "UPI" && "bg-[var(--color-synapse-light)]/10 border-[var(--color-synapse-light)]/30 text-[var(--color-synapse-light)]",
                                                 method.id === "Underpaid" && "bg-rose-50 border-rose-200 text-rose-600"
                                             )}>
                                                 {method.shortcut}
@@ -533,7 +533,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         value={referenceNumber}
                                         onChange={(e) => setReferenceNumber(e.target.value)}
                                         onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
-                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-[var(--color-cosmo-copper)]/20"
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-[var(--color-synapse-light)]/20"
                                     />
                                 </div>
                             )}
@@ -541,7 +541,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
                             <Button
                                 onClick={handlePaymentUpdate}
-                                className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white h-10">
+                                className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white h-10">
                                 Update Payment
                             </Button>
 
@@ -553,14 +553,14 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                 <div className="flex items-center gap-2">
                     {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
                         disabled={updatingOrder}
-                        className="bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white"
+                        className="bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] text-white"
                         onClick={handleUpdate}
                     >
                         {updatingOrder ? "Updating..." : "Update Order"}
                     </Button>}
                     {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
                         disabled={markingAllPacked}
-                        className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white"
+                        className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white"
                         onClick={() => markAllPacked()}
                     >
                         {markingAllPacked ? "Marking..." : "Mark all packed"}

@@ -58,7 +58,7 @@ const Customers: React.FC = () => {
   params.set("alreadyPurchase", filter.alreadyPurchase ? "true" : "false");
   params.set("page", String(filter.page));
   params.set("limit", String(filter.limit));
-  if (filter.query) params.set("q", filter.query);
+  if (filter.query) params.set("query", filter.query);
   if (filter.address) params.set("address", filter.address);
   if (filter.city) params.set("city", filter.city);
   if (filter.district) params.set("district", filter.district);
@@ -68,7 +68,10 @@ const Customers: React.FC = () => {
   if (filter.doctor) params.set("doctor", filter.doctor);
   if (filter.dateRange.from) params.set("from", filter.dateRange.from);
   if (filter.dateRange.to) params.set("to", filter.dateRange.to);
-  if (filter.age[0] !== 0 || filter.age[1] !== 100) params.set("age", `${filter.age[0]}-${filter.age[1]}`);
+  if (filter.age[0] !== 0 || filter.age[1] !== 100) {
+    params.set("minAge", filter.age[0].toString());
+    params.set("maxAge", filter.age[1].toString());
+  }
   if (filter.lastVisit) params.set("lastVisit", String(filter.lastVisit));
 
   const { data: customersData, isLoading, mutate } = useSWR<{
@@ -119,8 +122,8 @@ const Customers: React.FC = () => {
             ) : (
               <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
                 <Table className="min-w-[1000px]">
-                  <TableHeader className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
-                    <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
+                  <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
+                    <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Customers</TableHead>
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">PID</TableHead>
@@ -179,7 +182,7 @@ const Customers: React.FC = () => {
                                     </Badge>
                                   )}
                                   {isRepeat && (
-                                    <Badge className="bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border border-[var(--color-cosmo-copper)]/20 text-[10px] font-medium">
+                                    <Badge className="bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border border-[var(--color-synapse-light)]/20 text-[10px] font-medium">
                                       Repeat
                                     </Badge>
                                   )}
@@ -187,7 +190,7 @@ const Customers: React.FC = () => {
                               </div>
                               <div className="flex items-center gap-2">
                                 {p.patient.mrn && (
-                                  <span className="text-[11px] text-[var(--color-cosmo-copper)] font-medium">{p.patient.mrn}</span>
+                                  <span className="text-[11px] text-[var(--color-synapse-light)] font-medium">{p.patient.mrn}</span>
                                 )}
                                 <span className="text-[12px] text-slate-500 truncate max-w-[220px]">
                                   <HighlightText
@@ -229,7 +232,7 @@ const Customers: React.FC = () => {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-[var(--color-cosmo-copper)] hover:text-[var(--color-cosmo-copper)] hover:bg-blue-50"
+                                    className="h-8 w-8 text-[var(--color-synapse-light)] hover:text-[var(--color-synapse-light)] hover:bg-blue-50"
                                     onClick={(e: React.MouseEvent) => {
                                       e.stopPropagation();
                                       router.push(

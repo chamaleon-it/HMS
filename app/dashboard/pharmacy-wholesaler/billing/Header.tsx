@@ -18,7 +18,7 @@ export default function Header({ setTab }: PropsType) {
         <PrimaryButton onClick={() => setTab("new")}>
           <FilePlus2 className="mr-2 inline h-4 w-4" /> New Invoice
         </PrimaryButton>
-        {/* <button className="rounded-lg bg-[var(--color-cosmo-dark)] px-3 py-2 text-sm font-semibold text-white hover:brightness-110">
+        {/* <button className="rounded-lg bg-[var(--color-synapse-dark)] px-3 py-2 text-sm font-semibold text-white hover:brightness-110">
                 <Wallet2 className="mr-2 inline h-4 w-4" /> Collect Payment
               </button>
               <button className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800 hover:bg-amber-100 dark:border-amber-400/40 dark:bg-amber-400/10 dark:text-amber-300">
@@ -34,8 +34,8 @@ export default function Header({ setTab }: PropsType) {
 
 
 const theme = {
-  from: "var(--color-cosmo-copper)",
-  to: "var(--color-cosmo-brown)",
+  from: "var(--color-synapse-light)",
+  to: "var(--color-synapse-purple)",
   accent: "#06b6d4",
 };
 

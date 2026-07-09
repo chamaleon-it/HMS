@@ -88,7 +88,7 @@ const SuppliersPage: React.FC = () => {
                         subtitle="Manage your pharmacy suppliers"
                     >
                         <Button
-                            className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md font-semibold"
+                            className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md font-semibold"
                             onClick={() => setIsAddDrawerOpen(true)}
                         >
                             <Plus className="w-4 h-4 mr-2" />
@@ -100,7 +100,7 @@ const SuppliersPage: React.FC = () => {
                         <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 shadow-sm transition-all hover:scale-[1.02]">
                             <div className="flex flex-col gap-1">
                                 <div className="flex items-center gap-2 mb-2">
-                                    <Users className="w-4 h-4 text-[var(--color-cosmo-copper)]/70" />
+                                    <Users className="w-4 h-4 text-cosmo-copper/70" />
                                     <p className="text-[11px] font-semibold text-blue-800/70 uppercase tracking-widest">Total Suppliers</p>
                                 </div>
                                 <h3 className="text-xl font-bold text-blue-900 leading-none">{stats.totalSuppliers}</h3>
@@ -143,8 +143,8 @@ const SuppliersPage: React.FC = () => {
 
                     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
                         <Table className="min-w-[1000px]">
-                            <TableHeader className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
-                                <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
+                            <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+                                <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Seller Name</TableHead>
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5">Phone Number</TableHead>

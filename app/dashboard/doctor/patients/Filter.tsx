@@ -189,7 +189,7 @@ export default function Filter({
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="absolute inset-0 bg-[var(--color-cosmo-copper)]"
+                        className="absolute inset-0 bg-[var(--color-synapse-light)]"
                         transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                       />
                     )}
@@ -210,7 +210,7 @@ export default function Filter({
             {[
               { label: "All", value: undefined, icon: null },
               { label: "Female", value: "Female", color: "bg-rose-600" },
-              { label: "Male", value: "Male", color: "bg-[var(--color-cosmo-copper)]" },
+              { label: "Male", value: "Male", color: "bg-[var(--color-synapse-light)]" },
             ].map((opt) => {
               const active = filter.gender === opt.value;
               return (

@@ -99,7 +99,7 @@ export default function ActionButton({ data,testIsOK }: { data: DataType ,testIs
         <Button
           type="button"
           onClick={() => consulting("Consulted")}
-          className="flex items-center gap-2 bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white font-semibold shadow-sm cursor-pointer"
+          className="flex items-center gap-2 bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white font-semibold shadow-sm cursor-pointer"
         >
           <CheckCircle2 className="w-4 h-4" />
           Complete

@@ -34,12 +34,34 @@ export default function Statistics() {
     };
 
     const stats = [
-        { title: "Total Patients", value: data.totalPatients, icon: Users, color: "text-blue-500", change: "Registered patients" },
-        { title: "Total Doctors", value: data.totalDoctors, icon: Stethoscope, color: "text-[var(--color-cosmo-copper)]", change: "Active doctors" },
-        { title: "Today's Appointments", value: data.todaysAppointments, icon: Calendar, color: "text-yellow-600", change: "Scheduled today" },
-        { title: "Today's Revenue", value: formatINR(data.todaysRevenue), icon: DollarSign, color: "text-green-600", change: "Collected today" },
-        { title: "Monthly Revenue", value: formatINR(data.monthlyRevenue), icon: Wallet, color: "text-green-700", change: "Collected this month" },
-        { title: "Outstanding Payments", value: formatINR(data.outstandingPayments), icon: AlertTriangle, color: "text-red-500", change: "Requires follow-up" },
+        {
+            title: "Total Users",
+            value: "1,234",
+            icon: Users,
+            color: "text-[var(--color-synapse-light)]",
+            change: "+12% from last month",
+        },
+        {
+            title: "Total Revenue",
+            value: "$45,231",
+            icon: DollarSign,
+            color: "text-green-500",
+            change: "+8% from last month",
+        },
+        {
+            title: "Active Sessions",
+            value: "345",
+            icon: Activity,
+            color: "text-[var(--color-synapse-light)]",
+            change: "+24% from last hour",
+        },
+        {
+            title: "Appointments",
+            value: "89",
+            icon: Calendar,
+            color: "text-yellow-600",
+            change: "+4% from yesterday",
+        },
     ];
 
     return (

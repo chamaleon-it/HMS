@@ -82,12 +82,12 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
           className={cn(
             "flex items-center gap-2 rounded-full px-4 py-2 text-sm transition-all border cursor-pointer font-medium",
             filter.doctor.length > 0 
-              ? "bg-[var(--color-cosmo-copper)]/10 border-[var(--color-cosmo-copper)]/30 text-[var(--color-cosmo-copper)] shadow-sm" 
+              ? "bg-[var(--color-synapse-light)]/10 border-[var(--color-synapse-light)]/30 text-[var(--color-synapse-light)] shadow-sm" 
               : "bg-white border-slate-200 text-slate-600 hover:bg-slate-50"
           )}
           type="button"
         >
-          <User2 size={14} className={cn(filter.doctor.length > 0 ? "text-[var(--color-cosmo-copper)]" : "text-slate-400")} />
+          <User2 size={14} className={cn(filter.doctor.length > 0 ? "text-[var(--color-synapse-light)]" : "text-slate-400")} />
           <span>
             {filter.doctor.length === 0 
               ? "All Doctors" 
@@ -115,7 +115,7 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
                 className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
               >
                 <span className="font-medium">All Doctors</span>
-                {filter.doctor.length === 0 && <Check size={16} className="text-[var(--color-cosmo-copper)]" />}
+                {filter.doctor.length === 0 && <Check size={16} className="text-[var(--color-synapse-light)]" />}
               </button>
               
               <div className="my-1.5 h-px bg-slate-100" />
@@ -133,7 +133,7 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
                       className="flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 transition-colors"
                     >
                       <span className="truncate">{doctor}</span>
-                      {filter.doctor.includes(doctor) && <Check size={16} className="text-[var(--color-cosmo-copper)]" />}
+                      {filter.doctor.includes(doctor) && <Check size={16} className="text-[var(--color-synapse-light)]" />}
                     </button>
                   ))
                 )}
@@ -168,7 +168,7 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
                 <motion.span
                   layoutId="billing-tab-indicator-1"
                   className="absolute inset-0 rounded-full"
-                  style={{ background: "var(--color-cosmo-copper)" }}
+                  style={{ background: "linear-gradient(to right, var(--color-synapse-purple), #d946ef)" }}
                   transition={{ type: "spring", stiffness: 500, damping: 40 }}
                 />
               )}
@@ -185,8 +185,8 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
 
 
 const theme = {
-  from: "var(--color-cosmo-copper)",
-  to: "var(--color-cosmo-brown)",
+  from: "var(--color-synapse-light)",
+  to: "var(--color-synapse-purple)",
   accent: "#06b6d4",
 };
 

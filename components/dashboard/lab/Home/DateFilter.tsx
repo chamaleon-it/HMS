@@ -7,8 +7,8 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 
 const theme = {
-    from: "var(--color-cosmo-copper)",
-    to: "var(--color-cosmo-brown)",
+    from: "var(--color-synapse-light)",
+    to: "var(--color-synapse-purple)",
 };
 
 interface DateFilterProps {

@@ -89,14 +89,14 @@ const ItemSearchCell = ({
                     variant="ghost"
                     role="combobox"
                     className={cn(
-                        "w-full h-11 justify-between text-sm border border-slate-200 bg-white hover:bg-slate-50 hover:border-[var(--color-cosmo-copper)]/30 hover:shadow-md transition-all rounded-lg",
+                        "w-full h-11 justify-between text-sm border border-slate-200 bg-white hover:bg-slate-50 hover:border-[var(--color-synapse-light)]/30 hover:shadow-md transition-all rounded-lg",
                         !selectedItemId && "text-slate-400 font-medium"
                     )}
                 >
                     <span className="truncate">
                         {localSelectedItem ? localSelectedItem.name : (selectedItemName || "Search Medicine...")}
                     </span>
-                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-[var(--color-cosmo-copper)]" />
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-[var(--color-synapse-light)]" />
                 </Button>
             </PopoverTrigger>
             <PopoverContent className="w-[350px] p-0 shadow-2xl border-slate-200 rounded-xl" align="start">
@@ -114,7 +114,7 @@ const ItemSearchCell = ({
                                 <span>No medicines found for "{query}"</span>
                                 <Button
                                     size="sm"
-                                    className="h-9 bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white gap-2 font-semibold shadow-md "
+                                    className="h-9 bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] text-white gap-2 font-semibold shadow-md "
                                     onClick={() => {
                                         setIsAddModalOpen(true);
                                         setOpen(false);
@@ -136,11 +136,11 @@ const ItemSearchCell = ({
                                         setOpen(false);
                                         setQuery("");
                                     }}
-                                    className="rounded-lg h-10 px-3 aria-selected:bg-[var(--color-cosmo-copper)]/10 aria-selected:text-[var(--color-cosmo-copper)] font-medium transition-colors cursor-pointer mb-1 "
+                                    className="rounded-lg h-10 px-3 aria-selected:bg-[var(--color-synapse-light)]/10 aria-selected:text-[var(--color-synapse-light)] font-medium transition-colors cursor-pointer mb-1 "
                                 >
                                     <Check
                                         className={cn(
-                                            "mr-3 h-4 w-4 text-[var(--color-cosmo-copper)] transition-all",
+                                            "mr-3 h-4 w-4 text-[var(--color-synapse-light)] transition-all",
                                             selectedItemId === it._id ? "opacity-100 scale-100" : "opacity-0 scale-50"
                                         )}
                                     />

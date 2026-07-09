@@ -327,7 +327,7 @@ export default function LabResultsPage() {
           label="Total"
           value={REPORT.length}
           colorClass="from-violet-500/10 to-violet-500/5"
-          iconBgClass="bg-violet-100 text-[var(--color-cosmo-copper)]"
+          iconBgClass="bg-violet-100 text-[var(--color-synapse-light)]"
           borderClass="hover:border-violet-200"
           delay={0}
         />
@@ -344,8 +344,8 @@ export default function LabResultsPage() {
           icon={<Scan className="h-6 w-6" />}
           label="Imaging"
           value={REPORT.reduce((acc, r) => acc + (r.test.filter((e) => e.name.type === "Imaging").length ?? 0), 0)}
-          colorClass="from-[var(--color-cosmo-copper)]/10 to-blue-500/5"
-          iconBgClass="bg-blue-100 text-[var(--color-cosmo-copper)]"
+          colorClass="from-[var(--color-synapse-light)]/10 to-blue-500/5"
+          iconBgClass="bg-blue-100 text-[var(--color-synapse-light)]"
           borderClass="hover:border-blue-200"
           delay={0.2}
         />
@@ -353,9 +353,9 @@ export default function LabResultsPage() {
           icon={<CheckCircle2 className="h-6 w-6" />}
           label="Completed"
           value={REPORT.filter((r) => r.status === "Completed").length}
-          colorClass="from-[var(--color-cosmo-copper)]/10 to-[var(--color-cosmo-brown)]/5"
-          iconBgClass="bg-[var(--color-cosmo-copper)]/20 text-[var(--color-cosmo-copper)]"
-          borderClass="hover:border-[var(--color-cosmo-copper)]/30"
+          colorClass="from-[var(--color-synapse-light)]/10 to-[var(--color-synapse-purple)]/5"
+          iconBgClass="bg-[var(--color-synapse-light)]/20 text-[var(--color-synapse-light)]"
+          borderClass="hover:border-[var(--color-synapse-light)]/30"
           delay={0.3}
         />
         <StatCard
@@ -428,8 +428,8 @@ export default function LabResultsPage() {
             <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-fit">
               {[
                 { label: "All", value: "All" as const },
-                { label: "Lab", value: "Lab" as const, color: "bg-[var(--color-cosmo-dark)]" },
-                { label: "Imaging", value: "Imaging" as const, color: "bg-[var(--color-cosmo-copper)]" },
+                { label: "Lab", value: "Lab" as const, color: "bg-[var(--color-synapse-dark)]" },
+                { label: "Imaging", value: "Imaging" as const, color: "bg-[var(--color-synapse-light)]" },
               ].map((opt) => {
                 const active = filter.facility === opt.value;
                 return (

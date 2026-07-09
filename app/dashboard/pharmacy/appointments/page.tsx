@@ -29,7 +29,7 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 const APPOINTMENT_STATUSES = [
   { label: "Upcoming", value: "Upcoming", color: "bg-blue-200 text-blue-800", key: "U" },
   { label: "Consulted", value: "Consulted", color: "bg-green-100 text-green-800", key: "C" },
-  { label: "Observation", value: "Observation", color: "bg-[#FDF6ED] text-[var(--color-cosmo-copper)]", key: "O" },
+  { label: "Observation", value: "Observation", color: "bg-[#FDF6ED] text-[var(--color-synapse-light)]", key: "O" },
   { label: "Not show", value: "Not show", color: "bg-yellow-100 text-yellow-800", key: "N" },
   { label: "Completed", value: "Completed", color: "bg-gray-200 text-gray-800", key: "P" },
   { label: "Admit", value: "Admit", color: "bg-red-300 text-red-800", key: "A" },
@@ -72,14 +72,14 @@ function DoctorAvailabilityCard({ doctorId }: { doctorId: string }) {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">{dayConfig.startTime} - {dayConfig.endTime}</span>
-                {busyCount > 0 && <span className="w-5 h-5 flex items-center justify-center bg-blue-50 text-[var(--color-cosmo-copper)] text-[10px] font-bold rounded-full">{busyCount}</span>}
+                {busyCount > 0 && <span className="w-5 h-5 flex items-center justify-center bg-blue-50 text-[var(--color-synapse-light)] text-[10px] font-bold rounded-full">{busyCount}</span>}
               </div>
             </div>
           )
         })}
         {schedule.length === 0 && <p className="text-xs text-gray-400 italic">No schedule available.</p>}
       </div>
-      <button className="w-full py-2 text-xs font-semibold text-[var(--color-cosmo-copper)] bg-[var(--color-cosmo-copper)]/10 rounded-lg hover:bg-[var(--color-cosmo-copper)]/20 transition">View Full Schedule</button>
+      <button className="w-full py-2 text-xs font-semibold text-[var(--color-synapse-light)] bg-[var(--color-synapse-light)]/10 rounded-lg hover:bg-[var(--color-synapse-light)]/20 transition">View Full Schedule</button>
     </div>
   );
 }
@@ -170,7 +170,7 @@ function AppointmentSidePanel({ appointment, onClose, onEdit, onUpdateStatus }: 
         {/* Patient Profile Card */}
         <div className="text-center relative">
           <div className="relative inline-block group">
-            <div className="w-24 h-24 bg-linear-to-br from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] text-white rounded-3xl flex items-center justify-center mx-auto mb-4 text-4xl font-bold shadow-lg shadow-indigo-200 ring-4 ring-white">
+            <div className="w-24 h-24 bg-linear-to-br from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] text-white rounded-3xl flex items-center justify-center mx-auto mb-4 text-4xl font-bold shadow-lg shadow-indigo-200 ring-4 ring-white">
               {patient.name.charAt(0)}
             </div>
             {isNew && (
@@ -182,7 +182,7 @@ function AppointmentSidePanel({ appointment, onClose, onEdit, onUpdateStatus }: 
           <h4 className="font-bold text-xl text-gray-900 leading-tight">{patient.name}</h4>
           <div className="flex items-center justify-center gap-2 mt-2 flex-wrap text-sm text-gray-500">
             <span className="px-2 py-0.5 bg-gray-100 rounded-md border border-gray-200">MRN: {patient.mrn || "N/A"}</span>
-            {visitCount > 0 && <span className="px-2 py-0.5 bg-blue-50 text-[var(--color-cosmo-copper)] rounded-md border border-blue-100 font-semibold">{visitCount}th Visit</span>}
+            {visitCount > 0 && <span className="px-2 py-0.5 bg-blue-50 text-[var(--color-synapse-light)] rounded-md border border-blue-100 font-semibold">{visitCount}th Visit</span>}
           </div>
         </div>
 
@@ -199,7 +199,7 @@ function AppointmentSidePanel({ appointment, onClose, onEdit, onUpdateStatus }: 
                 key={s.value}
                 onClick={() => onUpdateStatus(appointment._id, s.value)}
                 className={`relative group px-3 py-1.5 rounded-lg text-xs font-medium border transition-all ${status === s.value
-                  ? "ring-2 ring-offset-1 ring-[var(--color-cosmo-copper)] border-transparent shadow-sm " + s.color
+                  ? "ring-2 ring-offset-1 ring-[var(--color-synapse-light)] border-transparent shadow-sm " + s.color
                   : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300"
                   }`}
                 title={`Press '${s.key}' to select`}
@@ -216,7 +216,7 @@ function AppointmentSidePanel({ appointment, onClose, onEdit, onUpdateStatus }: 
         {/* Time & Date Card */}
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 space-y-4">
           <div className="flex items-start gap-4">
-            <div className="p-2.5 bg-blue-50 text-[var(--color-cosmo-copper)] rounded-xl shrink-0">
+            <div className="p-2.5 bg-blue-50 text-[var(--color-synapse-light)] rounded-xl shrink-0">
               <CalendarIcon className="w-5 h-5" />
             </div>
             <div>
@@ -245,9 +245,9 @@ function AppointmentSidePanel({ appointment, onClose, onEdit, onUpdateStatus }: 
 
         {/* Contact Info */}
         {patient.phoneNumber && (
-          <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between group cursor-pointer hover:border-[var(--color-cosmo-copper)]/30 transition-colors">
+          <div className="bg-white rounded-2xl p-4 border border-gray-100 shadow-sm flex items-center justify-between group cursor-pointer hover:border-[var(--color-synapse-light)]/30 transition-colors">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 group-hover:bg-[var(--color-cosmo-copper)]/10 group-hover:text-[var(--color-cosmo-copper)] transition-colors">
+              <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center text-gray-500 group-hover:bg-[var(--color-synapse-light)]/10 group-hover:text-[var(--color-synapse-light)] transition-colors">
                 <Phone className="w-5 h-5" />
               </div>
               <div>
@@ -435,13 +435,13 @@ function AppointmentPageContent() {
                             status: "Upcoming"
                           });
                         }}
-                        className="inline-flex items-center px-3 py-1.5 border border-transparent shadow-xs text-xs font-medium rounded-md text-white bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-cosmo-copper)]"
+                        className="inline-flex items-center px-3 py-1.5 border border-transparent shadow-xs text-xs font-medium rounded-md text-white bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-synapse-light)]"
                       >
                         Book Follow-up
                       </button>
                       <button
                         onClick={() => toast.dismiss(t.id)}
-                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-xs text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-cosmo-copper)]"
+                        className="inline-flex items-center px-3 py-1.5 border border-gray-300 shadow-xs text-xs font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-hidden focus:ring-2 focus:ring-offset-2 focus:ring-[var(--color-synapse-light)]"
                       >
                         Dismiss
                       </button>
@@ -452,7 +452,7 @@ function AppointmentPageContent() {
               <div className="flex border-l border-gray-200">
                 <button
                   onClick={() => toast.dismiss(t.id)}
-                  className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-[var(--color-cosmo-copper)] hover:text-[var(--color-cosmo-copper)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-cosmo-copper)]"
+                  className="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium text-[var(--color-synapse-light)] hover:text-[var(--color-synapse-light)] focus:outline-hidden focus:ring-2 focus:ring-[var(--color-synapse-light)]"
                 >
                   <X size={18} className="text-gray-400" />
                 </button>
@@ -504,15 +504,15 @@ function AppointmentPageContent() {
                 </>
               )}
               <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />
-              <PrimaryButton onClick={() => router.push("/dashboard/pharmacy/billing#new")} className="bg-linear-to-br from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] shadow-indigo-200" title="Direct">
+              <PrimaryButton onClick={() => router.push("/dashboard/pharmacy/billing#new")} className="bg-linear-to-br from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] shadow-indigo-200" title="Direct">
                 Direct
               </PrimaryButton>
 
-              <PrimaryButton onClick={() => setOpenCreate(true)} className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] shadow-[var(--color-cosmo-copper)]/30" title="New Appointment (N)">
+              <PrimaryButton onClick={() => setOpenCreate(true)} className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] shadow-[var(--color-synapse-light)]/30" title="New Appointment (N)">
                 <Plus className="h-4 w-4 mr-2" /> Schedule
               </PrimaryButton>
 
-              <PrimaryButton onClick={() => setOpenCreate("walk-in")} className="bg-linear-to-br from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] shadow-indigo-200" title="Walk-in (Shift + W)">
+              <PrimaryButton onClick={() => setOpenCreate("walk-in")} className="bg-linear-to-br from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] shadow-indigo-200" title="Walk-in (Shift + W)">
                 Walk-in
               </PrimaryButton>
 
@@ -566,7 +566,7 @@ function AppointmentPageContent() {
                       {active && (
                         <motion.span
                           layoutId="appointment-tab-indicator"
-                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)]"
+                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)]"
 
                           transition={{ type: "spring", stiffness: 500, damping: 40 }}
                         />
@@ -598,7 +598,7 @@ function AppointmentPageContent() {
                       {active && (
                         <motion.span
                           layoutId="status-filter-indicator"
-                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)]"
+                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)]"
 
                           transition={{ type: "spring", stiffness: 400, damping: 35 }}
                         />

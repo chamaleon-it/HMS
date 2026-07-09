@@ -16,6 +16,12 @@ export default function RegisterPage() {
         router.push("/dashboard/doctor");
       } else if (user.role === "Pharmacy") {
         router.push("/dashboard/pharmacy");
+      } else if (user.role === "Pharmacy Wholesaler") {
+        router.push("/dashboard/pharmacy-wholesaler");
+      } else if (user.role === "Lab") {
+        router.push("/dashboard/lab");
+      } else if (user.role === "Reception") {
+        router.push("/dashboard/reception");
       }
     }
   }, [user?.role,router]);

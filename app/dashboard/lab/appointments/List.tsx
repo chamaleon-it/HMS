@@ -72,7 +72,7 @@ export default function List({
             <TableRow>
               <TableCell colSpan={7} className="h-64 text-center">
                 <div className="flex flex-col items-center justify-center gap-2">
-                  <div className="w-8 h-8 border-4 border-[var(--color-cosmo-copper)] border-t-transparent rounded-full animate-spin" />
+                  <div className="w-8 h-8 border-4 border-[var(--color-synapse-light)] border-t-transparent rounded-full animate-spin" />
                   <p className="text-sm text-gray-500">Loading appointments...</p>
                 </div>
               </TableCell>
@@ -130,7 +130,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] flex items-center justify-center text-xs font-bold ring-1 ring-indigo-100">
+                      <div className="w-8 h-8 rounded-full bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] flex items-center justify-center text-xs font-bold ring-1 ring-indigo-100">
                         {row?.doctor?.name?.charAt(0)}
                       </div>
                       <div className="min-w-0 max-w-45">
@@ -164,7 +164,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
                     <Button
-                      className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] cursor-pointer"
+                      className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] cursor-pointer"
                       onClick={() => {
                         setSelectedPatient(row?.patient);
                         setDoctor(row?.doctor?._id)
@@ -195,7 +195,7 @@ export default function List({
 
 const Chip: React.FC<{ label: string }> = ({ label }) => {
   const styles: Record<string, string> = {
-    Upcoming: "bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
+    Upcoming: "bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
     Consulted: "bg-emerald-50 text-emerald-700 border-emerald-200",
     Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
     "Not show": "bg-amber-50 text-amber-700 border-amber-200",
@@ -219,8 +219,8 @@ function Avatar({ text }: { text: string }) {
   const initial = text.charAt(0).toUpperCase();
   const colors = [
     "from-rose-400 to-orange-300",
-    "from-violet-400 to-[var(--color-cosmo-brown)]",
-    "from-[var(--color-cosmo-copper)] to-cyan-300",
+    "from-violet-400 to-[var(--color-synapse-purple)]",
+    "from-[var(--color-synapse-light)] to-cyan-300",
     "from-emerald-400 to-teal-300",
     "from-amber-400 to-yellow-300"
   ];

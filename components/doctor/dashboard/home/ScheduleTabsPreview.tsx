@@ -86,7 +86,7 @@ export default function ScheduleTabsPreview({
               <motion.span
                 layoutId="tab-indicator"
                 className="absolute inset-0 rounded-full"
-                style={{ background: "var(--color-cosmo-copper)" }}
+                style={{ background: "linear-gradient(to right, var(--color-synapse-purple), #d946ef)" }}
                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
               />
             )}

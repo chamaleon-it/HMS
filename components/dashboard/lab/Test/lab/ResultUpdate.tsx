@@ -124,7 +124,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
             <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden gap-0">
                 <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-blue-100/50 text-[var(--color-cosmo-copper)] rounded-xl">
+                        <div className="p-2.5 bg-blue-100/50 text-[var(--color-synapse-light)] rounded-xl">
                             <FlaskConical className="w-5 h-5" />
                         </div>
                         <div>
@@ -153,7 +153,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                         <TableRow key={labTest._id} className="group hover:bg-blue-50/30 transition-all border-b border-gray-50 last:border-none">
                                             <TableCell className="pl-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-white border border-gray-100 text-[var(--color-cosmo-copper)] rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all">
+                                                    <div className="p-2 bg-white border border-gray-100 text-[var(--color-synapse-light)] rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all">
                                                         <Beaker className="w-4 h-4" />
                                                     </div>
                                                     <span className="font-medium text-gray-900">{labTest.name?.name}</span>
@@ -220,7 +220,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                             Cancel
                         </Button>
                     </DialogClose>
-                    <Button onClick={updateResult} className="gap-2 bg-[var(--color-cosmo-copper)] hover:bg-[var(--color-cosmo-copper)] text-white shadow-blue-100 shadow-lg">
+                    <Button onClick={updateResult} className="gap-2 bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] text-white shadow-blue-100 shadow-lg">
                         <Save className="w-4 h-4" />
                         Save Changes
                     </Button>

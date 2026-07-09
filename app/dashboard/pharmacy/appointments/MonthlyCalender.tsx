@@ -9,7 +9,7 @@ const colorMap = {
     chip: "bg-blue-100 text-blue-800",
     block: "bg-blue-100 text-blue-800",
     ring: "ring-blue-200",
-    dot: "bg-[var(--color-cosmo-copper)]",
+    dot: "bg-[var(--color-synapse-light)]",
     label: "Consultation",
   },
   "Lab Test": {
@@ -23,15 +23,15 @@ const colorMap = {
     chip: "bg-emerald-100 text-emerald-800",
     block: "bg-emerald-100 text-emerald-800",
     ring: "ring-emerald-200",
-    dot: "bg-[var(--color-cosmo-dark)]",
+    dot: "bg-[var(--color-synapse-dark)]",
     label: "Follow-up",
   },
 } as const;
 
 const statusColorMap = {
-  Upcoming: "bg-[var(--color-cosmo-copper)]",
-  Consulted: "bg-[var(--color-cosmo-dark)]",
-  Completed: "bg-[var(--color-cosmo-dark)]",
+  Upcoming: "bg-[var(--color-synapse-light)]",
+  Consulted: "bg-[var(--color-synapse-dark)]",
+  Completed: "bg-[var(--color-synapse-dark)]",
   Observation: "bg-sky-500",
   "Not show": "bg-amber-500",
   Admit: "bg-rose-500",

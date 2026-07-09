@@ -49,6 +49,12 @@ export default function Header() {
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy-wholesaler" },
       { key: "billing", label: "Billing", link: "/dashboard/pharmacy-wholesaler/billing/" },
     ]) ||
+    (user?.role === "Reception" && [
+      { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
+      { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
+      { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
+      { key: "billing", label: "Billing", link: "/dashboard/reception/billing/" },
+    ]) ||
     (user?.role === "Lab" && [
       // { key: "appointments", label: "Appointments", link: "/dashboard/lab/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/lab/" },
@@ -83,7 +89,7 @@ export default function Header() {
         {/* Background glow (subtle) */}
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-28">
           <div className="mx-auto h-full w-full max-w-screen-2xl opacity-40 mask-[radial-gradient(60%_60%_at_50%_0%,#000_0%,transparent_70%)]">
-            <div className="h-full w-full bg-[radial-gradient(1000px_200px_at_15%_-20%,var(--color-cosmo-copper)_12%,transparent_60%),radial-gradient(1000px_200px_at_85%_-20%,var(--color-cosmo-copper)_12%,transparent_60%)]" />
+            <div className="h-full w-full bg-[radial-gradient(1000px_200px_at_15%_-20%,var(--color-synapse-light)_12%,transparent_60%),radial-gradient(1000px_200px_at_85%_-20%,var(--color-synapse-light)_12%,transparent_60%)]" />
           </div>
         </div>
 
@@ -127,7 +133,7 @@ export default function Header() {
                       {isActive && (
                         <motion.span
                           layoutId="topbar-active-indicator"
-                          className="absolute inset-0 rounded-full bg-[var(--color-cosmo-copper)]"
+                          className="absolute inset-0 rounded-full bg-gradient-to-r from-[var(--color-synapse-purple)] to-[#d946ef]"
                           transition={{ type: "spring", stiffness: 500, damping: 40 }}
                         />
                       )}
@@ -141,7 +147,7 @@ export default function Header() {
                           <Link
                             key={child.key}
                             href={child.link}
-                            className={`px-4 py-2 transition-colors ${pathname.startsWith(child.link) ? "text-[var(--color-cosmo-copper)] font-bold bg-[var(--color-cosmo-copper)]/10/50" : "text-slate-600 hover:bg-slate-50 hover:text-[var(--color-cosmo-copper)]"
+                            className={`px-4 py-2 transition-colors ${pathname.startsWith(child.link) ? "text-[var(--color-synapse-light)] font-bold bg-fuchsia-50" : "text-slate-600 hover:bg-slate-50 hover:text-[var(--color-synapse-light)]"
                               }`}
                           >
                             {child.label}
@@ -162,7 +168,7 @@ export default function Header() {
                     {isActive && (
                       <motion.span
                         layoutId="topbar-active-indicator"
-                        className="absolute inset-0 rounded-full bg-[var(--color-cosmo-copper)]"
+                        className="absolute inset-0 rounded-full bg-gradient-to-r from-[var(--color-synapse-purple)] to-[#d946ef]"
                         transition={{ type: "spring", stiffness: 500, damping: 40 }}
                       />
                     )}
@@ -183,9 +189,9 @@ export default function Header() {
             className="ml-4 flex items-center gap-3 sm:gap-4"
             data-testid="actions"
           >
-            {user?.role === "Doctor" && (
+            {(user?.role === "Doctor" || user?.role === "Reception") && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[var(--color-cosmo-copper)] px-4 py-2 text-sm font-medium text-[var(--color-cosmo-dark)] shadow-sm hover:shadow-md cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-synapse-purple)] to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenCreate(true)}
               >
                 <Plus className="h-4 w-4" /> New Appointment
@@ -193,7 +199,7 @@ export default function Header() {
             )}
             {user?.role === "Pharmacy" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[var(--color-cosmo-copper)] px-4 py-2 text-sm font-medium text-[var(--color-cosmo-dark)] shadow-sm hover:shadow-md cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-synapse-purple)] to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => window.dispatchEvent(new CustomEvent('open-new-order'))}
               >
                 <Plus className="h-4 w-4" /> New Order
@@ -201,15 +207,15 @@ export default function Header() {
             )}
             {user?.role === "Lab" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[var(--color-cosmo-copper)] px-4 py-2 text-sm font-medium text-[var(--color-cosmo-dark)] shadow-sm hover:shadow-md cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--color-synapse-purple)] to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => window.dispatchEvent(new CustomEvent('open-add-test'))}
               >
                 <Plus className="h-4 w-4" /> Book Now
               </button>
             )}
-            {(user?.role === "Doctor" || user?.role === "Pharmacy" || user?.role === "Lab") && (
+            {(user?.role === "Doctor" || user?.role === "Pharmacy" || user?.role === "Lab" || user?.role === "Reception") && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-[var(--color-cosmo-dark)] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[var(--color-cosmo-brown)] cursor-pointer"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#10b981] to-[#0d9488] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenPatient(true)}
               >
                 <Plus className="h-4 w-4" /> New Patient
@@ -229,11 +235,11 @@ export default function Header() {
 
         {/* Bottom divider (slimmer) */}
         <div
-          className="h-0.75 bg-linear-to-r from-[var(--color-cosmo-copper)]/15 via-[var(--color-cosmo-copper)]/30 to-[var(--color-cosmo-copper)]/15"
+          className="h-0.75 bg-linear-to-r from-[var(--color-synapse-light)]/15 via-[var(--color-synapse-light)]/30 to-[var(--color-synapse-light)]/15"
           data-testid="header-divider"
         />
       </header>
-      {(user?.role === "Doctor" || user?.role === "Lab" || user?.role === "Pharmacy") && (
+      {(user?.role === "Doctor" || user?.role === "Lab" || user?.role === "Pharmacy" || user?.role === "Reception") && (
         <div className="w-full overflow-hidden">
           <AppointmentDialog
             open={openCreate}

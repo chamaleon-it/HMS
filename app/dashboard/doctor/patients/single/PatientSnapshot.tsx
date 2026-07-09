@@ -194,7 +194,7 @@ export default function PatientSnapshot({
                 view: Boolean(patient?.insurance),
                 label: "Insurance",
                 icon: <Wallet className="h-3.5 w-3.5" />,
-                color: "bg-[var(--color-cosmo-dark)]/10 text-emerald-600",
+                color: "bg-[var(--color-synapse-dark)]/10 text-emerald-600",
               },
             ].map(
               (f) =>

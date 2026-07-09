@@ -4,22 +4,12 @@ import { useAuth } from "@/auth/context/auth-context";
 import LoginForm from "@/components/LoginForm";
 import ForgotPassword from "@/components/LoginForm/ForgotPassword";
 import { useRouter } from "next/navigation";
-import { useState, useEffect, useCallback } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Preloader } from "@/components/Preloader";
-
-
+import { useState, useEffect } from "react";
+import { Lock, Shield, CheckCircle2 } from "lucide-react";
 
 export default function LoginPage() {
   const { isAuthenticated, user, loading } = useAuth();
-
   const [view, setView] = useState<"login" | "forgot" | "sent">("login");
-  const [ready, setReady] = useState(false);
-  const handlePreloaderDone = useCallback(() => setReady(true), []);
-
-
-
-
   const router = useRouter();
 
   useEffect(() => {
@@ -41,212 +31,119 @@ export default function LoginPage() {
       case "Lab":
         router.replace("/dashboard/lab");
         break;
+      case "Reception":
+        router.replace("/dashboard/reception");
+        break;
+      case "Admin":
+        router.replace("/dashboard/admin");
+        break;
     }
   }, [isAuthenticated, user, router]);
-
 
   if (loading) return null;
 
   return (
-    <div>
-      <AnimatePresence mode="wait">
-        {!ready && <Preloader key="preloader" onDone={handlePreloaderDone} />}
-      </AnimatePresence>
-      <motion.div
-        initial={false}
-        animate={ready ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 0.6 }}
-      >
-        {/* Brand palette + India tricolour + animations */}
-        <style>{`
-        :root{ --brand:var(--color-cosmo-copper); --brand-dark:var(--color-cosmo-brown); --brand-soft:var(--color-cosmo-copper); --accent-start:var(--color-cosmo-copper); --accent-end:var(--color-cosmo-brown); --saffron:#FF8F1F; --india-white:#ffffff; --india-green:#138808; }
-        @keyframes ribbonPan { 0%{ background-position:0% 50%; } 100%{ background-position:200% 50%; } }
-        @keyframes fadeUp { 0%{ opacity:0; transform:translateY(12px);} 100%{ opacity:1; transform:translateY(0);} }
-        @keyframes floatSoft { 0%,100%{ transform:translateY(0);} 50%{ transform:translateY(-4px);} }
-        .animate-ribbon { background-size:200% 100%; animation:ribbonPan 12s linear infinite; }
-        .animate-fade-up { animation: fadeUp .5s ease-out both; }
-        .animate-fade-up-delay-1 { animation: fadeUp .6s ease-out .05s both; }
-        .animate-fade-up-delay-2 { animation: fadeUp .7s ease-out .1s both; }
-        .animate-float { animation: floatSoft 5s ease-in-out infinite; }
+    <div className="min-h-screen w-full flex items-center justify-center bg-[var(--color-synapse-dark)] p-4 md:p-8">
+      <style>{`
+        :root { 
+          --brand: var(--color-synapse-purple); 
+          --brand-dark: var(--color-synapse-purple); 
+          --brand-soft: rgba(139, 92, 246, 0.1); 
+          --accent-start: var(--color-synapse-purple); 
+          --accent-end: var(--color-synapse-purple); 
+        }
       `}</style>
-
-        <div
-          className="relative  h-screen w-full flex justify-center items-center"
-          style={{ backgroundColor: "var(--color-cosmo-dark)" }}
-        >
-          {/* Logo */}
-          <div className="absolute top-6 left-6 md:top-8 md:left-10 z-20 animate-fade-up flex items-center gap-4 px-5 py-3 rounded-2xl bg-black/20 backdrop-blur-md border border-white/10 shadow-xl">
-            <img 
-              src="/logo.png" 
-              alt="Cosmo Home Icon" 
-              className="h-10 md:h-12 w-auto object-contain drop-shadow-sm" 
-            />
-            <div className="flex flex-col justify-center">
-              <span className="text-[#a6906c] font-fraunces text-xl md:text-[26px] font-medium tracking-wide leading-none drop-shadow-sm">
-                COSMO HOME
-              </span>
-              <span className="text-[#a6906c] text-[10px] md:text-[11px] font-medium tracking-[0.15em] mt-1 opacity-95 drop-shadow-sm">
-                AESTHETIC MEDICINE
-              </span>
-            </div>
+      
+      <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
+        {/* Left Section - Welcome Back */}
+        <div className="hidden lg:flex flex-col gap-10">
+          <div>
+            <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">
+              Welcome back
+            </h1>
+            <p className="text-slate-300 text-lg leading-relaxed max-w-md">
+              Sign in to manage appointments, billing, labs and reports from one clean dashboard.
+            </p>
           </div>
 
-          {/* grid overlay */}
-          <div
-            className="pointer-events-none absolute inset-0"
-            style={{
-              backgroundImage:
-                "url(/login/banner.webp)",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-            }}
-          />
-
-          <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-16 items-stretch w-11/12 lg:w-3/4 mx-auto h-screen py-12 lg:py-20">
-            <div className="hidden lg:flex flex-col justify-end h-full pb-12">
-              <div className="animate-fade-up-delay-2 max-w-md p-6 rounded-3xl bg-black/20 backdrop-blur-sm border border-white/10 shadow-xl">
-                <p className="text-lg xl:text-xl text-white font-medium leading-snug italic drop-shadow-sm">
-                  "I want every patient to leave feeling more like themselves — not different. More radiant. More free."
-                </p>
-                <div className="mt-4 flex flex-col gap-1.5 drop-shadow-sm">
-                  <span className="text-xl">🧡</span>
-                  <span className="text-base text-white font-semibold tracking-wide">— Dr. Ruxana</span>
-                  <img src="/login/sign.webp" alt="Dr. Ruxana Signature" className="h-12 w-auto object-contain object-left mt-1 opacity-90" />
-                </div>
+          <div className="grid grid-cols-2 gap-3 max-w-lg">
+            {[
+              { icon: <Lock className="h-4 w-4" />, label: "256-bit SSL" },
+              { icon: <Shield className="h-4 w-4" />, label: "HIPAA-ready" },
+              { icon: <CheckCircle2 className="h-4 w-4" />, label: "HL7® FHIR" },
+              { icon: <Shield className="h-4 w-4" />, label: "ISO 27001" },
+              { icon: <CheckCircle2 className="h-4 w-4" />, label: "ABDM-ready" },
+              { icon: <span className="text-lg leading-none">🇮🇳</span>, label: "Proudly made in India" },
+            ].map((badge, idx) => (
+              <div key={idx} className="flex items-center gap-2.5 px-4 py-3 rounded-xl border border-white/10 bg-white/5 text-slate-200 text-sm font-medium">
+                <span className="text-slate-400">{badge.icon}</span>
+                {badge.label}
               </div>
-            </div>
+            ))}
+          </div>
 
-            <section className="w-full max-w-lg ml-auto self-center flex flex-col gap-10">
-              <div className="rounded-2xl border border-slate-200 bg-white/95 backdrop-blur-[2px] shadow-[0_12px_36px_-12px_rgba(2,6,23,0.25)] p-6 md:p-8 relative overflow-hidden animate-fade-up-delay-2">
-
-                <div
-                  className="pointer-events-none absolute -right-10 -top-10 h-48 w-48 rounded-full opacity-20"
-                  style={{
-                    background:
-                      "radial-gradient(50% 50% at 50% 50%, rgba(37,99,235,.18) 0%, transparent 70%)",
-                  }}
-                />
-
-                <div
-                  className="absolute -top-px left-6 right-6 h-[3px] rounded-full animate-ribbon"
-                  style={{
-                    background:
-                      "linear-gradient(90deg, var(--brand), var(--accent-end), var(--brand))",
-                  }}
-                />
-
-                {view === "login" && (
-                  <>
-                    <h2 className="text-2xl xl:text-3xl font-semibold text-slate-900">
-                      Sign in
-                    </h2>
-                    <p className="mt-1 text-slate-500 text-sm">
-                      Use your email and password
-                    </p>
-
-                    <LoginForm setView={setView} />
-                  </>
-                )}
-
-                {view === "forgot" && <ForgotPassword setView={setView} />}
-
-                {view === "sent" && (
-                  <div className="text-center py-10 animate-fade-up">
-                    <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-(--brand-soft) text-(--brand)">
-                      <svg
-                        className="h-7 w-7"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M20 6 9 17l-5-5" />
-                      </svg>
-                    </div>
-                    <h2 className="text-xl md:text-2xl font-semibold text-slate-900">
-                      Check your email
-                    </h2>
-                    <p className="mt-2 text-slate-600 max-w-sm mx-auto">
-                      We emailed a secure reset link. It expires in 15 minutes. If
-                      it doesn&apos;t arrive, check spam or{" "}
-                      <button className="underline text-(--brand) hover:text-(--brand-dark)">
-                        resend
-                      </button>
-                      .
-                    </p>
-                    <button
-                      onClick={() => setView("login")}
-                      className="mt-6 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50"
-                    >
-                      Back to login
-                    </button>
-                  </div>
-                )}
-              </div>
-
-              {/* Stats Row with Separator */}
-              <div className="flex flex-col gap-6 animate-fade-up-delay-2 w-full">
-                <div className="w-full h-px bg-white/20" />
-                <div className="flex items-center justify-between px-2">
-                <div className="flex flex-col gap-1">
-                  <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">20+</span>
-                  <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">Years of Care</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">3,800+</span>
-                  <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">Transformations</span>
-                </div>
-                <div className="flex flex-col gap-1">
-                  <span className="text-3xl md:text-4xl font-fraunces text-[var(--brand)] drop-shadow-sm">5 Doctors</span>
-                  <span className="text-[10px] md:text-xs tracking-widest text-white/95 uppercase font-medium">On your side</span>
-                </div>
-              </div>
-            </div>
-
-            </section>
+          <div className="mt-4 max-w-lg p-6 rounded-2xl bg-white/5 border border-white/10">
+            <p className="text-slate-300 italic">
+              "Listen to your patient; he is telling you the diagnosis."
+            </p>
+            <p className="text-slate-400 text-sm mt-3 font-medium">
+              — William Osler
+            </p>
           </div>
         </div>
-      </motion.div>
+
+        {/* Right Section - Login Form */}
+        <div className="w-full max-w-md mx-auto">
+          <div className="bg-slate-50 rounded-[1.5rem] p-8 shadow-2xl">
+            {view === "login" && (
+              <>
+                <h2 className="text-2xl font-bold text-slate-900">Sign in</h2>
+                <p className="mt-1.5 text-slate-500 text-sm">
+                  Use your email and password
+                </p>
+                <LoginForm setView={setView} />
+                
+                <div className="mt-8 flex items-center justify-center gap-4 text-xs font-medium text-slate-400">
+                  <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-slate-300" /> HIPAA-ready</span>
+                  <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-slate-300" /> HL7® FHIR</span>
+                  <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-slate-300" /> ISO 27001</span>
+                </div>
+                <p className="mt-3 text-[10px] text-center text-slate-400 max-w-xs mx-auto">
+                  Badges indicate design readiness; formal compliance depends on your deployment & policies.
+                </p>
+              </>
+            )}
+
+            {view === "forgot" && <ForgotPassword setView={setView} />}
+
+            {view === "sent" && (
+              <div className="text-center py-8">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-(--brand-soft) text-[var(--brand)]">
+                  <svg className="h-7 w-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold text-slate-900">Check your email</h2>
+                <p className="mt-2 text-slate-600 text-sm max-w-sm mx-auto leading-relaxed">
+                  We emailed a secure reset link. It expires in 15 minutes. If it doesn't arrive, check spam or <button className="underline text-[var(--brand)] hover:text-[var(--brand-dark)]">resend</button>.
+                </p>
+                <button
+                  onClick={() => setView("login")}
+                  className="mt-6 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-5 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  Back to login
+                </button>
+              </div>
+            )}
+          </div>
+          
+          <div className="mt-6 text-center">
+            <p className="text-xs text-slate-400">
+              By continuing, you agree to our Terms & Privacy Policy.
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
-  );
-}
-
-function IndiaFlagIcon({ className = "h-5 w-5" }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" aria-hidden="true">
-
-      <defs>
-        <clipPath id="flagClip">
-          <rect x="2" y="4" width="20" height="16" rx="2" ry="2" />
-        </clipPath>
-      </defs>
-      <g clipPath="url(#flagClip)">
-        {/* Stripes */}
-        <rect x="2" y="4" width="20" height="16" fill="#FF8F1F" />
-        <rect x="2" y="9.33" width="20" height="5.34" fill="#ffffff" />
-        <rect x="2" y="14.67" width="20" height="5.33" fill="#138808" />
-        {/* Ashoka Chakra */}
-        <g
-          transform="translate(12,12)"
-          fill="none"
-          stroke="#0a3d91"
-          strokeWidth="0.9"
-        >
-          <circle r="2.6" />
-          {/* 24 spokes */}
-          {Array.from({ length: 24 }).map((_, i) => (
-            <line
-              key={i}
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="-2.6"
-              transform={`rotate(${i * 15})`}
-            />
-          ))}
-        </g>
-      </g>
-      {/* Removed outer outline for a cleaner look */}
-    </svg>
   );
 }

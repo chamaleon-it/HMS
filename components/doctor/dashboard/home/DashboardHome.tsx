@@ -60,7 +60,7 @@ export default function Dashboard() {
                       layoutId="tab-indicator-days"
                       className="absolute inset-0 rounded-full"
                       style={{
-                        background: "var(--color-cosmo-copper)",
+                        background: "var(--color-synapse-light)",
                       }}
                       transition={{
                         type: "spring",

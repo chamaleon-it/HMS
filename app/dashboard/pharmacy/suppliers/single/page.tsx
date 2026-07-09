@@ -209,7 +209,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                 Back
                             </Button>
                             <Button
-                                className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-md"
+                                className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md"
                                 onClick={() => router.push(`/dashboard/pharmacy/purchase-entry?supplierId=${supplier._id}`)}
                             >
                                 Purchase Entry
@@ -261,8 +261,8 @@ const SingleSupplierPageContent: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
-                                    <div className="p-2 bg-[var(--color-cosmo-copper)]/20 rounded-lg">
-                                        <MapPin className="w-3.5 h-3.5 text-[var(--color-cosmo-copper)]" />
+                                    <div className="p-2 bg-[var(--color-synapse-light)]/20 rounded-lg">
+                                        <MapPin className="w-3.5 h-3.5 text-[var(--color-synapse-light)]" />
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">Address</p>
@@ -284,7 +284,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
                                     <div className="p-2 bg-[#FDF6ED] rounded-lg">
-                                        <User className="w-3.5 h-3.5 text-[var(--color-cosmo-copper)]" />
+                                        <User className="w-3.5 h-3.5 text-[var(--color-synapse-light)]" />
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">Contact Person</p>
@@ -293,7 +293,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                 </div>
                                 <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
                                     <div className="p-2 bg-blue-100 rounded-lg">
-                                        <Mail className="w-3.5 h-3.5 text-[var(--color-cosmo-copper)]" />
+                                        <Mail className="w-3.5 h-3.5 text-[var(--color-synapse-light)]" />
                                     </div>
                                     <div className="min-w-0">
                                         <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-tight leading-none mb-1 ">Email</p>
@@ -326,9 +326,9 @@ const SingleSupplierPageContent: React.FC = () => {
                     <section className="grid gap-5 md:grid-cols-5 items-start">
                         {/* LEFT: Order List */}
                         <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
-                            <div className="px-4 py-3 bg-[var(--color-cosmo-dark)] text-slate-50 flex items-center justify-between">
+                            <div className="px-4 py-3 bg-[var(--color-synapse-dark)] text-slate-50 flex items-center justify-between">
                                 <div className="text-sm font-medium flex items-center gap-2 ">
-                                    <span className="h-7 w-7 rounded-full bg-[var(--color-cosmo-brown)] flex items-center justify-center text-[11px] ">
+                                    <span className="h-7 w-7 rounded-full bg-[var(--color-synapse-purple)] flex items-center justify-center text-[11px] ">
                                         {filteredOrders.length}
                                     </span>
                                     Purchase Orders
@@ -403,7 +403,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                                     <motion.span
                                                         layoutId="tab-indicator-supplier"
                                                         className="absolute inset-0 rounded-full"
-                                                        style={{ background: "var(--color-cosmo-copper)" }}
+                                                        style={{ background: "linear-gradient(to right, var(--color-synapse-purple), #d946ef)" }}
                                                         transition={{ type: "spring", stiffness: 500, damping: 40 }}
                                                     />
                                                 )}
@@ -430,7 +430,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                             onClick={() => setSelectedOrder(order)}
                                             className={cn(
                                                 "w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ",
-                                                active ? "bg-[var(--color-cosmo-dark)] text-slate-50" : "hover:bg-slate-50"
+                                                active ? "bg-[var(--color-synapse-dark)] text-slate-50" : "hover:bg-slate-50"
                                             )}
                                         >
                                             <div className="flex items-center justify-between gap-2 ">
@@ -613,7 +613,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                             <div className="col-span-2 my-1 border-t border-slate-200"></div>
 
                                             <div className="text-slate-900 text-right font-bold text-base">Grand Total:</div>
-                                            <div className="text-[var(--color-cosmo-copper)] text-right font-bold text-base">{formatINR(selectedOrder.total)}</div>
+                                            <div className="text-[var(--color-synapse-light)] text-right font-bold text-base">{formatINR(selectedOrder.total)}</div>
 
                                             {selectedOrder.paymentStatus !== "Paid" && (
                                                 <div className="col-span-2 pt-4">
@@ -622,7 +622,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                                             setPaymentAmount((selectedOrder.total - selectedOrder.paidAmount).toString());
                                                             setIsPaymentModalOpen(true);
                                                         }}
-                                                        className="w-full bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-lg shadow-indigo-200/50 h-11 font-semibold text-sm rounded-xl transition-all hover:scale-[1.01]"
+                                                        className="w-full bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-lg shadow-indigo-200/50 h-11 font-semibold text-sm rounded-xl transition-all hover:scale-[1.01]"
                                                     >
                                                         Pay Due Amount
                                                     </Button>
@@ -646,11 +646,11 @@ const SingleSupplierPageContent: React.FC = () => {
 
             <Dialog open={isPaymentModalOpen} onOpenChange={setIsPaymentModalOpen}>
                 <DialogContent className="sm:max-w-md rounded-2xl border-none shadow-2xl p-0 overflow-hidden ">
-                    <div className="bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] p-6 text-white">
+                    <div className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] p-6 text-white">
                         <DialogTitle className="text-xl font-semibold flex items-center gap-2">
                             Process Payment
                         </DialogTitle>
-                        <p className="text-[var(--color-cosmo-copper)]/80 text-xs mt-1 font-medium tracking-wide">
+                        <p className="text-[var(--color-synapse-light)]/80 text-xs mt-1 font-medium tracking-wide">
                             {selectedOrder?.invoiceNumber} — {supplier.name}
                         </p>
                     </div>
@@ -674,7 +674,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                 <Input
                                     type="number"
                                     placeholder="0.00"
-                                    className="h-16 text-2xl font-bold bg-slate-50 border-2 border-slate-100 rounded-2xl pl-10 focus:ring-4 focus:ring-[var(--color-cosmo-copper)]/10 focus:border-[var(--color-cosmo-copper)]/50 transition-all text-[var(--color-cosmo-copper)] placeholder:text-slate-300"
+                                    className="h-16 text-2xl font-bold bg-slate-50 border-2 border-slate-100 rounded-2xl pl-10 focus:ring-4 focus:ring-[var(--color-synapse-light)]/10 focus:border-[var(--color-synapse-light)]/50 transition-all text-[var(--color-synapse-light)] placeholder:text-slate-300"
                                     value={paymentAmount}
                                     onChange={(e) => setPaymentAmount(e.target.value)}
                                     autoFocus
@@ -693,7 +693,7 @@ const SingleSupplierPageContent: React.FC = () => {
                             Cancel
                         </Button>
                         <Button
-                            className="flex-2 h-12 rounded-xl bg-linear-to-r from-[var(--color-cosmo-copper)] to-[var(--color-cosmo-brown)] hover:from-[var(--color-cosmo-copper)] hover:to-[var(--color-cosmo-brown)] text-white shadow-lg shadow-indigo-200 font-semibold"
+                            className="flex-2 h-12 rounded-xl bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-lg shadow-indigo-200 font-semibold"
                             onClick={handlePaymentSubmit}
                             disabled={isSubmittingPayment}
                         >

@@ -443,7 +443,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end mt-2">
-                                            <div className="bg-[var(--color-cosmo-dark)] text-white px-4 py-1.5 text-center">
+                                            <div className="bg-[var(--color-synapse-dark)] text-white px-4 py-1.5 text-center">
                                                 <h2 className="text-[14px] font-normal uppercase tracking-wide">LABORATORY TEST REPORT</h2>
                                             </div>
 
@@ -451,8 +451,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     </div>
                                 </div>
                                 <div className="w-full flex h-[5px] shrink-0">
-                                    <div className="bg-[var(--color-cosmo-brown)] w-[70%] h-full"></div>
-                                    <div className="bg-[var(--color-cosmo-dark)] w-[30%] h-full"></div>
+                                    <div className="bg-[var(--color-synapse-purple)] w-[70%] h-full"></div>
+                                    <div className="bg-[var(--color-synapse-dark)] w-[30%] h-full"></div>
                                 </div>
 
                                 {/* Patient Info Banner */}
@@ -641,7 +641,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                                         return (
                                                             <div key={graphKey} className="flex flex-col">
-                                                                <div className="bg-[var(--color-cosmo-brown)]/20 px-2 py-1 mb-2 inline-block self-start">
+                                                                <div className="bg-[var(--color-synapse-purple)]/20 px-2 py-1 mb-2 inline-block self-start">
                                                                     <span className="text-[13px] font-bold text-slate-800">{graphKey}</span>
                                                                 </div>
                                                                 {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
@@ -712,8 +712,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     </div>
                                 </div>
                                 <div className="w-full flex h-[5px]">
-                                    <div className="bg-[var(--color-cosmo-brown)] w-[70%] h-full"></div>
-                                    <div className="bg-[var(--color-cosmo-dark)] w-[30%] h-full"></div>
+                                    <div className="bg-[var(--color-synapse-purple)] w-[70%] h-full"></div>
+                                    <div className="bg-[var(--color-synapse-dark)] w-[30%] h-full"></div>
                                 </div>
                                 <div className="flex w-full justify-between items-center p-4">
                                     <div className="text-black">

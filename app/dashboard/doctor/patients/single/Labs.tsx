@@ -14,7 +14,7 @@ export default function Labs({ labs }: { labs?: LabsDataTypes[] }) {
             </div> :
                 <Table className='rounded-2xl overflow-hidden'>
                     <TableHeader>
-                        <TableRow className='bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]'>
+                        <TableRow className='bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]'>
                             <TableHead className='text-white'>SL</TableHead>
                             <TableHead className='text-white'>Test</TableHead>
                             <TableHead className='text-white'>Value</TableHead>

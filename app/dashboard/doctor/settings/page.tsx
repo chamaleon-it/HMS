@@ -52,7 +52,7 @@ export default function SettingsPage() {
                         layoutId="settings-tab-indicator"
                         className="absolute inset-0 rounded-full"
                         style={{
-                          background: "var(--color-cosmo-copper)",
+                          background: "var(--color-synapse-light)",
                         }}
                         transition={{
                           type: "spring",

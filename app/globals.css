@@ -51,31 +51,31 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  --color-cosmo-dark: #160A05;
-  --color-cosmo-brown: #2E1B13;
-  --color-cosmo-copper: #C9956A;
+  --color-synapse-dark: #0B1E36;
+  --color-synapse-purple: #8B5CF6;
+  --color-synapse-light: #6D28D9;
 }
 
 :root {
   --radius: 0.625rem;
   --background: #FFFFFF;
-  --foreground: #160A05;
+  --foreground: #0B1E36;
   --card: #FFFFFF;
-  --card-foreground: #160A05;
+  --card-foreground: #0B1E36;
   --popover: #FFFFFF;
-  --popover-foreground: #160A05;
-  --primary: #C9956A;
+  --popover-foreground: #0B1E36;
+  --primary: #6D28D9;
   --primary-foreground: #FFFFFF;
   --secondary: #F5F5F5;
-  --secondary-foreground: #160A05;
+  --secondary-foreground: #0B1E36;
   --muted: #F5F5F5;
   --muted-foreground: #666666;
   --accent: #F5F5F5;
-  --accent-foreground: #160A05;
+  --accent-foreground: #0B1E36;
   --destructive: oklch(0.577 0.245 27.325);
   --border: #E5E5E5;
   --input: #E5E5E5;
-  --ring: #C9956A;
+  --ring: #6D28D9;
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -92,24 +92,24 @@
 }
 
 .dark {
-  --background: #160A05;
+  --background: #0B1E36;
   --foreground: #FDF9F1;
-  --card: #2E1B13;
+  --card: #8B5CF6;
   --card-foreground: #FDF9F1;
-  --popover: #2E1B13;
+  --popover: #8B5CF6;
   --popover-foreground: #FDF9F1;
-  --primary: #C9956A;
-  --primary-foreground: #160A05;
-  --secondary: #2E1B13;
-  --secondary-foreground: #C9956A;
-  --muted: #2E1B13;
-  --muted-foreground: #C9956A;
-  --accent: #C9956A;
-  --accent-foreground: #160A05;
+  --primary: #6D28D9;
+  --primary-foreground: #0B1E36;
+  --secondary: #8B5CF6;
+  --secondary-foreground: #6D28D9;
+  --muted: #8B5CF6;
+  --muted-foreground: #6D28D9;
+  --accent: #6D28D9;
+  --accent-foreground: #0B1E36;
   --destructive: oklch(0.704 0.191 22.216);
-  --border: #2E1B13;
-  --input: #2E1B13;
-  --ring: #C9956A;
+  --border: #8B5CF6;
+  --input: #8B5CF6;
+  --ring: #6D28D9;
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);

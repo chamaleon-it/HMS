@@ -241,7 +241,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                     </SelectTrigger>
                                     <SelectContent className="rounded-lg border-slate-200">
                                         {suppliers.map((s: { _id: string; name: string }) => (
-                                            <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-[var(--color-cosmo-copper)]/10">
+                                            <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-[var(--color-synapse-light)]/10">
                                                 {s.name}
                                             </SelectItem>
                                         ))}

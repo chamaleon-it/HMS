@@ -41,8 +41,8 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
       >
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
-              <tr className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
+            <thead className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
+              <tr className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
                 <th className="py-2.5 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider">Invoice</th>
                 <th className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Date</th>
                 <th className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">Patient</th>
@@ -143,8 +143,8 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
 const MethodPill: React.FC<{ m: BillRow["method"] }> = ({ m }) => {
   const map: Record<BillRow["method"], string> = {
     cash: "bg-slate-100 text-slate-700 border-slate-200",
-    online: "bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
-    insurance: "bg-fuchsia-50 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
+    online: "bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
+    insurance: "bg-fuchsia-50 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
     mixed: "bg-sky-50 text-sky-700 border-sky-200",
   };
   return (

@@ -27,8 +27,8 @@ import PatientSelection from "./PatientSelection";
 import ItemSelected from "./ItemSelected";
 
 const theme = {
-  from: "var(--color-cosmo-copper)",
-  to: "var(--color-cosmo-brown)",
+  from: "var(--color-synapse-light)",
+  to: "var(--color-synapse-purple)",
   accent: "#06b6d4",
 };
 
@@ -534,14 +534,14 @@ export default function CreateBill({
                   label: "Card / UPI",
                   icon: CreditCard,
 
-                  tint: "bg-[var(--color-cosmo-copper)]/10 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
+                  tint: "bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
                 },
                 {
                   key: "insurance",
                   label: "Insurance",
                   icon: Building2,
 
-                  tint: "bg-fuchsia-50 text-[var(--color-cosmo-copper)] border-[var(--color-cosmo-copper)]/30",
+                  tint: "bg-fuchsia-50 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
                 },
               ].map(({ key, label, icon: Icon, tint }) => (
                 <div key={key} className="col-span-12 md:col-span-4">

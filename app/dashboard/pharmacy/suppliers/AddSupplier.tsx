@@ -438,7 +438,7 @@ export function AddSupplier({ onClose, onRefresh }: { onClose: () => void; onRef
                     <Button
                         type="submit"
                         disabled={isSubmitting}
-                        className="bg-[var(--color-cosmo-dark)] text-white hover:bg-[var(--color-cosmo-brown)] font-semibold"
+                        className="bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-purple)] font-semibold"
                         ref={refs.submitButton}
                     >
                         {isSubmitting ? "Adding..." : "Add Supplier"}

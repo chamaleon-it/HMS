@@ -269,7 +269,7 @@ export default function TestCatalogueRow({
             <TableCell>{test.estimatedTime ? `${test.estimatedTime} min` : "—"}</TableCell>
             {/* <TableCell>{test.panels.map((panel) => panel.name).join(", ")}</TableCell> */}
             <TableCell>
-                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-[var(--color-cosmo-copper)]' : 'bg-purple-50 text-[var(--color-cosmo-copper)]'}`}>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${test.type === 'Lab' ? 'bg-blue-50 text-[var(--color-synapse-light)]' : 'bg-purple-50 text-[var(--color-synapse-light)]'}`}>
                     {test.type}
                 </span>
             </TableCell>
@@ -777,7 +777,7 @@ export default function TestCatalogueRow({
                                                 Cancel
                                             </Button>
                                             <Button
-                                                className="h-9 bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] text-white"
+                                                className="h-9 bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white"
                                                 onClick={() => {
                                                     updateTest(payload as any);
                                                 }}
