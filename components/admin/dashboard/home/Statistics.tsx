@@ -1,6 +1,6 @@
 import {
     Users, DollarSign, Calendar, Stethoscope,
-    Wallet, AlertTriangle
+    Wallet, AlertTriangle, Activity
 } from "lucide-react";
 import React from "react";
 import { motion } from "framer-motion";
