@@ -9,6 +9,7 @@ import { Shield, Lock, User } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import SecurityForm from "./SecurityForm";
 import ProfileForm from "./ProfileForm";
+import StaffForm from "./StaffForm";
 import DoctorHeader from "../components/DoctorHeader";
 
 export default function SettingsPage() {
@@ -17,6 +18,9 @@ export default function SettingsPage() {
   const tabs = [
     { key: "profile", label: "Profile", icon: User },
     { key: "security", label: "Security", icon: Lock },
+    { key: "doctors", label: "Doctors", icon: User },
+    { key: "lab", label: "Lab Techs", icon: Shield },
+    { key: "pharmacy", label: "Pharmacists", icon: Shield },
   ];
 
   return (
@@ -69,8 +73,11 @@ export default function SettingsPage() {
               })}
             </div>
 
-            <SecurityForm />
-            <ProfileForm />
+            {tab === "security" && <SecurityForm />}
+            {tab === "profile" && <ProfileForm />}
+            {tab === "doctors" && <StaffForm role="Doctor" title="Doctor" />}
+            {tab === "lab" && <StaffForm role="Lab" title="Lab Technician" />}
+            {tab === "pharmacy" && <StaffForm role="Pharmacy" title="Pharmacist" />}
           </Tabs>
         </motion.div>
       </div>
