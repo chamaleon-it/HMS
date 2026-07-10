@@ -88,7 +88,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                             <Info label="Age/G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"}/${patient?.gender?.[0] || "—"}`} />
                         </div>
                         <div className="shrink-0">
-                            <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
+                            <Info label="OP NO" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
                         </div>
                         <div className="shrink-0">
                             <Info label="Doctor" value={doctor?.name ? `DR. ${doctor.name}` : "—"} />

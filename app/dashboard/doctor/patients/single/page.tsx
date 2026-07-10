@@ -33,6 +33,7 @@ import Visit from "./Visit";
 import useSWR from "swr";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
+import { useAuth } from "@/auth/context/auth-context";
 import { ConsultationType, PatientType } from "./interface";
 import { cn } from "@/lib/utils";
 import Clinical from "./Clinical";
@@ -64,6 +65,9 @@ function Stat({
 const ACCENT_CLASS = "bg-[#6E59F9] hover:bg-[#5b46f4]"; // HMS purple
 
 function PatientFullDetailContent() {
+  const { user } = useAuth();
+  const isAdmin = user?.role === "Admin";
+
   const searchParams = useSearchParams();
   const patientId = searchParams.get("id");
 
@@ -173,6 +177,7 @@ function PatientFullDetailContent() {
             showPHI={showPHI}
             patient={patient}
             consult={consult}
+            isAdmin={isAdmin}
           />}
 
           {/* Right Column: Main Tabs */}
@@ -209,7 +214,7 @@ function PatientFullDetailContent() {
                 {tab === "clinical" && (<Clinical consult={consult} />)}
 
                 {tab === "overview" && (
-                  <Overview setTab={setTab} consult={consult} patient={patient} mutatePatient={mutatePatient} />
+                  <Overview setTab={setTab} consult={consult} patient={patient} mutatePatient={mutatePatient} isAdmin={isAdmin} />
                 )}
 
 
@@ -249,22 +254,24 @@ function PatientFullDetailContent() {
                               <Download className="h-4 w-4 mr-2" />
                               Download
                             </Button>
-                            <Button asChild size="sm" variant="outline">
-                              <label className="cursor-pointer">
-                                <Upload className="h-4 w-4 mr-2 inline" />
-                                Upload
-                                <input
-                                  type="file"
-                                  className="hidden"
-                                  onChange={async (e) => {
-                                    const f = e.target.files?.[0];
-                                    if (!f) return;
-                                    const fd = new FormData();
-                                    fd.append("file", f);
-                                  }}
-                                />
-                              </label>
-                            </Button>
+                            {!isAdmin && (
+                              <Button asChild size="sm" variant="outline">
+                                <label className="cursor-pointer">
+                                  <Upload className="h-4 w-4 mr-2 inline" />
+                                  Upload
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    onChange={async (e) => {
+                                      const f = e.target.files?.[0];
+                                      if (!f) return;
+                                      const fd = new FormData();
+                                      fd.append("file", f);
+                                    }}
+                                  />
+                                </label>
+                              </Button>
+                            )}
                           </div>
                         </div>
                         <div className="mt-2 text-xs text-muted-foreground">
@@ -280,15 +287,17 @@ function PatientFullDetailContent() {
                     <div className="rounded-xl border p-4">
                       <div className="flex items-center justify-between">
                         <div className="font-medium">Outstanding</div>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => toast("Collect payment flow coming soon")}
-                        >
-                          {" "}
-                          <Wallet className="h-4 w-4 mr-2" />
-                          Collect
-                        </Button>
+                        {!isAdmin && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => toast("Collect payment flow coming soon")}
+                          >
+                            {" "}
+                            <Wallet className="h-4 w-4 mr-2" />
+                            Collect
+                          </Button>
+                        )}
                       </div>
                       <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4">
                         <Stat label="Balance" value="₹ 0" />

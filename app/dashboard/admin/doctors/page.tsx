@@ -31,8 +31,8 @@ export default function DoctorsPage() {
                         ) : (
                             <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
                                 <Table className="print:hidden min-w-fit">
-                                    <TableHeader className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)]">
-                                        <TableRow className="bg-[var(--color-cosmo-dark)] hover:bg-[var(--color-cosmo-dark)] border-b-0">
+                                    <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
+                                        <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
                                             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Doctor Name</TableHead>
                                             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Specialization</TableHead>
                                             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Contact</TableHead>
@@ -42,7 +42,7 @@ export default function DoctorsPage() {
                                     <TableBody>
                                         {doctors.length === 0 && (
                                             <TableRow>
-                                                <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
+                                                <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
                                                     No doctors found.
                                                 </TableCell>
                                             </TableRow>

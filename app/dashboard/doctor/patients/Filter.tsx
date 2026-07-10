@@ -45,12 +45,13 @@ export default function Filter({
 
   return (
     <div className="rounded-2xl bg-white border border-zinc-200 p-5 shadow-sm mb-6">
-      {/* Top row: Search + Reset */}
-      <div className="flex flex-col md:flex-row gap-4 md:items-center">
-        <div className="relative flex-1 group">
+      {/* Search & Reset Row */}
+      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
+        {/* Global Search */}
+        <div className="relative flex-1 lg:flex-[5] group">
           <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
           <input
-            value={filter.query}
+            value={filter.query || ""}
             onChange={(e) =>
               setFilter((prev) => ({ ...prev, query: e.target.value }))
             }
@@ -58,15 +59,29 @@ export default function Filter({
             className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
           />
         </div>
+        {/* Address Search */}
+        <div className="relative flex-1 lg:flex-[4] group">
+          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
+          <input
+            value={filter.address || ""}
+            onChange={(e) =>
+              setFilter((prev) => ({ ...prev, address: e.target.value }))
+            }
+            placeholder="Search Address L1/L2…"
+            autoComplete="off"
+            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+          />
+        </div>
+        {/* Reset All */}
         <button
           onClick={() =>
             setFilter({
-              query: undefined,
-              address: undefined,
-              city: undefined,
-              district: undefined,
-              state: undefined,
-              pincode: undefined,
+              query: "",
+              address: "",
+              city: "",
+              district: "",
+              state: "",
+              pincode: "",
               gender: undefined,
               doctor: undefined,
               age: [0, 100],
@@ -81,31 +96,15 @@ export default function Filter({
               consultedOnly: false,
             })
           }
-          className="h-11 px-4 rounded-xl bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 cursor-pointer transition-all flex items-center gap-2 font-medium"
+          className="h-11 px-4 rounded-xl bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 cursor-pointer transition-all flex items-center justify-center gap-2 font-medium shrink-0"
         >
           <RotateCcw className="h-4 w-4" />
           <span>Reset all</span>
         </button>
       </div>
 
-      {/* Address row */}
-      <div className="mt-3 flex flex-col md:flex-row gap-4 md:items-center">
-        <div className="relative flex-[2] group">
-          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
-          <input
-            value={filter.address || ""}
-            onChange={(e) =>
-              setFilter((prev) => ({ ...prev, address: e.target.value }))
-            }
-            placeholder="Search Address L1/L2…"
-            autoComplete="off"
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
-          />
-        </div>
-      </div>
-
       {/* Location row */}
-      <div className="mt-3 grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
         <ServerAutocomplete
           field="city"
           placeholder="City…"
@@ -132,8 +131,8 @@ export default function Filter({
         />
       </div>
 
-      {/* Row 2: Primary filters */}
-      <div className="mt-3 grid md:grid-cols-3 gap-3">
+      {/* Primary Filters Row */}
+      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {/* Status */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
@@ -159,12 +158,31 @@ export default function Filter({
           />
         </div>
 
+        {/* Doctor */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+            <User className="h-3 w-3" /> Doctor
+          </span>
+          <FilterSelect
+            value={filter.doctor || ""}
+            onChange={(v) => setFilter((prev) => ({ ...prev, doctor: v }))}
+            placeholder="All doctors"
+            options={[
+              { label: "All Doctors", value: null },
+              ...(data?.data?.map(({ name, _id }) => ({
+                label: name,
+                value: _id,
+              })) ?? []),
+            ]}
+          />
+        </div>
+
         {/* Patient Status Toggle */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
             <User className="h-3 w-3" /> Patient Status
           </span>
-          <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-fit">
+          <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-full h-11">
             {[
               { label: "All Patients", value: false },
               { label: "Consulted Only", value: true },
@@ -177,7 +195,7 @@ export default function Filter({
                     setFilter((prev) => ({ ...prev, consultedOnly: opt.value }))
                   }
                   className={cn(
-                    "relative px-3.5 h-8.5 rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
+                    "relative flex-1 h-full rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
                     active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
                   )}
                   type="button"
@@ -201,12 +219,12 @@ export default function Filter({
           </div>
         </div>
 
-        {/* Gender — attractive pills */}
+        {/* Gender Toggle */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
             <User className="h-3 w-3" /> Gender
           </span>
-          <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-fit">
+          <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-full h-11">
             {[
               { label: "All", value: undefined, icon: null },
               { label: "Female", value: "Female", color: "bg-rose-600" },
@@ -220,7 +238,7 @@ export default function Filter({
                     setFilter((prev) => ({ ...prev, gender: opt.value }))
                   }
                   className={cn(
-                    "relative px-3.5 h-8.5 rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
+                    "relative flex-1 h-full rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
                     active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
                   )}
                   type="button"
@@ -244,27 +262,7 @@ export default function Filter({
           </div>
         </div>
 
-        {/* Doctor */}
-        <div className="flex flex-col gap-1">
-          <span className="text-xs text-gray-500 px-1">Doctor</span>
-          <FilterSelect
-            value={filter.doctor || ""}
-            onChange={(v) => setFilter((prev) => ({ ...prev, doctor: v }))}
-            placeholder="All doctors"
-            options={[
-              { label: "All Doctors", value: null },
-              ...(data?.data?.map(({ name, _id }) => ({
-                label: name,
-                value: _id,
-              })) ?? []),
-            ]}
-          />
-        </div>
-      </div>
-
-      {/* Row 3: Age + Visit range */}
-      <div className="mt-3 grid md:grid-cols-3 gap-3 items-end">
-        {/* Age */}
+        {/* Age Range */}
         <div className="flex flex-col gap-1.5">
           <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
             <Baby className="h-3 w-3" /> Age Range
@@ -304,9 +302,15 @@ export default function Filter({
             </div>
           </div>
         </div>
+      </div>
 
+      {/* Visit & Conditions Row */}
+      <div className="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
         {/* Last Visit */}
-        <div className="flex flex-col gap-1.5">
+        <div className={cn(
+          "flex flex-col gap-1.5 col-span-12",
+          filter.lastVisit === "Custom" ? "lg:col-span-4" : "lg:col-span-5"
+        )}>
           <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
             <Clock className="h-3 w-3" /> Last Visit
           </span>
@@ -322,78 +326,51 @@ export default function Filter({
           />
         </div>
 
+        {/* Custom Range Datepicker */}
         {filter.lastVisit === "Custom" && (
-          <CustomDateFilter filter={filter} setFilter={setFilter} />
+          <div className="flex flex-col gap-1.5 col-span-12 lg:col-span-4">
+            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+              <CalendarIcon className="h-3.5 w-3.5" /> Custom Range
+            </span>
+            <CustomDateFilter filter={filter} setFilter={setFilter} />
+          </div>
         )}
 
-        {/* <div className="min-w-[170px]">
-          <Popover open={open} onOpenChange={setOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                id="date"
-                className="w-48 justify-between font-normal flex gap-1.5 p-1 bg-gray-100 rounded-xl overflow-x-auto h-11"
-              >
-                {filter.date ? fDate(filter.date) : "Select date"}
-                <ChevronDownIcon />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="w-auto overflow-hidden p-0"
-              align="start"
-            >
-              <Calendar
-                mode="single"
-                selected={filter.date}
-                captionLayout="dropdown"
-                onSelect={(date) => {
-                  setFilter((prev) => ({ ...prev, date }));
-                  setOpen(false);
-                }}
-              />
-            </PopoverContent>
-          </Popover>
-        </div> */}
-      </div>
-
-      <div className="mt-6 border-t border-zinc-100 pt-5">
-        <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-2.5">
-          Common Conditions
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {CONDITIONS.slice(0, 10).map((c) => {
-            const active = filter.conditions.includes(c);
-            return (
-              <button
-                key={c}
-                onClick={() => {
-                  setFilter((prev) => ({
-                    ...prev,
-                    conditions: active
-                      ? prev.conditions.filter((x) => x !== c)
-                      : [...prev.conditions, c],
-                  }));
-                }}
-                className={cn(
-                  "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 border cursor-pointer inline-flex items-center gap-2",
-                  active
-                    ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
-                    : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
-                )}
-              >
-                {active && <Check className="h-3.5 w-3.5" />}
-                {c}
-              </button>
-            );
-          })}
-          {filter.conditions.length > 0 && (
-            <button
-              onClick={() => setFilter((prev) => ({ ...prev, conditions: [] }))}
-              className="px-4 py-2 rounded-xl text-sm font-semibold text-zinc-400 hover:text-rose-600 transition-colors cursor-pointer"
-            >
-              Clear filters
-            </button>
-          )}
+        {/* Common Conditions */}
+        <div className={cn(
+          "flex flex-col gap-1.5 col-span-12",
+          filter.lastVisit === "Custom" ? "lg:col-span-4" : "lg:col-span-7"
+        )}>
+          <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-0.5">
+            Common Conditions
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {CONDITIONS.slice(0, 10).map((c) => {
+              const active = filter.conditions.includes(c);
+              return (
+                <button
+                  key={c}
+                  onClick={() => {
+                    setFilter((prev) => ({
+                      ...prev,
+                      conditions: active
+                        ? prev.conditions.filter((x) => x !== c)
+                        : [...prev.conditions, c],
+                    }));
+                  }}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 border cursor-pointer inline-flex items-center gap-1.5",
+                    active
+                      ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
+                      : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
+                  )}
+                >
+                  {active && <Check className="h-3 w-3" />}
+                  {c}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
     </div>
@@ -408,20 +385,20 @@ const CustomDateFilter = ({
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 }) => {
   return (
-    <div className="flex items-end gap-2">
-      <div className="clearflex flex-col gap-1 w-fit">
+    <div className="flex items-center gap-2 w-full">
+      <div className="relative flex-1">
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               data-empty={!filter.dateRange.from}
-              className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
+              className="h-11 px-3 rounded-xl ring-1 ring-zinc-200 w-full text-left flex justify-start items-center gap-2 font-medium"
             >
-              <CalendarIcon />
+              <CalendarIcon className="h-4 w-4 text-zinc-400" />
               {filter.dateRange.from ? (
                 fDate(filter.dateRange.from)
               ) : (
-                <span>From</span>
+                <span className="text-zinc-400">From</span>
               )}
             </Button>
           </PopoverTrigger>
@@ -443,19 +420,20 @@ const CustomDateFilter = ({
           </PopoverContent>
         </Popover>
       </div>
-      <div className="clearflex flex-col gap-1 w-fit">
+      <span className="text-zinc-300">—</span>
+      <div className="relative flex-1">
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               data-empty={!filter.dateRange.to}
-              className="h-11 px-3 rounded-xl ring-1 ring-gray-200 w-32 text-left flex justify-start"
+              className="h-11 px-3 rounded-xl ring-1 ring-zinc-200 w-full text-left flex justify-start items-center gap-2 font-medium"
             >
-              <CalendarIcon />
+              <CalendarIcon className="h-4 w-4 text-zinc-400" />
               {filter.dateRange.to ? (
                 fDate(filter.dateRange.to)
               ) : (
-                <span>To</span>
+                <span className="text-zinc-400">To</span>
               )}
             </Button>
           </PopoverTrigger>
@@ -489,7 +467,7 @@ function Segmented({
   onChange: (v: number | undefined | string) => void;
 }) {
   return (
-    <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-fit">
+    <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-full h-11">
       {options.map((o) => {
         const active = value === o.value;
         return (
@@ -497,7 +475,7 @@ function Segmented({
             key={o.label}
             onClick={() => onChange(o.value)}
             className={cn(
-              "relative px-4 h-8.5 rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
+              "relative flex-1 h-full rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
               active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
             )}
             type="button"

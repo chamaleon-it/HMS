@@ -152,7 +152,7 @@ export default function ViewBill({ id }: { id: string }) {
                         {/* PATIENT STRIP - 4 COL COMPACT */}
                         <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
                             <Compact label="Patient" value={billing.patient.name} />
-                            <Compact label="PID" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
+                            <Compact label="OP NO" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
                             <Compact label="Age/G" value={`${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient.gender || "—"}`} />
                             <Compact label="Phone" value={billing.patient.phoneNumber || "—"} />
                             <Compact label="Doctor" value={billing.doctor || "—"} />

@@ -192,7 +192,7 @@ export default function Search({
             {order?.patient.name}
           </span>
           <span className="text-[10px] font-semibold text-slate-400">
-            PID: {order?.patient.mrn}
+            OP NO: {order?.patient.mrn}
           </span>
         </div>
         <div className="flex flex-col">

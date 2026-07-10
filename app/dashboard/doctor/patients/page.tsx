@@ -42,12 +42,12 @@ export default function PatientsEnhanced() {
   const { user } = useAuth();
   const [openCreate, setOpenCreate] = useState(false);
   const [filter, setFilter] = useState<FilterType>({
-    query: undefined,
-    address: undefined,
-    city: undefined,
-    district: undefined,
-    state: undefined,
-    pincode: undefined,
+    query: "",
+    address: "",
+    city: "",
+    district: "",
+    state: "",
+    pincode: "",
     gender: undefined,
     doctor: undefined,
     age: [0, 100],

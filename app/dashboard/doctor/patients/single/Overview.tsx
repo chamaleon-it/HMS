@@ -7,7 +7,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { fDateandTime } from "@/lib/fDateAndTime";
 
-export default function Overview({ setTab, consult, patient, mutatePatient }: { setTab: (t: string) => void; consult: ConsultationType[]; patient?: PatientType, mutatePatient: () => void }) {
+export default function Overview({ setTab, consult, patient, mutatePatient, isAdmin = false }: { setTab: (t: string) => void; consult: ConsultationType[]; patient?: PatientType, mutatePatient: () => void, isAdmin?: boolean }) {
 
 
   const [remarks, setRemarks] = useState(patient?.remarks || "")
@@ -95,10 +95,12 @@ export default function Overview({ setTab, consult, patient, mutatePatient }: { 
           <div className="font-medium flex gap-1 items-center">Remarks <p className="col-span-full text-xs text-muted-foreground text-right mt-0">(Last Updated: {fDateandTime(patient?.remarksDate)})</p></div>
 
         </div>
-        <Textarea className="h-[150px] w-full rounded-xl border px-2 py-1" placeholder="Remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} />
-        <div className="flex justify-end">
-          <Button className="mt-2 bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]" onClick={handleSaveRemarks}>Save Remarks</Button>
-        </div>
+        <Textarea className="h-[150px] w-full rounded-xl border px-2 py-1" placeholder="Remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} readOnly={isAdmin} />
+        {!isAdmin && (
+          <div className="flex justify-end">
+            <Button className="mt-2 bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]" onClick={handleSaveRemarks}>Save Remarks</Button>
+          </div>
+        )}
       </div>
 
     </div>

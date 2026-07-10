@@ -174,7 +174,7 @@ export default function PrintReceipt({
                         <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.name}</span>
                     </div>
                     <div className="flex flex-col justify-center">
-                        <span className="text-[11px] text-gray-500 font-medium leading-none">PID</span>
+                        <span className="text-[11px] text-gray-500 font-medium leading-none">OP NO</span>
                         <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.mrn?.replace("MRN", "P-") || " "}</span>
                     </div>
                     <div className="flex flex-col justify-center">

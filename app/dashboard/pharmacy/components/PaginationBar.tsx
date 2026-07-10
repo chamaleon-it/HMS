@@ -39,8 +39,19 @@ export function PaginationBar<T extends { page: number; limit: number }>({
         return Array.from({ length: end - start + 1 }, (_, i) => start + i);
     }, [page, totalPages, pageWindow]);
 
-    const goTo = (p: number) =>
+    const goTo = (p: number) => {
         setFilter((f) => ({ ...f, page: Math.min(Math.max(1, p), totalPages) }));
+        if (typeof window !== "undefined") {
+            const table = document.querySelector('table');
+            if (table) {
+                const rect = table.getBoundingClientRect();
+                const targetScrollY = (window.scrollY ?? window.pageYOffset) + rect.top - 80;
+                window.scrollTo({ top: Math.max(0, targetScrollY), behavior: "smooth" });
+            } else {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+        }
+    };
 
     return (
         <div className="flex items-center justify-center py-3">

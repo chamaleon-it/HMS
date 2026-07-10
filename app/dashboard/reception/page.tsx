@@ -24,7 +24,6 @@ import { motion } from "framer-motion";
 
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
-// ... existing imports ...
 
 const APPOINTMENT_STATUSES = [
   { label: "Upcoming", value: "Upcoming", color: "bg-blue-200 text-blue-800", key: "U" },

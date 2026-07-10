@@ -127,7 +127,7 @@ const Patients: React.FC = () => {
                                     <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white uppercase">
                                         <TableHead className="text-white py-3">Sl</TableHead>
                                         <TableHead className="text-white py-3">Customer</TableHead>
-                                        <TableHead className="text-white py-3">PID</TableHead>
+                                        <TableHead className="text-white py-3">OP NO</TableHead>
                                         <TableHead className="text-white py-3">
                                             Age / Gender
                                         </TableHead>

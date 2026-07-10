@@ -25,6 +25,7 @@ export default function PatientSnapshot({
   maskIDs,
   consult,
   patient,
+  isAdmin = false,
 }: {
   blurIDsClass: "" | "blur-sm";
   showPHI: boolean;
@@ -34,6 +35,7 @@ export default function PatientSnapshot({
   maskIDs: boolean;
   consult: ConsultationType[];
   patient: PatientType | undefined;
+  isAdmin?: boolean;
 }) {
   return (
     <div className="lg:col-span-4 space-y-4">
@@ -241,16 +243,18 @@ export default function PatientSnapshot({
               </Badge>
             </div>
           ))}
-          <div className="flex justify-end">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => setOpenAddMed(true)}
-            >
-              <Plus className="h-4 w-4 mr-2" />
-              Add
-            </Button>
-          </div>
+          {!isAdmin && (
+            <div className="flex justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setOpenAddMed(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Add
+              </Button>
+            </div>
+          )}
         </CardContent>
       </Card>}
 

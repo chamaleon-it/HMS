@@ -74,7 +74,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                     <div className="border border-slate-500 rounded-lg px-6 py-4 flex flex-wrap gap-x-8 gap-y-2 bg-slate-50/50">
                         <Info label="Patient" value={patient?.name || "—"} />
                         <Info label="Age / G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / ${patient?.gender || "—"}`} />
-                        <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
+                        <Info label="OP NO" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
                         <div className="col-span-2">
 
                             <Info label="Date" value={fDateandTime(order.createdAt).split(",")[0]} />

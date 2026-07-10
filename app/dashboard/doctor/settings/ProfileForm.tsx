@@ -109,7 +109,7 @@ export default function ProfileForm() {
       });
       mutate();
     } catch (error) {
-
+      console.log(error)
     }
   });
   const [openSpec, setOpenSpec] = useState(false);

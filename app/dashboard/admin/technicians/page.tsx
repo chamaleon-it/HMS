@@ -21,8 +21,8 @@ export default function TechniciansPage() {
                 
                 <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
                     <Table className="min-w-fit">
-                        <TableHeader className="bg-[#2B3B4C] hover:bg-[#2B3B4C]">
-                            <TableRow className="bg-[#2B3B4C] hover:bg-[#2B3B4C] border-b-0">
+                        <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
+                            <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
                                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Name</TableHead>
                                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Qualification</TableHead>
                                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">License No.</TableHead>

@@ -126,7 +126,7 @@ const Customers: React.FC = () => {
                     <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Customers</TableHead>
-                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">PID</TableHead>
+                      <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">OP NO</TableHead>
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">
                         Age / Gender
                       </TableHead>

@@ -56,9 +56,13 @@ export default function PatientTable({
   data,
   tableMutate,
   isAdmin,
+  page = 1,
+  limit = 100,
 }: {
   tableMutate: () => void;
   isAdmin?: boolean;
+  page?: number;
+  limit?: number;
   data:
   | {
     message: string;
@@ -153,17 +157,19 @@ export default function PatientTable({
         <table className="w-full">
           <thead>
             <tr className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
-              <th className="w-14  px-4 py-2.5">
-                <Checkbox
-                  className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700"
-                  checked={selectedIds.length === data?.data.length}
-                  onCheckedChange={(checked: boolean) =>
-                    checked
-                      ? setSelectedIds(data?.data.map((e) => e._id) ?? [])
-                      : setSelectedIds([])
-                  }
-                />
-              </th>
+              {!isAdmin && (
+                <th className="w-14  px-4 py-2.5">
+                  <Checkbox
+                    className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700"
+                    checked={selectedIds.length === data?.data.length}
+                    onCheckedChange={(checked: boolean) =>
+                      checked
+                        ? setSelectedIds(data?.data.map((e) => e._id) ?? [])
+                        : setSelectedIds([])
+                    }
+                  />
+                </th>
+              )}
               <th className="w-14 text-left px-4 py-2.5 text-white font-bold text-[11px] uppercase tracking-wider">No.</th>
               {headerCell("Patient")}
               {headerCell("Phone Number")}
@@ -179,7 +185,7 @@ export default function PatientTable({
           </thead>
           <tbody>
             {data?.data.map((r, idx) => {
-              const serial = (0 - 1) * 0 + idx + 1; // serial number after filters & sort
+              const serial = (page - 1) * limit + idx + 1; // serial number after filters & sort
               return (
                 <tr
                   key={r._id}
@@ -379,7 +385,7 @@ export default function PatientTable({
             {data?.data.length === 0 && (
               <tr>
                 <td
-                  colSpan={11}
+                  colSpan={isAdmin ? 10 : 11}
                   className="px-4 py-12 text-center text-sm text-gray-500"
                 >
                   No patients match your filters.
