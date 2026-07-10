@@ -74,11 +74,6 @@ export default function Header() {
           { key: "patients", label: "Patients", link: "/dashboard/admin/patients/" },
       ]},
       { key: "appointments", label: "Appointments", link: "/dashboard/admin/appointments/" },
-      { key: "clinical", label: "Clinical Services", childrens: [
-          { key: "pharmacy", label: "Pharmacy", link: "/dashboard/admin/pharmacy/" },
-          { key: "laboratory", label: "Laboratory", link: "/dashboard/admin/laboratory/" },
-          { key: "inventory", label: "Inventory", link: "/dashboard/admin/inventory/" },
-      ]},
       { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },
 
     ]) || [];

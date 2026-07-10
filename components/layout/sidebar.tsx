@@ -286,28 +286,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
     ],
   },
   {
-    key: "clinical",
-    label: "Clinical Services",
-    icon: FlaskConical,
-    childrens: [
-      {
-        key: "pharmacy",
-        label: "Pharmacy",
-        link: "/dashboard/admin/pharmacy/",
-      },
-      {
-        key: "laboratory",
-        label: "Laboratory",
-        link: "/dashboard/admin/laboratory/",
-      },
-      {
-        key: "inventory",
-        label: "Inventory",
-        link: "/dashboard/admin/inventory/",
-      },
-    ],
-  },
-  {
     key: "finance",
     label: "Finance & Billing",
     icon: Banknote,
@@ -369,10 +347,7 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
     link: "/dashboard/reception/billing/",
   },
 ]) ||
-
 [];
- ||
-    [];
   const pathname = usePathname();
   const settingsLink: string | undefined = user?.role ? settingsLinks[user.role] : undefined
 
