@@ -11,7 +11,7 @@ export default function NotFound() {
         <div className="flex h-screen w-full flex-col items-center justify-center bg-gray-50 p-4 text-center dark:bg-zinc-900">
             <div className="flex flex-col items-center space-y-6">
                 <div className="rounded-full bg-blue-100 p-6 dark:bg-blue-900/30">
-                    <FileQuestion className="h-12 w-12 text-[var(--color-synapse-light)] dark:text-blue-400" />
+                    <FileQuestion className="h-12 w-12 text-(--color-synapse-light) dark:text-blue-400" />
                 </div>
 
                 <div className="space-y-2">

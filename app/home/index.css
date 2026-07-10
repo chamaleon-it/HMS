@@ -15,7 +15,7 @@
   }
 
   .text-gradient {
-    @apply bg-clip-text text-transparent bg-gradient-to-r from-[#60A5FA] via-purple-400 to-accent-glow;
+    @apply bg-clip-text text-transparent bg-linear-to-r from-[#60A5FA] via-purple-400 to-accent-glow;
   }
 
   .glass {

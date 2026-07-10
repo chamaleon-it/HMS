@@ -119,7 +119,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
               <div className="flex flex-col p-3.5 border border-slate-200 bg-slate-50/40 rounded-xl transition-shadow hover:shadow-sm">
                 <div className="flex items-center gap-2 mb-3">
                   <div className="p-1.5 rounded-lg bg-slate-200/60 text-slate-500">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-stethoscope"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3"/><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4"/><circle cx="20" cy="10" r="2"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-stethoscope"><path d="M4.8 2.3A.3.3 0 1 0 5 2H4a2 2 0 0 0-2 2v5a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6V4a2 2 0 0 0-2-2h-1a.2.2 0 1 0 .3.3" /><path d="M8 15v1a6 6 0 0 0 6 6v0a6 6 0 0 0 6-6v-4" /><circle cx="20" cy="10" r="2" /></svg>
                   </div>
                   <Label className="text-sm font-semibold text-slate-700">Doctor</Label>
                 </div>
@@ -203,7 +203,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
           <div className="shrink-0 pt-7">
             <Button
               variant="outline"
-              className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-sm"
+              className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-sm"
               onClick={() => setShowAllFields(!showAllFields)}
             >
               {showAllFields ? "Hide optional fields" : "Display all fields"}
@@ -233,7 +233,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
             window.dispatchEvent(new CustomEvent('request-delete-draft', { detail: draft.id }));
           }}>Cancel</Button>
           <Button
-            className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md"
+            className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md"
             onClick={createOrder}
           >
             Place Order

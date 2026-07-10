@@ -265,8 +265,8 @@ export default function Technician() {
 
             <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
                 <Table className="min-w-fit">
-                    <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
-                        <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
+                    <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+                        <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Name</TableHead>
                             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Qualification</TableHead>
                             <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">License No.</TableHead>
@@ -331,7 +331,7 @@ export default function Technician() {
                                                     onClick={() => openEditDialog(p)}
                                                     className="gap-2 text-slate-700 cursor-pointer"
                                                 >
-                                                    <Pencil size={14} className="text-[var(--color-synapse-light)]" />
+                                                    <Pencil size={14} className="text-(--color-synapse-light)" />
                                                     Edit
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem

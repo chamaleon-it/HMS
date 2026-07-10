@@ -132,7 +132,7 @@ export default function ViewBill({ id }: { id: string }) {
                 {/* Receipt Container */}
                 <div className="bg-white text-slate-900 font-sans leading-relaxed shadow-xl w-full flex flex-col overflow-hidden rounded-xl print:shadow-none print:rounded-none">
                     {/* HEADER */}
-                    <div className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-dark)] text-white px-10 py-8">
+                    <div className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-dark) text-white px-10 py-8">
                         <div className="flex justify-between items-start">
                             <HospitalName />
                             <div className="text-right space-y-2">
@@ -235,7 +235,7 @@ export default function ViewBill({ id }: { id: string }) {
                     </div>
 
                     {/* FOOTER */}
-                    <div className="bg-[var(--color-synapse-dark)] px-10 py-6 text-[10px] text-slate-400 flex justify-between items-center">
+                    <div className="bg-(--color-synapse-dark) px-10 py-6 text-[10px] text-slate-400 flex justify-between items-center">
                         <div className="space-y-1 text-left">
                             <p className="text-slate-300 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
                             <p className="text-slate-500">

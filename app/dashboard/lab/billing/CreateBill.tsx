@@ -534,14 +534,14 @@ export default function CreateBill({
                   label: "Card / UPI",
                   icon: CreditCard,
 
-                  tint: "bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
+                  tint: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30",
                 },
                 {
                   key: "insurance",
                   label: "Insurance",
                   icon: Building2,
 
-                  tint: "bg-fuchsia-50 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
+                  tint: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30",
                 },
               ].map(({ key, label, icon: Icon, tint }) => (
                 <div key={key} className="col-span-12 md:col-span-4">

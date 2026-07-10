@@ -101,7 +101,7 @@ export default function Statistics({ billing }: StatisticsProps) {
             icon: Receipt,
             bg: "bg-blue-50/50",
             border: "border-blue-100",
-            iconColor: "text-[var(--color-synapse-light)]/70",
+            iconColor: "text-(--color-synapse-light)/70",
             textColor: "text-blue-800/70",
             headingColor: "text-blue-900"
         },
@@ -109,21 +109,21 @@ export default function Statistics({ billing }: StatisticsProps) {
             label: "Total Consultations",
             value: totalConsultation,
             icon: UserRound,
-            bg: "bg-[var(--color-synapse-light)]/10/50",
+            bg: "bg-synapse-light/10/50",
             border: "border-[var(--color-synapse-light)]/20",
-            iconColor: "text-[var(--color-synapse-light)]/70",
-            textColor: "text-[var(--color-synapse-light)]/70",
-            headingColor: "text-[var(--color-synapse-light)]"
+            iconColor: "text-(--color-synapse-light)/70",
+            textColor: "text-(--color-synapse-light)/70",
+            headingColor: "text-(--color-synapse-light)"
         },
         {
             label: "Consulting Fees",
             value: formatINR(consultingFee),
             icon: UserRound,
-            bg: "bg-[var(--color-synapse-light)]/10/50",
+            bg: "bg-synapse-light/10/50",
             border: "border-[var(--color-synapse-light)]/20",
-            iconColor: "text-[var(--color-synapse-light)]/70",
-            textColor: "text-[var(--color-synapse-light)]/70",
-            headingColor: "text-[var(--color-synapse-light)]"
+            iconColor: "text-(--color-synapse-light)/70",
+            textColor: "text-(--color-synapse-light)/70",
+            headingColor: "text-(--color-synapse-light)"
         },
         {
             label: "Pharmacy Sales",

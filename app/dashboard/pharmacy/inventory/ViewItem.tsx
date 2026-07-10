@@ -90,7 +90,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
   const salesStats = useMemo(() => {
     if (activeTab !== "Medicine History") return null;
-    
+
     let filtered = item?.soldHistory ? [...item.soldHistory] : [];
     if (dateRange?.from) {
       filtered = filtered.filter(h => {
@@ -173,7 +173,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
               <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center">
-                <Tag className="w-3.5 h-3.5 text-[var(--color-synapse-light)]" />
+                <Tag className="w-3.5 h-3.5 text-(--color-synapse-light)" />
               </div>
               SKU
             </div>
@@ -183,7 +183,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
               <div className="w-6 h-6 rounded-full bg-[#FDF6ED] flex items-center justify-center">
-                <Building2 className="w-3.5 h-3.5 text-[var(--color-synapse-light)]" />
+                <Building2 className="w-3.5 h-3.5 text-(--color-synapse-light)" />
               </div>
               Supplier
             </div>
@@ -233,8 +233,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-              <div className="w-6 h-6 rounded-full bg-[var(--color-synapse-light)]/20 flex items-center justify-center">
-                <Building2 className="w-3.5 h-3.5 text-[var(--color-synapse-light)]" />
+              <div className="w-6 h-6 rounded-full bg-(--color-synapse-light)/20 flex items-center justify-center">
+                <Building2 className="w-3.5 h-3.5 text-(--color-synapse-light)" />
               </div>
               Manufacturer
             </div>
@@ -337,7 +337,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                   size="sm"
                   className={cn(
                     "h-9 rounded-full px-4 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 gap-2",
-                    dateRange?.from && "border-[var(--color-synapse-light)] bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)]"
+                    dateRange?.from && "border-[var(--color-synapse-light)] bg-synapse-light/10 text-(--color-synapse-light)"
                   )}
                 >
                   <CalendarIcon size={14} />
@@ -406,24 +406,24 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
             <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-[var(--color-synapse-light)]">
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-(--color-synapse-light)">
                   <Coins className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[var(--color-synapse-light)] uppercase tracking-wider">Avg. Unit Price</p>
+                  <p className="text-[10px] font-bold text-(--color-synapse-light) uppercase tracking-wider">Avg. Unit Price</p>
                   <p className="text-xl font-bold text-blue-900">{formatINR(salesStats.averageUnitPrice)}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-[var(--color-synapse-light)]/10 border border-[var(--color-synapse-light)]/20 rounded-xl p-4 shadow-sm">
+            <div className="bg-synapse-light/10 border border-[var(--color-synapse-light)]/20 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[var(--color-synapse-light)]/20 flex items-center justify-center text-[var(--color-synapse-light)]">
+                <div className="w-10 h-10 rounded-full bg-(--color-synapse-light)/20 flex items-center justify-center text-(--color-synapse-light)">
                   <Banknote className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold text-[var(--color-synapse-light)] uppercase tracking-wider">Total Sales</p>
-                  <p className="text-xl font-bold text-[var(--color-synapse-light)]">{formatINR(salesStats.totalSales)}</p>
+                  <p className="text-[10px] font-bold text-(--color-synapse-light) uppercase tracking-wider">Total Sales</p>
+                  <p className="text-xl font-bold text-(--color-synapse-light)">{formatINR(salesStats.totalSales)}</p>
                 </div>
               </div>
             </div>
@@ -433,8 +433,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
 
           <Table>
-            <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
-              <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
+            <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+              <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                 {activeTab === "Batch History" ? (
                   <>
                     <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
@@ -485,7 +485,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                         <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
                         <TableCell className="text-xs py-3 text-slate-600">{data.supplier || "-"}</TableCell>
                         <TableCell className="text-right text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(data.purchasePrice)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-[var(--color-synapse-light)] bg-[var(--color-synapse-light)]/10/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                        <TableCell className="text-right text-xs py-3 font-bold text-(--color-synapse-light) bg-synapse-light/10/20 pr-4 tabular-nums">{data.quantity}</TableCell>
                       </>
                     ) : (
                       <>
@@ -514,7 +514,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
       {/* Actions */}
       < div className="flex gap-3 pt-4 border-t mt-2" >
-        <Button className="flex-1 bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
+        <Button className="flex-1 bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
         </Button>

@@ -43,8 +43,8 @@ export default function Header({ handleAdd, items, lowStockCount, setFilter, low
           const blob = new Blob([resp.data], {
             type:
               typeof resp.headers["content-type"] === "string"
-              ? resp.headers["content-type"]
-              : "text/csv",
+                ? resp.headers["content-type"]
+                : "text/csv",
           });
 
           const filename =
@@ -89,7 +89,7 @@ export default function Header({ handleAdd, items, lowStockCount, setFilter, low
       title="Inventory Management"
       subtitle="Manage your pharmacy stock and inventory"
     >
-      <Button className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md transition-all hover:shadow-lg active:scale-95 gap-2" onClick={handleAdd}>
+      <Button className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md transition-all hover:shadow-lg active:scale-95 gap-2" onClick={handleAdd}>
         + Add New Item
       </Button>
       <Button variant="outline" onClick={exportCsv} disabled={downloadingCsv}>

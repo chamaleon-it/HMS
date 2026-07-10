@@ -38,7 +38,7 @@ export default function Statistics() {
             title: "Total Users",
             value: "1,234",
             icon: Users,
-            color: "text-[var(--color-synapse-light)]",
+            color: "text-(--color-synapse-light)",
             change: "+12% from last month",
         },
         {
@@ -52,7 +52,7 @@ export default function Statistics() {
             title: "Active Sessions",
             value: "345",
             icon: Activity,
-            color: "text-[var(--color-synapse-light)]",
+            color: "text-(--color-synapse-light)",
             change: "+24% from last hour",
         },
         {

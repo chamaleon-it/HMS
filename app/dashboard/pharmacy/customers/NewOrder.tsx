@@ -112,30 +112,30 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
 
   return (
     <>
-{!asDialogOnly && (
-  <Button
-    variant="outline"
-    onClick={() => {
-      setNameToRegister("");
-      setOpenCreate(true);
-    }}
-    className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white hover:text-white mr-2"
-  >
-    New Patient
-  </Button>
-)}
+      {!asDialogOnly && (
+        <Button
+          variant="outline"
+          onClick={() => {
+            setNameToRegister("");
+            setOpenCreate(true);
+          }}
+          className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white hover:text-white mr-2"
+        >
+          New Patient
+        </Button>
+      )}
 
-<Dialog open={open} onOpenChange={setOpen}>
-  {!asDialogOnly && (
-    <DialogTrigger asChild>
-      <Button
-        className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md transition-all hover:shadow-lg active:scale-95"
-        size="sm"
-      >
-        New Order
-      </Button>
-    </DialogTrigger>
-  )}
+      <Dialog open={open} onOpenChange={setOpen}>
+        {!asDialogOnly && (
+          <DialogTrigger asChild>
+            <Button
+              className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+              size="sm"
+            >
+              New Order
+            </Button>
+          </DialogTrigger>
+        )}
         <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-3xl"}>
           <DialogHeader>
             <DialogTitle>Add new order</DialogTitle>
@@ -157,7 +157,7 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
               }}
             />
 
-            <Button className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-sm" onClick={() => setShowAllFields(!showAllFields)}>
+            <Button className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-sm" onClick={() => setShowAllFields(!showAllFields)}>
               {showAllFields ? "Hide optional fields" : "Display all fields"}
             </Button>
           </div>
@@ -168,7 +168,7 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
-              className="bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md"
+              className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md"
               onClick={createOrder}
             >
               Place Order

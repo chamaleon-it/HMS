@@ -84,7 +84,7 @@ const MedicalBackground = () => {
                     </div>
 
                     {/* Gradient Masks for Fade In/Out at edges */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-background z-10" />
+                    <div className="absolute inset-0 bg-linear-to-r from-background via-transparent to-background z-10" />
                 </div>
             </div>
 

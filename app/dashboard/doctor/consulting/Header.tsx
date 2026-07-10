@@ -9,7 +9,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { AppointmentType, DataType } from "./interface";
-import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { ActionButton } from "@/components/doctor/dashboard/home/PatientCard";
 import toast from "react-hot-toast";
 import useGetLabReport from "./useGetLabReport";
@@ -129,7 +129,7 @@ export default function Header({
               active={activeTab === "consultation"}
               onClick={() => setActiveTab("consultation")}
               icon={<Stethoscope className="h-4 w-4" />}
-              activeClass="bg-[var(--color-synapse-dark)] text-white"
+              activeClass="bg-(--color-synapse-dark) text-white"
             >
               Consultation
             </ToggleChip>
@@ -137,7 +137,7 @@ export default function Header({
               active={activeTab === "history"}
               onClick={() => setActiveTab("history")}
               icon={<ClipboardList className="h-4 w-4" />}
-              activeClass="bg-[var(--color-synapse-light)] text-white"
+              activeClass="bg-(--color-synapse-light) text-white"
             >
               History
             </ToggleChip>
@@ -146,7 +146,7 @@ export default function Header({
               active={activeTab === "report"}
               onClick={() => setActiveTab("report")}
               icon={<FlaskConical className="h-4 w-4" />}
-              activeClass="bg-[var(--color-synapse-light)] text-white"
+              activeClass="bg-(--color-synapse-light) text-white"
             >
               Reports{" "}
               <span className="ml-1 inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-800">

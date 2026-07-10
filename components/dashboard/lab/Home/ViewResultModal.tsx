@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fDate, fAgeString } from "@/lib/fDateAndTime";
 import { Activity, Clock, Eye, FileText, FlaskConical, User } from 'lucide-react';
 import {
     Table,
@@ -89,7 +89,7 @@ export default function ViewResultModal({ r }: Props) {
                 <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 px-3 text-[var(--color-synapse-light)] border-blue-100 hover:bg-blue-50 transition-colors shadow-sm inline-flex items-center"
+                    className="h-8 px-3 text-(--color-synapse-light) border-blue-100 hover:bg-blue-50 transition-colors shadow-sm inline-flex items-center"
                 >
                     <Eye className="w-4 h-4" />
                 </Button>
@@ -98,7 +98,7 @@ export default function ViewResultModal({ r }: Props) {
                 <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
-                            <div className="p-2.5 bg-blue-100/50 text-[var(--color-synapse-light)] rounded-xl">
+                            <div className="p-2.5 bg-blue-100/50 text-(--color-synapse-light) rounded-xl">
                                 <FileText className="w-5 h-5" />
                             </div>
                             <div>
@@ -222,7 +222,7 @@ export default function ViewResultModal({ r }: Props) {
                                         >
                                             <TableCell className="pl-6 py-4">
                                                 <div className="flex items-center gap-3">
-                                                    <div className={`p-2 bg-white border border-gray-100 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all ${test.name?.type === 'Lab' ? 'text-[var(--color-synapse-light)]' : 'text-[var(--color-synapse-light)]'}`}>
+                                                    <div className={`p-2 bg-white border border-gray-100 rounded-lg shadow-sm group-hover:border-blue-100 group-hover:shadow-md transition-all ${test.name?.type === 'Lab' ? 'text-(--color-synapse-light)' : 'text-(--color-synapse-light)'}`}>
                                                         {test.name?.type === 'Lab' ? <FlaskConical className="w-4 h-4" /> : <Activity className="w-4 h-4" />}
                                                     </div>
                                                     <span className="font-medium text-gray-900">
@@ -248,7 +248,7 @@ export default function ViewResultModal({ r }: Props) {
                                                                 href={test.value.toString()}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-[var(--color-synapse-light)] hover:text-[var(--color-synapse-light)] hover:border-blue-200 hover:shadow-sm transition-all"
+                                                                className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-(--color-synapse-light) hover:text-(--color-synapse-light) hover:border-blue-200 hover:shadow-sm transition-all"
                                                             >
                                                                 <FileText className="w-3.5 h-3.5" />
                                                                 View Report / Image

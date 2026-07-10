@@ -145,8 +145,8 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
 const MethodPill: React.FC<{ m: BillRow["method"] }> = ({ m }) => {
   const map: Record<BillRow["method"], string> = {
     cash: "bg-slate-100 text-slate-700 border-slate-200",
-    online: "bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
-    insurance: "bg-fuchsia-50 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
+    online: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30",
+    insurance: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30",
     mixed: "bg-sky-50 text-sky-700 border-sky-200",
   };
   return (

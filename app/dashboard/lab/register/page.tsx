@@ -118,25 +118,25 @@ export default function LabRegisterPage() {
                 </label>
                 <div className="flex gap-2">
                   <div className="relative group flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[var(--color-synapse-light)] transition-colors" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-(--color-synapse-light) transition-colors" />
                     <Input
                       value={filter.q ?? ""}
                       onChange={(e) =>
                         setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
                       }
                       placeholder="From..."
-                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all placeholder:text-slate-400"
+                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400"
                     />
                   </div>
                   <div className="relative group flex-1">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[var(--color-synapse-light)] transition-colors" />
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-(--color-synapse-light) transition-colors" />
                     <Input
                       value={filter.qEnd ?? ""}
                       onChange={(e) =>
                         setFilter((prev) => ({ ...prev, qEnd: e.target.value, page: 1 }))
                       }
                       placeholder="To..."
-                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all placeholder:text-slate-400"
+                      className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400"
                     />
                   </div>
                 </div>
@@ -176,14 +176,14 @@ export default function LabRegisterPage() {
               <TableSkeleton rows={10} columns={6} />
             ) : (
               <Table className="min-w-[1000px] text-sm" containerClassName="max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
-                <TableHeader className="bg-[var(--color-synapse-dark)] sticky top-0 z-20 shadow-sm">
-                  <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
-                    <TableHead className="py-3 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-synapse-dark)]">Sl No</TableHead>
-                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-synapse-dark)]">Invoice</TableHead>
-                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-synapse-dark)]">Date</TableHead>
-                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-synapse-dark)]">Patient</TableHead>
-                    <TableHead className="py-3 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-synapse-dark)]">Paid Amount</TableHead>
-                    <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-[var(--color-synapse-dark)]">Total Bill</TableHead>
+                <TableHeader className="bg-(--color-synapse-dark) sticky top-0 z-20 shadow-sm">
+                  <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
+                    <TableHead className="py-3 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Sl No</TableHead>
+                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Invoice</TableHead>
+                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Date</TableHead>
+                    <TableHead className="py-3 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Patient</TableHead>
+                    <TableHead className="py-3 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Paid Amount</TableHead>
+                    <TableHead className="py-3 text-right pr-4 text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Total Bill</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -254,7 +254,7 @@ export default function LabRegisterPage() {
               </Table>
             )}
           </div>
-          
+
           {(filter.activeDate !== "Today" && filter.activeDate !== "Custom") && billing.length > filter.limit && (
             <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
               <PaginationBar

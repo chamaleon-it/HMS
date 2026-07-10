@@ -390,7 +390,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
             </SelectTrigger>
             <SelectContent className="rounded-lg border-slate-200">
               {suppliers.map((s: { _id: string; name: string }) => (
-                <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-[var(--color-synapse-light)]/10">
+                <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-synapse-light/10">
                   {s.name}
                 </SelectItem>
               ))}
@@ -498,7 +498,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
 
 
       <div className="flex gap-2 pt-2">
-        <Button className="bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] text-white flex-1 h-11 shadow-md font-semibold" type="submit" ref={refs.saveButton}>
+        <Button className="bg-(--color-synapse-light) hover:bg-(--color-synapse-light) text-white flex-1 h-11 shadow-md font-semibold" type="submit" ref={refs.saveButton}>
           Save Medicine
         </Button>
         <Button

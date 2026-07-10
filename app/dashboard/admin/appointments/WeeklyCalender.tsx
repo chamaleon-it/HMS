@@ -11,7 +11,7 @@ const colorMap = {
     chip: "bg-blue-100 text-blue-800",
     block: "bg-blue-100 text-blue-800",
     ring: "ring-blue-200",
-    dot: "bg-[var(--color-synapse-light)]",
+    dot: "bg-(--color-synapse-light)",
     label: "Consultation",
   },
   "Lab Test": {
@@ -25,7 +25,7 @@ const colorMap = {
     chip: "bg-emerald-100 text-emerald-800",
     block: "bg-emerald-100 text-emerald-800",
     ring: "ring-emerald-200",
-    dot: "bg-[var(--color-synapse-dark)]",
+    dot: "bg-(--color-synapse-dark)",
     label: "Follow-up",
   },
 } as const;
@@ -36,7 +36,7 @@ const getStatusStyles = (status: ApiStatus) => {
     case "Upcoming": return "bg-blue-200 text-blue-800";
     case "Consulted": return "bg-green-100 text-green-800";
     case "Completed": return "bg-gray-200 text-gray-800";
-    case "Observation": return "bg-[#FDF6ED] text-[var(--color-synapse-light)]";
+    case "Observation": return "bg-[#FDF6ED] text-(--color-synapse-light)";
     case "Not show": return "bg-yellow-100 text-yellow-800";
     case "Admit": return "bg-red-300 text-red-800";
     case "Test": return "bg-pink-100 text-pink-800";
@@ -46,9 +46,9 @@ const getStatusStyles = (status: ApiStatus) => {
 
 const getStatusDot = (status: ApiStatus) => {
   switch (status) {
-    case "Upcoming": return "bg-[var(--color-synapse-light)]";
+    case "Upcoming": return "bg-(--color-synapse-light)";
     case "Consulted":
-    case "Completed": return "bg-[var(--color-synapse-dark)]";
+    case "Completed": return "bg-(--color-synapse-dark)";
     case "Observation": return "bg-sky-500";
     case "Not show": return "bg-amber-500";
     case "Admit":
@@ -288,8 +288,8 @@ export default function WeeklyCalender({
 
         {/* Legend */}
         <div className="hidden lg:flex items-center gap-4 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--color-synapse-light)]"></div> Upcoming</div>
-          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-[var(--color-synapse-dark)]"></div> Consulted</div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-(--color-synapse-light)"></div> Upcoming</div>
+          <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-(--color-synapse-dark)"></div> Consulted</div>
           <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-sky-500"></div> Observation</div>
           <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-amber-500"></div> Not show</div>
           <div className="flex items-center gap-1.5"><div className="w-2.5 h-2.5 rounded-full bg-rose-500"></div> Admit/Test</div>
@@ -309,8 +309,8 @@ export default function WeeklyCalender({
               const past = isPastDate(i);
               return (
                 <div key={i} className={`flex flex-col items-center justify-center py-3 border-r border-gray-100 ${today ? 'bg-blue-50/40' : past ? 'bg-gray-50/50 opacity-60' : ''}`}>
-                  <div className={`text-xs font-bold uppercase mb-1 ${today ? 'text-[var(--color-synapse-light)]' : 'text-gray-400'}`}>{d}</div>
-                  <div className={`text-xl font-bold w-10 h-10 flex items-center justify-center rounded-full transition-all ${today ? 'bg-[var(--color-synapse-light)] text-white shadow-md shadow-blue-200 scale-110' : 'text-gray-700'}`}>
+                  <div className={`text-xs font-bold uppercase mb-1 ${today ? 'text-(--color-synapse-light)' : 'text-gray-400'}`}>{d}</div>
+                  <div className={`text-xl font-bold w-10 h-10 flex items-center justify-center rounded-full transition-all ${today ? 'bg-(--color-synapse-light) text-white shadow-md shadow-blue-200 scale-110' : 'text-gray-700'}`}>
                     {getDateNumber(i)}
                   </div>
                 </div>

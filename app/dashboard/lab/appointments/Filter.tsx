@@ -119,9 +119,9 @@ export default function Filter({
                 {isOpen && Boolean(data?.data?.length) && (
                   <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-[400px] overflow-y-auto">
                     {data?.data.map((p, index) => (
-                      <Link 
-                        href={`/dashboard/lab/patients/single/?id=${p._id}`} 
-                        className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-[var(--color-synapse-light)] ring-offset-1' : ''}`} 
+                      <Link
+                        href={`/dashboard/lab/patients/single/?id=${p._id}`}
+                        className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-(--color-synapse-light) ring-offset-1' : ''}`}
                         key={p._id}
                         onClick={() => setIsOpen(false)}
                       >

@@ -14,15 +14,15 @@ export default function PharmacistsPage() {
     return (
         <AppShell>
             <div className="p-6 space-y-6">
-                <AdminHeader 
-                    title="Pharmacists" 
+                <AdminHeader
+                    title="Pharmacists"
                     subtitle="Manage your pharmacy staff and their qualifications."
                 />
-                
+
                 <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
                     <Table className="min-w-fit">
-                        <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
-                            <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
+                        <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+                            <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Name</TableHead>
                                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Qualification</TableHead>
                                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">License No.</TableHead>

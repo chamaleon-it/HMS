@@ -115,7 +115,7 @@ export default function ConsultationNotes({
             <button
               type="button"
               onClick={() => setAddValues("presentHistory")}
-                className="inline-flex items-center rounded-lg bg-gradient-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-[var(--color-synapse-purple)] hover:to-[var(--color-synapse-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--color-synapse-light)]"
+              className="inline-flex items-center rounded-lg bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-(--color-synapse-purple) hover:to-(--color-synapse-dark) focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
             >
               + Add Condition
             </button>
@@ -137,7 +137,7 @@ export default function ConsultationNotes({
                   setValue("");
                   setAddValues(null);
                 }}
-                className="inline-flex items-center rounded-md bg-[var(--color-synapse-light)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-synapse-light)] disabled:opacity-40"
+                className="inline-flex items-center rounded-md bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-synapse-light) disabled:opacity-40"
                 disabled={!value.trim()}
               >
                 Save
@@ -197,7 +197,7 @@ export default function ConsultationNotes({
                 <button
                   type="button"
                   onClick={() => setAddValues("pastHistory")}
-                    className="inline-flex items-center rounded-lg bg-gradient-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-[var(--color-synapse-purple)] hover:to-[var(--color-synapse-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--color-synapse-light)]"
+                  className="inline-flex items-center rounded-lg bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-(--color-synapse-purple) hover:to-(--color-synapse-dark) focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
                 >
                   + Add Condition
                 </button>
@@ -219,7 +219,7 @@ export default function ConsultationNotes({
                       setValue("");
                       setAddValues(null);
                     }}
-                    className="inline-flex items-center rounded-md bg-[var(--color-synapse-light)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-synapse-light)] disabled:opacity-40"
+                    className="inline-flex items-center rounded-md bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-synapse-light) disabled:opacity-40"
                     disabled={!value.trim()}
                   >
                     Save
@@ -285,7 +285,7 @@ export default function ConsultationNotes({
               <button
                 type="button"
                 onClick={() => setAddValues("diagnosis")}
-                  className="inline-flex items-center rounded-lg bg-gradient-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-[var(--color-synapse-purple)] hover:to-[var(--color-synapse-dark)] focus:outline-none focus:ring-2 focus:ring-[var(--color-synapse-light)]"
+                className="inline-flex items-center rounded-lg bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-(--color-synapse-purple) hover:to-(--color-synapse-dark) focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
               >
                 + Add Condition
               </button>
@@ -307,7 +307,7 @@ export default function ConsultationNotes({
                     setValue("");
                     setAddValues(null);
                   }}
-                  className="inline-flex items-center rounded-md bg-[var(--color-synapse-light)] px-3 py-1.5 text-sm font-medium text-white hover:bg-[var(--color-synapse-light)] disabled:opacity-40"
+                  className="inline-flex items-center rounded-md bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-synapse-light) disabled:opacity-40"
                   disabled={!value.trim()}
                 >
                   Save

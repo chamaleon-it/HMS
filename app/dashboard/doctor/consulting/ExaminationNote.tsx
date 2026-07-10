@@ -159,9 +159,8 @@ export default function ExaminationNote({
           <div className="flex items-center gap-3">
             {/* °C Label */}
             <span
-              className={`text-sm transition-colors ${
-                !isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
-              }`}
+              className={`text-sm transition-colors ${!isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
+                }`}
             >
               °C
             </span>
@@ -201,9 +200,8 @@ export default function ExaminationNote({
 
             {/* °F Label */}
             <span
-              className={`text-sm transition-colors ${
-                isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
-              }`}
+              className={`text-sm transition-colors ${isFahrenheit ? "text-green-600 font-semibold" : "text-zinc-400"
+                }`}
             >
               °F
             </span>
@@ -262,13 +260,13 @@ export default function ExaminationNote({
     const storedTemplates = safeRead<Template[]>(LS_KEYS.templates, []);
     const cleanedTemplates = Array.isArray(storedTemplates)
       ? storedTemplates.map((t) => ({
-          ...t,
-          order: Array.isArray(t.order) ? t.order.filter(isFieldKey) : [],
-          enabled: Array.isArray(t.enabled)
-            ? t.enabled.filter(isFieldKey).filter((k) => EXTRA_KEYS.includes(k))
-            : [],
-          values: t.values, // keep if present
-        }))
+        ...t,
+        order: Array.isArray(t.order) ? t.order.filter(isFieldKey) : [],
+        enabled: Array.isArray(t.enabled)
+          ? t.enabled.filter(isFieldKey).filter((k) => EXTRA_KEYS.includes(k))
+          : [],
+        values: t.values, // keep if present
+      }))
       : [];
     setTemplates(cleanedTemplates);
 
@@ -409,11 +407,10 @@ export default function ExaminationNote({
                 <button
                   key={raw}
                   onClick={() => toggleSection(key)}
-                  className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${
-                    active
-                      ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                      : "bg-white"
-                  }`}
+                  className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${active
+                    ? "bg-emerald-50 border-emerald-300 text-emerald-700"
+                    : "bg-white"
+                    }`}
                 >
                   {raw}
                 </button>
@@ -456,7 +453,7 @@ export default function ExaminationNote({
                         </span>
                         <button
                           onClick={() => setSaveOpen(true)}
-                          className="text-[var(--color-synapse-light)] hover:text-[var(--color-synapse-light)] text-xs font-semibold"
+                          className="text-(--color-synapse-light) hover:text-(--color-synapse-light) text-xs font-semibold"
                         >
                           + Save Current
                         </button>
@@ -493,11 +490,10 @@ export default function ExaminationNote({
                             <button
                               key={t.id}
                               onClick={() => applyTemplate(t.id)}
-                              className={`group w-full text-left px-4 py-3 hover:bg-emerald-50 transition ${
-                                selectedTemplateId === t.id
-                                  ? "bg-emerald-50/60"
-                                  : "bg-white"
-                              }`}
+                              className={`group w-full text-left px-4 py-3 hover:bg-emerald-50 transition ${selectedTemplateId === t.id
+                                ? "bg-emerald-50/60"
+                                : "bg-white"
+                                }`}
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
@@ -528,8 +524,8 @@ export default function ExaminationNote({
                                     {fid === "PA"
                                       ? "P/A"
                                       : fid === "LE"
-                                      ? "L/E"
-                                      : fid}
+                                        ? "L/E"
+                                        : fid}
                                   </span>
                                 ))}
                                 {t.order.length > 5 && (
@@ -577,11 +573,10 @@ export default function ExaminationNote({
               <button
                 key={raw}
                 onClick={() => toggleSection(key)}
-                className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${
-                  active
-                    ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                    : "bg-white"
-                }`}
+                className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${active
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-700"
+                  : "bg-white"
+                  }`}
               >
                 {raw}
               </button>
@@ -717,7 +712,7 @@ export default function ExaminationNote({
                 </button>
                 <button
                   onClick={saveCurrentAsTemplate}
-                  className="px-4 py-2 bg-[var(--color-synapse-dark)] text-white rounded-xl hover:bg-[var(--color-synapse-dark)]"
+                  className="px-4 py-2 bg-(--color-synapse-dark) text-white rounded-xl hover:bg-(--color-synapse-dark)"
                 >
                   Save
                 </button>
@@ -924,9 +919,8 @@ function LabeledInput({
         placeholder=" "
         type={type}
         inputMode={type === "number" ? "numeric" : undefined}
-        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${
-          hasRight ? "pr-24" : unit ? "pr-12" : ""
-        }`}
+        className={`peer w-full rounded-xl border border-slate-200 bg-white px-3 pt-5 pb-2 text-sm outline-none placeholder-transparent focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100 ${hasRight ? "pr-24" : unit ? "pr-12" : ""
+          }`}
       />
       <label className="absolute left-3 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-emerald-600">
         {label}

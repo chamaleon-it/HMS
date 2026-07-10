@@ -98,7 +98,7 @@ export default function Overview({ setTab, consult, patient, mutatePatient, isAd
         <Textarea className="h-[150px] w-full rounded-xl border px-2 py-1" placeholder="Remarks" value={remarks} onChange={(e) => setRemarks(e.target.value)} readOnly={isAdmin} />
         {!isAdmin && (
           <div className="flex justify-end">
-            <Button className="mt-2 bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]" onClick={handleSaveRemarks}>Save Remarks</Button>
+            <Button className="mt-2 bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)" onClick={handleSaveRemarks}>Save Remarks</Button>
           </div>
         )}
       </div>

@@ -32,7 +32,7 @@ const Hero = () => {
 
                         <h1 className="text-5xl lg:text-7xl font-semibold text-white leading-tight mb-8 tracking-tight">
                             Streamline Operations & <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#F43F5E] via-purple-400 to-[#F43F5E] animate-gradient-x">
+                            <span className="text-transparent bg-clip-text bg-linear-to-r from-[#F43F5E] via-purple-400 to-[#F43F5E] animate-gradient-x">
                                 Improve Patient Care
                             </span>
                         </h1>
@@ -47,7 +47,7 @@ const Hero = () => {
                                     Book a Free Demo
                                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                                 </span>
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                                <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/50 to-transparent -translate-x-full group-hover:animate-shimmer" />
                             </button>
                             <button className="w-full sm:w-auto px-8 py-4 bg-white/5 text-white border border-white/10 hover:bg-white/10 rounded-full font-medium text-lg transition-all backdrop-blur-md hover:border-white/20">
                                 Explore Features
@@ -133,7 +133,7 @@ const Hero = () => {
                                 <div className="space-y-4">
                                     {[...Array(8)].map((_, i) => (
                                         <div key={i} className="flex items-center gap-3 opacity-60 animate-pulse" style={{ animationDelay: `${i * 0.5}s`, animationDuration: '3s' }}>
-                                            <div className={`w-1.5 h-1.5 rounded-full ${i % 2 === 0 ? 'bg-[var(--color-synapse-dark)]' : 'bg-[var(--color-synapse-light)]'}`} />
+                                            <div className={`w-1.5 h-1.5 rounded-full ${i % 2 === 0 ? 'bg-(--color-synapse-dark)' : 'bg-(--color-synapse-light)'}`} />
                                             <div className="h-1.5 w-20 bg-white/10 rounded-full" />
                                             <div className="h-1.5 w-8 bg-white/5 rounded-full ml-auto" />
                                         </div>
@@ -157,7 +157,7 @@ const Hero = () => {
                         </div>
 
                         {/* Glow Effect behind dashboard */}
-                        <div className="absolute -inset-4 bg-gradient-to-r from-[#3B82F6] to-[F43F5E] opacity-20 blur-3xl -z-10 rounded-[3rem]" />
+                        <div className="absolute -inset-4 bg-linear-to-r from-[#3B82F6] to-[F43F5E] opacity-20 blur-3xl -z-10 rounded-[3rem]" />
                     </motion.div>
 
                 </div>

@@ -41,7 +41,7 @@ export default function ItemSelected({
   );
 
   const billingItems = billingItemsData?.data ?? [];
-  
+
   React.useEffect(() => {
     setSelectedIndex(-1);
   }, [item, billingItems.length]);
@@ -91,7 +91,7 @@ export default function ItemSelected({
             placeholder="Search services / tests / items…"
             ref={itemRef}
             className={
-              "h-[42px] w-full rounded-lg border border-slate-200 bg-white/70 px-4 text-[13px] font-medium outline-none focus:ring-4 focus:ring-[var(--color-synapse-light)]/10 focus:border-[var(--color-synapse-light)] dark:border-slate-700 dark:bg-slate-900/50 transition-all shadow-sm"
+              "h-[42px] w-full rounded-lg border border-slate-200 bg-white/70 px-4 text-[13px] font-medium outline-none focus:ring-4 focus:ring-(--color-synapse-light)/10 focus:border-[var(--color-synapse-light)] dark:border-slate-700 dark:bg-slate-900/50 transition-all shadow-sm"
             }
             value={item ?? ""}
             onChange={(e) => setItem(e.target.value)}
@@ -123,7 +123,7 @@ export default function ItemSelected({
             }}
           />
           {isFocused && billingItems.length > 0 && (
-            <div 
+            <div
               onMouseDown={(e) => e.preventDefault()}
               className="absolute w-full mt-2 p-1.5 max-h-64 overflow-y-auto rounded-xl bg-white/95 backdrop-blur-sm border border-slate-200 top-full flex flex-col gap-1 z-50 shadow-xl animate-in fade-in zoom-in-95 duration-200"
             >
@@ -134,19 +134,18 @@ export default function ItemSelected({
                     addItem(i.item, i.price);
                     itemRef.current?.focus();
                   }}
-                  className={`group flex items-center justify-between gap-3 p-2 rounded-lg cursor-pointer transition-all border ${
-                    selectedIndex === index
-                      ? "bg-[var(--color-synapse-light)]/10 border-[var(--color-synapse-light)]/30 ring-1 ring-indigo-200"
-                      : "hover:bg-slate-50 border-transparent hover:border-slate-100"
-                  }`}
+                  className={`group flex items-center justify-between gap-3 p-2 rounded-lg cursor-pointer transition-all border ${selectedIndex === index
+                    ? "bg-synapse-light/10 border-synapse-light/30 ring-1 ring-indigo-200"
+                    : "hover:bg-slate-50 border-transparent hover:border-slate-100"
+                    }`}
                 >
                   <div className="flex items-center gap-3 overflow-hidden flex-1">
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 group-hover:bg-[var(--color-synapse-light)]/10 transition-colors">
-                      <Tag className="h-4 w-4 text-slate-500 group-hover:text-[var(--color-synapse-light)]" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 group-hover:bg-synapse-light/10 transition-colors">
+                      <Tag className="h-4 w-4 text-slate-500 group-hover:text-(--color-synapse-light)" />
                     </div>
                     <div className="flex flex-col min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded leading-none group-hover:bg-[var(--color-synapse-light)]/20/50 group-hover:text-[var(--color-synapse-light)] transition-colors">
+                        <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded leading-none group-hover:bg-synapse-light/20/50 group-hover:text-(--color-synapse-light) transition-colors">
                           {i.code}
                         </span>
                         <span className="text-sm font-semibold text-slate-700 truncate group-hover:text-slate-900 transition-colors">
@@ -160,7 +159,7 @@ export default function ItemSelected({
                     </div>
                   </div>
                   <div className="flex items-center gap-2 px-1">
-                    <div className="text-sm font-bold text-slate-400 group-hover:text-[var(--color-synapse-light)] transition-colors mr-2">
+                    <div className="text-sm font-bold text-slate-400 group-hover:text-(--color-synapse-light) transition-colors mr-2">
                       {formatINR(i.price)}
                     </div>
                     <button
@@ -183,7 +182,7 @@ export default function ItemSelected({
                         setIsEditModalOpen(true);
                       }}
                       aria-label={`Edit ${i.item}`}
-                      className="opacity-0 group-hover:opacity-100 flex h-8 w-8 items-center justify-center rounded-lg hover:bg-[var(--color-synapse-light)]/10 text-slate-400 hover:text-[var(--color-synapse-light)] transition-all active:scale-90"
+                      className="opacity-0 group-hover:opacity-100 flex h-8 w-8 items-center justify-center rounded-lg hover:bg-synapse-light/10 text-slate-400 hover:text-(--color-synapse-light) transition-all active:scale-90"
                     >
                       <Pencil className="h-4 w-4" />
                     </button>
@@ -209,7 +208,7 @@ export default function ItemSelected({
               <input
                 value={editingItem?.code || ""}
                 onChange={(e) => setEditingItem(prev => prev ? { ...prev, code: e.target.value } : null)}
-                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all"
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
                 placeholder="e.g. CPT-12345"
               />
             </div>
@@ -218,7 +217,7 @@ export default function ItemSelected({
               <input
                 value={editingItem?.item || ""}
                 onChange={(e) => setEditingItem(prev => prev ? { ...prev, item: e.target.value } : null)}
-                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all"
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
                 placeholder="ex. Consultation"
               />
             </div>
@@ -229,7 +228,7 @@ export default function ItemSelected({
                 min="0"
                 value={editingItem?.price === 0 ? "" : editingItem?.price.toString()}
                 onChange={(e) => setEditingItem(prev => prev ? { ...prev, price: Number(e.target.value) } : null)}
-                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all"
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
                 placeholder="0"
               />
             </div>

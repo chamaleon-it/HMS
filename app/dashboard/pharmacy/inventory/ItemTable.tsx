@@ -97,8 +97,8 @@ export default function ItemTable({
       <div className="p-0 m-0">
         <div className="overflow-x-auto w-full">
           <Table className="whitespace-nowrap">
-            <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
-              <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-slate-800 border-b-0">
+            <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+              <TableRow className="bg-(--color-synapse-dark) hover:bg-slate-800 border-b-0">
 
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Sl No</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Item Name</TableHead>
@@ -194,7 +194,7 @@ export default function ItemTable({
 
                   <TableCell className="py-3 font-medium text-slate-700">
                     {item.soldQuantity ?? 0}
-                    
+
                   </TableCell>
 
                   <TableCell className="py-3 pr-4">
@@ -204,7 +204,7 @@ export default function ItemTable({
                           <Button
                             size="icon"
                             variant="ghost"
-                            className="h-8 w-8 text-[var(--color-synapse-light)] hover:text-[var(--color-synapse-light)] hover:bg-blue-50"
+                            className="h-8 w-8 text-(--color-synapse-light) hover:text-(--color-synapse-light) hover:bg-blue-50"
                             onClick={() => handleView(item)}
                           >
                             <Eye className="h-4 w-4" />

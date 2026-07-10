@@ -88,7 +88,7 @@ export const DraggableWindow: React.FC<Props> = ({
       }}
       className={cn(
         "bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col pointer-events-auto",
-        isActive ? "ring-2 ring-[var(--color-synapse-light)]/20 border-[var(--color-synapse-light)]/30" : "",
+        isActive ? "ring-2 ring-(--color-synapse-light)/20 border-synapse-light/30" : "",
         minimized ? "h-12 w-64" : "w-[90vw] max-w-5xl",
         className
       )}
@@ -99,7 +99,7 @@ export const DraggableWindow: React.FC<Props> = ({
         onPointerDown={(e) => dragControls.start(e)}
       >
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className={cn("w-2 h-2 rounded-full shrink-0", isActive ? "bg-[var(--color-synapse-light)]" : "bg-slate-300")} />
+          <div className={cn("w-2 h-2 rounded-full shrink-0", isActive ? "bg-(--color-synapse-light)" : "bg-slate-300")} />
           <span className="text-sm font-semibold text-slate-700 truncate">{title}</span>
         </div>
         <div className="flex items-center gap-1 shrink-0">

@@ -207,14 +207,14 @@ export default function FollowUpTimePro({
     bookedMutate();
   };
 
-  
+
 
   if (!showFollowUp) {
     return (
       <div className="flex justify-start">
         <Button
           onClick={() => setShowFollowUp(true)}
-          className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]"
+          className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)"
         >
           Book Follow Up
         </Button>
@@ -227,7 +227,7 @@ export default function FollowUpTimePro({
       <div className="flex justify-start">
         <Button
           onClick={() => setShowFollowUp(false)}
-          className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]"
+          className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)"
         >
           Hide Follow Up
         </Button>
@@ -273,18 +273,18 @@ export default function FollowUpTimePro({
               const reason = isDisabledByRound
                 ? round?.label ?? "Unavailable"
                 : isBooked
-                ? "Already booked"
-                : isPastTime
-                ? "Past time"
-                : undefined;
+                  ? "Already booked"
+                  : isPastTime
+                    ? "Past time"
+                    : undefined;
 
               const disabledClasses = isDisabledByRound
                 ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300 cursor-not-allowed"
                 : isBooked
-                ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
-                : isPastTime
-                ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
-                : "";
+                  ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
+                  : isPastTime
+                    ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
+                    : "";
 
               return (
                 <div key={time} className="w-full">

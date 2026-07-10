@@ -289,7 +289,7 @@ export function CreateAppointmentForm({
               variant="outline"
               size="sm"
               onClick={() => setOpenCreate(true)}
-              className="h-8 border-[var(--color-synapse-light)]/30 text-[var(--color-synapse-light)] hover:bg-[#FDF6ED] hover:text-[var(--color-synapse-purple)]"
+              className="h-8 border-synapse-light/30 text-(--color-synapse-light) hover:bg-[#FDF6ED] hover:text-[var(--color-synapse-purple)]"
             >
               <UserPlus className="h-3.5 w-3.5 mr-1.5" />
               Create Patient

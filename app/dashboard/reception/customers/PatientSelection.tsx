@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { fAge , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import { ChevronRight, MapPin, Phone, X } from "lucide-react";
 import React, {
@@ -188,7 +188,7 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName }) 
                   onClick={() => {
                     register?.(input)
                   }}
-                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-[var(--color-synapse-light)] hover:bg-blue-50 font-medium"
+                  className="flex items-center gap-2 w-full text-left px-3 py-2 text-(--color-synapse-light) hover:bg-blue-50 font-medium"
                 >
                   <span className="text-lg">➕</span> Add new customer
                 </button>
@@ -344,7 +344,7 @@ const PatientCard: React.FC<{
 
               {/* Meta pills */}
               <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[var(--color-synapse-light)] dark:bg-blue-900/40 dark:text-blue-300">
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-(--color-synapse-light) dark:bg-blue-900/40 dark:text-blue-300">
                   {safeAge(p.dateOfBirth)}
                 </span>
 

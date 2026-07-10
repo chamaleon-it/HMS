@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Eye, Upload } from "lucide-react";
 import SendToLabDialog from "./SendToLabDialog";
-import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 
 // Reusing types roughly matching LabTable
 interface Report {
@@ -38,8 +38,8 @@ export default function ExternalLabTable({ data, mode }: Props) {
     return (
         <div className="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm overflow-hidden">
             <Table className="w-full whitespace-nowrap">
-                <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
-                    <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium">
+                <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+                    <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium">
                         <TableHead className="w-10 text-left px-3 py-2 text-white font-medium">No.</TableHead>
                         <TableHead className="text-white font-medium">Patient</TableHead>
                         <TableHead className="text-white font-medium">Test</TableHead>
@@ -96,7 +96,7 @@ export default function ExternalLabTable({ data, mode }: Props) {
                                     )}
 
                                     {mode === "report" && row.status === "In Progress" && (
-                                        <Button size="sm" variant="outline" className="h-8 gap-2 text-[var(--color-synapse-light)] border-blue-200 hover:bg-blue-50">
+                                        <Button size="sm" variant="outline" className="h-8 gap-2 text-(--color-synapse-light) border-blue-200 hover:bg-blue-50">
                                             <Upload className="h-3 w-3" />
                                             Upload Result
                                         </Button>
@@ -157,7 +157,7 @@ const Chip: React.FC<{
                 className={`mr-1.5 h-1.5 w-1.5 rounded-full ${tone === "gray"
                     ? "bg-slate-400"
                     : tone === "green"
-                        ? "bg-[var(--color-synapse-dark)]"
+                        ? "bg-(--color-synapse-dark)"
                         : tone === "amber"
                             ? "bg-amber-500"
                             : tone === "blue"

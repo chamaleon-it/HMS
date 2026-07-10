@@ -127,8 +127,8 @@ export default function LabResultsPage() {
     ? drafts.filter(d => !d.isOpen).map(d => ({
       _id: d.id,
       mrn: 0,
-      patient: { 
-        name: d.patientName || "Unknown Patient", 
+      patient: {
+        name: d.patientName || "Unknown Patient",
         // mrn: "-",
         //_id: d.payload.patient || "",
         //phoneNumber: "-",
@@ -140,11 +140,11 @@ export default function LabResultsPage() {
       test: d.payload.test.map(t => {
         const testObj = tests.find(test => test._id === t.name);
         return {
-          name: { 
-            _id: t.name, 
-            name: testObj?.name || "Unknown Test", 
-            code: testObj?.code || "-", 
-            type: testObj?.type || "-" 
+          name: {
+            _id: t.name,
+            name: testObj?.name || "Unknown Test",
+            code: testObj?.code || "-",
+            type: testObj?.type || "-"
           },
           _id: Math.random().toString()
         };
@@ -249,9 +249,9 @@ export default function LabResultsPage() {
           icon={<FlaskConical className="h-6 w-6" />}
           label="Waiting For Result"
           value={statsData.waitingForResult}
-          colorClass="from-[var(--color-synapse-light)]/10 to-[var(--color-synapse-purple)]/5"
-          iconBgClass="bg-[var(--color-synapse-light)]/20 text-[var(--color-synapse-light)]"
-          borderClass="hover:border-[var(--color-synapse-light)]/30"
+          colorClass="from-(--color-synapse-light)/10 to-(--color-synapse-purple)/5"
+          iconBgClass="bg-(--color-synapse-light)/20 text-(--color-synapse-light)"
+          borderClass="hover:border-synapse-light/30"
         />
         <StatCard
           delay={0.4}

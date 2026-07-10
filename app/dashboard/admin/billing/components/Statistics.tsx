@@ -103,7 +103,7 @@ export default function Statistics({ billing }: StatisticsProps) {
             icon: Receipt,
             bg: "bg-blue-50/50",
             border: "border-blue-100",
-            iconColor: "text-[var(--color-synapse-light)]/70",
+            iconColor: "text-(--color-synapse-light)/70",
             textColor: "text-blue-800/70",
             headingColor: "text-blue-900"
         },
@@ -113,7 +113,7 @@ export default function Statistics({ billing }: StatisticsProps) {
             icon: UserRound,
             bg: "bg-purple-50/50",
             border: "border-purple-100",
-            iconColor: "text-[var(--color-synapse-light)]/70",
+            iconColor: "text-(--color-synapse-light)/70",
             textColor: "text-purple-800/70",
             headingColor: "text-purple-900"
         },
@@ -123,7 +123,7 @@ export default function Statistics({ billing }: StatisticsProps) {
             icon: UserRound,
             bg: "bg-purple-50/50",
             border: "border-purple-100",
-            iconColor: "text-[var(--color-synapse-light)]/70",
+            iconColor: "text-(--color-synapse-light)/70",
             textColor: "text-purple-800/70",
             headingColor: "text-purple-900"
         },

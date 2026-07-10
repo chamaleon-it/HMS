@@ -40,7 +40,7 @@ const WholesalerSettingsPage: React.FC = () => {
               </div>
             </div>
             <div className="hidden md:flex items-center gap-2">
-              <Badge className="bg-[var(--color-synapse-dark)] text-white">{configuration().hospitalName}</Badge>
+              <Badge className="bg-(--color-synapse-dark) text-white">{configuration().hospitalName}</Badge>
               <Badge variant="secondary">HIPAA-ready</Badge>
               <Badge variant="outline">ISO 27001-minded</Badge>
             </div>

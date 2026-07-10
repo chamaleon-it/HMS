@@ -169,7 +169,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
           onClick={() => window.dispatchEvent(new CustomEvent('open-lab-register-patient', { 
             detail: { name: draft.patientName, draftId: draft.id } 
           }))} 
-          className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white hover:text-white"
+          className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white hover:text-white"
         >
           New Customer
         </Button> */}
@@ -408,7 +408,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
                 <TableCell>
                   <span className="font-semibold text-slate-800">{t}</span>
                   {panels.find((p) => p.name === t)?.department && (
-                    <span className="text-[10px] text-[var(--color-synapse-light)] font-bold bg-blue-100/80 border border-blue-200 px-2 py-0.5 rounded-full ml-2 uppercase">
+                    <span className="text-[10px] text-(--color-synapse-light) font-bold bg-blue-100/80 border border-blue-200 px-2 py-0.5 rounded-full ml-2 uppercase">
                       {panels.find((p) => p.name === t)?.department}
                     </span>
                   )}
@@ -470,7 +470,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
               <TableCell>
                 <span className="font-semibold text-slate-800">{tests.find((test) => test._id === t.name)?.name}</span>
                 {tests.find((test) => test._id === t.name)?.department && (
-                  <span className="text-[10px] text-[var(--color-synapse-light)] font-bold bg-[#FDF6ED]/80 border border-[var(--color-synapse-light)]/30 px-2 py-0.5 rounded-full ml-2 uppercase">
+                  <span className="text-[10px] text-(--color-synapse-light) font-bold bg-[#FDF6ED]/80 border border-synapse-light/30 px-2 py-0.5 rounded-full ml-2 uppercase">
                     {tests.find((test) => test._id === t.name)?.department}
                   </span>
                 )}
@@ -497,7 +497,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
 
       <div className="flex justify-between items-center mt-4">
         <div className="text-lg font-semibold text-gray-700">
-          Grand Total: <span className="text-[var(--color-synapse-light)]">{formatINR(grandTotal)}</span>
+          Grand Total: <span className="text-(--color-synapse-light)">{formatINR(grandTotal)}</span>
         </div>
         <div className="flex gap-3">
           <Button
@@ -509,7 +509,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             Cancel
           </Button>
           <Button
-            className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white"
+            className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white"
             onClick={handleSubmit}
           >
             Book Test

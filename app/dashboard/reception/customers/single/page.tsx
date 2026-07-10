@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import AppShell from "@/components/layout/app-shell";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatINR, getDecimal } from "@/lib/fNumber";
-import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fDate, fAgeString } from "@/lib/fDateAndTime";
 import useSWR from "swr";
 import { CustomerType, BillingRecord } from "./interface";
 import { EmptyPurchases } from "./EmptyPurchases";
@@ -329,17 +329,17 @@ const CustomerPageContent: React.FC = () => {
                             </div>
 
                             <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-indigo-50 to-[var(--color-synapse-purple)]/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                                    <div className="text-xs font-medium text-[var(--color-synapse-light)] uppercase tracking-wide">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-indigo-50 to-synapse-purple/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
+                                    <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
                                         Total Spend
                                     </div>
-                                    <div className="text-2xl font-bold text-[var(--color-synapse-light)]">
+                                    <div className="text-2xl font-bold text-(--color-synapse-light)">
                                         {formatINR(customer?.totalSpend ?? 0)}
                                     </div>
                                 </div>
 
 
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
                                     <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
                                         Total Paid
                                     </div>
@@ -349,7 +349,7 @@ const CustomerPageContent: React.FC = () => {
                                 </div>
 
 
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
                                     <div className="text-xs font-medium text-rose-700 uppercase tracking-wide">
                                         Total Due
                                     </div>
@@ -359,7 +359,7 @@ const CustomerPageContent: React.FC = () => {
                                 </div>
 
 
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
                                     <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
                                         Total Visits
                                     </div>
@@ -367,15 +367,15 @@ const CustomerPageContent: React.FC = () => {
                                         {customer?.totalVisit}
                                     </div>
                                 </div>
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
-                                    <div className="text-xs font-medium text-[var(--color-synapse-light)] uppercase tracking-wide">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
+                                    <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
                                         Last Purchase
                                     </div>
-                                    <div className="text-sm font-semibold text-[var(--color-synapse-light)]">
+                                    <div className="text-sm font-semibold text-(--color-synapse-light)">
                                         {customer?.lastPurchase ? fDate(customer.lastPurchase) : "N/A"}
                                     </div>
                                 </div>
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-[2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
                                     <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
                                         Avg Spend
                                     </div>
@@ -387,9 +387,9 @@ const CustomerPageContent: React.FC = () => {
 
                             <section className="grid gap-5 md:grid-cols-5 items-start">
                                 <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
-                                    <div className="px-4 py-3 bg-[var(--color-synapse-dark)] text-slate-50 flex items-center justify-between">
+                                    <div className="px-4 py-3 bg-(--color-synapse-dark) text-slate-50 flex items-center justify-between">
                                         <div className="text-sm font-medium flex items-center gap-2">
-                                            <span className="h-7 w-7 rounded-full bg-[var(--color-synapse-purple)] flex items-center justify-center text-[11px]">
+                                            <span className="h-7 w-7 rounded-full bg-(--color-synapse-purple) flex items-center justify-center text-[11px]">
                                                 {customer?.totalVisit}
                                             </span>
                                             Bills / Visits
@@ -544,7 +544,7 @@ const CustomerPageContent: React.FC = () => {
                                                         type="button"
                                                         onClick={() => setSelectedVisit(item)}
                                                         className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
-                                                            ? "bg-[var(--color-synapse-dark)] text-slate-50"
+                                                            ? "bg-(--color-synapse-dark) text-slate-50"
                                                             : "hover:bg-slate-50"
                                                             }`}
                                                     >
@@ -751,7 +751,7 @@ const CustomerPageContent: React.FC = () => {
 
                                                     {calculatedDueAmount > 0 && (
                                                         <Button
-                                                            className="rounded-full text-sm px-6 py-2 bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-purple)]"
+                                                            className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                                                             onClick={() => setShowPaymentModal(true)}
                                                         >
                                                             Pay Due Amount
@@ -761,7 +761,7 @@ const CustomerPageContent: React.FC = () => {
                                                     <AlertDialog open={showRepeatConfirm} onOpenChange={setShowRepeatConfirm}>
                                                         <Button
                                                             disabled={repeatLoading}
-                                                            className="rounded-full text-sm px-6 py-2 bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-purple)]"
+                                                            className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                                                             onClick={() => setShowRepeatConfirm(true)}
                                                         >
                                                             {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
@@ -777,7 +777,7 @@ const CustomerPageContent: React.FC = () => {
                                                             <AlertDialogFooter>
                                                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                                                 <AlertDialogAction
-                                                                    className="bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-purple)]"
+                                                                    className="bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                                                                     onClick={async () => {
                                                                         try {
                                                                             setRepeatLoading(true)
@@ -803,14 +803,14 @@ const CustomerPageContent: React.FC = () => {
                                                     </AlertDialog>
 
                                                     <Button
-                                                        className="rounded-full text-sm px-6 py-2 bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-purple)]"
+                                                        className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                                                         disabled={printingBill}
                                                         onClick={() => selectedVisit.mrn && handlePrintBill(selectedVisit.mrn)}
                                                     >
                                                         {printingBill ? "Printing..." : "Print bill"}
                                                     </Button>
                                                     <Button
-                                                        className="rounded-full text-sm px-6 py-2 bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-purple)]"
+                                                        className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                                                         disabled={printingPrescription}
                                                         onClick={() => handlePrintPrescription(selectedVisit)}
                                                     >
@@ -818,7 +818,7 @@ const CustomerPageContent: React.FC = () => {
                                                     </Button>
 
                                                     <Button
-                                                        className="rounded-full text-sm px-6 py-2 bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-purple)]"
+                                                        className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                                                         asChild
                                                     >
                                                         <Link href={selectedVisit.mrn ? `/dashboard/pharmacy/return/?mrn=${selectedVisit.mrn}` : `#`}>
@@ -865,7 +865,7 @@ const CustomerPageContent: React.FC = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             {[
                                 { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50" },
-                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-[var(--color-synapse-light)]", bg: "bg-[var(--color-synapse-light)]/10" },
+                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-(--color-synapse-light)", bg: "bg-synapse-light/10" },
                                 { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50" },
                             ].map((method) => {
                                 const active = paymentMethod === method.id;
@@ -952,7 +952,7 @@ const CustomerPageContent: React.FC = () => {
                                     value={referenceNumber}
                                     onChange={(e) => setReferenceNumber(e.target.value)}
                                     onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
-                                    className="h-11 bg-white border-slate-200 rounded-lg focus:ring-[var(--color-synapse-light)]/20"
+                                    className="h-11 bg-white border-slate-200 rounded-lg focus:ring-synapse-light/20"
                                 />
                             </div>
                         )}
@@ -963,7 +963,7 @@ const CustomerPageContent: React.FC = () => {
                         <AlertDialogAction
                             onClick={handlePaymentUpdate}
                             disabled={updatingPayment}
-                            className="bg-[var(--color-synapse-dark)] text-white hover:bg-[var(--color-synapse-purple)]"
+                            className="bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                         >
                             {updatingPayment ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                             Confirm Payment

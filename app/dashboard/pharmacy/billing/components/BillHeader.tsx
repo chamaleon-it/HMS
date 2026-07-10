@@ -49,7 +49,7 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                             />
                         </div>
                         <button
-                            className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium hover:bg-slate-50 hover:text-[var(--color-synapse-light)] transition-colors shrink-0"
+                            className="h-8 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium hover:bg-slate-50 hover:text-(--color-synapse-light) transition-colors shrink-0"
                             onClick={() => setOpenCreate(true)}
                             title="New Patient"
                         >

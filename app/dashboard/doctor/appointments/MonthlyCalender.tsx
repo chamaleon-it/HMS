@@ -9,7 +9,7 @@ const colorMap = {
     chip: "bg-blue-100 text-blue-800",
     block: "bg-blue-100 text-blue-800",
     ring: "ring-blue-200",
-    dot: "bg-[var(--color-synapse-light)]",
+    dot: "bg-(--color-synapse-light)",
     label: "Consultation",
   },
   "Lab Test": {
@@ -23,7 +23,7 @@ const colorMap = {
     chip: "bg-emerald-100 text-emerald-800",
     block: "bg-emerald-100 text-emerald-800",
     ring: "ring-emerald-200",
-    dot: "bg-[var(--color-synapse-dark)]",
+    dot: "bg-(--color-synapse-dark)",
     label: "Follow-up",
   },
 } as const;
@@ -57,7 +57,7 @@ export default function MonthlyCalender({
     }[];
   }>(`/appointments/calender-monthly?date=${selectedDate.toString()}`);
 
-  
+
 
   const firstDayOFTheMonth = new Date(
     new Date(selectedDate).getFullYear(),
@@ -101,9 +101,8 @@ export default function MonthlyCalender({
             <div key={idx}></div>
           ))}
         {[...Array(31)].map((_, i) => {
-          const date = `${selectedDate.getFullYear()}-${
-            selectedDate.getMonth() + 1
-          }-${String(i + 1).padStart(2, "0")}`;
+          const date = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1
+            }-${String(i + 1).padStart(2, "0")}`;
           const events = data?.data.filter((b) => b.date === date) || [];
 
           return (
@@ -114,7 +113,7 @@ export default function MonthlyCalender({
             >
               <p className="text-xs text-gray-500">{i + 1}</p>
               {events.length > 0 && (
-                <span className="absolute top-1 right-1 text-[10px] bg-gray-900 text-white rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">
+                <span className="absolute top-1 right-1 text-[10px] bg-gray-900 text-white rounded-full min-w-5 h-5 px-1 flex items-center justify-center">
                   {events.length}
                 </span>
               )}
@@ -129,7 +128,7 @@ export default function MonthlyCalender({
                     key={j}
                     className={cn(
                       "mt-1 text-[11px] rounded px-1 truncate bg-gray-200",
-                      ev.status === "Upcoming" && "bg-[var(--color-synapse-light)]",
+                      ev.status === "Upcoming" && "bg-(--color-synapse-light)",
                       ev.status === "Consulted" && "bg-gray-200",
                       ev.status === "Test" && "bg-amber-500"
                     )}

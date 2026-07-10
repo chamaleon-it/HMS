@@ -8,7 +8,7 @@ export default function Notfound() {
   return (
     <AppShell>
       <div className="min-h-[calc(100vh-184px)] flex flex-col items-center justify-center text-center space-y-6">
-        
+
         {/* Icon */}
         <div className="flex items-center justify-center w-20 h-20 rounded-full bg-red-100 text-red-500">
           <AlertTriangle className="w-10 h-10" />
@@ -25,7 +25,7 @@ export default function Notfound() {
         {/* Actions */}
         <div className="flex gap-4">
           <Link href="/">
-            <Button className="bg-gradient-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] text-white shadow-md cursor-pointer">Go to Dashboard</Button>
+            <Button className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) text-white shadow-md cursor-pointer">Go to Dashboard</Button>
           </Link>
           {/* <Link href="/appointments">
             <Button variant="outline">View Appointments</Button>

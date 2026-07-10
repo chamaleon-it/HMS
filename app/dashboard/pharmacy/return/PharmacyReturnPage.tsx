@@ -205,8 +205,8 @@ export default function PharmacyReturnPage() {
           ) : (
             <div className="overflow-x-auto">
               <Table className="min-w-[1000px] text-xs">
-                <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
-                  <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
+                <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+                  <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                     <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Sl No</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Medicine / Gen</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">HSN</TableHead>
@@ -499,7 +499,7 @@ export default function PharmacyReturnPage() {
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button disabled={returning} className="h-9 rounded-lg bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(201,149,106,0.3)]">
+                      <Button disabled={returning} className="h-9 rounded-lg bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(201,149,106,0.3)]">
                         {returning ? "Returning..." : "Confirm & Refund"}
                       </Button>
                     </AlertDialogTrigger>
@@ -516,7 +516,7 @@ export default function PharmacyReturnPage() {
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction
-                          className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]"
+                          className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)"
                           onClick={returnOrder}
                         >
                           Yes, Confirm

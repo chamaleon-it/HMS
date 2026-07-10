@@ -27,15 +27,15 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
             key: "online",
             label: "UPI / Card",
             icon: CreditCard,
-            color: "text-[var(--color-synapse-light)]",
+            color: "text-(--color-synapse-light)",
             activeBorder: "border-[var(--color-synapse-light)]",
-            activeBg: "bg-[var(--color-synapse-light)]/10"
+            activeBg: "bg-synapse-light/10"
         },
         {
             key: "insurance",
             label: "Insurance / TPA",
             icon: Building2,
-            color: "text-[var(--color-synapse-light)]",
+            color: "text-(--color-synapse-light)",
             activeBorder: "border-fuchsia-500",
             activeBg: "bg-fuchsia-50"
         },

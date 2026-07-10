@@ -15,7 +15,7 @@ export default function Analytics() {
     const [dateRange, setDateRange] = useState("last7days");
 
     const { data: analyticsResponse } = useSWR(`/admin/dashboard/analytics?range=${dateRange}`);
-    
+
     const trendData = analyticsResponse?.data?.trendData || [];
     const pieData = analyticsResponse?.data?.pieData || [];
 
@@ -38,11 +38,10 @@ export default function Analytics() {
                             <button
                                 key={option.value}
                                 onClick={() => setDateRange(option.value)}
-                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
-                                    dateRange === option.value
-                                        ? "bg-gradient-to-r from-amber-700 to-amber-900 text-white shadow-md"
+                                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${dateRange === option.value
+                                        ? "bg-linear-to-r from-amber-700 to-amber-900 text-white shadow-md"
                                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
-                                }`}
+                                    }`}
                             >
                                 {option.label}
                             </button>

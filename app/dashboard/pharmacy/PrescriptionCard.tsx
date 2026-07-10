@@ -300,7 +300,7 @@ export default function PrescriptionCard({
           <Button
             onClick={addMedicineRow}
             size="sm"
-            className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white rounded-md h-8"
+            className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white rounded-md h-8"
           >
             + Add Medicine
           </Button>

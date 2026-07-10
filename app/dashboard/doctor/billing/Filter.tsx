@@ -1,4 +1,4 @@
-import {  ChevronDownIcon, Filter, RefreshCcw, Search } from "lucide-react";
+import { ChevronDownIcon, Filter, RefreshCcw, Search } from "lucide-react";
 import React, { useState } from "react";
 import { FilterType } from "./page";
 import {
@@ -26,7 +26,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
   return (
     <div
       className={
-        "rounded-2xl border border-slate-200 p-4 shadow-sm supports-[backdrop-filter]:bg-white/80 supports-[backdrop-filter]:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
+        "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
       }
     >
       <div className="grid grid-cols-12 items-center gap-3">
@@ -90,36 +90,36 @@ export default function Filters({ filter, setFilter }: PropsType) {
           </Select>
         </div>
         <div className="flex flex-col gap-3 col-span-6 md:col-span-2">
-      
-      <Popover onOpenChange={setOpenCalander} open={openCalander}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            id="date"
-            className="w-48 justify-between font-normal"
-          >
-            {filter.date ? fDate(filter.date) : "Select date"}
-            <ChevronDownIcon />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-auto overflow-hidden p-0" align="start">
-          <Calendar
-            mode="single"
-            selected={filter.date}
-            captionLayout="dropdown"
-            onSelect={(date) => {
-              setFilter(prev=>({...prev,date}))
-              setOpenCalander(false)
-            }}
-          />
-        </PopoverContent>
-      </Popover>
-    </div>
+
+          <Popover onOpenChange={setOpenCalander} open={openCalander}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                id="date"
+                className="w-48 justify-between font-normal"
+              >
+                {filter.date ? fDate(filter.date) : "Select date"}
+                <ChevronDownIcon />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto overflow-hidden p-0" align="start">
+              <Calendar
+                mode="single"
+                selected={filter.date}
+                captionLayout="dropdown"
+                onSelect={(date) => {
+                  setFilter(prev => ({ ...prev, date }))
+                  setOpenCalander(false)
+                }}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
         <div className="col-span-12 md:col-span-1 flex items-center">
           <button
             className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
             onClick={() => {
-              setFilter({ q: null, status: "", method: "",date:undefined });
+              setFilter({ q: null, status: "", method: "", date: undefined });
             }}
           >
             <RefreshCcw className="mr-2 inline h-4 w-4" /> Reset

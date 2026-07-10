@@ -52,7 +52,7 @@ export default function InvoiceView({ id }: { id: string }) {
     <AppShell>
       <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden m-5">
         {/* Header Section */}
-        <div className="flex justify-between items-center bg-gradient-to-r from-[var(--color-synapse-purple)] to-[var(--color-synapse-dark)] text-white px-8 py-6 border-b">
+        <div className="flex justify-between items-center bg-linear-to-r from-[var(--color-synapse-purple)] to-(--color-synapse-dark) text-white px-8 py-6 border-b">
           <div className="flex items-center space-x-3">
             <h2 className="text-lg font-semibold">{configuration().hospitalName}</h2>
           </div>
@@ -145,7 +145,7 @@ export default function InvoiceView({ id }: { id: string }) {
         {/* Table */}
         <div className="overflow-hidden border-t border-gray-100">
           <table className="w-full text-sm border-collapse">
-            <thead className="bg-gradient-to-r from-gray-100 to-gray-200 border-b">
+            <thead className="bg-linear-to-r from-gray-100 to-gray-200 border-b">
               <tr>
                 <th className="text-left p-4 font-semibold text-gray-700">
                   Description
@@ -259,7 +259,7 @@ export default function InvoiceView({ id }: { id: string }) {
           </div> */}
         </div>
         <Separator /> {/* Footer */}
-        <div className="relative text-center text-xs text-gray-500 py-6 bg-gradient-to-r from-gray-50 to-gray-100">
+        <div className="relative text-center text-xs text-gray-500 py-6 bg-linear-to-r from-gray-50 to-gray-100">
           <p>
             {configuration().hospitalAddress}
             | Contact: {configuration().hospitalPhone}

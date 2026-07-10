@@ -36,7 +36,7 @@ const OfflineMode = () => {
                                     <span>Hybrid Architecture</span>
                                 </div>
                             ) : (
-                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 border border-blue-200 text-[var(--color-synapse-light)] font-bold text-sm">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 border border-blue-200 text-(--color-synapse-light) font-bold text-sm">
                                     <Database className="w-4 h-4" />
                                     <span>Complete Offline Architecture</span>
                                 </div>
@@ -84,7 +84,7 @@ const OfflineMode = () => {
                                 </p>
                                 <div className="space-y-6">
                                     <div className="flex items-start gap-4">
-                                        <div className="p-3 bg-[var(--color-synapse-light)] text-white rounded-xl">
+                                        <div className="p-3 bg-(--color-synapse-light) text-white rounded-xl">
                                             <Server className="w-6 h-6" />
                                         </div>
                                         <div>
@@ -93,7 +93,7 @@ const OfflineMode = () => {
                                         </div>
                                     </div>
                                     <div className="flex items-start gap-4">
-                                        <div className="p-3 bg-[var(--color-synapse-light)] text-white rounded-xl">
+                                        <div className="p-3 bg-(--color-synapse-light) text-white rounded-xl">
                                             <Shield className="w-6 h-6" />
                                         </div>
                                         <div>
@@ -126,7 +126,7 @@ const OfflineMode = () => {
                                 </div>
                                 <div className="absolute bottom-8 right-8 bg-white p-4 rounded-2xl shadow-xl border border-slate-100 flex items-center gap-4">
                                     <div className="relative">
-                                        <RefreshCw className="w-6 h-6 text-[var(--color-synapse-light)] animate-spin" />
+                                        <RefreshCw className="w-6 h-6 text-(--color-synapse-light) animate-spin" />
                                     </div>
                                     <div>
                                         <div className="text-xs font-bold text-slate-400 uppercase">Sync Status</div>
@@ -138,14 +138,14 @@ const OfflineMode = () => {
                             /* Complete Offline Visual */
                             <div className="relative bg-slate-900 rounded-3xl p-8 border border-slate-800 shadow-2xl overflow-hidden">
                                 <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(to_bottom,transparent,black,transparent)]" />
-                                <div className="absolute top-8 right-8 flex items-center gap-2 px-4 py-2 bg-[var(--color-synapse-light)]/20 text-blue-400 rounded-full font-bold text-sm border border-blue-500/30">
+                                <div className="absolute top-8 right-8 flex items-center gap-2 px-4 py-2 bg-(--color-synapse-light)/20 text-blue-400 rounded-full font-bold text-sm border border-blue-500/30">
                                     <Lock className="w-4 h-4" /> SECURE LOCAL
                                 </div>
 
                                 <div className="relative z-10 mt-12 space-y-6">
                                     <div className="flex items-center justify-center">
-                                        <div className="w-32 h-32 rounded-full bg-[var(--color-synapse-light)]/10 flex items-center justify-center border border-blue-500/20 shadow-[0_0_50px_rgba(59,130,246,0.2)]">
-                                            <Server className="w-16 h-16 text-[var(--color-synapse-light)]" />
+                                        <div className="w-32 h-32 rounded-full bg-synapse-light/10 flex items-center justify-center border border-blue-500/20 shadow-[0_0_50px_rgba(59,130,246,0.2)]">
+                                            <Server className="w-16 h-16 text-(--color-synapse-light)" />
                                         </div>
                                     </div>
                                     <div className="text-center">
@@ -158,7 +158,7 @@ const OfflineMode = () => {
                                             <span>2.4TB / 4TB</span>
                                         </div>
                                         <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden">
-                                            <div className="h-full w-[60%] bg-[var(--color-synapse-light)]" />
+                                            <div className="h-full w-[60%] bg-(--color-synapse-light)" />
                                         </div>
                                     </div>
                                 </div>

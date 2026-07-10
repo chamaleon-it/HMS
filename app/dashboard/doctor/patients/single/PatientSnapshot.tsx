@@ -196,7 +196,7 @@ export default function PatientSnapshot({
                 view: Boolean(patient?.insurance),
                 label: "Insurance",
                 icon: <Wallet className="h-3.5 w-3.5" />,
-                color: "bg-[var(--color-synapse-dark)]/10 text-emerald-600",
+                color: "bg-(--color-synapse-dark)/10 text-emerald-600",
               },
             ].map(
               (f) =>
@@ -214,7 +214,7 @@ export default function PatientSnapshot({
         </CardContent>
       </Card>
 
-     {Boolean(consult[0]?.medicines.length) && <Card>
+      {Boolean(consult[0]?.medicines.length) && <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2">
             <Pill className="h-5 w-5" /> Last Prescribed Medicine

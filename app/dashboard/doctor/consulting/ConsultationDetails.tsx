@@ -199,7 +199,7 @@ export default function ConsultationDetails({
                     {/* Clinical Notes */}
                     <Card className="shadow-sm border-muted-200">
                         <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
-                            <div className="p-2 bg-blue-100 text-[var(--color-synapse-light)] rounded-lg">
+                            <div className="p-2 bg-blue-100 text-(--color-synapse-light) rounded-lg">
                                 <FileText className="w-5 h-5" />
                             </div>
                             <CardTitle className="text-base font-semibold">
@@ -308,7 +308,7 @@ export default function ConsultationDetails({
 
                             <Card className="shadow-sm border-muted-200">
                                 <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
-                                    <div className="p-2 bg-violet-100 text-[var(--color-synapse-light)] rounded-lg">
+                                    <div className="p-2 bg-violet-100 text-(--color-synapse-light) rounded-lg">
                                         <ClipboardList className="w-5 h-5" />
                                     </div>
                                     <CardTitle className="text-base font-semibold">

@@ -127,7 +127,7 @@ export default function AddPaymentDialog({
             <DialogContent className="max-w-5xl! max-h-[92vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <FileEdit className="h-4 w-4 text-[var(--color-synapse-light)]" />
+                        <FileEdit className="h-4 w-4 text-(--color-synapse-light)" />
                         Edit Draft Bill — {bill.mrn}
                     </DialogTitle>
                 </DialogHeader>
@@ -223,8 +223,8 @@ export default function AddPaymentDialog({
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {([
                                     { key: "cash", label: "Cash", icon: Banknote, tint: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-                                    { key: "online", label: "Card / UPI", icon: CreditCard, tint: "bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30" },
-                                    { key: "insurance", label: "Insurance", icon: Building2, tint: "bg-fuchsia-50 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30" },
+                                    { key: "online", label: "Card / UPI", icon: CreditCard, tint: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30" },
+                                    { key: "insurance", label: "Insurance", icon: Building2, tint: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30" },
                                 ] as const).map(({ key, label, icon: Icon, tint }) => (
                                     <div key={key} className={`rounded-xl border px-3 py-3 ${tint}`}>
                                         <div className="mb-1.5 flex items-center gap-2 text-xs font-semibold">
@@ -281,7 +281,7 @@ export default function AddPaymentDialog({
                             </div>
 
                             <div className="mt-5">
-                                <Button className="w-full bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)]" onClick={handleSubmit}>
+                                <Button className="w-full bg-(--color-synapse-light) hover:bg-(--color-synapse-light)" onClick={handleSubmit}>
                                     Save Changes
                                 </Button>
                             </div>

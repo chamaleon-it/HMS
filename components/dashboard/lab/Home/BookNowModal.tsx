@@ -341,7 +341,7 @@ export default function BookNowModal({
                                     <TableRow key={t} className="hover:bg-slate-50/50">
                                         <TableCell>{idx + 1}</TableCell>
                                         <TableCell className="font-semibold text-slate-900">
-                                            <span className="bg-[var(--color-synapse-light)]/20 text-[var(--color-synapse-light)] text-[10px] px-2 py-0.5 rounded border border-[var(--color-synapse-light)]/30 mr-2 uppercase font-black tracking-tight">Panel</span>
+                                            <span className="bg-(--color-synapse-light)/20 text-(--color-synapse-light) text-[10px] px-2 py-0.5 rounded border border-synapse-light/30 mr-2 uppercase font-black tracking-tight">Panel</span>
                                             {t}
                                         </TableCell>
                                         <TableCell className="text-right font-bold text-slate-700">
@@ -418,7 +418,7 @@ export default function BookNowModal({
 
                 <div className="flex justify-end items-center px-6 py-4 bg-slate-50 rounded-xl border border-slate-100 shadow-xs">
                     <div className="text-xl font-bold text-slate-900">
-                        Grand Total: <span className="text-[var(--color-synapse-light)] ml-2">{formatINR(grandTotal)}</span>
+                        Grand Total: <span className="text-(--color-synapse-light) ml-2">{formatINR(grandTotal)}</span>
                     </div>
                 </div>
 
@@ -427,7 +427,7 @@ export default function BookNowModal({
                         <Button variant="outline" className="px-10 h-11">Cancel</Button>
                     </DialogClose>
                     <Button
-                        className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white px-10 h-11 font-bold shadow-md shadow-[var(--color-synapse-light)]/30 transition-all hover:-translate-y-px active:translate-y-0"
+                        className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white px-10 h-11 font-bold shadow-md shadow-(--color-synapse-light)/30 transition-all hover:-translate-y-px active:translate-y-0"
                         onClick={handleSubmit}
                     >
                         Confirm Booking

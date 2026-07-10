@@ -43,7 +43,7 @@ export default function LoginPage() {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[var(--color-synapse-dark)] p-4 md:p-8">
+    <div className="min-h-screen w-full flex items-center justify-center bg-(--color-synapse-dark) p-4 md:p-8">
       <style>{`
         :root { 
           --brand: var(--color-synapse-purple); 
@@ -53,7 +53,7 @@ export default function LoginPage() {
           --accent-end: var(--color-synapse-purple); 
         }
       `}</style>
-      
+
       <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
         {/* Left Section - Welcome Back */}
         <div className="hidden lg:flex flex-col gap-10">
@@ -102,7 +102,7 @@ export default function LoginPage() {
                   Use your email and password
                 </p>
                 <LoginForm setView={setView} />
-                
+
                 <div className="mt-8 flex items-center justify-center gap-4 text-xs font-medium text-slate-400">
                   <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-slate-300" /> HIPAA-ready</span>
                   <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5 text-slate-300" /> HL7® FHIR</span>
@@ -136,7 +136,7 @@ export default function LoginPage() {
               </div>
             )}
           </div>
-          
+
           <div className="mt-6 text-center">
             <p className="text-xs text-slate-400">
               By continuing, you agree to our Terms & Privacy Policy.

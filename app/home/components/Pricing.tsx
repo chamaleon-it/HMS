@@ -59,7 +59,7 @@ const Pricing = () => {
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
                 <div className="text-center max-w-3xl mx-auto mb-16">
                     <h2 className="text-3xl lg:text-5xl font-bold text-white mb-6">
-                        Simple, Transparent <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#60A5FA] to-secondary-glow">Pricing</span>
+                        Simple, Transparent <span className="text-transparent bg-clip-text bg-linear-to-r from-[#60A5FA] to-secondary-glow">Pricing</span>
                     </h2>
                     <p className="text-lg text-slate-400">
                         Choose the plan that fits your facility&apos;s size and needs. No hidden fees.
@@ -76,7 +76,7 @@ const Pricing = () => {
                                 }`}
                         >
                             {plan.popular && (
-                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-gradient-to-r from-[#3B82F6] to-secondary rounded-full text-xs font-bold text-white uppercase tracking-wider shadow-lg">
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-linear-to-r from-[#3B82F6] to-secondary rounded-full text-xs font-bold text-white uppercase tracking-wider shadow-lg">
                                     Most Popular
                                 </div>
                             )}

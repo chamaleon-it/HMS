@@ -77,10 +77,10 @@ export function ServerAutocomplete({
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
           autoComplete="new-password"
-          className="w-full h-11 pl-9 pr-8 bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all placeholder:text-slate-400 text-sm"
+          className="w-full h-11 pl-9 pr-8 bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400 text-sm"
         />
         <svg
-          className="absolute left-3 w-4 h-4 text-slate-400 group-focus-within:text-[var(--color-synapse-light)] transition-colors"
+          className="absolute left-3 w-4 h-4 text-slate-400 group-focus-within:text-(--color-synapse-light) transition-colors"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -129,11 +129,10 @@ export function ServerAutocomplete({
                       onChange(o);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors ${
-                      active
-                        ? "bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)]"
-                        : "hover:bg-slate-50 text-slate-600"
-                    }`}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors ${active
+                      ? "bg-synapse-light/10 text-(--color-synapse-light)"
+                      : "hover:bg-slate-50 text-slate-600"
+                      }`}
                   >
                     {o}
                   </button>

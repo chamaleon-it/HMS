@@ -13,13 +13,13 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 
-export default function ActionButton({ data,testIsOK }: { data: DataType ,testIsOK:boolean}) {
+export default function ActionButton({ data, testIsOK }: { data: DataType, testIsOK: boolean }) {
   const [alreadySubmitted, setAlreadySubmitted] = useState(false);
   const router = useRouter();
 
   const consulting = async (status: string) => {
 
-    if(!testIsOK){
+    if (!testIsOK) {
       toast.error("Please confirm the test before proceeding.")
       return
     }
@@ -99,7 +99,7 @@ export default function ActionButton({ data,testIsOK }: { data: DataType ,testIs
         <Button
           type="button"
           onClick={() => consulting("Consulted")}
-          className="flex items-center gap-2 bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white font-semibold shadow-sm cursor-pointer"
+          className="flex items-center gap-2 bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white font-semibold shadow-sm cursor-pointer"
         >
           <CheckCircle2 className="w-4 h-4" />
           Complete

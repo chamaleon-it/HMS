@@ -8,7 +8,7 @@ const CTASection = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-black to-[#3B82F6]/10 pointer-events-none" />
 
             <div className="container mx-auto px-4 relative z-10">
-                <div className="max-w-4xl mx-auto bg-gradient-to-r from-white/5 to-white/10 border border-white/10 rounded-3xl p-8 md:p-16 text-center backdrop-blur-md overflow-hidden relative group">
+                <div className="max-w-4xl mx-auto bg-linear-to-r from-white/5 to-white/10 border border-white/10 rounded-3xl p-8 md:p-16 text-center backdrop-blur-md overflow-hidden relative group">
 
                     {/* Glow Effect */}
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[#3B82F6]/20 rounded-full blur-[100px] -z-10 group-hover:bg-[#3B82F6]/30 transition-all duration-700" />

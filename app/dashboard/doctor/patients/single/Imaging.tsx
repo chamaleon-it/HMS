@@ -14,7 +14,7 @@ export default function Imaging({ labs }: { labs?: LabsDataTypes[] }) {
             </div> :
                 <Table className='rounded-2xl overflow-hidden'>
                     <TableHeader>
-                        <TableRow className='bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]'>
+                        <TableRow className='bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)'>
                             <TableHead className='text-white'>SL</TableHead>
                             <TableHead className='text-white'>Test</TableHead>
                             <TableHead className='text-white'>Value</TableHead>
@@ -51,7 +51,7 @@ export default function Imaging({ labs }: { labs?: LabsDataTypes[] }) {
                                                                 href={e?.value?.toString()}
                                                                 target="_blank"
                                                                 rel="noopener noreferrer"
-                                                                className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-[var(--color-synapse-light)] bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
+                                                                className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-(--color-synapse-light) bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
                                                             >
                                                                 View Result
                                                             </a>

@@ -86,14 +86,14 @@ export default function Filter({
             Search Customers
           </label>
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[var(--color-synapse-light)] transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-(--color-synapse-light) transition-colors" />
             <Input
               value={filter?.query || ""}
               onChange={(e) =>
                 setFilter((prev) => ({ ...prev, query: e.target.value, page: 1 }))
               }
               placeholder="Name, ID, phone..."
-              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all placeholder:text-slate-400"
+              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400"
             />
           </div>
         </div>
@@ -178,7 +178,7 @@ export default function Filter({
                 ];
                 setFilter((prev) => ({ ...prev, age, page: 1 }));
               }}
-              className="w-20 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all text-center"
+              className="w-20 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all text-center"
             />
             <span className="text-slate-300 font-bold">–</span>
             <Input
@@ -192,7 +192,7 @@ export default function Filter({
                 ];
                 setFilter((prev) => ({ ...prev, age, page: 1 }));
               }}
-              className="w-20 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all text-center"
+              className="w-20 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all text-center"
             />
           </div>
         </div>
@@ -306,7 +306,7 @@ export default function Filter({
                   onClick={() =>
                     setFilter((prev) => ({ ...prev, alreadyPurchase: opt.value, page: 1 }))
                   }
-                  className={`px-4 h-9 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${active ? "bg-[var(--color-synapse-light)] text-white shadow-md shadow-indigo-100" : "text-slate-500 hover:text-slate-800 hover:bg-white/80"
+                  className={`px-4 h-9 rounded-lg text-xs font-bold transition-all flex items-center gap-2 cursor-pointer whitespace-nowrap ${active ? "bg-(--color-synapse-light) text-white shadow-md shadow-indigo-100" : "text-slate-500 hover:text-slate-800 hover:bg-white/80"
                     }`}
                 >
                   <Icon size={14} className={active ? "text-white" : "text-slate-400"} />
@@ -413,7 +413,7 @@ function Segmented({
             key={o.label}
             onClick={() => onChange(o.value)}
             className={`px-4 h-9 rounded-lg text-xs font-bold transition-all cursor-pointer whitespace-nowrap ${active
-              ? "bg-white text-[var(--color-synapse-light)] shadow-sm border border-slate-200"
+              ? "bg-white text-(--color-synapse-light) shadow-sm border border-slate-200"
               : "text-slate-500 hover:text-slate-800 hover:bg-white/80"
               }`}
           >
@@ -503,7 +503,7 @@ function FilterSelect({
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search..."
-              className="mb-2 w-full h-9 px-3 rounded-lg bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-[var(--color-synapse-light)]/10 text-xs"
+              className="mb-2 w-full h-9 px-3 rounded-lg bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)/10 text-xs"
             />
           )}
           <ul role="listbox" className="max-h-60 overflow-auto space-y-1">
@@ -517,7 +517,7 @@ function FilterSelect({
                       setOpen(false);
                     }}
                     className={`w-full text-left px-3 py-2 rounded-lg text-xs font-medium transition-colors ${active
-                      ? "bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)]"
+                      ? "bg-synapse-light/10 text-(--color-synapse-light)"
                       : "hover:bg-slate-50 text-slate-600"
                       }`}
                   >

@@ -135,7 +135,7 @@ const TypableExpiryInput = ({
                 placeholder={placeholder}
                 data-field="expiryDate"
                 className={cn(
-                    "h-11 bg-white border-slate-200 rounded-lg focus:bg-white focus:border-[var(--color-synapse-light)] focus:ring-4 focus:ring-[var(--color-synapse-light)]/5 transition-all text-center text-sm pr-10",
+                    "h-11 bg-white border-slate-200 rounded-lg focus:bg-white focus:border-[var(--color-synapse-light)] focus:ring-4 focus:ring-(--color-synapse-light)/5 transition-all text-center text-sm pr-10",
                     className
                 )}
                 value={displayValue}
@@ -149,9 +149,9 @@ const TypableExpiryInput = ({
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="absolute right-1 h-9 w-9 hover:bg-[var(--color-synapse-light)]/10 rounded-md transition-colors"
+                        className="absolute right-1 h-9 w-9 hover:bg-synapse-light/10 rounded-md transition-colors"
                     >
-                        <CalendarIcon className="h-4 w-4 text-[var(--color-synapse-light)]" />
+                        <CalendarIcon className="h-4 w-4 text-(--color-synapse-light)" />
                     </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
@@ -173,10 +173,10 @@ const TypableExpiryInput = ({
                                             className={cn(
                                                 "px-2 py-2 text-xs rounded-lg transition-all ",
                                                 isSelected
-                                                    ? "bg-[var(--color-synapse-light)] text-white shadow-md shadow-indigo-200"
+                                                    ? "bg-(--color-synapse-light) text-white shadow-md shadow-indigo-200"
                                                     : disabled
                                                         ? "text-slate-200 cursor-not-allowed"
-                                                        : "hover:bg-slate-50 text-slate-600 hover:text-[var(--color-synapse-light)]"
+                                                        : "hover:bg-slate-50 text-slate-600 hover:text-(--color-synapse-light)"
                                             )}
                                             onClick={() => {
                                                 const currentYear = date ? date.getFullYear() : new Date().getFullYear();
@@ -208,7 +208,7 @@ const TypableExpiryInput = ({
                                     </SelectTrigger>
                                     <SelectContent className="rounded-xl border-slate-200">
                                         {years.map((y: number) => (
-                                            <SelectItem key={y} value={String(y)} className="text-xs rounded-lg focus:bg-[var(--color-synapse-light)]/10">
+                                            <SelectItem key={y} value={String(y)} className="text-xs rounded-lg focus:bg-synapse-light/10">
                                                 {y}
                                             </SelectItem>
                                         ))}
@@ -218,7 +218,7 @@ const TypableExpiryInput = ({
 
                             <Button
                                 type="button"
-                                className="w-full h-10 text-[10px] font-semibold uppercase tracking-widest bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] text-white rounded-lg shadow-lg shadow-indigo-100 transition-all"
+                                className="w-full h-10 text-[10px] font-semibold uppercase tracking-widest bg-(--color-synapse-light) hover:bg-(--color-synapse-light) text-white rounded-lg shadow-lg shadow-indigo-100 transition-all"
                                 onClick={() => setOpen(false)}
                             >
                                 Confirm Selection

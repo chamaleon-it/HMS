@@ -176,7 +176,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5">
                     <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 rounded-full bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] flex items-center justify-center text-xs font-bold ring-1 ring-indigo-100">
+                      <div className="w-8 h-8 rounded-full bg-synapse-light/10 text-(--color-synapse-light) flex items-center justify-center text-xs font-bold ring-1 ring-indigo-100">
                         {row?.doctor?.name?.charAt(0)}
                       </div>
                       <div className="min-w-0 max-w-45">
@@ -241,14 +241,14 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
       </button>}
       <button
         onClick={onPrint}
-        className="p-1.5 rounded-md hover:bg-purple-50 text-[var(--color-synapse-light)] border border-transparent hover:border-[var(--color-synapse-light)]/30 transition-all"
+        className="p-1.5 rounded-md hover:bg-purple-50 text-(--color-synapse-light) border border-transparent hover:border-synapse-light/30 transition-all"
         title="Print Blank Prescription"
       >
         <Printer size={16} />
       </button>
       <button
         onClick={onEdit}
-        className="p-1.5 rounded-md hover:bg-blue-50 text-[var(--color-synapse-light)] border border-transparent hover:border-blue-200 transition-all"
+        className="p-1.5 rounded-md hover:bg-blue-50 text-(--color-synapse-light) border border-transparent hover:border-blue-200 transition-all"
         title="Edit"
       >
         <Pencil size={16} />
@@ -288,7 +288,7 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
 
 const Chip: React.FC<{ label: string }> = ({ label }) => {
   const styles: Record<string, string> = {
-    Upcoming: "bg-[var(--color-synapse-light)]/10 text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30",
+    Upcoming: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30",
     Consulted: "bg-emerald-50 text-emerald-700 border-emerald-200",
     Completed: "bg-emerald-50 text-emerald-700 border-emerald-200",
     "Not show": "bg-amber-50 text-amber-700 border-amber-200",
@@ -312,8 +312,8 @@ function Avatar({ text }: { text: string }) {
   const initial = text.charAt(0).toUpperCase();
   const colors = [
     "from-rose-400 to-orange-300",
-    "from-violet-400 to-[var(--color-synapse-purple)]",
-    "from-[var(--color-synapse-light)] to-cyan-300",
+    "from-violet-400 to-(--color-synapse-purple)",
+    "from-(--color-synapse-light) to-cyan-300",
     "from-emerald-400 to-teal-300",
     "from-amber-400 to-yellow-300"
   ];

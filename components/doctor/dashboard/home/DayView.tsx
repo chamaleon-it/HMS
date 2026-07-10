@@ -106,8 +106,8 @@ export default function DailyViewTimeline({
     >
       <div className="sticky left-0 z-20 bg-white flex items-center justify-between px-3 py-2">
         <span className="text-[11px] invisible">.</span>
-        <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-white border border-gray-300 px-2 py-0.5 text-[11px] font-medium text-[var(--color-synapse-light)] shadow-sm">
-          <span className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-synapse-light)]" />
+        <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-white border border-gray-300 px-2 py-0.5 text-[11px] font-medium text-(--color-synapse-light) shadow-sm">
+          <span className="inline-block h-1.5 w-1.5 rounded-full bg-(--color-synapse-light)" />
           Now {fromMinutes(nowMin)}
         </span>
       </div>
@@ -138,7 +138,7 @@ export default function DailyViewTimeline({
         <h1 className="text-2xl font-semibold">Today&apos;s Schedule</h1>
         <div className="flex gap-5">
           <button
-            className="inline-flex items-center gap-2 rounded-xl bg-[var(--color-synapse-dark)] text-white px-4 py-2 hover:bg-[var(--color-synapse-dark)] transition font-medium shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-dark) text-white px-4 py-2 hover:bg-(--color-synapse-dark) transition font-medium shadow-sm cursor-pointer"
             onClick={() => setOpenAppointment("walk-in")}
           >
             <UserPlus className="h-4 w-4" />
@@ -147,7 +147,7 @@ export default function DailyViewTimeline({
 
           {/* Regular Appointment */}
           <button
-            className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] text-white px-4 py-2 transition font-medium shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) text-white px-4 py-2 transition font-medium shadow-sm cursor-pointer"
             onClick={() => setOpenAppointment(true)}
           >
             <CalendarPlus className="h-4 w-4" />
@@ -191,8 +191,8 @@ export default function DailyViewTimeline({
                       {fromMinutes(m)}
                     </span>
                     {isNowHere && (
-                      <div className=" flex  items-center gap-1 rounded-full bg-[var(--color-synapse-light)]/10 border border-[var(--color-synapse-light)]/30 px-2 py-0.5 text-[10px] font-medium text-[var(--color-synapse-light)] shadow-sm">
-                        <p className="block h-1.5 w-1.5 rounded-full bg-[var(--color-synapse-light)]" />
+                      <div className=" flex  items-center gap-1 rounded-full bg-synapse-light/10 border border-synapse-light/30 px-2 py-0.5 text-[10px] font-medium text-(--color-synapse-light) shadow-sm">
+                        <p className="block h-1.5 w-1.5 rounded-full bg-(--color-synapse-light)" />
                         <p className=" whitespace-nowrap flex items-center">
                           Now {fromMinutes(nowMin)}
                         </p>

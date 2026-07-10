@@ -1,5 +1,5 @@
 import { useAuth } from "@/auth/context/auth-context";
-import { fAge , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import { ChevronRight, MapPin, Phone, Search } from "lucide-react";
 import Link from "next/link";
@@ -107,7 +107,7 @@ export default function SearchBar() {
             {data?.data.map((p, index) => (
               <Link
                 href={generateLink(p._id)}
-                className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-[var(--color-synapse-light)] ring-offset-1' : ''}`}
+                className={`block rounded-2xl transition-all ${focusedIndex === index ? 'ring-2 ring-(--color-synapse-light) ring-offset-1' : ''}`}
                 key={p._id}
                 onClick={() => setIsOpen(false)}
               >
@@ -221,7 +221,7 @@ export const PatientCard: React.FC<{
 
               {/* Meta pills */}
               <div className="mt-1 flex flex-wrap items-center gap-1.5 text-[11px]">
-                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[var(--color-synapse-light)] dark:bg-blue-900/40 dark:text-blue-300">
+                <span className="rounded-full bg-blue-100 px-2 py-0.5 text-(--color-synapse-light) dark:bg-blue-900/40 dark:text-blue-300">
                   {fAgeString(p.dateOfBirth)}
                 </span>
 

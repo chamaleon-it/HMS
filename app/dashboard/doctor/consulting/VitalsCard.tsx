@@ -46,10 +46,10 @@ export default function VitalsCard({
 
   const imperial = showImperialTooltips
     ? (() => {
-        const { feet, inches } = cmToFeetInches(safeH);
-        const pounds = Math.round(kgToLb(safeW));
-        return { feet, inches, pounds };
-      })()
+      const { feet, inches } = cmToFeetInches(safeH);
+      const pounds = Math.round(kgToLb(safeW));
+      return { feet, inches, pounds };
+    })()
     : null;
 
   return (
@@ -153,9 +153,8 @@ function NumInput({
         inputMode="decimal"
         value={Number.isFinite(value) ? value : ""}
         onChange={(e) => onChange(e.target.value)}
-        className={`${
-          wClass ?? "w-20"
-        } appearance-none bg-transparent border border-transparent border-b-gray-200 focus:border-b-gray-400 focus:outline-none px-2 py-1 rounded-none text-gray-800`}
+        className={`${wClass ?? "w-20"
+          } appearance-none bg-transparent border border-transparent border-b-gray-200 focus:border-b-gray-400 focus:outline-none px-2 py-1 rounded-none text-gray-800`}
         step={0.1}
         min={0}
       />
@@ -255,7 +254,7 @@ export function getBmiInfo(bmi: number | null | undefined) {
       label: "Underweight",
       short: "Low",
       bg: "bg-blue-100",
-      text: "text-[var(--color-synapse-light)]",
+      text: "text-(--color-synapse-light)",
     } as const;
   if (v < 25)
     return {

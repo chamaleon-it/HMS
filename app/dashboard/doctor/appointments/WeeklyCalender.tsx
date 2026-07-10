@@ -1,5 +1,5 @@
 import { TabsContent } from "@/components/ui/tabs";
-import React, {  useMemo } from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
 
@@ -8,7 +8,7 @@ const colorMap = {
     chip: "bg-blue-100 text-blue-800",
     block: "bg-blue-100 text-blue-800",
     ring: "ring-blue-200",
-    dot: "bg-[var(--color-synapse-light)]",
+    dot: "bg-(--color-synapse-light)",
     label: "Consultation",
   },
   "Lab Test": {
@@ -22,7 +22,7 @@ const colorMap = {
     chip: "bg-emerald-100 text-emerald-800",
     block: "bg-emerald-100 text-emerald-800",
     ring: "ring-emerald-200",
-    dot: "bg-[var(--color-synapse-dark)]",
+    dot: "bg-(--color-synapse-dark)",
     label: "Follow-up",
   },
 } as const;
@@ -92,7 +92,7 @@ export default function WeeklyCalender({
   );
   const weekItems = useMemo(() => weeklyData?.data ?? [], [weeklyData]);
 
-  
+
 
   const { eventsInWeek } = useMemo(() => {
     const ws = startOfWeekSunday(selectedDate);
@@ -241,11 +241,10 @@ export default function WeeklyCalender({
                     >
                       <div className="flex items-center gap-2 mb-0.5">
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            (isConsulted && consultedStyles.dot) ||
+                          className={`w-1.5 h-1.5 rounded-full ${(isConsulted && consultedStyles.dot) ||
                             (isNotShow && "bg-red-500") ||
                             typeStyles.dot
-                          }`}
+                            }`}
                         />
                         <span className="font-medium truncate">
                           {e.patient?.name ?? "—"}

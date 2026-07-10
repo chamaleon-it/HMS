@@ -59,7 +59,7 @@ export default function StaffForm({ role, title }: { role: string; title: string
       toast.error("Passwords do not match");
       return;
     }
-    
+
     try {
       let endpoint = "/users";
       let payload: any = { ...addForm, role };
@@ -152,15 +152,15 @@ export default function StaffForm({ role, title }: { role: string; title: string
           <h2 className="text-xl font-bold tracking-tight text-gray-900">{title} List</h2>
           <p className="text-sm text-gray-500">Manage {title.toLowerCase()}s, their availability, and statuses.</p>
         </div>
-        <Button onClick={() => setIsAddOpen(true)} className="bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-purple)]">
+        <Button onClick={() => setIsAddOpen(true)} className="bg-(--color-synapse-light) hover:bg-(--color-synapse-purple)">
           <Plus className="w-4 h-4 mr-2" /> Add {title}
         </Button>
       </div>
 
       <div className="bg-white border rounded-xl overflow-hidden shadow-sm">
         <Table>
-          <TableHeader className="bg-[var(--color-synapse-dark)]">
-            <TableRow className="hover:bg-[var(--color-synapse-dark)]">
+          <TableHeader className="bg-(--color-synapse-dark)">
+            <TableRow className="hover:bg-(--color-synapse-dark)">
               <TableHead className="text-white uppercase text-xs font-bold w-1/5 py-4 rounded-tl-xl">Name</TableHead>
               {role === 'Doctor' ? (
                 <>
@@ -199,7 +199,7 @@ export default function StaffForm({ role, title }: { role: string; title: string
                     {role === 'Doctor' && staff.status === 'Active' && <div className="w-3.5 h-3.5 rounded-full bg-emerald-100 border border-emerald-500 flex items-center justify-center"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /></div>}
                     {role !== 'Doctor' && staff.inCharge && <div className="w-3.5 h-3.5 rounded-full bg-emerald-100 border border-emerald-500 flex items-center justify-center"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500" /></div>}
                   </TableCell>
-                  
+
                   {role === 'Doctor' ? (
                     <>
                       <TableCell className="text-gray-500">{staff.email}</TableCell>
@@ -217,11 +217,11 @@ export default function StaffForm({ role, title }: { role: string; title: string
                       <TableCell className="text-gray-500">{staff.designation || <span className="italic opacity-50">Not set</span>}</TableCell>
                     </>
                   )}
-                  
+
                   <TableCell className="text-right py-4 pr-4">
                     <Button variant="ghost" size="icon" onClick={() => openEdit(staff)} className="text-gray-400 hover:text-gray-700">
                       <span className="sr-only">Actions</span>
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><circle cx="12" cy="12" r="1" /><circle cx="19" cy="12" r="1" /><circle cx="5" cy="12" r="1" /></svg>
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -243,7 +243,7 @@ export default function StaffForm({ role, title }: { role: string; title: string
                 <Label htmlFor="name">Full Name</Label>
                 <Input id="name" required value={addForm.name} onChange={e => setAddForm({ ...addForm, name: e.target.value })} placeholder="John Doe" />
               </div>
-              
+
               {role === 'Doctor' && (
                 <>
                   <div className="grid gap-2">
@@ -264,7 +264,7 @@ export default function StaffForm({ role, title }: { role: string; title: string
                   </div>
                 </>
               )}
-              
+
               {role !== 'Doctor' && (
                 <>
                   <div className="grid gap-2">
@@ -282,7 +282,7 @@ export default function StaffForm({ role, title }: { role: string; title: string
                 </>
               )}
             </div>
-            <Button type="submit" className="w-full bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-purple)]">
+            <Button type="submit" className="w-full bg-(--color-synapse-light) hover:bg-(--color-synapse-purple)">
               Create {title} Account
             </Button>
           </form>
@@ -332,54 +332,53 @@ export default function StaffForm({ role, title }: { role: string; title: string
               {role === 'Doctor' && (
                 <div className="pt-4 border-t border-gray-100">
                   <h4 className="text-sm font-semibold mb-4">Availability & Leaves</h4>
-                
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <Label>Start Date (Valid from)</Label>
-                    <Input type="date" value={editForm.availability.startDate} onChange={e => setEditForm({ ...editForm, availability: { ...editForm.availability, startDate: e.target.value } })} />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>End Date (Valid until)</Label>
-                    <Input type="date" value={editForm.availability.endDate} onChange={e => setEditForm({ ...editForm, availability: { ...editForm.availability, endDate: e.target.value } })} />
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="space-y-2">
-                    <Label>Start Time</Label>
-                    <Input type="time" value={editForm.availability.startTime} onChange={e => setEditForm({ ...editForm, availability: { ...editForm.availability, startTime: e.target.value } })} />
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <Label>Start Date (Valid from)</Label>
+                      <Input type="date" value={editForm.availability.startDate} onChange={e => setEditForm({ ...editForm, availability: { ...editForm.availability, startDate: e.target.value } })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>End Date (Valid until)</Label>
+                      <Input type="date" value={editForm.availability.endDate} onChange={e => setEditForm({ ...editForm, availability: { ...editForm.availability, endDate: e.target.value } })} />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label>End Time</Label>
-                    <Input type="time" value={editForm.availability.endTime} onChange={e => setEditForm({ ...editForm, availability: { ...editForm.availability, endTime: e.target.value } })} />
-                  </div>
-                </div>
 
-                <div className="space-y-2">
-                  <Label>Working Days</Label>
-                  <div className="flex flex-wrap gap-2">
-                    {weekDays.map(day => (
-                      <button
-                        key={day}
-                        type="button"
-                        onClick={() => toggleDay(day)}
-                        className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
-                          editForm.availability.days.includes(day)
-                            ? 'bg-[var(--color-synapse-light)] text-white border-transparent'
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    <div className="space-y-2">
+                      <Label>Start Time</Label>
+                      <Input type="time" value={editForm.availability.startTime} onChange={e => setEditForm({ ...editForm, availability: { ...editForm.availability, startTime: e.target.value } })} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>End Time</Label>
+                      <Input type="time" value={editForm.availability.endTime} onChange={e => setEditForm({ ...editForm, availability: { ...editForm.availability, endTime: e.target.value } })} />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Working Days</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {weekDays.map(day => (
+                        <button
+                          key={day}
+                          type="button"
+                          onClick={() => toggleDay(day)}
+                          className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${editForm.availability.days.includes(day)
+                            ? 'bg-(--color-synapse-light) text-white border-transparent'
                             : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                        }`}
-                      >
-                        {day.slice(0, 3)}
-                      </button>
-                    ))}
+                            }`}
+                        >
+                          {day.slice(0, 3)}
+                        </button>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-gray-400 mt-1">Deselect a day to mark it as leave/off-day.</p>
                   </div>
-                  <p className="text-[10px] text-gray-400 mt-1">Deselect a day to mark it as leave/off-day.</p>
                 </div>
-              </div>
               )}
             </div>
-            
-            <Button type="submit" className="w-full bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-purple)]">
+
+            <Button type="submit" className="w-full bg-(--color-synapse-light) hover:bg-(--color-synapse-purple)">
               <Save className="w-4 h-4 mr-2" /> Save Changes
             </Button>
           </form>

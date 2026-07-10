@@ -59,10 +59,10 @@ export default function ItemFilter({ filter, setFilter }: Props) {
             Search Items
           </label>
           <div className="relative group">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[var(--color-synapse-light)] transition-colors" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-(--color-synapse-light) transition-colors" />
             <Input
               placeholder="Name, SKU, or Barcode..."
-              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all placeholder:text-slate-400"
+              className="pl-9 h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400"
               onChange={(e) => setSearch(e.target.value)}
               value={search}
             />
@@ -84,7 +84,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
               }))
             }
           >
-            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all">
+            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all">
               <div className="flex items-center gap-2">
                 <LayoutGrid className="h-4 w-4 text-slate-400" />
                 <SelectValue placeholder="Category" />
@@ -115,7 +115,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
               }))
             }
           >
-            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all">
+            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all">
               <div className="flex items-center gap-2">
                 <Truck className="h-4 w-4 text-slate-400" />
                 <SelectValue placeholder="Supplier" />
@@ -147,7 +147,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
               }))
             }
           >
-            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all">
+            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all">
               <div className="flex items-center gap-2">
                 <Package className="h-4 w-4 text-slate-400" />
                 <SelectValue placeholder="Stock Status" />
@@ -177,7 +177,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
               }))
             }
           >
-            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all">
+            <SelectTrigger className="h-11 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all">
               <div className="flex items-center gap-2">
                 <Clock className="h-4 w-4 text-slate-400" />
                 <SelectValue placeholder="Expiry" />

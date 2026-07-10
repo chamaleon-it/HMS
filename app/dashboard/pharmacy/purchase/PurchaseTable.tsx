@@ -25,8 +25,8 @@ export default function PurchaseTable({ purchase, total }: Props) {
     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
       <div className="overflow-x-auto">
         <Table className="text-sm min-w-[800px]">
-          <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
-            <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
+          <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+            <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
               <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">PO #</TableHead>
               <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Supplier</TableHead>
               <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Created</TableHead>

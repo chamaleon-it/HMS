@@ -42,25 +42,25 @@ export default function Filters({ filter, setFilter }: PropsType) {
           </label>
           <div className="flex gap-2">
             <div className="relative group flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[var(--color-synapse-light)] transition-colors" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-(--color-synapse-light) transition-colors" />
               <Input
                 value={filter.q ?? ""}
                 onChange={(e) =>
                   setFilter((prev) => ({ ...prev, q: e.target.value, page: 1 }))
                 }
                 placeholder="From..."
-                className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all placeholder:text-slate-400"
+                className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400"
               />
             </div>
             <div className="relative group flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-[var(--color-synapse-light)] transition-colors" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-(--color-synapse-light) transition-colors" />
               <Input
                 value={filter.qEnd ?? ""}
                 onChange={(e) =>
                   setFilter((prev) => ({ ...prev, qEnd: e.target.value, page: 1 }))
                 }
                 placeholder="To..."
-                className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all placeholder:text-slate-400"
+                className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400"
               />
             </div>
           </div>
@@ -78,7 +78,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
                 setFilter((prev) => ({ ...prev, method: value, page: 1 }))
               }
             >
-              <SelectTrigger className="h-10! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-[var(--color-synapse-light)]/20 transition-all">
+              <SelectTrigger className="h-10! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all">
                 <div className="flex items-center gap-2">
                   <FilterIcon className="h-4 w-4 text-slate-400" />
                   <SelectValue placeholder="Select method" />

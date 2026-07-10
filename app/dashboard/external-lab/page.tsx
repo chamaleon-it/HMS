@@ -79,7 +79,7 @@ export default function ExternalLabOverview() {
                 <Card className="border-l-4 border-l-blue-500 shadow-sm hover:shadow-md transition-shadow">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Pending Orders</CardTitle>
-                        <Clock className="h-4 w-4 text-[var(--color-synapse-light)]" />
+                        <Clock className="h-4 w-4 text-(--color-synapse-light)" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">12</div>
@@ -112,7 +112,7 @@ export default function ExternalLabOverview() {
                 <Card className="border-l-4 border-l-purple-500 shadow-sm hover:shadow-md transition-shadow">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">Avg Turnaround</CardTitle>
-                        <TrendingUp className="h-4 w-4 text-[var(--color-synapse-light)]" />
+                        <TrendingUp className="h-4 w-4 text-(--color-synapse-light)" />
                     </CardHeader>
                     <CardContent>
                         <div className="text-2xl font-bold">24h</div>
@@ -146,13 +146,13 @@ export default function ExternalLabOverview() {
                             <div className="flex items-center justify-between text-sm">
                                 <span className="font-medium">Sunrise Path Lab</span>
                                 <span className="flex items-center gap-1.5 text-emerald-600 text-xs bg-emerald-50 px-2 py-0.5 rounded-full">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-synapse-dark)]" /> Operational
+                                    <span className="h-1.5 w-1.5 rounded-full bg-(--color-synapse-dark)" /> Operational
                                 </span>
                             </div>
                             <div className="flex items-center justify-between text-sm">
                                 <span className="font-medium">City Diagnostics</span>
                                 <span className="flex items-center gap-1.5 text-emerald-600 text-xs bg-emerald-50 px-2 py-0.5 rounded-full">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-synapse-dark)]" /> Operational
+                                    <span className="h-1.5 w-1.5 rounded-full bg-(--color-synapse-dark)" /> Operational
                                 </span>
                             </div>
                             <div className="flex items-center justify-between text-sm opacity-60">

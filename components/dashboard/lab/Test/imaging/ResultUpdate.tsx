@@ -122,7 +122,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
             <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden gap-0">
                 <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <div className="flex items-center gap-3">
-                        <div className="p-2.5 bg-[#FDF6ED]/50 text-[var(--color-synapse-light)] rounded-xl">
+                        <div className="p-2.5 bg-[#FDF6ED]/50 text-(--color-synapse-light) rounded-xl">
                             <Scan className="w-5 h-5" />
                         </div>
                         <div>
@@ -137,10 +137,10 @@ export default function ResultUpdate({ r, mutate }: Props) {
                 <div className="p-6 bg-gray-50/30 max-h-[60vh] overflow-y-auto">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {r.test.filter(item => item.name?.type === "Imaging").map((test) => (
-                            <div key={test._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-[var(--color-synapse-light)]/30 transition-all duration-200 group">
+                            <div key={test._id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow-md hover:border-synapse-light/30 transition-all duration-200 group">
                                 <div className="flex items-start justify-between mb-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-fuchsia-50 text-[var(--color-synapse-light)] rounded-lg group-hover:bg-[#FDF6ED] transition-colors">
+                                        <div className="p-2 bg-fuchsia-50 text-(--color-synapse-light) rounded-lg group-hover:bg-[#FDF6ED] transition-colors">
                                             <ImageIcon className="w-4 h-4" />
                                         </div>
                                         <div>
@@ -155,11 +155,11 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                         <label className="text-[10px] uppercase tracking-wider font-semibold text-gray-500 ml-1">Upload Report/Image</label>
                                         <div className="relative group/input">
                                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Upload className="h-4 w-4 text-gray-400 group-hover/input:text-[var(--color-synapse-light)] transition-colors" />
+                                                <Upload className="h-4 w-4 text-gray-400 group-hover/input:text-(--color-synapse-light) transition-colors" />
                                             </div>
                                             <Input
                                                 type="file"
-                                                className="pl-10 h-10 bg-gray-50 border-gray-200 focus:bg-white transition-all file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-[var(--color-synapse-light)] hover:file:bg-[#FDF6ED] text-xs text-gray-600"
+                                                className="pl-10 h-10 bg-gray-50 border-gray-200 focus:bg-white transition-all file:mr-4 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-xs file:font-medium file:bg-purple-50 file:text-(--color-synapse-light) hover:file:bg-[#FDF6ED] text-xs text-gray-600"
                                                 onChange={async (e) => {
                                                     const file = e.target.files?.[0];
                                                     if (file) {
@@ -199,7 +199,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                             Cancel
                         </Button>
                     </DialogClose>
-                    <Button type="button" onClick={updateResult} className="gap-2 bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] text-white shadow-purple-100 shadow-lg">
+                    <Button type="button" onClick={updateResult} className="gap-2 bg-(--color-synapse-light) hover:bg-(--color-synapse-light) text-white shadow-purple-100 shadow-lg">
                         <Save className="w-4 h-4" />
                         Save Changes
                     </Button>

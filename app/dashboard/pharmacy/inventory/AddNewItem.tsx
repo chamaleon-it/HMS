@@ -421,7 +421,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
             </SelectTrigger>
             <SelectContent className="rounded-lg border-slate-200">
               {suppliers.map((s: { _id: string; name: string }) => (
-                <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-[var(--color-synapse-light)]/10">
+                <SelectItem key={s._id} value={s.name} className="rounded-md focus:bg-synapse-light/10">
                   {s.name}
                 </SelectItem>
               ))}
@@ -529,7 +529,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
 
       <div className="flex gap-2">
-        <Button className="bg-[var(--color-synapse-light)] text-white flex-1" type="submit" ref={refs.saveButton}>
+        <Button className="bg-(--color-synapse-light) text-white flex-1" type="submit" ref={refs.saveButton}>
           Save Item
         </Button>
         <Button

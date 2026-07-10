@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { SmallVerticalBars } from "./charts/small-vertical-bars"
 
 export function RightRail() {
-  
+
   return (
     <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] overflow-auto pb-6 lg:block">
       {/* Server Status */}
@@ -42,7 +42,7 @@ export function RightRail() {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm">Contacts</CardTitle>
-            <button className="text-xs text-[var(--color-synapse-light)]">View All</button>
+            <button className="text-xs text-(--color-synapse-light)">View All</button>
           </div>
         </CardHeader>
         <CardContent>
@@ -54,7 +54,7 @@ export function RightRail() {
                     <AvatarImage src="/diverse-avatars.png" alt={`${n} avatar`} />
                     <AvatarFallback>{n.slice(0, 1)}</AvatarFallback>
                   </Avatar>
-                  <span className="absolute -right-0.5 -bottom-0.5 inline-block h-2.5 w-2.5 rounded-full bg-[var(--color-synapse-dark)] ring-2 ring-white" />
+                  <span className="absolute -right-0.5 -bottom-0.5 inline-block h-2.5 w-2.5 rounded-full bg-(--color-synapse-dark) ring-2 ring-white" />
                 </div>
                 <div className="text-[11px] text-muted-foreground">{n}</div>
               </div>
@@ -68,7 +68,7 @@ export function RightRail() {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <CardTitle className="text-sm">Messages</CardTitle>
-            <button className="text-xs text-[var(--color-synapse-light)]">View All</button>
+            <button className="text-xs text-(--color-synapse-light)">View All</button>
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -96,14 +96,14 @@ export function RightRail() {
         </CardHeader>
         <CardContent>
           <div className="mb-4 inline-flex rounded-full bg-muted p-1">
-            <Badge className="rounded-full bg-[var(--color-synapse-light)] text-white hover:bg-[var(--color-synapse-light)]">Activity</Badge>
+            <Badge className="rounded-full bg-(--color-synapse-light) text-white hover:bg-(--color-synapse-light)">Activity</Badge>
             <span className="ml-2 rounded-full px-3 py-1 text-xs text-muted-foreground">Update</span>
           </div>
           <ul className="space-y-3 text-sm">
             {[
-              { t: "Transaction Assets", time: "2 Hour Ago", tone: "bg-[var(--color-synapse-light)]" },
+              { t: "Transaction Assets", time: "2 Hour Ago", tone: "bg-(--color-synapse-light)" },
               { t: "New Email Register", time: "2 Hour Ago", tone: "bg-amber-500" },
-              { t: "Transaction Assets", time: "2 Hour Ago", tone: "bg-[var(--color-synapse-light)]" },
+              { t: "Transaction Assets", time: "2 Hour Ago", tone: "bg-(--color-synapse-light)" },
               { t: "New Email Register", time: "2 Hour Ago", tone: "bg-amber-500" },
             ].map((a, i) => (
               <li key={i} className="flex items-center justify-between">

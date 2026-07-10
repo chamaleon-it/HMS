@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {  ReceiptIndianRupee, Store } from "lucide-react";
+import { ReceiptIndianRupee, Store } from "lucide-react";
 import React from "react";
 import { ProfileType } from "./interface";
 
@@ -15,7 +15,7 @@ export default function TopSummary({ profile }: { profile?: ProfileType }) {
             <p className="flex items-center gap-2 text-base font-semibold text-slate-900">
               Live & Syncing
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-[var(--color-synapse-dark)]" />
+                <span className="h-1.5 w-1.5 rounded-full bg-(--color-synapse-dark)" />
                 Online
               </span>
             </p>
@@ -58,7 +58,7 @@ export default function TopSummary({ profile }: { profile?: ProfileType }) {
         </CardContent>
       </Card>
 
-      
+
     </div>
   );
 }

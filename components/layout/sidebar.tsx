@@ -229,125 +229,125 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/lab/payments/",
       },
     ]) ||
-(user?.role === "Admin" && [
-  {
-    key: "dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    link: "/dashboard/admin/",
-  },
-  {
-    key: "users",
-    label: "Users & Staff",
-    icon: Users,
-    childrens: [
+    (user?.role === "Admin" && [
       {
-        key: "all-users",
-        label: "All Users",
-        link: "/dashboard/admin/users/",
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        link: "/dashboard/admin/",
       },
       {
-        key: "doctors",
-        label: "Doctors",
-        link: "/dashboard/admin/doctors/",
+        key: "users",
+        label: "Users & Staff",
+        icon: Users,
+        childrens: [
+          {
+            key: "all-users",
+            label: "All Users",
+            link: "/dashboard/admin/users/",
+          },
+          {
+            key: "doctors",
+            label: "Doctors",
+            link: "/dashboard/admin/doctors/",
+          },
+          {
+            key: "staff",
+            label: "Staff",
+            link: "/dashboard/admin/staff/",
+          },
+          {
+            key: "patients",
+            label: "Patients",
+            link: "/dashboard/admin/patients/",
+          },
+        ],
       },
       {
-        key: "staff",
-        label: "Staff",
-        link: "/dashboard/admin/staff/",
+        key: "operations",
+        label: "Operations",
+        icon: CalendarClock,
+        childrens: [
+          {
+            key: "appointments",
+            label: "Appointments",
+            link: "/dashboard/admin/appointments/",
+          },
+          {
+            key: "attendance",
+            label: "Attendance",
+            link: "/dashboard/admin/attendance/",
+          },
+          {
+            key: "departments",
+            label: "Departments",
+            link: "/dashboard/admin/departments/",
+          },
+        ],
       },
       {
-        key: "patients",
-        label: "Patients",
-        link: "/dashboard/admin/patients/",
-      },
-    ],
-  },
-  {
-    key: "operations",
-    label: "Operations",
-    icon: CalendarClock,
-    childrens: [
-      {
-        key: "appointments",
-        label: "Appointments",
-        link: "/dashboard/admin/appointments/",
-      },
-      {
-        key: "attendance",
-        label: "Attendance",
-        link: "/dashboard/admin/attendance/",
+        key: "finance",
+        label: "Finance & Billing",
+        icon: Banknote,
+        childrens: [
+          {
+            key: "billing",
+            label: "Billing",
+            link: "/dashboard/admin/billing/",
+          },
+          {
+            key: "finance-overview",
+            label: "Finance",
+            link: "/dashboard/admin/finance/",
+          },
+        ],
       },
       {
-        key: "departments",
-        label: "Departments",
-        link: "/dashboard/admin/departments/",
+        key: "reports",
+        label: "Reports & Logs",
+        icon: FileBarChart,
+        childrens: [
+          {
+            key: "reports-main",
+            label: "Reports",
+            link: "/dashboard/admin/reports/",
+          },
+          {
+            key: "audit-logs",
+            label: "Audit Logs",
+            link: "/dashboard/admin/audit-logs/",
+          },
+        ],
       },
-    ],
-  },
-  {
-    key: "finance",
-    label: "Finance & Billing",
-    icon: Banknote,
-    childrens: [
+    ]) ||
+
+    (user?.role === "Reception" && [
+      {
+        key: "dashboard",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        link: "/dashboard/reception/",
+      },
+      {
+        key: "ip",
+        label: "IP (In Patient)",
+        icon: Bed,
+        link: "/dashboard/reception/ip/",
+      },
+      {
+        key: "customers",
+        label: "Customers",
+        icon: Users,
+        link: "/dashboard/reception/customers/",
+      },
       {
         key: "billing",
         label: "Billing",
-        link: "/dashboard/admin/billing/",
+        icon: CreditCard,
+        link: "/dashboard/reception/billing/",
       },
-      {
-        key: "finance-overview",
-        label: "Finance",
-        link: "/dashboard/admin/finance/",
-      },
-    ],
-  },
-  {
-    key: "reports",
-    label: "Reports & Logs",
-    icon: FileBarChart,
-    childrens: [
-      {
-        key: "reports-main",
-        label: "Reports",
-        link: "/dashboard/admin/reports/",
-      },
-      {
-        key: "audit-logs",
-        label: "Audit Logs",
-        link: "/dashboard/admin/audit-logs/",
-      },
-    ],
-  },
-]) ||
-
-(user?.role === "Reception" && [
-  {
-    key: "dashboard",
-    label: "Dashboard",
-    icon: LayoutDashboard,
-    link: "/dashboard/reception/",
-  },
-  {
-    key: "ip",
-    label: "IP (In Patient)",
-    icon: Bed,
-    link: "/dashboard/reception/ip/",
-  },
-  {
-    key: "customers",
-    label: "Customers",
-    icon: Users,
-    link: "/dashboard/reception/customers/",
-  },
-  {
-    key: "billing",
-    label: "Billing",
-    icon: CreditCard,
-    link: "/dashboard/reception/billing/",
-  },
-]) ||
-[];
+    ]) ||
+    [];
   const pathname = usePathname();
   const settingsLink: string | undefined = user?.role ? settingsLinks[user.role] : undefined
 
@@ -365,7 +365,7 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
     >
       {/* Brand */}
       <div className="px-4 py-4 flex items-center justify-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] text-white font-semibold shadow-md shrink-0">
+        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-(--color-synapse-light) to-(--color-synapse-purple) text-white font-semibold shadow-md shrink-0">
           S
         </div>
         {!collapsed && (
@@ -539,7 +539,7 @@ function NavItem({
           className={
             "group w-full flex items-center gap-3 rounded-2xl px-3 py-3 transition-all border cursor-pointer " +
             (isParentActive
-              ? "border-transparent bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] text-white shadow-md"
+              ? "border-transparent bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
           }
         >
@@ -551,7 +551,7 @@ function NavItem({
           className={
             "group w-full flex items-center gap-3 rounded-2xl px-3 py-3.5 transition-all border " +
             (isParentActive
-              ? "border-transparent bg-linear-to-r from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] text-white shadow-md"
+              ? "border-transparent bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) text-white shadow-md"
               : "border-transparent hover:border-slate-200 hover:bg-white text-slate-700")
           }
         >
@@ -568,14 +568,14 @@ function NavItem({
               className={
                 "group w-full flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-all " +
                 (pathname === child.link
-                  ? "bg-[var(--color-synapse-light)]/20 text-[var(--color-synapse-light)] font-medium"
+                  ? "bg-(--color-synapse-light)/20 text-(--color-synapse-light) font-medium"
                   : "text-slate-600 hover:bg-slate-50")
               }
             >
               <span
                 className={
                   "h-2 w-2 rounded-full " +
-                  (pathname === child.link ? "bg-[var(--color-synapse-light)]" : "bg-slate-400")
+                  (pathname === child.link ? "bg-(--color-synapse-light)" : "bg-slate-400")
                 }
               ></span>
               {child.label}

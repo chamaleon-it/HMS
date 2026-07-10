@@ -85,11 +85,11 @@ export default function IPAdmissionDialog({ open, onOpenChange, mutate }: { open
           </DialogHeader>
 
           <form onSubmit={handleSubmit} className="space-y-5 pt-2">
-            
+
             {/* Section 1: Patient & Doctor */}
             <div className="p-5 bg-slate-50/80 rounded-2xl border border-slate-100 shadow-sm space-y-5 relative transition-all hover:shadow-md">
-              <div className="flex items-center gap-2.5 text-[var(--color-synapse-light)] mb-1">
-                <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-[var(--color-synapse-light)]">
+              <div className="flex items-center gap-2.5 text-(--color-synapse-light) mb-1">
+                <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-(--color-synapse-light)">
                   <User className="w-4 h-4" />
                 </div>
                 <h3 className="font-semibold text-slate-800 text-base">Patient & Doctor</h3>
@@ -169,7 +169,7 @@ export default function IPAdmissionDialog({ open, onOpenChange, mutate }: { open
 
             <div className="pt-2 flex justify-end gap-3 sticky bottom-0 bg-white py-4 border-t border-slate-100 -mx-6 px-6 rounded-b-lg mt-2 shadow-[0_-10px_15px_-10px_rgba(0,0,0,0.05)]">
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 px-5">Cancel</Button>
-              <Button type="submit" className="rounded-xl bg-gradient-to-r from-[var(--color-synapse-dark)] to-[#2a2a2a] text-white px-8 shadow-lg shadow-black/10 hover:shadow-xl hover:scale-[1.02] transition-all flex items-center gap-2 border border-slate-800">
+              <Button type="submit" className="rounded-xl bg-linear-to-r from-(--color-synapse-dark) to-[#2a2a2a] text-white px-8 shadow-lg shadow-black/10 hover:shadow-xl hover:scale-[1.02] transition-all flex items-center gap-2 border border-slate-800">
                 Confirm Admission <ArrowRight className="w-4 h-4" />
               </Button>
             </div>

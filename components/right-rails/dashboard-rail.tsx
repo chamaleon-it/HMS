@@ -31,8 +31,8 @@ const messages = [
 ]
 
 const activities = [
-  { id: 1, label: "Transaction Assets", time: "2h ago", color: "bg-[var(--color-synapse-light)]" },
-  { id: 2, label: "New Email Register", time: "2h ago", color: "bg-[var(--color-synapse-light)]" },
+  { id: 1, label: "Transaction Assets", time: "2h ago", color: "bg-(--color-synapse-light)" },
+  { id: 2, label: "New Email Register", time: "2h ago", color: "bg-(--color-synapse-light)" },
   { id: 3, label: "Transaction Assets", time: "2h ago", color: "bg-blue-400" },
 ]
 

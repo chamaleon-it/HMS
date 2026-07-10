@@ -1,5 +1,5 @@
 import { useAuth } from "@/auth/context/auth-context";
-import { fAge, fDateandTime , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import React from "react";
 import ViewResultModal from "./ViewResultModal";
@@ -283,8 +283,8 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
       className="rounded-2xl bg-white ring-1 ring-gray-200 shadow-sm overflow-x-auto cursor-grab active:cursor-grabbing"
     >
       <table className="w-full whitespace-nowrap  overflow-scroll">
-        <thead className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
-          <tr className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
+        <thead className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+          <tr className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b border-gray-200 text-xs uppercase tracking-wider text-white font-medium ">
             {headerCell("SL No.")}
             {status !== "Draft" && headerCell("Report No.")}
             {headerCell("Patient")}
@@ -418,15 +418,15 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                             const groupPanelNames = new Set<string>();
                             const groupTestIds = new Set<string>();
                             (r.groups || []).forEach(gName => {
-                                const group = groups.find(g => g.name === gName);
-                                group?.panels?.forEach(p => groupPanelNames.add(p.name));
-                                group?.tests?.forEach(test => groupTestIds.add(test._id));
+                              const group = groups.find(g => g.name === gName);
+                              group?.panels?.forEach(p => groupPanelNames.add(p.name));
+                              group?.tests?.forEach(test => groupTestIds.add(test._id));
                             });
-                            
+
                             const allSelectedPanels = Array.from(new Set([...(r.panels || []), ...Array.from(groupPanelNames)]));
                             const selectedPanels = panels.filter(p => allSelectedPanels.includes(p.name));
                             const panelTests = selectedPanels.flatMap(e => e.tests || []).map((e: any) => e._id);
-                            
+
                             return !panelTests.includes(t.name?._id) && !groupTestIds.has(t.name?._id);
                           }
                         )
@@ -477,15 +477,15 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                             const groupPanelNames = new Set<string>();
                             const groupTestIds = new Set<string>();
                             (r.groups || []).forEach(gName => {
-                                const group = groups.find(g => g.name === gName);
-                                group?.panels?.forEach(p => groupPanelNames.add(p.name));
-                                group?.tests?.forEach(test => groupTestIds.add(test._id));
+                              const group = groups.find(g => g.name === gName);
+                              group?.panels?.forEach(p => groupPanelNames.add(p.name));
+                              group?.tests?.forEach(test => groupTestIds.add(test._id));
                             });
-                            
+
                             const allSelectedPanels = Array.from(new Set([...(r.panels || []), ...Array.from(groupPanelNames)]));
                             const selectedPanels = panels.filter(p => allSelectedPanels.includes(p.name));
                             const panelTests = selectedPanels.flatMap(e => e.tests || []).map((e: any) => e._id);
-                            
+
                             return !panelTests.includes(t.name?._id) && !groupTestIds.has(t.name?._id);
                           }
                         )
@@ -591,7 +591,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                                   e.stopPropagation();
                                   updateDraft(r._id, { isOpen: true, minimized: false });
                                 }}
-                                className="h-8 w-8 text-[var(--color-synapse-light)] hover:text-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)]/10"
+                                className="h-8 w-8 text-(--color-synapse-light) hover:text-(--color-synapse-light) hover:bg-synapse-light/10"
                               >
                                 <Eye className="h-4 w-4" />
                               </Button>
@@ -629,7 +629,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                       {
                         status === "Sample Collected" && <Button
                           size="sm"
-                          className="h-8 bg-linear-to-br from-[var(--color-synapse-light)] to-[var(--color-synapse-purple)] hover:from-[var(--color-synapse-light)] hover:to-[var(--color-synapse-purple)] text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 px-4 font-semibold rounded-lg"
+                          className="h-8 bg-linear-to-br from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-1.5 px-4 font-semibold rounded-lg"
                           onClick={async () => {
                             try {
                               await toast.promise(
@@ -725,7 +725,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                       {status === "Completed" && <Button
                         variant={"outline"}
                         size="sm"
-                        className="gap-2 h-8 text-xs text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30 hover:bg-[var(--color-synapse-light)]/10 hover:text-[var(--color-synapse-light)] bg-white"
+                        className="gap-2 h-8 text-xs text-(--color-synapse-light) border-synapse-light/30 hover:bg-synapse-light/10 hover:text-(--color-synapse-light) bg-white"
                         onClick={() => handlePrint(r)}
                       >
                         <Printer className="h-3.5 w-3.5" />
@@ -749,7 +749,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                       {status === "Flagged" && <Button
                         variant={"outline"}
                         size="sm"
-                        className="gap-2 h-8 text-xs text-[var(--color-synapse-light)] border-[var(--color-synapse-light)]/30 hover:bg-[var(--color-synapse-light)]/10 hover:text-[var(--color-synapse-light)] bg-white"
+                        className="gap-2 h-8 text-xs text-(--color-synapse-light) border-synapse-light/30 hover:bg-synapse-light/10 hover:text-(--color-synapse-light) bg-white"
                         onClick={() => {
 
                         }}
@@ -836,7 +836,7 @@ export default function LabTable({ REPORT, status, mutate, autoGenerateSampleId,
                             <AlertDialogFooter>
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
-                                className="bg-[var(--color-synapse-light)] hover:bg-[var(--color-synapse-light)] text-white"
+                                className="bg-(--color-synapse-light) hover:bg-(--color-synapse-light) text-white"
                                 onClick={async () => {
                                   try {
                                     await toast.promise(

@@ -413,7 +413,7 @@ export default function TestCatalogue({
                 className="h-9 w-64 bg-slate-50"
               />
               <Button
-                className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white shrink-0"
+                className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white shrink-0"
                 onClick={() => setIsNewTestModalOpen(true)}
               >
                 Add New Test
@@ -810,7 +810,7 @@ export default function TestCatalogue({
                         Cancel
                       </Button>
                       <Button
-                        className="h-9 bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white"
+                        className="h-9 bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white"
                         onClick={addNewTest}
                       >
                         Save Test
@@ -888,7 +888,7 @@ export default function TestCatalogue({
                   className="h-9 w-64 bg-slate-50"
                 />
                 <Button
-                  className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white shrink-0"
+                  className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white shrink-0"
                   onClick={() => setIsNewPanelModalOpen(true)}
                 >
                   Create New Panel
@@ -980,7 +980,7 @@ export default function TestCatalogue({
                   className="h-9 w-64 bg-slate-50"
                 />
                 <Button
-                  className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white shrink-0"
+                  className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white shrink-0"
                   onClick={() => setIsNewGroupModalOpen(true)}
                 >
                   Create New Group
@@ -1592,7 +1592,7 @@ const AddPanelForm = ({ onSuccess, onCancel, tests }: { onSuccess: () => void; o
         ) : (
           <Button variant="outline" onClick={onCancel}>Cancel</Button>
         )}
-        <Button className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white" onClick={addPanel} disabled={loading}>{loading ? "Adding..." : "Save Panel"}</Button>
+        <Button className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white" onClick={addPanel} disabled={loading}>{loading ? "Adding..." : "Save Panel"}</Button>
       </div>
 
       <AlertDialog open={cancelAlertOpen} onOpenChange={setCancelAlertOpen}>
@@ -1982,7 +1982,7 @@ const AddGroupForm = ({
         <Button variant="outline" onClick={onCancel} disabled={loading}>
           Cancel
         </Button>
-        <Button className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] text-white" onClick={handleSubmit} disabled={loading}>
+        <Button className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white" onClick={handleSubmit} disabled={loading}>
           {loading ? "Saving..." : "Save Group"}
         </Button>
       </div>

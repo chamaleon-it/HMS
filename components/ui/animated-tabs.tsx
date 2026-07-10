@@ -28,7 +28,7 @@ export function AnimatedTabs({ options, value, onChange, layoutId, className }: 
                         key={key}
                         onClick={() => onChange(key)}
                         className={cn(
-                            "relative flex items-center justify-center gap-2 rounded-full px-4 py-2 transition text-sm font-medium will-change-transform cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-synapse-light)]",
+                            "relative flex items-center justify-center gap-2 rounded-full px-4 py-2 transition text-sm font-medium will-change-transform cursor-pointer outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-(--color-synapse-light)",
                             active ? "text-white" : "text-gray-700 hover:text-gray-900"
                         )}
                         type="button"

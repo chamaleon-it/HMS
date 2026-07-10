@@ -25,7 +25,7 @@ export default function IPList() {
           <PharmacyHeader title="In-Patients" subtitle="Manage admitted patients">
             <button
               onClick={() => setOpenAdmission(true)}
-              className="flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 shadow-md bg-[var(--color-synapse-dark)] hover:bg-slate-800 cursor-pointer"
+              className="flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 shadow-md bg-(--color-synapse-dark) hover:bg-slate-800 cursor-pointer"
             >
               <Plus className="h-4 w-4 mr-2" /> Admit Patient
             </button>
@@ -69,7 +69,7 @@ export default function IPList() {
                         <td className="py-3 px-4 font-semibold text-gray-900">{ip.admissionNumber}</td>
                         <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 rounded-full bg-blue-50 text-[var(--color-synapse-light)] flex items-center justify-center font-bold">
+                            <div className="w-8 h-8 rounded-full bg-blue-50 text-(--color-synapse-light) flex items-center justify-center font-bold">
                               {ip.patientId?.name?.charAt(0)}
                             </div>
                             <div>
@@ -83,12 +83,11 @@ export default function IPList() {
                           {ip.ward} / {ip.room} / <span className="font-semibold text-gray-900">{ip.bed}</span>
                         </td>
                         <td className="py-3 px-4">
-                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                            ip.status === 'Admitted' ? 'bg-blue-100 text-blue-700' :
+                          <span className={`px-2 py-1 text-xs font-medium rounded-full ${ip.status === 'Admitted' ? 'bg-blue-100 text-blue-700' :
                             ip.status === 'Discharged' ? 'bg-gray-100 text-gray-700' :
-                            ip.status === 'Surgery' ? 'bg-red-100 text-red-700' :
-                            'bg-yellow-100 text-yellow-700'
-                          }`}>
+                              ip.status === 'Surgery' ? 'bg-red-100 text-red-700' :
+                                'bg-yellow-100 text-yellow-700'
+                            }`}>
                             {ip.status}
                           </span>
                         </td>
@@ -96,7 +95,7 @@ export default function IPList() {
                           {format(new Date(ip.admissionDate), 'dd MMM yyyy, hh:mm a')}
                         </td>
                         <td className="py-3 px-4">
-                          <Link href={`/dashboard/reception/ip/${ip._id}`} className="text-[var(--color-synapse-light)] hover:underline font-medium flex items-center gap-1">
+                          <Link href={`/dashboard/reception/ip/${ip._id}`} className="text-(--color-synapse-light) hover:underline font-medium flex items-center gap-1">
                             View <ArrowRight className="w-3 h-3" />
                           </Link>
                         </td>
@@ -106,20 +105,20 @@ export default function IPList() {
                 </tbody>
               </table>
             </div>
-            
+
             {/* Pagination placeholder */}
             <div className="p-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
               <div>Showing {ipList.length} of {total} records</div>
               <div className="flex gap-2">
-                <button 
-                  disabled={page === 1} 
+                <button
+                  disabled={page === 1}
                   onClick={() => setPage(p => p - 1)}
                   className="px-3 py-1 border rounded disabled:opacity-50"
                 >
                   Prev
                 </button>
-                <button 
-                  disabled={ipList.length < 20} 
+                <button
+                  disabled={ipList.length < 20}
                   onClick={() => setPage(p => p + 1)}
                   className="px-3 py-1 border rounded disabled:opacity-50"
                 >
@@ -131,10 +130,10 @@ export default function IPList() {
         </div>
       </TooltipProvider>
 
-      <IPAdmissionDialog 
-        open={openAdmission} 
-        onOpenChange={setOpenAdmission} 
-        mutate={mutate} 
+      <IPAdmissionDialog
+        open={openAdmission}
+        onOpenChange={setOpenAdmission}
+        mutate={mutate}
       />
     </AppShell>
   );

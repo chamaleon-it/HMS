@@ -32,7 +32,7 @@ export default function PurchasePackingView({ row }: { row: PurchaseType }) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 text-[var(--color-synapse-light)] hover:text-[var(--color-synapse-light)] hover:bg-blue-50"
+                className="h-8 w-8 text-(--color-synapse-light) hover:text-(--color-synapse-light) hover:bg-blue-50"
               >
                 <Eye className="h-4 w-4" />
               </Button>
@@ -80,8 +80,8 @@ export default function PurchasePackingView({ row }: { row: PurchaseType }) {
 
         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 mt-4">
           <Table>
-            <TableHeader className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)]">
-              <TableRow className="bg-[var(--color-synapse-dark)] hover:bg-[var(--color-synapse-dark)] border-b-0">
+            <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
+              <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                 <TableHead className="w-12 text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4 text-center">SL</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Medicine</TableHead>
                 <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 text-center">Quantity</TableHead>
