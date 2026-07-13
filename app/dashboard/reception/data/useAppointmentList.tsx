@@ -59,6 +59,8 @@ export default function useAppointmentList({
       | "Not show";
       isPaid: boolean;
       isDeleted: boolean;
+      isRefunded?: boolean;
+      hasConsultationFee?: boolean;
       createdAt: Date;
       visitCount: number;
     }[];

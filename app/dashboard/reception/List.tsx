@@ -246,7 +246,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} isRefunded={row.isRefunded} onRefund={() => setRefundId(row._id)} />
+                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} isRefunded={row.isRefunded} onRefund={() => setRefundId(row._id)} hasConsultationFee={row.hasConsultationFee} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -291,7 +291,7 @@ export default function List({
   );
 }
 
-function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint, isRefunded, onRefund }: any) {
+function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint, isRefunded, onRefund, hasConsultationFee }: any) {
   return (
     <>
       {status !== "Consulted" && <button
@@ -301,7 +301,7 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
       >
         <CheckCircle2 size={16} />
       </button>}
-      {!isRefunded && (
+      {!isRefunded && hasConsultationFee !== false && (
         <button
           onClick={onRefund}
           className="p-1.5 rounded-md hover:bg-red-50 text-red-600 border border-transparent hover:border-red-200 transition-all"

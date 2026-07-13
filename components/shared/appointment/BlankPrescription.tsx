@@ -26,6 +26,14 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
 
     const { patient, doctor, date } = data;
 
+    const appDate = new Date(date);
+    const validityDate = new Date(appDate);
+    validityDate.setDate(appDate.getDate() + 10);
+    const vDay = validityDate.getDate().toString().padStart(2, "0");
+    const vMonth = (validityDate.getMonth() + 1).toString().padStart(2, "0");
+    const vYear = validityDate.getFullYear().toString().slice(-2);
+    const validityString = `${vDay}/${vMonth}/${vYear}`;
+
     return createPortal(
         <div className="print-blank-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-visible">
             <style dangerouslySetInnerHTML={{
@@ -72,6 +80,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                             </span>
                             <div className="space-y-0.5">
                                 <p className="text-sm font-bold">{fDateandTime(date)}</p>
+                                <p className="text-xs font-bold text-slate-700 mt-0.5">Token Validity: {validityString}</p>
                             </div>
                         </div>
                     </div>
@@ -100,7 +109,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
 
                     {/* EMPTY SPACE for writing */}
                     <div className="flex-1 border border-slate-500 rounded-lg bg-slate-50/5 relative min-h-[500px] overflow-hidden">
-                        
+
                         {/* Parameters at top right */}
                         <div className="absolute top-0 right-0 w-48 border-l border-b border-slate-500 p-4 bg-white rounded-bl-lg">
                             <div className="space-y-4 text-black font-bold text-[10px] uppercase">
@@ -131,7 +140,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                             </div>
                         </div>
 
-                       
+
                     </div>
                 </div>
 

@@ -111,7 +111,10 @@ export default function BillingPage() {
   const allBilling = billingData?.data ?? [];
   const billing = useMemo(() => {
     if (filter.doctor.length === 0) return allBilling;
-    return allBilling.filter(b => filter.doctor.includes(b.doctor));
+    return allBilling.filter(b => {
+      const docName = typeof b.doctor === 'object' ? (b.doctor as any)?.name : b.doctor;
+      return filter.doctor.includes(docName);
+    });
   }, [allBilling, filter.doctor]);
 
   const total = billingData?.total ?? 0;

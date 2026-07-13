@@ -48,16 +48,20 @@ const CustomerPageContent: React.FC = () => {
         id ? `/billing/single?q=${id}` : null
     );
 
+    const { data: patientData, error: patientError } = useSWR<{ data: any; message: string }>(
+        id ? `/patients/single/${id}` : null
+    );
+
     const billing = billingData?.data || [];
 
     const customer = React.useMemo(() => {
-        if (billing.length === 0) return null;
+        const patient = patientData?.data || (billing.length > 0 ? billing[0].patient : null);
+        if (!patient) return null;
 
-        const patient = billing[0].patient;
         let totalSpend = 0;
         let totalPaid = 0;
         let totalVisit = 0;
-        let lastPurchase = billing[0].createdAt;
+        let lastPurchase = billing.length > 0 ? billing[0].createdAt : null;
 
         billing.forEach(b => {
             const itemsTotal = b.items.reduce((acc, it) => acc + (it.total || 0), 0);
@@ -84,7 +88,7 @@ const CustomerPageContent: React.FC = () => {
             lastPurchase,
             billing // To keep UI compatible with .orders check if needed
         };
-    }, [billing]);
+    }, [billing, patientData]);
 
     const [selectedVisit, setSelectedVisit] = useState<BillingRecord | null>(null);
 
@@ -263,6 +267,16 @@ const CustomerPageContent: React.FC = () => {
             setUpdatingPayment(false);
         }
     };
+
+    if ((!billingData && !error) || (!patientData && !patientError)) {
+        return (
+            <AppShell>
+                <div className="flex h-[calc(100vh-67px)] w-full items-center justify-center bg-white/50 backdrop-blur-sm">
+                    <Loader2 className="w-10 h-10 animate-spin text-(--color-synapse-purple)" />
+                </div>
+            </AppShell>
+        );
+    }
 
     return (
         <AppShell>

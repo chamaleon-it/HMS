@@ -41,7 +41,10 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const doctors = useMemo(() => {
-    const list = [...new Set(billing.map(b => b.doctor))].filter(Boolean);
+    const list = [...new Set(billing.map(b => {
+      if (!b.doctor) return "";
+      return typeof b.doctor === 'object' ? (b.doctor as any)?.name : b.doctor;
+    }))].filter(Boolean);
     return list.sort();
   }, [billing]);
 
