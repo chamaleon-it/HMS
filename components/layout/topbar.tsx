@@ -51,8 +51,8 @@ export default function Header() {
     ]) ||
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
-      { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
+      { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
       { key: "billing", label: "Billing", link: "/dashboard/reception/billing/" },
     ]) ||
     (user?.role === "Lab" && [
@@ -67,6 +67,8 @@ export default function Header() {
     ]) ||
     (user?.role === "Admin" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/admin/" },
+      { key: "appointments", label: "Appointments", link: "/dashboard/admin/appointments/" },
+      { key: "ip", label: "In-Patients", link: "/dashboard/admin/ip/" },
       {
         key: "users", label: "Users & Staff", childrens: [
           { key: "doctors", label: "Doctors", link: "/dashboard/admin/doctors/" },
@@ -75,8 +77,6 @@ export default function Header() {
           { key: "patients", label: "Patients", link: "/dashboard/admin/patients/" },
         ]
       },
-      { key: "appointments", label: "Appointments", link: "/dashboard/admin/appointments/" },
-      { key: "ip", label: "In-Patients", link: "/dashboard/admin/ip/" },
       { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },
 
     ]) || [];
