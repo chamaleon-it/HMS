@@ -76,6 +76,7 @@ export default function Header() {
         ]
       },
       { key: "appointments", label: "Appointments", link: "/dashboard/admin/appointments/" },
+      { key: "ip", label: "In-Patients", link: "/dashboard/admin/ip/" },
       { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },
 
     ]) || [];

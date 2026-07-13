@@ -95,7 +95,7 @@ export default function IPList() {
                           {format(new Date(ip.admissionDate), 'dd MMM yyyy, hh:mm a')}
                         </td>
                         <td className="py-3 px-4">
-                          <Link href={`/dashboard/reception/ip/${ip._id}`} className="text-(--color-synapse-light) hover:underline font-medium flex items-center gap-1">
+                          <Link href={`/dashboard/reception/ip/single?id=${ip._id}`} className="text-(--color-synapse-light) hover:underline font-medium flex items-center gap-1">
                             View <ArrowRight className="w-3 h-3" />
                           </Link>
                         </td>

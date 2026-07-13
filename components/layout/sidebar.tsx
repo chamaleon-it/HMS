@@ -274,6 +274,11 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
             link: "/dashboard/admin/appointments/",
           },
           {
+            key: "in-patients",
+            label: "In-Patients (IP)",
+            link: "/dashboard/admin/ip/",
+          },
+          {
             key: "attendance",
             label: "Attendance",
             link: "/dashboard/admin/attendance/",
