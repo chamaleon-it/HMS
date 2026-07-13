@@ -261,7 +261,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 p-2 rounded-xl bg-slate-50 border border-slate-100">
-                                    <div className="p-2 bg-(--color-synapse-light)/20 rounded-lg">
+                                    <div className="p-2 bg-synapse-light/20 rounded-lg">
                                         <MapPin className="w-3.5 h-3.5 text-(--color-synapse-light)" />
                                     </div>
                                     <div className="min-w-0">

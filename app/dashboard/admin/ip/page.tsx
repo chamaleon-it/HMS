@@ -69,7 +69,7 @@ export default function AdminIPPage() {
                       <td className="px-4 py-3 font-mono font-bold text-gray-700">{r.admissionNumber}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-slate-700 to-slate-500 text-white text-xs font-bold flex items-center justify-center shrink-0">
+                          <div className="w-7 h-7 rounded-lg bg-linear-to-br from-slate-700 to-slate-500 text-white text-xs font-bold flex items-center justify-center shrink-0">
                             {r.patientId?.name?.charAt(0) ?? "?"}
                           </div>
                           <div>

@@ -131,7 +131,7 @@ export default function Header() {
                       {isActive && (
                         <motion.span
                           layoutId="topbar-active-indicator"
-                          className="absolute inset-0 rounded-full bg-linear-to-r from-[var(--color-synapse-purple)] to-[#d946ef]"
+                          className="absolute inset-0 rounded-full bg-linear-to-r from-(--color-synapse-purple) to-[#d946ef]"
                           transition={{ type: "spring", stiffness: 500, damping: 40 }}
                         />
                       )}
@@ -166,7 +166,7 @@ export default function Header() {
                     {isActive && (
                       <motion.span
                         layoutId="topbar-active-indicator"
-                        className="absolute inset-0 rounded-full bg-linear-to-r from-[var(--color-synapse-purple)] to-[#d946ef]"
+                        className="absolute inset-0 rounded-full bg-linear-to-r from-(--color-synapse-purple) to-[#d946ef]"
                         transition={{ type: "spring", stiffness: 500, damping: 40 }}
                       />
                     )}
@@ -189,7 +189,7 @@ export default function Header() {
           >
             {(user?.role === "Doctor" || user?.role === "Reception") && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-[var(--color-synapse-purple)] to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-(--color-synapse-purple) to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenCreate(true)}
               >
                 <Plus className="h-4 w-4" /> New Appointment
@@ -197,7 +197,7 @@ export default function Header() {
             )}
             {user?.role === "Pharmacy" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-[var(--color-synapse-purple)] to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-(--color-synapse-purple) to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => window.dispatchEvent(new CustomEvent('open-new-order'))}
               >
                 <Plus className="h-4 w-4" /> New Order
@@ -205,7 +205,7 @@ export default function Header() {
             )}
             {user?.role === "Lab" && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-[var(--color-synapse-purple)] to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-(--color-synapse-purple) to-[#d946ef] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => window.dispatchEvent(new CustomEvent('open-add-test'))}
               >
                 <Plus className="h-4 w-4" /> Book Now
@@ -233,7 +233,7 @@ export default function Header() {
 
         {/* Bottom divider (slimmer) */}
         <div
-          className="h-0.75 bg-linear-to-r from-(--color-synapse-light)/15 via-[var(--color-synapse-light)]/30 to-[var(--color-synapse-light)]/15"
+          className="h-0.75 bg-linear-to-r from-synapse-light/15 via-synapse-light/30 to-synapse-light/15"
           data-testid="header-divider"
         />
       </header>

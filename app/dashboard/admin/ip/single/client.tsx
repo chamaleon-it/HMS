@@ -146,7 +146,7 @@ export default function AdminIPSingleClient() {
         {/* Hero Card */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex flex-wrap gap-5 items-start">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-600 flex items-center justify-center text-white text-xl font-bold shadow">
+            <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-slate-800 to-slate-600 flex items-center justify-center text-white text-xl font-bold shadow">
               {patient?.name?.charAt(0) ?? "?"}
             </div>
             <div className="flex-1 min-w-[200px]">
@@ -191,7 +191,7 @@ export default function AdminIPSingleClient() {
             { label: "Total Paid", value: formatINR(totalPaid), cls: "from-emerald-50 to-teal-50 text-emerald-700" },
             { label: "Total Due", value: formatINR(totalDue), cls: "from-rose-50 to-pink-50 text-rose-700" },
           ].map(s => (
-            <div key={s.label} className={`bg-gradient-to-br ${s.cls} rounded-2xl p-4 border border-white shadow-sm`}>
+            <div key={s.label} className={`bg-linear-to-br ${s.cls} rounded-2xl p-4 border border-white shadow-sm`}>
               <div className="text-[11px] font-semibold uppercase tracking-wider opacity-70">{s.label}</div>
               <div className="text-xl font-bold mt-1">{s.value}</div>
             </div>

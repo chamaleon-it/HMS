@@ -233,7 +233,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-xs text-muted-foreground font-medium">
-              <div className="w-6 h-6 rounded-full bg-(--color-synapse-light)/20 flex items-center justify-center">
+              <div className="w-6 h-6 rounded-full bg-synapse-light/20 flex items-center justify-center">
                 <Building2 className="w-3.5 h-3.5 text-(--color-synapse-light)" />
               </div>
               Manufacturer
@@ -418,7 +418,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
             <div className="bg-synapse-light/10 border border-[var(--color-synapse-light)]/20 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-(--color-synapse-light)/20 flex items-center justify-center text-(--color-synapse-light)">
+                <div className="w-10 h-10 rounded-full bg-synapse-light/20 flex items-center justify-center text-(--color-synapse-light)">
                   <Banknote className="w-5 h-5" />
                 </div>
                 <div>

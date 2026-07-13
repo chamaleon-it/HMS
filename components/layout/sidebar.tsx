@@ -573,7 +573,7 @@ function NavItem({
               className={
                 "group w-full flex items-center gap-3 rounded-2xl px-3 py-2 text-sm transition-all " +
                 (pathname === child.link
-                  ? "bg-(--color-synapse-light)/20 text-(--color-synapse-light) font-medium"
+                  ? "bg-synapse-light/20 text-(--color-synapse-light) font-medium"
                   : "text-slate-600 hover:bg-slate-50")
               }
             >

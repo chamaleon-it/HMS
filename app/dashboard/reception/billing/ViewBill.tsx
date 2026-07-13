@@ -132,7 +132,7 @@ export default function ViewBill({ id }: { id: string }) {
                 {/* Receipt Container */}
                 <div className="bg-white text-slate-900 font-sans leading-relaxed shadow-xl w-full flex flex-col overflow-hidden rounded-xl print:shadow-none print:rounded-none">
                     {/* HEADER */}
-                    <div className="bg-linear-to-r from-[var(--color-synapse-purple)] to-(--color-synapse-dark) text-white px-10 py-8">
+                    <div className="bg-linear-to-r from-(--color-synapse-purple) to-(--color-synapse-dark) text-white px-10 py-8">
                         <div className="flex justify-between items-start">
                             <HospitalName />
                             <div className="text-right space-y-2">

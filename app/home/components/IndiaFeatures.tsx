@@ -77,7 +77,7 @@ const IndiaFeatures = () => {
 
                                 <div className="flex items-center justify-between mb-8 border-b border-white/10 pb-6">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-12 h-12 bg-gradient-to-br from-secondary to-emerald-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg shadow-secondary/20">AB</div>
+                                        <div className="w-12 h-12 bg-linear-to-br from-secondary to-emerald-600 rounded-xl flex items-center justify-center font-bold text-white shadow-lg shadow-secondary/20">AB</div>
                                         <div>
                                             <div className="font-bold text-white text-lg">Ayushman Bharat</div>
                                             <div className="text-sm text-slate-400">Digital Mission</div>

@@ -17,10 +17,10 @@ import {
 } from "lucide-react";
 
 const IP_STATUSES = [
-  { value: "Admitted",          color: "bg-blue-500" },
+  { value: "Admitted", color: "bg-blue-500" },
   { value: "Under Observation", color: "bg-yellow-500" },
-  { value: "Surgery",           color: "bg-red-500" },
-  { value: "Discharged",        color: "bg-gray-500" },
+  { value: "Surgery", color: "bg-red-500" },
+  { value: "Discharged", color: "bg-gray-500" },
 ];
 
 // ─── Status badge helpers ────────────────────────────────────────────────────
@@ -299,7 +299,7 @@ export default function IPDetailsClient() {
         {/* ── Patient Hero Card ───────────────────────── */}
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
           <div className="flex flex-wrap gap-5 items-start">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-slate-800 to-slate-600 flex items-center justify-center text-white text-xl font-bold shadow">
+            <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-slate-800 to-slate-600 flex items-center justify-center text-white text-xl font-bold shadow">
               {patient?.name?.charAt(0) ?? "?"}
             </div>
             <div className="flex-1 min-w-[200px]">
@@ -342,19 +342,18 @@ export default function IPDetailsClient() {
                 onClick={() => setStatusOpen(v => !v)}
                 disabled={updatingStatus}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border text-sm font-semibold transition-all shadow-sm hover:shadow-md active:scale-95
-                  ${ ip.status === "Admitted"          ? "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
-                  : ip.status === "Under Observation"  ? "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
-                  : ip.status === "Surgery"            ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
-                  : "bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200" }`}
+                  ${ip.status === "Admitted" ? "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100"
+                    : ip.status === "Under Observation" ? "bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
+                      : ip.status === "Surgery" ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100"
+                        : "bg-gray-100 text-gray-600 border-gray-200 hover:bg-gray-200"}`}
               >
                 {updatingStatus
                   ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  : <span className={`w-2 h-2 rounded-full ${
-                      ip.status === "Admitted"          ? "bg-blue-500"
-                    : ip.status === "Under Observation"  ? "bg-yellow-500"
-                    : ip.status === "Surgery"            ? "bg-red-500"
-                    : "bg-gray-400"
-                  }`} />}
+                  : <span className={`w-2 h-2 rounded-full ${ip.status === "Admitted" ? "bg-blue-500"
+                    : ip.status === "Under Observation" ? "bg-yellow-500"
+                      : ip.status === "Surgery" ? "bg-red-500"
+                        : "bg-gray-400"
+                    }`} />}
                 {ip.status}
                 <ChevronDown className="w-3.5 h-3.5 opacity-60" />
               </button>
@@ -398,7 +397,7 @@ export default function IPDetailsClient() {
             { label: "Total Paid", value: formatINR(totalPaid), color: "from-emerald-50 to-teal-50 text-emerald-700" },
             { label: "Total Due", value: formatINR(totalDue), color: "from-rose-50 to-pink-50 text-rose-700" },
           ].map(s => (
-            <div key={s.label} className={`bg-gradient-to-br ${s.color} rounded-2xl p-4 border border-white shadow-sm`}>
+            <div key={s.label} className={`bg-linear-to-br ${s.color} rounded-2xl p-4 border border-white shadow-sm`}>
               <div className="text-[11px] font-semibold uppercase tracking-wider opacity-70">{s.label}</div>
               <div className="text-xl font-bold mt-1">{s.value}</div>
             </div>
@@ -693,11 +692,11 @@ export default function IPDetailsClient() {
 
       {/* ── Quick Note Dialog ─────────────────────────────────────────── */}
       {noteOpen && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" onClick={() => setNoteOpen(false)}>
+        <div className="fixed inset-0 z-60 flex items-center justify-center p-4" onClick={() => setNoteOpen(false)}>
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
           <div className="relative z-10 w-full max-w-lg bg-white rounded-2xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
             {/* Header */}
-            <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-r from-violet-600 to-indigo-600">
+            <div className="flex items-center justify-between px-6 py-4 bg-linear-to-r from-violet-600 to-indigo-600">
               <div className="flex items-center gap-2.5 text-white">
                 <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
                   <NotebookPen className="w-4 h-4" />
@@ -792,7 +791,7 @@ export default function IPDetailsClient() {
                 Cancel
               </button>
               <button onClick={handleSaveNote} disabled={savingNote}
-                className="flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-60 shadow-lg shadow-violet-200">
+                className="flex items-center gap-2 px-5 py-2 bg-linear-to-r from-violet-600 to-indigo-600 text-white text-sm font-semibold rounded-xl hover:opacity-90 transition-opacity active:scale-95 disabled:opacity-60 shadow-lg shadow-violet-200">
                 {savingNote ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
                 Save Note
               </button>

@@ -26,7 +26,7 @@ const STAT_CONFIG = {
     icon: Clock,
     color: "from-(--color-synapse-light)/10 to-(--color-synapse-purple)/5",
     iconColor: "text-(--color-synapse-light)",
-    iconBg: "bg-(--color-synapse-light)/20",
+    iconBg: "bg-synapse-light/20",
     border: "hover:border-synapse-light/30",
   },
   consulted: {

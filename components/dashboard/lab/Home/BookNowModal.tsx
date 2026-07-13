@@ -341,7 +341,7 @@ export default function BookNowModal({
                                     <TableRow key={t} className="hover:bg-slate-50/50">
                                         <TableCell>{idx + 1}</TableCell>
                                         <TableCell className="font-semibold text-slate-900">
-                                            <span className="bg-(--color-synapse-light)/20 text-(--color-synapse-light) text-[10px] px-2 py-0.5 rounded border border-synapse-light/30 mr-2 uppercase font-black tracking-tight">Panel</span>
+                                            <span className="bg-synapse-light/20 text-(--color-synapse-light) text-[10px] px-2 py-0.5 rounded border border-synapse-light/30 mr-2 uppercase font-black tracking-tight">Panel</span>
                                             {t}
                                         </TableCell>
                                         <TableCell className="text-right font-bold text-slate-700">

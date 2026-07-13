@@ -114,7 +114,7 @@ export default function Payments() {
                     value={formatINR(totalCollection)}
                     subtext="+12% from last month"
                     colorClass="from-(--color-synapse-light)/10 to-(--color-synapse-purple)/5"
-                    iconBgClass="bg-(--color-synapse-light)/20 text-(--color-synapse-light)"
+                    iconBgClass="bg-synapse-light/20 text-(--color-synapse-light)"
                     borderClass="hover:border-synapse-light/30"
                 />
                 <StatCard
