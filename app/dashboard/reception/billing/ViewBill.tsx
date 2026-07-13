@@ -155,8 +155,8 @@ export default function ViewBill({ id }: { id: string }) {
                             <Compact label="OP NO" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
                             <Compact label="Age/G" value={`${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient.gender || "—"}`} />
                             <Compact label="Phone" value={billing.patient.phoneNumber || "—"} />
-                            <Compact label="Doctor" value={billing.doctor || "—"} />
-                            <Compact label="Dept" value={billing.department || "—"} />
+                            <Compact label="Doctor" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.name : (billing.doctor === "Self" ? "" : billing.doctor || "—")} />
+                            <Compact label="Dept" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.specialization : (billing.department || "—")} />
                             <Compact label="Pay" value={paymentMethod} />
                             <Compact label="Bill" value="OP Pharmacy" />
                         </div>

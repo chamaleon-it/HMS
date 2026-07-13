@@ -12,6 +12,7 @@ export const updateSettingsSchema = z.object({
   specialization: z.string().trim().nullable(),
   profilePic: z.string().trim().nullable(),
   signature: z.string().trim().nullable(),
+  consultationFee: z.coerce.number().min(0).optional(),
   availability: z
     .object({
       startDate: z.string().optional(),

@@ -1,5 +1,5 @@
 import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer } from "lucide-react";
+import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer, Undo2 } from "lucide-react";
 import React, { useState } from "react";
 import BlankPrescription from "@/components/shared/appointment/BlankPrescription";
 import useAppointmentList from "./data/useAppointmentList";
@@ -23,6 +23,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
 
 
 
@@ -42,6 +52,26 @@ export default function List({
 
   const [edit, setEdit] = useState<null | any>(null);
   const [printData, setPrintData] = useState<any>(null);
+  const [refundId, setRefundId] = useState<string | null>(null);
+  const [refundLoading, setRefundLoading] = useState(false);
+
+  const handleRefund = async () => {
+    if (!refundId) return;
+    setRefundLoading(true);
+    try {
+      await toast.promise(api.post(`/appointments/refund/${refundId}`), {
+        loading: "Processing refund...",
+        success: "Refund processed successfully!",
+        error: (err: any) => err?.response?.data?.message || "Failed to process refund",
+      });
+      setRefundId(null);
+      mutate();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setRefundLoading(false);
+    }
+  };
 
   const handlePrintPrescription = (row: any) => {
     setPrintData({
@@ -216,7 +246,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} />
+                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} isRefunded={row.isRefunded} onRefund={() => setRefundId(row._id)} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -236,11 +266,32 @@ export default function List({
       )}
 
       {printData && <BlankPrescription data={printData} />}
+
+      <AlertDialog open={Boolean(refundId)} onOpenChange={(v) => !v && setRefundId(null)}>
+        <AlertDialogContent className="max-w-sm! print:hidden">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Refund</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to refund this consultation? This action will generate a new return/refund bill and cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={refundLoading} className="cursor-pointer disabled:cursor-not-allowed">Cancel</AlertDialogCancel>
+            <Button
+              className="bg-red-600 hover:bg-red-700 text-white font-bold cursor-pointer disabled:cursor-not-allowed"
+              onClick={handleRefund}
+              disabled={refundLoading}
+            >
+              {refundLoading ? "Refunding..." : "Continue"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
 
-function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint }: any) {
+function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint, isRefunded, onRefund }: any) {
   return (
     <>
       {status !== "Consulted" && <button
@@ -250,6 +301,15 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
       >
         <CheckCircle2 size={16} />
       </button>}
+      {!isRefunded && (
+        <button
+          onClick={onRefund}
+          className="p-1.5 rounded-md hover:bg-red-50 text-red-600 border border-transparent hover:border-red-200 transition-all"
+          title="Refund"
+        >
+          <Undo2 size={16} />
+        </button>
+      )}
       <button
         onClick={onPrint}
         className="p-1.5 rounded-md hover:bg-purple-50 text-(--color-synapse-light) border border-transparent hover:border-synapse-light/30 transition-all"

@@ -35,6 +35,7 @@ export default function StaffForm({ role, title }: { role: string; title: string
     qualification: "",
     licenseNumber: "",
     designation: "",
+    consultationFee: 0,
   });
 
   // Form states for Edit Staff
@@ -44,6 +45,7 @@ export default function StaffForm({ role, title }: { role: string; title: string
     licenseNumber: "",
     designation: "",
     inCharge: false,
+    consultationFee: 0,
     availability: {
       startDate: "",
       endDate: "",
@@ -79,7 +81,7 @@ export default function StaffForm({ role, title }: { role: string; title: string
       });
       mutate();
       setIsAddOpen(false);
-      setAddForm({ name: "", username: "", email: "", password: "", confirmPassword: "", qualification: "", licenseNumber: "", designation: "" });
+      setAddForm({ name: "", username: "", email: "", password: "", confirmPassword: "", qualification: "", licenseNumber: "", designation: "", consultationFee: 0 });
     } catch (error: any) {
       toast.error(error.response?.data?.message || `Failed to add ${title.toLowerCase()}`);
     }
@@ -93,6 +95,7 @@ export default function StaffForm({ role, title }: { role: string; title: string
       licenseNumber: staff.licenseNumber || "",
       designation: staff.designation || "",
       inCharge: staff.inCharge || false,
+      consultationFee: staff.consultationFee || 0,
       availability: {
         startDate: staff.availability?.startDate?.split("T")[0] || "",
         endDate: staff.availability?.endDate?.split("T")[0] || "",
@@ -255,6 +258,10 @@ export default function StaffForm({ role, title }: { role: string; title: string
                     <Input id="email" type="email" required value={addForm.email} onChange={e => setAddForm({ ...addForm, email: e.target.value })} placeholder="john@example.com" />
                   </div>
                   <div className="grid gap-2">
+                    <Label htmlFor="consultationFee">Consultation Fee</Label>
+                    <Input id="consultationFee" type="number" min="0" required value={addForm.consultationFee} onChange={e => setAddForm({ ...addForm, consultationFee: Number(e.target.value) })} placeholder="e.g. 500" />
+                  </div>
+                  <div className="grid gap-2">
                     <Label htmlFor="password">Password</Label>
                     <Input id="password" type="password" required value={addForm.password} onChange={e => setAddForm({ ...addForm, password: e.target.value })} />
                   </div>
@@ -298,18 +305,24 @@ export default function StaffForm({ role, title }: { role: string; title: string
           <form onSubmit={handleEditSubmit} className="space-y-6 mt-4">
             <div className="space-y-4">
               {role === 'Doctor' && (
-                <div className="space-y-2">
-                  <Label>Account Status</Label>
-                  <Select value={editForm.status} onValueChange={(v) => setEditForm({ ...editForm, status: v })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Inactive">Inactive</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label>Account Status</Label>
+                    <Select value={editForm.status} onValueChange={(v) => setEditForm({ ...editForm, status: v })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Active">Active</SelectItem>
+                        <SelectItem value="Inactive">Inactive</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Consultation Fee</Label>
+                    <Input type="number" min="0" value={editForm.consultationFee} onChange={e => setEditForm({ ...editForm, consultationFee: Number(e.target.value) })} placeholder="e.g. 500" />
+                  </div>
+                </>
               )}
 
               {role !== 'Doctor' && (

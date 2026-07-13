@@ -47,6 +47,7 @@ export default function ProfileForm() {
       hospital: string | null;
       specialization: string | null;
       signature: string | null;
+      consultationFee?: number;
       availability?: {
         startDate?: string;
         endDate?: string;
@@ -70,7 +71,7 @@ export default function ProfileForm() {
     reset,
     formState: { errors },
   } = useForm<UpdateSettingsInput>({
-    resolver: zodResolver(updateSettingsSchema),
+    resolver: zodResolver(updateSettingsSchema) as any,
     defaultValues: {
       name: userData?.data.name,
       phoneNumber: userData?.data.phoneNumber || "+91",
@@ -79,6 +80,7 @@ export default function ProfileForm() {
       specialization: userData?.data.specialization || null,
       profilePic: userData?.data.profilePic || null,
       signature: userData?.data.signature || null,
+      consultationFee: userData?.data.consultationFee || 0,
       availability: userData?.data.availability,
     },
   });
@@ -96,6 +98,7 @@ export default function ProfileForm() {
       specialization: userData?.data.specialization || null,
       profilePic: userData?.data.profilePic || null,
       signature: userData?.data.signature || null,
+      consultationFee: userData?.data.consultationFee || 0,
       availability: userData?.data.availability,
     });
   }, [userData?.data, reset]);
@@ -242,6 +245,25 @@ export default function ProfileForm() {
                       </Command>
                     </PopoverContent>
                   </Popover>
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-3">
+                <div className="grid gap-2">
+                  <Label
+                    htmlFor="consultationFee"
+                    className="mb-0.5 text-[13px] leading-tight text-slate-700"
+                  >
+                    Consultation fee
+                  </Label>
+                  <Input
+                    id="consultationFee"
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 500"
+                    className="h-9"
+                    {...register("consultationFee", { valueAsNumber: true })}
+                  />
                 </div>
               </div>
 
