@@ -107,7 +107,7 @@ export default function Statistics() {
             key={item.key}
             title={config.label}
             value={item.value}
-            icon={<config.icon className={cn("h-5 w-5", config.iconColor)} />}
+            icon={<config.icon className={cn("h-4.5 w-4.5", config.iconColor)} />}
             colorClass={config.color}
             iconBgClass={config.iconBg}
             borderClass={config.border}
@@ -141,27 +141,27 @@ function StatTile({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      transition={{ duration: 0.3, delay }}
+      whileHover={{ y: -2, transition: { duration: 0.2 } }}
     >
       <Card className={cn(
-        "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-sm hover:shadow-md py-2.5!",
+        "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-xs hover:shadow-xs",
         borderClass
       )}>
         <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />
-        <div className="relative p-4">
-          <div className="flex flex-col gap-3">
+        <div className="relative p-3">
+          <div className="flex items-center gap-3">
             <div className={cn(
-              "h-10 w-10 rounded-xl flex items-center justify-center shadow-sm border border-white/50",
+              "h-8.5 w-8.5 rounded-lg flex items-center justify-center shadow-xs border border-white/40 shrink-0",
               iconBgClass
             )}>
               {icon}
             </div>
-            <div>
-              <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{title}</div>
-              <div className="text-2xl font-bold mt-0.5 text-zinc-900">
+            <div className="min-w-0">
+              <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider truncate">{title}</div>
+              <div className="text-xl font-bold text-zinc-900 mt-0.5 leading-none">
                 {value ?? 0}
               </div>
             </div>
