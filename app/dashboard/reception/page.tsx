@@ -397,8 +397,9 @@ function AppointmentPageContent() {
           error: "Failed to update status"
         }
       );
-      mutate(); // Refresh list
+      mutate();
       globalMutate((key) => typeof key === 'string' && key.startsWith('/appointments/calender/weekly'));
+      globalMutate("/appointments/statistics");
 
       // Auto-prompt follow-up
       if (newStatus === "Consulted" || newStatus === "Completed") {
@@ -503,7 +504,7 @@ function AppointmentPageContent() {
                 </>
               )}
               <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />
-              <PrimaryButton onClick={() => router.push("/dashboard/reception/billing#new")} className="bg-linear-to-br from-(--color-synapse-light) to-(--color-synapse-purple) shadow-indigo-200" title="Direct">
+              <PrimaryButton onClick={() => router.push("/dashboard/reception/billing/#new")} className="bg-linear-to-br from-(--color-synapse-light) to-(--color-synapse-purple) shadow-indigo-200" title="Direct">
                 Direct
               </PrimaryButton>
 

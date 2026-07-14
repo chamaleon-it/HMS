@@ -70,9 +70,7 @@ export default function Statistics({ billing }: StatisticsProps) {
                 if (item.name.toLowerCase().includes("consultation")) {
                     consult += itemTotal;
                     totalConsultation += 1;
-                }
-
-                if (billingItemNames.has(item.name)) {
+                } else if (billingItemNames.has(item.name)) {
                     procItemsSum += itemTotal;
                 } else {
                     pharm += itemTotal;
@@ -86,7 +84,7 @@ export default function Statistics({ billing }: StatisticsProps) {
         return {
             totalBills: billing.length,
             consultingFee: consult,
-            procedureFee: procItemsSum - consult,
+            procedureFee: procItemsSum,
             pharmacyFee: pharm,
             paidAmount: paid,
             dueAmount: due,

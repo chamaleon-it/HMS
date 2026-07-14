@@ -290,7 +290,7 @@ const CustomerPageContent: React.FC = () => {
                             variant="outline"
                             size="sm"
                             className="gap-1 rounded-full border-slate-300 bg-white/80 hover:bg-slate-50"
-                            onClick={() => router.push("/dashboard/reception/customers")}
+                            onClick={() => router.push("/dashboard/reception/customers/")}
                         >
                             <ArrowLeft className="w-4 h-4" />
                             Back to customers

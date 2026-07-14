@@ -112,6 +112,13 @@ export function CreateAppointmentForm({
       undefined,
       { revalidate: true }
     );
+
+    // Invalidate statistics
+    await globalMutate(
+      "/appointments/statistics",
+      undefined,
+      { revalidate: true }
+    );
   };
 
   useEffect(() => {

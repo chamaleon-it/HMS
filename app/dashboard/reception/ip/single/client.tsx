@@ -282,7 +282,7 @@ export default function IPDetailsClient() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <button
-              onClick={() => router.push("/dashboard/reception/ip")}
+              onClick={() => router.push("/dashboard/reception/ip/")}
               className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors"
             >
               <ArrowLeft className="w-4 h-4" /> Back

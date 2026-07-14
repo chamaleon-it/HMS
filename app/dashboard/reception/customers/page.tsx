@@ -39,6 +39,7 @@ const Customers: React.FC = () => {
   const { addDraft } = useDrafts();
   const [editCustomer, setEditCustomer] = useState<any>(null);
   const [appointmentPatient, setAppointmentPatient] = useState<any>(null);
+  const [openCreate, setOpenCreate] = useState(false);
 
   const [filter, setFilter] = useState<FilterType>({
     query: undefined,
@@ -114,7 +115,7 @@ const Customers: React.FC = () => {
               subtitle="View and manage registered customers"
             >
               <Button
-                onClick={() => setAppointmentPatient(null)}
+                onClick={() => setOpenCreate(true)}
                 className="flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 shadow-md bg-(--color-synapse-dark) hover:bg-slate-800"
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Customer
@@ -301,6 +302,18 @@ const Customers: React.FC = () => {
               onClose={() => setEditCustomer(null)}
               mutate={mutate}
               patient={editCustomer}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={openCreate} onOpenChange={setOpenCreate}>
+          <DialogContent className="max-w-3xl!">
+            <DialogHeader>
+              <DialogTitle>Register New Customer</DialogTitle>
+            </DialogHeader>
+            <PatientForm
+              onClose={() => setOpenCreate(false)}
+              mutate={mutate}
             />
           </DialogContent>
         </Dialog>

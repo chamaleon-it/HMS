@@ -61,16 +61,18 @@ export default function IPAdmissionDialog({ open, onOpenChange, mutate }: { open
       if (mutate) mutate();
       onOpenChange(false);
 
-      // Reset form
-      setPatientId("");
-      setDoctorId("");
-      setRoom("");
-      setWard("");
-      setBed("");
-      setDiagnosis("");
-      setNotes("");
-      setInput("");
-      setSelected(null);
+      // Reset form after closing animation
+      setTimeout(() => {
+        setPatientId("");
+        setDoctorId("");
+        setRoom("");
+        setWard("");
+        setBed("");
+        setDiagnosis("");
+        setNotes("");
+        setInput("");
+        setSelected(null);
+      }, 300);
     } catch (error) {
       console.error(error);
     }

@@ -92,6 +92,9 @@ export default function PrintReceipt({
 
     const invoiceNo = `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
 
+    const isConsultationOnly = payload.items.every(item => item.name.toLowerCase().includes("consultation"));
+    const tableHeader = isConsultationOnly ? "Description" : "Medicine Description";
+
     // Total rows for fixed height table padding
     const totalRowsNeeded = 21;
     const itemsCount = payload.items.length;
@@ -200,7 +203,7 @@ export default function PrintReceipt({
                         <thead className="bg-[#d9d9d9] border-b border-[#c5c9cf] text-[11px] font-semibold text-black">
                             <tr>
                                 <th style={{ width: "5%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
-                                <th style={{ width: "28%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Medicine Description</th>
+                                <th style={{ width: "28%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">{tableHeader}</th>
                                 <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Batch No</th>
                                 <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Expiry Date</th>
                                 <th style={{ width: "6%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Qty</th>

@@ -15,6 +15,7 @@ import React, { useState } from "react";
 import { getDecimal } from "@/lib/fNumber";
 import PrintReceipt from "./PrintReceipt";
 import configuration from "@/config/configuration";
+import { format } from "date-fns";
 
 export default function ViewBill({ id }: { id: string }) {
     const [printBill, setPrintBill] = useState<any>(null);
@@ -71,6 +72,34 @@ export default function ViewBill({ id }: { id: string }) {
     }>(`/billing/${id}`);
 
     const billing = billingData?.data;
+
+    const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
+    const dbItems = itemsData?.data || [];
+
+    const getBatchInfo = (itemName: string) => {
+        const matched = dbItems.find(
+            (it) => it.name.trim().toLowerCase() === itemName.trim().toLowerCase()
+        );
+        if (!matched) return { batchNumber: "", expiryDate: undefined };
+
+        let batchNumber = matched.batchNumber || "";
+        if (batchNumber === "—") batchNumber = "";
+        let expiryDate = matched.expiryDate;
+
+        if (matched.batches && matched.batches.length > 0) {
+            const sorted = [...matched.batches].sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            batchNumber = sorted[0].batchNumber || "";
+            if (batchNumber === "—") batchNumber = "";
+            expiryDate = sorted[0].expiryDate || matched.expiryDate;
+        }
+
+        return {
+            batchNumber,
+            expiryDate,
+        };
+    };
 
     if (!billing) {
         return (
@@ -150,47 +179,69 @@ export default function ViewBill({ id }: { id: string }) {
                     {/* BODY */}
                     <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                         {/* PATIENT STRIP - 4 COL COMPACT */}
-                        <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
-                            <Compact label="Patient" value={billing.patient.name} />
-                            <Compact label="OP NO" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
-                            <Compact label="Age/G" value={`${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient.gender || "—"}`} />
-                            <Compact label="Phone" value={billing.patient.phoneNumber || "—"} />
-                            <Compact label="Doctor" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.name : (billing.doctor === "Self" ? "" : billing.doctor || "—")} />
-                            <Compact label="Dept" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.specialization : (billing.department || "—")} />
-                            <Compact label="Pay" value={paymentMethod} />
-                            <Compact label="Bill" value="OP Pharmacy" />
-                        </div>
+                        {(() => {
+                            const isConsultationOnly = billing.items.every(item => item.name.toLowerCase().includes("consultation"));
+                            const billCategory = isConsultationOnly ? "OP Consultation" : "OP Pharmacy";
+                            const tableHeader = isConsultationOnly ? "Description" : "Medicine Description";
 
-                        {/* MEDICINES TABLE */}
-                        <div className="border border-slate-200 rounded-lg overflow-hidden flex-1 box-border">
-                            <table className="w-full border-collapse">
-                                <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 border-b border-slate-200">
-                                    <tr>
-                                        <th className="px-3 py-3 text-center w-10">SL</th>
-                                        <th className="px-3 py-3 text-left">Medicine Description</th>
-                                        <th className="px-3 py-3 text-center w-20">Qty</th>
-                                        <th className="px-3 py-3 text-right w-24">Unit Price</th>
-                                        <th className="px-3 py-3 text-right w-20">GST</th>
-                                        <th className="px-3 py-3 text-right w-28">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {billing.items.map((item, index) => (
-                                        <tr key={index} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
-                                            <td className="px-3 py-2.5 text-center font-medium text-slate-400 text-xs">{index + 1}</td>
-                                            <td className="px-3 py-2.5">
-                                                <p className="font-bold text-slate-900 uppercase text-[12px]">{item.name}</p>
-                                                <p className="text-[10px] text-slate-500 font-medium tracking-tight">B‑7721 · 12/26 · HSN 3004</p>
-                                            </td>
-                                            <td className="px-3 py-2.5 text-center font-bold text-slate-700">{item.quantity}</td>
-                                            <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(item.unitPrice)}</td>
-                                            <td className="px-3 py-2.5 text-right font-medium text-slate-500">{item.gst}%</td>
-                                            <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                            return (
+                                <>
+                                    <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
+                                        <Compact label="Patient" value={billing.patient.name} />
+                                        <Compact label="OP NO" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
+                                        <Compact label="Age/G" value={`${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient.gender || "—"}`} />
+                                        <Compact label="Phone" value={billing.patient.phoneNumber || "—"} />
+                                        <Compact label="Doctor" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.name : (billing.doctor === "Self" ? "" : billing.doctor || "—")} />
+                                        <Compact label="Dept" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.specialization : (billing.department || "—")} />
+                                        <Compact label="Pay" value={paymentMethod} />
+                                        <Compact label="Bill" value={billCategory} />
+                                    </div>
+
+                                    {/* MEDICINES TABLE */}
+                                    <div className="border border-slate-200 rounded-lg overflow-hidden flex-1 box-border">
+                                        <table className="w-full border-collapse">
+                                            <thead className="bg-slate-50 text-[11px] font-bold text-slate-500 border-b border-slate-200">
+                                                <tr>
+                                                    <th className="px-3 py-3 text-center w-10">SL</th>
+                                                    <th className="px-3 py-3 text-left">{tableHeader}</th>
+                                                    <th className="px-3 py-3 text-center w-20">Qty</th>
+                                                    <th className="px-3 py-3 text-right w-24">Unit Price</th>
+                                                    <th className="px-3 py-3 text-right w-20">GST</th>
+                                                    <th className="px-3 py-3 text-right w-28">Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {billing.items.map((item, index) => {
+                                                    const batchInfo = getBatchInfo(item.name);
+                                                    const hasBatch = batchInfo.batchNumber || batchInfo.expiryDate;
+                                                    const batchText = [
+                                                        batchInfo.batchNumber ? `B-${batchInfo.batchNumber}` : "",
+                                                        batchInfo.expiryDate ? format(new Date(batchInfo.expiryDate), "MM/yy") : "",
+                                                        "HSN 3004"
+                                                    ].filter(Boolean).join(" · ");
+
+                                                    return (
+                                                        <tr key={index} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                                                            <td className="px-3 py-2.5 text-center font-medium text-slate-400 text-xs">{index + 1}</td>
+                                                            <td className="px-3 py-2.5">
+                                                                <p className="font-bold text-slate-900 uppercase text-[12px]">{item.name}</p>
+                                                                {hasBatch && (
+                                                                    <p className="text-[10px] text-slate-500 font-medium tracking-tight">{batchText}</p>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-3 py-2.5 text-center font-bold text-slate-700">{item.quantity}</td>
+                                                            <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(item.unitPrice)}</td>
+                                                            <td className="px-3 py-2.5 text-right font-medium text-slate-500">{item.gst}%</td>
+                                                            <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </>
+                            );
+                        })()}
 
                         {/* TOTALS AND T&C */}
                         <div className="flex justify-end gap-10 items-start">

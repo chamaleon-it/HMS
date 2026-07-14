@@ -213,7 +213,7 @@ export default function Header() {
             )}
             {(user?.role === "Doctor" || user?.role === "Pharmacy" || user?.role === "Lab" || user?.role === "Reception") && (
               <button
-                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-[#10b981] to-[#0d9488] px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
+                className="hidden sm:inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) px-4 py-2 text-sm font-medium text-white shadow-sm hover:shadow-md cursor-pointer transition-all hover:scale-105"
                 onClick={() => setOpenPatient(true)}
               >
                 <Plus className="h-4 w-4" /> New Patient
