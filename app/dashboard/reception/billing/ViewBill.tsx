@@ -9,7 +9,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Printer } from "lucide-react";
+import { ArrowLeft, Printer, RotateCcw } from "lucide-react";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import React from "react";
 import { getDecimal } from "@/lib/fNumber";
@@ -170,6 +170,19 @@ export default function ViewBill({ id }: { id: string }) {
 
                     {/* BODY */}
                     <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
+
+                        {/* REFUND REASON BANNER */}
+                        {billing.note && (
+                            <div className="flex items-start gap-3 px-5 py-4 bg-amber-50 border border-amber-200 rounded-xl">
+                                <div className="shrink-0 mt-0.5 h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center">
+                                    <RotateCcw className="h-4 w-4 text-amber-600" />
+                                </div>
+                                <div>
+                                    <p className="text-[11px] font-bold uppercase tracking-wider text-amber-700 mb-0.5">Refund Reason</p>
+                                    <p className="text-sm font-semibold text-amber-900">{billing.note}</p>
+                                </div>
+                            </div>
+                        )}
                         {/* PATIENT STRIP - 4 COL COMPACT */}
                         {(() => {
                             const isConsultationOnly = billing.items.every(item => item.name.toLowerCase().includes("consultation"));

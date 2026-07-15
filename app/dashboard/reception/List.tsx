@@ -1,5 +1,5 @@
 import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer, Undo2 } from "lucide-react";
+import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer, RotateCcw } from "lucide-react";
 import React, { useState } from "react";
 import BlankPrescription from "@/components/shared/appointment/BlankPrescription";
 import useAppointmentList from "./data/useAppointmentList";
@@ -54,17 +54,23 @@ export default function List({
   const [printData, setPrintData] = useState<any>(null);
   const [refundId, setRefundId] = useState<string | null>(null);
   const [refundLoading, setRefundLoading] = useState(false);
+  const [refundReason, setRefundReason] = useState("");
 
   const handleRefund = async () => {
     if (!refundId) return;
+    if (!refundReason) {
+      toast.error("Please select a refund reason.");
+      return;
+    }
     setRefundLoading(true);
     try {
-      await toast.promise(api.post(`/appointments/refund/${refundId}`), {
+      await toast.promise(api.post(`/appointments/refund/${refundId}`, { reason: refundReason }), {
         loading: "Processing refund...",
         success: "Refund processed successfully!",
         error: (err: any) => err?.response?.data?.message || "Failed to process refund",
       });
       setRefundId(null);
+      setRefundReason("");
       mutate();
     } catch (error) {
       console.error(error);
@@ -267,22 +273,47 @@ export default function List({
 
       {printData && <BlankPrescription data={printData} />}
 
-      <AlertDialog open={Boolean(refundId)} onOpenChange={(v) => !v && setRefundId(null)}>
-        <AlertDialogContent className="max-w-sm! print:hidden">
+      <AlertDialog open={Boolean(refundId)} onOpenChange={(v) => { if (!v) { setRefundId(null); setRefundReason(""); } }}>
+        <AlertDialogContent className="max-w-md! print:hidden">
           <AlertDialogHeader>
-            <AlertDialogTitle>Confirm Refund</AlertDialogTitle>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <RotateCcw className="h-5 w-5 text-red-600" />
+              Confirm Refund
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to refund this consultation? This action will generate a new return/refund bill and cannot be undone.
+              Are you sure you want to refund this consultation? This will generate a return/refund bill and cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
+
+          {/* Reason Dropdown */}
+          <div className="py-2">
+            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
+              Reason for Refund <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={refundReason}
+              onChange={(e) => setRefundReason(e.target.value)}
+              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400 transition-all appearance-none cursor-pointer"
+            >
+              <option value="" disabled>Select a reason...</option>
+              <option value="Doctor said">Doctor said</option>
+              <option value="Patient requested">Patient requested</option>
+              <option value="Duplicate booking">Duplicate booking</option>
+              <option value="Wrong billing">Wrong billing</option>
+              <option value="Appointment cancelled">Appointment cancelled</option>
+              <option value="Service not rendered">Service not rendered</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
           <AlertDialogFooter>
             <AlertDialogCancel disabled={refundLoading} className="cursor-pointer disabled:cursor-not-allowed">Cancel</AlertDialogCancel>
             <Button
               className="bg-red-600 hover:bg-red-700 text-white font-bold cursor-pointer disabled:cursor-not-allowed"
               onClick={handleRefund}
-              disabled={refundLoading}
+              disabled={refundLoading || !refundReason}
             >
-              {refundLoading ? "Refunding..." : "Continue"}
+              {refundLoading ? "Refunding..." : "Process Refund"}
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -307,7 +338,7 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
           className="p-1.5 rounded-md hover:bg-red-50 text-red-600 border border-transparent hover:border-red-200 transition-all"
           title="Refund"
         >
-          <Undo2 size={16} />
+          <RotateCcw size={16} />
         </button>
       )}
       <button
