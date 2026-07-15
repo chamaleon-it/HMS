@@ -56,7 +56,7 @@ export default function IPAdmissionDialog({ open, onOpenChange, mutate }: { open
       }), {
         loading: "Admitting patient...",
         success: "Patient admitted to IP successfully!",
-        error: "Failed to admit patient"
+        error: (err) => err?.response?.data?.message || "Failed to admit patient"
       });
       if (mutate) mutate();
       onOpenChange(false);

@@ -228,7 +228,8 @@ const CustomerPageContent: React.FC = () => {
                     roundOffAmount,
                     subtotal,
                     grandTotal
-                }
+                },
+                invoiceNo: bill.mrn
             });
 
             setTimeout(() => {
@@ -853,7 +854,7 @@ const CustomerPageContent: React.FC = () => {
                 </main>
             </div>
             {printOrder && <PrintPrescription order={printOrder} />}
-            {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} />}
+            {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} invoiceNo={printBill?.invoiceNo} />}
 
             {/* Payment Modal */}
             <AlertDialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>

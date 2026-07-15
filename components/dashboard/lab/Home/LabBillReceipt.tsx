@@ -96,9 +96,6 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          .font-cinzel {
-            font-family: 'Cinzel Decorative', serif !important;
-          }
           .print-receipt { 
             visibility: visible !important;
             position: absolute !important;
@@ -129,9 +126,8 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                             <img src="/print/logo.png" alt="Logo" className="w-[90px] h-auto object-contain" />
                         </div>
                         <div className="flex flex-col gap-0 select-none">
-                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
-                            <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
-                            <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
+                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight">{configuration().hospitalName}</h1>
+                            <p className="text-[12px] font-medium text-black mt-1">{configuration().hospitalAddress}</p>
                         </div>
                     </div>
 
@@ -222,7 +218,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                     </svg>
                                 </div>
-                                <span>+91 8075016480</span>
+                                <span>{configuration().hospitalPhone}</span>
                             </div>
                         </div>
                     </div>

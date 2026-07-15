@@ -11,20 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Printer } from "lucide-react";
 import AdminHeader from "../components/AdminHeader";
-import React, { useState } from "react";
+import React from "react";
 import { getDecimal } from "@/lib/fNumber";
 import PrintReceipt from "../../pharmacy/billing/PrintReceipt";
 import configuration from "@/config/configuration";
 
 export default function ViewBill({ id }: { id: string }) {
-    const [printBill, setPrintBill] = useState<any>(null);
-
-    const handlePrint = (bill: any) => {
-        setPrintBill(bill);
-        setTimeout(() => {
-            window.print();
-        }, 100);
-    };
 
     const { data: billingData } = useSWR<{
         message: string;
@@ -64,7 +56,7 @@ export default function ViewBill({ id }: { id: string }) {
             mrn: string;
             createdAt: Date;
             updatedAt: Date;
-            doctor?: string;
+            doctor?: string | { _id: string; name: string; specialization?: string };
             department?: string;
             note?: string;
         };
@@ -113,7 +105,7 @@ export default function ViewBill({ id }: { id: string }) {
                         subtitle={`Viewing invoice ${billing.mrn}`}
                     >
                         <button
-                            onClick={() => handlePrint(billing)}
+                            onClick={() => window.print()}
                             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-colors shadow-sm text-xs font-bold"
                         >
                             <Printer className="h-4 w-4" />
@@ -248,37 +240,39 @@ export default function ViewBill({ id }: { id: string }) {
                     </div>
                 </div>
             </div>
-            {printBill && (
+            {billing && (
                 <PrintReceipt
                     payload={{
-                        patient: printBill.patient.name,
-                        items: printBill.items.map((i: any) => ({ ...i, name: i.name })),
-                        cash: printBill.cash,
-                        online: printBill.online,
-                        insurance: printBill.insurance,
-                        discount: printBill.discount,
-                        doctor: typeof printBill.doctor === "object" ? printBill.doctor?.name : (printBill.doctor === "Self" ? "" : printBill.doctor),
-                        department: typeof printBill.doctor === "object" ? printBill.doctor?.specialization : printBill.department,
+                        patient: billing.patient.name,
+                        items: billing.items.map((i: any) => ({ ...i, name: i.name })),
+                        cash: billing.cash,
+                        online: billing.online,
+                        insurance: billing.insurance,
+                        discount: billing.discount,
+                        doctor: typeof billing.doctor === "object" ? billing.doctor?.name : (billing.doctor === "Self" ? "" : billing.doctor),
+                        department: typeof billing.doctor === "object" ? billing.doctor?.specialization : billing.department,
                     }}
                     patient={{
-                        name: printBill.patient.name,
-                        mrn: printBill.patient.mrn,
+                        name: billing.patient.name,
+                        mrn: billing.patient.mrn,
                     }}
                     invoiceDetails={{
                         prefix: "MINV",
-                        roundOffAmount: printBill.roundOff
-                            ? getDecimal(printBill.items.reduce((a: any, b: any) => a + b.total, 0))
+                        roundOffAmount: billing.roundOff
+                            ? getDecimal(billing.items.reduce((a: any, b: any) => a + b.total, 0))
                             : 0,
-                        subtotal: printBill.items.reduce(
+                        subtotal: billing.items.reduce(
                             (a: any, b: any) => a + b.unitPrice * b.quantity,
                             0
                         ),
-                        totalGst: printBill.items.reduce(
+                        totalGst: billing.items.reduce(
                             (a: any, b: any) => a + (b.total - b.unitPrice * b.quantity),
                             0
                         ),
-                        grandTotal: printBill.items.reduce((a: any, b: any) => a + b.total, 0),
+                        grandTotal: billing.items.reduce((a: any, b: any) => a + b.total, 0),
+                        invoiceNo: billing.mrn,
                     }}
+                    invoiceNo={billing.mrn}
                 />
             )}
             <Watermark />

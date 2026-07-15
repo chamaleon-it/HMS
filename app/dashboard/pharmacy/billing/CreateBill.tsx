@@ -7,6 +7,7 @@ import api from "@/lib/axios";
 import usePrint from "./usePrint";
 import PrintReceipt from "./PrintReceipt";
 import { useBillCalculations } from "./hooks/useBillCalculations";
+import { getDecimal } from "@/lib/fNumber";
 
 // Sub-components
 import { BillHeader } from "./components/BillHeader";
@@ -78,6 +79,25 @@ export default function CreateBill({
   }>(defaultPayload);
 
   const [selectedPatient, setSelectedPatient] = useState<any>(null);
+  const [printBillData, setPrintBillData] = useState<any | null>(null);
+
+  const {
+    subtotal,
+    totalGst,
+    roundOffAmount,
+    finalTotal,
+    totalPaid,
+    dueAmount
+  } = useBillCalculations({
+    items: payload.items,
+    discount: payload.discount,
+    roundOff: pharmacyBilling.roundOff,
+    payments: {
+      cash: payload.cash,
+      online: payload.online,
+      insurance: payload.insurance
+    }
+  });
 
 
 
@@ -199,18 +219,23 @@ export default function CreateBill({
       return;
     }
     try {
-      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      const response = await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
         loading: "We are generating this bill.",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
       });
-      onClick();
+      if (response?.data?.data) {
+        setPrintBillData({
+          ...response.data.data,
+          patient: selectedPatient
+        });
+      }
       setPayload(defaultPayload);
       billingMutate();
     } catch (error) {
       // Handle error
     }
-  }, [payload, billingMutate, defaultPayload]);
+  }, [payload, billingMutate, defaultPayload, selectedPatient, totalPaid, finalTotal]);
 
   const saveBill = useCallback(async () => {
     if (!payload.patient) {
@@ -318,23 +343,17 @@ export default function CreateBill({
     onAfterPrint: () => router.push("/dashboard/pharmacy")
   })
 
-  const {
-    subtotal,
-    totalGst,
-    roundOffAmount,
-    finalTotal,
-    totalPaid,
-    dueAmount
-  } = useBillCalculations({
-    items: payload.items,
-    discount: payload.discount,
-    roundOff: pharmacyBilling.roundOff,
-    payments: {
-      cash: payload.cash,
-      online: payload.online,
-      insurance: payload.insurance
+  useEffect(() => {
+    if (printBillData) {
+      const timer = setTimeout(() => {
+        onClick();
+        setPrintBillData(null);
+      }, 500);
+      return () => clearTimeout(timer);
     }
-  });
+  }, [printBillData, onClick]);
+
+
 
   return (
     <div className="space-y-4">
@@ -395,15 +414,34 @@ export default function CreateBill({
 
       {/* Printable Receipt Component */}
       <PrintReceipt
-        payload={payload}
-        patient={selectedPatient}
+        payload={printBillData ? {
+          patient: printBillData.patient?.name || "",
+          items: printBillData.items,
+          cash: printBillData.cash,
+          online: printBillData.online,
+          insurance: printBillData.insurance,
+          discount: printBillData.discount,
+          doctor: typeof printBillData.doctor === "object" ? printBillData.doctor?.name : (printBillData.doctor === "Self" ? "" : printBillData.doctor),
+          department: typeof printBillData.doctor === "object" ? printBillData.doctor?.specialization : printBillData.department,
+        } : payload}
+        patient={printBillData ? printBillData.patient : selectedPatient}
         invoiceDetails={{
           prefix: pharmacyBilling.prefix,
-          roundOffAmount: roundOffAmount,
-          subtotal: subtotal,
-          totalGst: totalGst,
-          grandTotal: finalTotal
+          roundOffAmount: printBillData
+            ? (printBillData.roundOff ? getDecimal(printBillData.items.reduce((a: any, b: any) => a + b.total, 0)) : 0)
+            : roundOffAmount,
+          subtotal: printBillData
+            ? printBillData.items.reduce((a: any, b: any) => a + b.unitPrice * b.quantity, 0)
+            : subtotal,
+          totalGst: printBillData
+            ? printBillData.items.reduce((a: any, b: any) => a + (b.total - b.unitPrice * b.quantity), 0)
+            : totalGst,
+          grandTotal: printBillData
+            ? printBillData.items.reduce((a: any, b: any) => a + b.total, 0)
+            : finalTotal,
+          invoiceNo: printBillData?.mrn,
         }}
+        invoiceNo={printBillData?.mrn}
       />
     </div >
   );

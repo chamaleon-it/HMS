@@ -105,6 +105,7 @@ export default function OrderTable({
       totalGst: number;
       grandTotal: number;
     };
+    invoiceNo?: string;
   }>(null);
   const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
   const [printingOrderId, setPrintingOrderId] = useState<string | null>(null);
@@ -222,6 +223,7 @@ export default function OrderTable({
           subtotal,
           grandTotal,
         },
+        invoiceNo: order.billNo,
       });
       setTimeout(() => {
         window.print();
@@ -528,7 +530,7 @@ export default function OrderTable({
         printingOrderId={printingOrderId}
       />
 
-      {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} />}
+      {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} invoiceNo={printBill?.invoiceNo} />}
 
       {total > filter.limit && (
         <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm">
