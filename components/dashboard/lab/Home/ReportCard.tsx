@@ -762,7 +762,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                     </div>
                                 )}
 
-                                <div className="px-10 py-3 text-black flex justify-between items-center footer" style={{ backgroundColor: '#f2cdbf' }}>
+                                <div className="px-10 pt-3 pb-6 text-black flex justify-between items-center footer" style={{ backgroundColor: '#f2cdbf' }}>
                                     <div className="space-y-0.5">
                                         <p className="text-black font-bold text-[11px]">Please consult your physician with this report.</p>
                                         <p className="text-black font-medium text-[11px]">For Appointments: <span className="font-bold">+91 83019 26155 · 04931 240077</span></p>
