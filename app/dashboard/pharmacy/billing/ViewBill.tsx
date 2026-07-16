@@ -56,7 +56,7 @@ export default function ViewBill({ id }: { id: string }) {
             mrn: string;
             createdAt: Date;
             updatedAt: Date;
-            doctor?: string;
+            doctor?: string | { _id: string; name: string; specialization?: string };
             department?: string;
             note?: string;
         };
