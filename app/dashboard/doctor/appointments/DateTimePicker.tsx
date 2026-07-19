@@ -252,9 +252,9 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
         </Card>
 
         <div className={cn(
-          "h-80 w-[55%]",
+          "h-80 w-[55%] pr-1",
           doctor && !isAvailabilityLoading && isDoctorAvailable
-            ? "grid grid-cols-3 overflow-y-scroll overflow-hidden gap-1.5"
+            ? "grid grid-cols-3 overflow-y-auto overflow-x-hidden content-start gap-1.5"
             : "flex items-center justify-center border border-zinc-200/80 rounded-md bg-zinc-50/50"
         )}>
           {!doctor ? (

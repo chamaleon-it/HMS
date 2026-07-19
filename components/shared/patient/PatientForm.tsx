@@ -177,7 +177,7 @@ export function PatientForm({
 
 
           <div className="grid gap-1.5 relative">
-            <Label className="text-sm font-medium text-slate-700">Phone</Label>
+            <Label className="text-sm font-medium text-slate-700">Phone *</Label>
             <Input
               placeholder="Phone Number"
               {...register("phoneNumber")}

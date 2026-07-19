@@ -17,9 +17,9 @@ export const registerPatientSchema = z.object({
 
   phoneNumber: z
     .string()
-    .optional()
+    .min(1, "Phone number is required")
     .refine(
-      (val) => !val || (!val.includes("+") && val.replace(/\D/g, "").length === 10 || (val.includes("+") && val.replace(/\D/g, "").length === 12)),
+      (val) => (!val.includes("+") && val.replace(/\D/g, "").length === 10 || (val.includes("+") && val.replace(/\D/g, "").length === 12)),
       "Please provide a valid phone number"
     ),
 
