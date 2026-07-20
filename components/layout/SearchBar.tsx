@@ -3,12 +3,13 @@ import { fAge, fAgeString } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import { ChevronRight, MapPin, Phone, Search } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import React, { useState, useEffect, useRef } from "react";
 import useSWR from "swr";
 
 export default function SearchBar() {
-  const { user } = useAuth()
+  const { user } = useAuth();
+  const pathname = usePathname();
   const [q, setQ] = useState<null | string>(null);
 
   const { data } = useSWR<{
@@ -33,16 +34,19 @@ export default function SearchBar() {
     }[];
   }>(q ? `/patients?query=${q}` : null);
 
-
   const generateLink = (id: string) => {
-    if (user?.role === "Pharmacy") {
-      return `/dashboard/pharmacy/customers/single?id=${id}`
-    } else if (user?.role === "Lab") {
-      return `/dashboard/lab/patients/single?id=${id}`
+    if (pathname?.startsWith("/dashboard/reception") || user?.role === "Reception") {
+      return `/dashboard/reception/customers/single?id=${id}`;
+    } else if (pathname?.startsWith("/dashboard/pharmacy") || user?.role === "Pharmacy") {
+      return `/dashboard/pharmacy/customers/single?id=${id}`;
+    } else if (pathname?.startsWith("/dashboard/lab") || user?.role === "Lab") {
+      return `/dashboard/lab/patients/single?id=${id}`;
+    } else if (pathname?.startsWith("/dashboard/doctor") || user?.role === "Doctor") {
+      return `/dashboard/doctor/patients/single?id=${id}`;
     } else {
-      return `/dashboard/doctor/patients/single?id=${id}`
+      return `/dashboard/reception/customers/single?id=${id}`;
     }
-  }
+  };
 
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
