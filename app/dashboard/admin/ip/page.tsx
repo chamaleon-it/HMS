@@ -36,7 +36,7 @@ export default function AdminIPPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
             type="text"
-            placeholder="Search by admission no. or status…"
+            placeholder="Search by patient name, MRN, admission no…"
             value={query}
             onChange={e => setQuery(e.target.value)}
             className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-slate-300 bg-white shadow-sm"
