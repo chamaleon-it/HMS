@@ -3,7 +3,7 @@ import React, { useEffect, useMemo, useState, forwardRef } from "react";
 interface SelectProps<T> {
   value: T;
   onChange: (v: T) => void;
-  options: { label: string; value: T }[];
+  options: { label: string; value: T; disabled?: boolean }[];
   placeholder: string;
   searchable?: boolean;
   className?: string;
@@ -93,20 +93,26 @@ const Select = forwardRef<HTMLButtonElement, SelectProps<any>>(({
           <ul role="listbox" className="grid gap-1">
             {visible.map((o) => {
               const active = o.value === value;
+              const disabled = o.disabled;
               return (
                 <li key={String(o.value)}>
                   <button
+                    type="button"
+                    disabled={disabled}
                     onClick={() => {
+                      if (disabled) return;
                       onChange(o.value);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${active
-                        ? "bg-gray-100 text-gray-900"
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between transition-colors ${disabled
+                        ? "text-gray-300 bg-gray-50/50 cursor-not-allowed opacity-60"
+                        : active
+                        ? "bg-gray-100 text-gray-900 font-medium"
                         : "hover:bg-gray-50 text-gray-700"
                       }`}
                   >
                     <span className="truncate">{o.label}</span>
-                    {active && <span>✓</span>}
+                    {active && !disabled && <span>✓</span>}
                   </button>
                 </li>
               );

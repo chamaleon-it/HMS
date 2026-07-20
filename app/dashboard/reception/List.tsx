@@ -2,6 +2,7 @@ import { fDateandTime, fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer, RotateCcw } from "lucide-react";
 import React, { useState } from "react";
 import BlankPrescription from "@/components/shared/appointment/BlankPrescription";
+import useSWR, { useSWRConfig } from "swr";
 import useAppointmentList from "./data/useAppointmentList";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import toast from "react-hot-toast";
@@ -34,8 +35,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 
-
-
 export default function List({
   query,
   activeStatuses,
@@ -49,6 +48,39 @@ export default function List({
 }) {
   const router = useRouter();
   const { data, mutate } = useAppointmentList({ activeStatuses, date, activeDate });
+  const { mutate: globalMutate } = useSWRConfig();
+
+  const refreshAllAppointments = async () => {
+    // Invalidate ALL appointments list queries (regardless of query, status, or date filters)
+    await globalMutate(
+      (key) => typeof key === 'string' && key.startsWith('/appointments/list'),
+      undefined,
+      { revalidate: true }
+    );
+
+    // Invalidate monthly calendar
+    await globalMutate(
+      (key) => typeof key === 'string' && key.startsWith('/appointments/calender-monthly'),
+      undefined,
+      { revalidate: true }
+    );
+
+    // Invalidate weekly calendar
+    await globalMutate(
+      (key) => typeof key === 'string' && key.startsWith('/appointments/calender/weekly'),
+      undefined,
+      { revalidate: true }
+    );
+
+    // Invalidate statistics
+    await globalMutate(
+      "/appointments/statistics",
+      undefined,
+      { revalidate: true }
+    );
+
+    mutate();
+  };
 
   const [edit, setEdit] = useState<null | any>(null);
   const [printData, setPrintData] = useState<any>(null);
@@ -71,7 +103,7 @@ export default function List({
       });
       setRefundId(null);
       setRefundReason("");
-      mutate();
+      await refreshAllAppointments();
     } catch (error) {
       console.error(error);
     } finally {
@@ -105,28 +137,81 @@ export default function List({
   }) || [];
 
   const handleStatusUpdate = async (id: string, status: string) => {
+    // 1. Optimistic UI update: instantly update status in local SWR cache
+    mutate(
+      (currentData: any) => {
+        if (!currentData || !currentData.data) return currentData;
+        return {
+          ...currentData,
+          data: currentData.data.map((item: any) =>
+            item._id === id ? { ...item, status } : item
+          ),
+        };
+      },
+      { revalidate: false }
+    );
+
     try {
       await toast.promise(api.patch(`/appointments/${id}`, { status }), {
         loading: `Updating...`,
         success: "Updated!",
         error: "Failed to update",
       });
-      mutate();
+
+      // 2. Background sync across other tabs/calendars/statistics
+      globalMutate(
+        (key) => typeof key === 'string' && key.startsWith('/appointments/list'),
+        undefined,
+        { revalidate: true }
+      );
+      globalMutate(
+        (key) => typeof key === 'string' && key.startsWith('/appointments/calender'),
+        undefined,
+        { revalidate: true }
+      );
+      globalMutate("/appointments/statistics", undefined, { revalidate: true });
     } catch (error) {
+      // Revert on failure
+      mutate();
       console.error(error);
     }
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm("Delete this appointment?")) return;
+
+    // 1. Optimistic UI update: instantly remove item from local SWR cache
+    mutate(
+      (currentData: any) => {
+        if (!currentData || !currentData.data) return currentData;
+        return {
+          ...currentData,
+          data: currentData.data.filter((item: any) => item._id !== id),
+        };
+      },
+      { revalidate: false }
+    );
+
     try {
       await toast.promise(api.delete(`/appointments/${id}`), {
         loading: "Deleting...",
         success: "Deleted",
         error: "Failed",
       });
-      mutate();
+
+      globalMutate(
+        (key) => typeof key === 'string' && key.startsWith('/appointments/list'),
+        undefined,
+        { revalidate: true }
+      );
+      globalMutate(
+        (key) => typeof key === 'string' && key.startsWith('/appointments/calender'),
+        undefined,
+        { revalidate: true }
+      );
+      globalMutate("/appointments/statistics", undefined, { revalidate: true });
     } catch (error) {
+      mutate();
       console.error(error);
     }
   };
@@ -139,7 +224,7 @@ export default function List({
         success: "Recovered",
         error: "Failed",
       });
-      mutate();
+      await refreshAllAppointments();
     } catch (error) {
       console.error(error);
     }
@@ -261,7 +346,7 @@ export default function List({
         <AppointmentDialog
           open={Boolean(edit)}
           onOpenChange={(v) => !v && setEdit(null)}
-          mutate={mutate}
+          mutate={refreshAllAppointments}
           appointment={edit}
         />
       )}

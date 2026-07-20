@@ -364,7 +364,11 @@ export function CreateAppointmentForm({
                 value={values.method}
                 onChange={(v) => setValue("method", v)}
                 placeholder="In-clinic / Video / Phone"
-                options={METHODS.map((s) => ({ label: s, value: s })) ?? []}
+                options={METHODS.map((s) => ({
+                  label: s,
+                  value: s,
+                  disabled: s === "Video" || s === "Phone"
+                }))}
                 ref={refs.method}
                 onKeyDown={(e) => handleKeyDown(e, refs.notes)}
               />
