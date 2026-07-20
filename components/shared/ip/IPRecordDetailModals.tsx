@@ -994,7 +994,7 @@ export const ConsultationDetailModal: React.FC<ConsultationDetailModalProps> = (
           )}
 
           {/* Advice / Remarks & Follow Up */}
-          {(consultation.advice || consultation.followUp) && (
+          {/* {(consultation.advice || consultation.followUp) && (
             <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-xs space-y-3">
               {consultation.advice && (
                 <div>
@@ -1002,7 +1002,7 @@ export const ConsultationDetailModal: React.FC<ConsultationDetailModalProps> = (
                   <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap leading-relaxed">{consultation.advice}</p>
                 </div>
               )}
-              {/* {consultation.followUp && (
+              {consultation.followUp && (
                 <div className="pt-2 border-t border-gray-50 flex items-center justify-between text-xs text-violet-800">
                   <span className="font-semibold flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" /> Next Follow Up:
@@ -1011,9 +1011,9 @@ export const ConsultationDetailModal: React.FC<ConsultationDetailModalProps> = (
                     {fDate(consultation.followUp)}
                   </span>
                 </div>
-              )} */}
+              )}
             </div>
-          )}
+          )} */}
         </div>
       </DialogContent>
     </Dialog>
