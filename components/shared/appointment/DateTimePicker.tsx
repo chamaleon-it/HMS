@@ -278,13 +278,13 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     <div className="col-span-full">
       <Label>Date and time</Label>
       <div className="flex gap-2.5 mt-2.5">
-        <Card className="w-[45%] flex items-center justify-center">
+        <Card className="w-[45%] h-[260px] flex items-center justify-center p-1.5 overflow-hidden shrink-0">
           <Calendar
             mode="single"
             selected={selectedDate}
             onSelect={setSelectedDate}
             disabled={disabledMatchers}
-            className="w-full p-1.5 [--cell-size:32px]"
+            className="w-full p-1 [--cell-size:26px] sm:[--cell-size:27px]"
           />
         </Card>
 
