@@ -72,8 +72,8 @@ export const PaymentStatusBadge = ({ status }: { status: string }) => {
   return (
     <span
       className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${isPaid
-          ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-          : "bg-rose-100 text-rose-800 border-rose-200"
+        ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+        : "bg-rose-100 text-rose-800 border-rose-200"
         }`}
     >
       {status}
@@ -552,8 +552,8 @@ export const BillingDetailModal: React.FC<BillingDetailModalProps> = ({
         {/* Sticky Modal Header */}
         <div
           className={`p-6 text-white rounded-t-2xl shrink-0 ${isReturn
-              ? "bg-linear-to-r from-rose-600 to-rose-700"
-              : "bg-linear-to-r from-indigo-600 to-indigo-700"
+            ? "bg-linear-to-r from-rose-600 to-rose-700"
+            : "bg-linear-to-r from-indigo-600 to-indigo-700"
             }`}
         >
           <DialogHeader className="text-left space-y-1">
@@ -574,18 +574,18 @@ export const BillingDetailModal: React.FC<BillingDetailModalProps> = ({
               <div className="flex items-center gap-2">
                 <span
                   className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${isReturn
-                      ? "bg-rose-100 text-rose-800 border-rose-200"
-                      : "bg-indigo-100 text-indigo-800 border-indigo-200"
+                    ? "bg-rose-100 text-rose-800 border-rose-200"
+                    : "bg-indigo-100 text-indigo-800 border-indigo-200"
                     }`}
                 >
                   {billing.transactionType || "Sale"}
                 </span>
                 <span
                   className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${computedStatus === "Completed"
-                      ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-                      : computedStatus === "Partial"
-                        ? "bg-sky-100 text-sky-800 border-sky-200"
-                        : "bg-amber-100 text-amber-800 border-amber-200"
+                    ? "bg-emerald-100 text-emerald-800 border-emerald-200"
+                    : computedStatus === "Partial"
+                      ? "bg-sky-100 text-sky-800 border-sky-200"
+                      : "bg-amber-100 text-amber-800 border-amber-200"
                     }`}
                 >
                   {computedStatus}
@@ -1002,7 +1002,7 @@ export const ConsultationDetailModal: React.FC<ConsultationDetailModalProps> = (
                   <p className="text-sm text-gray-700 mt-1 whitespace-pre-wrap leading-relaxed">{consultation.advice}</p>
                 </div>
               )}
-              {consultation.followUp && (
+              {/* {consultation.followUp && (
                 <div className="pt-2 border-t border-gray-50 flex items-center justify-between text-xs text-violet-800">
                   <span className="font-semibold flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" /> Next Follow Up:
@@ -1011,7 +1011,7 @@ export const ConsultationDetailModal: React.FC<ConsultationDetailModalProps> = (
                     {fDate(consultation.followUp)}
                   </span>
                 </div>
-              )}
+              )} */}
             </div>
           )}
         </div>
