@@ -197,7 +197,7 @@ export default function Filter({
           </div>
         </div>
 
-        <div className="space-y-2">
+        {/* <div className="space-y-2">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Last Visit
           </label>
@@ -211,7 +211,7 @@ export default function Filter({
             value={filter.lastVisit}
             onChange={(v) => setFilter((prev) => ({ ...prev, lastVisit: v, page: 1 }))}
           />
-        </div>
+        </div> */}
 
         {filter.lastVisit === "Custom" && (
           <div className="space-y-2">
