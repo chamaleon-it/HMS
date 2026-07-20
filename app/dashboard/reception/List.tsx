@@ -358,7 +358,6 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
           <DropdownMenuLabel>Change Status</DropdownMenuLabel>
           <DropdownMenuItem onClick={onPlaceOrder}>Place Order</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Upcoming")}>Mark Upcoming</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusUpdate(id, "Consulted")}>Mark Consulted</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Observation")}>Mark Observation</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Completed")}>Mark Completed</DropdownMenuItem>
           <DropdownMenuItem onClick={() => onStatusUpdate(id, "Admit")}>Mark Admit</DropdownMenuItem>
