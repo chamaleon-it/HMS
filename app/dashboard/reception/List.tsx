@@ -112,11 +112,6 @@ export default function List({
         error: "Failed to update",
       });
       mutate();
-
-      const appointment = filteredData.find((a) => a._id === id);
-      if (status === "Consulted") {
-        router.push(`/dashboard/pharmacy/?mrn=${appointment?.patient?.mrn}&name=${appointment?.patient?.name}&id=${appointment?.patient?._id}&doctor=${appointment?.doctor._id}&#newOrder`);
-      }
     } catch (error) {
       console.error(error);
     }
