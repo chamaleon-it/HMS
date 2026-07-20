@@ -15,6 +15,12 @@ import {
   ClipboardPen, Thermometer, Activity, Wind, Weight,
   X, NotebookPen,
 } from "lucide-react";
+import {
+  LabReportDetailModal,
+  PharmacyOrderDetailModal,
+  BillingDetailModal,
+  ConsultationDetailModal,
+} from "@/components/shared/ip/IPRecordDetailModals";
 
 const IP_STATUSES = [
   { value: "Admitted", color: "bg-blue-500" },
@@ -157,6 +163,12 @@ export default function IPDetailsClient() {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const statusRef = useRef<HTMLDivElement>(null);
 
+  // Detail Modals state
+  const [selectedLabReport, setSelectedLabReport] = useState<any | null>(null);
+  const [selectedPharmacyOrder, setSelectedPharmacyOrder] = useState<any | null>(null);
+  const [selectedBillingRecord, setSelectedBillingRecord] = useState<any | null>(null);
+  const [selectedConsultation, setSelectedConsultation] = useState<any | null>(null);
+
   // Quick Note dialog state
   const [noteOpen, setNoteOpen] = useState(false);
   const [savingNote, setSavingNote] = useState(false);
@@ -226,9 +238,9 @@ export default function IPDetailsClient() {
     .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const { data: ordersData } = useSWR(
-    patient?._id ? `/pharmacy/orders/customers/${patient._id}` : null
+    patient?._id ? `/pharmacy/orders/patient/${patient._id}` : null
   );
-  const orders: any[] = (ordersData?.data?.orders ?? ordersData?.data ?? [])
+  const orders: any[] = (ordersData?.data ?? [])
     .slice()
     .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
@@ -390,305 +402,348 @@ export default function IPDetailsClient() {
           </div>
         </div>
 
-        {/* ── Financial Summary ───────────────────────── */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          {[
-            { label: "Total Billed", value: formatINR(totalBilled), color: "from-blue-50 to-indigo-50 text-indigo-700" },
-            { label: "Total Paid", value: formatINR(totalPaid), color: "from-emerald-50 to-teal-50 text-emerald-700" },
-            { label: "Total Due", value: formatINR(totalDue), color: "from-rose-50 to-pink-50 text-rose-700" },
-          ].map(s => (
-            <div key={s.label} className={`bg-linear-to-br ${s.color} rounded-2xl p-4 border border-white shadow-sm`}>
-              <div className="text-[11px] font-semibold uppercase tracking-wider opacity-70">{s.label}</div>
-              <div className="text-xl font-bold mt-1">{s.value}</div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── IP Notes Timeline ───────────────────────── */}
-        {(() => {
-          const ipNotes: any[] = (ip.ipNotes ?? []).slice().reverse(); // newest first
-          return (
-            <SectionCard
-              icon={<NotebookPen className="w-4 h-4 text-violet-600" />}
-              title="Quick Notes & Vitals"
-              count={ipNotes.length}
-              accent="bg-violet-50"
-            >
-              {ipNotes.length === 0 ? <EmptyState label="No notes recorded yet. Use Quick Note to add one." /> : (
-                <div className="divide-y divide-gray-50">
-                  {ipNotes.map((n: any, i: number) => (
-                    <div key={n._id ?? i} className="px-5 py-4 hover:bg-gray-50/60 transition-colors">
-                      <div className="flex items-start justify-between gap-3 flex-wrap">
-                        <div className="flex items-center gap-2 text-[11px] text-gray-400">
-                          <Clock className="w-3 h-3" />
-                          <span>{fDateandTime(n.createdAt)}</span>
-                          {n.recordedBy?.name && <span>• {n.recordedBy.name}</span>}
+        {/* ── Row 1: Quick Notes & Vitals + Appointments ─────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Quick Notes & Vitals */}
+          {(() => {
+            const ipNotes: any[] = (ip.ipNotes ?? []).slice().reverse(); // newest first
+            return (
+              <SectionCard
+                icon={<NotebookPen className="w-4 h-4 text-violet-600" />}
+                title="Quick Notes & Vitals"
+                count={ipNotes.length}
+                accent="bg-violet-50"
+              >
+                {ipNotes.length === 0 ? <EmptyState label="No notes recorded yet. Use Quick Note to add one." /> : (
+                  <div className="divide-y divide-gray-50">
+                    {ipNotes.map((n: any, i: number) => (
+                      <div key={n._id ?? i} className="px-5 py-4 hover:bg-gray-50/60 transition-colors">
+                        <div className="flex items-start justify-between gap-3 flex-wrap">
+                          <div className="flex items-center gap-2 text-[11px] text-gray-400">
+                            <Clock className="w-3 h-3" />
+                            <span>{fDateandTime(n.createdAt)}</span>
+                            {n.recordedBy?.name && <span>• {n.recordedBy.name}</span>}
+                          </div>
                         </div>
+                        {/* Vitals chips */}
+                        <div className="flex flex-wrap gap-2 mt-2.5">
+                          {n.temp && (
+                            <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-100 font-medium">
+                              <Thermometer className="w-3 h-3" /> {n.temp}{n.tempUnit || "°C"}
+                            </span>
+                          )}
+                          {n.bp && (
+                            <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-100 font-medium">
+                              <Activity className="w-3 h-3" /> BP: {n.bp}
+                            </span>
+                          )}
+                          {n.hr && (
+                            <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-100 font-medium">
+                              <HeartPulse className="w-3 h-3" /> HR: {n.hr} bpm
+                            </span>
+                          )}
+                          {n.spo2 && (
+                            <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-100 font-medium">
+                              <Wind className="w-3 h-3" /> SpO₂: {n.spo2}%
+                            </span>
+                          )}
+                          {n.rr && (
+                            <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-100 font-medium">
+                              <Wind className="w-3 h-3" /> RR: {n.rr}/min
+                            </span>
+                          )}
+                          {n.weight && (
+                            <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100 font-medium">
+                              <Weight className="w-3 h-3" /> {n.weight} kg
+                            </span>
+                          )}
+                        </div>
+                        {n.note && (
+                          <p className="mt-2 text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100 leading-relaxed">
+                            {n.note}
+                          </p>
+                        )}
                       </div>
-                      {/* Vitals chips */}
-                      <div className="flex flex-wrap gap-2 mt-2.5">
-                        {n.temp && (
-                          <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-100 font-medium">
-                            <Thermometer className="w-3 h-3" /> {n.temp}{n.tempUnit || "°C"}
-                          </span>
-                        )}
-                        {n.bp && (
-                          <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-100 font-medium">
-                            <Activity className="w-3 h-3" /> BP: {n.bp}
-                          </span>
-                        )}
-                        {n.hr && (
-                          <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-red-50 text-red-700 border border-red-100 font-medium">
-                            <HeartPulse className="w-3 h-3" /> HR: {n.hr} bpm
-                          </span>
-                        )}
-                        {n.spo2 && (
-                          <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-sky-50 text-sky-700 border border-sky-100 font-medium">
-                            <Wind className="w-3 h-3" /> SpO₂: {n.spo2}%
-                          </span>
-                        )}
-                        {n.rr && (
-                          <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-teal-50 text-teal-700 border border-teal-100 font-medium">
-                            <Wind className="w-3 h-3" /> RR: {n.rr}/min
-                          </span>
-                        )}
-                        {n.weight && (
-                          <span className="flex items-center gap-1 text-xs px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100 font-medium">
-                            <Weight className="w-3 h-3" /> {n.weight} kg
-                          </span>
-                        )}
-                      </div>
-                      {n.note && (
-                        <p className="mt-2 text-sm text-gray-700 bg-gray-50 rounded-lg px-3 py-2 border border-gray-100 leading-relaxed">
-                          {n.note}
-                        </p>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </SectionCard>
-          );
-        })()}
-
-        {/* ── Appointments ────────────────────────────── */}
-        <SectionCard
-          icon={<Calendar className="w-4 h-4 text-sky-600" />}
-          title="Appointments"
-          count={appointments.length}
-          accent="bg-sky-50"
-        >
-          {appointments.length === 0 ? <EmptyState label="No appointments found." /> : (
-            <div className="divide-y divide-gray-50">
-              {appointments.map((a: any) => (
-                <div key={a._id} className="px-5 py-3.5 hover:bg-gray-50 transition-colors flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
-                      <Calendar className="w-4 h-4 text-sky-500" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-gray-800">
-                        {fDate(a.date)} &nbsp;<span className="font-normal text-gray-400 text-xs">{a.method}</span>
-                      </div>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        {a.type} {a.doctor?.name && `• Dr. ${a.doctor.name}`}
-                      </div>
-                      {a.notes && <div className="text-xs text-gray-400 mt-0.5 max-w-sm">{a.notes}</div>}
-                    </div>
+                    ))}
                   </div>
-                  <ApptStatusBadge status={a.status} />
-                </div>
-              ))}
-            </div>
-          )}
-        </SectionCard>
+                )}
+              </SectionCard>
+            );
+          })()}
 
-        {/* ── Consultations / Visits ───────────────────── */}
-        <SectionCard
-          icon={<Stethoscope className="w-4 h-4 text-violet-600" />}
-          title="Visits / Consultations"
-          count={consultations.length}
-          accent="bg-violet-50"
-        >
-          {consultations.length === 0 ? <EmptyState label="No consultation records found." /> : (
-            <div className="divide-y divide-gray-50">
-              {consultations.map((c: any, i: number) => (
-                <div key={c._id ?? i} className="px-5 py-3.5 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between gap-2 flex-wrap">
+          {/* Appointments */}
+          <SectionCard
+            icon={<Calendar className="w-4 h-4 text-sky-600" />}
+            title="Appointments"
+            count={appointments.length}
+            accent="bg-sky-50"
+          >
+            {appointments.length === 0 ? <EmptyState label="No appointments found." /> : (
+              <div className="divide-y divide-gray-50">
+                {appointments.map((a: any) => (
+                  <div key={a._id} className="px-5 py-3.5 hover:bg-gray-50 transition-colors flex flex-wrap items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
-                        <HeartPulse className="w-4 h-4 text-violet-500" />
+                      <div className="w-8 h-8 rounded-lg bg-sky-50 flex items-center justify-center shrink-0">
+                        <Calendar className="w-4 h-4 text-sky-500" />
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-gray-800">
-                          {fDate(c.date ?? c.createdAt)}
-                          {c.doctor?.name && <span className="text-gray-500 font-normal text-xs ml-2">Dr. {c.doctor.name}</span>}
+                          {fDate(a.date)} &nbsp;<span className="font-normal text-gray-400 text-xs">{a.method}</span>
                         </div>
-                        {c.diagnosis && <div className="text-xs text-gray-500 mt-0.5">Diagnosis: {c.diagnosis}</div>}
-                        {c.notes && <div className="text-xs text-gray-400 mt-0.5 max-w-sm">{c.notes}</div>}
+                        <div className="text-xs text-gray-500 mt-0.5">
+                          {a.type} {a.doctor?.name && `• Dr. ${a.doctor.name}`}
+                        </div>
+                        {a.notes && <div className="text-xs text-gray-400 mt-0.5 max-w-sm">{a.notes}</div>}
                       </div>
                     </div>
-                    {c.status && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">{c.status}</span>}
+                    <ApptStatusBadge status={a.status} />
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </SectionCard>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        </div>
 
-        {/* ── Lab Reports ─────────────────────────────── */}
-        <SectionCard
-          icon={<FlaskConical className="w-4 h-4 text-amber-600" />}
-          title="Lab Reports"
-          count={labReports.length}
-          accent="bg-amber-50"
-        >
-          {labReports.length === 0 ? <EmptyState label="No lab reports found." /> : (
-            <div className="divide-y divide-gray-50">
-              {labReports.map((r: any) => (
-                <div key={r._id} className="px-5 py-3.5 hover:bg-gray-50 transition-colors flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
-                      <FlaskConical className="w-4 h-4 text-amber-500" />
-                    </div>
-                    <div>
-                      <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                        Report #{r.mrn}
-                        {r.isFlagged && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">Flagged</span>}
+        {/* ── Row 2: Visits / Consultations + Lab Reports ───────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Consultations / Visits */}
+          <SectionCard
+            icon={<Stethoscope className="w-4 h-4 text-violet-600" />}
+            title="Visits / Consultations"
+            count={consultations.length}
+            accent="bg-violet-50"
+          >
+            {consultations.length === 0 ? <EmptyState label="No consultation records found." /> : (
+              <div className="divide-y divide-gray-50">
+                {consultations.map((c: any, i: number) => (
+                  <div
+                    key={c._id ?? i}
+                    onClick={() => setSelectedConsultation(c)}
+                    className="px-5 py-3.5 hover:bg-violet-50/50 cursor-pointer transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-2 flex-wrap text-left">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-violet-50 flex items-center justify-center shrink-0">
+                          <HeartPulse className="w-4 h-4 text-violet-500" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-semibold text-gray-800">
+                            {fDate(c.date ?? c.createdAt)}
+                            {c.doctor?.name && <span className="text-gray-500 font-normal text-xs ml-2">Dr. {c.doctor.name}</span>}
+                          </div>
+                          {c.diagnosis && <div className="text-xs text-gray-500 mt-0.5">Diagnosis: {c.diagnosis}</div>}
+                          {c.notes && <div className="text-xs text-gray-400 mt-0.5 max-w-sm">{c.notes}</div>}
+                        </div>
                       </div>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        {fDate(r.date)}
-                        {r.panels?.length > 0 && <span className="ml-2">• {r.panels.join(", ")}</span>}
-                        {r.priority && <span className="ml-2">• Priority: {r.priority}</span>}
-                      </div>
-                      {r.technician && <div className="text-xs text-gray-400 mt-0.5">Technician: {r.technician}</div>}
+                      {c.status && <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-violet-100 text-violet-700">{c.status}</span>}
                     </div>
                   </div>
-                  <LabStatusBadge status={r.status} />
-                </div>
-              ))}
-            </div>
-          )}
-        </SectionCard>
+                ))}
+              </div>
+            )}
+          </SectionCard>
 
-        {/* ── Pharmacy Orders ──────────────────────────── */}
-        <SectionCard
-          icon={<Pill className="w-4 h-4 text-teal-600" />}
-          title="Pharmacy Orders"
-          count={orders.length}
-          accent="bg-teal-50"
-        >
-          {orders.length === 0 ? <EmptyState label="No pharmacy orders found." /> : (
-            <div className="divide-y divide-gray-50">
-              {orders.map((o: any) => (
-                <div key={o._id} className="px-5 py-3.5 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between gap-3 flex-wrap">
+          {/* Lab Reports */}
+          <SectionCard
+            icon={<FlaskConical className="w-4 h-4 text-amber-600" />}
+            title="Lab Reports"
+            count={labReports.length}
+            accent="bg-amber-50"
+          >
+            {labReports.length === 0 ? <EmptyState label="No lab reports found." /> : (
+              <div className="divide-y divide-gray-50">
+                {labReports.map((r: any) => (
+                  <div
+                    key={r._id}
+                    onClick={() => setSelectedLabReport(r)}
+                    className="px-5 py-3.5 hover:bg-amber-50/50 cursor-pointer transition-colors flex flex-wrap items-center justify-between gap-3"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center shrink-0">
-                        <Pill className="w-4 h-4 text-teal-500" />
+                      <div className="w-8 h-8 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">
+                        <FlaskConical className="w-4 h-4 text-amber-500" />
                       </div>
                       <div>
                         <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                          {o.mrn}
-                          <OrderStatusBadge status={o.status} />
+                          Report #{r.mrn}
+                          {r.isFlagged && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">Flagged</span>}
                         </div>
                         <div className="text-xs text-gray-500 mt-0.5">
-                          {fDate(o.createdAt)}
-                          {o.doctorName && o.doctorName !== "-" && <span className="ml-2">• Dr. {o.doctorName}</span>}
-                          {o.priority && <span className="ml-2">• {o.priority}</span>}
+                          {fDate(r.date)}
+                          {r.panels?.length > 0 && <span className="ml-2">• {r.panels.join(", ")}</span>}
+                          {r.priority && <span className="ml-2">• Priority: {r.priority}</span>}
                         </div>
+                        {r.technician && <div className="text-xs text-gray-400 mt-0.5">Technician: {r.technician}</div>}
                       </div>
                     </div>
-                    <div className="text-right text-xs text-gray-500">
-                      {o.items?.length ?? 0} item{o.items?.length === 1 ? "" : "s"}
-                      <div className="text-[11px] mt-0.5">
-                        <span className={`font-semibold ${o.paymentStatus === "Paid" ? "text-emerald-600" : "text-rose-500"}`}>
-                          {o.paymentStatus}
-                        </span>
-                        {o.paidAmount > 0 && ` — ${formatINR(o.paidAmount)}`}
-                      </div>
-                    </div>
+                    <LabStatusBadge status={r.status} />
                   </div>
-                  {o.items?.length > 0 && (
-                    <div className="mt-2.5 ml-11 flex flex-wrap gap-2">
-                      {o.items.map((it: any, idx: number) => (
-                        <span key={idx} className="text-[11px] px-2 py-0.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100">
-                          {it.name?.name ?? it.name} × {it.quantity}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </SectionCard>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        </div>
 
-        {/* ── Billing ──────────────────────────────────── */}
-        <SectionCard
-          icon={<Receipt className="w-4 h-4 text-indigo-600" />}
-          title="Billing Records"
-          count={billings.length}
-          accent="bg-indigo-50"
-        >
-          {billings.length === 0 ? <EmptyState label="No billing records found." /> : (
-            <div className="divide-y divide-gray-50">
-              {billings.map((b: any) => {
-                const isReturn = b.transactionType === "Return";
-                const itemsTotal = b.items.reduce((s: number, it: any) => s + (it.total || 0), 0);
-                const paid = (b.cash || 0) + (b.online || 0) + (b.insurance || 0);
-                const net = itemsTotal - (b.discount || 0);
-                const due = Math.max(0, net - paid);
-                return (
-                  <div key={b._id} className="px-5 py-3.5 hover:bg-gray-50 transition-colors">
+        {/* ── Row 3: Pharmacy Orders + Billing Records ───────────────────── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Pharmacy Orders */}
+          <SectionCard
+            icon={<Pill className="w-4 h-4 text-teal-600" />}
+            title="Pharmacy Orders"
+            count={orders.length}
+            accent="bg-teal-50"
+          >
+            {orders.length === 0 ? <EmptyState label="No pharmacy orders found." /> : (
+              <div className="divide-y divide-gray-50">
+                {orders.map((o: any) => (
+                  <div
+                    key={o._id}
+                    onClick={() => setSelectedPharmacyOrder(o)}
+                    className="px-5 py-3.5 hover:bg-teal-50/50 cursor-pointer transition-colors"
+                  >
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isReturn ? "bg-rose-50" : "bg-indigo-50"}`}>
-                          <Receipt className={`w-4 h-4 ${isReturn ? "text-rose-500" : "text-indigo-500"}`} />
+                        <div className="w-8 h-8 rounded-lg bg-teal-50 flex items-center justify-center shrink-0">
+                          <Pill className="w-4 h-4 text-teal-500" />
                         </div>
                         <div>
                           <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">
-                            {b.mrn}
-                            {isReturn
-                              ? <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-600">Return</span>
-                              : <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-600">Sale</span>
-                            }
-                            <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${b.status === "Completed" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
-                              {b.status}
-                            </span>
+                            {o.mrn}
+                            <OrderStatusBadge status={o.status} />
                           </div>
                           <div className="text-xs text-gray-500 mt-0.5">
-                            {fDate(b.createdAt)}
-                            {b.doctor && b.doctor !== "Self" && <span className="ml-2">• Dr. {b.doctor}</span>}
-                            <span className="ml-2">• {b.items.length} item{b.items.length === 1 ? "" : "s"}</span>
+                            {fDate(o.createdAt)}
+                            {o.doctorName && o.doctorName !== "-" && <span className="ml-2">• Dr. {o.doctorName}</span>}
+                            {o.priority && <span className="ml-2">• {o.priority}</span>}
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-sm font-bold text-gray-900">{formatINR(net)}</div>
-                        <div className="text-xs mt-0.5">
-                          <span className="text-emerald-600 font-medium">Paid: {formatINR(paid)}</span>
-                          {due > 0 && <span className="ml-2 text-rose-500 font-medium">Due: {formatINR(due)}</span>}
+                      <div className="text-right text-xs text-gray-500">
+                        {o.items?.length ?? 0} item{o.items?.length === 1 ? "" : "s"}
+                        <div className="text-[11px] mt-0.5">
+                          <span className={`font-semibold ${o.paymentStatus === "Paid" ? "text-emerald-600" : "text-rose-500"}`}>
+                            {o.paymentStatus}
+                          </span>
+                          {o.paidAmount > 0 && ` — ${formatINR(o.paidAmount)}`}
                         </div>
                       </div>
                     </div>
-                    {b.items.length > 0 && (
+                    {o.items?.length > 0 && (
                       <div className="mt-2.5 ml-11 flex flex-wrap gap-2">
-                        {b.items.map((it: any, idx: number) => (
-                          <span key={idx} className="text-[11px] px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">
-                            {it.name} × {it.quantity}
+                        {o.items.map((it: any, idx: number) => (
+                          <span key={idx} className="text-[11px] px-2 py-0.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100">
+                            {it.name?.name ?? it.name} × {it.quantity}
                           </span>
                         ))}
                       </div>
                     )}
                   </div>
-                );
-              })}
-            </div>
-          )}
-        </SectionCard>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+
+          {/* Billing Records */}
+          <SectionCard
+            icon={<Receipt className="w-4 h-4 text-indigo-600" />}
+            title="Billing Records"
+            count={billings.length}
+            accent="bg-indigo-50"
+          >
+            {billings.length === 0 ? <EmptyState label="No billing records found." /> : (
+              <div className="divide-y divide-gray-50">
+                {billings.map((b: any) => {
+                  const isReturn = b.transactionType === "Return";
+                  const itemsTotal = b.items.reduce((s: number, it: any) => s + (it.total || 0), 0);
+                  const paid = (b.cash || 0) + (b.online || 0) + (b.insurance || 0);
+                  const net = itemsTotal - (b.discount || 0);
+                  const due = Math.max(0, net - paid);
+                  const docName =
+                    typeof b.doctor === "object" && b.doctor
+                      ? b.doctor.name || b.doctor.fullName
+                      : typeof b.doctor === "string" && b.doctor !== "Self" && !/^[0-9a-fA-F]{24}$/.test(b.doctor)
+                      ? b.doctor.startsWith("Dr.")
+                        ? b.doctor.replace(/^Dr\.\s*/, "")
+                        : b.doctor
+                      : null;
+                  const isCompleted = b.status === "Completed" || due <= 0;
+
+                  return (
+                    <div
+                      key={b._id}
+                      onClick={() => setSelectedBillingRecord(b)}
+                      className="px-5 py-3.5 hover:bg-indigo-50/50 cursor-pointer transition-colors"
+                    >
+                      <div className="flex items-center justify-between gap-3 flex-wrap">
+                        <div className="flex items-center gap-3">
+                          <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isReturn ? "bg-rose-50" : "bg-indigo-50"}`}>
+                            <Receipt className={`w-4 h-4 ${isReturn ? "text-rose-500" : "text-indigo-500"}`} />
+                          </div>
+                          <div>
+                            <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">
+                              {b.mrn}
+                              {isReturn
+                                ? <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-600">Return</span>
+                                : <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-600">Sale</span>
+                              }
+                              <span className={`text-[11px] font-bold px-2 py-0.5 rounded-full ${isCompleted ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                                {isCompleted ? "Completed" : (b.status || "Draft")}
+                              </span>
+                            </div>
+                            <div className="text-xs text-gray-500 mt-0.5">
+                              {fDate(b.createdAt)}
+                              {docName && <span className="ml-2">• Dr. {docName}</span>}
+                              <span className="ml-2">• {b.items.length} item{b.items.length === 1 ? "" : "s"}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-sm font-bold text-gray-900">{formatINR(net)}</div>
+                          <div className="text-xs mt-0.5">
+                            <span className="text-emerald-600 font-medium">Paid: {formatINR(paid)}</span>
+                            {due > 0 && <span className="ml-2 text-rose-500 font-medium">Due: {formatINR(due)}</span>}
+                          </div>
+                        </div>
+                      </div>
+                      {b.items.length > 0 && (
+                        <div className="mt-2.5 ml-11 flex flex-wrap gap-2">
+                          {b.items.map((it: any, idx: number) => (
+                            <span key={idx} className="text-[11px] px-2 py-0.5 bg-indigo-50 text-indigo-700 rounded-full border border-indigo-100">
+                              {it.name} × {it.quantity}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </SectionCard>
+        </div>
 
       </div>
+
+      {/* ── Detail Modals ─────────────────────────────────────────────── */}
+      <LabReportDetailModal
+        report={selectedLabReport}
+        open={Boolean(selectedLabReport)}
+        onOpenChange={(open) => !open && setSelectedLabReport(null)}
+      />
+      <PharmacyOrderDetailModal
+        order={selectedPharmacyOrder}
+        open={Boolean(selectedPharmacyOrder)}
+        onOpenChange={(open) => !open && setSelectedPharmacyOrder(null)}
+      />
+      <BillingDetailModal
+        billing={selectedBillingRecord}
+        open={Boolean(selectedBillingRecord)}
+        onOpenChange={(open) => !open && setSelectedBillingRecord(null)}
+      />
+      <ConsultationDetailModal
+        consultation={selectedConsultation}
+        open={Boolean(selectedConsultation)}
+        onOpenChange={(open) => !open && setSelectedConsultation(null)}
+      />
 
       {/* ── Quick Note Dialog ─────────────────────────────────────────── */}
       {noteOpen && (

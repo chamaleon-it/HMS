@@ -11,6 +11,11 @@ import {
   XCircle, ChevronDown, ChevronUp, Loader2, HeartPulse,
   Thermometer, Activity, Wind, Weight, NotebookPen,
 } from "lucide-react";
+import {
+  LabReportDetailModal,
+  PharmacyOrderDetailModal,
+  BillingDetailModal,
+} from "@/components/shared/ip/IPRecordDetailModals";
 
 const STATUS_COLORS: Record<string, string> = {
   Admitted: "bg-blue-100 text-blue-700 border-blue-200",
@@ -82,6 +87,9 @@ export default function AdminIPSingleClient() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
+  const [selectedLabReport, setSelectedLabReport] = useState<any | null>(null);
+  const [selectedPharmacyOrder, setSelectedPharmacyOrder] = useState<any | null>(null);
+  const [selectedBillingRecord, setSelectedBillingRecord] = useState<any | null>(null);
 
   const { data: ipData, isLoading } = useSWR(id ? `/in-patients/${id}` : null);
   const ip = ipData?.data;
@@ -93,8 +101,8 @@ export default function AdminIPSingleClient() {
   const { data: labData } = useSWR(patient?._id ? `/lab/report/patient/${patient._id}` : null);
   const labReports: any[] = (labData?.data ?? []).slice().sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
-  const { data: ordersData } = useSWR(patient?._id ? `/pharmacy/orders/customers/${patient._id}` : null);
-  const orders: any[] = (ordersData?.data?.orders ?? ordersData?.data ?? []).slice().sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  const { data: ordersData } = useSWR(patient?._id ? `/pharmacy/orders/patient/${patient._id}` : null);
+  const orders: any[] = (ordersData?.data ?? []).slice().sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
   const { data: billingData } = useSWR(patient?._id ? `/billing/single?q=${patient._id}` : null);
   const billings: any[] = (billingData?.data ?? []).slice().sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -224,80 +232,94 @@ export default function AdminIPSingleClient() {
           )}
         </SectionCard>
 
-        {/* Appointments */}
-        <SectionCard icon={<Calendar className="w-4 h-4 text-sky-600" />} title="Appointments" count={appointments.length} accent="bg-sky-50">
-          {appointments.length === 0 ? <Empty label="No appointments." /> : (
-            <div className="divide-y divide-gray-50">
-              {appointments.map((a: any) => (
-                <div key={a._id} className="px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 hover:bg-gray-50 transition-colors">
-                  <div>
-                    <div className="text-sm font-semibold text-gray-800">{fDate(a.date)} <span className="font-normal text-xs text-gray-400">{a.method}</span></div>
-                    <div className="text-xs text-gray-500 mt-0.5">{a.type}{a.doctor?.name && ` • Dr. ${a.doctor.name}`}</div>
-                  </div>
-                  <Badge status={a.status} map={APPT_BADGE} />
-                </div>
-              ))}
-            </div>
-          )}
-        </SectionCard>
-
-        {/* Consultations */}
-        <SectionCard icon={<Stethoscope className="w-4 h-4 text-violet-600" />} title="Visits / Consultations" count={consultations.length} accent="bg-violet-50">
-          {consultations.length === 0 ? <Empty label="No consultation records." /> : (
-            <div className="divide-y divide-gray-50">
-              {consultations.map((c: any, i: number) => (
-                <div key={c._id ?? i} className="px-5 py-3.5 hover:bg-gray-50 transition-colors">
-                  <div className="text-sm font-semibold text-gray-800">{fDate(c.date ?? c.createdAt)}{c.doctor?.name && <span className="font-normal text-xs text-gray-400 ml-2">Dr. {c.doctor.name}</span>}</div>
-                  {c.diagnosis && <div className="text-xs text-gray-500 mt-0.5">Diagnosis: {c.diagnosis}</div>}
-                  {c.notes && <div className="text-xs text-gray-400 mt-0.5">{c.notes}</div>}
-                </div>
-              ))}
-            </div>
-          )}
-        </SectionCard>
-
-        {/* Lab Reports */}
-        <SectionCard icon={<FlaskConical className="w-4 h-4 text-amber-600" />} title="Lab Reports" count={labReports.length} accent="bg-amber-50">
-          {labReports.length === 0 ? <Empty label="No lab reports." /> : (
-            <div className="divide-y divide-gray-50">
-              {labReports.map((r: any) => (
-                <div key={r._id} className="px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 hover:bg-gray-50 transition-colors">
-                  <div>
-                    <div className="text-sm font-semibold text-gray-800">Report #{r.mrn}{r.isFlagged && <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">Flagged</span>}</div>
-                    <div className="text-xs text-gray-500 mt-0.5">{fDate(r.date)}{r.panels?.length > 0 && ` • ${r.panels.join(", ")}`}</div>
-                  </div>
-                  <Badge status={r.status} map={LAB_BADGE} />
-                </div>
-              ))}
-            </div>
-          )}
-        </SectionCard>
-
-        {/* Pharmacy Orders */}
-        <SectionCard icon={<Pill className="w-4 h-4 text-teal-600" />} title="Pharmacy Orders" count={orders.length} accent="bg-teal-50">
-          {orders.length === 0 ? <Empty label="No pharmacy orders." /> : (
-            <div className="divide-y divide-gray-50">
-              {orders.map((o: any) => (
-                <div key={o._id} className="px-5 py-3.5 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between gap-3 flex-wrap">
+        {/* Appointments & Consultations Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Appointments */}
+          <SectionCard icon={<Calendar className="w-4 h-4 text-sky-600" />} title="Appointments" count={appointments.length} accent="bg-sky-50">
+            {appointments.length === 0 ? <Empty label="No appointments." /> : (
+              <div className="divide-y divide-gray-50">
+                {appointments.map((a: any) => (
+                  <div key={a._id} className="px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 hover:bg-gray-50 transition-colors">
                     <div>
-                      <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">{o.mrn}<Badge status={o.status} map={ORDER_BADGE} /></div>
-                      <div className="text-xs text-gray-500 mt-0.5">{fDate(o.createdAt)}{o.doctorName && o.doctorName !== "-" && ` • Dr. ${o.doctorName}`}</div>
+                      <div className="text-sm font-semibold text-gray-800">{fDate(a.date)} <span className="font-normal text-xs text-gray-400">{a.method}</span></div>
+                      <div className="text-xs text-gray-500 mt-0.5">{a.type}{a.doctor?.name && ` • Dr. ${a.doctor.name}`}</div>
                     </div>
-                    <span className={`text-xs font-semibold ${o.paymentStatus === "Paid" ? "text-emerald-600" : "text-rose-500"}`}>{o.paymentStatus}</span>
+                    <Badge status={a.status} map={APPT_BADGE} />
                   </div>
-                  {o.items?.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {o.items.map((it: any, idx: number) => (
-                        <span key={idx} className="text-[11px] px-2 py-0.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100">{it.name?.name ?? it.name} × {it.quantity}</span>
-                      ))}
+                ))}
+              </div>
+            )}
+          </SectionCard>
+
+          {/* Consultations */}
+          <SectionCard icon={<Stethoscope className="w-4 h-4 text-violet-600" />} title="Visits / Consultations" count={consultations.length} accent="bg-violet-50">
+            {consultations.length === 0 ? <Empty label="No consultation records." /> : (
+              <div className="divide-y divide-gray-50">
+                {consultations.map((c: any, i: number) => (
+                  <div key={c._id ?? i} className="px-5 py-3.5 hover:bg-gray-50 transition-colors">
+                    <div className="text-sm font-semibold text-gray-800">{fDate(c.date ?? c.createdAt)}{c.doctor?.name && <span className="font-normal text-xs text-gray-400 ml-2">Dr. {c.doctor.name}</span>}</div>
+                    {c.diagnosis && <div className="text-xs text-gray-500 mt-0.5">Diagnosis: {c.diagnosis}</div>}
+                    {c.notes && <div className="text-xs text-gray-400 mt-0.5">{c.notes}</div>}
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        </div>
+
+        {/* Lab Reports & Pharmacy Orders Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Lab Reports */}
+          <SectionCard icon={<FlaskConical className="w-4 h-4 text-amber-600" />} title="Lab Reports" count={labReports.length} accent="bg-amber-50">
+            {labReports.length === 0 ? <Empty label="No lab reports." /> : (
+              <div className="divide-y divide-gray-50">
+                {labReports.map((r: any) => (
+                  <div
+                    key={r._id}
+                    onClick={() => setSelectedLabReport(r)}
+                    className="px-5 py-3.5 flex flex-wrap items-center justify-between gap-3 hover:bg-amber-50/50 cursor-pointer transition-colors"
+                  >
+                    <div>
+                      <div className="text-sm font-semibold text-gray-800">Report #{r.mrn}{r.isFlagged && <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-600">Flagged</span>}</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{fDate(r.date)}{r.panels?.length > 0 && ` • ${r.panels.join(", ")}`}</div>
                     </div>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </SectionCard>
+                    <Badge status={r.status} map={LAB_BADGE} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+
+          {/* Pharmacy Orders */}
+          <SectionCard icon={<Pill className="w-4 h-4 text-teal-600" />} title="Pharmacy Orders" count={orders.length} accent="bg-teal-50">
+            {orders.length === 0 ? <Empty label="No pharmacy orders." /> : (
+              <div className="divide-y divide-gray-50">
+                {orders.map((o: any) => (
+                  <div
+                    key={o._id}
+                    onClick={() => setSelectedPharmacyOrder(o)}
+                    className="px-5 py-3.5 hover:bg-teal-50/50 cursor-pointer transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div>
+                        <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">{o.mrn}<Badge status={o.status} map={ORDER_BADGE} /></div>
+                        <div className="text-xs text-gray-500 mt-0.5">{fDate(o.createdAt)}{o.doctorName && o.doctorName !== "-" && ` • Dr. ${o.doctorName}`}</div>
+                      </div>
+                      <span className={`text-xs font-semibold ${o.paymentStatus === "Paid" ? "text-emerald-600" : "text-rose-500"}`}>{o.paymentStatus}</span>
+                    </div>
+                    {o.items?.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {o.items.map((it: any, idx: number) => (
+                          <span key={idx} className="text-[11px] px-2 py-0.5 bg-teal-50 text-teal-700 rounded-full border border-teal-100">{it.name?.name ?? it.name} × {it.quantity}</span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </SectionCard>
+        </div>
 
         {/* Billing */}
         <SectionCard icon={<Receipt className="w-4 h-4 text-indigo-600" />} title="Billing Records" count={billings.length} accent="bg-indigo-50">
@@ -307,7 +329,11 @@ export default function AdminIPSingleClient() {
                 const net = b.items.reduce((s: number, it: any) => s + (it.total || 0), 0) - (b.discount || 0);
                 const paid = (b.cash || 0) + (b.online || 0) + (b.insurance || 0);
                 return (
-                  <div key={b._id} className="px-5 py-3.5 hover:bg-gray-50 transition-colors">
+                  <div
+                    key={b._id}
+                    onClick={() => setSelectedBillingRecord(b)}
+                    className="px-5 py-3.5 hover:bg-indigo-50/50 cursor-pointer transition-colors"
+                  >
                     <div className="flex items-center justify-between gap-3 flex-wrap">
                       <div>
                         <div className="text-sm font-semibold text-gray-800 flex items-center gap-2">
@@ -329,6 +355,23 @@ export default function AdminIPSingleClient() {
         </SectionCard>
 
       </div>
+
+      {/* Detail Modals */}
+      <LabReportDetailModal
+        report={selectedLabReport}
+        open={Boolean(selectedLabReport)}
+        onOpenChange={(open) => !open && setSelectedLabReport(null)}
+      />
+      <PharmacyOrderDetailModal
+        order={selectedPharmacyOrder}
+        open={Boolean(selectedPharmacyOrder)}
+        onOpenChange={(open) => !open && setSelectedPharmacyOrder(null)}
+      />
+      <BillingDetailModal
+        billing={selectedBillingRecord}
+        open={Boolean(selectedBillingRecord)}
+        onOpenChange={(open) => !open && setSelectedBillingRecord(null)}
+      />
     </AppShell>
   );
 }
