@@ -254,7 +254,7 @@ export default function CreateBill({
       });
       setPayload(defaultPayload);
       billingMutate();
-      router.push("/dashboard/pharmacy");
+      router.push("/dashboard/reception/billing");
     } catch (error) {
       // Handle error
     }
@@ -340,7 +340,7 @@ export default function CreateBill({
 
 
   const { onClick, downloadPdf } = usePrint({
-    onAfterPrint: () => router.push("/dashboard/pharmacy")
+    onAfterPrint: () => router.push("/dashboard/reception/billing")
   })
 
   useEffect(() => {
