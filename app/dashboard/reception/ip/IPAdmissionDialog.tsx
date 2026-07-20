@@ -38,8 +38,8 @@ export default function IPAdmissionDialog({ open, onOpenChange, mutate }: { open
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!patientId || !doctorId || !room || !ward || !bed) {
-      toast.error("Please fill all required fields (Patient, Doctor, Room, Ward, Bed)");
+    if (!patientId || !doctorId) {
+      toast.error("Please fill all required fields (Patient and Attending Doctor)");
       return;
     }
 
@@ -131,20 +131,20 @@ export default function IPAdmissionDialog({ open, onOpenChange, mutate }: { open
                 <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100 text-blue-500">
                   <BedDouble className="w-4 h-4" />
                 </div>
-                <h3 className="font-semibold text-slate-800 text-base">Room & Bed Details</h3>
+                <h3 className="font-semibold text-slate-800 text-base">Room & Bed Details <span className="text-xs font-normal text-slate-400 ml-1">(Optional)</span></h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div className="flex flex-col gap-1.5">
-                  <Label className="text-slate-700 font-medium">Ward <span className="text-red-500">*</span></Label>
-                  <Input className="bg-white border-slate-200 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 shadow-xs rounded-xl h-11" value={ward} onChange={(e) => setWard(e.target.value)} placeholder="e.g. General Ward" required />
+                  <Label className="text-slate-700 font-medium">Ward</Label>
+                  <Input className="bg-white border-slate-200 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 shadow-xs rounded-xl h-11" value={ward} onChange={(e) => setWard(e.target.value)} placeholder="e.g. General Ward" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label className="text-slate-700 font-medium">Room <span className="text-red-500">*</span></Label>
-                  <Input className="bg-white border-slate-200 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 shadow-xs rounded-xl h-11" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="e.g. 101" required />
+                  <Label className="text-slate-700 font-medium">Room</Label>
+                  <Input className="bg-white border-slate-200 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 shadow-xs rounded-xl h-11" value={room} onChange={(e) => setRoom(e.target.value)} placeholder="e.g. 101" />
                 </div>
                 <div className="flex flex-col gap-1.5">
-                  <Label className="text-slate-700 font-medium">Bed <span className="text-red-500">*</span></Label>
-                  <Input className="bg-white border-slate-200 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 shadow-xs rounded-xl h-11" value={bed} onChange={(e) => setBed(e.target.value)} placeholder="e.g. Bed A" required />
+                  <Label className="text-slate-700 font-medium">Bed</Label>
+                  <Input className="bg-white border-slate-200 focus-visible:ring-blue-500/20 focus-visible:border-blue-500 shadow-xs rounded-xl h-11" value={bed} onChange={(e) => setBed(e.target.value)} placeholder="e.g. Bed A" />
                 </div>
               </div>
             </div>
