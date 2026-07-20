@@ -790,7 +790,19 @@ export default function IPDetailsClient() {
                       <Activity className="w-3.5 h-3.5 text-rose-500" /> Blood Pressure
                     </label>
                     <input type="text" placeholder="e.g. 120/80" value={vitals.bp}
-                      onChange={e => setVitals(v => ({ ...v, bp: e.target.value }))}
+                      onChange={e => {
+                        const val = e.target.value;
+                        const oldVal = vitals.bp;
+                        let newVal = val;
+                        if (val.length > oldVal.length && !val.includes("/")) {
+                          if (/^[12]\d{2}$/.test(val)) {
+                            newVal = val + "/";
+                          } else if (/^[3-9]\d$/.test(val)) {
+                            newVal = val + "/";
+                          }
+                        }
+                        setVitals(v => ({ ...v, bp: newVal }));
+                      }}
                       className="px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-300 transition-all" />
                   </div>
                   <div className="flex flex-col gap-1">
