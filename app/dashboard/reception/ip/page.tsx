@@ -36,7 +36,7 @@ export default function IPList() {
               <Search className="w-4 h-4 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search by patient name, MRN, IP number..."
+                placeholder="Search by patient name, OP number, IP number..."
                 className="bg-transparent border-none outline-none text-sm w-full"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
