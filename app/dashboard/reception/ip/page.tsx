@@ -80,7 +80,7 @@ export default function IPList() {
                         </td>
                         <td className="py-3 px-4">{ip.doctorId?.name ? `Dr. ${ip.doctorId.name}` : '-'}</td>
                         <td className="py-3 px-4 text-gray-600">
-                          {[ip.ward, ip.room, ip.bed].filter(Boolean).join(" / ") || "—"}
+                          {[ip.ward, ip.room, ip.bed].filter(v => Boolean(v && v.trim())).join(" / ") || "-"}
                         </td>
                         <td className="py-3 px-4">
                           <span className={`px-2 py-1 text-xs font-medium rounded-full ${ip.status === 'Admitted' ? 'bg-blue-100 text-blue-700' :

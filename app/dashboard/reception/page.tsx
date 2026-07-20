@@ -492,7 +492,7 @@ function AppointmentPageContent() {
                     <button onClick={handleNextWeek} title="Next Week (Shift + Right)" className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500"><ChevronRight size={16} /></button>
                   </div>
 
-                  <div className="w-45">
+                  {/* <div className="w-45">
                     <Select
                       value={selectedDoctorId}
                       onChange={setSelectedDoctorId}
@@ -500,7 +500,7 @@ function AppointmentPageContent() {
                       placeholder="Select Doctor"
                       className="mt-0"
                     />
-                  </div>
+                  </div> */}
                 </>
               )}
               <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />

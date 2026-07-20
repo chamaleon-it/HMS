@@ -82,7 +82,7 @@ export default function AdminIPPage() {
                         {r.doctorId?.name ? `Dr. ${r.doctorId.name}` : "—"}
                       </td>
                       <td className="px-4 py-3 text-gray-600">
-                        {[r.ward, r.room, r.bed].filter(Boolean).join(" / ") || "—"}
+                        {[r.ward, r.room, r.bed].filter(v => Boolean(v && v.trim())).join(" / ") || "-"}
                       </td>
                       <td className="px-4 py-3 text-gray-500 whitespace-nowrap">
                         {fDate(r.admissionDate)}
