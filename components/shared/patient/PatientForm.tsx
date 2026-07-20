@@ -31,14 +31,10 @@ export function PatientForm({
   mutate,
   patient,
 }: {
-  onClose: (id?: string, name?: string, allergies?: string, mrn?: string) => void;
+  onClose: (id?: string, name?: string, allergies?: string, mrn?: string, doctor?: string) => void;
   mutate?: () => void;
   patient?: any;
 }) {
-  const capitalizeFirstLetter = (str: string) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
-
   const { data: doctorsData } = useSWR<{
     data: { _id: string; name: string }[];
     message: string;
@@ -63,7 +59,8 @@ export function PatientForm({
     },
   });
 
-
+  const patientId = patient?._id;
+  const patientName = patient?.name;
 
   useEffect(() => {
     if (patient) {
@@ -88,7 +85,7 @@ export function PatientForm({
         doctor: patient.doctor?._id || patient.doctor || "none",
       });
     }
-  }, [patient, reset, user]);
+  }, [patientId, patientName, reset]);
 
   const values = watch();
   const { dateOfBirth } = values;
@@ -132,7 +129,8 @@ export function PatientForm({
       });
 
       reset();
-      onClose(res.data.data._id, res.data.data.name, undefined, res.data.data.mrn);
+      const docId = res.data.data.doctor?._id || res.data.data.doctor;
+      onClose(res.data.data._id, res.data.data.name, undefined, res.data.data.mrn, docId);
       if (mutate) {
         mutate();
       }
@@ -264,6 +262,11 @@ export function PatientForm({
                   mode="single"
                   selected={dateOfBirth ? new Date(dateOfBirth) : undefined}
                   captionLayout="dropdown"
+                  onMonthChange={(month) => {
+                    if (month) {
+                      setValue("dateOfBirth", month.toISOString());
+                    }
+                  }}
                   onSelect={(date) => {
                     setValue("dateOfBirth", date?.toISOString() ?? new Date().toISOString());
                     setOpenCalander(false);

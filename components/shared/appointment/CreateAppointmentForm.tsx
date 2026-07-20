@@ -113,6 +113,13 @@ export function CreateAppointmentForm({
       { revalidate: true }
     );
 
+    // Invalidate appointments list (which has query params like date, activeDate, status, query)
+    await globalMutate(
+      (key) => typeof key === 'string' && key.startsWith('/appointments/list'),
+      undefined,
+      { revalidate: true }
+    );
+
     // Invalidate statistics
     await globalMutate(
       "/appointments/statistics",
@@ -296,7 +303,7 @@ export function CreateAppointmentForm({
               variant="outline"
               size="sm"
               onClick={() => setOpenCreate(true)}
-              className="h-8 border-synapse-light/30 text-(--color-synapse-light) hover:bg-[#FDF6ED] hover:text-[var(--color-synapse-purple)]"
+              className="h-8 border-synapse-light/30 text-(--color-synapse-light) hover:bg-[#FDF6ED] hover:text-(--color-synapse-purple)"
             >
               <UserPlus className="h-3.5 w-3.5 mr-1.5" />
               Create Patient
@@ -422,14 +429,21 @@ export function CreateAppointmentForm({
           </DialogHeader>
           <PatientForm
             patient={{ name: input }}
-            onClose={async (id?: string, name?: string) => {
+            onClose={async (id?: string, name?: string, allergies?: string, mrn?: string, doctorId?: string) => {
               setOpenCreate(false);
               if (id && name) {
                 handleSelect({ _id: id, name, mrn: "" });
+                if (doctorId) {
+                  setValue("doctor", doctorId, { shouldValidate: true });
+                }
                 try {
                   const { data } = await api.get(`/patients/${id}`);
                   if (data && data.data) {
                     handleSelect(data.data);
+                    const assignedDoc = typeof data.data.doctor === 'object' ? data.data.doctor?._id : data.data.doctor;
+                    if (assignedDoc) {
+                      setValue("doctor", assignedDoc, { shouldValidate: true });
+                    }
                   }
                 } catch (error) {
                   console.error("Failed to fetch full patient details", error);
