@@ -101,21 +101,25 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {order.items.map((m, i) => (
-                                    <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
-                                        <td className="px-3 py-3 text-center font-bold text-black text-xs">{i + 1}</td>
-                                        <td className="px-3 py-3">
-                                            <p className="font-black text-black text-[12px]">{m.name.name}</p>
-                                            <p className="text-[10px] text-black font-medium tracking-tight mt-0.5">(GEN: {m.name.generic || "—"})</p>
-                                        </td>
-                                        <td className="px-3 py-3 text-center font-bold text-black">{m.dosage || "—"}</td>
-                                        <td className="px-3 py-3 text-center font-bold text-black">{m.frequency || "—"}</td>
-                                        <td className="px-3 py-3 text-center font-bold text-black">{m.duration || "—"}</td>
-                                        <td className="px-3 py-3 text-xs font-semibold text-black italic">
-                                            {m.food || "—"}
-                                        </td>
-                                    </tr>
-                                ))}
+                                {order.items.map((m, i) => {
+                                    const itemName = typeof m.name === "object" && m.name !== null ? m.name.name : String(m.name || "—");
+                                    const itemGeneric = typeof m.name === "object" && m.name !== null ? (m.name.generic || "—") : "—";
+                                    return (
+                                        <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                                            <td className="px-3 py-3 text-center font-bold text-black text-xs">{i + 1}</td>
+                                            <td className="px-3 py-3">
+                                                <p className="font-black text-black text-[12px]">{itemName}</p>
+                                                <p className="text-[10px] text-black font-medium tracking-tight mt-0.5">(GEN: {itemGeneric})</p>
+                                            </td>
+                                            <td className="px-3 py-3 text-center font-bold text-black">{m.dosage || "—"}</td>
+                                            <td className="px-3 py-3 text-center font-bold text-black">{m.frequency || "—"}</td>
+                                            <td className="px-3 py-3 text-center font-bold text-black">{m.duration || "—"}</td>
+                                            <td className="px-3 py-3 text-xs font-semibold text-black italic">
+                                                {m.food || "—"}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>

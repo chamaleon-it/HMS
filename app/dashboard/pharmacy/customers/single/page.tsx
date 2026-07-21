@@ -124,63 +124,92 @@ const CustomerPageContent: React.FC = () => {
     const [printBill, setPrintBill] = useState<null | any>(null)
     const [printOrder, setPrintOrder] = useState<OrderType | null>(null);
 
-    const handlePrintPrescription = async (order: { mrn?: string }) => {
-        if (!order?.mrn) return;
-        // We need to fetch full order details because selectedVisit might not have everything
+    const handlePrintPrescription = async (order?: any) => {
+        const visit = order || selectedVisit;
+        if (!visit) {
+            toast.error("Please select a bill or visit first");
+            return;
+        }
+
         try {
             setPrintingPrescription(true);
-            const params = new URLSearchParams()
-            params.set("q", order.mrn)
-            const { data } = await api.get<{ data: OrderType, message: string }>(`/pharmacy/orders/single?${params}`)
-            setPrintOrder(data.data);
+            let fetchedOrder: OrderType | null = null;
+
+            if (visit.mrn) {
+                try {
+                    const params = new URLSearchParams();
+                    params.set("q", visit.mrn);
+                    const { data } = await api.get<{ data: OrderType, message: string }>(`/pharmacy/orders/single?${params}`);
+                    if (data?.data) {
+                        fetchedOrder = data.data;
+                    }
+                } catch {
+                    // Fallback to building prescription object from selectedVisit
+                }
+            }
+
+            if (!fetchedOrder) {
+                const rawDoc = (visit as any)?.doctor;
+                const docName = typeof rawDoc === 'object' && rawDoc !== null
+                    ? (rawDoc.name || "-")
+                    : (typeof rawDoc === 'string' && rawDoc !== "" ? rawDoc : "-");
+
+                fetchedOrder = {
+                    _id: visit._id,
+                    mrn: visit.mrn || "ORD-00000",
+                    patient: (visit.patient && typeof visit.patient === 'object') ? visit.patient : (customer?.patient || null),
+                    doctor: typeof rawDoc === 'object' ? rawDoc : null,
+                    doctorName: docName,
+                    createdAt: visit.createdAt || new Date().toISOString(),
+                    items: (visit.items || []).map((it: any) => ({
+                        name: typeof it.name === 'object' && it.name !== null ? it.name : { name: it.name, generic: '' },
+                        dosage: it.dosage || 'As directed',
+                        frequency: it.frequency || '1-0-1',
+                        duration: it.duration || '5 Days',
+                        food: it.food || 'After Food'
+                    }))
+                } as any;
+            }
+
+            setPrintOrder(fetchedOrder);
             setTimeout(() => {
                 window.print();
                 setPrintOrder(null);
             }, 800);
         } catch (error) {
-            toast.error("Failed to fetch order details for printing");
+            toast.error("Failed to generate prescription for printing");
         } finally {
             setPrintingPrescription(false);
         }
     };
 
-    const handlePrintBill = async (mrn: string) => {
+    const handlePrintBill = async (mrn?: string) => {
+        const targetMrn = mrn || selectedVisit?.mrn || selectedVisit?._id;
+        if (!targetMrn && !selectedVisit) {
+            toast.error("Please select a bill to print");
+            return;
+        }
+
         try {
             setPrintingBill(true);
-            const { data } = await api.get<{
-                data: {
-                    _id: string;
-                    user: string;
-                    patient: {
-                        _id: string;
-                        name: string;
-                        phoneNumber: string;
-                        gender: string;
-                        dateOfBirth: string | null;
-                        address: string;
-                        mrn: string;
-                    };
-                    items: {
-                        name: string;
-                        quantity: number;
-                        unitPrice: number;
-                        gst: number;
-                        discount: number;
-                        total: number;
-                    }[];
-                    cash: number;
-                    online: number;
-                    insurance: number;
-                    discount: number;
-                    mrn: string;
-                    roundOff: boolean;
-                    transactionType: "Sale" | "Return";
-                    createdAt: string;
-                    updatedAt: string;
-                }[], message: string
-            }>(`/billing/single?q=${id}`)
+            let bill: any = null;
 
-            const bill = data.data.find(b => b.mrn === mrn);
+            if (id) {
+                try {
+                    const { data } = await api.get<{
+                        data: any[], message: string
+                    }>(`/billing/single?q=${id}`);
+                    if (Array.isArray(data?.data)) {
+                        bill = data.data.find((b: any) => b.mrn === targetMrn || b._id === targetMrn);
+                    }
+                } catch {
+                    // Fallback to selectedVisit if fetch fails
+                }
+            }
+
+            if (!bill) {
+                bill = selectedVisit;
+            }
 
             if (!bill) {
                 toast.error("Bill not found");
@@ -188,38 +217,47 @@ const CustomerPageContent: React.FC = () => {
             }
 
             // Map Items Logic
-            const items = bill.items.map(e => {
+            const items = (bill.items || []).map((e: any) => {
                 const unitPrice = e.unitPrice || 0;
                 const quantity = e.quantity || 0;
                 const itemGst = e.gst || 0;
                 const total = e.total || 0;
                 return {
                     gst: itemGst,
-                    name: e.name,
+                    name: typeof e.name === 'object' && e.name !== null ? (e.name.name || String(e.name)) : String(e.name || ''),
                     quantity,
                     unitPrice,
                     total: total,
                 };
             });
 
-            const subtotal = items.reduce((a, b) => a + b.unitPrice * b.quantity, 0);
-            const totalGst = items.reduce((a, b) => a + b.unitPrice * b.quantity * (b.gst / 100), 0);
+            const subtotal = items.reduce((a: number, b: any) => a + b.unitPrice * b.quantity, 0);
+            const totalGst = items.reduce((a: number, b: any) => a + b.unitPrice * b.quantity * (b.gst / 100), 0);
             const discount = bill.discount || 0;
             const grandTotalBeforeRoundOff = subtotal + totalGst - discount;
             const roundOffAmount = bill.roundOff ? getDecimal(grandTotalBeforeRoundOff) : 0;
             const grandTotal = grandTotalBeforeRoundOff - roundOffAmount;
 
+            const rawDoctor = (bill as any).doctor;
+            const doctorName = typeof rawDoctor === "object" && rawDoctor !== null
+                ? (rawDoctor.name ? `Dr. ${rawDoctor.name}` : "N/A")
+                : (typeof rawDoctor === "string" && rawDoctor.trim() !== "" ? rawDoctor : "N/A");
+
+            const patientObj = bill.patient && typeof bill.patient === "object"
+                ? bill.patient
+                : (customer?.patient || null);
+
             setPrintBill({
-                patient: bill.patient,
+                patient: patientObj,
                 payload: {
                     items,
-                    cash: bill.cash,
+                    cash: bill.cash || 0,
                     discount,
-                    insurance: bill.insurance,
-                    online: bill.online,
-                    patient: bill.patient._id,
+                    insurance: bill.insurance || 0,
+                    online: bill.online || 0,
+                    patient: patientObj?._id || "",
                     department: "Pharmacy",
-                    doctor: (bill as any).doctor || "N/A",
+                    doctor: doctorName,
                     note: "",
                 },
                 invoiceDetails: {
@@ -229,7 +267,7 @@ const CustomerPageContent: React.FC = () => {
                     subtotal,
                     grandTotal
                 },
-                invoiceNo: bill.mrn
+                invoiceNo: bill.mrn || bill._id
             });
 
             setTimeout(() => {
@@ -237,11 +275,11 @@ const CustomerPageContent: React.FC = () => {
                 setPrintBill(null);
             }, 800);
         } catch (error) {
-            toast.error("Failed to fetch bill details for printing");
+            toast.error("Failed to prepare bill for printing");
         } finally {
             setPrintingBill(false);
         }
-    }
+    };
 
     const calculatedDueAmount = selectedVisit?.transactionType === "Sale" && selectedVisit?.items
         ? selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) - (selectedVisit?.discount || 0) - ((selectedVisit?.cash || 0) + (selectedVisit?.online || 0) + (selectedVisit?.insurance || 0))
@@ -820,7 +858,7 @@ const CustomerPageContent: React.FC = () => {
                                                     <Button
                                                         className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                                                         disabled={printingBill}
-                                                        onClick={() => selectedVisit.mrn && handlePrintBill(selectedVisit.mrn)}
+                                                        onClick={() => handlePrintBill(selectedVisit?.mrn || selectedVisit?._id)}
                                                     >
                                                         {printingBill ? "Printing..." : "Print bill"}
                                                     </Button>
