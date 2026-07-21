@@ -18,8 +18,8 @@ interface PrintReceiptProps {
             total: number;
         }[];
         cash: number;
-        online: number;
-        insurance: number;
+        card: number;
+        upi: number;
         discount: number;
         doctor?: string;
         department?: string;

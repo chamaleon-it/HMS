@@ -18,8 +18,8 @@ interface StatisticsProps {
         mrn: string;
         createdAt: Date;
         cash: number;
-        online: number;
-        insurance: number;
+        card: number;
+        upi: number;
         discount: number;
         items: {
             name: string;
@@ -64,7 +64,7 @@ export default function Statistics({ billing }: StatisticsProps) {
             const isReturn = bill.transactionType === "Return";
             const multiplier = isReturn ? -1 : 1;
 
-            paid += ((bill.cash || 0) + (bill.online || 0) + (bill.insurance || 0)) * multiplier;
+            paid += ((bill.cash || 0) + (bill.card || 0) + (bill.upi || 0)) * multiplier;
 
             let billTotal = 0;
             bill.items.forEach(item => {
@@ -82,7 +82,7 @@ export default function Statistics({ billing }: StatisticsProps) {
             });
 
             const roundOffVal = bill.roundOff ? getDecimal(Math.abs(billTotal)) * multiplier : 0;
-            due += (billTotal - roundOffVal - (((bill.cash || 0) + (bill.online || 0) + (bill.insurance || 0) + (bill.discount || 0)) * multiplier));
+            due += (billTotal - roundOffVal - (((bill.cash || 0) + (bill.card || 0) + (bill.upi || 0) + (bill.discount || 0)) * multiplier));
         });
 
         return {

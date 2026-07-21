@@ -66,7 +66,7 @@ const CustomerPageContent: React.FC = () => {
         billing.forEach(b => {
             const itemsTotal = b.items.reduce((acc, it) => acc + (it.total || 0), 0);
             const rOff = b.roundOff ? getDecimal(itemsTotal) : 0;
-            const paid = (b.cash || 0) + (b.online || 0) + (b.insurance || 0);
+            const paid = (b.cash || 0) + (b.card || 0) + (b.upi || 0);
 
             if (b.transactionType === "Sale") {
                 totalSpend += itemsTotal - rOff - (b.discount || 0);
@@ -253,8 +253,8 @@ const CustomerPageContent: React.FC = () => {
                     items,
                     cash: bill.cash || 0,
                     discount,
-                    insurance: bill.insurance || 0,
-                    online: bill.online || 0,
+                    upi: bill.upi || 0,
+                    card: bill.card || 0,
                     patient: patientObj?._id || "",
                     department: "Pharmacy",
                     doctor: doctorName,
@@ -281,25 +281,58 @@ const CustomerPageContent: React.FC = () => {
         }
     };
 
-    const calculatedDueAmount = selectedVisit?.transactionType === "Sale" && selectedVisit?.items
-        ? selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) - (selectedVisit?.discount || 0) - ((selectedVisit?.cash || 0) + (selectedVisit?.online || 0) + (selectedVisit?.insurance || 0))
-        : 0;
+    const calculatedDueAmount = (() => {
+        if (!selectedVisit || selectedVisit.transactionType !== "Sale" || !selectedVisit.items) return 0;
+        const itemsTotal = selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0);
+        const rOff = selectedVisit.roundOff ? getDecimal(itemsTotal) : 0;
+        const paid = (selectedVisit.cash || 0) + (selectedVisit.card || 0) + (selectedVisit.upi || 0);
+        const netTotal = itemsTotal - rOff - (selectedVisit.discount || 0);
+        return Math.max(0, netTotal - paid);
+    })();
 
     const handlePaymentUpdate = async () => {
+        if (!selectedVisit) return;
         try {
             setUpdatingPayment(true);
+
+            let addedCash = 0;
+            let addedCard = 0;
+            let addedUpi = 0;
+
+            const parsedAmount = amountPaid.trim() !== "" ? Number(amountPaid) : null;
+
+            if (paymentMethod === "Cash" || paymentMethod === "Underpaid") {
+                const effectiveAmount = (parsedAmount !== null && !isNaN(parsedAmount) && parsedAmount > 0)
+                    ? Math.min(parsedAmount, calculatedDueAmount)
+                    : calculatedDueAmount;
+                addedCash = effectiveAmount;
+            } else if (paymentMethod === "UPI") {
+                const effectiveAmount = (parsedAmount !== null && !isNaN(parsedAmount) && parsedAmount > 0)
+                    ? Math.min(parsedAmount, calculatedDueAmount)
+                    : calculatedDueAmount;
+                addedUpi = effectiveAmount;
+            }
+
             const payload = {
-                cash: (selectedVisit?.cash || 0) + (paymentMethod === "Cash" ? calculatedDueAmount : (paymentMethod === "Underpaid" ? Number(amountPaid) : 0)),
-                online: (selectedVisit?.online || 0) + (paymentMethod === "UPI" ? calculatedDueAmount : 0),
-                insurance: (selectedVisit?.insurance || 0),
+                cash: (selectedVisit.cash || 0) + addedCash,
+                card: (selectedVisit.card || 0) + addedCard,
+                upi: (selectedVisit.upi || 0) + addedUpi,
             };
 
-            await api.patch(`/billing/add_payment/${selectedVisit?._id}`, payload);
+            await api.patch(`/billing/add_payment/${selectedVisit._id}`, payload);
 
             toast.success("Payment updated successfully");
             setShowPaymentModal(false);
-            mutate();
             setAmountPaid("");
+            setReferenceNumber("");
+
+            const updatedData = await mutate();
+            if (updatedData?.data) {
+                const match = updatedData.data.find((b: any) => b._id === selectedVisit._id);
+                if (match) {
+                    setSelectedVisit(match);
+                }
+            }
         } catch (error) {
             toast.error("Failed to update payment");
         } finally {
@@ -587,7 +620,7 @@ const CustomerPageContent: React.FC = () => {
 
                                                 const itemsTotal = item.items.reduce((a: number, b: any) => a + (b.total || 0), 0);
                                                 const rOff = item.roundOff ? getDecimal(itemsTotal) : 0;
-                                                const paid = (item.cash || 0) + (item.online || 0) + (item.insurance || 0);
+                                                const paid = (item.cash || 0) + (item.card || 0) + (item.upi || 0);
                                                 const netTotal = itemsTotal - rOff - (item.discount || 0);
                                                 const due = Math.max(0, netTotal - paid);
 
@@ -650,7 +683,7 @@ const CustomerPageContent: React.FC = () => {
                                 <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
                                     <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                                         <div className="text-sm font-semibold text-slate-900">
-                                            {selectedVisit?.transactionType === "Sale" ? "Sale" : "Return"} Details — {selectedVisit?.mrn || selectedVisit?._id}
+                                            {selectedVisit?.transactionType === "Refund" || selectedVisit?.items?.some((i: any) => i.name?.toLowerCase().includes("refund")) ? "Refund" : selectedVisit?.transactionType === "Sale" ? "Sale" : "Refund"} Details — {selectedVisit?.mrn || selectedVisit?._id}
                                         </div>
                                         {selectedVisit && (
                                             <div className="text-[11px] text-slate-500 flex flex-col items-end">
@@ -760,8 +793,8 @@ const CustomerPageContent: React.FC = () => {
                                                                     <td className="p-2 text-right text-sm font-semibold text-emerald-700">
                                                                         {formatINR(
                                                                             (selectedVisit?.cash || 0) +
-                                                                            (selectedVisit?.online || 0) +
-                                                                            (selectedVisit?.insurance || 0)
+                                                                            (selectedVisit?.card || 0) +
+                                                                            (selectedVisit?.upi || 0)
                                                                         )}
                                                                     </td>
                                                                 </tr>
@@ -774,8 +807,8 @@ const CustomerPageContent: React.FC = () => {
                                                                             selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
                                                                             (selectedVisit?.discount || 0) -
                                                                             ((selectedVisit?.cash || 0) +
-                                                                                (selectedVisit?.online || 0) +
-                                                                                (selectedVisit?.insurance || 0))
+                                                                                (selectedVisit?.card || 0) +
+                                                                                (selectedVisit?.upi || 0))
                                                                         )}
                                                                     </td>
                                                                 </tr>
@@ -998,15 +1031,27 @@ const CustomerPageContent: React.FC = () => {
                         )}
 
                         {paymentMethod === "UPI" && (
-                            <div className="space-y-2 pt-2">
-                                <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
-                                <Input
-                                    placeholder="Enter UPI transaction ID"
-                                    value={referenceNumber}
-                                    onChange={(e) => setReferenceNumber(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
-                                    className="h-11 bg-white border-slate-200 rounded-lg focus:ring-synapse-light/20"
-                                />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
+                                    <Input
+                                        type="number"
+                                        placeholder="Enter amount"
+                                        value={amountPaid}
+                                        onChange={(e) => setAmountPaid(e.target.value)}
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-synapse-light/20"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
+                                    <Input
+                                        placeholder="Enter UPI transaction ID"
+                                        value={referenceNumber}
+                                        onChange={(e) => setReferenceNumber(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
+                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-synapse-light/20"
+                                    />
+                                </div>
                             </div>
                         )}
                     </div>

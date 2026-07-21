@@ -38,8 +38,8 @@ export default function InvoiceView({ id }: { id: string }) {
         total: number;
       }[];
       cash: number;
-      online: number;
-      insurance: number;
+      card: number;
+      upi: number;
       mrn: string;
       createdAt: Date;
       updatedAt: Date;
@@ -90,8 +90,8 @@ export default function InvoiceView({ id }: { id: string }) {
                     );
                     const paid =
                       (billing?.cash ?? 0) +
-                      (billing?.online ?? 0) +
-                      (billing?.insurance ?? 0);
+                      (billing?.card ?? 0) +
+                      (billing?.upi ?? 0);
                     return Math.max(0, totalItems - paid);
                   })()
                 )}
@@ -107,8 +107,8 @@ export default function InvoiceView({ id }: { id: string }) {
                   );
                   const paid =
                     (billing?.cash ?? 0) +
-                    (billing?.online ?? 0) +
-                    (billing?.insurance ?? 0);
+                    (billing?.card ?? 0) +
+                    (billing?.upi ?? 0);
 
                   if (total <= paid) return "Paid";
                   if (paid === 0) return "Unpaid";
@@ -228,7 +228,7 @@ export default function InvoiceView({ id }: { id: string }) {
               </span>
             </div>
             <div className="flex justify-between py-1 text-sm text-green-700">
-              <span>Paid</span> <span>{formatINR((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))}</span>
+              <span>Paid</span> <span>{formatINR((billing?.cash ?? 0) + (billing?.card ?? 0) + (billing?.upi ?? 0))}</span>
             </div>
             <div className="flex justify-between py-1 text-sm text-red-600">
               <span>Due</span> <span>{formatINR(
@@ -236,7 +236,7 @@ export default function InvoiceView({ id }: { id: string }) {
                   (acc, { total }) =>
                     acc + total,
                   0
-                ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
+                ) ?? 0) - ((billing?.cash ?? 0) + (billing?.card ?? 0) + (billing?.upi ?? 0))
               )}</span>
             </div>
           </div>

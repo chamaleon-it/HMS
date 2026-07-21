@@ -18,8 +18,8 @@ interface StatisticsProps {
         mrn: string;
         createdAt: Date;
         cash: number;
-        online: number;
-        insurance: number;
+        card: number;
+        upi: number;
         discount: number;
         items: {
             name: string;
@@ -37,30 +37,20 @@ interface StatisticsProps {
 }
 
 export default function Statistics({ billing }: StatisticsProps) {
-    const { data: billingItemsResponse } = useSWR<{ data: { item: string }[] }>("/billing/billing_items");
-    const billingItems = billingItemsResponse?.data ?? [];
-
-
     const {
         totalBills,
         consultingFee,
-        procedureFee,
-        pharmacyFee,
         paidAmount,
         dueAmount,
         totalConsultation
     } = useMemo(() => {
         let consult = 0;
-        let procItemsSum = 0;
-        let pharm = 0;
         let paid = 0;
         let due = 0;
         let totalConsultation = 0;
 
-        const billingItemNames = new Set(billingItems.map(i => i.item));
-
         billing.forEach(bill => {
-            paid += (bill.cash || 0) + (bill.online || 0) + (bill.insurance || 0);
+            paid += (bill.cash || 0) + (bill.card || 0) + (bill.upi || 0);
 
             let billTotal = 0;
             bill.items.forEach(item => {
@@ -70,27 +60,21 @@ export default function Statistics({ billing }: StatisticsProps) {
                 if (item.name.toLowerCase().includes("consultation")) {
                     consult += itemTotal;
                     totalConsultation += 1;
-                } else if (billingItemNames.has(item.name)) {
-                    procItemsSum += itemTotal;
-                } else {
-                    pharm += itemTotal;
                 }
             });
 
             const roundOffVal = bill.roundOff ? getDecimal(billTotal) : 0;
-            due += (billTotal - roundOffVal - (bill.insurance + bill.cash + bill.online + (bill.discount ?? 0)));
+            due += (billTotal - roundOffVal - (bill.upi + bill.cash + bill.card + (bill.discount ?? 0)));
         });
 
         return {
             totalBills: billing.length,
             consultingFee: consult,
-            procedureFee: procItemsSum,
-            pharmacyFee: pharm,
             paidAmount: paid,
             dueAmount: due,
             totalConsultation: totalConsultation
         };
-    }, [billing, billingItems]);
+    }, [billing]);
 
     const stats = useMemo(() => [
         {
@@ -124,26 +108,6 @@ export default function Statistics({ billing }: StatisticsProps) {
             headingColor: "text-(--color-synapse-light)"
         },
         {
-            label: "Pharmacy Sales",
-            value: formatINR(pharmacyFee),
-            icon: Pill,
-            bg: "bg-emerald-50/50",
-            border: "border-emerald-100",
-            iconColor: "text-emerald-600/70",
-            textColor: "text-emerald-800/70",
-            headingColor: "text-emerald-900"
-        },
-        {
-            label: "Procedure Fees",
-            value: formatINR(procedureFee),
-            icon: Syringe,
-            bg: "bg-amber-50/50",
-            border: "border-amber-100",
-            iconColor: "text-amber-600/70",
-            textColor: "text-amber-800/70",
-            headingColor: "text-amber-900"
-        },
-        {
             label: "Due Amount",
             value: formatINR(dueAmount),
             icon: AlertCircle,
@@ -153,12 +117,12 @@ export default function Statistics({ billing }: StatisticsProps) {
             textColor: "text-rose-800/70",
             headingColor: "text-rose-900"
         }
-    ], [totalBills, consultingFee, pharmacyFee, procedureFee, paidAmount, dueAmount]);
+    ], [totalBills, totalConsultation, consultingFee, dueAmount]);
 
 
     return (
 
-        <div className="grid grid-cols-6 gap-3 pb-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pb-3">
 
             {stats.map((stat, index) => (
                 <div

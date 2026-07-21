@@ -83,8 +83,8 @@ export default function OrderTable({
         total: number;
       }[];
       cash: number;
-      online: number;
-      insurance: number;
+      card: number;
+      upi: number;
       discount: number;
       doctor?: string;
       department?: string;
@@ -209,8 +209,8 @@ export default function OrderTable({
           items,
           cash: 0,
           discount,
-          insurance: 0,
-          online: 0,
+          upi: 0,
+          card: 0,
           patient: data.data.patient._id,
           department: data.data.doctor.specialization,
           doctor: data.data.doctor.name,

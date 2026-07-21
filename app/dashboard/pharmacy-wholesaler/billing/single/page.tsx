@@ -44,8 +44,8 @@ function InvoiceViewContent() {
         total: number;
       }[];
       cash: number;
-      online: number;
-      insurance: number;
+      card: number;
+      upi: number;
       mrn: string;
       createdAt: Date;
       updatedAt: Date;
@@ -96,8 +96,8 @@ function InvoiceViewContent() {
                     );
                     const paid =
                       (billing?.cash ?? 0) +
-                      (billing?.online ?? 0) +
-                      (billing?.insurance ?? 0);
+                      (billing?.card ?? 0) +
+                      (billing?.upi ?? 0);
                     return Math.max(0, totalItems - paid);
                   })()
                 )}
@@ -113,8 +113,8 @@ function InvoiceViewContent() {
                   );
                   const paid =
                     (billing?.cash ?? 0) +
-                    (billing?.online ?? 0) +
-                    (billing?.insurance ?? 0);
+                    (billing?.card ?? 0) +
+                    (billing?.upi ?? 0);
 
                   if (total <= paid) return "Paid";
                   if (paid === 0) return "Unpaid";
@@ -234,7 +234,7 @@ function InvoiceViewContent() {
               </span>
             </div>
             <div className="flex justify-between py-1 text-sm text-green-700">
-              <span>Paid</span> <span>{formatINR((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))}</span>
+              <span>Paid</span> <span>{formatINR((billing?.cash ?? 0) + (billing?.card ?? 0) + (billing?.upi ?? 0))}</span>
             </div>
             <div className="flex justify-between py-1 text-sm text-red-600">
               <span>Due</span> <span>{formatINR(
@@ -242,7 +242,7 @@ function InvoiceViewContent() {
                   (acc, { total }) =>
                     acc + total,
                   0
-                ) ?? 0) - ((billing?.cash ?? 0) + (billing?.online ?? 0) + (billing?.insurance ?? 0))
+                ) ?? 0) - ((billing?.cash ?? 0) + (billing?.card ?? 0) + (billing?.upi ?? 0))
               )}</span>
             </div>
           </div>

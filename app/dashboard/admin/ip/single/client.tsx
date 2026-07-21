@@ -124,7 +124,7 @@ export default function AdminIPSingleClient() {
   );
 
   const totalBilled = billings.filter(b => b.transactionType === "Sale").reduce((s, b) => s + b.items.reduce((a: number, it: any) => a + (it.total || 0), 0) - (b.discount || 0), 0);
-  const totalPaid = billings.filter(b => b.transactionType === "Sale").reduce((s, b) => s + (b.cash || 0) + (b.online || 0) + (b.insurance || 0), 0);
+  const totalPaid = billings.filter(b => b.transactionType === "Sale").reduce((s, b) => s + (b.cash || 0) + (b.card || 0) + (b.upi || 0), 0);
   const totalDue = Math.max(0, totalBilled - totalPaid);
   const ipNotes: any[] = (ip.ipNotes ?? []).slice().reverse();
 
@@ -327,7 +327,7 @@ export default function AdminIPSingleClient() {
             <div className="divide-y divide-gray-50">
               {billings.map((b: any) => {
                 const net = b.items.reduce((s: number, it: any) => s + (it.total || 0), 0) - (b.discount || 0);
-                const paid = (b.cash || 0) + (b.online || 0) + (b.insurance || 0);
+                const paid = (b.cash || 0) + (b.card || 0) + (b.upi || 0);
                 return (
                   <div
                     key={b._id}

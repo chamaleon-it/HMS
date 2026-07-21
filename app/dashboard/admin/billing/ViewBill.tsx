@@ -50,8 +50,8 @@ export default function ViewBill({ id }: { id: string }) {
             }[];
             roundOff: boolean;
             cash: number;
-            online: number;
-            insurance: number;
+            card: number;
+            upi: number;
             discount: number;
             mrn: string;
             createdAt: Date;
@@ -89,10 +89,10 @@ export default function ViewBill({ id }: { id: string }) {
     const grandTotal = billing.items.reduce((s, { total }) => s + total, 0);
 
     const paymentMethod =
-        billing.insurance > 0
-            ? "Insurance"
-            : billing.online > 0
-                ? "Online"
+        billing.upi > 0
+            ? "UPI"
+            : billing.card > 0
+                ? "Card"
                 : "Cash";
 
     return (
@@ -246,8 +246,8 @@ export default function ViewBill({ id }: { id: string }) {
                         patient: billing.patient.name,
                         items: billing.items.map((i: any) => ({ ...i, name: i.name })),
                         cash: billing.cash,
-                        online: billing.online,
-                        insurance: billing.insurance,
+                        card: billing.card,
+                        upi: billing.upi,
                         discount: billing.discount,
                         doctor: typeof billing.doctor === "object" ? billing.doctor?.name : (billing.doctor === "Self" ? "" : billing.doctor),
                         department: typeof billing.doctor === "object" ? billing.doctor?.specialization : billing.department,

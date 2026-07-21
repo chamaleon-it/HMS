@@ -76,6 +76,7 @@ export default function BillingPage() {
   params.set("startDate", sd.toISOString());
   params.set("endDate", ed.toISOString());
   params.set("activeDate", filter.activeDate);
+  params.set("userRole", "Reception");
 
   params.set("page", String(filter.page));
   params.set("limit", String(filter.limit));
@@ -89,8 +90,8 @@ export default function BillingPage() {
       mrn: string;
       createdAt: Date;
       cash: number;
-      online: number;
-      insurance: number;
+      card: number;
+      upi: number;
       discount: number;
       items: {
         name: string;
@@ -163,7 +164,7 @@ export default function BillingPage() {
 
                 <Statistics billing={billing} />
 
-                <Filters filter={filter} setFilter={setFilter} />
+                <Filters filter={filter} setFilter={setFilter} billing={billing} />
                 {isLoadingBilling ? (
                   <TableSkeleton rows={10} columns={6} />
                 ) : (

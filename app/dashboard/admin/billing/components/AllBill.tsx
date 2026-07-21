@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/table";
 
 interface BillRow {
-  status: "Paid" | "Partial" | "Unpaid" | "Return";
-  method: "cash" | "online" | "insurance" | "mixed";
+  status: "Paid" | "Partial" | "Unpaid" | "Return" | "Refund";
+  method: "cash" | "card" | "upi" | "mixed";
 }
 
 interface PropsType {
@@ -29,14 +29,14 @@ interface PropsType {
   total: number;
   billing: {
     doctor: string;
-    transactionType: "Return" | "Sale"
+    transactionType: "Return" | "Sale" | "Refund";
     roundOff: boolean;
     mrn: string;
     _id: string;
     createdAt: Date;
     cash: number;
-    online: number;
-    insurance: number;
+    card: number;
+    upi: number;
     discount: number;
     items: {
       name: string;
@@ -123,8 +123,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       <div className="font-medium text-slate-900">{b.mrn}</div>
                       <div className="text-[11px] text-slate-500 space-x-1 mt-1">
                         {Boolean(b.cash) && <MethodPill m="cash" />}
-                        {Boolean(b.online) && <MethodPill m="online" />}
-                        {Boolean(b.insurance) && <MethodPill m="insurance" />}
+                        {Boolean(b.card) && <MethodPill m="card" />}
+                        {Boolean(b.upi) && <MethodPill m="upi" />}
                       </div>
                     </TableCell>
                     <TableCell className="py-3 text-slate-600 whitespace-nowrap">{fDateandTime(b.createdAt)}</TableCell>
@@ -153,28 +153,42 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       {formatINR(b.discount)}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
-                      {formatINR(b.insurance + b.cash + b.online)}
+                      {formatINR((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0))}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
                       {formatINR(
-                        b.items.reduce((a, b) => a + b.total, 0) -
-                        (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0) -
-                        (b.insurance + b.cash + b.online + (b.discount ?? 0))
+                        Math.max(
+                          0,
+                          b.items.reduce((a, i) => a + (i.total ?? 0), 0) -
+                          (b.roundOff ? getDecimal(b.items.reduce((a, i) => a + (i.total ?? 0), 0)) : 0) -
+                          ((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0) + (b.discount ?? 0))
+                        )
                       )}
                     </TableCell>
                     <TableCell className="py-3 text-center">
                       <StatusPill
                         s={(() => {
-                          const total = b.items.reduce(
-                            (sum, i) => sum + i.total,
+                          if (b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) {
+                            return "Refund";
+                          }
+                          if (b.transactionType === "Return") {
+                            return "Return";
+                          }
+                          const itemsTotal = b.items.reduce(
+                            (sum, i) => sum + (i.total ?? 0),
                             0
-                          ) - (b.roundOff ? getDecimal(b.items.reduce((a, b) => a + b.total, 0)) : 0);
-                          const paid = b.cash + b.online + b.insurance + (b.discount ?? 0);
-                          return b.transactionType === "Return" ? "Return" : total <= paid
-                            ? "Paid"
-                            : paid === 0
-                              ? "Unpaid"
-                              : "Partial";
+                          );
+                          const roundOffAmount = b.roundOff ? getDecimal(itemsTotal) : 0;
+                          const netTotal = itemsTotal - roundOffAmount;
+                          const totalPaid = (b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0) + (b.discount ?? 0);
+                          
+                          if (netTotal - totalPaid <= 0.01) {
+                            return "Paid";
+                          }
+                          if (totalPaid <= 0.01) {
+                            return "Unpaid";
+                          }
+                          return "Partial";
                         })()}
                       />
                     </TableCell>
@@ -209,22 +223,22 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     Total
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums">
-                    {formatINR(billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0)), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items.reduce((a, x) => a + x.total, 0)), 0))}
+                    {formatINR(billing.reduce((acc, b) => acc + ((b.transactionType === "Return" || b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) ? 0 : b.items.reduce((a, x) => a + (x.total ?? 0), 0)), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items.reduce((a, x) => a + (x.total ?? 0), 0)), 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-slate-700">
-                    {billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0), 0).toFixed(2)}
+                    {billing.reduce((acc, b) => acc + ((b.transactionType === "Return" || b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) ? 0 : b.roundOff ? getDecimal(b.items.reduce((a, x) => a + (x.total ?? 0), 0)) : 0), 0).toFixed(2)}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums">
                     {formatINR(billing.reduce((acc, b) => acc + (b.discount ?? 0), 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
-                    {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - b.cash : acc + b.insurance + b.cash + b.online, 0))}
+                    {formatINR(billing.reduce((acc, b) => (b.transactionType === "Return" || b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) ? acc - (b.cash ?? 0) : acc + (b.upi ?? 0) + (b.cash ?? 0) + (b.card ?? 0), 0))}
                   </TableCell>
                   <TableCell className="py-4 text-right tabular-nums text-rose-700 font-black">
                     {formatINR(billing.reduce((acc, b) =>
-                      acc + (b.transactionType === "Return" ? 0 : b.items.reduce((a, x) => a + x.total, 0) -
-                        (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + x.total, 0)) : 0) -
-                        (b.insurance + b.cash + b.online + (b.discount ?? 0))), 0
+                      acc + ((b.transactionType === "Return" || b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) ? 0 : Math.max(0, b.items.reduce((a, x) => a + (x.total ?? 0), 0) -
+                        (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + (x.total ?? 0), 0)) : 0) -
+                        ((b.upi ?? 0) + (b.cash ?? 0) + (b.card ?? 0) + (b.discount ?? 0)))), 0
                     )
                     )}
                   </TableCell>
@@ -252,8 +266,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             patient: printBill.patient.name,
             items: printBill.items.map((i) => ({ ...i, name: i.name })),
             cash: printBill.cash,
-            online: printBill.online,
-            insurance: printBill.insurance,
+            card: printBill.card,
+            upi: printBill.upi,
             discount: printBill.discount,
             doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor),
             department: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.specialization : (printBill as any).department,
@@ -286,8 +300,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
 const MethodPill: React.FC<{ m: BillRow["method"] }> = ({ m }) => {
   const map: Record<BillRow["method"], string> = {
     cash: "bg-slate-100 text-slate-700 border-slate-200",
-    online: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30",
-    insurance: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30",
+    card: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30",
+    upi: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30",
     mixed: "bg-sky-50 text-sky-700 border-sky-200",
   };
   return (
@@ -305,7 +319,7 @@ const StatusPill: React.FC<{ s: BillRow["status"] }> = ({ s }) => {
       ? "bg-emerald-50 text-emerald-700 border-emerald-200"
       : s === "Partial" || s === "Unpaid"
         ? "bg-amber-50 text-amber-800 border-amber-200"
-        : s === "Return"
+        : s === "Return" || s === "Refund"
           ? "bg-amber-50 text-amber-800 border-amber-200"
           : "bg-rose-50 text-rose-700 border-rose-200";
   return (

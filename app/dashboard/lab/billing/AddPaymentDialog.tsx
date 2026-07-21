@@ -2,7 +2,7 @@
 
 import {
     Banknote,
-    Building2,
+    Smartphone,
     CreditCard,
     IndianRupee,
     Plus,
@@ -35,8 +35,8 @@ interface BillData {
     _id: string;
     mrn: string;
     cash: number;
-    online: number;
-    insurance: number;
+    card: number;
+    upi: number;
     discount: number;
     items: BillItem[];
     roundOff: boolean;
@@ -63,7 +63,7 @@ export default function AddPaymentDialog({
     billingMutate,
 }: AddPaymentDialogProps) {
     const [items, setItems] = useState<BillItem[]>([]);
-    const [payment, setPayment] = useState({ cash: 0, online: 0, insurance: 0, discount: 0 });
+    const [payment, setPayment] = useState({ cash: 0, card: 0, upi: 0, discount: 0 });
 
     // Sync state when bill or dialog opens
     useEffect(() => {
@@ -71,8 +71,8 @@ export default function AddPaymentDialog({
             setItems(bill.items.map(i => ({ ...i })));
             setPayment({
                 cash: bill.cash,
-                online: bill.online,
-                insurance: bill.insurance,
+                card: bill.card,
+                upi: bill.upi,
                 discount: bill.discount,
             });
         }
@@ -101,7 +101,7 @@ export default function AddPaymentDialog({
 
     // ── Totals ────────────────────────────────────────────────────────────────
     const subtotal = items.reduce((a, i) => a + i.total, 0);
-    const totalPaid = payment.cash + payment.online + payment.insurance;
+    const totalPaid = payment.cash + payment.card + payment.upi;
     const due = Math.max(0, subtotal - totalPaid - (payment.discount ?? 0));
 
     // ── Submit ────────────────────────────────────────────────────────────────
@@ -109,8 +109,8 @@ export default function AddPaymentDialog({
         const payload = {
             items,
             cash: payment.cash,
-            online: payment.online,
-            insurance: payment.insurance,
+            card: payment.card,
+            upi: payment.upi,
             discount: payment.discount,
         };
         await toast.promise(api.patch(`/billing/${bill._id}`, payload), {
@@ -218,13 +218,13 @@ export default function AddPaymentDialog({
                         <div className="rounded-2xl border border-slate-200 p-4 shadow-sm bg-white">
                             <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-700">
                                 <Wallet2 className="h-4 w-4" />
-                                Payments &amp; Insurance
+                                Payments
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                                 {([
                                     { key: "cash", label: "Cash", icon: Banknote, tint: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-                                    { key: "online", label: "Card / UPI", icon: CreditCard, tint: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30" },
-                                    { key: "insurance", label: "Insurance", icon: Building2, tint: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30" },
+                                    { key: "card", label: "Card", icon: CreditCard, tint: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30" },
+                                    { key: "upi", label: "UPI", icon: Smartphone, tint: "bg-violet-50 text-violet-700 border-violet-200" },
                                 ] as const).map(({ key, label, icon: Icon, tint }) => (
                                     <div key={key} className={`rounded-xl border px-3 py-3 ${tint}`}>
                                         <div className="mb-1.5 flex items-center gap-2 text-xs font-semibold">

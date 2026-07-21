@@ -1,4 +1,4 @@
-import { ChevronDownIcon, RefreshCcw, Search, Filter as FilterIcon } from "lucide-react";
+import { ChevronDownIcon, RefreshCcw, Search, Filter as FilterIcon, Download } from "lucide-react";
 import React, { useState } from "react";
 import { FilterType } from "./page";
 import {
@@ -16,16 +16,172 @@ import { Calendar } from "@/components/ui/calendar";
 import DateFilter from "../DateFilter";
 import { motion } from "framer-motion";
 import { Input } from "@/components/ui/input";
+import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import { fDateandTime } from "@/lib/fDateAndTime";
+import { getDecimal } from "@/lib/fNumber";
+import { startOfDay, endOfDay, subDays } from "date-fns";
 
 interface PropsType {
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
+  billing?: any[];
 }
 
-export default function Filters({ filter, setFilter }: PropsType) {
+export default function Filters({ filter, setFilter, billing }: PropsType) {
+  const [isExporting, setIsExporting] = useState(false);
 
   const handleReset = () => {
     setFilter({ q: null, qEnd: null, status: "all", method: "all", activeDate: "Today", date: new Date(), page: 1, limit: 10, doctor: [] });
+  };
+
+  const escapeCsv = (str: string | number | undefined | null) => {
+    if (str === null || str === undefined) return '""';
+    return `"${String(str).replace(/"/g, '""')}"`;
+  };
+
+  const handleExportCsv = async () => {
+    try {
+      setIsExporting(true);
+
+      let exportData: any[] = [];
+
+      // Fetch all matching data without pagination limits
+      const params = new URLSearchParams();
+      if (filter.q) params.set("q", filter.q);
+      if (filter.qEnd && filter.qEnd.length >= 7) params.set("qEnd", filter.qEnd);
+      if (filter.status && filter.status !== "all") params.set("status", filter.status);
+      if (filter.method && filter.method !== "all") params.set("method", filter.method);
+
+      let sd: Date = startOfDay(new Date());
+      let ed: Date = endOfDay(new Date());
+
+      if (filter.activeDate === "Today") {
+        sd = startOfDay(new Date());
+      } else if (filter.activeDate === "7 days") {
+        sd = startOfDay(subDays(new Date(), 7));
+      } else if (filter.activeDate === "30 days") {
+        sd = startOfDay(subDays(new Date(), 30));
+      } else if (filter.activeDate === "Custom" && filter.date) {
+        sd = startOfDay(filter.date);
+        ed = endOfDay(filter.date);
+      }
+
+      params.set("startDate", sd.toISOString());
+      params.set("endDate", ed.toISOString());
+      params.set("activeDate", filter.activeDate);
+      params.set("page", "1");
+      params.set("limit", "100000");
+
+      const res = await api.get(`/billing?${params.toString()}`);
+      exportData = res.data?.data ?? [];
+
+      if (filter.doctor && filter.doctor.length > 0) {
+        exportData = exportData.filter((b: any) => {
+          const docName = typeof b.doctor === "object" ? b.doctor?.name : b.doctor;
+          return filter.doctor.includes(docName);
+        });
+      }
+
+      if (!exportData || exportData.length === 0) {
+        toast.error("No billing data available to export for selected filters.");
+        return;
+      }
+
+      const headers = [
+        "Sl No",
+        "Invoice No",
+        "Date & Time",
+        "Patient Name",
+        "Patient MRN",
+        "Doctor",
+        "Items Count",
+        "Items Detail",
+        "Total (INR)",
+        "Round Off (INR)",
+        "Discount (INR)",
+        "Paid Amount (INR)",
+        "Cash (INR)",
+        "Card (INR)",
+        "UPI (INR)",
+        "Due Amount (INR)",
+        "Status",
+        "Transaction Type"
+      ];
+
+      const csvRows = [headers.map((h) => `"${h}"`).join(",")];
+
+      exportData.forEach((b: any, index: number) => {
+        const docName = typeof b.doctor === "object" ? b.doctor?.name : (b.doctor === "Self" ? "Self" : b.doctor);
+        const itemsCount = b.items?.length || 0;
+        const itemsDetail = b.items?.map((i: any) => `${i.name} (${i.quantity || 1}x ${i.unitPrice || i.total})`).join("; ") || "";
+        const itemsTotal = b.items?.reduce((sum: number, i: any) => sum + (i.total || 0), 0) || 0;
+        const roundOffVal = b.roundOff ? getDecimal(itemsTotal) : 0;
+        const discountVal = b.discount || 0;
+        const cashVal = b.cash || 0;
+        const cardVal = b.card || 0;
+        const upiVal = b.upi || 0;
+        const paidVal = cashVal + cardVal + upiVal;
+        const dueVal = Math.max(0, itemsTotal - roundOffVal - (paidVal + discountVal));
+
+        const status = (() => {
+          if (b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) {
+            return "Refund";
+          }
+          if (b.transactionType === "Return") {
+            return "Return";
+          }
+          if (itemsTotal - roundOffVal - (paidVal + discountVal) <= 0.01) {
+            return "Paid";
+          }
+          if (paidVal <= 0.01) {
+            return "Unpaid";
+          }
+          return "Partial";
+        })();
+
+        const row = [
+          index + 1,
+          b.mrn || "N/A",
+          fDateandTime(b.createdAt),
+          b.patient?.name || "N/A",
+          b.patient?.mrn || "N/A",
+          docName || "N/A",
+          itemsCount,
+          itemsDetail,
+          itemsTotal.toFixed(2),
+          roundOffVal.toFixed(2),
+          discountVal.toFixed(2),
+          paidVal.toFixed(2),
+          cashVal.toFixed(2),
+          cardVal.toFixed(2),
+          upiVal.toFixed(2),
+          dueVal.toFixed(2),
+          status,
+          b.transactionType || "Sale"
+        ];
+
+        csvRows.push(row.map(escapeCsv).join(","));
+      });
+
+      const csvContent = "data:text/csv;charset=utf-8," + encodeURIComponent(csvRows.join("\n"));
+      const downloadLink = document.createElement("a");
+      downloadLink.setAttribute("href", csvContent);
+      downloadLink.setAttribute(
+        "download",
+        `Pharmacy_Billing_Export_${new Date().toISOString().split("T")[0]}.csv`
+      );
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      document.body.removeChild(downloadLink);
+
+      toast.success(`Exported ${exportData.length} billing records to CSV`);
+    } catch (err: any) {
+      console.error("Failed to export CSV:", err);
+      toast.error("Failed to export CSV file");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -89,8 +245,8 @@ export default function Filters({ filter, setFilter }: PropsType) {
                   <SelectLabel className="text-[10px] uppercase tracking-wider text-slate-400">Method</SelectLabel>
                   <SelectItem value="all">All Methods</SelectItem>
                   <SelectItem value="Cash">Cash</SelectItem>
-                  <SelectItem value="Online">Online</SelectItem>
-                  <SelectItem value="Insurance">Insurance</SelectItem>
+                  <SelectItem value="Card">Card</SelectItem>
+                  <SelectItem value="UPI">UPI</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -112,8 +268,8 @@ export default function Filters({ filter, setFilter }: PropsType) {
           </div>
         </div>
 
-        {/* Reset Button */}
-        <div className="ml-auto">
+        {/* Reset & Export CSV Buttons */}
+        <div className="ml-auto flex items-center gap-2">
           <Button
             variant="outline"
             className="h-10 px-7! border-slate-200 bg-white hover:bg-slate-50 text-slate-600 font-semibold rounded-lg flex items-center gap-2 transition-all active:scale-95 shadow-sm"
@@ -121,6 +277,16 @@ export default function Filters({ filter, setFilter }: PropsType) {
           >
             <RefreshCcw className="h-4 w-4" />
             Reset
+          </Button>
+
+          <Button
+            variant="outline"
+            disabled={isExporting}
+            className="h-10 px-5 border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-lg flex items-center gap-2 transition-all active:scale-95 shadow-sm"
+            onClick={handleExportCsv}
+          >
+            <Download className="h-4 w-4" />
+            {isExporting ? "Exporting..." : "Export CSV"}
           </Button>
         </div>
       </div>

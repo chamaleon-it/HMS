@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Wallet2, Banknote, CreditCard, Building2, IndianRupee, BadgePercent, Percent } from "lucide-react";
+import { Wallet2, Banknote, CreditCard, Smartphone, IndianRupee, BadgePercent, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { formatINR } from "@/lib/fNumber";
 import { useBillCalculations } from "../hooks/useBillCalculations";
@@ -24,20 +24,20 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
             activeBg: "bg-emerald-50"
         },
         {
-            key: "online",
-            label: "UPI / Card",
+            key: "card",
+            label: "Card Payment",
             icon: CreditCard,
             color: "text-(--color-synapse-light)",
             activeBorder: "border-[var(--color-synapse-light)]",
             activeBg: "bg-synapse-light/10"
         },
         {
-            key: "insurance",
-            label: "Insurance / TPA",
-            icon: Building2,
-            color: "text-(--color-synapse-light)",
-            activeBorder: "border-fuchsia-500",
-            activeBg: "bg-fuchsia-50"
+            key: "upi",
+            label: "UPI Payment",
+            icon: Smartphone,
+            color: "text-violet-600",
+            activeBorder: "border-violet-500",
+            activeBg: "bg-violet-50"
         },
     ];
 
@@ -50,8 +50,8 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
         roundOff: payload.roundOff,
         payments: {
             cash: payload.cash,
-            online: payload.online,
-            insurance: payload.insurance
+            card: payload.card,
+            upi: payload.upi
         }
     });
 
@@ -61,7 +61,7 @@ export const PaymentSection: React.FC<PaymentSectionProps> = ({
         <div className="mb-2 relative z-10">
             <div className="mb-6 flex items-center gap-2 text-[11px] font-semibold text-slate-400 uppercase tracking-widest">
                 <Wallet2 className="h-4 w-4" />
-                Payments & Insurance
+                Payments
             </div>
             {/* Payment Section Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">

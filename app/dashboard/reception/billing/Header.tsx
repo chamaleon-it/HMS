@@ -19,8 +19,8 @@ interface PropsType {
     _id: string;
     createdAt: Date;
     cash: number;
-    online: number;
-    insurance: number;
+    card: number;
+    upi: number;
     discount: number;
     items: {
       name: string;

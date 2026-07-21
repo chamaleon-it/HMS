@@ -1,7 +1,7 @@
 import {
     BadgePercent,
     Banknote,
-    Building2,
+    Smartphone,
     CreditCard,
     IndianRupee,
     Percent,
@@ -24,8 +24,8 @@ interface BillData {
     _id: string;
     mrn: string;
     cash: number;
-    online: number;
-    insurance: number;
+    card: number;
+    upi: number;
     discount: number;
     items: {
         total: number;
@@ -51,8 +51,8 @@ export default function AddPaymentDialog({
 }: AddPaymentDialogProps) {
     const [payment, setPayment] = useState({
         cash: 0,
-        online: 0,
-        insurance: 0,
+        card: 0,
+        upi: 0,
         discount: 0,
     });
 
@@ -60,8 +60,8 @@ export default function AddPaymentDialog({
         if (bill && open) {
             setPayment({
                 cash: bill.cash,
-                online: bill.online,
-                insurance: bill.insurance,
+                card: bill.card,
+                upi: bill.upi,
                 discount: bill.discount,
             });
         }
@@ -82,8 +82,8 @@ export default function AddPaymentDialog({
         roundOff: bill.roundOff,
         payments: {
             cash: payment.cash,
-            online: payment.online,
-            insurance: payment.insurance
+            card: payment.card,
+            upi: payment.upi
         }
     });
 
@@ -110,7 +110,7 @@ export default function AddPaymentDialog({
                         <div className="rounded-2xl border border-slate-200 p-4 shadow-sm bg-white dark:border-slate-800 dark:bg-slate-900">
                             <div className="mb-2 flex items-center gap-2 text-sm font-medium">
                                 <Wallet2 className="h-4 w-4" />
-                                Payments & Insurance
+                                Payments
                             </div>
                             <div className="grid grid-cols-12 gap-4">
                                 {[
@@ -121,16 +121,16 @@ export default function AddPaymentDialog({
                                         tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
                                     },
                                     {
-                                        key: "online",
-                                        label: "Card / UPI",
+                                        key: "card",
+                                        label: "Card",
                                         icon: CreditCard,
                                         tint: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30",
                                     },
                                     {
-                                        key: "insurance",
-                                        label: "Insurance",
-                                        icon: Building2,
-                                        tint: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30",
+                                        key: "upi",
+                                        label: "UPI",
+                                        icon: Smartphone,
+                                        tint: "bg-violet-50 text-violet-700 border-violet-200",
                                     },
                                 ].map(({ key, label, icon: Icon, tint }) => (
                                     <div key={key} className="col-span-12 md:col-span-6">
@@ -148,16 +148,16 @@ export default function AddPaymentDialog({
                                                     onFocus={(e) => (e.target.placeholder = "")}
                                                     onBlur={(e) => (e.target.placeholder = "0")}
                                                     value={
-                                                        payment[key as "cash" | "online" | "insurance"] === 0
+                                                        payment[key as "cash" | "card" | "upi"] === 0
                                                             ? ""
                                                             : payment[
-                                                                key as "cash" | "online" | "insurance"
+                                                                key as "cash" | "card" | "upi"
                                                             ].toString()
                                                     }
                                                     onChange={(e) =>
                                                         setPayment((prev) => ({
                                                             ...prev,
-                                                            [key as "cash" | "online" | "insurance"]: Number(
+                                                            [key as "cash" | "card" | "upi"]: Number(
                                                                 e.target.value
                                                             ),
                                                         }))

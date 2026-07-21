@@ -89,8 +89,8 @@ export default function BillingPage() {
       mrn: string;
       createdAt: Date;
       cash: number;
-      online: number;
-      insurance: number;
+      card: number;
+      upi: number;
       discount: number;
       items: {
         name: string;
@@ -160,7 +160,7 @@ export default function BillingPage() {
 
                 <Statistics billing={billing} />
 
-                <Filters filter={filter} setFilter={setFilter} />
+                <Filters filter={filter} setFilter={setFilter} billing={billing} />
                 {isLoadingBilling ? (
                   <TableSkeleton rows={10} columns={6} />
                 ) : (

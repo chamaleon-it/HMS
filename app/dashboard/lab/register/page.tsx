@@ -80,8 +80,8 @@ export default function LabRegisterPage() {
       mrn: string;
       createdAt: Date;
       cash: number;
-      online: number;
-      insurance: number;
+      card: number;
+      upi: number;
       discount: number;
       roundOff: boolean;
       items: {
@@ -227,7 +227,7 @@ export default function LabRegisterPage() {
                           </div>
                         </TableCell>
                         <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
-                          {formatINR((b.cash || 0) + (b.online || 0) + (b.insurance || 0))}
+                          {formatINR((b.cash || 0) + (b.card || 0) + (b.upi || 0))}
                         </TableCell>
                         <TableCell className="py-3 text-right pr-4 tabular-nums font-medium text-slate-900">
                           {formatINR(b.items?.reduce((a, b) => a + (b.total || 0), 0) || 0)}
@@ -243,7 +243,7 @@ export default function LabRegisterPage() {
                         Total
                       </TableCell>
                       <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
-                        {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - (b.cash || 0) : acc + (b.insurance || 0) + (b.cash || 0) + (b.online || 0), 0))}
+                        {formatINR(billing.reduce((acc, b) => b.transactionType === "Return" ? acc - (b.cash || 0) : acc + (b.upi || 0) + (b.cash || 0) + (b.card || 0), 0))}
                       </TableCell>
                       <TableCell className="py-4 text-right pr-4 tabular-nums text-slate-900 font-black">
                         {formatINR(billing.reduce((acc, b) => acc + (b.transactionType === "Return" ? 0 : b.items?.reduce((a, x) => a + (x.total || 0), 0) || 0), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items?.reduce((a, x) => a + (x.total || 0), 0) || 0), 0))}

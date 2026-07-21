@@ -15,8 +15,8 @@ interface CalculationOptions {
     roundOff: boolean;
     payments?: {
         cash: number;
-        online: number;
-        insurance: number;
+        card: number;
+        upi: number;
     };
 }
 
@@ -24,7 +24,7 @@ export const useBillCalculations = ({
     items,
     discount,
     roundOff,
-    payments = { cash: 0, online: 0, insurance: 0 },
+    payments = { cash: 0, card: 0, upi: 0 },
 }: CalculationOptions) => {
     const calculations = useMemo(() => {
         const subtotal = items.reduce((acc, item) => acc + item.quantity * item.unitPrice, 0);
@@ -37,8 +37,8 @@ export const useBillCalculations = ({
         const roundOffAmount = roundOff ? getDecimal(itemsTotal) : 0;
         const finalTotal = itemsTotal - roundOffAmount - discount;
 
-        const totalPaid = payments.cash + payments.online + payments.insurance;
-        const dueAmount = finalTotal - totalPaid;
+        const totalPaid = (payments?.cash ?? 0) + (payments?.card ?? 0) + (payments?.upi ?? 0);
+        const dueAmount = Math.max(0, finalTotal - totalPaid);
 
         return {
             subtotal,
@@ -49,7 +49,7 @@ export const useBillCalculations = ({
             totalPaid,
             dueAmount,
         };
-    }, [items, discount, roundOff, payments.cash, payments.online, payments.insurance]);
+    }, [items, discount, roundOff, payments.cash, payments.card, payments.upi]);
 
     return calculations;
 };

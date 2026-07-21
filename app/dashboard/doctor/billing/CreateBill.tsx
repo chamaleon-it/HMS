@@ -1,6 +1,6 @@
 import {
   Banknote,
-  Building2,
+  Smartphone,
   CalendarDays,
   ChevronDown,
   CreditCard,
@@ -36,8 +36,8 @@ const defaultPayload = {
   patient: "",
   items: [],
   cash: 0,
-  insurance: 0,
-  online: 0,
+  upi: 0,
+  card: 0,
 };
 
 export default function CreateBill({
@@ -61,8 +61,8 @@ export default function CreateBill({
       total: number;
     }[];
     cash: number;
-    online: number;
-    insurance: number;
+    card: number;
+    upi: number;
     payer?: string;
     policyNo?: string;
     tpa?: string;
@@ -552,7 +552,7 @@ export default function CreateBill({
           >
             <div className="mb-2 flex items-center gap-2 text-sm font-medium">
               <Wallet2 className="h-4 w-4" />
-              Payments & Insurance
+              Payments
             </div>
             <div className="grid grid-cols-12 gap-4">
               {[
@@ -564,16 +564,16 @@ export default function CreateBill({
                   tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
                 },
                 {
-                  key: "online",
+                  key: "card",
                   label: "Card / UPI",
                   icon: CreditCard,
 
                   tint: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30",
                 },
                 {
-                  key: "insurance",
-                  label: "Insurance",
-                  icon: Building2,
+                  key: "upi",
+                  label: "UPI",
+                  icon: Smartphone,
 
                   tint: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30",
                 },
@@ -593,16 +593,16 @@ export default function CreateBill({
                         onFocus={e => e.target.placeholder = ""}
                         onBlur={e => e.target.placeholder = "0"}
                         value={
-                          payload[key as "cash" | "online" | "insurance"] === 0
+                          payload[key as "cash" | "card" | "upi"] === 0
                             ? ""
                             : payload[
-                              key as "cash" | "online" | "insurance"
+                              key as "cash" | "card" | "upi"
                             ].toString()
                         }
                         onChange={(e) =>
                           setPayload((prev) => ({
                             ...prev,
-                            [key as "cash" | "online" | "insurance"]: Number(
+                            [key as "cash" | "card" | "upi"]: Number(
                               e.target.value
                             ),
                           }))
@@ -764,7 +764,7 @@ export default function CreateBill({
               <div className="flex items-center justify-between">
                 <span className="text-slate-500">Paid</span>
                 <span className="font-medium tabular-nums">
-                  {formatINR(payload.cash + payload.online + payload.insurance)}
+                  {formatINR(payload.cash + payload.card + payload.upi)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-rose-600 dark:text-rose-400">
@@ -772,7 +772,7 @@ export default function CreateBill({
                 <span className="font-semibold tabular-nums">
                   {formatINR(
                     payload.items.reduce((a, b) => a + b.total, 0) -
-                    (payload.cash + payload.online + payload.insurance)
+                    (payload.cash + payload.card + payload.upi)
                   )}
                 </span>
               </div>

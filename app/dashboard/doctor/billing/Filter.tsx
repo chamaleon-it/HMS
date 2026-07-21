@@ -83,8 +83,8 @@ export default function Filters({ filter, setFilter }: PropsType) {
                 <SelectLabel>Method</SelectLabel>
                 <SelectItem value="all">All</SelectItem>
                 <SelectItem value="Cash">Cash</SelectItem>
-                <SelectItem value="Online">Online</SelectItem>
-                <SelectItem value="Insurance">Insurance</SelectItem>
+                <SelectItem value="Card">Card</SelectItem>
+                <SelectItem value="UPI">UPI</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

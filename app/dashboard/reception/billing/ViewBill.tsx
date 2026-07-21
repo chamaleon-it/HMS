@@ -13,7 +13,7 @@ import { ArrowLeft, Printer, RotateCcw } from "lucide-react";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import React from "react";
 import { getDecimal } from "@/lib/fNumber";
-import PrintReceipt from "./PrintReceipt";
+import ThermalPrintReceipt from "./ThermalPrintReceipt";
 import configuration from "@/config/configuration";
 import { format } from "date-fns";
 
@@ -51,8 +51,8 @@ export default function ViewBill({ id }: { id: string }) {
             }[];
             roundOff: boolean;
             cash: number;
-            online: number;
-            insurance: number;
+            card: number;
+            upi: number;
             discount: number;
             mrn: string;
             createdAt: Date;
@@ -118,10 +118,10 @@ export default function ViewBill({ id }: { id: string }) {
     const grandTotal = billing.items.reduce((s, { total }) => s + total, 0);
 
     const paymentMethod =
-        billing.insurance > 0
-            ? "Insurance"
-            : billing.online > 0
-                ? "Online"
+        billing.upi > 0
+            ? "UPI"
+            : billing.card > 0
+                ? "Card"
                 : "Cash";
 
     return (
@@ -304,41 +304,7 @@ export default function ViewBill({ id }: { id: string }) {
                     </div>
                 </div>
             </div>
-            {billing && (
-                <PrintReceipt
-                    payload={{
-                        patient: billing.patient.name,
-                        items: billing.items.map((i: any) => ({ ...i, name: i.name })),
-                        cash: billing.cash,
-                        online: billing.online,
-                        insurance: billing.insurance,
-                        discount: billing.discount,
-                        doctor: typeof billing.doctor === "object" ? billing.doctor?.name : (billing.doctor === "Self" ? "" : billing.doctor),
-                        department: typeof billing.doctor === "object" ? billing.doctor?.specialization : billing.department,
-                    }}
-                    patient={{
-                        name: billing.patient.name,
-                        mrn: billing.patient.mrn,
-                    }}
-                    invoiceDetails={{
-                        prefix: "MINV",
-                        roundOffAmount: billing.roundOff
-                            ? getDecimal(billing.items.reduce((a: any, b: any) => a + b.total, 0))
-                            : 0,
-                        subtotal: billing.items.reduce(
-                            (a: any, b: any) => a + b.unitPrice * b.quantity,
-                            0
-                        ),
-                        totalGst: billing.items.reduce(
-                            (a: any, b: any) => a + (b.total - b.unitPrice * b.quantity),
-                            0
-                        ),
-                        grandTotal: billing.items.reduce((a: any, b: any) => a + b.total, 0),
-                        invoiceNo: billing.mrn,
-                    }}
-                    invoiceNo={billing.mrn}
-                />
-            )}
+            {billing && <ThermalPrintReceipt bill={billing} />}
             <Watermark />
         </AppShell>
     );

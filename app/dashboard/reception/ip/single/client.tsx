@@ -13,7 +13,7 @@ import {
   AlertTriangle, Clock, XCircle,
   ChevronDown, ChevronUp, Loader2, HeartPulse, Check,
   ClipboardPen, Thermometer, Activity, Wind, Weight,
-  X, NotebookPen, Bed, Building2, CheckCircle2, AlertCircle, FileText, Sparkles
+  X, NotebookPen, Bed, Smartphone, CheckCircle2, AlertCircle, FileText, Sparkles
 } from "lucide-react";
 import {
   LabReportDetailModal,
@@ -301,7 +301,7 @@ export default function IPDetailsClient() {
   const totalBilled = billings.filter(b => b.transactionType === "Sale")
     .reduce((s, b) => s + b.items.reduce((a: number, it: any) => a + (it.total || 0), 0) - (b.discount || 0), 0);
   const totalPaid = billings.filter(b => b.transactionType === "Sale")
-    .reduce((s, b) => s + (b.cash || 0) + (b.online || 0) + (b.insurance || 0), 0);
+    .reduce((s, b) => s + (b.cash || 0) + (b.card || 0) + (b.upi || 0), 0);
   const totalDue = Math.max(0, totalBilled - totalPaid);
 
   const admissionDate = ip?.admissionDate ? new Date(ip.admissionDate) : null;
@@ -453,7 +453,7 @@ export default function IPDetailsClient() {
               textColor="text-blue-950"
             />
             <InfoTile
-              icon={<Building2 className="w-4 h-4 text-indigo-600" />}
+              icon={<Smartphone className="w-4 h-4 text-indigo-600" />}
               label="Ward & Room"
               value={`${ip.ward || "—"} / ${ip.room || "—"}`}
               bg="bg-indigo-50/60"
@@ -803,7 +803,7 @@ export default function IPDetailsClient() {
                 {billings.map((b: any) => {
                   const isReturn = b.transactionType === "Return";
                   const itemsTotal = b.items.reduce((s: number, it: any) => s + (it.total || 0), 0);
-                  const paid = (b.cash || 0) + (b.online || 0) + (b.insurance || 0);
+                  const paid = (b.cash || 0) + (b.card || 0) + (b.upi || 0);
                   const net = itemsTotal - (b.discount || 0);
                   const due = Math.max(0, net - paid);
                   const docName =

@@ -45,8 +45,8 @@ export default function CreateBill({
     department: "",
     items: [],
     cash: 0,
-    insurance: 0,
-    online: 0,
+    upi: 0,
+    card: 0,
     discount: 0,
     roundOff: pharmacyBilling.roundOff
   }), [pharmacyBilling.roundOff])
@@ -67,8 +67,8 @@ export default function CreateBill({
       total: number;
     }[];
     cash: number;
-    online: number;
-    insurance: number;
+    card: number;
+    upi: number;
     discount: number;
     payer?: string;
     policyNo?: string;
@@ -94,8 +94,8 @@ export default function CreateBill({
     roundOff: pharmacyBilling.roundOff,
     payments: {
       cash: payload.cash,
-      online: payload.online,
-      insurance: payload.insurance
+      card: payload.card,
+      upi: payload.upi
     }
   });
 
@@ -323,8 +323,8 @@ export default function CreateBill({
           items: uniqueItems,
           discount: (order.discount ?? 0),
           cash: 0,
-          insurance: 0,
-          online: 0,
+          upi: 0,
+          card: 0,
           patient: order.patient._id || "",
           // Use stored doctorName first; fall back to populated doctor name; null/empty → "-"
           doctor: order.doctorName && order.doctorName !== "-" && order.doctorName !== ""
@@ -418,8 +418,8 @@ export default function CreateBill({
           patient: printBillData.patient?.name || "",
           items: printBillData.items,
           cash: printBillData.cash,
-          online: printBillData.online,
-          insurance: printBillData.insurance,
+          card: printBillData.card,
+          upi: printBillData.upi,
           discount: printBillData.discount,
           doctor: typeof printBillData.doctor === "object" ? printBillData.doctor?.name : (printBillData.doctor === "Self" ? "" : printBillData.doctor),
           department: typeof printBillData.doctor === "object" ? printBillData.doctor?.specialization : printBillData.department,

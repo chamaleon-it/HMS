@@ -22,12 +22,12 @@ export interface BillingRecord {
     total: number;
   }[];
   cash: number;
-  online: number;
-  insurance: number;
+  card: number;
+  upi: number;
   discount: number;
   mrn: string;
   roundOff: boolean;
-  transactionType: "Sale" | "Return";
+  transactionType: "Sale" | "Return" | "Refund";
   createdAt: string;
   updatedAt: string;
 }
