@@ -18,6 +18,7 @@ import {
   toMinutes,
   endOfDay,
   startOfToday,
+  formatLocalDate,
 } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import WaklInAppoinmentUI from "./WaklInAppoinmentUI";
@@ -104,10 +105,10 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     }
 
     if (availability.days?.length) {
-      const dayName = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][dateOnly.getDay()];
-      if (!availability.days.includes(dayName)) {
-        return false;
-      }
+      const dayName = selectedDate.toLocaleDateString("en-US", {
+        weekday: "short",
+      });
+      if (!availability.days.includes(dayName)) return false;
     }
 
     return true;
@@ -135,7 +136,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
   bookedSlotParam.append("doctor", doctor);
   bookedSlotParam.append(
     "date",
-    selectedDate ? selectedDate.toISOString() : new Date().toISOString()
+    formatLocalDate(selectedDate || new Date())
   );
 
   const { data: bookedSlotData } = useSWR<{ message: string; data: Date[] }>(

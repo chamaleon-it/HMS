@@ -30,6 +30,16 @@ export function fDateandTime(date?: string | Date): string {
   return `${formattedDate} ${formattedTime}`;
 }
 
+export function formatLocalDate(date?: Date | string | null): string {
+  if (!date) return "";
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "";
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export function to12h(time24: string) {
   const [h, m] = time24.split(":").map(Number);
   const suffix = h >= 12 ? "PM" : "AM";

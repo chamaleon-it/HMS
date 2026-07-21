@@ -1,5 +1,6 @@
 import { useAuth } from "@/auth/context/auth-context";
 import useSWR from "swr";
+import { formatLocalDate } from "@/lib/fDateAndTime";
 
 export default function useAppointmentList({
   query,
@@ -17,7 +18,7 @@ export default function useAppointmentList({
 
   if (query) params.append("query", query);
   if (activeStatuses) params.append("status", JSON.stringify(activeStatuses));
-  if (date) params.append("date", date.toISOString());
+  if (date) params.append("date", formatLocalDate(date));
   if (activeDate) params.append("activeDate", activeDate);
 
   const { data, isLoading, mutate, error } = useSWR<{
