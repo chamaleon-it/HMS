@@ -15,6 +15,7 @@ import {
   toMinutes,
   endOfDay,
   startOfToday,
+  formatLocalDate,
 } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
 import { DataType } from "./interface";
@@ -107,7 +108,7 @@ export default function FollowUpTimePro({
     const d = selectedDate ?? new Date();
     const qs = new URLSearchParams();
     qs.append("doctor", doctor);
-    qs.append("date", d.toISOString());
+    qs.append("date", formatLocalDate(d));
     return qs.toString();
   }, [doctor, selectedDate]);
 
