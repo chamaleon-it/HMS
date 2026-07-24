@@ -13,28 +13,23 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { m } from "framer-motion";
 
 const PRESENT_HISTORY = [
-  "Fever",
-  "Headache",
-  "Cough",
-  "Cold",
-  "Body Pain",
-  "Nausea",
-  "Dizziness",
+  "Left Knee Pain",
+  "Right Knee Pain",
+  "Multiple Join Pain",
+  "Frozen Shoulder",
 ];
 
 const DIAGNOSIS = [
-  "Fever",
-  "Headache",
-  "Cough",
-  "Cold",
-  "Body Pain",
-  "Nausea",
-  "Dizziness",
+  "Left Knee Pain",
+  "Right Knee Pain",
+  "Multiple Join Pain",
+  "Frozen Shoulder",
 ];
 
-const PAST_HISTORY = ["HTN", "T2DM", "CAD", "COPD", "RA", "Hypothyroidism"];
+const PAST_HISTORY = ["HTN", "CAD", "COPD", "Hyperthyroid", "Hypothyroid", "CKD", "MASLD", "PCOD"];
 
 interface Props {
   data: DataType;
@@ -246,7 +241,7 @@ export default function ConsultationNotes({
               </div>
             </div>
             {consulting[0]?.createdAt && (
-              <p className="text-sm text-gray-600 shrink-0">
+              <p className="text-xs text-gray-600 shrink-0">
                 Last Updated : {fDateandTime(consulting[0].createdAt)}
               </p>
             )}

@@ -223,6 +223,24 @@ export default function ConsultationDetails({
                         </CardContent>
                     </Card>
 
+                    {selectedRow.treatment && (
+                        <Card className="shadow-sm border-muted-200">
+                            <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
+                                <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                                    <Activity className="w-5 h-5" />
+                                </div>
+                                <CardTitle className="text-base font-semibold">
+                                    Treatment
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                    {selectedRow.treatment}
+                                </p>
+                            </CardContent>
+                        </Card>
+                    )}
+
                     {/* Medicines & Tests Row */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Medicines */}

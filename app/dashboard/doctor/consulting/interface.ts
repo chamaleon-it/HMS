@@ -46,6 +46,13 @@ export interface DataType {
     le: null | string;
     otherNotes: null | string;
   };
+  medicalParameters?: {
+    sleep: null | string;
+    bowelMovement: null | string;
+    urineMovement: null | string;
+    appetite: null | string;
+  };
+  treatment: null | string;
   medicines: {
     referralName: string;
     name: string;

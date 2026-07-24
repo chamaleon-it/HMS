@@ -15,6 +15,7 @@ import Advice from "./Advice";
 import ActionButton from "./ActionButton";
 import useSWR from "swr";
 import PrescriptionCard from "./PrescriptionCard";
+import TreatmentCard from "./TreatmentCard";
 import { AppointmentType, DataType } from "./interface";
 import Test from "./Test";
 import Report from "./Report";
@@ -52,6 +53,13 @@ function ConsultingMenuContent() {
       le: null,
       otherNotes: null,
     },
+    medicalParameters: {
+      sleep: null,
+      bowelMovement: null,
+      urineMovement: null,
+      appetite: null,
+    },
+    treatment: null,
     medicines: [
       {
         dosage: "1 tab",
@@ -119,6 +127,8 @@ function ConsultingMenuContent() {
                   data={data}
                   setData={setData}
                 />
+
+                <TreatmentCard data={data} setData={setData} />
 
                 <PrescriptionCard
                   data={data}

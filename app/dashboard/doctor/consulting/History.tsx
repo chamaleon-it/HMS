@@ -103,6 +103,12 @@ export interface Consultations {
   consultationNotes: ConsultationNotes;
   examinationNote: ExaminationNote;
   medicines: Medicine[];
+  medicalParameters?: {
+    sleep?: string;
+    bowelMovement?: string;
+    urineMovement?: string;
+  };
+  treatment?: string;
   advice: string;
   followUp: Date;
   test: Test[];

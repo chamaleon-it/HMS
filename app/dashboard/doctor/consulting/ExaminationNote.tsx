@@ -12,6 +12,7 @@ import React, {
 import { DataType } from "./interface";
 import { EllipsisVertical } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 import {
   DndContext,
@@ -189,7 +190,7 @@ export default function ExaminationNote({
                 transition={{ duration: 0.3 }}
               />
               <motion.div
-                className="absolute top-1/2 left-[3px] w-3.5 h-3.5 rounded-full bg-white shadow transform -translate-y-1/2"
+                className="absolute top-1/2 left-0.75 w-3.5 h-3.5 rounded-full bg-white shadow transform -translate-y-1/2"
                 animate={{
                   x: isFahrenheit ? 20 : 0,
                   backgroundColor: "#ffffff",
@@ -241,6 +242,61 @@ export default function ExaminationNote({
   const [tplName, setTplName] = useState("");
   const [tplDesc, setTplDesc] = useState("");
   const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+
+  const [selectedSleep, setSelectedSleep] = useState<string>("");
+  const [selectedBowel, setSelectedBowel] = useState<string>("");
+  const [selectedUrine, setSelectedUrine] = useState<string>("");
+  const [selectedAppetite, setSelectedAppetite] = useState<string>("");
+
+  useEffect(() => {
+    if (data.medicalParameters) {
+      if (data.medicalParameters.sleep) setSelectedSleep(data.medicalParameters.sleep);
+      if (data.medicalParameters.bowelMovement) setSelectedBowel(data.medicalParameters.bowelMovement);
+      if (data.medicalParameters.urineMovement) setSelectedUrine(data.medicalParameters.urineMovement);
+      if (data.medicalParameters.appetite) setSelectedAppetite(data.medicalParameters.appetite);
+    }
+  }, [data.medicalParameters]);
+
+  const updateMedicalParameters = (
+    sleep: string,
+    bowel: string,
+    urine: string,
+    appetite: string
+  ) => {
+    setData((prev) => ({
+      ...prev,
+      medicalParameters: {
+        sleep: sleep || null,
+        bowelMovement: bowel || null,
+        urineMovement: urine || null,
+        appetite: appetite || null,
+      },
+    }));
+  };
+
+  const handleSleepToggle = (option: string) => {
+    const nextVal = selectedSleep === option ? "" : option;
+    setSelectedSleep(nextVal);
+    updateMedicalParameters(nextVal, selectedBowel, selectedUrine, selectedAppetite);
+  };
+
+  const handleBowelToggle = (option: string) => {
+    const nextVal = selectedBowel === option ? "" : option;
+    setSelectedBowel(nextVal);
+    updateMedicalParameters(selectedSleep, nextVal, selectedUrine, selectedAppetite);
+  };
+
+  const handleUrineToggle = (option: string) => {
+    const nextVal = selectedUrine === option ? "" : option;
+    setSelectedUrine(nextVal);
+    updateMedicalParameters(selectedSleep, selectedBowel, nextVal, selectedAppetite);
+  };
+
+  const handleAppetiteToggle = (option: string) => {
+    const nextVal = selectedAppetite === option ? "" : option;
+    setSelectedAppetite(nextVal);
+    updateMedicalParameters(selectedSleep, selectedBowel, selectedUrine, nextVal);
+  };
 
   useEffect(() => {
     const storedEnabled = safeRead<FieldKey[]>(LS_KEYS.enabled, []);
@@ -386,7 +442,7 @@ export default function ExaminationNote({
     <Card>
       <CardHeader className=" w-full col-span-full">
         <div className="flex items-center gap-2 w-full">
-          <CardTitle>Examination Note</CardTitle>
+          <CardTitle>Medical History</CardTitle>
           {selectedTemplateId ? (
             <span className="text-xs px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
               Template:{" "}
@@ -444,7 +500,7 @@ export default function ExaminationNote({
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.15 }}
-                    className="absolute right-0 mt-3 w-[340px] bg-white rounded-2xl shadow-2xl border border-slate-200 z-30 overflow-hidden backdrop-blur"
+                    className="absolute right-0 mt-3 w-85 bg-white rounded-2xl shadow-2xl border border-slate-200 z-30 overflow-hidden backdrop-blur"
                   >
                     <div className="p-3 border-b bg-linear-to-r from-violet-50 to-slate-50">
                       <div className="flex items-center justify-between mb-2">
@@ -649,6 +705,121 @@ export default function ExaminationNote({
           </SortableContext>
         </DndContext>
 
+        {/* Medical History Parameters (Sleep, Bowel Movement, Urine Movement) */}
+        <div className="mb-5 p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3">
+          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+            Medical Parameters
+          </div>
+
+          {/* 1. Sleep */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="text-xs font-medium text-slate-700 w-36 shrink-0">
+              Sleep:
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {["Sound Sleep", "Disturbed Sleep", "Normal"].map((opt) => {
+                const active = selectedSleep === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => handleSleepToggle(opt)}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none",
+                      active
+                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 shadow-2xs font-semibold"
+                        : "bg-emerald-50/60 border-emerald-200/80 text-emerald-700 hover:bg-emerald-100/70"
+                    )}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. Bowel Movement */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="text-xs font-medium text-slate-700 w-36 shrink-0">
+              Bowel Movement:
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {["Normal", "Constipation", "IBS"].map((opt) => {
+                const active = selectedBowel === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => handleBowelToggle(opt)}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none",
+                      active
+                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 shadow-2xs font-semibold"
+                        : "bg-emerald-50/60 border-emerald-200/80 text-emerald-700 hover:bg-emerald-100/70"
+                    )}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. Urine Movement */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="text-xs font-medium text-slate-700 w-36 shrink-0">
+              Urine Movement:
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {["Normal", "Uncontrolled", "Dribbling"].map((opt) => {
+                const active = selectedUrine === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => handleUrineToggle(opt)}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none",
+                      active
+                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 shadow-2xs font-semibold"
+                        : "bg-emerald-50/60 border-emerald-200/80 text-emerald-700 hover:bg-emerald-100/70"
+                    )}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 4. Appetite */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+            <span className="text-xs font-medium text-slate-700 w-36 shrink-0">
+              Appetite:
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {["Normal", "Poor"].map((opt) => {
+                const active = selectedAppetite === opt;
+                return (
+                  <button
+                    key={opt}
+                    type="button"
+                    onClick={() => handleAppetiteToggle(opt)}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none",
+                      active
+                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 shadow-2xs font-semibold"
+                        : "bg-emerald-50/60 border-emerald-200/80 text-emerald-700 hover:bg-emerald-100/70"
+                    )}
+                  >
+                    {opt}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
         <LabeledTextarea
           label="Other Notes"
           defaultValue={data.examinationNote.otherNotes || ""}
@@ -680,7 +851,7 @@ export default function ExaminationNote({
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="relative bg-white rounded-2xl shadow-2xl p-6 w-[90%] md:w-[520px]"
+              className="relative bg-white rounded-2xl shadow-2xl p-6 w-[90%] md:w-130"
             >
               <h3 className="text-lg font-semibold mb-4 text-slate-800">
                 Save Layout as Template
@@ -740,7 +911,7 @@ export default function ExaminationNote({
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
               transition={{ duration: 0.2 }}
-              className="relative bg-white rounded-2xl shadow-2xl p-6 w-[95%] md:w-[720px]"
+              className="relative bg-white rounded-2xl shadow-2xl p-6 w-[95%] md:w-180"
             >
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-lg font-semibold text-slate-800">
