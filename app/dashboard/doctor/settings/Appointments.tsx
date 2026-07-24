@@ -119,8 +119,8 @@ export default function Appointments({
           </PopoverTrigger>
           <PopoverContent className="p-2 w-auto" align="start">
             <Calendar
-              fromMonth={new Date(new Date().getFullYear(), 0)}
-              toMonth={new Date(new Date().getFullYear() + 10, 11)}
+              startMonth={new Date(new Date().getFullYear(), 0)}
+              endMonth={new Date(new Date().getFullYear() + 10, 11)}
               mode="range"
               numberOfMonths={2}
               disabled={{ before: new Date() }}

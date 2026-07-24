@@ -1,3 +1,5 @@
+"use client";
+
 import { TabsContent } from "@/components/ui/tabs";
 import React, { useMemo } from "react";
 import { motion } from "framer-motion";

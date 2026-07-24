@@ -1,3 +1,5 @@
+"use client";
+
 import { fDateandTime, fTime } from "@/lib/fDateAndTime";
 import { MapPin, Phone, Video, Search } from "lucide-react";
 import React, { useState } from "react";
