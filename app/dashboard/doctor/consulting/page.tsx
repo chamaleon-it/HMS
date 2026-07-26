@@ -19,6 +19,7 @@ import TreatmentCard from "./TreatmentCard";
 import { AppointmentType, DataType } from "./interface";
 import Test from "./Test";
 import Report from "./Report";
+import PrintConsultation from "./PrintConsultation";
 
 function ConsultingMenuContent() {
   const searchParams = useSearchParams();
@@ -157,6 +158,8 @@ function ConsultingMenuContent() {
           {activeTab === "report" && (
             <Report patientId={appointment.patient._id} />
           )}
+
+          <PrintConsultation appointment={appointment} data={data} />
         </div>
       </div>
     </AppShell>

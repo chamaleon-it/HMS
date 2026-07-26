@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { KeyedMutator } from "swr";
+import { ConsultationTypeDialog } from "./ConsultationTypeDialog";
 
 export default function Appointment({
   a,
@@ -32,6 +33,7 @@ export default function Appointment({
 }) {
   const router = useRouter();
   const [ring, setRing] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const startBaseClasses =
     "rounded-2xl border border-slate-200 bg-white !text-slate-700 hover:bg-slate-50 dark:bg-zinc-900 dark:!text-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800";
@@ -172,8 +174,8 @@ export default function Appointment({
                 ? { backgroundColor: "#16A34A", color: "#FFFFFF" }
                 : undefined
             }
-            onClick={async () => {
-                router.push(`/dashboard/doctor/consulting?id=${a._id}`);
+            onClick={() => {
+              setIsDialogOpen(true);
             }}
           >
             <DoorOpen className="h-4 w-4 mr-2" /> <p> Start Consult</p>
@@ -186,6 +188,12 @@ export default function Appointment({
           </button>
         </div>
       )}
+
+      <ConsultationTypeDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        appointmentId={a._id}
+      />
     </motion.div>
   );
 }

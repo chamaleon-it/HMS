@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { AppointmentType } from "./interface";
 import { fTime } from "@/lib/fDateAndTime";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import { DoorOpen, Trash2 } from "lucide-react";
+import { ConsultationTypeDialog } from "./ConsultationTypeDialog";
 
 // Utility to format visit number into readable label
 function ordinal(n: number) {
@@ -108,6 +109,7 @@ export function PatientCard({
   };
 
   // const [ring, setRing] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const router = useRouter();
 
   return (
@@ -153,7 +155,7 @@ export function PatientCard({
                 // ring={ring}
                 variant="outline"
                 onClick={() => {
-                  router.push(`/dashboard/doctor/consulting?id=${a._id}`);
+                  setIsDialogOpen(true);
                 }}
               >
                 <>
@@ -179,6 +181,12 @@ export function PatientCard({
           </div>
         </div>
       </div>
+
+      <ConsultationTypeDialog
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        appointmentId={a._id}
+      />
     </div>
   );
 }

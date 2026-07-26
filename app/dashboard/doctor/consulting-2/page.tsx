@@ -1,44 +1,39 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
+import { redirect, useSearchParams } from "next/navigation";
+import useSWR from "swr";
 import AppShell from "@/components/layout/app-shell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import Header from "../consulting/Header";
 import ActionButton from "../consulting/ActionButton";
 import PrescriptionCard from "../consulting/PrescriptionCard";
+import Test from "../consulting/Test";
+import History from "../consulting/History";
+import Report from "../consulting/Report";
+import AllergyAlert from "../consulting/AllergyAlert";
+import PrintConsultation from "../consulting/PrintConsultation";
 import { AppointmentType, DataType } from "../consulting/interface";
-import {
-  Plus,
-  Trash2,
-} from "lucide-react";
 
-// Dummy Appointment Data matching screenshot (Ihsan P, P8595450, Age 24y 4m, Male)
-const DUMMY_APPOINTMENT: AppointmentType = {
-  _id: "6a5ee5e3e7d8649ac2db87ce",
-  patient: {
-    _id: "6a5ee5e3e7d8649ac2db87ce",
-    name: "Ihsan P",
-    mrn: "P8595450",
-    dateOfBirth: "2001-11-01T00:00:00.000Z",
-    gender: "Male",
-    phone: "+91 98765 43210",
-    allergies: "",
-  },
-  doctor: {
-    _id: "doc123",
-    name: "Dr. Muhammed Rashid",
-  },
-} as any;
-
-export default function ConsultingTwoPage() {
+function ConsultingTwoContent() {
+  const searchParams = useSearchParams();
+  const appointmentId = searchParams.get("id") as string;
+  const [testIsOK, setTestIsOK] = useState(true);
   const [activeTab, setActiveTab] = useState<"consultation" | "history" | "report">(
     "consultation"
   );
 
-  const [data, setData] = useState<DataType>({
-    patient: DUMMY_APPOINTMENT.patient._id,
-    appointment: DUMMY_APPOINTMENT._id,
+  const { data: appointmentData, isLoading } = useSWR<{
+    message: string;
+    data: AppointmentType;
+  }>(appointmentId ? `/appointments/single/${appointmentId}` : null);
+
+  const appointment = appointmentData?.data;
+
+  const [data, setData] = useState<DataType & Record<string, any>>({
+    patient: null,
+    appointment: null,
     consultationNotes: {
       presentHistory: null,
       pastHistory: "No records",
@@ -67,11 +62,11 @@ export default function ConsultingTwoPage() {
     medicines: [
       {
         dosage: "1 tab",
-        name: "Tab Paracetamol 500mg",
-        duration: "5 Days",
-        food: "After Food",
-        frequency: "1-0-1",
-        quantity: 10,
+        name: "",
+        duration: "",
+        food: "",
+        frequency: "",
+        quantity: 0,
         referralName: "",
       },
     ],
@@ -130,43 +125,151 @@ export default function ConsultingTwoPage() {
   const [nextAppt, setNextAppt] = useState("2026-07-31");
   const [feedback, setFeedback] = useState("Improved");
   const [additionalNotes, setAdditionalNotes] = useState("Patient shows good progress after 1st session.");
-  const [signature, setSignature] = useState("Dr. Muhammed Rashid");
-
-  // Prescribed Medicines
-  const [medicines, setMedicines] = useState([
-    { id: 1, name: "Tab Paracetamol 500mg", dosage: "1 tab", frequency: "1-0-1", food: "After Food", duration: "5 Days", qty: 10 },
-    { id: 2, name: "Cap Omeprazole 20mg", dosage: "1 cap", frequency: "1-0-0", food: "Before Food", duration: "7 Days", qty: 7 },
-  ]);
+  const [signature, setSignature] = useState("");
 
   const toggleArrayItem = (list: string[], setList: React.Dispatch<React.SetStateAction<string[]>>, item: string) => {
     setList((prev) => (prev.includes(item) ? prev.filter((x) => x !== item) : [...prev, item]));
   };
 
+  useEffect(() => {
+    if (appointment?._id && appointment.patient?._id) {
+      setData((prev) => ({
+        ...prev,
+        appointment: appointment._id,
+        patient: appointment.patient._id,
+        consultationType: "acupuncture",
+        chiefComplaints: {
+          complaints,
+          other: otherComplaint,
+          duration,
+          painScore,
+        },
+        lifestyle: {
+          sleep,
+          bowel,
+          appetite,
+          stress,
+          exercise,
+          smoking,
+          alcohol,
+        },
+        acupunctureAssessment: {
+          clinicalDiagnosis,
+          treatmentPrinciple,
+        },
+        treatmentPlan: {
+          sessions: sessions === "Other" ? otherSessions : sessions,
+          frequency,
+          homeCare,
+        },
+        medicalHistoryDetails: {
+          medHistory,
+          otherMedHistory,
+          currentMedications,
+          allergies: historyAllergies,
+        },
+        acupunctureExamination: {
+          bp,
+          pulse,
+          weight,
+          tenderness,
+          rom,
+          posture,
+          specialFindings,
+        },
+        treatmentGiven: {
+          treatments: treatmentsGiven,
+          acuPoints,
+          retentionTime,
+        },
+        followUpDetails: {
+          nextAppt: nextAppt ? new Date(nextAppt) : null,
+          feedback,
+          additionalNotes,
+          signature,
+        },
+      }));
+    }
+  }, [
+    appointment,
+    complaints,
+    otherComplaint,
+    duration,
+    painScore,
+    sleep,
+    bowel,
+    appetite,
+    stress,
+    exercise,
+    smoking,
+    alcohol,
+    clinicalDiagnosis,
+    treatmentPrinciple,
+    sessions,
+    otherSessions,
+    frequency,
+    homeCare,
+    medHistory,
+    otherMedHistory,
+    currentMedications,
+    historyAllergies,
+    bp,
+    pulse,
+    weight,
+    tenderness,
+    rom,
+    posture,
+    specialFindings,
+    treatmentsGiven,
+    acuPoints,
+    retentionTime,
+    nextAppt,
+    feedback,
+    additionalNotes,
+    signature,
+  ]);
+
+  if (isLoading) {
+    return (
+      <AppShell>
+        <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-600 font-medium">
+          Loading consultation details...
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (!appointment && !isLoading) {
+    redirect("/dashboard/doctor/appointments");
+  }
+
   return (
     <AppShell>
       <div className="min-h-screen bg-linear-to-b from-slate-50 via-white to-slate-50 p-6 space-y-5">
         <div className="mx-auto space-y-5">
+          {/* Header Component */}
+          {appointment && (
+            <Header
+              activeTab={activeTab}
+              setActiveTab={setActiveTab}
+              appointment={appointment}
+              data={data}
+              setData={setData as any}
+            />
+          )}
 
-          {/* EXACT Header Component from Header.tsx (DoctorHeader, VitalsCard, Export, Import, Tabs) */}
-          <Header
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-            appointment={DUMMY_APPOINTMENT}
-            data={data}
-            setData={setData}
-          />
+          {appointment?.patient?.allergies && (
+            <AllergyAlert allergies={appointment.patient.allergies} />
+          )}
 
           {activeTab === "consultation" && (
             <div className="mt-4">
               <Card className="p-6">
                 <div className="space-y-6">
-
                   {/* 2-Column Grid matching ConsultationAndExaminationNotes.tsx spacing */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-
                     {/* LEFT COLUMN */}
                     <div className="space-y-6">
-
                       {/* 1. CHIEF COMPLAINT */}
                       <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -177,17 +280,29 @@ export default function ConsultingTwoPage() {
                         <CardContent className="space-y-4 pt-2">
                           <div className="flex flex-wrap gap-2">
                             {[
-                              "Neck Pain", "Back Pain", "Shoulder Pain", "Knee Pain",
-                              "Sciatica", "Headache / Migraine", "Frozen Shoulder", "Tennis Elbow",
-                              "Arthritis", "Cervical Spondylosis", "Lumbar Spondylosis", "Stress / Anxiety",
-                              "Insomnia", "Digestive Issues",
+                              "Neck Pain",
+                              "Back Pain",
+                              "Shoulder Pain",
+                              "Knee Pain",
+                              "Sciatica",
+                              "Headache / Migraine",
+                              "Frozen Shoulder",
+                              "Tennis Elbow",
+                              "Arthritis",
+                              "Cervical Spondylosis",
+                              "Lumbar Spondylosis",
+                              "Stress / Anxiety",
+                              "Insomnia",
+                              "Digestive Issues",
                             ].map((item) => {
                               const active = complaints.includes(item);
                               return (
                                 <button
                                   key={item}
                                   type="button"
-                                  onClick={() => toggleArrayItem(complaints, setComplaints, item)}
+                                  onClick={() =>
+                                    toggleArrayItem(complaints, setComplaints, item)
+                                  }
                                   className={cn(
                                     "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
                                     active
@@ -202,7 +317,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div className="flex items-center gap-2 pt-1">
-                            <span className="text-xs font-medium text-slate-700 w-24 shrink-0">Other:</span>
+                            <span className="text-xs font-medium text-slate-700 w-24 shrink-0">
+                              Other:
+                            </span>
                             <input
                               type="text"
                               value={otherComplaint}
@@ -213,7 +330,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-slate-700 w-24 shrink-0">Duration:</span>
+                            <span className="text-xs font-medium text-slate-700 w-24 shrink-0">
+                              Duration:
+                            </span>
                             <input
                               type="text"
                               value={duration}
@@ -264,16 +383,56 @@ export default function ConsultingTwoPage() {
                         </CardHeader>
                         <CardContent className="space-y-3 pt-2">
                           {[
-                            { label: "Sleep", state: sleep, setter: setSleep, options: ["Good", "Fair", "Poor"] },
-                            { label: "Bowel Habit", state: bowel, setter: setBowel, options: ["Normal", "Irregular"] },
-                            { label: "Appetite", state: appetite, setter: setAppetite, options: ["Normal", "Low", "High"] },
-                            { label: "Stress Level", state: stress, setter: setStress, options: ["Low", "Moderate", "High"] },
-                            { label: "Exercise", state: exercise, setter: setExercise, options: ["Regular", "Occasional", "None"] },
-                            { label: "Smoking", state: smoking, setter: setSmoking, options: ["Yes", "No"] },
-                            { label: "Alcohol", state: alcohol, setter: setAlcohol, options: ["Yes", "No"] },
+                            {
+                              label: "Sleep",
+                              state: sleep,
+                              setter: setSleep,
+                              options: ["Good", "Fair", "Poor"],
+                            },
+                            {
+                              label: "Bowel Habit",
+                              state: bowel,
+                              setter: setBowel,
+                              options: ["Normal", "Irregular"],
+                            },
+                            {
+                              label: "Appetite",
+                              state: appetite,
+                              setter: setAppetite,
+                              options: ["Normal", "Low", "High"],
+                            },
+                            {
+                              label: "Stress Level",
+                              state: stress,
+                              setter: setStress,
+                              options: ["Low", "Moderate", "High"],
+                            },
+                            {
+                              label: "Exercise",
+                              state: exercise,
+                              setter: setExercise,
+                              options: ["Regular", "Occasional", "None"],
+                            },
+                            {
+                              label: "Smoking",
+                              state: smoking,
+                              setter: setSmoking,
+                              options: ["Yes", "No"],
+                            },
+                            {
+                              label: "Alcohol",
+                              state: alcohol,
+                              setter: setAlcohol,
+                              options: ["Yes", "No"],
+                            },
                           ].map((row) => (
-                            <div key={row.label} className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2 last:border-0 last:pb-0">
-                              <span className="text-xs font-medium text-slate-700 w-32 shrink-0">{row.label}:</span>
+                            <div
+                              key={row.label}
+                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2 last:border-0 last:pb-0"
+                            >
+                              <span className="text-xs font-medium text-slate-700 w-32 shrink-0">
+                                {row.label}:
+                              </span>
                               <div className="flex flex-wrap gap-1.5">
                                 {row.options.map((opt) => {
                                   const active = row.state === opt;
@@ -308,7 +467,9 @@ export default function ConsultingTwoPage() {
                         </CardHeader>
                         <CardContent className="space-y-4 pt-2">
                           <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">Clinical Diagnosis:</label>
+                            <label className="text-xs font-medium text-slate-700 block mb-1">
+                              Clinical Diagnosis:
+                            </label>
                             <input
                               type="text"
                               value={clinicalDiagnosis}
@@ -317,7 +478,9 @@ export default function ConsultingTwoPage() {
                             />
                           </div>
                           <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">Treatment Principle:</label>
+                            <label className="text-xs font-medium text-slate-700 block mb-1">
+                              Treatment Principle:
+                            </label>
                             <input
                               type="text"
                               value={treatmentPrinciple}
@@ -337,7 +500,9 @@ export default function ConsultingTwoPage() {
                         </CardHeader>
                         <CardContent className="space-y-4 pt-2">
                           <div className="space-y-1.5">
-                            <span className="text-xs font-medium text-slate-700 block">Recommended Sessions:</span>
+                            <span className="text-xs font-medium text-slate-700 block">
+                              Recommended Sessions:
+                            </span>
                             <div className="flex flex-wrap gap-1.5">
                               {["3", "5", "7", "10", "12"].map((opt) => {
                                 const active = sessions === opt;
@@ -371,42 +536,56 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div className="space-y-1.5">
-                            <span className="text-xs font-medium text-slate-700 block">Frequency:</span>
+                            <span className="text-xs font-medium text-slate-700 block">
+                              Frequency:
+                            </span>
                             <div className="flex flex-wrap gap-1.5">
-                              {["Daily", "Alternate Days", "Twice Weekly", "Weekly"].map((opt) => {
-                                const active = frequency === opt;
-                                return (
-                                  <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => setFrequency(opt)}
-                                    className={cn(
-                                      "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
-                                      active
-                                        ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                        : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                                    )}
-                                  >
-                                    {opt}
-                                  </button>
-                                );
-                              })}
+                              {["Daily", "Alternate Days", "Twice Weekly", "Weekly"].map(
+                                (opt) => {
+                                  const active = frequency === opt;
+                                  return (
+                                    <button
+                                      key={opt}
+                                      type="button"
+                                      onClick={() => setFrequency(opt)}
+                                      className={cn(
+                                        "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
+                                        active
+                                          ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
+                                          : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                      )}
+                                    >
+                                      {opt}
+                                    </button>
+                                  );
+                                }
+                              )}
                             </div>
                           </div>
 
                           <div className="space-y-1.5">
-                            <span className="text-xs font-medium text-slate-700 block">Home Care Advice:</span>
+                            <span className="text-xs font-medium text-slate-700 block">
+                              Home Care Advice:
+                            </span>
                             <div className="flex flex-wrap gap-2">
                               {[
-                                "Hydration", "Stretching", "Rest", "Heat Therapy",
-                                "Exercise", "Posture Correction", "Diet Advice", "Other"
+                                "Hydration",
+                                "Stretching",
+                                "Rest",
+                                "Heat Therapy",
+                                "Exercise",
+                                "Posture Correction",
+                                "Diet Advice",
+                                "Other",
                               ].map((name) => {
                                 const active = homeCare.includes(name);
                                 return (
                                   <button
                                     key={name}
                                     type="button"
-                                    onClick={() => toggleArrayItem(homeCare, setHomeCare, name)}
+                                    onClick={() =>
+                                      toggleArrayItem(homeCare, setHomeCare, name)
+                                    }
                                     className={cn(
                                       "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
                                       active
@@ -422,12 +601,10 @@ export default function ConsultingTwoPage() {
                           </div>
                         </CardContent>
                       </Card>
-
                     </div>
 
                     {/* RIGHT COLUMN */}
                     <div className="space-y-6">
-
                       {/* 5. MEDICAL HISTORY */}
                       <Card>
                         <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -438,16 +615,27 @@ export default function ConsultingTwoPage() {
                         <CardContent className="space-y-4 pt-2">
                           <div className="flex flex-wrap gap-2">
                             {[
-                              "Diabetes", "Hypertension", "Thyroid Disorder", "Heart Disease",
-                              "Asthma", "Stroke", "Epilepsy", "Cancer",
-                              "Pregnancy", "Recent Surgery", "Pacemaker", "Bleeding Disorder",
+                              "Diabetes",
+                              "Hypertension",
+                              "Thyroid Disorder",
+                              "Heart Disease",
+                              "Asthma",
+                              "Stroke",
+                              "Epilepsy",
+                              "Cancer",
+                              "Pregnancy",
+                              "Recent Surgery",
+                              "Pacemaker",
+                              "Bleeding Disorder",
                             ].map((item) => {
                               const active = medHistory.includes(item);
                               return (
                                 <button
                                   key={item}
                                   type="button"
-                                  onClick={() => toggleArrayItem(medHistory, setMedHistory, item)}
+                                  onClick={() =>
+                                    toggleArrayItem(medHistory, setMedHistory, item)
+                                  }
                                   className={cn(
                                     "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
                                     active
@@ -462,7 +650,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div className="flex items-center gap-2 pt-1">
-                            <span className="text-xs font-medium text-slate-700 w-24 shrink-0">Other:</span>
+                            <span className="text-xs font-medium text-slate-700 w-24 shrink-0">
+                              Other:
+                            </span>
                             <input
                               type="text"
                               value={otherMedHistory}
@@ -473,7 +663,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">Current Medications:</label>
+                            <label className="text-xs font-medium text-slate-700 block mb-1">
+                              Current Medications:
+                            </label>
                             <input
                               type="text"
                               value={currentMedications}
@@ -483,7 +675,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">Allergies:</label>
+                            <label className="text-xs font-medium text-slate-700 block mb-1">
+                              Allergies:
+                            </label>
                             <input
                               type="text"
                               value={historyAllergies}
@@ -504,7 +698,9 @@ export default function ConsultingTwoPage() {
                         <CardContent className="space-y-4 pt-2">
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
-                              <label className="text-xs font-medium text-slate-700 block mb-1">BP (mmHg):</label>
+                              <label className="text-xs font-medium text-slate-700 block mb-1">
+                                BP (mmHg):
+                              </label>
                               <input
                                 type="text"
                                 value={bp}
@@ -514,7 +710,9 @@ export default function ConsultingTwoPage() {
                               />
                             </div>
                             <div>
-                              <label className="text-xs font-medium text-slate-700 block mb-1">Pulse (bpm):</label>
+                              <label className="text-xs font-medium text-slate-700 block mb-1">
+                                Pulse (bpm):
+                              </label>
                               <input
                                 type="text"
                                 value={pulse}
@@ -524,7 +722,9 @@ export default function ConsultingTwoPage() {
                               />
                             </div>
                             <div>
-                              <label className="text-xs font-medium text-slate-700 block mb-1">Weight (kg):</label>
+                              <label className="text-xs font-medium text-slate-700 block mb-1">
+                                Weight (kg):
+                              </label>
                               <input
                                 type="text"
                                 value={weight}
@@ -536,7 +736,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                            <span className="text-xs font-medium text-slate-700 w-32 shrink-0">Tenderness:</span>
+                            <span className="text-xs font-medium text-slate-700 w-32 shrink-0">
+                              Tenderness:
+                            </span>
                             <div className="flex flex-wrap gap-1.5">
                               {["Mild", "Moderate", "Severe"].map((opt) => {
                                 const active = tenderness === opt;
@@ -560,7 +762,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                            <span className="text-xs font-medium text-slate-700 w-32 shrink-0">Range of Motion:</span>
+                            <span className="text-xs font-medium text-slate-700 w-32 shrink-0">
+                              Range of Motion:
+                            </span>
                             <div className="flex flex-wrap gap-1.5">
                               {["Normal", "Restricted"].map((opt) => {
                                 const active = rom === opt;
@@ -584,7 +788,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                            <span className="text-xs font-medium text-slate-700 w-32 shrink-0">Posture:</span>
+                            <span className="text-xs font-medium text-slate-700 w-32 shrink-0">
+                              Posture:
+                            </span>
                             <div className="flex flex-wrap gap-1.5">
                               {["Normal", "Abnormal"].map((opt) => {
                                 const active = posture === opt;
@@ -608,7 +814,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">Special Findings / Clinical Notes:</label>
+                            <label className="text-xs font-medium text-slate-700 block mb-1">
+                              Special Findings / Clinical Notes:
+                            </label>
                             <textarea
                               rows={3}
                               value={specialFindings}
@@ -629,16 +837,30 @@ export default function ConsultingTwoPage() {
                         <CardContent className="space-y-4 pt-2">
                           <div className="flex flex-wrap gap-2">
                             {[
-                              "Acupuncture", "Electroacupuncture", "Cupping", "Hijama",
-                              "Cauterization", "Venesection", "Moxibustion", "Gua Sha",
-                              "TENS", "Dry Needling", "Auricular Acupuncture",
+                              "Acupuncture",
+                              "Electroacupuncture",
+                              "Cupping",
+                              "Hijama",
+                              "Cauterization",
+                              "Venesection",
+                              "Moxibustion",
+                              "Gua Sha",
+                              "TENS",
+                              "Dry Needling",
+                              "Auricular Acupuncture",
                             ].map((item) => {
                               const active = treatmentsGiven.includes(item);
                               return (
                                 <button
                                   key={item}
                                   type="button"
-                                  onClick={() => toggleArrayItem(treatmentsGiven, setTreatmentsGiven, item)}
+                                  onClick={() =>
+                                    toggleArrayItem(
+                                      treatmentsGiven,
+                                      setTreatmentsGiven,
+                                      item
+                                    )
+                                  }
                                   className={cn(
                                     "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
                                     active
@@ -653,7 +875,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">Acupuncture Points Used:</label>
+                            <label className="text-xs font-medium text-slate-700 block mb-1">
+                              Acupuncture Points Used:
+                            </label>
                             <input
                               type="text"
                               value={acuPoints}
@@ -663,7 +887,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-slate-700 shrink-0">Needle Retention Time:</span>
+                            <span className="text-xs font-medium text-slate-700 shrink-0">
+                              Needle Retention Time:
+                            </span>
                             <input
                               type="text"
                               value={retentionTime}
@@ -684,7 +910,9 @@ export default function ConsultingTwoPage() {
                         </CardHeader>
                         <CardContent className="space-y-4 pt-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-slate-700 shrink-0">Next Appointment:</span>
+                            <span className="text-xs font-medium text-slate-700 shrink-0">
+                              Next Appointment:
+                            </span>
                             <input
                               type="date"
                               value={nextAppt}
@@ -694,7 +922,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div className="space-y-1.5">
-                            <span className="text-xs font-medium text-slate-700 block">Patient Feedback:</span>
+                            <span className="text-xs font-medium text-slate-700 block">
+                              Patient Feedback:
+                            </span>
                             <div className="flex flex-wrap gap-2">
                               {[
                                 { name: "Improved", emoji: "😃" },
@@ -723,7 +953,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">Additional Notes:</label>
+                            <label className="text-xs font-medium text-slate-700 block mb-1">
+                              Additional Notes:
+                            </label>
                             <textarea
                               rows={2}
                               value={additionalNotes}
@@ -733,7 +965,9 @@ export default function ConsultingTwoPage() {
                           </div>
 
                           <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">Practitioner's Signature:</label>
+                            <label className="text-xs font-medium text-slate-700 block mb-1">
+                              Practitioner's Signature:
+                            </label>
                             <input
                               type="text"
                               value={signature}
@@ -743,27 +977,55 @@ export default function ConsultingTwoPage() {
                           </div>
                         </CardContent>
                       </Card>
-
                     </div>
                   </div>
 
-                  {/* EXACT PrescriptionCard Component (SL NO, DRUG, DOSAGE, FREQUENCY, FOOD, DURATION, QUANTITY, ACTIONS, Favorites & Templates) */}
-                  {/* <PrescriptionCard
-                    data={data}
-                    setData={setData}
-                    appointmentData={{ message: "Success", data: DUMMY_APPOINTMENT }}
-                  /> */}
+                  {/* Prescription Medicines */}
+                  {appointmentData && (
+                    <PrescriptionCard
+                      data={data}
+                      setData={setData as any}
+                      appointmentData={appointmentData}
+                    />
+                  )}
 
-                  {/* EXACT Action Buttons from ActionButton.tsx (Print, Send for Test, Observation, Admit, Complete) */}
-                  <ActionButton data={data} testIsOK={true} />
+                  {/* Lab & Imaging Tests */}
+                  <Test data={data} setData={setData as any} setTestIsOK={setTestIsOK} />
 
+                  {/* Action Buttons */}
+                  <ActionButton data={data} testIsOK={testIsOK} />
                 </div>
               </Card>
             </div>
           )}
 
+          {activeTab === "history" && appointment?.patient?._id && (
+            <History patientId={appointment.patient._id} />
+          )}
+
+          {activeTab === "report" && appointment?.patient?._id && (
+            <Report patientId={appointment.patient._id} />
+          )}
+
+          <PrintConsultation appointment={appointment || null} data={data} />
         </div>
       </div>
     </AppShell>
+  );
+}
+
+export default function ConsultingTwoPage() {
+  return (
+    <Suspense
+      fallback={
+        <AppShell>
+          <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-600 font-medium">
+            Loading...
+          </div>
+        </AppShell>
+      }
+    >
+      <ConsultingTwoContent />
+    </Suspense>
   );
 }

@@ -82,6 +82,58 @@ export interface ConsultationType {
     priority: string;
     _id: string;
   }[];
+  consultationType?: string;
+  chiefComplaints?: {
+    complaints?: string[];
+    other?: string;
+    duration?: string;
+    painScore?: number;
+  };
+  lifestyle?: {
+    sleep?: string;
+    bowel?: string;
+    appetite?: string;
+    stress?: string;
+    exercise?: string;
+    smoking?: string;
+    alcohol?: string;
+  };
+  acupunctureAssessment?: {
+    clinicalDiagnosis?: string;
+    treatmentPrinciple?: string;
+  };
+  treatmentPlan?: {
+    sessions?: string;
+    frequency?: string;
+    homeCare?: string[];
+  };
+  medicalHistoryDetails?: {
+    medHistory?: string[];
+    otherMedHistory?: string;
+    currentMedications?: string;
+    allergies?: string;
+  };
+  acupunctureExamination?: {
+    bp?: string;
+    pulse?: string;
+    weight?: string;
+    tenderness?: string;
+    rom?: string;
+    posture?: string;
+    specialFindings?: string;
+  };
+  treatmentGiven?: {
+    treatments?: string[];
+    acuPoints?: string;
+    retentionTime?: string;
+  };
+  followUpDetails?: {
+    nextAppt?: Date;
+    feedback?: string;
+    additionalNotes?: string;
+    signature?: string;
+  };
+  treatment?: string;
   createdAt: Date;
   updatedAt: Date;
 }

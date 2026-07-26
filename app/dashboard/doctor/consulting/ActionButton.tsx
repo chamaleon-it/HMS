@@ -61,7 +61,12 @@ export default function ActionButton({ data, testIsOK }: { data: DataType, testI
 
   return (
     <div className="flex justify-between gap-2 mt-6">
-      <Button type="button" variant="outline">
+      <Button
+        type="button"
+        variant="outline"
+        onClick={() => window.print()}
+        className="cursor-pointer"
+      >
         <FileText className="w-4 h-4 mr-1" /> Print
       </Button>
       <motion.div whileTap={{ scale: 0.98 }} className="flex flex-wrap gap-3">
