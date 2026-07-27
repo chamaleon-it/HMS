@@ -102,7 +102,7 @@ const ItemSearchCell = ({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-indigo-500" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[400px] p-0 shadow-2xl border-slate-200 rounded-xl" align="start">
+            <PopoverContent className="w-100 p-0 shadow-2xl border-slate-200 rounded-xl" align="start">
                 <Command className="rounded-xl ">
                     <CommandInput
                         placeholder="Type medicine name..."
@@ -157,13 +157,12 @@ const ItemSearchCell = ({
                                         </div>
 
                                         <div className="flex flex-col items-end gap-0.5 shrink-0 pl-2">
-                                            <span className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${
-                                                qty <= 0
+                                            <span className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${qty <= 0
                                                     ? "bg-red-50 text-red-600"
                                                     : qty < 15
                                                         ? "bg-amber-50 text-amber-600"
                                                         : "bg-emerald-50 text-emerald-600"
-                                            }`}>
+                                                }`}>
                                                 {qty <= 0 ? "Out of Stock" : qty < 15 ? "Low Stock" : "In Stock"}
                                             </span>
                                             <span className="text-[11px] font-bold text-slate-500">
