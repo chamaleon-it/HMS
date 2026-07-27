@@ -96,6 +96,7 @@ export interface DataType {
         quantity: number;
         availableQuantity: number
         unitPrice: number;
+        rackLocation?: string;
     }[];
     discount: number;
     priority: string;

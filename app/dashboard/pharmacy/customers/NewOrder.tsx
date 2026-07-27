@@ -159,14 +159,16 @@ export default function NewOrder({ mutate }: { mutate: () => void }) {
           <DialogHeader>
             <DialogTitle>Customer Register</DialogTitle>
           </DialogHeader>
-          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string) => {
+          <RegisterPatient patient={{ name: nameToRegister }} onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
             setOpenCreate(false);
-            mutate()
-            setNameToRegister("")
-            // setPayload((prev) => ({ ...prev, patient: id ?? "" }));
-            // setOpen(true)
-            // setpatientName(name ?? "")
-
+            mutate();
+            setNameToRegister("");
+            if (id && name) {
+              const displayName = `${name}${mrn ? ` - (${mrn})` : ""}`;
+              setPayload((prev) => ({ ...prev, patient: id }));
+              setpatientName(displayName);
+              setOpen(true);
+            }
           }} />
         </DialogContent>
       </Dialog>

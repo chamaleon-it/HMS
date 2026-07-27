@@ -13,9 +13,10 @@ interface Medicine {
   quantity: number;
   availableQuantity: number;
   unitPrice: number;
+  rackLocation?: string;
 }
 
-type Item = { _id: string; name: string; generic: string; quantity: number, unitPrice: number };
+type Item = { _id: string; name: string; generic: string; quantity: number, unitPrice: number, rackLocation?: string };
 type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
 
@@ -86,9 +87,13 @@ export default function MedicineField({
       if (m.unitPrice !== itemById.data.unitPrice) {
         updateField(i, "unitPrice", itemById.data.unitPrice);
       }
+      // Sync rack location
+      if (itemById.data.rackLocation && m.rackLocation !== itemById.data.rackLocation) {
+        updateField(i, "rackLocation", itemById.data.rackLocation);
+      }
       if (!open) setQuery("");
     }
-  }, [m.name, itemById, open, selected, m.availableQuantity, m.unitPrice, m.medicineName, i, updateField]);
+  }, [m.name, itemById, open, selected, m.availableQuantity, m.unitPrice, m.medicineName, m.rackLocation, i, updateField]);
 
   const qs = useMemo(() => {
     const p = new URLSearchParams();
@@ -120,6 +125,7 @@ export default function MedicineField({
     updateField(i, "medicineName", item.name);
     updateField(i, "availableQuantity", item.quantity);
     updateField(i, "unitPrice", item.unitPrice);
+    updateField(i, "rackLocation", item.rackLocation || "-");
     // remember the label locally
     setSelected({ id: item._id, name: item.name });
     // clear query and close
@@ -184,6 +190,7 @@ export default function MedicineField({
                       updateField(i, "availableQuantity", 0)
                       updateField(i, "quantity", 0)
                       updateField(i, "unitPrice", 0)
+                      updateField(i, "rackLocation", "-")
                       setSelected(null);
                       setQuery("");
                       setFilter((f) => ({ ...f, q: "", page: 1 }));

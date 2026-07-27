@@ -48,11 +48,12 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     const allergiesParam = params.get("allergies");
 
     if (window.location.hash === "#newOrder" && id) {
+      const displayName = name ? `${name}${mrn ? ` - (${mrn})` : ""}` : "";
       addDraft({
         patient: id,
         doctor: doctor || user?._id || "",
         allergies: allergiesParam || ""
-      }, name || "");
+      }, displayName);
       window.location.hash = "";
     }
   }, [addDraft, user?._id]);
@@ -82,14 +83,15 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
           </DialogHeader>
           <RegisterPatient
             patient={{ name: nameToRegister }}
-            onClose={(id?: string, name?: string, allergies?: string) => {
+            onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
               setOpenCreate(false);
               if (id && name) {
+                const displayName = `${name}${mrn ? ` - (${mrn})` : ""}`;
                 addDraft({
                   patient: id,
                   doctor: user?._id || "",
                   allergies: allergies || ""
-                }, name);
+                }, displayName);
               }
               setNameToRegister("");
             }}

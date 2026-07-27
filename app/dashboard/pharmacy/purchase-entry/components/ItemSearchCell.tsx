@@ -40,6 +40,7 @@ interface Item {
     _id: string;
     name: string;
     generic?: string;
+    quantity?: number;
     unitPrice?: number;
     purchasePrice?: number;
     packing?: number;
@@ -101,7 +102,7 @@ const ItemSearchCell = ({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-indigo-500" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[350px] p-0 shadow-2xl border-slate-200 rounded-xl" align="start">
+            <PopoverContent className="w-[400px] p-0 shadow-2xl border-slate-200 rounded-xl" align="start">
                 <Command className="rounded-xl ">
                     <CommandInput
                         placeholder="Type medicine name..."
@@ -128,30 +129,50 @@ const ItemSearchCell = ({
                             </CommandEmpty>
                         )}
                         <CommandGroup className="p-2 ">
-                            {items.map((it) => (
-                                <CommandItem
-                                    key={it._id}
-                                    value={it.name}
-                                    onSelect={() => {
-                                        setLocalSelectedItem(it);
-                                        onSelect(it);
-                                        setOpen(false);
-                                        setQuery("");
-                                    }}
-                                    className="rounded-lg h-10 px-3 aria-selected:bg-indigo-50 aria-selected:text-indigo-700 font-medium transition-colors cursor-pointer mb-1 "
-                                >
-                                    <Check
-                                        className={cn(
-                                            "mr-3 h-4 w-4 text-indigo-600 transition-all",
-                                            selectedItemId === it._id ? "opacity-100 scale-100" : "opacity-0 scale-50"
-                                        )}
-                                    />
-                                    <div className="flex flex-col ">
-                                        <span className="">{it.name}</span>
-                                        {it.generic && <span className="text-[10px] text-slate-400 ">{it.generic}</span>}
-                                    </div>
-                                </CommandItem>
-                            ))}
+                            {items.map((it) => {
+                                const qty = it.quantity ?? 0;
+                                return (
+                                    <CommandItem
+                                        key={it._id}
+                                        value={it.name}
+                                        onSelect={() => {
+                                            setLocalSelectedItem(it);
+                                            onSelect(it);
+                                            setOpen(false);
+                                            setQuery("");
+                                        }}
+                                        className="rounded-lg py-2 px-3 aria-selected:bg-indigo-50 aria-selected:text-indigo-700 font-medium transition-colors cursor-pointer mb-1 flex items-center justify-between"
+                                    >
+                                        <div className="flex items-center min-w-0 pr-2">
+                                            <Check
+                                                className={cn(
+                                                    "mr-2.5 h-4 w-4 text-indigo-600 transition-all shrink-0",
+                                                    selectedItemId === it._id ? "opacity-100 scale-100" : "opacity-0 scale-50"
+                                                )}
+                                            />
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="font-medium leading-tight truncate">{it.name}</span>
+                                                {it.generic && <span className="text-[10px] text-slate-400 truncate">{it.generic}</span>}
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col items-end gap-0.5 shrink-0 pl-2">
+                                            <span className={`text-[10px] font-bold uppercase tracking-tight px-1.5 py-0.5 rounded-sm ${
+                                                qty <= 0
+                                                    ? "bg-red-50 text-red-600"
+                                                    : qty < 15
+                                                        ? "bg-amber-50 text-amber-600"
+                                                        : "bg-emerald-50 text-emerald-600"
+                                            }`}>
+                                                {qty <= 0 ? "Out of Stock" : qty < 15 ? "Low Stock" : "In Stock"}
+                                            </span>
+                                            <span className="text-[11px] font-bold text-slate-500">
+                                                {qty} {qty === 1 ? 'unit' : 'units'} available
+                                            </span>
+                                        </div>
+                                    </CommandItem>
+                                );
+                            })}
                         </CommandGroup>
                     </CommandList>
                 </Command>

@@ -86,11 +86,11 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                             <DialogTitle>Customer Register</DialogTitle>
                         </DialogHeader>
                         <RegisterPatient
-                            onClose={(id?: string, name?: string) => {
+                            onClose={(id?: string, name?: string, allergies?: string, mrn?: string) => {
                                 setOpenCreate(false);
                                 if (id) {
                                     setPayload((prev: any) => ({ ...prev, patient: id }));
-                                    setSelectedPatient({ _id: id, name: name || "", mrn: "" });
+                                    setSelectedPatient({ _id: id, name: name || "", mrn: mrn || "" });
                                 }
                             }}
                         />

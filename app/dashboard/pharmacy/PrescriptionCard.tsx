@@ -29,6 +29,7 @@ interface Medicine {
   quantity: number;
   availableQuantity: number;
   unitPrice: number;
+  rackLocation?: string;
 }
 
 export default function PrescriptionCard({
@@ -110,10 +111,9 @@ export default function PrescriptionCard({
   return (
 
     <div className="border rounded-xl bg-white shadow-sm max-h-[50vh] overflow-y-auto overflow-x-hidden">
-      <div className="flex flex-col min-w-[900px]">
+      <div className="flex flex-col min-w-225">
         <div
-          className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
-            } gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}
+          className={`grid ${showAllFields ? "grid-cols-[35px_repeat(12,1fr)]" : "grid-cols-[35px_repeat(8,1fr)]"} gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}
         >
           <div className="col-span-1 flex items-center justify-center">Sl</div>
           <div className="col-span-2">Drug</div>
@@ -125,6 +125,7 @@ export default function PrescriptionCard({
               <div className="col-span-1">Dur</div>
             </>
           )}
+          <div className="col-span-1">Rack</div>
           <div className="col-span-1">Avail</div>
           <div className="col-span-1">Qty</div>
           <div className="col-span-1">Price</div>
@@ -135,8 +136,7 @@ export default function PrescriptionCard({
         {data.items.map((m, i) => (
           <div
             key={m.rowId}
-            className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
-              } gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
+            className={`grid ${showAllFields ? "grid-cols-[35px_repeat(12,1fr)]" : "grid-cols-[35px_repeat(8,1fr)]"} gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
           >
             <div className="col-span-1 flex items-center justify-center text-slate-400 text-[11px] font-medium">
               {i + 1}
@@ -236,6 +236,14 @@ export default function PrescriptionCard({
                 </div>
               </>
             )}
+            <div className="col-span-1">
+              <input
+                placeholder="-"
+                disabled
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-sm outline-none text-slate-500 font-medium text-center"
+                value={m.rackLocation || "-"}
+              />
+            </div>
             <div className="col-span-1">
               <input
                 placeholder="0"
