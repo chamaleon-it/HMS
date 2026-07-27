@@ -196,14 +196,14 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
               </div>
             )}
 
-            {/* TREATMENT */}
-            {data.treatment && (
+            {/* THERAPY */}
+            {data.therapy && (
               <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs border-l-4 border-l-cyan-600 break-inside-avoid">
                 <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100 mb-1">
-                  Treatment
+                  Therapy
                 </h4>
                 <p className="text-slate-800 leading-relaxed font-medium">
-                  {data.treatment}
+                  {data.therapy}
                 </p>
               </div>
             )}

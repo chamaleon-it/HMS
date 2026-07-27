@@ -52,7 +52,7 @@ export interface DataType {
     urineMovement: null | string;
     appetite: null | string;
   };
-  treatment: null | string;
+  therapy: null | string;
   medicines: {
     referralName: string;
     name: string;

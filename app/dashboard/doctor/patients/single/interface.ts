@@ -133,7 +133,7 @@ export interface ConsultationType {
     additionalNotes?: string;
     signature?: string;
   };
-  treatment?: string;
+  therapy?: string;
   createdAt: Date;
   updatedAt: Date;
 }

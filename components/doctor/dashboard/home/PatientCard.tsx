@@ -6,6 +6,7 @@ import api from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import { DoorOpen, Trash2 } from "lucide-react";
 import { ConsultationTypeDialog } from "./ConsultationTypeDialog";
+import { useAuth } from "@/auth/context/auth-context";
 
 // Utility to format visit number into readable label
 function ordinal(n: number) {
@@ -109,7 +110,7 @@ export function PatientCard({
   };
 
   // const [ring, setRing] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { user } = useAuth()
   const router = useRouter();
 
   return (
@@ -155,7 +156,10 @@ export function PatientCard({
                 // ring={ring}
                 variant="outline"
                 onClick={() => {
-                  setIsDialogOpen(true);
+                  const targetRoute = user?.name.toLowerCase().includes("ali") || user?.username?.toLowerCase().includes("ali")
+                    ? "consulting-2"
+                    : "consulting";
+                  router.push(`/dashboard/doctor/${targetRoute}/?id=${a._id}`);
                 }}
               >
                 <>
@@ -181,12 +185,6 @@ export function PatientCard({
           </div>
         </div>
       </div>
-
-      <ConsultationTypeDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        appointmentId={a._id}
-      />
     </div>
   );
 }

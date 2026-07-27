@@ -51,7 +51,7 @@ export default function History({ patientId }: { patientId: string }) {
                   {consulting.doctor.name}
                 </TableCell>
 
-                <TableCell className="max-w-[300px]">
+                <TableCell className="max-w-75">
                   <div className="flex flex-wrap gap-1">
                     {consulting.medicines.map((m, i) => (
                       <Badge
@@ -108,7 +108,7 @@ export interface Consultations {
     bowelMovement?: string;
     urineMovement?: string;
   };
-  treatment?: string;
+  therapy?: string;
   advice: string;
   followUp: Date;
   test: Test[];

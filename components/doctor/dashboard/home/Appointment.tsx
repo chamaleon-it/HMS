@@ -17,6 +17,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { KeyedMutator } from "swr";
 import { ConsultationTypeDialog } from "./ConsultationTypeDialog";
+import { useAuth } from "@/auth/context/auth-context";
 
 export default function Appointment({
   a,
@@ -33,7 +34,7 @@ export default function Appointment({
 }) {
   const router = useRouter();
   const [ring, setRing] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { user } = useAuth()
 
   const startBaseClasses =
     "rounded-2xl border border-slate-200 bg-white !text-slate-700 hover:bg-slate-50 dark:bg-zinc-900 dark:!text-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800";
@@ -154,10 +155,9 @@ export default function Appointment({
               setRing(true);
             }}
             className={`inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm cursor-pointer
-              ${
-                ring
-                  ? "bg-white text-black hover:bg-white hover:text-black"
-                  : "bg-[black] text-white hover:bg-[black] hover:text-white"
+              ${ring
+                ? "bg-white text-black hover:bg-white hover:text-black"
+                : "bg-[black] text-white hover:bg-[black] hover:text-white"
               }
               `}
           >
@@ -175,7 +175,10 @@ export default function Appointment({
                 : undefined
             }
             onClick={() => {
-              setIsDialogOpen(true);
+              const targetRoute = user?.name?.toLowerCase().includes("ali") || user?.username?.toLowerCase().includes("ali")
+                ? "consulting-2"
+                : "consulting";
+              router.push(`/dashboard/doctor/${targetRoute}/?id=${a._id}`);
             }}
           >
             <DoorOpen className="h-4 w-4 mr-2" /> <p> Start Consult</p>
@@ -188,12 +191,6 @@ export default function Appointment({
           </button>
         </div>
       )}
-
-      <ConsultationTypeDialog
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-        appointmentId={a._id}
-      />
     </motion.div>
   );
 }

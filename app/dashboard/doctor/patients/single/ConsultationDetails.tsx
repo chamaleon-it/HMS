@@ -187,27 +187,27 @@ export default function ConsultationDetails({
                                     selectedRow.acupunctureExamination?.posture ||
                                     selectedRow.acupunctureExamination?.specialFindings ||
                                     selectedRow.examinationNote?.otherNotes) && (
-                                    <>
-                                        <Separator className="my-3" />
-                                        <div className="space-y-2 text-xs">
-                                            {selectedRow.acupunctureExamination?.tenderness && (
-                                                <p><span className="font-semibold text-slate-700">Tenderness:</span> {selectedRow.acupunctureExamination.tenderness}</p>
-                                            )}
-                                            {selectedRow.acupunctureExamination?.rom && (
-                                                <p><span className="font-semibold text-slate-700">Range of Motion:</span> {selectedRow.acupunctureExamination.rom}</p>
-                                            )}
-                                            {selectedRow.acupunctureExamination?.posture && (
-                                                <p><span className="font-semibold text-slate-700">Posture:</span> {selectedRow.acupunctureExamination.posture}</p>
-                                            )}
-                                            {selectedRow.acupunctureExamination?.specialFindings && (
-                                                <p><span className="font-semibold text-slate-700">Special Findings:</span> {selectedRow.acupunctureExamination.specialFindings}</p>
-                                            )}
-                                            {selectedRow.examinationNote?.otherNotes && (
-                                                <p className="bg-muted/30 p-2 rounded-md"><span className="font-semibold text-slate-700">Other Notes:</span> {selectedRow.examinationNote.otherNotes}</p>
-                                            )}
-                                        </div>
-                                    </>
-                                )}
+                                        <>
+                                            <Separator className="my-3" />
+                                            <div className="space-y-2 text-xs">
+                                                {selectedRow.acupunctureExamination?.tenderness && (
+                                                    <p><span className="font-semibold text-slate-700">Tenderness:</span> {selectedRow.acupunctureExamination.tenderness}</p>
+                                                )}
+                                                {selectedRow.acupunctureExamination?.rom && (
+                                                    <p><span className="font-semibold text-slate-700">Range of Motion:</span> {selectedRow.acupunctureExamination.rom}</p>
+                                                )}
+                                                {selectedRow.acupunctureExamination?.posture && (
+                                                    <p><span className="font-semibold text-slate-700">Posture:</span> {selectedRow.acupunctureExamination.posture}</p>
+                                                )}
+                                                {selectedRow.acupunctureExamination?.specialFindings && (
+                                                    <p><span className="font-semibold text-slate-700">Special Findings:</span> {selectedRow.acupunctureExamination.specialFindings}</p>
+                                                )}
+                                                {selectedRow.examinationNote?.otherNotes && (
+                                                    <p className="bg-muted/30 p-2 rounded-md"><span className="font-semibold text-slate-700">Other Notes:</span> {selectedRow.examinationNote.otherNotes}</p>
+                                                )}
+                                            </div>
+                                        </>
+                                    )}
                             </CardContent>
                         </Card>
                     </div>
@@ -422,46 +422,46 @@ export default function ConsultationDetails({
                     {(selectedRow.consultationNotes?.presentHistory ||
                         selectedRow.consultationNotes?.pastHistory ||
                         selectedRow.consultationNotes?.diagnosis) && (
-                        <Card className="shadow-sm border-muted-200">
-                            <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
-                                <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
-                                    <FileText className="w-5 h-5" />
-                                </div>
-                                <CardTitle className="text-base font-semibold">
-                                    Clinical Notes
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <NoteSection
-                                    title="Presenting History"
-                                    content={selectedRow.consultationNotes?.presentHistory}
-                                />
-                                <NoteSection
-                                    title="Past History"
-                                    content={selectedRow.consultationNotes?.pastHistory}
-                                />
-                                <NoteSection
-                                    title="Diagnosis"
-                                    content={selectedRow.consultationNotes?.diagnosis}
-                                    highlight
-                                />
-                            </CardContent>
-                        </Card>
-                    )}
+                            <Card className="shadow-sm border-muted-200">
+                                <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
+                                    <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
+                                        <FileText className="w-5 h-5" />
+                                    </div>
+                                    <CardTitle className="text-base font-semibold">
+                                        Clinical Notes
+                                    </CardTitle>
+                                </CardHeader>
+                                <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    <NoteSection
+                                        title="Presenting History"
+                                        content={selectedRow.consultationNotes?.presentHistory}
+                                    />
+                                    <NoteSection
+                                        title="Past History"
+                                        content={selectedRow.consultationNotes?.pastHistory}
+                                    />
+                                    <NoteSection
+                                        title="Diagnosis"
+                                        content={selectedRow.consultationNotes?.diagnosis}
+                                        highlight
+                                    />
+                                </CardContent>
+                            </Card>
+                        )}
 
-                    {selectedRow.treatment && (
+                    {selectedRow.therapy && (
                         <Card className="shadow-sm border-muted-200">
                             <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
                                 <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
                                     <Activity className="w-5 h-5" />
                                 </div>
                                 <CardTitle className="text-base font-semibold">
-                                    Treatment
+                                    Therapy
                                 </CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                                    {selectedRow.treatment}
+                                    {selectedRow.therapy}
                                 </p>
                             </CardContent>
                         </Card>
@@ -643,7 +643,7 @@ function NoteSection({
                 {title}
             </h5>
             <div
-                className={`p-3 rounded-md text-sm min-h-[80px] ${highlight ? "bg-primary/5 border border-primary/10" : "bg-muted/30"
+                className={`p-3 rounded-md text-sm min-h-20 ${highlight ? "bg-primary/5 border border-primary/10" : "bg-muted/30"
                     }`}
             >
                 {content ? (

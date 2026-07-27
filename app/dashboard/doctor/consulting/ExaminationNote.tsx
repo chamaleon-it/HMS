@@ -706,116 +706,216 @@ export default function ExaminationNote({
         </DndContext>
 
         {/* Medical History Parameters (Sleep, Bowel Movement, Urine Movement) */}
-        <div className="mb-5 p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3">
-          <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
-            Medical Parameters
+        <div className="mb-5 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white via-slate-50/50 to-emerald-50/30 shadow-sm overflow-hidden">
+          {/* Header */}
+          <div className="px-4 py-2 border-b border-slate-100 bg-white/60 backdrop-blur-sm">
+            <h4 className="text-xs font-bold text-slate-600 uppercase tracking-[0.12em] flex items-center gap-2">
+              <span className="inline-block w-1 h-3.5 rounded-full bg-gradient-to-b from-emerald-400 to-emerald-600" />
+              Medical Parameters
+            </h4>
           </div>
 
-          {/* 1. Sleep */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-xs font-medium text-slate-700 w-36 shrink-0">
-              Sleep:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {["Sound Sleep", "Disturbed Sleep", "Normal"].map((opt) => {
-                const active = selectedSleep === opt;
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => handleSleepToggle(opt)}
-                    className={cn(
-                      "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none",
-                      active
-                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 shadow-2xs font-semibold"
-                        : "bg-emerald-50/60 border-emerald-200/80 text-emerald-700 hover:bg-emerald-100/70"
-                    )}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
+          <div className="px-4 py-3 space-y-2.5">
+            {/* 1. Sleep */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-700 w-36 shrink-0">
+                Sleep
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {["Sound Sleep", "Disturbed Sleep", "Normal"].map((opt) => {
+                  const active = selectedSleep === opt;
+                  return (
+                    <label
+                      key={opt}
+                      className={cn(
+                        "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200",
+                        "border",
+                        active
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm shadow-emerald-100/50"
+                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="medparam-sleep"
+                        value={opt}
+                        checked={active}
+                        onChange={() => handleSleepToggle(opt)}
+                        className="sr-only"
+                      />
+                      <span
+                        className={cn(
+                          "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                          active
+                            ? "border-emerald-500 bg-emerald-500"
+                            : "border-slate-300 bg-white group-hover:border-emerald-300"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                            active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                          )}
+                        />
+                      </span>
+                      {opt}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* 2. Bowel Movement */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-xs font-medium text-slate-700 w-36 shrink-0">
-              Bowel Movement:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {["Normal", "Constipation", "IBS"].map((opt) => {
-                const active = selectedBowel === opt;
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => handleBowelToggle(opt)}
-                    className={cn(
-                      "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none",
-                      active
-                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 shadow-2xs font-semibold"
-                        : "bg-emerald-50/60 border-emerald-200/80 text-emerald-700 hover:bg-emerald-100/70"
-                    )}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
+            <div className="border-t border-slate-100/60" />
+
+            {/* 2. Bowel Movement */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-700 w-36 shrink-0">
+                Bowel Movement
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {["Normal", "Constipation", "IBS"].map((opt) => {
+                  const active = selectedBowel === opt;
+                  return (
+                    <label
+                      key={opt}
+                      className={cn(
+                        "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200",
+                        "border",
+                        active
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm shadow-emerald-100/50"
+                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="medparam-bowel"
+                        value={opt}
+                        checked={active}
+                        onChange={() => handleBowelToggle(opt)}
+                        className="sr-only"
+                      />
+                      <span
+                        className={cn(
+                          "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                          active
+                            ? "border-emerald-500 bg-emerald-500"
+                            : "border-slate-300 bg-white group-hover:border-emerald-300"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                            active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                          )}
+                        />
+                      </span>
+                      {opt}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* 3. Urine Movement */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-xs font-medium text-slate-700 w-36 shrink-0">
-              Urine Movement:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {["Normal", "Uncontrolled", "Dribbling"].map((opt) => {
-                const active = selectedUrine === opt;
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => handleUrineToggle(opt)}
-                    className={cn(
-                      "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none",
-                      active
-                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 shadow-2xs font-semibold"
-                        : "bg-emerald-50/60 border-emerald-200/80 text-emerald-700 hover:bg-emerald-100/70"
-                    )}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
+            <div className="border-t border-slate-100/60" />
+
+            {/* 3. Urine Movement */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-700 w-36 shrink-0">
+                Urine Movement
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {["Normal", "Uncontrolled", "Dribbling"].map((opt) => {
+                  const active = selectedUrine === opt;
+                  return (
+                    <label
+                      key={opt}
+                      className={cn(
+                        "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200",
+                        "border",
+                        active
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm shadow-emerald-100/50"
+                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="medparam-urine"
+                        value={opt}
+                        checked={active}
+                        onChange={() => handleUrineToggle(opt)}
+                        className="sr-only"
+                      />
+                      <span
+                        className={cn(
+                          "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                          active
+                            ? "border-emerald-500 bg-emerald-500"
+                            : "border-slate-300 bg-white group-hover:border-emerald-300"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                            active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                          )}
+                        />
+                      </span>
+                      {opt}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* 4. Appetite */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-            <span className="text-xs font-medium text-slate-700 w-36 shrink-0">
-              Appetite:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {["Normal", "Poor"].map((opt) => {
-                const active = selectedAppetite === opt;
-                return (
-                  <button
-                    key={opt}
-                    type="button"
-                    onClick={() => handleAppetiteToggle(opt)}
-                    className={cn(
-                      "px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 cursor-pointer select-none",
-                      active
-                        ? "bg-emerald-100 border-emerald-300 text-emerald-800 shadow-2xs font-semibold"
-                        : "bg-emerald-50/60 border-emerald-200/80 text-emerald-700 hover:bg-emerald-100/70"
-                    )}
-                  >
-                    {opt}
-                  </button>
-                );
-              })}
+            <div className="border-t border-slate-100/60" />
+
+            {/* 4. Appetite */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1.5">
+              <span className="text-xs font-semibold text-slate-700 w-36 shrink-0">
+                Appetite
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {["Normal", "Poor"].map((opt) => {
+                  const active = selectedAppetite === opt;
+                  return (
+                    <label
+                      key={opt}
+                      className={cn(
+                        "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200",
+                        "border",
+                        active
+                          ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-sm shadow-emerald-100/50"
+                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="medparam-appetite"
+                        value={opt}
+                        checked={active}
+                        onChange={() => handleAppetiteToggle(opt)}
+                        className="sr-only"
+                      />
+                      <span
+                        className={cn(
+                          "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                          active
+                            ? "border-emerald-500 bg-emerald-500"
+                            : "border-slate-300 bg-white group-hover:border-emerald-300"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                            active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                          )}
+                        />
+                      </span>
+                      {opt}
+                    </label>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>

@@ -48,12 +48,14 @@ export default function AllergyAlert({ allergies }: { allergies: string }) {
         </div>
         <div className="flex items-center gap-2">
           {!reviewed ? (
-            <Button
+            <button
+              type="button"
               onClick={() => setReviewed(true)}
-              className="bg-white text-red-600 hover:bg-slate-50 rounded-xl"
+              className="inline-flex items-center gap-2 px-4 py-2 text-xs font-semibold tracking-wide text-red-600 bg-white hover:bg-red-50/90 active:scale-[0.98] rounded-xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-white/30 backdrop-blur-xs select-none"
             >
-              Mark As Reviewed
-            </Button>
+              <CheckCircle2 className="w-4 h-4 text-red-600" />
+              <span>Mark As Reviewed</span>
+            </button>
           ) : (
             <span className="inline-flex items-center gap-1 rounded-xl bg-red-100 px-3 py-1 text-sm font-medium text-red-700">
               <CheckCircle2 className="h-4 w-4" /> Reviewed

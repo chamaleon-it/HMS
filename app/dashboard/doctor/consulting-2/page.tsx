@@ -58,7 +58,7 @@ function ConsultingTwoContent() {
       urineMovement: null,
       appetite: null,
     },
-    treatment: null,
+    therapy: null,
     medicines: [
       {
         dosage: "1 tab",
