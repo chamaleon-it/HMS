@@ -151,7 +151,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         const pack = Number(updated.pack);
                         const noOfPack = Number(updated.noOfPack);
                         const schemaFree = Number(updated.schema_free);
-                        console.log(pack,noOfPack,schemaFree)
+                        console.log(pack, noOfPack, schemaFree)
                         updated.qty = (noOfPack + schemaFree) * pack;
                     }
 
@@ -288,7 +288,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
             toast.success("Purchase entry saved successfully");
             try {
                 localStorage.removeItem("purchase_entry_draft");
-            } catch (e) {}
+            } catch (e) { }
             setNewItems([]);
             setBillDetails({
                 invoiceNumber: "",
@@ -556,14 +556,14 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                         <TableHeader>
                             <TableRow className="bg-[#334155] hover:bg-[#334155] border-none">
                                 <TableHead className="w-16 text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider border-r border-slate-600/30">SL NO</TableHead>
-                                <TableHead className="min-w-[150px] text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">PRODUCT NAME</TableHead>
+                                <TableHead className="min-w-37.5 text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">PRODUCT NAME</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">BATCH</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">PACK</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">STRIP COUNT</TableHead>
-                                
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">MRP</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">QTY</TableHead>
+
+                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-21.25">MRP</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 tracking-wider">EXPIRY</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">Rate</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-21.25">Rate</TableHead>
                                 {gstType === "inclusive" && <>
                                     <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SGST(%)</TableHead>
                                     <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">CGST(%)</TableHead>
@@ -572,7 +572,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                 {/* <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">DIS AMT</TableHead> */}
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA (FREE)</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider">SCHEMA AMT</TableHead>
-                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-[85px]">QTY</TableHead>
+                                <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-center tracking-wider min-w-21.25">Units</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">TOTAL</TableHead>
                                 <TableHead className="text-[11px] font-semibold uppercase text-slate-200 py-4 text-right pr-8 tracking-wider">Action</TableHead>
                             </TableRow>
@@ -592,7 +592,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                         <TableCell className="text-center text-xs font-semibold text-slate-300 py-4 group-hover:text-indigo-500 transition-colors">
                                             {String(index + 1)}
                                         </TableCell>
-                                        <TableCell className="p-2 min-w-[150px] ">
+                                        <TableCell className="p-2 min-w-37.5">
                                             <ItemSearchCell
                                                 selectedItemId={item._id}
                                                 selectedItemName={item.product}
@@ -638,7 +638,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 onKeyDown={(e) => handleKeyDown(e, item.id, "noOfPack")}
                                             />
                                         </TableCell>
-                                       
+
                                         <TableCell className="p-2">
                                             <Input
                                                 type="number"
@@ -748,7 +748,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 ₹{(item.schema_amt || 0).toFixed(2)}
                                             </div>
                                         </TableCell>
-                                         <TableCell className="p-2">
+                                        <TableCell className="p-2">
                                             <Input
                                                 type="number"
                                                 name="qty"
@@ -847,7 +847,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                     <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-[0.2em] ml-2">Description</label>
                     <Textarea
                         placeholder="Type additional details about this transaction for records..."
-                        className="min-h-[140px] bg-white border-slate-200 rounded-2xl resize-none focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm text-sm p-5 font-medium leading-relaxed placeholder:text-slate-300 border-2"
+                        className="min-h-35 bg-white border-slate-200 rounded-2xl resize-none focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm text-sm p-5 font-medium leading-relaxed placeholder:text-slate-300 border-2"
                         value={billDetails.description}
                         onChange={(e) => handleBillDetailChange("description", e.target.value)}
                     />

@@ -225,7 +225,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Strip Count
+            Quantity
           </label>
           <Input
             className="mt-1"
@@ -459,7 +459,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Current Stock Qty
+            Units
           </label>
           <Input
             type="number"

@@ -428,7 +428,7 @@ export function QuickAddItem({ onClose, initialName, onSelect }: {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Current Stock Qty
+            Units
           </label>
           <Input
             type="number"
