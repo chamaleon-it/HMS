@@ -41,6 +41,15 @@ export default function MonthlyCalender({
 }: {
   selectedDate: Date | undefined;
 }) {
+  const currentDate = selectedDate ? new Date(selectedDate) : new Date();
+  const year = currentDate.getFullYear();
+  const month = currentDate.getMonth();
+
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const firstDayOfWeek = new Date(year, month, 1).getDay();
+
+  const dateParam = currentDate.toISOString();
+
   const { data } = useSWR<{
     message: string;
     data: {
@@ -52,9 +61,7 @@ export default function MonthlyCalender({
       type: string;
       status: string;
     }[];
-  }>(`/appointments/calender-monthly?date=${selectedDate}`);
-
-
+  }>(`/appointments/calender-monthly?date=${dateParam}`);
 
   return (
     <TabsContent
@@ -63,7 +70,7 @@ export default function MonthlyCalender({
     >
       <div className="flex items-center justify-between mb-3">
         <div>
-          <h3 className="font-semibold">Monthly Bookings</h3>
+          <h3 className="font-semibold text-slate-800">Monthly Bookings</h3>
         </div>
         <div className="hidden md:flex items-center gap-4 text-xs text-gray-600">
           {Object.entries(colorMap).map(([key, v]) => (
@@ -81,48 +88,66 @@ export default function MonthlyCalender({
         </div>
       </div>
       <div className="grid grid-cols-7 gap-2">
-        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(e => <p key={e} className="text-center p-2.5 border rounded-lg">{e}</p>)}
-        {Array(new Date(new Date(selectedDate).getFullYear(), new Date(selectedDate).getMonth(), 1).getDay()).fill(0).map((_, idx) => <div key={idx}></div>)}
+        {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((e) => (
+          <p key={e} className="text-center p-2.5 border rounded-lg font-medium text-xs text-slate-600">
+            {e}
+          </p>
+        ))}
+        {Array(firstDayOfWeek)
+          .fill(0)
+          .map((_, idx) => (
+            <div key={idx}></div>
+          ))}
 
-        {[...Array(31)].map((_, i) => {
-          const date = `${selectedDate?.getFullYear() || new Date().getFullYear()
-            }-${(selectedDate?.getMonth() ?? 0) + 1}-${String(i + 1).padStart(
-              2,
-              "0"
-            )}`;
-          const events = data?.data.filter((b) => b.date === date) || [];
+        {[...Array(daysInMonth)].map((_, i) => {
+          const monthStr = String(month + 1).padStart(2, "0");
+          const dayStr = String(i + 1).padStart(2, "0");
+          const targetDateStr = `${year}-${monthStr}-${dayStr}`;
+
+          const events =
+            data?.data.filter((b) => {
+              if (!b.date) return false;
+              const bDateStr = typeof b.date === "string" ? b.date.split("T")[0] : "";
+              return bDateStr === targetDateStr;
+            }) || [];
 
           return (
             <motion.div
               key={i}
               whileHover={{ scale: 1.02 }}
-              className="relative border rounded-lg p-2 h-28 overflow-hidden hover:bg-gray-50 cursor-pointer"
+              className="relative border rounded-lg p-2 h-28 overflow-y-auto hover:bg-slate-50 transition-colors cursor-pointer"
             >
-              <p className="text-xs text-gray-500">{i + 1}</p>
-              {events.length > 0 && (
-                <span className="absolute top-1 right-1 text-[10px] bg-gray-900 text-white rounded-full min-w-[1.25rem] h-5 px-1 flex items-center justify-center">
-                  {events.length}
-                </span>
-              )}
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold text-slate-600">{i + 1}</p>
+                {events.length > 0 && (
+                  <span className="text-[10px] bg-slate-900 text-white rounded-full min-w-5 h-4 px-1 flex items-center justify-center font-bold">
+                    {events.length}
+                  </span>
+                )}
+              </div>
+
               {events.length === 0 && (
-                <div className="text-[11px] text-gray-400 mt-2">
+                <div className="text-[11px] text-slate-400 mt-2">
                   No bookings
                 </div>
               )}
+
               {events.map((ev, j) => {
+                const patientName = ev?.patient?.name || "Patient";
                 return (
                   <div
-                    key={j}
-                    className={
-                      cn('mt-1 text-[11px] rounded px-1 truncate bg-gray-200',
-                        ev.status === "Upcoming" && "bg-[#2b7fff]",
-                        ev.status === "Consulted" && "bg-gray-200",
-                        ev.status === "Test" && "bg-[#fe9a00]",
-                      )
-
-                    }
+                    key={ev._id || j}
+                    className={cn(
+                      "mt-1 text-[11px] rounded px-1.5 py-0.5 font-medium truncate",
+                      ev.status === "Upcoming" && "bg-blue-600 text-white",
+                      ev.status === "Consulted" && "bg-slate-200 text-slate-700",
+                      ev.status === "Test" && "bg-amber-500 text-white",
+                      ev.status === "Observation" && "bg-purple-600 text-white",
+                      ev.status === "Admit" && "bg-rose-600 text-white"
+                    )}
+                    title={`${patientName} • ${ev.status}`}
                   >
-                    {ev?.patient?.name}{" • " + ev.status}
+                    {patientName} • {ev.status}
                   </div>
                 );
               })}

@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import HospitalName from "@/components/print/HospitalName";
 import { fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { AppointmentType, DataType } from "./interface";
+import { useAuth } from "@/auth/context/auth-context";
 
 interface PrintConsultationProps {
   appointment: AppointmentType | null;
@@ -39,7 +40,9 @@ function resolveDoctorName(doctor: any, fallbackSignature?: string, patientName?
 }
 
 export default function PrintConsultation({ appointment, data }: PrintConsultationProps) {
+
   const [mounted, setMounted] = useState(false);
+  const { user } = useAuth()
 
   useEffect(() => {
     setMounted(true);
@@ -50,7 +53,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
   const patient = appointment.patient;
   const isAcupuncture = data.consultationType === "acupuncture";
   const doctorName = resolveDoctorName(
-    appointment.doctor,
+    user?.name,
     data.followUpDetails?.signature,
     patient?.name
   );
@@ -439,8 +442,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                   {data.followUp
                     ? fDateandTime(data.followUp).split(",")[0]
                     : data.followUpDetails?.nextAppt
-                    ? fDateandTime(data.followUpDetails.nextAppt).split(",")[0]
-                    : "—"}
+                      ? fDateandTime(data.followUpDetails.nextAppt).split(",")[0]
+                      : "—"}
                 </span>
               </p>
             )}

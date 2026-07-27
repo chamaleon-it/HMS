@@ -255,7 +255,7 @@ export default function ConsultationDetails({
 
                     {/* Acupuncture Assessment & Treatment Given */}
                     {(selectedRow.acupunctureAssessment || selectedRow.treatmentGiven) && (
-                        <Card className="shadow-sm border-emerald-200 bg-emerald-50/20">
+                        <Card className="shadow-sm">
                             <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
                                 <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
                                     <Sparkles className="w-5 h-5" />

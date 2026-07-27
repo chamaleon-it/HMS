@@ -15,6 +15,17 @@ import Report from "../consulting/Report";
 import AllergyAlert from "../consulting/AllergyAlert";
 import PrintConsultation from "../consulting/PrintConsultation";
 import { AppointmentType, DataType } from "../consulting/interface";
+import {
+  Activity,
+  Calendar,
+  ClipboardList,
+  HeartPulse,
+  Pill,
+  Sparkles,
+  Stethoscope,
+  UserCheck,
+  Check,
+} from "lucide-react";
 
 function ConsultingTwoContent() {
   const searchParams = useSearchParams();
@@ -36,7 +47,7 @@ function ConsultingTwoContent() {
     appointment: null,
     consultationNotes: {
       presentHistory: null,
-      pastHistory: "No records",
+      pastHistory: null,
       diagnosis: null,
     },
     examinationNote: {
@@ -75,56 +86,56 @@ function ConsultingTwoContent() {
     test: [],
   });
 
-  // ---------- Interactive Assessment State ----------
+  // ---------- Interactive Assessment State (NO DEFAULTS) ----------
   // 1. Chief Complaint
-  const [complaints, setComplaints] = useState<string[]>(["Knee Pain", "Back Pain"]);
+  const [complaints, setComplaints] = useState<string[]>([]);
   const [otherComplaint, setOtherComplaint] = useState("");
-  const [duration, setDuration] = useState("2 Weeks");
-  const [painScore, setPainScore] = useState<number>(6);
+  const [duration, setDuration] = useState("");
+  const [painScore, setPainScore] = useState<number | null>(null);
 
   // 2. Lifestyle
-  const [sleep, setSleep] = useState("Fair");
-  const [bowel, setBowel] = useState("Normal");
-  const [appetite, setAppetite] = useState("Normal");
-  const [stress, setStress] = useState("Moderate");
-  const [exercise, setExercise] = useState("Occasional");
-  const [smoking, setSmoking] = useState("No");
-  const [alcohol, setAlcohol] = useState("No");
+  const [sleep, setSleep] = useState("");
+  const [bowel, setBowel] = useState("");
+  const [appetite, setAppetite] = useState("");
+  const [stress, setStress] = useState("");
+  const [exercise, setExercise] = useState("");
+  const [smoking, setSmoking] = useState("");
+  const [alcohol, setAlcohol] = useState("");
 
   // 3. Acupuncture Assessment
-  const [clinicalDiagnosis, setClinicalDiagnosis] = useState("Bih Syndrome (Joint Pain)");
-  const [treatmentPrinciple, setTreatmentPrinciple] = useState("Unblock Channels & Dispel Wind-Cold-Dampness");
+  const [clinicalDiagnosis, setClinicalDiagnosis] = useState("");
+  const [treatmentPrinciple, setTreatmentPrinciple] = useState("");
 
   // 4. Treatment Plan
-  const [sessions, setSessions] = useState("7");
+  const [sessions, setSessions] = useState("");
   const [otherSessions, setOtherSessions] = useState("");
-  const [frequency, setFrequency] = useState("Alternate Days");
-  const [homeCare, setHomeCare] = useState<string[]>(["Hydration", "Stretching", "Rest"]);
+  const [frequency, setFrequency] = useState("");
+  const [homeCare, setHomeCare] = useState<string[]>([]);
 
   // 5. Medical History
-  const [medHistory, setMedHistory] = useState<string[]>(["Hypertension"]);
+  const [medHistory, setMedHistory] = useState<string[]>([]);
   const [otherMedHistory, setOtherMedHistory] = useState("");
-  const [currentMedications, setCurrentMedications] = useState("Tab Amlodipine 5mg OD");
-  const [historyAllergies, setHistoryAllergies] = useState("Penicillin");
+  const [currentMedications, setCurrentMedications] = useState("");
+  const [historyAllergies, setHistoryAllergies] = useState("");
 
   // 6. Examination
-  const [bp, setBp] = useState("120/80");
-  const [pulse, setPulse] = useState("74");
-  const [weight, setWeight] = useState("68");
-  const [tenderness, setTenderness] = useState("Moderate");
-  const [rom, setRom] = useState("Restricted");
-  const [posture, setPosture] = useState("Normal");
-  const [specialFindings, setSpecialFindings] = useState("Mild swelling around the knee joint");
+  const [bp, setBp] = useState("");
+  const [pulse, setPulse] = useState("");
+  const [weight, setWeight] = useState("");
+  const [tenderness, setTenderness] = useState("");
+  const [rom, setRom] = useState("");
+  const [posture, setPosture] = useState("");
+  const [specialFindings, setSpecialFindings] = useState("");
 
   // 7. Treatment Given
-  const [treatmentsGiven, setTreatmentsGiven] = useState<string[]>(["Acupuncture", "Cupping", "TENS"]);
-  const [acuPoints, setAcuPoints] = useState("ST36, SP6, GB34, LI4");
-  const [retentionTime, setRetentionTime] = useState("20");
+  const [treatmentsGiven, setTreatmentsGiven] = useState<string[]>([]);
+  const [acuPoints, setAcuPoints] = useState("");
+  const [retentionTime, setRetentionTime] = useState("");
 
   // 8. Follow-Up
-  const [nextAppt, setNextAppt] = useState("2026-07-31");
-  const [feedback, setFeedback] = useState("Improved");
-  const [additionalNotes, setAdditionalNotes] = useState("Patient shows good progress after 1st session.");
+  const [nextAppt, setNextAppt] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const [additionalNotes, setAdditionalNotes] = useState("");
   const [signature, setSignature] = useState("");
 
   const toggleArrayItem = (list: string[], setList: React.Dispatch<React.SetStateAction<string[]>>, item: string) => {
@@ -142,7 +153,7 @@ function ConsultingTwoContent() {
           complaints,
           other: otherComplaint,
           duration,
-          painScore,
+          painScore: painScore ?? undefined,
         },
         lifestyle: {
           sleep,
@@ -243,9 +254,20 @@ function ConsultingTwoContent() {
     redirect("/dashboard/doctor/appointments");
   }
 
+  const pillClass = (active: boolean) =>
+    cn(
+      "px-3 py-1.5 rounded-xl text-xs select-none transition-all duration-150 cursor-pointer font-medium border",
+      active
+        ? "bg-emerald-600 text-white border-emerald-600 shadow-xs font-semibold scale-[1.01]"
+        : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900"
+    );
+
+  const inputClass =
+    "w-full text-xs border border-slate-200 rounded-xl px-3 py-2 bg-white outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100/60 transition-all text-slate-800 placeholder:text-slate-400";
+
   return (
     <AppShell>
-      <div className="min-h-screen bg-linear-to-b from-slate-50 via-white to-slate-50 p-6 space-y-5">
+      <div className="min-h-screen bg-gradient-to-b from-slate-50/80 via-white to-slate-50/50 p-6 space-y-5">
         <div className="mx-auto space-y-5">
           {/* Header Component */}
           {appointment && (
@@ -264,21 +286,25 @@ function ConsultingTwoContent() {
 
           {activeTab === "consultation" && (
             <div className="mt-4">
-              <Card className="p-6">
+              <Card className="p-6 border-slate-200/80 shadow-xs rounded-2xl bg-white">
                 <div className="space-y-6">
-                  {/* 2-Column Grid matching ConsultationAndExaminationNotes.tsx spacing */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-                    {/* LEFT COLUMN */}
-                    <div className="space-y-6">
-                      {/* 1. CHIEF COMPLAINT */}
-                      <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-base font-semibold text-slate-800">
-                            Chief Complaint
-                          </CardTitle>
+                  {/* Direct 2-Column Grid Layout */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+                    {/* 1. CHIEF COMPLAINT */}
+                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                      <div>
+                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-1.5 rounded-lg bg-teal-100/70 text-teal-700 border border-teal-200/50">
+                              <HeartPulse className="w-4 h-4" />
+                            </div>
+                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
+                              Chief Complaint
+                            </CardTitle>
+                          </div>
                         </CardHeader>
-                        <CardContent className="space-y-4 pt-2">
-                          <div className="flex flex-wrap gap-2">
+                        <CardContent className="p-5 space-y-4">
+                          <div className="flex flex-wrap gap-1.5">
                             {[
                               "Neck Pain",
                               "Back Pain",
@@ -303,12 +329,7 @@ function ConsultingTwoContent() {
                                   onClick={() =>
                                     toggleArrayItem(complaints, setComplaints, item)
                                   }
-                                  className={cn(
-                                    "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
-                                    active
-                                      ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                      : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                                  )}
+                                  className={pillClass(active)}
                                 >
                                   {item}
                                 </button>
@@ -316,38 +337,54 @@ function ConsultingTwoContent() {
                             })}
                           </div>
 
-                          <div className="flex items-center gap-2 pt-1">
-                            <span className="text-xs font-medium text-slate-700 w-24 shrink-0">
-                              Other:
-                            </span>
-                            <input
-                              type="text"
-                              value={otherComplaint}
-                              onChange={(e) => setOtherComplaint(e.target.value)}
-                              placeholder="Other complaint..."
-                              className="flex-1 text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
-                            />
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-slate-700 w-24 shrink-0">
-                              Duration:
-                            </span>
-                            <input
-                              type="text"
-                              value={duration}
-                              onChange={(e) => setDuration(e.target.value)}
-                              placeholder="e.g. 2 weeks"
-                              className="flex-1 text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
-                            />
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div>
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                Other Complaint
+                              </label>
+                              <input
+                                type="text"
+                                value={otherComplaint}
+                                onChange={(e) => setOtherComplaint(e.target.value)}
+                                placeholder="Other complaint..."
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                Duration
+                              </label>
+                              <div className="relative">
+                                <input
+                                  type="text"
+                                  list="duration-options-list"
+                                  value={duration}
+                                  onChange={(e) => setDuration(e.target.value)}
+                                  placeholder="Type or select duration..."
+                                  className={inputClass}
+                                />
+                                <datalist id="duration-options-list">
+                                  <option value="1 Day" />
+                                  <option value="3 Days" />
+                                  <option value="1 Week" />
+                                  <option value="2 Weeks" />
+                                  <option value="1 Month" />
+                                  <option value="3 Months" />
+                                  <option value="6 Months" />
+                                  <option value="1 Year" />
+                                </datalist>
+                              </div>
+                            </div>
                           </div>
 
                           {/* Pain Score */}
-                          <div className="space-y-2 pt-1">
-                            <div className="flex items-center justify-between text-xs font-medium text-slate-700">
-                              <span>Pain Score (0–10):</span>
-                              <span className="text-emerald-700 font-semibold px-2 py-0.5 bg-emerald-50 rounded border border-emerald-200">
-                                {painScore} / 10
+                          <div className="space-y-2 pt-2 border-t border-slate-100">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                                Pain Score (0–10)
+                              </span>
+                              <span className="text-xs font-bold text-emerald-800 px-2.5 py-0.5 bg-emerald-50 rounded-full border border-emerald-200">
+                                {painScore !== null ? `${painScore} / 10` : "Not set"}
                               </span>
                             </div>
                             <div className="flex flex-wrap items-center gap-1.5">
@@ -357,12 +394,12 @@ function ConsultingTwoContent() {
                                   <button
                                     key={num}
                                     type="button"
-                                    onClick={() => setPainScore(num)}
+                                    onClick={() => setPainScore(active ? null : num)}
                                     className={cn(
-                                      "w-7 h-7 rounded-full text-xs font-medium border select-none transition cursor-pointer",
+                                      "w-8 h-8 rounded-xl text-xs font-bold border select-none transition-all duration-150 cursor-pointer flex items-center justify-center",
                                       active
-                                        ? "bg-emerald-600 text-white border-emerald-700 shadow-xs font-semibold"
-                                        : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                        ? "bg-emerald-600 text-white border-emerald-600 shadow-xs scale-105"
+                                        : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                     )}
                                   >
                                     {num}
@@ -372,16 +409,111 @@ function ConsultingTwoContent() {
                             </div>
                           </div>
                         </CardContent>
-                      </Card>
+                      </div>
+                    </Card>
 
-                      {/* 2. LIFESTYLE */}
-                      <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-base font-semibold text-slate-800">
-                            Lifestyle
-                          </CardTitle>
+                    {/* 2. MEDICAL HISTORY */}
+                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                      <div>
+                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-1.5 rounded-lg bg-amber-100/70 text-amber-700 border border-amber-200/50">
+                              <UserCheck className="w-4 h-4" />
+                            </div>
+                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
+                              Medical History & Conditions
+                            </CardTitle>
+                          </div>
                         </CardHeader>
-                        <CardContent className="space-y-3 pt-2">
+                        <CardContent className="p-5 space-y-4">
+                          <div className="flex flex-wrap gap-1.5">
+                            {[
+                              "Diabetes",
+                              "Hypertension",
+                              "Thyroid Disorder",
+                              "Heart Disease",
+                              "Asthma",
+                              "Stroke",
+                              "Epilepsy",
+                              "Cancer",
+                              "Pregnancy",
+                              "Recent Surgery",
+                              "Pacemaker",
+                              "Bleeding Disorder",
+                            ].map((item) => {
+                              const active = medHistory.includes(item);
+                              return (
+                                <button
+                                  key={item}
+                                  type="button"
+                                  onClick={() =>
+                                    toggleArrayItem(medHistory, setMedHistory, item)
+                                  }
+                                  className={pillClass(active)}
+                                >
+                                  {item}
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          <div>
+                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                              Other Conditions
+                            </label>
+                            <input
+                              type="text"
+                              value={otherMedHistory}
+                              onChange={(e) => setOtherMedHistory(e.target.value)}
+                              placeholder="Other condition..."
+                              className={inputClass}
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div>
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                Current Medications
+                              </label>
+                              <input
+                                type="text"
+                                value={currentMedications}
+                                onChange={(e) => setCurrentMedications(e.target.value)}
+                                placeholder="e.g. Tab Amlodipine 5mg OD"
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                Allergies
+                              </label>
+                              <input
+                                type="text"
+                                value={historyAllergies}
+                                onChange={(e) => setHistoryAllergies(e.target.value)}
+                                placeholder="e.g. Penicillin"
+                                className={inputClass}
+                              />
+                            </div>
+                          </div>
+                        </CardContent>
+                      </div>
+                    </Card>
+
+                    {/* 3. LIFESTYLE & HABITS */}
+                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                      <div>
+                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-1.5 rounded-lg bg-sky-100/70 text-sky-700 border border-sky-200/50">
+                              <Activity className="w-4 h-4" />
+                            </div>
+                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
+                              Lifestyle & Habits
+                            </CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-5 space-y-3">
                           {[
                             {
                               label: "Sleep",
@@ -428,414 +560,337 @@ function ConsultingTwoContent() {
                           ].map((row) => (
                             <div
                               key={row.label}
-                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2 last:border-0 last:pb-0"
+                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100/80 pb-2.5 last:border-0 last:pb-0"
                             >
-                              <span className="text-xs font-medium text-slate-700 w-32 shrink-0">
-                                {row.label}:
+                              <span className="text-xs font-semibold text-slate-700 w-32 shrink-0">
+                                {row.label}
                               </span>
                               <div className="flex flex-wrap gap-1.5">
                                 {row.options.map((opt) => {
                                   const active = row.state === opt;
                                   return (
-                                    <button
+                                    <label
                                       key={opt}
-                                      type="button"
-                                      onClick={() => row.setter(opt)}
                                       className={cn(
-                                        "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
+                                        "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
                                         active
-                                          ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                          : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                          ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
+                                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
                                       )}
                                     >
+                                      <input
+                                        type="radio"
+                                        name={`lifestyle-${row.label}`}
+                                        value={opt}
+                                        checked={active}
+                                        onChange={() => row.setter(active ? "" : opt)}
+                                        className="sr-only"
+                                      />
+                                      <span
+                                        className={cn(
+                                          "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                                          active
+                                            ? "border-emerald-500 bg-emerald-500"
+                                            : "border-slate-300 bg-white group-hover:border-emerald-300"
+                                        )}
+                                      >
+                                        <span
+                                          className={cn(
+                                            "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                                            active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                                          )}
+                                        />
+                                      </span>
                                       {opt}
-                                    </button>
+                                    </label>
                                   );
                                 })}
                               </div>
                             </div>
                           ))}
                         </CardContent>
-                      </Card>
+                      </div>
+                    </Card>
 
-                      {/* 3. ACUPUNCTURE ASSESSMENT */}
-                      <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-base font-semibold text-slate-800">
-                            Acupuncture Assessment
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-2">
-                          <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">
-                              Clinical Diagnosis:
-                            </label>
-                            <input
-                              type="text"
-                              value={clinicalDiagnosis}
-                              onChange={(e) => setClinicalDiagnosis(e.target.value)}
-                              className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-200"
-                            />
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">
-                              Treatment Principle:
-                            </label>
-                            <input
-                              type="text"
-                              value={treatmentPrinciple}
-                              onChange={(e) => setTreatmentPrinciple(e.target.value)}
-                              className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-200"
-                            />
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      {/* 4. TREATMENT PLAN */}
-                      <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-base font-semibold text-slate-800">
-                            Treatment Plan
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-2">
-                          <div className="space-y-1.5">
-                            <span className="text-xs font-medium text-slate-700 block">
-                              Recommended Sessions:
-                            </span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {["3", "5", "7", "10", "12"].map((opt) => {
-                                const active = sessions === opt;
-                                return (
-                                  <button
-                                    key={opt}
-                                    type="button"
-                                    onClick={() => setSessions(opt)}
-                                    className={cn(
-                                      "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
-                                      active
-                                        ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                        : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                                    )}
-                                  >
-                                    {opt}
-                                  </button>
-                                );
-                              })}
-                              <input
-                                type="text"
-                                placeholder="Other..."
-                                value={otherSessions}
-                                onChange={(e) => {
-                                  setOtherSessions(e.target.value);
-                                  setSessions("Other");
-                                }}
-                                className="w-20 text-xs border border-slate-200 rounded-full px-2.5 py-1 outline-none focus:ring-2 focus:ring-emerald-200"
-                              />
+                    {/* 4. EXAMINATION */}
+                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                      <div>
+                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-1.5 rounded-lg bg-rose-100/70 text-rose-700 border border-rose-200/50">
+                              <Stethoscope className="w-4 h-4" />
                             </div>
+                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
+                              Examination & Vitals
+                            </CardTitle>
                           </div>
-
-                          <div className="space-y-1.5">
-                            <span className="text-xs font-medium text-slate-700 block">
-                              Frequency:
-                            </span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {["Daily", "Alternate Days", "Twice Weekly", "Weekly"].map(
-                                (opt) => {
-                                  const active = frequency === opt;
-                                  return (
-                                    <button
-                                      key={opt}
-                                      type="button"
-                                      onClick={() => setFrequency(opt)}
-                                      className={cn(
-                                        "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
-                                        active
-                                          ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                          : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                                      )}
-                                    >
-                                      {opt}
-                                    </button>
-                                  );
-                                }
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5">
-                            <span className="text-xs font-medium text-slate-700 block">
-                              Home Care Advice:
-                            </span>
-                            <div className="flex flex-wrap gap-2">
-                              {[
-                                "Hydration",
-                                "Stretching",
-                                "Rest",
-                                "Heat Therapy",
-                                "Exercise",
-                                "Posture Correction",
-                                "Diet Advice",
-                                "Other",
-                              ].map((name) => {
-                                const active = homeCare.includes(name);
-                                return (
-                                  <button
-                                    key={name}
-                                    type="button"
-                                    onClick={() =>
-                                      toggleArrayItem(homeCare, setHomeCare, name)
-                                    }
-                                    className={cn(
-                                      "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
-                                      active
-                                        ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                        : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                                    )}
-                                  >
-                                    {name}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    {/* RIGHT COLUMN */}
-                    <div className="space-y-6">
-                      {/* 5. MEDICAL HISTORY */}
-                      <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-base font-semibold text-slate-800">
-                            Medical History
-                          </CardTitle>
                         </CardHeader>
-                        <CardContent className="space-y-4 pt-2">
-                          <div className="flex flex-wrap gap-2">
-                            {[
-                              "Diabetes",
-                              "Hypertension",
-                              "Thyroid Disorder",
-                              "Heart Disease",
-                              "Asthma",
-                              "Stroke",
-                              "Epilepsy",
-                              "Cancer",
-                              "Pregnancy",
-                              "Recent Surgery",
-                              "Pacemaker",
-                              "Bleeding Disorder",
-                            ].map((item) => {
-                              const active = medHistory.includes(item);
-                              return (
-                                <button
-                                  key={item}
-                                  type="button"
-                                  onClick={() =>
-                                    toggleArrayItem(medHistory, setMedHistory, item)
-                                  }
-                                  className={cn(
-                                    "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
-                                    active
-                                      ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                      : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                                  )}
-                                >
-                                  {item}
-                                </button>
-                              );
-                            })}
-                          </div>
-
-                          <div className="flex items-center gap-2 pt-1">
-                            <span className="text-xs font-medium text-slate-700 w-24 shrink-0">
-                              Other:
-                            </span>
-                            <input
-                              type="text"
-                              value={otherMedHistory}
-                              onChange={(e) => setOtherMedHistory(e.target.value)}
-                              placeholder="Other condition..."
-                              className="flex-1 text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">
-                              Current Medications:
-                            </label>
-                            <input
-                              type="text"
-                              value={currentMedications}
-                              onChange={(e) => setCurrentMedications(e.target.value)}
-                              className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">
-                              Allergies:
-                            </label>
-                            <input
-                              type="text"
-                              value={historyAllergies}
-                              onChange={(e) => setHistoryAllergies(e.target.value)}
-                              className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
-                            />
-                          </div>
-                        </CardContent>
-                      </Card>
-
-                      {/* 6. EXAMINATION */}
-                      <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-base font-semibold text-slate-800">
-                            Examination
-                          </CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4 pt-2">
+                        <CardContent className="p-5 space-y-4">
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                             <div>
-                              <label className="text-xs font-medium text-slate-700 block mb-1">
-                                BP (mmHg):
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                BP (mmHg)
                               </label>
                               <input
                                 type="text"
                                 value={bp}
-                                onChange={(e) => setBp(e.target.value)}
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  const oldVal = bp;
+                                  let newVal = val;
+                                  if (val.length > oldVal.length && !val.includes("/")) {
+                                    if (/^[12]\d{2}$/.test(val)) {
+                                      newVal = val + "/";
+                                    } else if (/^[3-9]\d$/.test(val)) {
+                                      newVal = val + "/";
+                                    }
+                                  }
+                                  setBp(newVal);
+                                }}
                                 placeholder="120/80"
-                                className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
+                                className={inputClass}
                               />
                             </div>
                             <div>
-                              <label className="text-xs font-medium text-slate-700 block mb-1">
-                                Pulse (bpm):
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                Pulse (bpm)
                               </label>
                               <input
                                 type="text"
                                 value={pulse}
                                 onChange={(e) => setPulse(e.target.value)}
                                 placeholder="74"
-                                className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
+                                className={inputClass}
                               />
                             </div>
                             <div>
-                              <label className="text-xs font-medium text-slate-700 block mb-1">
-                                Weight (kg):
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                Weight (kg)
                               </label>
                               <input
                                 type="text"
                                 value={weight}
                                 onChange={(e) => setWeight(e.target.value)}
                                 placeholder="68"
-                                className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
+                                className={inputClass}
                               />
                             </div>
                           </div>
 
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                            <span className="text-xs font-medium text-slate-700 w-32 shrink-0">
-                              Tenderness:
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                            <span className="text-xs font-semibold text-slate-700 w-32 shrink-0">
+                              Tenderness
                             </span>
                             <div className="flex flex-wrap gap-1.5">
                               {["Mild", "Moderate", "Severe"].map((opt) => {
                                 const active = tenderness === opt;
                                 return (
-                                  <button
+                                  <label
                                     key={opt}
-                                    type="button"
-                                    onClick={() => setTenderness(opt)}
                                     className={cn(
-                                      "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
+                                      "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
                                       active
-                                        ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                        : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                        ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
+                                        : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
                                     )}
                                   >
+                                    <input
+                                      type="radio"
+                                      name="tenderness-radio"
+                                      value={opt}
+                                      checked={active}
+                                      onChange={() => setTenderness(active ? "" : opt)}
+                                      className="sr-only"
+                                    />
+                                    <span
+                                      className={cn(
+                                        "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                                        active
+                                          ? "border-emerald-500 bg-emerald-500"
+                                          : "border-slate-300 bg-white group-hover:border-emerald-300"
+                                      )}
+                                    >
+                                      <span
+                                        className={cn(
+                                          "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                                          active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                                        )}
+                                      />
+                                    </span>
                                     {opt}
-                                  </button>
+                                  </label>
                                 );
                               })}
                             </div>
                           </div>
 
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                            <span className="text-xs font-medium text-slate-700 w-32 shrink-0">
-                              Range of Motion:
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                            <span className="text-xs font-semibold text-slate-700 w-32 shrink-0">
+                              Range of Motion
                             </span>
                             <div className="flex flex-wrap gap-1.5">
                               {["Normal", "Restricted"].map((opt) => {
                                 const active = rom === opt;
                                 return (
-                                  <button
+                                  <label
                                     key={opt}
-                                    type="button"
-                                    onClick={() => setRom(opt)}
                                     className={cn(
-                                      "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
+                                      "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
                                       active
-                                        ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                        : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                        ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
+                                        : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
                                     )}
                                   >
+                                    <input
+                                      type="radio"
+                                      name="rom-radio"
+                                      value={opt}
+                                      checked={active}
+                                      onChange={() => setRom(active ? "" : opt)}
+                                      className="sr-only"
+                                    />
+                                    <span
+                                      className={cn(
+                                        "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                                        active
+                                          ? "border-emerald-500 bg-emerald-500"
+                                          : "border-slate-300 bg-white group-hover:border-emerald-300"
+                                      )}
+                                    >
+                                      <span
+                                        className={cn(
+                                          "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                                          active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                                        )}
+                                      />
+                                    </span>
                                     {opt}
-                                  </button>
+                                  </label>
                                 );
                               })}
                             </div>
                           </div>
 
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                            <span className="text-xs font-medium text-slate-700 w-32 shrink-0">
-                              Posture:
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-t border-slate-100 pt-3">
+                            <span className="text-xs font-semibold text-slate-700 w-32 shrink-0">
+                              Posture
                             </span>
                             <div className="flex flex-wrap gap-1.5">
                               {["Normal", "Abnormal"].map((opt) => {
                                 const active = posture === opt;
                                 return (
-                                  <button
+                                  <label
                                     key={opt}
-                                    type="button"
-                                    onClick={() => setPosture(opt)}
                                     className={cn(
-                                      "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
+                                      "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
                                       active
-                                        ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                        : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                        ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
+                                        : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
                                     )}
                                   >
+                                    <input
+                                      type="radio"
+                                      name="posture-radio"
+                                      value={opt}
+                                      checked={active}
+                                      onChange={() => setPosture(active ? "" : opt)}
+                                      className="sr-only"
+                                    />
+                                    <span
+                                      className={cn(
+                                        "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                                        active
+                                          ? "border-emerald-500 bg-emerald-500"
+                                          : "border-slate-300 bg-white group-hover:border-emerald-300"
+                                      )}
+                                    >
+                                      <span
+                                        className={cn(
+                                          "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                                          active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                                        )}
+                                      />
+                                    </span>
                                     {opt}
-                                  </button>
+                                  </label>
                                 );
                               })}
                             </div>
                           </div>
 
-                          <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">
-                              Special Findings / Clinical Notes:
+                          <div className="pt-1">
+                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                              Special Findings / Clinical Notes
                             </label>
                             <textarea
-                              rows={3}
+                              rows={2}
                               value={specialFindings}
                               onChange={(e) => setSpecialFindings(e.target.value)}
-                              className="w-full text-xs border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-emerald-200"
+                              placeholder="Clinical findings..."
+                              className="w-full text-xs border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100/60 transition-all text-slate-800"
                             />
                           </div>
                         </CardContent>
-                      </Card>
+                      </div>
+                    </Card>
 
-                      {/* 7. TREATMENT GIVEN */}
-                      <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-base font-semibold text-slate-800">
-                            Treatment Given
-                          </CardTitle>
+                    {/* 5. ACUPUNCTURE ASSESSMENT */}
+                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                      <div>
+                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700 border border-emerald-200/60">
+                              <Sparkles className="w-4 h-4" />
+                            </div>
+                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
+                              Acupuncture Assessment
+                            </CardTitle>
+                          </div>
                         </CardHeader>
-                        <CardContent className="space-y-4 pt-2">
-                          <div className="flex flex-wrap gap-2">
+                        <CardContent className="p-5 space-y-4">
+                          <div>
+                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                              Clinical Diagnosis
+                            </label>
+                            <input
+                              type="text"
+                              value={clinicalDiagnosis}
+                              onChange={(e) => setClinicalDiagnosis(e.target.value)}
+                              placeholder="e.g. Bih Syndrome (Joint Pain)"
+                              className={inputClass}
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                              Treatment Principle
+                            </label>
+                            <input
+                              type="text"
+                              value={treatmentPrinciple}
+                              onChange={(e) => setTreatmentPrinciple(e.target.value)}
+                              placeholder="e.g. Unblock Channels & Dispel Wind-Cold-Dampness"
+                              className={inputClass}
+                            />
+                          </div>
+                        </CardContent>
+                      </div>
+                    </Card>
+
+                    {/* 6. TREATMENT GIVEN */}
+                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                      <div>
+                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-1.5 rounded-lg bg-emerald-100/70 text-emerald-700 border border-emerald-200/50">
+                              <Pill className="w-4 h-4" />
+                            </div>
+                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
+                              Therapies & Treatment Given
+                            </CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-5 space-y-4">
+                          <div className="flex flex-wrap gap-1.5">
                             {[
                               "Acupuncture",
                               "Electroacupuncture",
@@ -861,12 +916,7 @@ function ConsultingTwoContent() {
                                       item
                                     )
                                   }
-                                  className={cn(
-                                    "px-3 py-1 rounded-full text-xs border select-none transition cursor-pointer",
-                                    active
-                                      ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-medium"
-                                      : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                                  )}
+                                  className={pillClass(active)}
                                 >
                                   {item}
                                 </button>
@@ -874,56 +924,242 @@ function ConsultingTwoContent() {
                             })}
                           </div>
 
-                          <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">
-                              Acupuncture Points Used:
-                            </label>
-                            <input
-                              type="text"
-                              value={acuPoints}
-                              onChange={(e) => setAcuPoints(e.target.value)}
-                              className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
-                            />
-                          </div>
-
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-slate-700 shrink-0">
-                              Needle Retention Time:
-                            </span>
-                            <input
-                              type="text"
-                              value={retentionTime}
-                              onChange={(e) => setRetentionTime(e.target.value)}
-                              className="w-20 text-xs border border-slate-200 rounded-lg px-2.5 py-1 text-center outline-none focus:ring-2 focus:ring-emerald-200"
-                            />
-                            <span className="text-xs text-slate-500">minutes</span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                            <div>
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                Acu Points Used
+                              </label>
+                              <input
+                                type="text"
+                                value={acuPoints}
+                                onChange={(e) => setAcuPoints(e.target.value)}
+                                placeholder="e.g. ST36, SP6, GB34, LI4"
+                                className={inputClass}
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                                Needle Retention Time
+                              </label>
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={retentionTime}
+                                  onChange={(e) => setRetentionTime(e.target.value)}
+                                  placeholder="20"
+                                  className="w-24 text-xs border border-slate-200 rounded-xl px-3 py-2 text-center outline-none focus:ring-2 focus:ring-emerald-100"
+                                />
+                                <span className="text-xs font-medium text-slate-500">mins</span>
+                              </div>
+                            </div>
                           </div>
                         </CardContent>
-                      </Card>
+                      </div>
+                    </Card>
 
-                      {/* 8. FOLLOW-UP */}
-                      <Card>
-                        <CardHeader className="flex flex-row items-center justify-between pb-2">
-                          <CardTitle className="text-base font-semibold text-slate-800">
-                            Follow-Up
-                          </CardTitle>
+                    {/* 7. TREATMENT PLAN */}
+                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                      <div>
+                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-1.5 rounded-lg bg-indigo-100/70 text-indigo-700 border border-indigo-200/50">
+                              <ClipboardList className="w-4 h-4" />
+                            </div>
+                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
+                              Treatment Plan & Home Care
+                            </CardTitle>
+                          </div>
                         </CardHeader>
-                        <CardContent className="space-y-4 pt-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-medium text-slate-700 shrink-0">
-                              Next Appointment:
+                        <CardContent className="p-5 space-y-4">
+                          <div className="space-y-1.5">
+                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                              Recommended Sessions
                             </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {["3", "5", "7", "10", "12"].map((opt) => {
+                                const active = sessions === opt;
+                                return (
+                                  <label
+                                    key={opt}
+                                    className={cn(
+                                      "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
+                                      active
+                                        ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
+                                        : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+                                    )}
+                                  >
+                                    <input
+                                      type="radio"
+                                      name="sessions-radio"
+                                      value={opt}
+                                      checked={active}
+                                      onChange={() => setSessions(active ? "" : opt)}
+                                      className="sr-only"
+                                    />
+                                    <span
+                                      className={cn(
+                                        "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                                        active
+                                          ? "border-emerald-500 bg-emerald-500"
+                                          : "border-slate-300 bg-white group-hover:border-emerald-300"
+                                      )}
+                                    >
+                                      <span
+                                        className={cn(
+                                          "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                                          active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                                        )}
+                                      />
+                                    </span>
+                                    {opt}
+                                  </label>
+                                );
+                              })}
+                              <input
+                                type="text"
+                                placeholder="Other..."
+                                value={otherSessions}
+                                onChange={(e) => {
+                                  setOtherSessions(e.target.value);
+                                  setSessions("Other");
+                                }}
+                                className="w-24 text-xs border border-slate-200 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-100"
+                              />
+                            </div>
+                          </div>
+
+                          <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                              Frequency
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {["Daily", "Alternate Days", "Twice Weekly", "Weekly"].map(
+                                (opt) => {
+                                  const active = frequency === opt;
+                                  return (
+                                    <label
+                                      key={opt}
+                                      className={cn(
+                                        "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
+                                        active
+                                          ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
+                                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+                                      )}
+                                    >
+                                      <input
+                                        type="radio"
+                                        name="frequency-radio"
+                                        value={opt}
+                                        checked={active}
+                                        onChange={() => setFrequency(active ? "" : opt)}
+                                        className="sr-only"
+                                      />
+                                      <span
+                                        className={cn(
+                                          "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
+                                          active
+                                            ? "border-emerald-500 bg-emerald-500"
+                                            : "border-slate-300 bg-white group-hover:border-emerald-300"
+                                        )}
+                                      >
+                                        <span
+                                          className={cn(
+                                            "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
+                                            active ? "scale-100 opacity-100" : "scale-0 opacity-0"
+                                          )}
+                                        />
+                                      </span>
+                                      {opt}
+                                    </label>
+                                  );
+                                }
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                              Home Care Advice
+                            </span>
+                            <div className="flex flex-wrap gap-1.5">
+                              {[
+                                "Hydration",
+                                "Stretching",
+                                "Rest",
+                                "Heat Therapy",
+                                "Exercise",
+                                "Posture Correction",
+                                "Diet Advice",
+                                "Other",
+                              ].map((name) => {
+                                const active = homeCare.includes(name);
+                                return (
+                                  <label
+                                    key={name}
+                                    className={cn(
+                                      "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
+                                      active
+                                        ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
+                                        : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+                                    )}
+                                  >
+                                    <input
+                                      type="checkbox"
+                                      checked={active}
+                                      onChange={() =>
+                                        toggleArrayItem(homeCare, setHomeCare, name)
+                                      }
+                                      className="sr-only"
+                                    />
+                                    <span
+                                      className={cn(
+                                        "flex items-center justify-center w-4 h-4 rounded border transition-all duration-200 shrink-0",
+                                        active
+                                          ? "border-emerald-500 bg-emerald-500 text-white"
+                                          : "border-slate-300 bg-white group-hover:border-emerald-300"
+                                      )}
+                                    >
+                                      {active && <Check className="w-3 h-3 stroke-[3]" />}
+                                    </span>
+                                    {name}
+                                  </label>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </div>
+                    </Card>
+
+                    {/* 8. FOLLOW-UP */}
+                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                      <div>
+                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
+                          <div className="flex items-center gap-2.5">
+                            <div className="p-1.5 rounded-lg bg-violet-100/70 text-violet-700 border border-violet-200/50">
+                              <Calendar className="w-4 h-4" />
+                            </div>
+                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
+                              Follow-Up & Notes
+                            </CardTitle>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="p-5 space-y-4">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider w-36 shrink-0">
+                              Next Appointment
+                            </label>
                             <input
                               type="date"
                               value={nextAppt}
                               onChange={(e) => setNextAppt(e.target.value)}
-                              className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200"
+                              className="text-xs border border-slate-200 rounded-xl px-3 py-2 outline-none focus:ring-2 focus:ring-emerald-100 text-slate-800"
                             />
                           </div>
 
-                          <div className="space-y-1.5">
-                            <span className="text-xs font-medium text-slate-700 block">
-                              Patient Feedback:
+                          <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                              Patient Feedback
                             </span>
                             <div className="flex flex-wrap gap-2">
                               {[
@@ -936,12 +1172,12 @@ function ConsultingTwoContent() {
                                   <button
                                     key={item.name}
                                     type="button"
-                                    onClick={() => setFeedback(item.name)}
+                                    onClick={() => setFeedback(active ? "" : item.name)}
                                     className={cn(
-                                      "px-3 py-1.5 rounded-full text-xs font-medium border select-none transition cursor-pointer flex items-center gap-1.5",
+                                      "px-3 py-1.5 rounded-xl text-xs font-semibold border select-none transition-all duration-150 cursor-pointer flex items-center gap-1.5",
                                       active
-                                        ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-xs font-semibold"
-                                        : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+                                        ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                                        : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                     )}
                                   >
                                     <span>{item.emoji}</span>
@@ -952,32 +1188,34 @@ function ConsultingTwoContent() {
                             </div>
                           </div>
 
-                          <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">
-                              Additional Notes:
+                          <div className="pt-1">
+                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                              Additional Notes
                             </label>
                             <textarea
                               rows={2}
                               value={additionalNotes}
                               onChange={(e) => setAdditionalNotes(e.target.value)}
-                              className="w-full text-xs border border-slate-200 rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-emerald-200"
+                              placeholder="Follow-up notes..."
+                              className="w-full text-xs border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100/60 transition-all text-slate-800"
                             />
                           </div>
 
                           <div>
-                            <label className="text-xs font-medium text-slate-700 block mb-1">
-                              Practitioner's Signature:
+                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
+                              Practitioner&apos;s Signature
                             </label>
                             <input
                               type="text"
                               value={signature}
                               onChange={(e) => setSignature(e.target.value)}
-                              className="w-full text-xs border border-slate-200 rounded-lg px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-200 font-semibold text-slate-800"
+                              placeholder="Signature name..."
+                              className={cn(inputClass, "font-semibold")}
                             />
                           </div>
                         </CardContent>
-                      </Card>
-                    </div>
+                      </div>
+                    </Card>
                   </div>
 
                   {/* Prescription Medicines */}

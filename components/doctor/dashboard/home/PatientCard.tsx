@@ -116,9 +116,9 @@ export function PatientCard({
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white shadow-sm p-4 md:p-5">
       {new Date(a.date) > new Date() ? (
-        <div className="absolute z-10 -left-[100px] top-0 bottom-0 w-px bg-gray-300" />
+        <div className="absolute z-10 -left-25 top-0 bottom-0 w-px bg-gray-300" />
       ) : (
-        <div className="absolute z-10 -left-[100px] top-0 bottom-0 w-px bg-(--color-synapse-light)" />
+        <div className="absolute z-10 -left-25 top-0 bottom-0 w-px bg-(--color-synapse-light)" />
       )}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-start gap-3">

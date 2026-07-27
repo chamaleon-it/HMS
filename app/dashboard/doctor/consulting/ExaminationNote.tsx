@@ -651,21 +651,32 @@ export default function ExaminationNote({
                       <LabeledInput
                         label={meta.label}
                         unit={meta.unit}
-                        defaultValue={getInputValue(key, data)}
+                        value={getInputValue(key, data)}
                         type={
                           meta.label === "Temp" || meta.label === "HR"
                             ? "number"
                             : "text"
                         }
                         onChange={(v) => {
+                          let val = v;
+                          if (key === "BP") {
+                            const oldVal = data.examinationNote?.bp || "";
+                            if (v.length > oldVal.length && !v.includes("/")) {
+                              if (/^[12]\d{2}$/.test(v)) {
+                                val = v + "/";
+                              } else if (/^[3-9]\d$/.test(v)) {
+                                val = v + "/";
+                              }
+                            }
+                          }
                           setData((prev) => ({
                             ...prev,
                             examinationNote: {
                               ...prev.examinationNote,
-                              ...(key === "HR" && { hr: v }),
-                              ...(key === "BP" && { bp: v }),
-                              ...(key === "SpO2" && { spo2: v }),
-                              ...(key === "Temp" && { temp: v }),
+                              ...(key === "HR" && { hr: val }),
+                              ...(key === "BP" && { bp: val }),
+                              ...(key === "SpO2" && { spo2: val }),
+                              ...(key === "Temp" && { temp: val }),
                             },
                           }));
                         }}
@@ -1164,6 +1175,7 @@ function DraggableField({
 type LabeledInputProps = {
   label: string;
   defaultValue?: string;
+  value?: string;
   type?: string;
   unit?: string | React.ReactNode;
   right?: ReactNode;
@@ -1174,6 +1186,7 @@ type LabeledInputProps = {
 function LabeledInput({
   label,
   defaultValue,
+  value,
   type = "text",
   unit,
   right,
@@ -1184,7 +1197,7 @@ function LabeledInput({
   return (
     <div className="relative w-full">
       <input
-        defaultValue={defaultValue}
+        {...(value !== undefined ? { value } : { defaultValue })}
         onKeyDown={onKeyDown}
         onChange={(e) => onChange?.(e.target.value)}
         placeholder=" "
