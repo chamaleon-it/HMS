@@ -717,11 +717,11 @@ export default function ExaminationNote({
         </DndContext>
 
         {/* Medical History Parameters (Sleep, Bowel Movement, Urine Movement) */}
-        <div className="mb-5 rounded-2xl border border-slate-200/60 bg-gradient-to-br from-white via-slate-50/50 to-emerald-50/30 shadow-sm overflow-hidden">
+        <div className="mb-5 rounded-2xl border border-slate-200/60 bg-linear-to-br from-white via-slate-50/50 to-emerald-50/30 shadow-sm overflow-hidden">
           {/* Header */}
           <div className="px-4 py-2 border-b border-slate-100 bg-white/60 backdrop-blur-sm">
             <h4 className="text-xs font-bold text-slate-600 uppercase tracking-[0.12em] flex items-center gap-2">
-              <span className="inline-block w-1 h-3.5 rounded-full bg-gradient-to-b from-emerald-400 to-emerald-600" />
+              <span className="inline-block w-1 h-3.5 rounded-full bg-linear-to-b from-emerald-400 to-emerald-600" />
               Medical Parameters
             </h4>
           </div>

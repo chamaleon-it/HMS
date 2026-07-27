@@ -8,8 +8,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import Header from "../consulting/Header";
 import ActionButton from "../consulting/ActionButton";
-import PrescriptionCard from "../consulting/PrescriptionCard";
-import Test from "../consulting/Test";
 import History from "../consulting/History";
 import Report from "../consulting/Report";
 import AllergyAlert from "../consulting/AllergyAlert";
@@ -267,7 +265,7 @@ function ConsultingTwoContent() {
 
   return (
     <AppShell>
-      <div className="min-h-screen bg-gradient-to-b from-slate-50/80 via-white to-slate-50/50 p-6 space-y-5">
+      <div className="min-h-screen bg-linear-to-b from-slate-50/80 via-white to-slate-50/50 p-6 space-y-5">
         <div className="mx-auto space-y-5">
           {/* Header Component */}
           {appointment && (
@@ -1119,7 +1117,7 @@ function ConsultingTwoContent() {
                                           : "border-slate-300 bg-white group-hover:border-emerald-300"
                                       )}
                                     >
-                                      {active && <Check className="w-3 h-3 stroke-[3]" />}
+                                      {active && <Check className="w-3 h-3 stroke-3" />}
                                     </span>
                                     {name}
                                   </label>
@@ -1217,18 +1215,6 @@ function ConsultingTwoContent() {
                       </div>
                     </Card>
                   </div>
-
-                  {/* Prescription Medicines */}
-                  {appointmentData && (
-                    <PrescriptionCard
-                      data={data}
-                      setData={setData as any}
-                      appointmentData={appointmentData}
-                    />
-                  )}
-
-                  {/* Lab & Imaging Tests */}
-                  <Test data={data} setData={setData as any} setTestIsOK={setTestIsOK} />
 
                   {/* Action Buttons */}
                   <ActionButton data={data} testIsOK={testIsOK} />
