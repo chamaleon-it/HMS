@@ -336,7 +336,7 @@ export default function IPDetailsClient() {
         </div>
 
         {/* ── Patient Profile Hero Card ───────────────────────── */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 relative overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 relative">
           {/* Subtle decorative background accent */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-indigo-50/50 via-purple-50/30 to-transparent rounded-bl-full pointer-events-none" />
 
@@ -424,7 +424,7 @@ export default function IPDetailsClient() {
                 </button>
 
                 {statusOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden py-1.5 animate-in fade-in slide-in-from-top-2 duration-150">
+                  <div className="absolute right-0 top-full mt-2 w-52 bg-white border border-slate-200 rounded-2xl shadow-xl z-50 overflow-hidden py-1.5 animate-in fade-in slide-in-from-top-2 duration-150 z-50">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 px-3.5 pt-1.5 pb-1">Change Status</p>
                     {IP_STATUSES.map(s => (
                       <button
@@ -810,10 +810,10 @@ export default function IPDetailsClient() {
                     typeof b.doctor === "object" && b.doctor
                       ? b.doctor.name || b.doctor.fullName
                       : typeof b.doctor === "string" && b.doctor !== "Self" && !/^[0-9a-fA-F]{24}$/.test(b.doctor)
-                      ? b.doctor.startsWith("Dr.")
-                        ? b.doctor.replace(/^Dr\.\s*/, "")
-                        : b.doctor
-                      : null;
+                        ? b.doctor.startsWith("Dr.")
+                          ? b.doctor.replace(/^Dr\.\s*/, "")
+                          : b.doctor
+                        : null;
                   const isCompleted = b.status === "Completed" || due <= 0;
 
                   return (

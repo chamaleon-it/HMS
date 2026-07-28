@@ -336,7 +336,7 @@ export default function IPDetailsClient() {
         </div>
 
         {/* ── Patient Profile Hero Card ───────────────────────── */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 relative overflow-hidden">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 relative">
           {/* Subtle decorative background accent */}
           <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-indigo-50/50 via-purple-50/30 to-transparent rounded-bl-full pointer-events-none" />
 
