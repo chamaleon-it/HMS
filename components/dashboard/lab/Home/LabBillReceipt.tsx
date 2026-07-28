@@ -148,7 +148,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                 </div>
 
                 {/* 2. Patient Information Strip */}
-                <div className="grid grid-cols-4 bg-[#eaeaea] text-black select-none py-2 px-6">
+                <div className="grid grid-cols-[1.1fr_0.7fr_1.1fr_2.1fr] gap-2 bg-[#eaeaea] text-black select-none py-2 px-6">
                     <div className="flex flex-col justify-center">
                         <span className="text-[11px] text-gray-500 font-medium leading-none">Patient</span>
                         <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient?.name || "—"}</span>
@@ -163,21 +163,22 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                     </div>
                     <div className="flex flex-col justify-center">
                         <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">
+                        <span className="text-[12px] font-bold text-black mt-1 leading-tight line-clamp-2">
                             {(() => {
                                 const doctorVal = bill?.doctor || report?.doctor;
                                 const docObj = typeof doctorVal === "object" && doctorVal !== null ? doctorVal : null;
                                 const docName = docObj ? docObj.name : (typeof doctorVal === "string" ? doctorVal : null);
-                                const docQual = docObj?.qualification && docObj.qualification.trim() ? docObj.qualification.trim() : "-";
+                                const docQual = docObj?.qualification && docObj.qualification.trim() && docObj.qualification.trim() !== "-" ? docObj.qualification.trim() : "";
                                 const docSpec = docObj?.specialization || null;
 
                                 if (!docName || docName === "-") return "-";
-                                if (docName === "Self") return "Self (-)";
+                                if (docName === "Self") return "Self";
 
                                 const formattedName = docName.toUpperCase().startsWith("DR.") ? docName : `DR. ${docName}`;
+                                const qualStr = docQual ? ` (${docQual})` : "";
                                 const specStr = docSpec && docSpec.trim() && docSpec.trim() !== "-" ? ` - ${docSpec.trim()}` : "";
 
-                                return `${formattedName} (${docQual})${specStr}`;
+                                return `${formattedName}${qualStr}${specStr}`;
                             })()}
                         </span>
                     </div>

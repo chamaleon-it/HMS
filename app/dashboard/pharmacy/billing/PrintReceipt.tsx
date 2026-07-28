@@ -60,7 +60,37 @@ export default function PrintReceipt({
 }: PrintReceiptProps) {
 
     const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
+    const { data: doctorsData } = useSWR<{ data: any[] }>("/users/doctors");
     const dbItems = itemsData?.data || [];
+    const allDoctors = doctorsData?.data || [];
+
+    const getDoctorInfo = (docVal: any) => {
+        let docObj: any = typeof docVal === "object" && docVal !== null ? docVal : null;
+        let docName = docObj ? docObj.name : (typeof docVal === "string" ? docVal : null);
+
+        if (!docName || docName === "-" || docName === "—") return "-";
+
+        const cleanName = docName.replace(/^dr\.?/i, "").trim().toLowerCase();
+
+        if (!docObj || !docObj.qualification) {
+            const matched = allDoctors.find(
+                (d) => d.name?.replace(/^dr\.?/i, "").trim().toLowerCase() === cleanName
+            );
+            if (matched) {
+                docObj = matched;
+                docName = matched.name;
+            }
+        }
+
+        const docQual = docObj?.qualification && docObj.qualification.trim() && docObj.qualification.trim() !== "-" ? docObj.qualification.trim() : "";
+        const docSpec = docObj?.specialization || payload?.department || null;
+
+        const formattedName = docName.toUpperCase().startsWith("DR.") ? docName : `DR. ${docName}`;
+        const qualStr = docQual ? ` (${docQual})` : "";
+        const specStr = docSpec && docSpec.trim() && docSpec.trim() !== "-" && docSpec.trim() !== "Pharmacy" ? ` - ${docSpec.trim()}` : "";
+
+        return `${formattedName}${qualStr}${specStr}`;
+    };
 
     const getBatchInfo = (itemName: string) => {
         const matched = dbItems.find(
@@ -168,7 +198,7 @@ export default function PrintReceipt({
                 </div>
 
                 {/* 2. Patient Information Strip */}
-                <div className="grid grid-cols-4 bg-[#eaeaea] text-black select-none py-2 px-6">
+                <div className="grid grid-cols-[1.1fr_0.7fr_1.1fr_2.1fr] gap-2 bg-[#eaeaea] text-black select-none py-2 px-6">
                     <div className="flex flex-col justify-center">
                         <span className="text-[11px] text-gray-500 font-medium leading-none">Patient</span>
                         <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{patient.name}</span>
@@ -183,21 +213,8 @@ export default function PrintReceipt({
                     </div>
                     <div className="flex flex-col justify-center">
                         <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">
-                            {(() => {
-                                const docVal = payload.doctor;
-                                const docObj: any = typeof docVal === "object" && docVal !== null ? docVal : null;
-                                const docName = docObj ? docObj.name : (typeof docVal === "string" ? docVal : null);
-                                const docQual = docObj?.qualification && docObj.qualification.trim() ? docObj.qualification.trim() : "-";
-                                const docSpec = docObj?.specialization || payload.department || null;
-
-                                if (!docName || docName === "-" || docName === "—") return "-";
-
-                                const formattedName = docName.toUpperCase().startsWith("DR.") ? docName : `DR. ${docName}`;
-                                const specStr = docSpec && docSpec.trim() && docSpec.trim() !== "-" && docSpec.trim() !== "Pharmacy" ? ` - ${docSpec.trim()}` : "";
-
-                                return `${formattedName} (${docQual})${specStr}`;
-                            })()}
+                        <span className="text-[12px] font-bold text-black mt-1 leading-tight line-clamp-2">
+                            {getDoctorInfo(payload.doctor)}
                         </span>
                     </div>
                 </div>
