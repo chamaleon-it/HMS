@@ -48,7 +48,10 @@ export default function MonthlyCalender({
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayOfWeek = new Date(year, month, 1).getDay();
 
-  const dateParam = currentDate.toISOString();
+  const yearStr = currentDate.getFullYear();
+  const monthStr = String(currentDate.getMonth() + 1).padStart(2, "0");
+  const dayStr = String(currentDate.getDate()).padStart(2, "0");
+  const dateParam = `${yearStr}-${monthStr}-${dayStr}`;
 
   const { data } = useSWR<{
     message: string;

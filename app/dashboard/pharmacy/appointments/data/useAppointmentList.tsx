@@ -3,6 +3,15 @@
 import { useAuth } from "@/auth/context/auth-context";
 import useSWR from "swr";
 
+function formatLocalDate(d: Date | string): string {
+  if (!d) return "";
+  if (typeof d === "string") return d.includes("T") ? d.split("T")[0] : d;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 export default function useAppointmentList({
   query,
   activeStatuses,
@@ -19,7 +28,7 @@ export default function useAppointmentList({
 
   if (query) params.append("query", query);
   if (activeStatuses) params.append("status", JSON.stringify(activeStatuses));
-  if (date) params.append("date", date.toISOString());
+  if (date) params.append("date", formatLocalDate(date));
   if (activeDate) params.append("activeDate", activeDate);
 
   const { data, isLoading, mutate, error } = useSWR<{

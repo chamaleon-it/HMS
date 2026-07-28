@@ -91,10 +91,18 @@ export default function WeeklyCalender({
   setOpenAppointment: Dispatch<SetStateAction<"walk-in" | boolean>>;
   selectedDate: Date | undefined;
 }) {
+  const formattedDateParam = useMemo(() => {
+    if (!selectedDate) return "";
+    const year = selectedDate.getFullYear();
+    const month = String(selectedDate.getMonth() + 1).padStart(2, "0");
+    const day = String(selectedDate.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }, [selectedDate]);
+
   const { data: weeklyData } = useSWR<{
     message: string;
     data: WeekItem[];
-  }>(`/appointments/calender/weekly?date=${selectedDate}`);
+  }>(`/appointments/calender/weekly?date=${formattedDateParam}`);
   const weekItems = useMemo(() => weeklyData?.data ?? [], [weeklyData]);
 
   const { eventsInWeek } = useMemo(() => {
