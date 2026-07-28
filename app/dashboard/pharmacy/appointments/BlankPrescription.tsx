@@ -139,6 +139,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                 <div className="bg-slate-50 border-t border-slate-500 px-10 py-3 text-[10px] text-black flex justify-between items-center normal-case mt-auto">
                     <div className="space-y-1">
                         <p className="text-black font-bold">This prescription is valid only if signed by registered medical practitioner</p>
+                        <p className="text-black font-bold">തുടർന്നുള്ള 6 ദിവസത്തേക്ക് കൺസൾട്ടേഷൻ ഫീസ് ഈടാക്കുന്നതല്ല.</p>
                         <p className="text-black font-medium">
                             For Appointments / Booking: <span className="text-black font-bold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
                         </p>
