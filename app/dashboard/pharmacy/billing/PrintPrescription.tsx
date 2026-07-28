@@ -15,7 +15,11 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
     const doctor = order.doctor;
     // doctorName stored on order takes priority; fall back to populated doctor name; null = Self = "-"
     const rawDoctorName = order.doctorName || doctor?.name || null;
-    const displayDoctorName = !rawDoctorName || rawDoctorName === "-" ? "-" : `DR. ${rawDoctorName}`;
+    const doctorQual = doctor?.qualification && doctor.qualification.trim() ? doctor.qualification.trim() : "-";
+    const formattedDocName = rawDoctorName && rawDoctorName !== "-"
+        ? (rawDoctorName.toUpperCase().startsWith("DR.") ? rawDoctorName : `DR. ${rawDoctorName}`)
+        : null;
+    const displayDoctorName = formattedDocName ? `${formattedDocName} (${doctorQual})` : "-";
 
     return (
         <div className="print-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-visible">

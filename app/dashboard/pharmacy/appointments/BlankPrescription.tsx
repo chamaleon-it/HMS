@@ -91,7 +91,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                             <Info label="PID" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
                         </div>
                         <div className="shrink-0">
-                            <Info label="Doctor" value={doctor?.name ? `DR. ${doctor.name}` : "—"} />
+                            <Info label="Doctor" value={doctor?.name ? `${doctor.name.toUpperCase().startsWith("DR.") ? doctor.name : `DR. ${doctor.name}`} (${doctor?.qualification && doctor.qualification.trim() ? doctor.qualification.trim() : "-"})` : "-"} />
                         </div>
                         <div className="shrink-0">
                             <Info label="Dept" value={doctor?.specialization || "GENERAL MEDICINE"} />

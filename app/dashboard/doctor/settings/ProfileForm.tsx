@@ -47,6 +47,7 @@ export default function ProfileForm() {
       profilePic: string | null;
       hospital: string | null;
       specialization: string | null;
+      qualification: string | null;
       signature: string | null;
       availability?: {
         startDate?: string;
@@ -79,6 +80,7 @@ export default function ProfileForm() {
       email: userData?.data.email,
       hospital: userData?.data.hospital || null,
       specialization: userData?.data.specialization || null,
+      qualification: userData?.data.qualification || null,
       profilePic: userData?.data.profilePic || null,
       signature: userData?.data.signature || null,
       availability: userData?.data.availability,
@@ -97,6 +99,7 @@ export default function ProfileForm() {
       email: userData?.data.email,
       hospital: userData?.data.hospital || null,
       specialization: userData?.data.specialization || null,
+      qualification: userData?.data.qualification || null,
       profilePic: userData?.data.profilePic || null,
       signature: userData?.data.signature || null,
       availability: userData?.data.availability,
@@ -206,6 +209,23 @@ export default function ProfileForm() {
                     {...register("hospital")}
                   />
                 </div>
+                <div className="grid gap-2">
+                  <Label
+                    htmlFor="qualification"
+                    className="mb-0.5 text-[13px] leading-tight text-slate-700"
+                  >
+                    Qualification
+                  </Label>
+                  <Input
+                    id="qualification"
+                    placeholder="e.g. MBBS, MD, MS"
+                    className="h-9"
+                    {...register("qualification")}
+                  />
+                </div>
+              </div>
+
+              <div className="grid md:grid-cols-2 gap-3">
                 <div className="grid gap-2">
                   <Label className="mb-0.5 text-[13px] leading-tight text-slate-700">
                     Primary specialization

@@ -24,6 +24,7 @@ export interface Doctor {
     name: string;
     phoneNumber: string;
     specialization: string;
+    qualification?: string;
 }
 
 export interface Item {

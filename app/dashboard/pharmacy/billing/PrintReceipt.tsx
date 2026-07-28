@@ -183,7 +183,22 @@ export default function PrintReceipt({
                     </div>
                     <div className="flex flex-col justify-center">
                         <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{payload.doctor || "-"}</span>
+                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">
+                            {(() => {
+                                const docVal = payload.doctor;
+                                const docObj: any = typeof docVal === "object" && docVal !== null ? docVal : null;
+                                const docName = docObj ? docObj.name : (typeof docVal === "string" ? docVal : null);
+                                const docQual = docObj?.qualification && docObj.qualification.trim() ? docObj.qualification.trim() : "-";
+                                const docSpec = docObj?.specialization || payload.department || null;
+
+                                if (!docName || docName === "-" || docName === "—") return "-";
+
+                                const formattedName = docName.toUpperCase().startsWith("DR.") ? docName : `DR. ${docName}`;
+                                const specStr = docSpec && docSpec.trim() && docSpec.trim() !== "-" && docSpec.trim() !== "Pharmacy" ? ` - ${docSpec.trim()}` : "";
+
+                                return `${formattedName} (${docQual})${specStr}`;
+                            })()}
+                        </span>
                     </div>
                 </div>
 
@@ -193,7 +208,7 @@ export default function PrintReceipt({
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-10 z-0 select-none">
 
                         <img src="/print/image.png" alt="watermark" className="w-[70%] object-contain" />
-                        
+
                     </div>
 
                     <table className="w-full border-collapse relative z-10 table-layout-fixed">
@@ -263,7 +278,7 @@ export default function PrintReceipt({
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                     </svg>
                                 </div>
-                                <span>+91 8075016480</span>
+                                <span>{configuration().hospitalPhone}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="w-[22px] h-[22px] rounded-full border border-black flex items-center justify-center shrink-0">

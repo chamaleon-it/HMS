@@ -17,6 +17,7 @@ export const updateSettingsSchema = z.object({
   email: z.string().trim().toLowerCase().email("Enter a valid email address"),
   hospital: z.string().trim().nullable(),
   specialization: z.string().trim().nullable(),
+  qualification: z.string().trim().nullable().optional(),
   profilePic: z.string().trim().nullable(),
   signature: z.string().trim().nullable(),
   availability: z

@@ -86,7 +86,7 @@ export default function OrderTable({
       online: number;
       insurance: number;
       discount: number;
-      doctor?: string;
+      doctor?: any;
       department?: string;
       note?: string;
     };
@@ -211,8 +211,8 @@ export default function OrderTable({
           insurance: 0,
           online: 0,
           patient: data.data.patient._id,
-          department: data.data.doctor.specialization,
-          doctor: data.data.doctor.name,
+          department: data.data.doctor?.specialization,
+          doctor: data.data.doctor,
           note: "",
         },
         invoiceDetails: {

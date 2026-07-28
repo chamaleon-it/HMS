@@ -155,7 +155,15 @@ export default function ViewBill({ id }: { id: string }) {
                             <Compact label="PID" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
                             <Compact label="Age/G" value={`${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient.gender || "—"}`} />
                             <Compact label="Phone" value={billing.patient.phoneNumber || "—"} />
-                            <Compact label="Doctor" value={billing.doctor || "—"} />
+                            {(() => {
+                                const docObj: any = typeof billing.doctor === "object" ? billing.doctor : null;
+                                const docName = docObj ? docObj.name : (typeof billing.doctor === "string" ? billing.doctor : null);
+                                const docQual = docObj?.qualification && docObj.qualification.trim() ? docObj.qualification.trim() : "-";
+                                const formattedDoc = docName && docName !== "-"
+                                    ? (docName.toUpperCase().startsWith("DR.") ? `${docName} (${docQual})` : `DR. ${docName} (${docQual})`)
+                                    : "-";
+                                return <Compact label="Doctor" value={formattedDoc} />;
+                            })()}
                             <Compact label="Dept" value={billing.department || "—"} />
                             <Compact label="Pay" value={paymentMethod} />
                             <Compact label="Bill" value="OP Pharmacy" />
@@ -257,6 +265,7 @@ export default function ViewBill({ id }: { id: string }) {
                         online: printBill.online,
                         insurance: printBill.insurance,
                         discount: printBill.discount,
+                        doctor: printBill.doctor,
                     }}
                     patient={{
                         name: printBill.patient.name,

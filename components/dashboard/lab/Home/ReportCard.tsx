@@ -495,12 +495,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 <div className="flex gap-6 mt-2 text-[14px] font-bold text-slate-800">
                                                     <div className="flex items-center gap-1.5">
                                                         <svg className="w-4 h-4 text-[#19988b]" fill="currentColor" viewBox="0 0 24 24"><path d="M20 10.999h2C22 5.869 18.127 2 12.99 2v2C17.052 4 20 6.943 20 10.999z" /><path d="M13 8c2.103 0 3 .897 3 3h2c0-3.225-1.775-5-5-5v2zm3.422 5.443a1.001 1.001 0 0 0-1.391.043l-2.393 2.461c-.576-.11-1.734-.471-2.926-1.66-1.192-1.193-1.553-2.354-1.66-2.926l2.459-2.394a1 1 0 0 0 .043-1.391L6.859 3.513a1 1 0 0 0-1.391-.087l-2.17 1.861a1 1 0 0 0-.29.649c-.015.25-.301 6.172 4.291 10.766C11.305 20.707 16.323 21 17.705 21c.202 0 .326-.006.359-.008a.992.992 0 0 0 .648-.291l1.86-2.171a1 1 0 0 0-.086-1.391l-4.064-3.696z" /></svg>
-                                                        +91 9961 218 320
+                                                        {configuration().hospitalPhone}
                                                     </div>
-                                                    <div className="flex items-center gap-1.5">
-                                                        <svg className="w-4 h-4 text-[#164687]" fill="currentColor" viewBox="0 0 24 24"><path d="M20 10.999h2C22 5.869 18.127 2 12.99 2v2C17.052 4 20 6.943 20 10.999z" /><path d="M13 8c2.103 0 3 .897 3 3h2c0-3.225-1.775-5-5-5v2zm3.422 5.443a1.001 1.001 0 0 0-1.391.043l-2.393 2.461c-.576-.11-1.734-.471-2.926-1.66-1.192-1.193-1.553-2.354-1.66-2.926l2.459-2.394a1 1 0 0 0 .043-1.391L6.859 3.513a1 1 0 0 0-1.391-.087l-2.17 1.861a1 1 0 0 0-.29.649c-.015.25-.301 6.172 4.291 10.766C11.305 20.707 16.323 21 17.705 21c.202 0 .326-.006.359-.008a.992.992 0 0 0 .648-.291l1.86-2.171a1 1 0 0 0-.086-1.391l-4.064-3.696z" /></svg>
-                                                        +91 9400 989 016
-                                                    </div>
+
                                                 </div>
                                             </div>
                                         </div>
@@ -521,7 +518,20 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         <div className="flex flex-col space-y-2.5 text-[14px] text-slate-800">
                                             <div className="flex items-start"><span className="w-32 font-medium text-slate-700">Patient Name</span><span className="w-4 font-medium">:</span><span className="font-medium text-black">{patient?.name || "Mohammed Rashid"}</span></div>
                                             <div className="flex items-start"><span className="w-32 font-medium text-slate-700">Age/Sex</span><span className="w-4 font-medium">:</span><span className="font-medium text-black">{patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "23"} / {patient?.gender || "Male"}</span></div>
-                                            <div className="flex items-start"><span className="w-32 font-medium text-slate-700">Ref. By.</span><span className="w-4 font-medium">:</span><span className="font-medium text-black">{doctor?.name || "Self"}</span></div>
+                                            <div className="flex items-start">
+                                                <span className="w-32 font-medium text-slate-700">Ref. By.</span>
+                                                <span className="w-4 font-medium">:</span>
+                                                <span className="font-medium text-black">
+                                                    {(() => {
+                                                        const docName = typeof doctor === "object" ? doctor?.name : (typeof doctor === "string" ? doctor : null);
+                                                        const docQual = typeof doctor === "object" && doctor?.qualification && doctor.qualification.trim() ? doctor.qualification.trim() : "-";
+                                                        if (!docName || docName === "-") return "-";
+                                                        if (docName === "Self") return "Self (-)";
+                                                        const formatted = docName.toUpperCase().startsWith("DR.") ? docName : `DR. ${docName}`;
+                                                        return `${formatted} (${docQual})`;
+                                                    })()}
+                                                </span>
+                                            </div>
                                         </div>
                                         <div className="flex flex-col space-y-2.5 text-[14px] text-slate-800 w-[45%]">
                                             <div className="flex items-start"><span className="w-40 font-medium text-slate-700">Sample Collected On</span><span className="w-4 font-medium">:</span><span className="font-medium text-black">{report.sampleCollectedAt ? fDateandTime(report.sampleCollectedAt).toLowerCase() : "-"}</span></div>

@@ -163,7 +163,23 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                     </div>
                     <div className="flex flex-col justify-center">
                         <span className="text-[11px] text-gray-500 font-medium leading-none">Doctor</span>
-                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">{doctorName ? `Dr. ${doctorName}` : "Self"}</span>
+                        <span className="text-[14px] font-bold text-black mt-1.5 truncate leading-none">
+                            {(() => {
+                                const doctorVal = bill?.doctor || report?.doctor;
+                                const docObj = typeof doctorVal === "object" && doctorVal !== null ? doctorVal : null;
+                                const docName = docObj ? docObj.name : (typeof doctorVal === "string" ? doctorVal : null);
+                                const docQual = docObj?.qualification && docObj.qualification.trim() ? docObj.qualification.trim() : "-";
+                                const docSpec = docObj?.specialization || null;
+
+                                if (!docName || docName === "-") return "-";
+                                if (docName === "Self") return "Self (-)";
+
+                                const formattedName = docName.toUpperCase().startsWith("DR.") ? docName : `DR. ${docName}`;
+                                const specStr = docSpec && docSpec.trim() && docSpec.trim() !== "-" ? ` - ${docSpec.trim()}` : "";
+
+                                return `${formattedName} (${docQual})${specStr}`;
+                            })()}
+                        </span>
                     </div>
                 </div>
 
@@ -222,7 +238,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                     </svg>
                                 </div>
-                                <span>+91 8075016480</span>
+                                <span>{configuration().hospitalPhone}</span>
                             </div>
                         </div>
                     </div>
