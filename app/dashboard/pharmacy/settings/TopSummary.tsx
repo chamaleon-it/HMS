@@ -1,3 +1,5 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, ReceiptIndianRupee, Store } from "lucide-react";
 import React from "react";

@@ -1,3 +1,5 @@
+"use client";
+
 
 import { fDateandTime } from "@/lib/fDateAndTime";
 import Watermark from "@/components/print/Watermark";

@@ -1,3 +1,5 @@
+"use client";
+
 import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import Link from "next/link";
 import React, { useCallback, useEffect, useMemo, useState } from "react";

@@ -1,3 +1,5 @@
+"use client";
+
 import Payments from "@/components/dashboard/lab/Payments/Payments";
 import AppShell from "@/components/layout/app-shell";
 import React from "react";

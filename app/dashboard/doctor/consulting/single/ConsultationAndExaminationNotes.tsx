@@ -1,3 +1,5 @@
+"use client";
+
 import React, {  useMemo } from "react";
 import { DataType } from "./interface";
 import ExaminationNote from "./ExaminationNote";

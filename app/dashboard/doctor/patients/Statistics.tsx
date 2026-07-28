@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Users, Stethoscope, AlertCircle, LogOut } from "lucide-react";
 import { motion } from "framer-motion";

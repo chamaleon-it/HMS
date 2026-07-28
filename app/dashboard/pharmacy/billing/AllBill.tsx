@@ -1,3 +1,5 @@
+"use client";
+
 import { Eye, Printer, Search, CheckCircle } from "lucide-react";
 import React from "react";
 import Link from "next/link";

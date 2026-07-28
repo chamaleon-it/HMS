@@ -1,3 +1,5 @@
+"use client";
+
 export const TopInsuranceCompany = [
   "Star Health and Allied Insurance Co. Ltd.",
   "Niva Bupa Health Insurance Co. Ltd.",

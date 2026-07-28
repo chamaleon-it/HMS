@@ -1,3 +1,5 @@
+"use client";
+
 import { FilePlus2, FileText, RefreshCcw, Wallet2 } from 'lucide-react';
 import React from 'react'
 

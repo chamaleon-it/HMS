@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState, useRef } from "react";
 import { Plus, Search, Star, Trash2, X, Sun, Sunrise, Moon, MoonStar, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";

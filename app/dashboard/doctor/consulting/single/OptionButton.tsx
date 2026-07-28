@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { DataType } from "./interface";
 import { Minus } from "lucide-react";

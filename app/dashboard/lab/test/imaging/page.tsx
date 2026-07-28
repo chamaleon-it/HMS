@@ -1,3 +1,5 @@
+"use client";
+
 import Imagine from '@/components/dashboard/lab/Test/imaging'
 import AppShell from '@/components/layout/app-shell'
 import React from 'react'

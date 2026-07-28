@@ -1,3 +1,5 @@
+"use client";
+
 import api from "@/lib/axios";
 import { Plus, Search, Trash2 } from "lucide-react";
 import React, { useCallback } from "react";

@@ -1,3 +1,5 @@
+"use client";
+
 import React from 'react'
 import { LabsDataTypes } from './useGetLabReport'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'

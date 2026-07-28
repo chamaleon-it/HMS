@@ -1,3 +1,5 @@
+"use client";
+
 import { useAuth } from "@/auth/context/auth-context";
 import useSWR from "swr";
 

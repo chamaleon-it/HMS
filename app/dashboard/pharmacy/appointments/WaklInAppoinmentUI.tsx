@@ -1,3 +1,5 @@
+"use client";
+
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { to12h } from "@/lib/fDateAndTime";

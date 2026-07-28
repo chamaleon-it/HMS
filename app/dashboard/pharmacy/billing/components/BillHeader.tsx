@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { User2, UserPlus, FileText, CalendarDays } from "lucide-react";
 import { fDate } from "@/lib/fDateAndTime";

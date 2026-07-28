@@ -1,3 +1,5 @@
+"use client";
+
 import AppShell from "@/components/layout/app-shell";
 import DoctorDashboardHome from "@/components/doctor/dashboard/home/DashboardHome";
 

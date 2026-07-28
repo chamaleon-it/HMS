@@ -1,3 +1,5 @@
+"use client";
+
 import React, { Dispatch, SetStateAction, useRef } from "react";
 import VitalsCard from "./VitalsCard";
 import { ToggleChip } from "./ToggleChip";

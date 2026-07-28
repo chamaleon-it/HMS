@@ -1,3 +1,5 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import React, { useCallback, useState } from "react";
 import { FilterType, ItemType } from "./interface";

@@ -1,3 +1,5 @@
+"use client";
+
 export function ToggleChip({
   active,
   onClick,

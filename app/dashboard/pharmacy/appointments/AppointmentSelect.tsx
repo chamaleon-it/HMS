@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useMemo, useState, forwardRef } from "react";
 
 interface SelectProps<T> {

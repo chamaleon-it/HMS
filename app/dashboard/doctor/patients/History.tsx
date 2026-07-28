@@ -1,3 +1,5 @@
+"use client";
+
 import { fDateandTime } from "@/lib/fDateAndTime";
 import useSWR from "swr";
 import { Data } from "./PatientTable";

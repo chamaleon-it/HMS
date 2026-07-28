@@ -1,3 +1,5 @@
+"use client";
+
 import { TestItemType } from '@/data/useGetTest';
 import { cn } from '@/lib/utils'
 import { ImageIcon, TestTubeDiagonal, X } from 'lucide-react'

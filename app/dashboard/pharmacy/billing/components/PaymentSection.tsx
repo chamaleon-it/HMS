@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Wallet2, Banknote, CreditCard, Building2, IndianRupee, BadgePercent, Percent } from "lucide-react";
 import { cn } from "@/lib/utils";

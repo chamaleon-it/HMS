@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useMemo } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";

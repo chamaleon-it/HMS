@@ -1,3 +1,5 @@
+"use client";
+
 // useItems.ts
 import useSWR from "swr";
 import { FilterType, ItemType } from "./interface";

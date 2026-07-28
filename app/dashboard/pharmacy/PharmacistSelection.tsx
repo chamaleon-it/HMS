@@ -1,3 +1,5 @@
+"use client";
+
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import React, { useEffect, useEffectEvent, useState } from "react";

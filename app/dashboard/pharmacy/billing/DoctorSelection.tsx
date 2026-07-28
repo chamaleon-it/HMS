@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import useSWR from "swr";
 import { User2, Search, X, Check } from "lucide-react";

@@ -1,3 +1,5 @@
+"use client";
+
 import { fAge } from "@/lib/fDateAndTime";
 import { MapPin, MousePointerClick, Phone, X } from "lucide-react";
 import React, { useEffect, useState } from "react";

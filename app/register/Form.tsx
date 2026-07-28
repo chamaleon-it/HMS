@@ -1,3 +1,5 @@
+"use client";
+
 import FormFooter from "@/components/RegisterPageFormFooter";
 import { CircleUser, Lock, Mail } from "lucide-react";
 import React, { useState } from "react";

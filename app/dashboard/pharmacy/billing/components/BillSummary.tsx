@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { Wallet2, FilePlus2, Printer, Download, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";

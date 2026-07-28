@@ -1,3 +1,5 @@
+"use client";
+
 import Lab from '@/components/dashboard/lab/Test/lab/LabReport'
 import AppShell from '@/components/layout/app-shell'
 import React from 'react'

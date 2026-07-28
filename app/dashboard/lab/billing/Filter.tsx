@@ -1,3 +1,5 @@
+"use client";
+
 import {  ChevronDownIcon, Filter, RefreshCcw, Search } from "lucide-react";
 import React, { useState } from "react";
 import { FilterType } from "./page";

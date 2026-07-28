@@ -1,3 +1,5 @@
+"use client";
+
 import { AlertTriangle, XCircle } from "lucide-react";
 import React, { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import useSWR from "swr";

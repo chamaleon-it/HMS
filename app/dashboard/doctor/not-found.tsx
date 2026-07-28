@@ -1,3 +1,5 @@
+"use client";
+
 import AppShell from '@/components/layout/app-shell'
 import { Button } from "@/components/ui/button"
 import { AlertTriangle } from "lucide-react"

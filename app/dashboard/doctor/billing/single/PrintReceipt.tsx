@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import { formatINR } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";

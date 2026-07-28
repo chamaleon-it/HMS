@@ -1,3 +1,5 @@
+"use client";
+
 import { useMemo } from "react";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import {
