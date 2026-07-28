@@ -250,10 +250,10 @@ export default function PrescriptionCard({
 
   return (
 
-    <div className="border rounded-xl bg-white shadow-sm max-h-[50vh] overflow-y-auto overflow-x-hidden">
-      <div className="flex flex-col min-w-262.5">
+    <div className="border rounded-xl bg-white shadow-sm max-h-[50vh] overflow-y-auto overflow-x-auto">
+      <div className="flex flex-col w-full min-w-full">
         <div
-          className={`grid ${showAllFields ? "grid-cols-[35px_2.2fr_repeat(4,1fr)_1.3fr_0.9fr_0.9fr_1fr_1fr_1fr_1fr_35px]" : "grid-cols-[35px_2.2fr_1.3fr_0.9fr_0.9fr_1fr_1fr_1fr_1fr_35px]"} gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}
+          className={`grid ${showAllFields ? "grid-cols-[30px_2.8fr_repeat(4,0.8fr)_0.7fr_0.5fr_0.5fr_0.5fr_0.6fr_0.7fr_0.75fr_30px]" : "grid-cols-[30px_2.8fr_0.7fr_0.5fr_0.5fr_0.5fr_0.6fr_0.7fr_0.75fr_30px]"} gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}
         >
           <div className="flex items-center justify-center">Sl</div>
           <div>Drug</div>
@@ -278,7 +278,7 @@ export default function PrescriptionCard({
         {data.items.map((m, i) => (
           <div
             key={m.rowId}
-            className={`grid ${showAllFields ? "grid-cols-[35px_2.2fr_repeat(4,1fr)_1.3fr_0.9fr_0.9fr_1fr_1fr_1fr_1fr_35px]" : "grid-cols-[35px_2.2fr_1.3fr_0.9fr_0.9fr_1fr_1fr_1fr_1fr_35px]"} gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
+            className={`grid ${showAllFields ? "grid-cols-[30px_2.8fr_repeat(4,0.8fr)_0.7fr_0.5fr_0.5fr_0.5fr_0.6fr_0.7fr_0.75fr_30px]" : "grid-cols-[30px_2.8fr_0.7fr_0.5fr_0.5fr_0.5fr_0.6fr_0.7fr_0.75fr_30px]"} gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
           >
             <div className="flex items-center justify-center text-slate-400 text-[11px] font-medium">
               {i + 1}
@@ -428,7 +428,7 @@ export default function PrescriptionCard({
               <input
                 placeholder="0.00"
                 disabled
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-sm outline-none text-slate-500 font-medium text-right"
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-1.5 h-9 text-xs outline-none text-slate-500 font-medium text-right"
                 value={m.unitPrice === 0 ? "" : m.unitPrice.toFixed(2)}
               />
             </div>
@@ -437,7 +437,7 @@ export default function PrescriptionCard({
               <input
                 placeholder="0.00"
                 disabled
-                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-sm outline-none text-slate-500 font-bold text-right"
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-1.5 h-9 text-xs outline-none text-slate-500 font-bold text-right"
                 value={m.unitPrice * m.quantity === 0 ? "" : (m.unitPrice * m.quantity).toFixed(2)}
               />
             </div>
