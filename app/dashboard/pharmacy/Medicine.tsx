@@ -16,11 +16,52 @@ interface Medicine {
   availableQuantity: number;
   unitPrice: number;
   rackLocation?: string;
+  batchNumber?: string;
+  selectedBatchId?: string;
+  packing?: number;
+  batches?: any[];
 }
 
-type Item = { _id: string; name: string; generic: string; quantity: number, unitPrice: number, rackLocation?: string };
+type Item = {
+  _id: string;
+  name: string;
+  generic: string;
+  quantity: number;
+  unitPrice: number;
+  rackLocation?: string;
+  packing?: number;
+  activeBatch?: any;
+  batches?: any[];
+};
 type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
+
+function extractActiveBatchDetails(item: Item) {
+  const batches = item.batches || [];
+  let activeBatch = batches.find(
+    (b: any) =>
+      b._id === item.activeBatch ||
+      (b._id && item.activeBatch && b._id.toString() === item.activeBatch.toString())
+  );
+  if (!activeBatch && batches.length > 0) {
+    activeBatch = batches[0];
+  }
+
+  const batchNumber = activeBatch?.batchNumber || (item as any).batchNumber || "-";
+  const selectedBatchId = activeBatch?._id ? String(activeBatch._id) : undefined;
+  const packing = activeBatch?.pack ?? item.packing ?? 0;
+  const availableQuantity = activeBatch ? activeBatch.quantity : item.quantity;
+  const unitPrice = activeBatch?.mrp || item.unitPrice || 0;
+
+  return {
+    batchNumber,
+    selectedBatchId,
+    packing,
+    availableQuantity,
+    unitPrice,
+    batches,
+  };
+}
 
 function useDebounced<T>(value: T, delay = 250) {
   const [debounced, setDebounced] = useState(value);
@@ -42,7 +83,7 @@ export default function MedicineField({
   inputRef,
 }: {
   m: Medicine;
-  updateField: (idx: number, key: keyof Medicine, val: string | number) => void;
+  updateField: (idx: number, key: keyof Medicine, val: any) => void;
   i: number;
   onEnter?: () => void;
   onSelect?: () => void;
@@ -77,25 +118,37 @@ export default function MedicineField({
 
   useEffect(() => {
     if (m.name && itemById?.data && (!selected || selected.id !== m.name)) {
-      setSelected({ id: itemById.data._id, name: itemById.data.name });
-      // Sync medicine name if missing
+      const item = itemById.data;
+      setSelected({ id: item._id, name: item.name });
+      const details = extractActiveBatchDetails(item);
+
       if (!m.medicineName) {
-        updateField(i, "medicineName", itemById.data.name);
+        updateField(i, "medicineName", item.name);
       }
-      // Sync available quantity and price if they are missing or different
-      if (m.availableQuantity !== itemById.data.quantity) {
-        updateField(i, "availableQuantity", itemById.data.quantity);
+      if (!m.batchNumber) {
+        updateField(i, "batchNumber", details.batchNumber);
       }
-      if (m.unitPrice !== itemById.data.unitPrice) {
-        updateField(i, "unitPrice", itemById.data.unitPrice);
+      if (!m.selectedBatchId && details.selectedBatchId) {
+        updateField(i, "selectedBatchId", details.selectedBatchId);
       }
-      // Sync rack location
-      if (itemById.data.rackLocation && m.rackLocation !== itemById.data.rackLocation) {
-        updateField(i, "rackLocation", itemById.data.rackLocation);
+      if (m.packing === undefined || m.packing === 0) {
+        updateField(i, "packing", details.packing);
+      }
+      if (m.availableQuantity !== details.availableQuantity) {
+        updateField(i, "availableQuantity", details.availableQuantity);
+      }
+      if (m.unitPrice !== details.unitPrice) {
+        updateField(i, "unitPrice", details.unitPrice);
+      }
+      if (item.rackLocation && m.rackLocation !== item.rackLocation) {
+        updateField(i, "rackLocation", item.rackLocation);
+      }
+      if (!m.batches || m.batches.length === 0) {
+        updateField(i, "batches", details.batches);
       }
       if (!open) setQuery("");
     }
-  }, [m.name, itemById, open, selected, m.availableQuantity, m.unitPrice, m.medicineName, m.rackLocation, i, updateField]);
+  }, [m.name, itemById, open, selected, m.availableQuantity, m.unitPrice, m.medicineName, m.rackLocation, m.batchNumber, m.selectedBatchId, m.packing, m.batches, i, updateField]);
 
   const qs = useMemo(() => {
     const p = new URLSearchParams();
@@ -122,15 +175,19 @@ export default function MedicineField({
   }, [activeIdx]);
 
   const handleSelect = (item: Item) => {
-    // store only id in your form
+    const details = extractActiveBatchDetails(item);
+
     updateField(i, "name", item._id);
     updateField(i, "medicineName", item.name);
-    updateField(i, "availableQuantity", item.quantity);
-    updateField(i, "unitPrice", item.unitPrice);
+    updateField(i, "availableQuantity", details.availableQuantity);
+    updateField(i, "unitPrice", details.unitPrice);
     updateField(i, "rackLocation", item.rackLocation || "-");
-    // remember the label locally
+    updateField(i, "batchNumber", details.batchNumber);
+    updateField(i, "selectedBatchId", details.selectedBatchId || "");
+    updateField(i, "packing", details.packing);
+    updateField(i, "batches", details.batches as any);
+
     setSelected({ id: item._id, name: item.name });
-    // clear query and close
     setQuery("");
     setFilter((f) => ({ ...f, q: "", page: 1 }));
     setOpen(false);
@@ -189,10 +246,14 @@ export default function MedicineField({
                       // clear selected id from form & UI
                       updateField(i, "name", "");
                       updateField(i, "medicineName", "");
-                      updateField(i, "availableQuantity", 0)
-                      updateField(i, "quantity", 0)
-                      updateField(i, "unitPrice", 0)
-                      updateField(i, "rackLocation", "-")
+                      updateField(i, "availableQuantity", 0);
+                      updateField(i, "quantity", 0);
+                      updateField(i, "unitPrice", 0);
+                      updateField(i, "rackLocation", "-");
+                      updateField(i, "batchNumber", "");
+                      updateField(i, "selectedBatchId", "");
+                      updateField(i, "packing", 0);
+                      updateField(i, "batches", []);
                       setSelected(null);
                       setQuery("");
                       setFilter((f) => ({ ...f, q: "", page: 1 }));

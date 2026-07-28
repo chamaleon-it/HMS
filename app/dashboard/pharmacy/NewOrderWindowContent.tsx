@@ -45,7 +45,13 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
         return;
       }
 
-      const validItems = payload.items.filter((item: any) => item.name && item.name.trim() !== "");
+      const validItems = payload.items
+        .filter((item: any) => item.name && item.name.trim() !== "")
+        .map((item: any) => ({
+          ...item,
+          batchNumber: item.batchNumber || undefined,
+          batchId: item.selectedBatchId || undefined,
+        }));
       if (validItems.length === 0) {
         toast.error("Please select atleast on item");
         return;

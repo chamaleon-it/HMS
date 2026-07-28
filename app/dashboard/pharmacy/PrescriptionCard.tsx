@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { DataType } from "./interface";
 import Medicine from "./Medicine";
 import { Button } from "@/components/ui/button";
-import { Trash } from "lucide-react";
+import { Trash, ChevronDown, Package, Calendar, Layers } from "lucide-react";
 import toast from "react-hot-toast";
 import {
   AlertDialog,
@@ -19,9 +19,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { formatINR } from "@/lib/fNumber";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import api from "@/lib/axios";
 
 // ------------------ Types ------------------
 interface Medicine {
+  rowId: string;
   name: string;
   medicineName: string;
   dosage: string;
@@ -32,6 +35,141 @@ interface Medicine {
   availableQuantity: number;
   unitPrice: number;
   rackLocation?: string;
+  batchNumber?: string;
+  selectedBatchId?: string;
+  packing?: number;
+  batches?: any[];
+}
+
+function BatchSelector({
+  m,
+  i,
+  updateField,
+}: {
+  m: Medicine;
+  i: number;
+  updateField: (idx: number, key: keyof Medicine, val: any) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const batches = m.batches || [];
+  const activeBatchNum = m.batchNumber || (batches.length > 0 ? batches[0].batchNumber : "-");
+
+  if (!batches || batches.length === 0) {
+    return (
+      <input
+        placeholder="-"
+        disabled
+        className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-xs outline-none text-slate-600 font-mono font-medium text-center"
+        value={activeBatchNum}
+      />
+    );
+  }
+
+  const handleSelectBatch = async (batch: any) => {
+    updateField(i, "batchNumber", batch.batchNumber);
+    updateField(i, "selectedBatchId", batch._id);
+    updateField(i, "availableQuantity", batch.quantity);
+    updateField(i, "packing", batch.pack ?? m.packing ?? 0);
+    const newPrice = batch.mrp || batch.unitPrice || m.unitPrice || 0;
+    if (newPrice) {
+      updateField(i, "unitPrice", newPrice);
+    }
+    setOpen(false);
+
+    if (m.name && batch._id) {
+      try {
+        await api.patch(`/pharmacy/items/${m.name}/active-batch`, { batchId: batch._id });
+        toast.success(`Active batch updated to ${batch.batchNumber}`);
+      } catch (err) {
+        console.error("Failed to update active batch on backend", err);
+      }
+    }
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          className="w-full h-9 px-2 rounded-md border border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 transition-colors flex items-center justify-between text-xs font-mono font-medium text-slate-700 shadow-2xs focus:outline-hidden focus:ring-1 focus:ring-emerald-400 cursor-pointer"
+          title="Click to change active batch"
+        >
+          <span className="truncate">{activeBatchNum}</span>
+          <div className="flex items-center gap-1 shrink-0 ml-1">
+            {batches.length > 1 && (
+              <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-1 rounded">
+                {batches.length}
+              </span>
+            )}
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+          </div>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent className="w-80 p-0 shadow-xl border-slate-200 rounded-lg z-50 overflow-hidden" align="start">
+        <div className="bg-slate-900 text-white p-2.5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Package className="w-4 h-4 text-emerald-400" />
+            <span className="font-semibold text-xs truncate max-w-50">
+              {m.medicineName || "Select Batch"}
+            </span>
+          </div>
+          <span className="text-[10px] bg-slate-800 text-slate-300 font-mono px-2 py-0.5 rounded border border-slate-700">
+            {batches.length} {batches.length === 1 ? "batch" : "batches"}
+          </span>
+        </div>
+        <div className="max-h-60 overflow-y-auto divide-y divide-slate-100 bg-white">
+          {batches.map((batch: any, bIdx: number) => {
+            const isSelected =
+              (m.selectedBatchId && (batch._id === m.selectedBatchId || batch._id?.toString() === m.selectedBatchId?.toString())) ||
+              batch.batchNumber === m.batchNumber;
+
+            const expDateStr = batch.expiryDate
+              ? new Date(batch.expiryDate).toLocaleDateString("en-IN", { month: "2-digit", year: "numeric" })
+              : "-";
+
+            const price = batch.mrp || batch.unitPrice || m.unitPrice || 0;
+
+            return (
+              <div
+                key={batch._id || bIdx}
+                onClick={() => handleSelectBatch(batch)}
+                className={`p-2.5 cursor-pointer transition-colors flex items-center justify-between text-xs hover:bg-emerald-50/70 ${isSelected ? "bg-emerald-50 border-l-4 border-l-emerald-500 font-medium" : ""
+                  }`}
+              >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5 font-mono font-bold text-slate-800">
+                    <span>{batch.batchNumber}</span>
+                    {isSelected && (
+                      <span className="text-[9px] bg-emerald-600 text-white px-1.5 py-0.2 rounded font-sans uppercase font-bold tracking-wider">
+                        Active
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3 text-[11px] text-slate-500">
+                    <span className="flex items-center gap-0.5">
+                      <Calendar className="w-3 h-3 text-slate-400" />
+                      Exp: {expDateStr}
+                    </span>
+                    <span className="flex items-center gap-0.5">
+                      <Layers className="w-3 h-3 text-slate-400" />
+                      Pack: {batch.pack ?? m.packing ?? 0}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-right space-y-0.5">
+                  <div className="font-bold text-slate-900">₹{price.toFixed(2)}</div>
+                  <div className={`text-[11px] font-semibold ${batch.quantity <= 0 ? "text-red-500" : "text-emerald-700"}`}>
+                    {batch.quantity} units
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
 }
 
 export default function PrescriptionCard({
@@ -46,7 +184,7 @@ export default function PrescriptionCard({
   const updateField = (
     idx: number,
     key: keyof Medicine,
-    val: string | number
+    val: any
   ) => {
     setData((prev) => ({
       ...prev,
@@ -113,37 +251,39 @@ export default function PrescriptionCard({
   return (
 
     <div className="border rounded-xl bg-white shadow-sm max-h-[50vh] overflow-y-auto overflow-x-hidden">
-      <div className="flex flex-col min-w-225">
+      <div className="flex flex-col min-w-262.5">
         <div
-          className={`grid ${showAllFields ? "grid-cols-[35px_repeat(12,1fr)]" : "grid-cols-[35px_repeat(8,1fr)]"} gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}
+          className={`grid ${showAllFields ? "grid-cols-[35px_2.2fr_repeat(4,1fr)_1.3fr_0.9fr_0.9fr_1fr_1fr_1fr_1fr_35px]" : "grid-cols-[35px_2.2fr_1.3fr_0.9fr_0.9fr_1fr_1fr_1fr_1fr_35px]"} gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}
         >
-          <div className="col-span-1 flex items-center justify-center">Sl</div>
-          <div className="col-span-2">Drug</div>
+          <div className="flex items-center justify-center">Sl</div>
+          <div>Drug</div>
           {showAllFields && (
             <>
-              <div className="col-span-1">Dosage</div>
-              <div className="col-span-1">Freq</div>
-              <div className="col-span-1">Food</div>
-              <div className="col-span-1">Dur</div>
+              <div>Dosage</div>
+              <div>Freq</div>
+              <div>Food</div>
+              <div>Dur</div>
             </>
           )}
-          <div className="col-span-1">Rack</div>
-          <div className="col-span-1">Avail</div>
-          <div className="col-span-1">Qty</div>
-          <div className="col-span-1">Price</div>
-          <div className="col-span-1">Total</div>
-          <div className="col-span-1 text-right pr-2">Act</div>
+          <div>Batch</div>
+          <div>Pack</div>
+          <div>Rack</div>
+          <div>Avail</div>
+          <div>Qty</div>
+          <div>Price</div>
+          <div>Total</div>
+          <div className="text-right pr-2">Act</div>
         </div>
 
         {data.items.map((m, i) => (
           <div
             key={m.rowId}
-            className={`grid ${showAllFields ? "grid-cols-[35px_repeat(12,1fr)]" : "grid-cols-[35px_repeat(8,1fr)]"} gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
+            className={`grid ${showAllFields ? "grid-cols-[35px_2.2fr_repeat(4,1fr)_1.3fr_0.9fr_0.9fr_1fr_1fr_1fr_1fr_35px]" : "grid-cols-[35px_2.2fr_1.3fr_0.9fr_0.9fr_1fr_1fr_1fr_1fr_35px]"} gap-1 items-center py-1 px-2 border-b last:border-b-0 hover:bg-slate-50/50 transition-colors`}
           >
-            <div className="col-span-1 flex items-center justify-center text-slate-400 text-[11px] font-medium">
+            <div className="flex items-center justify-center text-slate-400 text-[11px] font-medium">
               {i + 1}
             </div>
-            <div className="col-span-2">
+            <div>
               <Medicine
                 i={i}
                 m={m}
@@ -162,7 +302,7 @@ export default function PrescriptionCard({
             </div>
             {showAllFields && (
               <>
-                <div className="col-span-1">
+                <div>
                   <LabeledCombobox
                     options={[
                       "½ tab",
@@ -181,7 +321,7 @@ export default function PrescriptionCard({
                   />
                 </div>
 
-                <div className="col-span-1">
+                <div>
                   <LabeledCombobox
                     options={[
                       "1-0-1",
@@ -200,7 +340,7 @@ export default function PrescriptionCard({
                   />
                 </div>
 
-                <div className="col-span-1">
+                <div>
                   <LabeledCombobox
                     options={[
                       "After food",
@@ -218,7 +358,7 @@ export default function PrescriptionCard({
                   />
                 </div>
 
-                <div className="col-span-1">
+                <div>
                   <LabeledCombobox
                     options={[
                       "3 days",
@@ -238,7 +378,18 @@ export default function PrescriptionCard({
                 </div>
               </>
             )}
-            <div className="col-span-1">
+            <div>
+              <BatchSelector m={m} i={i} updateField={updateField} />
+            </div>
+            <div>
+              <input
+                placeholder="-"
+                disabled
+                className="w-full rounded-md border border-slate-200 bg-slate-50 px-2 h-9 text-xs outline-none text-slate-600 font-semibold text-center"
+                value={m.packing !== undefined && m.packing !== null ? m.packing : "-"}
+              />
+            </div>
+            <div>
               <input
                 placeholder="-"
                 disabled
@@ -246,7 +397,7 @@ export default function PrescriptionCard({
                 value={m.rackLocation || "-"}
               />
             </div>
-            <div className="col-span-1">
+            <div>
               <input
                 placeholder="0"
                 disabled
@@ -254,7 +405,7 @@ export default function PrescriptionCard({
                 value={m.availableQuantity || 0}
               />
             </div>
-            <div className="col-span-1">
+            <div>
               <QuantityInput
                 updateField={updateField}
                 i={i}
@@ -273,7 +424,7 @@ export default function PrescriptionCard({
               />
             </div>
 
-            <div className="col-span-1">
+            <div>
               <input
                 placeholder="0.00"
                 disabled
@@ -282,7 +433,7 @@ export default function PrescriptionCard({
               />
             </div>
 
-            <div className="col-span-1">
+            <div>
               <input
                 placeholder="0.00"
                 disabled
@@ -291,7 +442,7 @@ export default function PrescriptionCard({
               />
             </div>
 
-            <div className="col-span-1 flex justify-end">
+            <div className="flex justify-end">
               <Button
                 variant="ghost"
                 size="icon"
@@ -508,8 +659,6 @@ type LabeledComboboxProps = {
   onKeyDown?: React.KeyboardEventHandler<HTMLInputElement>;
   inputRef?: React.RefObject<HTMLInputElement>;
 };
-
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 function LabeledCombobox({
   label,

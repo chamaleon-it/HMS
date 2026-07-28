@@ -82,6 +82,18 @@ export interface Patient {
 
 
 
+export interface Batch {
+    _id: string;
+    batchNumber: string;
+    quantity: number;
+    pack?: number;
+    noOfPack?: number;
+    mrp?: number;
+    expiryDate: string | Date;
+    purchasePrice?: number;
+    supplier?: string;
+}
+
 export interface DataType {
     patient: string;
     doctor: string;
@@ -94,9 +106,13 @@ export interface DataType {
         food: string;
         duration: string;
         quantity: number;
-        availableQuantity: number
+        availableQuantity: number;
         unitPrice: number;
         rackLocation?: string;
+        batchNumber?: string;
+        selectedBatchId?: string;
+        packing?: number;
+        batches?: Batch[];
     }[];
     discount: number;
     priority: string;
