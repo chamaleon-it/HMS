@@ -88,7 +88,7 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
       },
       {
         key: "ip",
-        label: "IP (In Patient)",
+        label: "IP",
         icon: Bed,
         link: "/dashboard/doctor/ip/",
       },
@@ -341,7 +341,7 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
       },
       {
         key: "ip",
-        label: "IP (In Patient)",
+        label: "IP",
         icon: Bed,
         link: "/dashboard/reception/ip/",
       },
