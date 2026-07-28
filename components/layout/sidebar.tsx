@@ -87,6 +87,12 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/doctor/patients/",
       },
       {
+        key: "ip",
+        label: "IP (In Patient)",
+        icon: Bed,
+        link: "/dashboard/doctor/ip/",
+      },
+      {
         key: "lab-results",
         label: "Investigations",
         icon: FlaskConical,
