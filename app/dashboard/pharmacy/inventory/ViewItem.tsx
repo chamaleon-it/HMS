@@ -109,7 +109,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
   const salesStats = useMemo(() => {
     if (activeTab !== "Medicine History") return null;
-    
+
     let filtered = item?.soldHistory ? [...item.soldHistory] : [];
     if (dateRange?.from) {
       filtered = filtered.filter(h => {
@@ -456,7 +456,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
                 {activeTab === "Batch History" ? (
                   <>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-2 w-[60px]">ACTIVE</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-2 w-15">ACTIVE</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">BATCH</TableHead>
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">PACK</TableHead>
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">QTY</TableHead>
@@ -470,7 +470,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                   </>
                 ) : (
                   <>
-                    <TableHead className="w-[200px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sale Date</TableHead>
+                    <TableHead className="w-50 text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sale Date</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Quantity Sold</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Unit Price</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Total</TableHead>
@@ -494,83 +494,83 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                   const isSettingThis = settingActiveBatch === data._id;
 
                   return (
-                  <TableRow
-                    key={data._id || idx}
-                    className={cn(
-                      idx % 2 === 0
-                        ? "bg-white hover:bg-white/60"
-                        : "bg-slate-100 hover:bg-slate-100/60",
-                      isActive && "!bg-emerald-50/70 border-l-2 border-l-emerald-500"
-                    )}
-                  >
-                    {activeTab === "Batch History" ? (
-                      (() => {
-                        const pack = data.pack || item.packing || 0;
-                        const units = data.quantity || 0;
-                        const free = data.free || 0;
-                        const noOfPack = data.noOfPack ?? (pack > 0 ? Math.max(0, Math.floor(units / pack) - free) : 0);
-                        const mrp = data.mrp ?? item.mrp ?? item.unitPrice ?? 0;
-                        const rate = data.purchasePrice || 0;
-                        const schemaAmt = data.schemaAmt ?? (free * rate);
-                        const total = data.total ?? (noOfPack > 0 ? (noOfPack * rate + schemaAmt) : (units * rate));
+                    <TableRow
+                      key={data._id || idx}
+                      className={cn(
+                        idx % 2 === 0
+                          ? "bg-white hover:bg-white/60"
+                          : "bg-slate-100 hover:bg-slate-100/60",
+                        isActive && "bg-emerald-50/70! border-l-2 border-l-emerald-500"
+                      )}
+                    >
+                      {activeTab === "Batch History" ? (
+                        (() => {
+                          const pack = data.pack || item.packing || 0;
+                          const units = data.quantity || 0;
+                          const free = data.free || 0;
+                          const noOfPack = data.noOfPack ?? (pack > 0 ? Math.max(0, Math.floor(units / pack) - free) : 0);
+                          const mrp = data.mrp ?? item.mrp ?? item.unitPrice ?? 0;
+                          const rate = data.purchasePrice || 0;
+                          const schemaAmt = data.schemaAmt ?? (free * rate);
+                          const total = data.total ?? (noOfPack > 0 ? (noOfPack * rate + schemaAmt) : (units * rate));
 
-                        return (
-                          <>
-                            <TableCell className="text-center py-3 pl-2">
-                              {data._id ? (
-                                <button
-                                  onClick={() => !isActive && handleSetActiveBatch(data._id)}
-                                  disabled={isActive || isSettingThis}
-                                  className={cn(
-                                    "inline-flex items-center justify-center transition-all duration-200",
-                                    isActive
-                                      ? "cursor-default"
-                                      : "cursor-pointer hover:scale-110",
-                                    isSettingThis && "animate-pulse"
-                                  )}
-                                  title={isActive ? "Active batch" : "Set as active batch"}
-                                >
-                                  {isActive ? (
-                                    <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                                  ) : (
-                                    <Circle className="w-5 h-5 text-slate-300 hover:text-emerald-400" />
-                                  )}
-                                </button>
-                              ) : (
-                                <span className="text-slate-200">—</span>
-                              )}
-                            </TableCell>
-                            <TableCell className="py-3">
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
-                                  {data.batchNumber}
-                                </span>
-                                {isActive && (
-                                  <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 rounded-full px-1.5 py-0.5">Active</span>
+                          return (
+                            <>
+                              <TableCell className="text-center py-3 pl-2">
+                                {data._id ? (
+                                  <button
+                                    onClick={() => !isActive && handleSetActiveBatch(data._id)}
+                                    disabled={isActive || isSettingThis}
+                                    className={cn(
+                                      "inline-flex items-center justify-center transition-all duration-200",
+                                      isActive
+                                        ? "cursor-default"
+                                        : "cursor-pointer hover:scale-110",
+                                      isSettingThis && "animate-pulse"
+                                    )}
+                                    title={isActive ? "Active batch" : "Set as active batch"}
+                                  >
+                                    {isActive ? (
+                                      <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+                                    ) : (
+                                      <Circle className="w-5 h-5 text-slate-300 hover:text-emerald-400" />
+                                    )}
+                                  </button>
+                                ) : (
+                                  <span className="text-slate-200">—</span>
                                 )}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{pack}</TableCell>
-                            <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{noOfPack}</TableCell>
-                            <TableCell className="text-center text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(mrp)}</TableCell>
-                            <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
-                            <TableCell className="text-center text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(rate)}</TableCell>
-                            <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{free}</TableCell>
+                              </TableCell>
+                              <TableCell className="py-3">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
+                                    {data.batchNumber}
+                                  </span>
+                                  {isActive && (
+                                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-600 bg-emerald-100 rounded-full px-1.5 py-0.5">Active</span>
+                                  )}
+                                </div>
+                              </TableCell>
+                              <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{pack}</TableCell>
+                              <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{noOfPack}</TableCell>
+                              <TableCell className="text-center text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(mrp)}</TableCell>
+                              <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
+                              <TableCell className="text-center text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(rate)}</TableCell>
+                              <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{free}</TableCell>
 
-                            <TableCell className="text-center text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{units}</TableCell>
-                            <TableCell className="text-right text-xs py-3 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>
-                          </>
-                        );
-                      })()
-                    ) : (
-                      <>
-                        <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.date)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.unitPrice)}</TableCell>
-                        <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.total)}</TableCell>
-                      </>
-                    )}
-                  </TableRow>
+                              <TableCell className="text-center text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{units}</TableCell>
+                              <TableCell className="text-right text-xs py-3 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>
+                            </>
+                          );
+                        })()
+                      ) : (
+                        <>
+                          <TableCell className="text-xs py-3 pl-4 font-medium text-slate-700">{fDate(data.date)}</TableCell>
+                          <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{data.quantity}</TableCell>
+                          <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.unitPrice)}</TableCell>
+                          <TableCell className="text-right text-xs py-3 font-bold text-emerald-600 bg-emerald-50/20 pr-4 tabular-nums">{formatINR(data.total)}</TableCell>
+                        </>
+                      )}
+                    </TableRow>
                   );
                 })
               )}

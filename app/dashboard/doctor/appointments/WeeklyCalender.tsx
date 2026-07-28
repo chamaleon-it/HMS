@@ -1,7 +1,7 @@
 "use client";
 
 import { TabsContent } from "@/components/ui/tabs";
-import React, {  useMemo } from "react";
+import React, { useMemo } from "react";
 import { motion } from "framer-motion";
 import useSWR from "swr";
 
@@ -94,7 +94,7 @@ export default function WeeklyCalender({
   );
   const weekItems = useMemo(() => weeklyData?.data ?? [], [weeklyData]);
 
-  
+
 
   const { eventsInWeek } = useMemo(() => {
     const ws = startOfWeekSunday(selectedDate);
@@ -138,7 +138,7 @@ export default function WeeklyCalender({
         <h3 className="font-semibold">This Week</h3>
       </div>
 
-      <div className="min-w-[960px]">
+      <div className="min-w-240">
         {/* Header row */}
         <div className="grid grid-cols-[64px_repeat(7,1fr)] text-xs text-gray-500 px-2">
           <div></div>
@@ -243,11 +243,10 @@ export default function WeeklyCalender({
                     >
                       <div className="flex items-center gap-2 mb-0.5">
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            (isConsulted && consultedStyles.dot) ||
+                          className={`w-1.5 h-1.5 rounded-full ${(isConsulted && consultedStyles.dot) ||
                             (isNotShow && "bg-red-500") ||
                             typeStyles.dot
-                          }`}
+                            }`}
                         />
                         <span className="font-medium truncate">
                           {e.patient?.name ?? "—"}
