@@ -1,5 +1,5 @@
 import React from "react";
-import { Heart, Github, Twitter, Linkedin } from "lucide-react";
+import { Heart } from "lucide-react";
 
 /**
  * Modern Footer (Colorful & Attractive)

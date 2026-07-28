@@ -19,15 +19,23 @@ function Calendar({
   buttonVariant = "ghost",
   formatters,
   components,
+  initialFocus,
+  fromMonth,
+  toMonth,
   ...props
 }: React.ComponentProps<typeof DayPicker> & {
-  buttonVariant?: React.ComponentProps<typeof Button>["variant"]
+  buttonVariant?: React.ComponentProps<typeof Button>["variant"];
+  initialFocus?: boolean;
+  fromMonth?: Date;
+  toMonth?: Date;
 }) {
   const defaultClassNames = getDefaultClassNames()
 
   return (
     <DayPicker
       showOutsideDays={showOutsideDays}
+      startMonth={fromMonth || props.startMonth}
+      endMonth={toMonth || props.endMonth}
       className={cn(
         "bg-background group/calendar p-3 [--cell-size:--spacing(8)] [[data-slot=card-content]_&]:bg-transparent [[data-slot=popover-content]_&]:bg-transparent",
         String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
@@ -84,7 +92,7 @@ function Calendar({
             : "rounded-md pl-2 pr-1 flex items-center gap-1 text-sm h-8 [&>svg]:text-muted-foreground [&>svg]:size-3.5",
           defaultClassNames.caption_label
         ),
-        table: "w-full border-collapse",
+        month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
         weekdays: cn("flex", defaultClassNames.weekdays),
         weekday: cn(
           "text-muted-foreground rounded-md flex-1 font-normal text-[0.8rem] select-none",

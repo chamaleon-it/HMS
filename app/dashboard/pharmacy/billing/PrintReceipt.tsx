@@ -61,23 +61,54 @@ export default function PrintReceipt({
     const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
     const dbItems = itemsData?.data || [];
 
+    const cleanBatch = (b?: string) => {
+        if (!b) return "";
+        const trimmed = b.trim();
+        if (trimmed === "" || trimmed === "-" || trimmed === "—" || trimmed === "undefined" || trimmed === "null") {
+            return "";
+        }
+        return trimmed;
+    };
+
     const getBatchInfo = (itemName: string) => {
-        const matched = dbItems.find(
-            (it) => it.name.trim().toLowerCase() === itemName.trim().toLowerCase()
-        );
+        if (!itemName || !dbItems.length) return { batchNumber: "", expiryDate: undefined, generic: undefined };
+
+        const searchNorm = itemName.trim().toLowerCase();
+        const matched = dbItems.find((it) => {
+            if (!it?.name) return false;
+            const nameNorm = it.name.trim().toLowerCase();
+            return nameNorm === searchNorm || nameNorm.includes(searchNorm) || searchNorm.includes(nameNorm);
+        });
+
         if (!matched) return { batchNumber: "", expiryDate: undefined, generic: undefined };
 
-        let batchNumber = matched.batchNumber || "";
-        if (batchNumber === "—") batchNumber = "";
+        let batchNumber = cleanBatch(matched.batchNumber) || cleanBatch(matched.batch);
         let expiryDate = matched.expiryDate;
 
         if (matched.batches && matched.batches.length > 0) {
-            const sorted = [...matched.batches].sort(
-                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-            );
-            batchNumber = sorted[0].batchNumber || "";
-            if (batchNumber === "—") batchNumber = "";
-            expiryDate = sorted[0].expiryDate || matched.expiryDate;
+            // 1. Try to find activeBatch
+            let activeBatchData = matched.activeBatch
+                ? matched.batches.find((b: any) =>
+                    String(b._id) === String(matched.activeBatch) ||
+                    String(b.batchNumber) === String(matched.activeBatch) ||
+                    String(b.batch) === String(matched.activeBatch)
+                )
+                : null;
+
+            // 2. Fallback: nearest future expiry batch
+            if (!activeBatchData) {
+                const now = new Date();
+                const futureBatches = matched.batches
+                    .filter((b: any) => new Date(b.expiryDate) > now)
+                    .sort((a: any, b: any) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
+                activeBatchData = futureBatches[0] || matched.batches[matched.batches.length - 1];
+            }
+
+            if (activeBatchData) {
+                const bNo = cleanBatch(activeBatchData.batchNumber) || cleanBatch(activeBatchData.batch);
+                if (bNo) batchNumber = bNo;
+                expiryDate = activeBatchData.expiryDate || matched.expiryDate;
+            }
         }
 
         return {
@@ -93,7 +124,7 @@ export default function PrintReceipt({
 
     // Total rows for fixed height table padding
     const ITEMS_PER_PAGE = 19;
-    
+
     // Chunk items into pages
     const pages: typeof payload.items[] = [];
     for (let i = 0; i < payload.items.length; i += ITEMS_PER_PAGE) {
@@ -162,7 +193,7 @@ export default function PrintReceipt({
                             {/* Left: Logo & Hospital Info */}
                             <div className="flex gap-3 items-center">
                                 <div className="shrink-0 flex items-center justify-center">
-                                    <img src="/print/logo.png" alt="Logo" className="w-[90px] h-auto object-contain" />
+                                    <img src="/print/logo.png" alt="Logo" className="w-22.5 h-auto object-contain" />
                                 </div>
                                 <div className="flex flex-col gap-0 select-none">
                                     <h1 className="text-[32px] font-bold text-black leading-none tracking-tight uppercase">MARK HOSPITAL</h1>
@@ -174,7 +205,7 @@ export default function PrintReceipt({
 
                             {/* Right: Cash Receipt Title & Invoice Info */}
                             <div className="text-right flex flex-col items-end gap-2 pt-1">
-                                <div className="border border-black rounded-[8px] px-6 py-1.5 text-center select-none flex flex-col gap-1">
+                                <div className="border border-black rounded-xl px-6 py-1.5 text-center select-none flex flex-col gap-1">
                                     <span className="text-[16px] font-bold text-black uppercase tracking-wider">CASH RECEIPT</span>
                                     {pages.length > 1 && (
                                         <span className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Page {pageIndex + 1} of {pages.length}</span>
@@ -228,16 +259,15 @@ export default function PrintReceipt({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {pageItems.map((item, index) => {
+                                    {pageItems.map((item: any, index) => {
                                         const globalIndex = (pageIndex * ITEMS_PER_PAGE) + index;
                                         const dbInfo = getBatchInfo(item.name);
-                                        const rawBatch = item.batchNumber && item.batchNumber !== " " && item.batchNumber !== "—" ? item.batchNumber : dbInfo.batchNumber;
-                                        const displayBatch = rawBatch === "—" ? "" : rawBatch;
+                                        const displayBatch = cleanBatch(item.batchNumber) || cleanBatch(dbInfo.batchNumber);
                                         const displayExpiry = item.expiryDate ? item.expiryDate : dbInfo.expiryDate;
                                         const displayGeneric = item.generic || dbInfo.generic;
 
                                         return (
-                                            <tr key={globalIndex} className="h-[38px] bg-transparent">
+                                            <tr key={globalIndex} className="h-9.5 bg-transparent">
                                                 <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{globalIndex + 1}</td>
                                                 <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug">
                                                     <p className="font-bold text-black text-[12px]">{item.name}</p>
@@ -253,7 +283,7 @@ export default function PrintReceipt({
                                         );
                                     })}
                                     {Array.from({ length: emptyRowsCount }).map((_, idx) => (
-                                        <tr key={`empty-${idx}`} className="h-[38px] bg-transparent select-none">
+                                        <tr key={`empty-${idx}`} className="h-9.5 bg-transparent select-none">
                                             <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                             <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
                                             <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
@@ -277,7 +307,7 @@ export default function PrintReceipt({
                                 </div>
                                 <div className="flex-1 border border-[#9ca3af] rounded-bl-2xl rounded-br-2xl px-4 py-2 flex text-[12px] text-black font-bold justify-between items-center bg-white">
                                     <div className="flex items-center gap-2">
-                                        <div className="w-[22px] h-[22px] rounded-full border border-black flex items-center justify-center shrink-0">
+                                        <div className="w-5.5 h-5.5 rounded-full border border-black flex items-center justify-center shrink-0">
                                             <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                             </svg>
@@ -285,7 +315,7 @@ export default function PrintReceipt({
                                         <span>+91 8301 926 155, 04931 240 077</span>
                                     </div>
                                     <div className="flex items-center gap-2">
-                                        <div className="w-[22px] h-[22px] rounded-full border border-black flex items-center justify-center shrink-0">
+                                        <div className="w-5.5 h-5.5 rounded-full border border-black flex items-center justify-center shrink-0">
                                             <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                             </svg>

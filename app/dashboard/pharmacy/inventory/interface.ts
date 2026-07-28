@@ -1,10 +1,16 @@
 export interface BatchType {
-  _id: string;
+  _id?: string;
   batchNumber: string;
   expiryDate: Date;
   quantity: number;
+  pack?: number;
+  noOfPack?: number;
+  mrp?: number;
   purchasePrice: number;
   supplier: string;
+  free?: number;
+  schemaAmt?: number;
+  total?: number;
   createdAt: Date;
 }
 
@@ -33,6 +39,7 @@ export interface ItemType {
   packing?: number;
   noOfPacking?: number;
   gst?: number;
+  activeBatch?: string;
   soldQuantity?: number;
   soldHistory?: Array<{
     date: Date;

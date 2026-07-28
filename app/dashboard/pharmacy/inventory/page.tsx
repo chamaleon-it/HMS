@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import AppShell from "@/components/layout/app-shell";
 import ItemTable from "./ItemTable";
 import ItemFilter from "./ItemFilter";
@@ -62,6 +62,25 @@ export default function InventoryPage() {
   const { items, total, isLoading, isValidating, mutate, lowStockCount } = useItems({
     filter,
   });
+
+  // Keep selectedItem in sync with latest fetched data
+  useEffect(() => {
+    if (selectedItem && items.length > 0) {
+      const fresh = items.find((i) => i._id === selectedItem._id);
+      if (fresh && JSON.stringify(fresh) !== JSON.stringify(selectedItem)) {
+        setSelectedItem(fresh);
+      }
+    }
+  }, [items, selectedItem]);
+
+  // Helper: mutate SWR cache and refresh selectedItem
+  const mutateAndRefresh = useCallback(async () => {
+    const result = await mutate();
+    if (result && selectedItem) {
+      const fresh = result.data?.find((i: ItemType) => i._id === selectedItem._id);
+      if (fresh) setSelectedItem(fresh);
+    }
+  }, [mutate, selectedItem]);
 
   // open overlays
   const handleView = (item: ItemType) => {
@@ -138,10 +157,10 @@ export default function InventoryPage() {
                       setOpenView(false);
                       setOpenEdit(true);
                     }}
-                    mutate={mutate}
+                    mutate={mutateAndRefresh}
                     onClose={() => {
                       closeAll();
-                      mutate();
+                      mutateAndRefresh();
                     }}
                   />
                 )}

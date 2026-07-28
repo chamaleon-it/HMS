@@ -69,6 +69,9 @@ export default function ViewBill({ id }: { id: string }) {
         };
     }>(`/billing/${id}`);
 
+    const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
+    const dbItems = itemsData?.data || [];
+
     const billing = billingData?.data;
 
     if (!billing) {
@@ -101,6 +104,50 @@ export default function ViewBill({ id }: { id: string }) {
             : billing.online > 0
                 ? "Online"
                 : "Cash";
+
+    const cleanBatch = (b?: string) => {
+        if (!b) return "";
+        const trimmed = b.trim();
+        if (trimmed === "" || trimmed === "-" || trimmed === "—" || trimmed === "undefined" || trimmed === "null") {
+            return "";
+        }
+        return trimmed;
+    };
+
+    const getBatchInfo = (itemName: string) => {
+        if (!itemName || !dbItems.length) return { batchNumber: "", expiryDate: undefined, generic: undefined };
+        const searchNorm = itemName.trim().toLowerCase();
+        const matched = dbItems.find((it) => {
+            if (!it?.name) return false;
+            const nameNorm = it.name.trim().toLowerCase();
+            return nameNorm === searchNorm || nameNorm.includes(searchNorm) || searchNorm.includes(nameNorm);
+        });
+        if (!matched) return { batchNumber: "", expiryDate: undefined, generic: undefined };
+        let batchNumber = cleanBatch(matched.batchNumber) || cleanBatch(matched.batch);
+        let expiryDate = matched.expiryDate;
+        if (matched.batches && matched.batches.length > 0) {
+            let activeBatchData = matched.activeBatch
+                ? matched.batches.find((b: any) =>
+                    String(b._id) === String(matched.activeBatch) ||
+                    String(b.batchNumber) === String(matched.activeBatch) ||
+                    String(b.batch) === String(matched.activeBatch)
+                )
+                : null;
+            if (!activeBatchData) {
+                const now = new Date();
+                const futureBatches = matched.batches
+                    .filter((b: any) => new Date(b.expiryDate) > now)
+                    .sort((a: any, b: any) => new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime());
+                activeBatchData = futureBatches[0] || matched.batches[matched.batches.length - 1];
+            }
+            if (activeBatchData) {
+                const bNo = cleanBatch(activeBatchData.batchNumber) || cleanBatch(activeBatchData.batch);
+                if (bNo) batchNumber = bNo;
+                expiryDate = activeBatchData.expiryDate || matched.expiryDate;
+            }
+        }
+        return { batchNumber, expiryDate, generic: matched.generic };
+    };
 
     return (
         <AppShell>
@@ -150,10 +197,10 @@ export default function ViewBill({ id }: { id: string }) {
                     <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
                         {/* PATIENT STRIP - 4 COL COMPACT */}
                         <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
-                            <Compact label="Patient" value={billing.patient.name} />
-                            <Compact label="PID" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
-                            <Compact label="Age/G" value={`${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient.gender || "—"}`} />
-                            <Compact label="Phone" value={billing.patient.phoneNumber || "—"} />
+                            <Compact label="Patient" value={billing.patient?.name || "—"} />
+                            <Compact label="PID" value={billing.patient?.mrn?.replace("MRN", "P-") || "—"} />
+                            <Compact label="Age/G" value={`${billing.patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient?.gender || "—"}`} />
+                            <Compact label="Phone" value={billing.patient?.phoneNumber || "—"} />
                             <Compact label="Doctor" value={billing.doctor || "—"} />
                             <Compact label="Dept" value={billing.department || "—"} />
                             <Compact label="Pay" value={paymentMethod} />
@@ -174,19 +221,25 @@ export default function ViewBill({ id }: { id: string }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {billing.items.map((item, index) => (
-                                        <tr key={index} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
-                                            <td className="px-3 py-2.5 text-center font-medium text-slate-400 text-xs">{index + 1}</td>
-                                            <td className="px-3 py-2.5">
-                                                <p className="font-bold text-slate-900 uppercase text-[12px]">{item.name}</p>
-                                                <p className="text-[10px] text-slate-500 font-medium tracking-tight">B‑7721 · 12/26 · HSN 3004</p>
-                                            </td>
-                                            <td className="px-3 py-2.5 text-center font-bold text-slate-700">{item.quantity}</td>
-                                            <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(item.unitPrice)}</td>
-                                            <td className="px-3 py-2.5 text-right font-medium text-slate-500">{item.gst}%</td>
-                                            <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
-                                        </tr>
-                                    ))}
+                                    {billing.items.map((item: any, index) => {
+                                        const dbInfo = getBatchInfo(item.name);
+                                        const bNo = cleanBatch(item.batchNumber) || dbInfo.batchNumber;
+                                        return (
+                                            <tr key={index} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
+                                                <td className="px-3 py-2.5 text-center font-medium text-slate-400 text-xs">{index + 1}</td>
+                                                <td className="px-3 py-2.5">
+                                                    <p className="font-bold text-slate-900 uppercase text-[12px]">{item.name}</p>
+                                                    {bNo && (
+                                                        <p className="text-[10px] text-slate-500 font-medium tracking-tight">Batch: {bNo}</p>
+                                                    )}
+                                                </td>
+                                                <td className="px-3 py-2.5 text-center font-bold text-slate-700">{item.quantity}</td>
+                                                <td className="px-3 py-2.5 text-right font-medium text-slate-600">{formatINR(item.unitPrice)}</td>
+                                                <td className="px-3 py-2.5 text-right font-medium text-slate-500">{item.gst}%</td>
+                                                <td className="px-3 py-2.5 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
+                                            </tr>
+                                        );
+                                    })}
                                 </tbody>
                             </table>
                         </div>
@@ -194,7 +247,7 @@ export default function ViewBill({ id }: { id: string }) {
                         {/* TOTALS AND T&C */}
                         <div className="flex justify-end gap-10 items-start">
                             {/* T&C - Right side next to totals */}
-                            <div className="flex-1 max-w-[400px] text-left">
+                            <div className="flex-1 max-w-100 text-left">
                                 <h4 className="text-[11px] font-bold uppercase text-slate-900 mb-2">Terms & Conditions</h4>
                                 <ul className="text-[10px] text-slate-600 space-y-1 font-medium italic">
                                     <li>Invoice once generated cannot be cancelled.</li>
@@ -286,7 +339,7 @@ export default function ViewBill({ id }: { id: string }) {
 function Compact({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex gap-2 min-h-6 items-start">
-            <span className="text-slate-400 font-medium uppercase text-[10px] min-w-[50px] mt-0.5">{label}:</span>
+            <span className="text-slate-400 font-medium uppercase text-[10px] min-w-12.5 mt-0.5">{label}:</span>
             <span className="font-bold text-slate-900 line-clamp-2 leading-tight">{value}</span>
         </div>
     );
