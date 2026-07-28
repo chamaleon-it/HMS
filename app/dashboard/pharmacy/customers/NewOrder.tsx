@@ -18,10 +18,12 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 import { useRouter } from "next/navigation";
+import { useDrafts } from "../DraftContext";
 
 export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDialog, initialPatient }: { mutate: () => void, asDialogOnly?: boolean, openDialog?: boolean, setOpenDialog?: (open: boolean) => void, initialPatient?: any }) {
   const { user } = useAuth();
   const router = useRouter();
+  const { addDraft } = useDrafts();
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openDialog !== undefined ? openDialog : internalOpen;
   const setOpen = setOpenDialog !== undefined ? setOpenDialog : setInternalOpen;
@@ -81,30 +83,14 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
   };
 
   useEffect(() => {
-    if (open === false) {
-      setPayload({
-        patient: "",
-        doctor: user?._id ?? "",
-        items: [
-          {
-            dosage: "",
-            name: "",
-            duration: "",
-            food: "",
-            frequency: "",
-            quantity: 0,
-            availableQuantity: 0,
-          },
-        ],
-        priority: "Normal",
-        status: "Pending",
-      });
-      setpatientName("");
-    } else if (open === true && initialPatient) {
-      setPayload((prev) => ({ ...prev, patient: initialPatient._id }));
-      setpatientName(initialPatient.name);
+    if (open === true && initialPatient) {
+      addDraft(
+        { patient: initialPatient._id, doctor: user?._id || "" },
+        initialPatient.mrn ? `${initialPatient.name} - (${initialPatient.mrn})` : initialPatient.name
+      );
+      if (setOpenDialog) setOpenDialog(false);
     }
-  }, [open, user?._id, initialPatient]);
+  }, [open, initialPatient, user?._id, addDraft, setOpenDialog]);
 
   const [showAllFields, setShowAllFields] = useState(false);
   const [patientName, setpatientName] = useState("");
@@ -125,17 +111,22 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
         </Button>
       )}
 
+      {!asDialogOnly && (
+        <Button
+          className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+          size="sm"
+          onClick={() => {
+            addDraft(
+              initialPatient ? { patient: initialPatient._id, doctor: user?._id || "" } : { doctor: user?._id || "" },
+              initialPatient ? (initialPatient.mrn ? `${initialPatient.name} - (${initialPatient.mrn})` : initialPatient.name) : ""
+            );
+          }}
+        >
+          New Order
+        </Button>
+      )}
+
       <Dialog open={open} onOpenChange={setOpen}>
-        {!asDialogOnly && (
-          <DialogTrigger asChild>
-            <Button
-              className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md transition-all hover:shadow-lg active:scale-95"
-              size="sm"
-            >
-              New Order
-            </Button>
-          </DialogTrigger>
-        )}
         <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-3xl"}>
           <DialogHeader>
             <DialogTitle>Add new order</DialogTitle>

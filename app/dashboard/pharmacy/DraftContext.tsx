@@ -1,5 +1,5 @@
 "use client";
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { DataType } from './interface';
 
 export interface Draft {
@@ -62,67 +62,70 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const isNoAllergy = (a?: string) => !a || ["none", "n/a", "no", "nil"].includes(a.trim().toLowerCase());
 
-  const addDraft = (initialData?: Partial<DataType>, patientName?: string) => {
-    const id = Date.now().toString();
-    const maxZ = Math.max(40, ...drafts.map(d => d.zIndex));
-    const newDraft: Draft = {
-      id,
-      payload: {
-        patient: "",
-        doctor: null,
-        doctorName: "",
-        items: [
-          {
-            rowId: Date.now().toString(),
-            dosage: "1 tab",
-            name: "",
-            medicineName: "",
-            duration: "",
-            food: "",
-            frequency: "",
-            quantity: 0,
-            availableQuantity: 0,
-            unitPrice: 0
-          },
-        ],
-        discount: 0,
-        priority: "Normal",
-        status: "Pending",
-        pharmacist: "",
-        allergies: "",
-        ...initialData
-      },
-      position: { x: 100 + drafts.length * 30, y: 100 + drafts.length * 30 },
-      zIndex: maxZ + 1,
-      isOpen: true,
-      minimized: false,
-      hasAllergy: !isNoAllergy(initialData?.allergies),
-      showAllFields: false,
-      patientName: patientName || ""
-    };
-    setDrafts([...drafts, newDraft]);
+  const addDraft = useCallback((initialData?: Partial<DataType>, patientName?: string) => {
+    const id = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    setDrafts((prev) => {
+      const maxZ = Math.max(40, ...prev.map(d => d.zIndex));
+      const newDraft: Draft = {
+        id,
+        payload: {
+          patient: "",
+          doctor: null,
+          doctorName: "",
+          items: [
+            {
+              rowId: Date.now().toString(),
+              dosage: "1 tab",
+              name: "",
+              medicineName: "",
+              duration: "",
+              food: "",
+              frequency: "",
+              quantity: 0,
+              availableQuantity: 0,
+              unitPrice: 0
+            },
+          ],
+          discount: 0,
+          priority: "Normal",
+          status: "Pending",
+          pharmacist: "",
+          allergies: "",
+          ...initialData
+        },
+        position: { x: 100 + (prev.length % 10) * 30, y: 100 + (prev.length % 10) * 30 },
+        zIndex: maxZ + 1,
+        isOpen: true,
+        minimized: false,
+        hasAllergy: !isNoAllergy(initialData?.allergies),
+        showAllFields: false,
+        patientName: patientName || ""
+      };
+      return [...prev, newDraft];
+    });
     setActiveDraftId(id);
-  };
+  }, []);
 
-  const updateDraft = (id: string, updates: Partial<Draft> | ((prev: Draft) => Partial<Draft>)) => {
+  const updateDraft = useCallback((id: string, updates: Partial<Draft> | ((prev: Draft) => Partial<Draft>)) => {
     setDrafts(prev => prev.map(d => d.id === id ? { ...d, ...(typeof updates === 'function' ? updates(d) : updates) } : d));
-  };
+  }, []);
 
-  const removeDraft = (id: string) => {
+  const removeDraft = useCallback((id: string) => {
     setDrafts(prev => prev.filter(d => d.id !== id));
-    if (activeDraftId === id) setActiveDraftId(null);
-  };
+    setActiveDraftId(prev => (prev === id ? null : prev));
+  }, []);
 
-  const bringToFront = (id: string) => {
+  const bringToFront = useCallback((id: string) => {
     setActiveDraftId(id);
-    const draft = drafts.find(d => d.id === id);
-    const maxZ = Math.max(40, ...drafts.map(d => d.zIndex));
-
-    // Only update drafts array if z-index actually needs to change
-    if (draft && draft.zIndex < maxZ) {
-      setDrafts(prev => prev.map(d => d.id === id ? { ...d, zIndex: maxZ + 1 } : d));
-    }
-  };
+    setDrafts(prev => {
+      const draft = prev.find(d => d.id === id);
+      const maxZ = Math.max(40, ...prev.map(d => d.zIndex));
+      if (draft && draft.zIndex < maxZ) {
+        return prev.map(d => d.id === id ? { ...d, zIndex: maxZ + 1 } : d);
+      }
+      return prev;
+    });
+  }, []);
 
   return (
     <DraftContext.Provider value={{ drafts, addDraft, updateDraft, removeDraft, bringToFront, activeDraftId }}>

@@ -41,7 +41,7 @@ export const DraftManager: React.FC = () => {
     const handleNewOrder = () => addDraft();
     window.addEventListener('open-new-order', handleNewOrder);
     return () => window.removeEventListener('open-new-order', handleNewOrder);
-  }, []);
+  }, [addDraft]);
 
   // Listen for delete requests from children
   useEffect(() => {

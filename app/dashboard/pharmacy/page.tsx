@@ -107,7 +107,7 @@ function RxQueue() {
         title="RX Queue"
         subtitle="Manage prescriptions and pharmacy operations"
       >
-        {/* <NewOrder OrderMutate={OrderMutate} /> */}
+        <NewOrder OrderMutate={OrderMutate} />
         <DateFilter
           activeDate={activeDate}
           setActiveDate={setActiveDate}

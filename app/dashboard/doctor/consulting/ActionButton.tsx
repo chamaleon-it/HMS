@@ -41,9 +41,9 @@ export default function ActionButton({ data, testIsOK }: { data: DataType, testI
         }
       );
 
-      if (data.medicines.find(e => e.name === "")) {
-        toast.error("Some medicine details are missing.");
-      }
+      // if (data.medicines.find(e => e.name === "")) {
+      //   toast.error("Some medicine details are missing.");
+      // }
 
       const payload = { ...data, medicines: data.medicines.filter(e => !!e.name) }
 
