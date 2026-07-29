@@ -281,7 +281,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                   </span>
                 </div>
                 <p className="text-slate-700 font-medium">
-                  BP: <span className="font-bold text-slate-900">{data.acupunctureExamination?.bp || "—"}</span> | Pulse: <span className="font-bold text-slate-900">{data.acupunctureExamination?.pulse || "—"}</span> | Weight: <span className="font-bold text-slate-900">{data.acupunctureExamination?.weight || "—"} kg</span>
+                  BP: <span className="font-bold text-slate-900">{data.acupunctureExamination?.bp || "—"}</span> | Pulse: <span className="font-bold text-slate-900">{data.acupunctureExamination?.pulse || "—"}</span>
                 </p>
               </div>
             </div>

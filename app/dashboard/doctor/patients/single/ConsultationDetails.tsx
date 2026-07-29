@@ -155,11 +155,6 @@ export default function ConsultationDetails({
                                         unit="bpm"
                                     />
                                     <VitalItem
-                                        label="Weight"
-                                        value={selectedRow.acupunctureExamination?.weight}
-                                        unit="kg"
-                                    />
-                                    <VitalItem
                                         label="SpO2"
                                         value={selectedRow.examinationNote?.spo2}
                                         unit="%"
@@ -414,6 +409,7 @@ export default function ConsultationDetails({
                                 <VitalItem label="Exercise" value={selectedRow.lifestyle.exercise} />
                                 <VitalItem label="Smoking" value={selectedRow.lifestyle.smoking} />
                                 <VitalItem label="Alcohol" value={selectedRow.lifestyle.alcohol} />
+                                <VitalItem label="Micturition" value={selectedRow.lifestyle.micturition} />
                             </CardContent>
                         </Card>
                     )}

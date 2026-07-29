@@ -127,6 +127,7 @@ export interface Consultations {
     exercise?: string;
     smoking?: string;
     alcohol?: string;
+    micturition?: string;
   };
   acupunctureAssessment?: {
     clinicalDiagnosis?: string;
@@ -146,7 +147,6 @@ export interface Consultations {
   acupunctureExamination?: {
     bp?: string;
     pulse?: string;
-    weight?: string;
     tenderness?: string;
     rom?: string;
     posture?: string;

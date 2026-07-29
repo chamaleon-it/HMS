@@ -12,6 +12,7 @@ import History from "../consulting/History";
 import Report from "../consulting/Report";
 import AllergyAlert from "../consulting/AllergyAlert";
 import PrintConsultation from "../consulting/PrintConsultation";
+import TherapyCard from "../consulting/TherapyCard";
 import { AppointmentType, DataType } from "../consulting/interface";
 import {
   Activity,
@@ -30,6 +31,7 @@ import {
   Dumbbell,
   Cigarette,
   Wine,
+  Droplets,
 } from "lucide-react";
 
 function ConsultingTwoContent() {
@@ -106,6 +108,7 @@ function ConsultingTwoContent() {
   const [exercise, setExercise] = useState("");
   const [smoking, setSmoking] = useState("");
   const [alcohol, setAlcohol] = useState("");
+  const [micturition, setMicturition] = useState("");
 
   // 3. Acupuncture Assessment
   const [clinicalDiagnosis, setClinicalDiagnosis] = useState("");
@@ -126,7 +129,6 @@ function ConsultingTwoContent() {
   // 6. Examination
   const [bp, setBp] = useState("");
   const [pulse, setPulse] = useState("");
-  const [weight, setWeight] = useState("");
   const [tenderness, setTenderness] = useState("");
   const [rom, setRom] = useState("");
   const [posture, setPosture] = useState("");
@@ -168,6 +170,7 @@ function ConsultingTwoContent() {
           exercise,
           smoking,
           alcohol,
+          micturition,
         },
         acupunctureAssessment: {
           clinicalDiagnosis,
@@ -187,7 +190,6 @@ function ConsultingTwoContent() {
         acupunctureExamination: {
           bp,
           pulse,
-          weight,
           tenderness,
           rom,
           posture,
@@ -219,6 +221,7 @@ function ConsultingTwoContent() {
     exercise,
     smoking,
     alcohol,
+    micturition,
     clinicalDiagnosis,
     treatmentPrinciple,
     sessions,
@@ -231,7 +234,6 @@ function ConsultingTwoContent() {
     historyAllergies,
     bp,
     pulse,
-    weight,
     tenderness,
     rom,
     posture,
@@ -583,6 +585,15 @@ function ConsultingTwoContent() {
                               setter: setAlcohol,
                               options: ["Yes", "No"],
                             },
+                            {
+                              label: "Micturition",
+                              icon: Droplets,
+                              iconColor: "text-blue-500",
+                              iconBg: "bg-blue-50",
+                              state: micturition,
+                              setter: setMicturition,
+                              options: ["Normal", "Abnormal"],
+                            },
                           ].map((row, idx) => (
                             <div
                               key={row.label}
@@ -660,7 +671,7 @@ function ConsultingTwoContent() {
                           </div>
                         </CardHeader>
                         <CardContent className="p-5 space-y-4">
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             <div>
                               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                                 BP (mmHg)
@@ -694,18 +705,6 @@ function ConsultingTwoContent() {
                                 value={pulse}
                                 onChange={(e) => setPulse(e.target.value)}
                                 placeholder="74"
-                                className={inputClass}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Weight (kg)
-                              </label>
-                              <input
-                                type="text"
-                                value={weight}
-                                onChange={(e) => setWeight(e.target.value)}
-                                placeholder="68"
                                 className={inputClass}
                               />
                             </div>
@@ -1251,6 +1250,9 @@ function ConsultingTwoContent() {
                       </div>
                     </Card>
                   </div>
+
+                  {/* Therapy Section */}
+                  <TherapyCard data={data} setData={setData as any} />
 
                   {/* Action Buttons */}
                   <ActionButton data={data} testIsOK={testIsOK} />

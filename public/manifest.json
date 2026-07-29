@@ -3,7 +3,7 @@
     "short_name": "Synapse",
     "icons": [
         {
-            "src": "/icon-512x512.svg",
+            "src": "/logo.png",
             "sizes": "512x512",
             "type": "image/svg+xml"
         }
