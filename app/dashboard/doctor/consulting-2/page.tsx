@@ -23,6 +23,13 @@ import {
   Stethoscope,
   UserCheck,
   Check,
+  Moon,
+  RefreshCw,
+  Utensils,
+  Flame,
+  Dumbbell,
+  Cigarette,
+  Wine,
 } from "lucide-react";
 
 function ConsultingTwoContent() {
@@ -85,7 +92,7 @@ function ConsultingTwoContent() {
   });
 
   // ---------- Interactive Assessment State (NO DEFAULTS) ----------
-  // 1. Chief Complaint
+  // 1. Chief Complaints
   const [complaints, setComplaints] = useState<string[]>([]);
   const [otherComplaint, setOtherComplaint] = useState("");
   const [duration, setDuration] = useState("");
@@ -288,7 +295,7 @@ function ConsultingTwoContent() {
                 <div className="space-y-6">
                   {/* Direct 2-Column Grid Layout */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
-                    {/* 1. CHIEF COMPLAINT */}
+                    {/* 1. CHIEF COMPLAINTS */}
                     <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
                       <div>
                         <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
@@ -297,7 +304,7 @@ function ConsultingTwoContent() {
                               <HeartPulse className="w-4 h-4" />
                             </div>
                             <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
-                              Chief Complaint
+                              Chief Complaints
                             </CardTitle>
                           </div>
                         </CardHeader>
@@ -338,13 +345,13 @@ function ConsultingTwoContent() {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                             <div>
                               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Other Complaint
+                                Other Complaints
                               </label>
                               <input
                                 type="text"
                                 value={otherComplaint}
                                 onChange={(e) => setOtherComplaint(e.target.value)}
-                                placeholder="Other complaint..."
+                                placeholder="Other complaints..."
                                 className={inputClass}
                               />
                             </div>
@@ -511,58 +518,87 @@ function ConsultingTwoContent() {
                             </CardTitle>
                           </div>
                         </CardHeader>
-                        <CardContent className="p-5 space-y-3">
+                        <CardContent className="p-0 divide-y divide-slate-100/80">
                           {[
                             {
                               label: "Sleep",
+                              icon: Moon,
+                              iconColor: "text-indigo-500",
+                              iconBg: "bg-indigo-50",
                               state: sleep,
                               setter: setSleep,
                               options: ["Good", "Fair", "Poor"],
                             },
                             {
                               label: "Bowel Habit",
+                              icon: RefreshCw,
+                              iconColor: "text-teal-600",
+                              iconBg: "bg-teal-50",
                               state: bowel,
                               setter: setBowel,
                               options: ["Normal", "Irregular"],
                             },
                             {
                               label: "Appetite",
+                              icon: Utensils,
+                              iconColor: "text-amber-600",
+                              iconBg: "bg-amber-50",
                               state: appetite,
                               setter: setAppetite,
                               options: ["Normal", "Low", "High"],
                             },
                             {
                               label: "Stress Level",
+                              icon: Flame,
+                              iconColor: "text-rose-500",
+                              iconBg: "bg-rose-50",
                               state: stress,
                               setter: setStress,
                               options: ["Low", "Moderate", "High"],
                             },
                             {
                               label: "Exercise",
+                              icon: Dumbbell,
+                              iconColor: "text-emerald-600",
+                              iconBg: "bg-emerald-50",
                               state: exercise,
                               setter: setExercise,
                               options: ["Regular", "Occasional", "None"],
                             },
                             {
                               label: "Smoking",
+                              icon: Cigarette,
+                              iconColor: "text-slate-600",
+                              iconBg: "bg-slate-100",
                               state: smoking,
                               setter: setSmoking,
                               options: ["Yes", "No"],
                             },
                             {
                               label: "Alcohol",
+                              icon: Wine,
+                              iconColor: "text-purple-600",
+                              iconBg: "bg-purple-50",
                               state: alcohol,
                               setter: setAlcohol,
                               options: ["Yes", "No"],
                             },
-                          ].map((row) => (
+                          ].map((row, idx) => (
                             <div
                               key={row.label}
-                              className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100/80 pb-2.5 last:border-0 last:pb-0"
+                              className={cn(
+                                "flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3 transition-colors duration-150",
+                                idx % 2 === 0 ? "bg-slate-50/70" : "bg-white"
+                              )}
                             >
-                              <span className="text-xs font-semibold text-slate-700 w-32 shrink-0">
-                                {row.label}
-                              </span>
+                              <div className="flex items-center gap-2.5 w-36 shrink-0">
+                                <div className={cn("p-1.5 rounded-lg flex items-center justify-center shrink-0 border border-slate-200/50", row.iconBg)}>
+                                  <row.icon className={cn("w-3.5 h-3.5", row.iconColor)} />
+                                </div>
+                                <span className="text-xs font-semibold text-slate-700">
+                                  {row.label}
+                                </span>
+                              </div>
                               <div className="flex flex-wrap gap-1.5">
                                 {row.options.map((opt) => {
                                   const active = row.state === opt;
@@ -573,7 +609,7 @@ function ConsultingTwoContent() {
                                         "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
                                         active
                                           ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
-                                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
+                                          : "bg-white border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
                                       )}
                                     >
                                       <input
