@@ -757,12 +757,13 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                     </div>
                                                 </div>
                                             )}
-                                            <div className="px-10 pb-[60px] w-full flex justify-between items-start">
-                                                <div className="text-left w-1/3">
+                                            <div className="px-10 pb-[60px] w-full flex justify-between items-end">
+                                                <div className="text-left w-1/3 flex flex-col items-start">
+                                                    <img src="/print/sign.png" alt="Signature" className="h-8 w-auto object-contain mb-1" />
                                                     <p className="font-bold text-slate-800 text-[13px]">LAB IN-CHARGE</p>
                                                     <p className="text-[11px] text-slate-800 font-bold uppercase mt-1">{inChargeTechnician?.name || "LABORATORY"}</p>
                                                 </div>
-                                                <div className="text-center w-1/3 mt-2">
+                                                <div className="text-center w-1/3 mb-2">
                                                     <p className="font-bold text-slate-500 text-[11px] tracking-widest uppercase">
                                                         {isLastPage ? "--- End Of the Result ---" : "--- Continue ---"}
                                                     </p>
