@@ -85,7 +85,7 @@ function ConsultingTwoContent() {
   });
 
   // ---------- Interactive Assessment State (NO DEFAULTS) ----------
-  // 1. Chief Complaint
+  // 1. Chief Complaints
   const [complaints, setComplaints] = useState<string[]>([]);
   const [otherComplaint, setOtherComplaint] = useState("");
   const [duration, setDuration] = useState("");
@@ -288,7 +288,7 @@ function ConsultingTwoContent() {
                 <div className="space-y-6">
                   {/* Direct 2-Column Grid Layout */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
-                    {/* 1. CHIEF COMPLAINT */}
+                    {/* 1. CHIEF COMPLAINTS */}
                     <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
                       <div>
                         <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
@@ -297,7 +297,7 @@ function ConsultingTwoContent() {
                               <HeartPulse className="w-4 h-4" />
                             </div>
                             <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
-                              Chief Complaint
+                              Chief Complaints
                             </CardTitle>
                           </div>
                         </CardHeader>
@@ -338,13 +338,13 @@ function ConsultingTwoContent() {
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                             <div>
                               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Other Complaint
+                                Other Complaints
                               </label>
                               <input
                                 type="text"
                                 value={otherComplaint}
                                 onChange={(e) => setOtherComplaint(e.target.value)}
-                                placeholder="Other complaint..."
+                                placeholder="Other complaints..."
                                 className={inputClass}
                               />
                             </div>
