@@ -32,7 +32,74 @@ import {
   Cigarette,
   Wine,
   Droplets,
+  EllipsisVertical,
+  Pencil,
 } from "lucide-react";
+import BubbleButtonGroup from "./BubbleButtonGroup";
+import MultiEntryInput from "./MultiEntryInput";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const DEFAULT_CHIEF_COMPLAINTS = [
+  "Neck Pain",
+  "Back Pain",
+  "Shoulder Pain",
+  "Knee Pain",
+  "Sciatica",
+  "Headache / Migraine",
+  "Frozen Shoulder",
+  "Tennis Elbow",
+  "Arthritis",
+  "Cervical Spondylosis",
+  "Lumbar Spondylosis",
+  "Stress / Anxiety",
+  "Insomnia",
+  "Digestive Issues",
+];
+
+const DEFAULT_MED_HISTORY = [
+  "Diabetes",
+  "Hypertension",
+  "Thyroid Disorder",
+  "Heart Disease",
+  "Asthma",
+  "Stroke",
+  "Epilepsy",
+  "Cancer",
+  "Pregnancy",
+  "Recent Surgery",
+  "Pacemaker",
+  "Bleeding Disorder",
+];
+
+const DEFAULT_TREATMENTS_GIVEN = [
+  "Acupuncture",
+  "Electroacupuncture",
+  "Cupping",
+  "Hijama",
+  "Cauterization",
+  "Venesection",
+  "Moxibustion",
+  "Gua Sha",
+  "TENS",
+  "Dry Needling",
+  "Auricular Acupuncture",
+];
+
+const DEFAULT_HOME_CARE = [
+  "Hydration",
+  "Stretching",
+  "Rest",
+  "Heat Therapy",
+  "Exercise",
+  "Posture Correction",
+  "Diet Advice",
+];
 
 function ConsultingTwoContent() {
   const searchParams = useSearchParams();
@@ -48,6 +115,17 @@ function ConsultingTwoContent() {
   }>(appointmentId ? `/appointments/single/${appointmentId}` : null);
 
   const appointment = appointmentData?.data;
+
+  const { data: pastConsultationsData } = useSWR<{
+    message: string;
+    data: any[];
+  }>(
+    appointment?.patient?._id
+      ? `/consultings/patient/${appointment.patient._id}`
+      : null
+  );
+
+  const isSecondVisitOnwards = (pastConsultationsData?.data?.length ?? 0) > 0;
 
   const [data, setData] = useState<DataType & Record<string, any>>({
     patient: null,
@@ -96,9 +174,100 @@ function ConsultingTwoContent() {
   // ---------- Interactive Assessment State (NO DEFAULTS) ----------
   // 1. Chief Complaints
   const [complaints, setComplaints] = useState<string[]>([]);
-  const [otherComplaint, setOtherComplaint] = useState("");
+  const [otherComplaintList, setOtherComplaintList] = useState<string[]>([]);
   const [duration, setDuration] = useState("");
   const [painScore, setPainScore] = useState<number | null>(null);
+
+  // ---------- Option Lists with LocalStorage Persistence ----------
+  const [complaintOptions, setComplaintOptions] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("@consulting2_chief_complaints_options");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
+      }
+    }
+    return DEFAULT_CHIEF_COMPLAINTS;
+  });
+
+  const [medHistoryOptions, setMedHistoryOptions] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("@consulting2_med_history_options");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
+      }
+    }
+    return DEFAULT_MED_HISTORY;
+  });
+
+  const [treatmentOptions, setTreatmentOptions] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("@consulting2_treatments_given_options");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
+      }
+    }
+    return DEFAULT_TREATMENTS_GIVEN;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "@consulting2_chief_complaints_options",
+        JSON.stringify(complaintOptions)
+      );
+    }
+  }, [complaintOptions]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "@consulting2_med_history_options",
+        JSON.stringify(medHistoryOptions)
+      );
+    }
+  }, [medHistoryOptions]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "@consulting2_treatments_given_options",
+        JSON.stringify(treatmentOptions)
+      );
+    }
+  }, [treatmentOptions]);
+
+  const [isEditingComplaints, setIsEditingComplaints] = useState(false);
+  const [isEditingMedHistory, setIsEditingMedHistory] = useState(false);
+  const [isEditingTreatments, setIsEditingTreatments] = useState(false);
+
+  const [homeCareOptions, setHomeCareOptions] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("@consulting2_home_care_options");
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {}
+      }
+    }
+    return DEFAULT_HOME_CARE;
+  });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(
+        "@consulting2_home_care_options",
+        JSON.stringify(homeCareOptions)
+      );
+    }
+  }, [homeCareOptions]);
+
+  const [isEditingHomeCare, setIsEditingHomeCare] = useState(false);
 
   // 2. Lifestyle
   const [sleep, setSleep] = useState("");
@@ -122,9 +291,9 @@ function ConsultingTwoContent() {
 
   // 5. Medical History
   const [medHistory, setMedHistory] = useState<string[]>([]);
-  const [otherMedHistory, setOtherMedHistory] = useState("");
-  const [currentMedications, setCurrentMedications] = useState("");
-  const [historyAllergies, setHistoryAllergies] = useState("");
+  const [otherMedHistoryList, setOtherMedHistoryList] = useState<string[]>([]);
+  const [currentMedicationsList, setCurrentMedicationsList] = useState<string[]>([]);
+  const [historyAllergiesList, setHistoryAllergiesList] = useState<string[]>([]);
 
   // 6. Examination
   const [bp, setBp] = useState("");
@@ -158,7 +327,7 @@ function ConsultingTwoContent() {
         consultationType: "acupuncture",
         chiefComplaints: {
           complaints,
-          other: otherComplaint,
+          other: otherComplaintList.join(", "),
           duration,
           painScore: painScore ?? undefined,
         },
@@ -183,9 +352,9 @@ function ConsultingTwoContent() {
         },
         medicalHistoryDetails: {
           medHistory,
-          otherMedHistory,
-          currentMedications,
-          allergies: historyAllergies,
+          otherMedHistory: otherMedHistoryList.join(", "),
+          currentMedications: currentMedicationsList.join(", "),
+          allergies: historyAllergiesList.join(", "),
         },
         acupunctureExamination: {
           bp,
@@ -211,7 +380,7 @@ function ConsultingTwoContent() {
   }, [
     appointment,
     complaints,
-    otherComplaint,
+    otherComplaintList,
     duration,
     painScore,
     sleep,
@@ -229,9 +398,9 @@ function ConsultingTwoContent() {
     frequency,
     homeCare,
     medHistory,
-    otherMedHistory,
-    currentMedications,
-    historyAllergies,
+    otherMedHistoryList,
+    currentMedicationsList,
+    historyAllergiesList,
     bp,
     pulse,
     tenderness,
@@ -309,54 +478,42 @@ function ConsultingTwoContent() {
                               Chief Complaints
                             </CardTitle>
                           </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 hover:text-slate-700 transition-colors outline-none cursor-pointer">
+                              <EllipsisVertical className="h-4 w-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  className="text-xs cursor-pointer flex items-center gap-2"
+                                  onClick={() => setIsEditingComplaints(!isEditingComplaints)}
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                  {isEditingComplaints ? "Done Editing" : "Edit Options"}
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </CardHeader>
                         <CardContent className="p-5 space-y-4">
-                          <div className="flex flex-wrap gap-1.5">
-                            {[
-                              "Neck Pain",
-                              "Back Pain",
-                              "Shoulder Pain",
-                              "Knee Pain",
-                              "Sciatica",
-                              "Headache / Migraine",
-                              "Frozen Shoulder",
-                              "Tennis Elbow",
-                              "Arthritis",
-                              "Cervical Spondylosis",
-                              "Lumbar Spondylosis",
-                              "Stress / Anxiety",
-                              "Insomnia",
-                              "Digestive Issues",
-                            ].map((item) => {
-                              const active = complaints.includes(item);
-                              return (
-                                <button
-                                  key={item}
-                                  type="button"
-                                  onClick={() =>
-                                    toggleArrayItem(complaints, setComplaints, item)
-                                  }
-                                  className={pillClass(active)}
-                                >
-                                  {item}
-                                </button>
-                              );
-                            })}
-                          </div>
+                          <BubbleButtonGroup
+                            options={complaintOptions}
+                            setOptions={setComplaintOptions}
+                            selectedValues={complaints}
+                            setSelectedValues={setComplaints}
+                            addButtonText="Add Complaint"
+                            addPlaceholder="Add complaint..."
+                            pillClass={pillClass}
+                            isEditing={isEditingComplaints}
+                          />
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                            <div>
-                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Other Complaints
-                              </label>
-                              <input
-                                type="text"
-                                value={otherComplaint}
-                                onChange={(e) => setOtherComplaint(e.target.value)}
+                              <MultiEntryInput
+                                label="Other Complaints"
+                                items={otherComplaintList}
+                                setItems={setOtherComplaintList}
                                 placeholder="Other complaints..."
-                                className={inputClass}
                               />
-                            </div>
                             <div>
                               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                                 Duration
@@ -431,77 +588,55 @@ function ConsultingTwoContent() {
                               Medical History & Conditions
                             </CardTitle>
                           </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 hover:text-slate-700 transition-colors outline-none cursor-pointer">
+                              <EllipsisVertical className="h-4 w-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  className="text-xs cursor-pointer flex items-center gap-2"
+                                  onClick={() => setIsEditingMedHistory(!isEditingMedHistory)}
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                  {isEditingMedHistory ? "Done Editing" : "Edit Options"}
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </CardHeader>
                         <CardContent className="p-5 space-y-4">
-                          <div className="flex flex-wrap gap-1.5">
-                            {[
-                              "Diabetes",
-                              "Hypertension",
-                              "Thyroid Disorder",
-                              "Heart Disease",
-                              "Asthma",
-                              "Stroke",
-                              "Epilepsy",
-                              "Cancer",
-                              "Pregnancy",
-                              "Recent Surgery",
-                              "Pacemaker",
-                              "Bleeding Disorder",
-                            ].map((item) => {
-                              const active = medHistory.includes(item);
-                              return (
-                                <button
-                                  key={item}
-                                  type="button"
-                                  onClick={() =>
-                                    toggleArrayItem(medHistory, setMedHistory, item)
-                                  }
-                                  className={pillClass(active)}
-                                >
-                                  {item}
-                                </button>
-                              );
-                            })}
-                          </div>
+                          <BubbleButtonGroup
+                            options={medHistoryOptions}
+                            setOptions={setMedHistoryOptions}
+                            selectedValues={medHistory}
+                            setSelectedValues={setMedHistory}
+                            addButtonText="Add Condition"
+                            addPlaceholder="Add condition..."
+                            pillClass={pillClass}
+                            isEditing={isEditingMedHistory}
+                          />
 
-                          <div>
-                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                              Other Conditions
-                            </label>
-                            <input
-                              type="text"
-                              value={otherMedHistory}
-                              onChange={(e) => setOtherMedHistory(e.target.value)}
-                              placeholder="Other condition..."
-                              className={inputClass}
-                            />
-                          </div>
+                          <MultiEntryInput
+                            label="Other Conditions"
+                            items={otherMedHistoryList}
+                            setItems={setOtherMedHistoryList}
+                            placeholder="Other condition..."
+                          />
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                            <div>
-                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Current Medications
-                              </label>
-                              <input
-                                type="text"
-                                value={currentMedications}
-                                onChange={(e) => setCurrentMedications(e.target.value)}
-                                placeholder="e.g. Tab Amlodipine 5mg OD"
-                                className={inputClass}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Allergies
-                              </label>
-                              <input
-                                type="text"
-                                value={historyAllergies}
-                                onChange={(e) => setHistoryAllergies(e.target.value)}
-                                placeholder="e.g. Penicillin"
-                                className={inputClass}
-                              />
-                            </div>
+                            <MultiEntryInput
+                              label="Current Medications"
+                              items={currentMedicationsList}
+                              setItems={setCurrentMedicationsList}
+                              placeholder="e.g. Tab Amlodipine 5mg OD"
+                            />
+                            <MultiEntryInput
+                              label="Allergies"
+                              items={historyAllergiesList}
+                              setItems={setHistoryAllergiesList}
+                              placeholder="e.g. Penicillin"
+                            />
                           </div>
                         </CardContent>
                       </div>
@@ -921,41 +1056,34 @@ function ConsultingTwoContent() {
                               Therapies & Treatment Given
                             </CardTitle>
                           </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 hover:text-slate-700 transition-colors outline-none cursor-pointer">
+                              <EllipsisVertical className="h-4 w-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  className="text-xs cursor-pointer flex items-center gap-2"
+                                  onClick={() => setIsEditingTreatments(!isEditingTreatments)}
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                  {isEditingTreatments ? "Done Editing" : "Edit Options"}
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </CardHeader>
                         <CardContent className="p-5 space-y-4">
-                          <div className="flex flex-wrap gap-1.5">
-                            {[
-                              "Acupuncture",
-                              "Electroacupuncture",
-                              "Cupping",
-                              "Hijama",
-                              "Cauterization",
-                              "Venesection",
-                              "Moxibustion",
-                              "Gua Sha",
-                              "TENS",
-                              "Dry Needling",
-                              "Auricular Acupuncture",
-                            ].map((item) => {
-                              const active = treatmentsGiven.includes(item);
-                              return (
-                                <button
-                                  key={item}
-                                  type="button"
-                                  onClick={() =>
-                                    toggleArrayItem(
-                                      treatmentsGiven,
-                                      setTreatmentsGiven,
-                                      item
-                                    )
-                                  }
-                                  className={pillClass(active)}
-                                >
-                                  {item}
-                                </button>
-                              );
-                            })}
-                          </div>
+                          <BubbleButtonGroup
+                            options={treatmentOptions}
+                            setOptions={setTreatmentOptions}
+                            selectedValues={treatmentsGiven}
+                            setSelectedValues={setTreatmentsGiven}
+                            addButtonText="Add Therapy"
+                            addPlaceholder="Add therapy..."
+                            pillClass={pillClass}
+                            isEditing={isEditingTreatments}
+                          />
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                             <div>
@@ -1002,6 +1130,22 @@ function ConsultingTwoContent() {
                               Treatment Plan & Home Care
                             </CardTitle>
                           </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 hover:text-slate-700 transition-colors outline-none cursor-pointer">
+                              <EllipsisVertical className="h-4 w-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuGroup>
+                                <DropdownMenuItem
+                                  className="text-xs cursor-pointer flex items-center gap-2"
+                                  onClick={() => setIsEditingHomeCare(!isEditingHomeCare)}
+                                >
+                                  <Pencil className="w-3.5 h-3.5" />
+                                  {isEditingHomeCare ? "Done Editing" : "Edit Home Care Options"}
+                                </DropdownMenuItem>
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </CardHeader>
                         <CardContent className="p-5 space-y-4">
                           <div className="space-y-1.5">
@@ -1111,54 +1255,19 @@ function ConsultingTwoContent() {
                           </div>
 
                           <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                               Home Care Advice
                             </span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {[
-                                "Hydration",
-                                "Stretching",
-                                "Rest",
-                                "Heat Therapy",
-                                "Exercise",
-                                "Posture Correction",
-                                "Diet Advice",
-                                "Other",
-                              ].map((name) => {
-                                const active = homeCare.includes(name);
-                                return (
-                                  <label
-                                    key={name}
-                                    className={cn(
-                                      "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
-                                      active
-                                        ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
-                                        : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
-                                    )}
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={active}
-                                      onChange={() =>
-                                        toggleArrayItem(homeCare, setHomeCare, name)
-                                      }
-                                      className="sr-only"
-                                    />
-                                    <span
-                                      className={cn(
-                                        "flex items-center justify-center w-4 h-4 rounded border transition-all duration-200 shrink-0",
-                                        active
-                                          ? "border-emerald-500 bg-emerald-500 text-white"
-                                          : "border-slate-300 bg-white group-hover:border-emerald-300"
-                                      )}
-                                    >
-                                      {active && <Check className="w-3 h-3 stroke-3" />}
-                                    </span>
-                                    {name}
-                                  </label>
-                                );
-                              })}
-                            </div>
+                            <BubbleButtonGroup
+                              options={homeCareOptions}
+                              setOptions={setHomeCareOptions}
+                              selectedValues={homeCare}
+                              setSelectedValues={setHomeCare}
+                              addButtonText="Add Advice"
+                              addPlaceholder="Add advice..."
+                              pillClass={pillClass}
+                              isEditing={isEditingHomeCare}
+                            />
                           </div>
                         </CardContent>
                       </div>
@@ -1190,36 +1299,38 @@ function ConsultingTwoContent() {
                             />
                           </div>
 
-                          <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                              Patient Feedback
-                            </span>
-                            <div className="flex flex-wrap gap-2">
-                              {[
-                                { name: "Improved", emoji: "😃" },
-                                { name: "No Change", emoji: "😐" },
-                                { name: "Worse", emoji: "🙁" },
-                              ].map((item) => {
-                                const active = feedback === item.name;
-                                return (
-                                  <button
-                                    key={item.name}
-                                    type="button"
-                                    onClick={() => setFeedback(active ? "" : item.name)}
-                                    className={cn(
-                                      "px-3 py-1.5 rounded-xl text-xs font-semibold border select-none transition-all duration-150 cursor-pointer flex items-center gap-1.5",
-                                      active
-                                        ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
-                                        : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-                                    )}
-                                  >
-                                    <span>{item.emoji}</span>
-                                    <span>{item.name}</span>
-                                  </button>
-                                );
-                              })}
+                          {isSecondVisitOnwards && (
+                            <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                              <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
+                                Patient Feedback
+                              </span>
+                              <div className="flex flex-wrap gap-2">
+                                {[
+                                  { name: "Improved", emoji: "😃" },
+                                  { name: "No Change", emoji: "😐" },
+                                  { name: "Worse", emoji: "🙁" },
+                                ].map((item) => {
+                                  const active = feedback === item.name;
+                                  return (
+                                    <button
+                                      key={item.name}
+                                      type="button"
+                                      onClick={() => setFeedback(active ? "" : item.name)}
+                                      className={cn(
+                                        "px-3 py-1.5 rounded-xl text-xs font-semibold border select-none transition-all duration-150 cursor-pointer flex items-center gap-1.5",
+                                        active
+                                          ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                                          : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                                      )}
+                                    >
+                                      <span>{item.emoji}</span>
+                                      <span>{item.name}</span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
                             </div>
-                          </div>
+                          )}
 
                           <div className="pt-1">
                             <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
@@ -1231,19 +1342,6 @@ function ConsultingTwoContent() {
                               onChange={(e) => setAdditionalNotes(e.target.value)}
                               placeholder="Follow-up notes..."
                               className="w-full text-xs border border-slate-200 rounded-xl p-2.5 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100/60 transition-all text-slate-800"
-                            />
-                          </div>
-
-                          <div>
-                            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                              Practitioner&apos;s Signature
-                            </label>
-                            <input
-                              type="text"
-                              value={signature}
-                              onChange={(e) => setSignature(e.target.value)}
-                              placeholder="Signature name..."
-                              className={cn(inputClass, "font-semibold")}
                             />
                           </div>
                         </CardContent>
