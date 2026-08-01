@@ -53,13 +53,13 @@ export default function History({ patientId }: { patientId: string }) {
 
                 <TableCell className="max-w-75">
                   <div className="flex flex-wrap gap-1">
-                    {consulting.medicines.map((m, i) => (
+                    {consulting.medicines?.map((m, i) => (
                       <Badge
                         key={m._id ?? i}
                         variant="secondary"
                         className="font-normal text-xs whitespace-nowrap"
                       >
-                        {m.name.name}
+                        {m.referralName || (typeof m.name === "object" ? m.name?.name : (m.name || "Outside Medicine"))}
                       </Badge>
                     ))}
                   </div>
@@ -213,15 +213,17 @@ export interface ExaminationNote {
 }
 
 export interface Medicine {
-  name: {
+  name?: {
     name: string;
     _id: string;
-  };
+  } | string | null;
+  referralName?: string;
+  isCustom?: boolean;
   dosage: string;
   frequency: string;
   food: string;
   duration: string;
-  _id: string;
+  _id?: string;
 }
 
 export interface Patient {
