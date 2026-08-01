@@ -21,6 +21,7 @@ import {
   BillingDetailModal,
   ConsultationDetailModal,
 } from "@/components/shared/ip/IPRecordDetailModals";
+import DischargeSummaryPrint from "@/components/shared/ip/DischargeSummaryPrint";
 
 const IP_STATUSES = [
   { value: "Admitted", color: "bg-emerald-500", label: "Admitted" },
@@ -329,7 +330,7 @@ export default function IPDetailsClient() {
               <IPStatusBadge status={ip.status} />
             </div>
           </div>
-          <span className="text-sm font-mono font-bold px-3.5 py-1.5 bg-gradient-to-r from-indigo-50 to-slate-50 border border-indigo-200/80 rounded-xl text-indigo-900 shadow-2xs flex items-center gap-1.5">
+          <span className="text-sm font-mono font-bold px-3.5 py-1.5 bg-linear-to-r from-indigo-50 to-slate-50 border border-indigo-200/80 rounded-xl text-indigo-900 shadow-2xs flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-indigo-600" />
             {ip.admissionNumber}
           </span>
@@ -338,13 +339,13 @@ export default function IPDetailsClient() {
         {/* ── Patient Profile Hero Card ───────────────────────── */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 relative">
           {/* Subtle decorative background accent */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-indigo-50/50 via-purple-50/30 to-transparent rounded-bl-full pointer-events-none" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-indigo-50/50 via-purple-50/30 to-transparent rounded-bl-full pointer-events-none" />
 
           <div className="relative z-10 flex flex-wrap gap-6 items-start">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white text-2xl font-black shadow-md shadow-indigo-200 ring-4 ring-indigo-50">
+            <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white text-2xl font-black shadow-md shadow-indigo-200 ring-4 ring-indigo-50">
               {patient?.name?.charAt(0) ?? "?"}
             </div>
-            <div className="flex-1 min-w-[240px]">
+            <div className="flex-1 min-w-60">
               <div className="flex flex-wrap items-center gap-2.5">
                 <h2 className="text-2xl font-bold text-slate-900 tracking-tight">{patient?.name}</h2>
                 <span className="text-xs font-mono font-bold px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200">
@@ -395,11 +396,22 @@ export default function IPDetailsClient() {
               {/* Quick Note button */}
               <button
                 onClick={() => setNoteOpen(true)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-semibold transition-all shadow-md shadow-violet-200 active:scale-95 cursor-pointer"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl bg-linear-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white text-sm font-semibold transition-all shadow-md shadow-violet-200 active:scale-95 cursor-pointer"
               >
                 <ClipboardPen className="w-4 h-4" />
                 Quick Note
               </button>
+
+              {/* Discharge Summary button */}
+              {ip.status === "Discharged" && (
+                <button
+                  onClick={() => window.print()}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  <FileText className="w-4 h-4 text-emerald-400" />
+                  Discharge Summary
+                </button>
+              )}
 
               {/* Status Changer */}
               <div className="relative" ref={statusRef}>
@@ -506,7 +518,7 @@ export default function IPDetailsClient() {
 
         {/* ── Key Metrics Summary Cards ─────────────────────── */}
         <div className={`grid grid-cols-2 ${ip.status === "Discharged" ? "lg:grid-cols-3" : "lg:grid-cols-4"} gap-4`}>
-          <div className="bg-gradient-to-br from-indigo-50 via-indigo-50/80 to-indigo-100/40 rounded-2xl border border-indigo-100 p-4 flex items-center gap-4 shadow-2xs">
+          <div className="bg-linear-to-br from-indigo-50 via-indigo-50/80 to-indigo-100/40 rounded-2xl border border-indigo-100 p-4 flex items-center gap-4 shadow-2xs">
             <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-200 shrink-0">
               <Receipt className="w-6 h-6" />
             </div>
@@ -516,7 +528,7 @@ export default function IPDetailsClient() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-emerald-50 via-emerald-50/80 to-emerald-100/40 rounded-2xl border border-emerald-100 p-4 flex items-center gap-4 shadow-2xs">
+          <div className="bg-linear-to-br from-emerald-50 via-emerald-50/80 to-emerald-100/40 rounded-2xl border border-emerald-100 p-4 flex items-center gap-4 shadow-2xs">
             <div className="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-md shadow-emerald-200 shrink-0">
               <CheckCircle2 className="w-6 h-6" />
             </div>
@@ -526,7 +538,7 @@ export default function IPDetailsClient() {
             </div>
           </div>
 
-          <div className={`rounded-2xl border p-4 flex items-center gap-4 shadow-2xs ${totalDue > 0 ? "bg-gradient-to-br from-rose-50 via-rose-50/80 to-rose-100/40 border-rose-200" : "bg-gradient-to-br from-slate-50 to-slate-100/40 border-slate-200"}`}>
+          <div className={`rounded-2xl border p-4 flex items-center gap-4 shadow-2xs ${totalDue > 0 ? "bg-linear-to-br from-rose-50 via-rose-50/80 to-rose-100/40 border-rose-200" : "bg-linear-to-br from-slate-50 to-slate-100/40 border-slate-200"}`}>
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center shadow-md shrink-0 ${totalDue > 0 ? "bg-rose-600 text-white shadow-rose-200" : "bg-slate-600 text-white shadow-slate-200"}`}>
               <AlertCircle className="w-6 h-6" />
             </div>
@@ -537,7 +549,7 @@ export default function IPDetailsClient() {
           </div>
 
           {ip.status !== "Discharged" && (
-            <div className="bg-gradient-to-br from-sky-50 via-sky-50/80 to-sky-100/40 rounded-2xl border border-sky-100 p-4 flex items-center gap-4 shadow-2xs">
+            <div className="bg-linear-to-br from-sky-50 via-sky-50/80 to-sky-100/40 rounded-2xl border border-sky-100 p-4 flex items-center gap-4 shadow-2xs">
               <div className="w-12 h-12 rounded-xl bg-sky-600 text-white flex items-center justify-center shadow-md shadow-sky-200 shrink-0">
                 <Calendar className="w-6 h-6" />
               </div>
@@ -1015,6 +1027,18 @@ export default function IPDetailsClient() {
           </div>
         </div>
       )}
+
+      {/* Discharge Summary Printable Portal */}
+      <DischargeSummaryPrint
+        ip={ip}
+        consultations={consultations}
+        labReports={labReports}
+        orders={orders}
+        billings={billings}
+        totalBilled={totalBilled}
+        totalPaid={totalPaid}
+        totalDue={totalDue}
+      />
     </AppShell>
   );
 }

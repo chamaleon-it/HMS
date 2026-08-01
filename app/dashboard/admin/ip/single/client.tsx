@@ -9,8 +9,9 @@ import {
   ArrowLeft, User, Stethoscope, FlaskConical, Pill, Receipt,
   Calendar, Phone, MapPin, Droplets, AlertTriangle, Clock,
   XCircle, ChevronDown, ChevronUp, Loader2, HeartPulse,
-  Thermometer, Activity, Wind, Weight, NotebookPen,
+  Thermometer, Activity, Wind, Weight, NotebookPen, FileText,
 } from "lucide-react";
+import DischargeSummaryPrint from "@/components/shared/ip/DischargeSummaryPrint";
 import {
   LabReportDetailModal,
   PharmacyOrderDetailModal,
@@ -146,9 +147,20 @@ export default function AdminIPSingleClient() {
             </span>
             <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 border border-amber-200">Read Only</span>
           </div>
-          <span className="text-sm font-mono font-bold px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-700 shadow-sm">
-            {ip.admissionNumber}
-          </span>
+          <div className="flex items-center gap-3">
+            {ip.status === "Discharged" && (
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-2 px-4 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
+              >
+                <FileText className="w-4 h-4 text-emerald-400" />
+                Discharge Summary
+              </button>
+            )}
+            <span className="text-sm font-mono font-bold px-3 py-1 bg-white border border-gray-200 rounded-full text-gray-700 shadow-sm">
+              {ip.admissionNumber}
+            </span>
+          </div>
         </div>
 
         {/* Hero Card */}
@@ -157,7 +169,7 @@ export default function AdminIPSingleClient() {
             <div className="w-14 h-14 rounded-2xl bg-linear-to-br from-slate-800 to-slate-600 flex items-center justify-center text-white text-xl font-bold shadow">
               {patient?.name?.charAt(0) ?? "?"}
             </div>
-            <div className="flex-1 min-w-[200px]">
+            <div className="flex-1 min-w-50">
               <div className="flex flex-wrap items-center gap-2">
                 <h2 className="text-2xl font-bold text-gray-900">{patient?.name}</h2>
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-100">{patient?.mrn}</span>
@@ -371,6 +383,18 @@ export default function AdminIPSingleClient() {
         billing={selectedBillingRecord}
         open={Boolean(selectedBillingRecord)}
         onOpenChange={(open) => !open && setSelectedBillingRecord(null)}
+      />
+
+      {/* Discharge Summary Printable Portal */}
+      <DischargeSummaryPrint
+        ip={ip}
+        consultations={consultations}
+        labReports={labReports}
+        orders={orders}
+        billings={billings}
+        totalBilled={totalBilled}
+        totalPaid={totalPaid}
+        totalDue={totalDue}
       />
     </AppShell>
   );

@@ -28,7 +28,7 @@ function App() {
 
         {/* Neural Connection Line */}
         <div className="relative h-24 w-full overflow-hidden pointer-events-none">
-          <div className="absolute left-1/2 top-0 -translate-x-1/2 h-full w-px bg-gradient-to-b from-transparent via-[#3B82F6]/50 to-transparent">
+          <div className="absolute left-1/2 top-0 -translate-x-1/2 h-full w-px bg-linear-to-b from-transparent via-[#3B82F6]/50 to-transparent">
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-[#3B82F6] rounded-full animate-float" />
           </div>
         </div>

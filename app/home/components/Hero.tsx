@@ -80,7 +80,7 @@ const Hero = () => {
                         className="relative w-full max-w-6xl"
                     >
                         <div className="relative rounded-xl bg-[#0B1121] border border-white/10 shadow-2xl overflow-hidden group animate-float">
-                            <div className="absolute inset-0 bg-gradient-to-b from-[#3B82F6]/5 to-transparent pointer-events-none" />
+                            <div className="absolute inset-0 bg-linear-to-b from-[#3B82F6]/5 to-transparent pointer-events-none" />
 
                             {/* Browser Chrome */}
                             <div className="h-10 bg-[#0F172A] border-b border-white/5 flex items-center px-4 gap-2">
@@ -140,7 +140,7 @@ const Hero = () => {
                                     ))}
                                 </div>
                                 {/* Scrolling Code/Data Effect */}
-                                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-[#0B1121] to-transparent z-10" />
+                                <div className="absolute bottom-0 left-0 w-full h-1/2 bg-linear-to-t from-[#0B1121] to-transparent z-10" />
                                 <div className="mt-8 space-y-2 opacity-30 font-mono text-[10px] text-blue-300">
                                     <div className="animate-scan" style={{ animationDuration: '4s' }}>
                                         <div>System.init(v2.0)</div>

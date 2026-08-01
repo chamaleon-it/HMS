@@ -70,26 +70,21 @@ export default function TherapyCard({ data, setData }: Props) {
   useEffect(() => {
     const text = data.therapy || "";
     if (text) {
-      const matched = options.filter((opt) => text.includes(opt));
-      setSelectedTherapies(matched);
+      const items = text
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      setSelectedTherapies(items);
     } else {
       setSelectedTherapies([]);
     }
-  }, [data.therapy, options]);
+  }, [data.therapy]);
 
   const updateTherapyData = (updated: string[]) => {
-    // Keep any freeform text that isn't part of options list
-    const currentNotes = data.therapy || "";
-    const lines = currentNotes
-      .split("\n")
-      .filter((line) => !options.some((o) => line.includes(o)));
-
-    const optionHeader = updated.length > 0 ? updated.join(", ") : "";
-    const combined = [optionHeader, ...lines].filter(Boolean).join("\n");
-
+    const therapyString = updated.length > 0 ? updated.join(", ") : null;
     setData((prev) => ({
       ...prev,
-      therapy: combined || null,
+      therapy: therapyString,
     }));
   };
 
@@ -278,11 +273,11 @@ export default function TherapyCard({ data, setData }: Props) {
         {/* Free Text Area */}
         <div className="relative w-full">
           <textarea
-            value={data.therapy || ""}
+            value={data.therapyNotes || ""}
             onChange={(e) =>
               setData((prev) => ({
                 ...prev,
-                therapy: e.target.value || null,
+                therapyNotes: e.target.value || null,
               }))
             }
             placeholder=" "

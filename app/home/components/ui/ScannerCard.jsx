@@ -8,7 +8,7 @@ const ScannerCard = ({ children, className = "" }) => {
 
             {/* Scanner Line */}
             <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <div className="absolute top-0 left-0 w-full h-[20%] bg-gradient-to-b from-transparent via-[#3B82F6]/20 to-transparent -translate-y-full group-hover:animate-scan" />
+                <div className="absolute top-0 left-0 w-full h-[20%] bg-linear-to-b from-transparent via-[#3B82F6]/20 to-transparent -translate-y-full group-hover:animate-scan" />
             </div>
 
             {/* Corner Accents */}

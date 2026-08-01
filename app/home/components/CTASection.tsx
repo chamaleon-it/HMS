@@ -5,7 +5,7 @@ const CTASection = () => {
     return (
         <section className="py-24 relative overflow-hidden">
             {/* Background Gradient */}
-            <div className="absolute inset-0 bg-gradient-to-b from-black to-[#3B82F6]/10 pointer-events-none" />
+            <div className="absolute inset-0 bg-linear-to-b from-black to-[#3B82F6]/10 pointer-events-none" />
 
             <div className="container mx-auto px-4 relative z-10">
                 <div className="max-w-4xl mx-auto bg-linear-to-r from-white/5 to-white/10 border border-white/10 rounded-3xl p-8 md:p-16 text-center backdrop-blur-md overflow-hidden relative group">

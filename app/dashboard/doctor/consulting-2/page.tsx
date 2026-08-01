@@ -155,6 +155,7 @@ function ConsultingTwoContent() {
       appetite: null,
     },
     therapy: null,
+    therapyNotes: null,
     medicines: [
       {
         dosage: "1 tab",

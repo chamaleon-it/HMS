@@ -134,6 +134,7 @@ export interface ConsultationType {
     signature?: string;
   };
   therapy?: string;
+  therapyNotes?: string;
   createdAt: Date;
   updatedAt: Date;
 }

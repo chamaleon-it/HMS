@@ -199,15 +199,22 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
               </div>
             )}
 
-            {/* THERAPY */}
-            {data.therapy && (
+            {/* THERAPY & THERAPY NOTES */}
+            {(data.therapy || data.therapyNotes) && (
               <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs border-l-4 border-l-cyan-600 break-inside-avoid">
                 <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100 mb-1">
-                  Therapy
+                  Therapy & Notes
                 </h4>
-                <p className="text-slate-800 leading-relaxed font-medium">
-                  {data.therapy}
-                </p>
+                {data.therapy && (
+                  <p className="text-slate-800 leading-relaxed font-medium">
+                    <span className="font-semibold text-slate-900">Therapy:</span> {data.therapy}
+                  </p>
+                )}
+                {data.therapyNotes && (
+                  <p className="text-slate-800 leading-relaxed font-medium mt-1">
+                    <span className="font-semibold text-slate-900">Notes:</span> {data.therapyNotes}
+                  </p>
+                )}
               </div>
             )}
 
@@ -283,11 +290,29 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 <p className="text-slate-700 font-medium">
                   BP: <span className="font-bold text-slate-900">{data.acupunctureExamination?.bp || "—"}</span> | Pulse: <span className="font-bold text-slate-900">{data.acupunctureExamination?.pulse || "—"}</span>
                 </p>
+                {(data.acupunctureExamination?.tenderness || data.acupunctureExamination?.rom || data.acupunctureExamination?.posture) && (
+                  <p className="text-slate-700 font-medium mt-1">
+                    {data.acupunctureExamination.tenderness && (
+                      <span className="mr-2.5"><span className="font-semibold text-slate-900">Tenderness:</span> {data.acupunctureExamination.tenderness}</span>
+                    )}
+                    {data.acupunctureExamination.rom && (
+                      <span className="mr-2.5"><span className="font-semibold text-slate-900">ROM:</span> {data.acupunctureExamination.rom}</span>
+                    )}
+                    {data.acupunctureExamination.posture && (
+                      <span><span className="font-semibold text-slate-900">Posture:</span> {data.acupunctureExamination.posture}</span>
+                    )}
+                  </p>
+                )}
+                {data.acupunctureExamination?.specialFindings && (
+                  <p className="text-slate-700 font-medium mt-1">
+                    <span className="font-semibold text-slate-900">Findings:</span> {data.acupunctureExamination.specialFindings}
+                  </p>
+                )}
               </div>
             </div>
 
             {/* PAST HISTORY / MEDICAL HISTORY DETAILS */}
-            {(data.medicalHistoryDetails?.medHistory?.length > 0 || data.medicalHistoryDetails?.currentMedications || data.medicalHistoryDetails?.otherMedHistory) && (
+            {(data.medicalHistoryDetails?.medHistory?.length > 0 || data.medicalHistoryDetails?.currentMedications || data.medicalHistoryDetails?.otherMedHistory || data.medicalHistoryDetails?.allergies) && (
               <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs border-l-4 border-l-indigo-600 break-inside-avoid">
                 <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100 mb-1">
                   Past Medical History
@@ -303,6 +328,46 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                     <span className="font-semibold text-slate-900">Current Medications:</span> {data.medicalHistoryDetails.currentMedications}
                   </p>
                 )}
+                {data.medicalHistoryDetails?.allergies && (
+                  <p className="text-slate-800 font-medium mt-1 text-rose-700">
+                    <span className="font-semibold text-slate-900">Allergies:</span> {data.medicalHistoryDetails.allergies}
+                  </p>
+                )}
+              </div>
+            )}
+
+            {/* LIFESTYLE & HABITS */}
+            {data.lifestyle && Object.values(data.lifestyle).some(Boolean) && (
+              <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs border-l-4 border-l-sky-600 break-inside-avoid">
+                <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100 mb-1.5">
+                  Lifestyle & Habits
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-800 font-medium">
+                  {data.lifestyle.sleep && (
+                    <p><span className="font-semibold text-slate-900">Sleep:</span> {data.lifestyle.sleep}</p>
+                  )}
+                  {data.lifestyle.bowel && (
+                    <p><span className="font-semibold text-slate-900">Bowel:</span> {data.lifestyle.bowel}</p>
+                  )}
+                  {data.lifestyle.appetite && (
+                    <p><span className="font-semibold text-slate-900">Appetite:</span> {data.lifestyle.appetite}</p>
+                  )}
+                  {data.lifestyle.stress && (
+                    <p><span className="font-semibold text-slate-900">Stress:</span> {data.lifestyle.stress}</p>
+                  )}
+                  {data.lifestyle.exercise && (
+                    <p><span className="font-semibold text-slate-900">Exercise:</span> {data.lifestyle.exercise}</p>
+                  )}
+                  {data.lifestyle.smoking && (
+                    <p><span className="font-semibold text-slate-900">Smoking:</span> {data.lifestyle.smoking}</p>
+                  )}
+                  {data.lifestyle.alcohol && (
+                    <p><span className="font-semibold text-slate-900">Alcohol:</span> {data.lifestyle.alcohol}</p>
+                  )}
+                  {data.lifestyle.micturition && (
+                    <p><span className="font-semibold text-slate-900">Micturition:</span> {data.lifestyle.micturition}</p>
+                  )}
+                </div>
               </div>
             )}
 
@@ -352,6 +417,24 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                   </h4>
                   <p className="text-slate-800 font-medium">{data.treatmentPlan.homeCare?.join(", ") || "—"}</p>
                 </div>
+              </div>
+            )}
+            {/* THERAPY & THERAPY NOTES */}
+            {(data.therapy || data.therapyNotes) && (
+              <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs border-l-4 border-l-cyan-600 break-inside-avoid">
+                <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100 mb-1">
+                  Therapy & Notes
+                </h4>
+                {data.therapy && (
+                  <p className="text-slate-800 leading-relaxed font-medium">
+                    <span className="font-semibold text-slate-900">Therapy:</span> {data.therapy}
+                  </p>
+                )}
+                {data.therapyNotes && (
+                  <p className="text-slate-800 leading-relaxed font-medium mt-1">
+                    <span className="font-semibold text-slate-900">Notes:</span> {data.therapyNotes}
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -427,7 +510,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
         )}
 
         {/* ADVICE & FOLLOW-UP CARD */}
-        {(data.advice || data.followUp || data.followUpDetails?.nextAppt) && (
+        {(data.advice || data.followUp || data.followUpDetails?.nextAppt || data.followUpDetails?.additionalNotes || data.followUpDetails?.feedback) && (
           <div className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 text-xs space-y-1 break-inside-avoid">
             {data.advice && (
               <p className="text-slate-800">
@@ -445,6 +528,18 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                       ? fDateandTime(data.followUpDetails.nextAppt).split(",")[0]
                       : "—"}
                 </span>
+              </p>
+            )}
+            {data.followUpDetails?.feedback && (
+              <p className="text-slate-800">
+                <span className="font-bold text-slate-900 uppercase tracking-wider text-[10px]">Patient Feedback:</span>{" "}
+                <span className="font-medium">{data.followUpDetails.feedback}</span>
+              </p>
+            )}
+            {data.followUpDetails?.additionalNotes && (
+              <p className="text-slate-800">
+                <span className="font-bold text-slate-900 uppercase tracking-wider text-[10px]">Additional Notes:</span>{" "}
+                <span className="font-medium">{data.followUpDetails.additionalNotes}</span>
               </p>
             )}
           </div>

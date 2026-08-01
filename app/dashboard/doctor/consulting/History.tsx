@@ -109,6 +109,7 @@ export interface Consultations {
     urineMovement?: string;
   };
   therapy?: string;
+  therapyNotes?: string;
   advice: string;
   followUp: Date;
   test: Test[];

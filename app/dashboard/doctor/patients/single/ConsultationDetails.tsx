@@ -360,7 +360,7 @@ export default function ConsultationDetails({
                                     Past Medical History & Current Medications
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                                 <div>
                                     <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-1">
                                         Pre-existing Conditions
@@ -384,6 +384,14 @@ export default function ConsultationDetails({
                                     </p>
                                     <p className="font-medium text-foreground">
                                         {selectedRow.medicalHistoryDetails.currentMedications || "None"}
+                                    </p>
+                                </div>
+                                <div>
+                                    <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-1">
+                                        Allergies
+                                    </p>
+                                    <p className="font-medium text-rose-700">
+                                        {selectedRow.medicalHistoryDetails.allergies || "None"}
                                     </p>
                                 </div>
                             </CardContent>
@@ -445,20 +453,27 @@ export default function ConsultationDetails({
                             </Card>
                         )}
 
-                    {selectedRow.therapy && (
+                    {(selectedRow.therapy || selectedRow.therapyNotes) && (
                         <Card className="shadow-sm border-muted-200">
                             <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
                                 <div className="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
                                     <Activity className="w-5 h-5" />
                                 </div>
                                 <CardTitle className="text-base font-semibold">
-                                    Therapy
+                                    Therapy & Notes
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                                    {selectedRow.therapy}
-                                </p>
+                            <CardContent className="space-y-2">
+                                {selectedRow.therapy && (
+                                    <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                        <span className="font-semibold text-slate-900">Therapy:</span> {selectedRow.therapy}
+                                    </p>
+                                )}
+                                {selectedRow.therapyNotes && (
+                                    <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                        <span className="font-semibold text-slate-900">Therapy Notes:</span> {selectedRow.therapyNotes}
+                                    </p>
+                                )}
                             </CardContent>
                         </Card>
                     )}
@@ -571,7 +586,12 @@ export default function ConsultationDetails({
                                             <span className="font-semibold">Feedback:</span> {selectedRow.followUpDetails.feedback}
                                         </p>
                                     )}
-                                    {!selectedRow.advice && !selectedRow.followUp && !selectedRow.followUpDetails?.nextAppt && (
+                                    {selectedRow.followUpDetails?.additionalNotes && (
+                                        <p className="text-xs text-slate-600">
+                                            <span className="font-semibold">Additional Notes:</span> {selectedRow.followUpDetails.additionalNotes}
+                                        </p>
+                                    )}
+                                    {!selectedRow.advice && !selectedRow.followUp && !selectedRow.followUpDetails?.nextAppt && !selectedRow.followUpDetails?.additionalNotes && (
                                         <EmptyState text="No advice given" />
                                     )}
                                 </CardContent>
