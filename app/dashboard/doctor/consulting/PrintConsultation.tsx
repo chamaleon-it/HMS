@@ -441,7 +441,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
         )}
 
         {/* PRESCRIBED MEDICINES TABLE (Rx) */}
-        {data.medicines && data.medicines.filter((m) => m.name).length > 0 && (
+        {data.medicines && data.medicines.filter((m) => m.name || m.referralName).length > 0 && (
           <div className="rounded-xl border border-slate-300 overflow-hidden text-xs shadow-2xs break-inside-avoid">
             <div className="bg-slate-900 text-white font-bold px-3 py-2 flex justify-between items-center">
               <span className="uppercase tracking-wider text-[11px]">Prescribed Medicines</span>
@@ -461,12 +461,17 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
               </thead>
               <tbody className="divide-y divide-slate-200 bg-white">
                 {data.medicines
-                  .filter((m) => m.name)
+                  .filter((m) => m.name || m.referralName)
                   .map((m, idx) => (
                     <tr key={idx} className="even:bg-slate-50/50">
                       <td className="p-2 text-center text-slate-500 font-medium">{idx + 1}</td>
                       <td className="p-2 font-bold text-slate-900">
-                        {m.referralName || m.name}
+                        {m.referralName || (typeof m.name === "object" ? (m.name as any)?.name : m.name)}
+                        {m.isCustom && (
+                          <span className="ml-2 text-[10px] font-medium text-purple-700 bg-purple-50 border border-purple-200 px-1.5 py-0.5 rounded">
+                            Outside
+                          </span>
+                        )}
                       </td>
                       <td className="p-2 text-center font-medium">{m.dosage || "—"}</td>
                       <td className="p-2 text-center font-semibold text-slate-800">{m.frequency || "—"}</td>

@@ -21,11 +21,16 @@ export default function Med({consult}:{consult:ConsultationType[]}) {
           className="flex items-start justify-between rounded-lg border p-3"
         >
           <div>
-            <div className="font-medium">
-              {m.name.name}{" "}
-              <span className="text-muted-foreground text-xs">
+            <div className="font-medium flex items-center gap-2">
+              {m.referralName || (typeof m.name === "object" ? m.name?.name : (m.name || "Outside Medicine"))}{" "}
+              <span className="text-muted-foreground text-xs font-normal">
                 (Dose: {m.dosage})
               </span>
+              {(m.isCustom || (!m.name && m.referralName)) && (
+                <Badge variant="outline" className="text-[10px] bg-amber-50 text-amber-800 border-amber-200">
+                  Outside
+                </Badge>
+              )}
             </div>
             <div className="text-xs text-muted-foreground">
               Frequancy: {m.frequency} · Duration: {m.duration} · Since{" "}

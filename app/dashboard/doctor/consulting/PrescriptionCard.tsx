@@ -23,6 +23,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 interface Medicine {
   referralName: string;
   name: string;
+  isCustom?: boolean;
   dosage: string;
   frequency: string;
   food: string;
@@ -152,6 +153,7 @@ export default function PrescriptionCard({
           frequency: "",
           quantity: 0,
           referralName: "",
+          isCustom: false,
         },
       ],
     }));
@@ -170,7 +172,7 @@ export default function PrescriptionCard({
   const updateField = (
     idx: number,
     key: keyof Medicine,
-    val: string | number
+    val: string | number | boolean
   ) => {
     setData((prev) => ({
       ...prev,

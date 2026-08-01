@@ -109,7 +109,7 @@ const Row = React.memo(function Row({
               variant="secondary"
               className="font-normal text-xs whitespace-nowrap"
             >
-              {m.name.name}
+              {m.referralName || (typeof m.name === "object" ? m.name?.name : (m.name || "Outside Medicine"))}
             </Badge>
           ))}
         </div>

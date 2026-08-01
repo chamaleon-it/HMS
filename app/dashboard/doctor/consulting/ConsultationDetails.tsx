@@ -499,8 +499,13 @@ export default function ConsultationDetails({
                                                 className="flex flex-col sm:flex-row sm:items-start justify-between p-3 bg-muted/30 rounded-lg border border-transparent hover:border-muted-300 transition-colors"
                                             >
                                                 <div>
-                                                    <p className="font-semibold text-sm text-foreground">
-                                                        {typeof m.name === "object" ? m.name?.name : (m.name || "Unknown Medicine")}
+                                                    <p className="font-semibold text-sm text-foreground flex items-center gap-2">
+                                                        {(m as any).referralName || (typeof m.name === "object" ? m.name?.name : (m.name || "Unknown Medicine"))}
+                                                        {((m as any).isCustom || !(m.name && typeof m.name === "object")) && (m as any).referralName && (
+                                                            <Badge variant="secondary" className="text-[10px] bg-amber-50 text-amber-800 border-amber-200">
+                                                                Outside
+                                                            </Badge>
+                                                        )}
                                                     </p>
                                                     <p className="text-xs text-muted-foreground mt-1">
                                                         {m.frequency ?? "—"} • {m.duration ?? "—"} •{" "}

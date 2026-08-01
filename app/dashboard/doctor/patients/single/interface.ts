@@ -60,15 +60,17 @@ export interface ConsultationType {
     _id: string;
   };
   medicines: {
-    name: {
-      name: string
+    name?: {
+      name: string;
       _id: string;
-    }
+    } | string | null;
+    referralName?: string;
+    isCustom?: boolean;
     dosage: string;
     frequency: string;
     food: string;
     duration: string;
-    _id: string;
+    _id?: string;
   }[];
   advice: string;
   followUp: Date;

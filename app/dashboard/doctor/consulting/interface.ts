@@ -57,6 +57,7 @@ export interface DataType {
   medicines: {
     referralName: string;
     name: string;
+    isCustom?: boolean;
     dosage: string;
     frequency: string;
     food: string;
