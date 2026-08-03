@@ -91,7 +91,7 @@ export default function ItemSelected({
             placeholder="Search services / tests / items…"
             ref={itemRef}
             className={
-              "h-[42px] w-full rounded-lg border border-slate-200 bg-white/70 px-4 text-[13px] font-medium outline-none focus:ring-4 focus:ring-(--color-synapse-light)/10 focus:border-[var(--color-synapse-light)] dark:border-slate-700 dark:bg-slate-900/50 transition-all shadow-sm"
+              "h-10.5 w-full rounded-lg border border-slate-200 bg-white/70 px-4 text-[13px] font-medium outline-none focus:ring-4 focus:ring-synapse-light/10 focus:border-(--color-synapse-light) dark:border-slate-700 dark:bg-slate-900/50 transition-all shadow-sm"
             }
             value={item ?? ""}
             onChange={(e) => setItem(e.target.value)}
@@ -192,13 +192,13 @@ export default function ItemSelected({
             </div>
           )}
         </div>
-        <PrimaryButton onClick={onAddClick} className="h-[42px] w-12 sm:w-14 flex items-center justify-center p-0 shrink-0">
+        <PrimaryButton onClick={onAddClick} className="h-10.5 w-12 sm:w-14 flex items-center justify-center p-0 shrink-0">
           <Plus className="h-5 w-5 stroke-[2.5]" />
         </PrimaryButton>
       </div>
 
       <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-106.25">
           <DialogHeader>
             <DialogTitle>Edit Service / Item</DialogTitle>
           </DialogHeader>
@@ -208,7 +208,7 @@ export default function ItemSelected({
               <input
                 value={editingItem?.code || ""}
                 onChange={(e) => setEditingItem(prev => prev ? { ...prev, code: e.target.value } : null)}
-                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all"
                 placeholder="e.g. CPT-12345"
               />
             </div>
@@ -217,7 +217,7 @@ export default function ItemSelected({
               <input
                 value={editingItem?.item || ""}
                 onChange={(e) => setEditingItem(prev => prev ? { ...prev, item: e.target.value } : null)}
-                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all"
                 placeholder="ex. Consultation"
               />
             </div>
@@ -228,7 +228,7 @@ export default function ItemSelected({
                 min="0"
                 value={editingItem?.price === 0 ? "" : editingItem?.price.toString()}
                 onChange={(e) => setEditingItem(prev => prev ? { ...prev, price: Number(e.target.value) } : null)}
-                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
+                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all"
                 placeholder="0"
               />
             </div>

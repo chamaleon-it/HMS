@@ -144,11 +144,11 @@ export default function Search({
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="text-[9px] bg-synapse-light/10 text-(--color-synapse-light) px-1.5 py-0.5 rounded-sm font-bold uppercase tracking-wider border border-[var(--color-synapse-light)]/20">
+                      <div className="text-[9px] bg-synapse-light/10 text-(--color-synapse-light) px-1.5 py-0.5 rounded-sm font-bold uppercase tracking-wider border border-synapse-light/20">
                         {item.mrn}
                       </div>
                       {item.patient?.address && (
-                        <div className="text-[10px] text-slate-500 truncate italic max-w-[200px]">
+                        <div className="text-[10px] text-slate-500 truncate italic max-w-50">
                           {item.patient.address}
                         </div>
                       )}

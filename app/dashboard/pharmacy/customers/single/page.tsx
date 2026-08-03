@@ -375,7 +375,7 @@ const CustomerPageContent: React.FC = () => {
                                 <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white text-lg font-semibold">
                                     {customer?.patient?.name?.charAt(0)}
                                 </div>
-                                <div className="flex-1 min-w-[220px]">
+                                <div className="flex-1 min-w-55">
                                     <div className="flex flex-wrap items-center gap-2">
                                         <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
                                             {customer?.patient?.name}
@@ -415,7 +415,7 @@ const CustomerPageContent: React.FC = () => {
                             </div>
 
                             <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-indigo-50 to-synapse-purple/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-indigo-50 to-synapse-purple/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                                     <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
                                         Total Spend
                                     </div>
@@ -425,7 +425,7 @@ const CustomerPageContent: React.FC = () => {
                                 </div>
 
 
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                                     <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
                                         Total Paid
                                     </div>
@@ -435,7 +435,7 @@ const CustomerPageContent: React.FC = () => {
                                 </div>
 
 
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                                     <div className="text-xs font-medium text-rose-700 uppercase tracking-wide">
                                         Total Due
                                     </div>
@@ -445,7 +445,7 @@ const CustomerPageContent: React.FC = () => {
                                 </div>
 
 
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                                     <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
                                         Total Visits
                                     </div>
@@ -453,7 +453,7 @@ const CustomerPageContent: React.FC = () => {
                                         {customer?.totalVisit}
                                     </div>
                                 </div>
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                                     <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
                                         Last Purchase
                                     </div>
@@ -461,7 +461,7 @@ const CustomerPageContent: React.FC = () => {
                                         {customer?.lastPurchase ? fDate(customer.lastPurchase) : "N/A"}
                                     </div>
                                 </div>
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
+                                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
                                     <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
                                         Avg Spend
                                     </div>
@@ -472,7 +472,7 @@ const CustomerPageContent: React.FC = () => {
                             </section>
 
                             <section className="grid gap-5 md:grid-cols-5 items-start">
-                                <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
+                                <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
                                     <div className="px-4 py-3 bg-(--color-synapse-dark) text-slate-50 flex items-center justify-between">
                                         <div className="text-sm font-medium flex items-center gap-2">
                                             <span className="h-7 w-7 rounded-full bg-(--color-synapse-purple) flex items-center justify-center text-[11px]">
@@ -679,7 +679,7 @@ const CustomerPageContent: React.FC = () => {
                                     </div>
                                 </div>
 
-                                <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
+                                <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
                                     <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                                         <div className="text-sm font-semibold text-slate-900">
                                             {selectedVisit?.transactionType === "Refund" || selectedVisit?.items?.some((i: any) => i.name?.toLowerCase().includes("refund")) ? "Refund" : selectedVisit?.transactionType === "Sale" ? "Sale" : "Refund"} Details — {selectedVisit?.mrn || selectedVisit?._id}

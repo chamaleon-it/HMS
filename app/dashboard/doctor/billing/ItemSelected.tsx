@@ -96,7 +96,7 @@ export default function ItemSelected({
             }}
           />
           {billingItems.length > 0 && (
-            <div className="absolute w-full p-2 rounded-md bg-white border top-11 flex flex-col gap-1.5 !z-50 shadow-sm">
+            <div className="absolute w-full p-2 rounded-md bg-white border top-11 flex flex-col gap-1.5 z-50! shadow-sm">
               {billingItems.map((i) => (
                 <div
                   key={i}

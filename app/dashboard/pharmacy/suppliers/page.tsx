@@ -142,7 +142,7 @@ const SuppliersPage: React.FC = () => {
 
 
                     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
-                        <Table className="min-w-[1000px]">
+                        <Table className="min-w-250">
                             <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
                                 <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                                     <TableHead className="text-white font-semibold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
