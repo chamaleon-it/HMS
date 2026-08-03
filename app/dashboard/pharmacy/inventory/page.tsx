@@ -146,7 +146,7 @@ export default function InventoryPage() {
           </div>
 
           <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>
-            <DialogContent className={openView ? "max-w-3xl! w-full" : "max-w-2xl!" + " max-h-[90vh] overflow-y-auto p-0! gap-1"}>
+            <DialogContent className={openView ? "max-w-4xl! w-full p-0! border-none shadow-2xl bg-white overflow-hidden rounded-2xl" : "max-w-2xl! max-h-[90vh] overflow-y-auto p-0! gap-1"}>
 
 
               <div className="">

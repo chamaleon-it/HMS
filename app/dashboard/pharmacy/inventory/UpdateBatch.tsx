@@ -34,7 +34,7 @@ import useSWR from 'swr'
 import { fDate } from "@/lib/fDateAndTime"
 import { formatINR } from "@/lib/fNumber"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ChevronDownIcon, Loader2, PackagePlus } from "lucide-react"
+import { ChevronDownIcon, Loader2, PackagePlus, Pencil } from "lucide-react"
 import React, { useEffect, useRef, useState } from 'react'
 import {
     Tooltip,
@@ -44,8 +44,9 @@ import {
 import { useForm } from "react-hook-form"
 import toast from "react-hot-toast"
 import { z } from "zod"
-import { ItemType } from './interface'
+import { BatchType, ItemType } from './interface'
 import TypableExpiryInput from '../purchase-entry/components/TypableExpiryInput';
+import { EditBatchModal } from './EditBatchModal';
 
 // Schema for adding a batch
 const addBatchSchema = z.object({
@@ -73,6 +74,7 @@ interface Props {
 export default function UpdateBatch({ item, mutate }: Props) {
     const [open, setOpen] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [editingBatch, setEditingBatch] = useState<BatchType | null>(null);
 
     const initialPack = item.packing || 10;
     const initialMrp = item.mrp || item.unitPrice || 0;
@@ -397,14 +399,15 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                         <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-3">Rate</TableHead>
                                         <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-3">SCHEMA (FREE)</TableHead>
                                         <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-3">SCHEMA AMT</TableHead>
-                                        <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-3">Units</TableHead>
+                                         <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-3">Units</TableHead>
                                         <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-3 pr-4">TOTAL</TableHead>
+                                        <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-3 pr-3">ACTION</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {paginatedBatches.length === 0 ? (
                                         <TableRow>
-                                            <TableCell colSpan={10} className="text-center py-6 text-muted-foreground text-xs">
+                                            <TableCell colSpan={11} className="text-center py-6 text-muted-foreground text-xs">
                                                 No batch history found.
                                             </TableCell>
                                         </TableRow>
@@ -435,6 +438,17 @@ export default function UpdateBatch({ item, mutate }: Props) {
                                                     <TableCell className="text-center text-xs py-2.5 text-slate-900 font-bold tabular-nums">{formatINR(schemaAmt)}</TableCell>
                                                     <TableCell className="text-center text-xs py-2.5 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{units}</TableCell>
                                                     <TableCell className="text-right text-xs py-2.5 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>
+                                                    <TableCell className="text-center py-2.5 pr-3">
+                                                        <Button
+                                                            size="icon"
+                                                            variant="ghost"
+                                                            onClick={() => setEditingBatch(batch)}
+                                                            className="h-7 w-7 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg cursor-pointer"
+                                                            title="Edit Batch"
+                                                        >
+                                                            <Pencil className="w-3.5 h-3.5" />
+                                                        </Button>
+                                                    </TableCell>
                                                 </TableRow>
                                             );
                                         })
@@ -485,6 +499,15 @@ export default function UpdateBatch({ item, mutate }: Props) {
                     </DialogClose>
                 </DialogFooter>
             </DialogContent>
+            {editingBatch && (
+                <EditBatchModal
+                    item={item}
+                    batch={editingBatch}
+                    isOpen={!!editingBatch}
+                    onClose={() => setEditingBatch(null)}
+                    mutate={mutate}
+                />
+            )}
         </Dialog>
     )
 }

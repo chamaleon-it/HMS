@@ -2,8 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight, CheckCircle2, Circle } from "lucide-react";
-import { ItemType } from "./interface";
+import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight, CheckCircle2, Circle, Pencil } from "lucide-react";
+import { BatchType, ItemType } from "./interface";
+import { EditBatchModal } from "./EditBatchModal";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useCallback, useMemo, useState } from "react";
@@ -43,6 +44,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
   const [activeTab, setActiveTab] = useState<"Batch History" | "Medicine History">("Batch History");
   const [pagination, setPagination] = useState({ page: 1, limit: 5 });
   const [settingActiveBatch, setSettingActiveBatch] = useState<string | null>(null);
+  const [editingBatch, setEditingBatch] = useState<BatchType | null>(null);
 
   const handleSetActiveBatch = useCallback(
     async (batchId: string) => {
@@ -137,26 +139,26 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-xl p-2 space-y-4 text-sm max-h-[calc(100vh-200px)] overflow-y-auto">
+    <div className="w-full bg-white rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden text-sm border border-slate-100">
       {/* Header */}
-      <div className="flex items-start justify-between border-b pb-4">
+      <div className="flex items-start justify-between border-b border-slate-100 p-5 bg-slate-50/50 flex-shrink-0">
         <div>
           <div className="flex items-center gap-2 mb-1">
             <h2 className="text-xl font-bold text-gray-900 tracking-tight">
               {item.name}
             </h2>
-            <Badge variant={item.status === "Active" ? "default" : "secondary"} className={item.status === "Active" ? "bg-green-100 text-green-700 hover:bg-green-200 border-none" : ""}>
+            <Badge variant={item.status === "Active" ? "default" : "secondary"} className={item.status === "Active" ? "bg-green-100 text-green-700 hover:bg-green-200 border-none font-semibold" : ""}>
               {item.status}
             </Badge>
           </div>
           <div className="flex items-center gap-3 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-xs font-medium">Gen: {item.generic}</span>
-            <span className="flex items-center gap-1 bg-slate-100 px-2 py-0.5 rounded text-xs font-medium">HSN: {item.hsnCode}</span>
+            <span className="flex items-center gap-1 bg-slate-200/60 px-2 py-0.5 rounded text-xs font-medium text-slate-700">Gen: {item.generic}</span>
+            <span className="flex items-center gap-1 bg-slate-200/60 px-2 py-0.5 rounded text-xs font-medium text-slate-700">HSN: {item.hsnCode}</span>
           </div>
         </div>
 
         <div className="flex flex-col items-end gap-1">
-          <div className="h-10 bg-white border border-slate-200 rounded-md p-1 flex items-center justify-center shadow-sm">
+          <div className="h-10 bg-white border border-slate-200 rounded-md p-1 flex items-center justify-center shadow-xs">
             <div className="w-32 h-full bg-[repeating-linear-gradient(90deg,black_0px,black_1px,transparent_1px,transparent_3px)] opacity-80" />
           </div>
           <div className="flex items-center gap-1.5 text-[10px] text-slate-500 font-medium">
@@ -164,6 +166,9 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           </div>
         </div>
       </div>
+
+      {/* Scrollable Body */}
+      <div className="p-5 overflow-y-auto flex-1 space-y-4">
 
       {/* Stock / Status - REPLACED BY NEW SALES CARDS SECTION BELOW, REMOVING OLD STOCK CARDS IF REDUNDANT, BUT USER ASKED FOR ALL UI IMPROVEMENT. LET'S KEEP STOCK BUT MODERNIZE IT OR MERGE WITH DETAILS. Let's make it a compact stat row below header */}
       <div className="grid grid-cols-2 gap-4">
@@ -449,7 +454,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           </div>
         )}
 
-        <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
+        <div className="bg-white border rounded-2xl overflow-x-auto shadow-sm shadow-slate-200">
 
           <Table>
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
@@ -468,6 +473,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Units</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">TOTAL</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-3">ACTION</TableHead>
                   </>
                 ) : (
                   <>
@@ -482,7 +488,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             <TableBody>
               {paginatedData.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={activeTab === "Batch History" ? 10 : 4} className="text-center py-20 text-slate-400">
+                  <TableCell colSpan={activeTab === "Batch History" ? 12 : 4} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2">
                       {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
                       <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
@@ -543,7 +549,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                               </TableCell>
                               <TableCell className="py-3">
                                 <div className="flex items-center gap-1.5">
-                                  <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-sm">
+                                  <span className="font-mono text-[11px] bg-white border border-slate-200 rounded px-2 py-0.5 text-slate-600 shadow-xs">
                                     {data.batchNumber}
                                   </span>
                                   {isActive && (
@@ -562,6 +568,17 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
                               <TableCell className="text-center text-xs py-3 font-bold text-indigo-600 bg-indigo-50/20 tabular-nums">{units}</TableCell>
                               <TableCell className="text-right text-xs py-3 font-bold text-slate-900 pr-4 tabular-nums">{formatINR(total)}</TableCell>
+                              <TableCell className="text-center py-3 pr-3">
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => setEditingBatch(data)}
+                                  className="h-8 w-8 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded-lg transition-colors cursor-pointer"
+                                  title="Edit Batch"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </Button>
+                              </TableCell>
                             </>
                           );
                         })()
@@ -590,24 +607,24 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
         </div>
 
       </div>
+      </div>
 
-      {/* Actions */}
-      < div className="flex gap-3 pt-4 border-t mt-2" >
-        <Button className="flex-1 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
+      {/* Fixed Footer Actions */}
+      <div className="flex gap-3 p-4 px-6 border-t border-slate-100 bg-slate-50/80 flex-shrink-0">
+        <Button className="flex-1 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white shadow-md transition-all hover:shadow-lg gap-2 rounded-xl py-5 cursor-pointer" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
         </Button>
 
-        <AlertDialog >
+        <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="destructive" className="flex-1 bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 shadow-sm gap-2">
+            <Button variant="destructive" className="flex-1 bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300 shadow-sm gap-2 rounded-xl py-5 cursor-pointer">
               <Trash2 className="w-4 h-4" />
               Delete Item
             </Button>
           </AlertDialogTrigger>
 
           <AlertDialogContent className="max-w-sm! rounded-xl">
-            {/* ... existing alert content doesn't need much change save for maybe rounding ... */}
             <AlertDialogHeader>
               <AlertDialogTitle>Are you sure?</AlertDialogTitle>
               <AlertDialogDescription>
@@ -631,7 +648,17 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div >
-    </div >
+      </div>
+
+      {editingBatch && (
+        <EditBatchModal
+          item={item}
+          batch={editingBatch}
+          isOpen={!!editingBatch}
+          onClose={() => setEditingBatch(null)}
+          mutate={mutate}
+        />
+      )}
+    </div>
   );
 }

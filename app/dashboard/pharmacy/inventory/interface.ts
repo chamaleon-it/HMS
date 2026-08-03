@@ -6,6 +6,7 @@ export interface BatchType {
   pack?: number;
   noOfPack?: number;
   mrp?: number;
+  unitPrice?: number;
   purchasePrice: number;
   supplier: string;
   free?: number;
