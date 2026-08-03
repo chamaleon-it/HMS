@@ -64,7 +64,10 @@ const Patients: React.FC = () => {
     params.set("alreadyPurchase", filter.alreadyPurchase ? "true" : "false");
     params.set("page", String(filter.page));
     params.set("limit", String(filter.limit));
-    if (filter.query) params.set("query", filter.query);
+    if (filter.query) {
+        params.set("query", filter.query);
+        params.set("q", filter.query);
+    }
     if (filter.address) params.set("address", filter.address);
     if (filter.city) params.set("city", filter.city);
     if (filter.district) params.set("district", filter.district);
@@ -77,6 +80,7 @@ const Patients: React.FC = () => {
     if (filter.age[0] !== 0 || filter.age[1] !== 100) {
         params.set("minAge", filter.age[0].toString());
         params.set("maxAge", filter.age[1].toString());
+        params.set("age", `${filter.age[0]}-${filter.age[1]}`);
     }
     if (filter.lastVisit) params.set("lastVisit", String(filter.lastVisit));
 

@@ -188,9 +188,10 @@ export default function Filter({
               value={filter.age[1] === 100 ? "" : filter.age[1]}
               placeholder="Max"
               onChange={(e) => {
+                const val = e.target.value === "" ? 100 : Number(e.target.value);
                 const age: [number, number] = [
                   filter.age[0],
-                  Number(e.target.value),
+                  isNaN(val) ? 100 : val,
                 ];
                 setFilter((prev) => ({ ...prev, age, page: 1 }));
               }}
