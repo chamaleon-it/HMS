@@ -461,6 +461,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">PACK</TableHead>
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">QTY</TableHead>
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">MRP</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Unit Price</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">EXPIRY</TableHead>
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Rate</TableHead>
                     <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">SCHEMA (FREE)</TableHead>
@@ -513,7 +514,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                           const rate = data.purchasePrice || 0;
                           const schemaAmt = data.schemaAmt ?? (free * rate);
                           const total = data.total ?? (noOfPack > 0 ? (noOfPack * rate + schemaAmt) : (units * rate));
-
+                          const unitPrice = data.unitPrice
                           return (
                             <>
                               <TableCell className="text-center py-3 pl-2">
@@ -553,6 +554,8 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                               <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{pack}</TableCell>
                               <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{noOfPack}</TableCell>
                               <TableCell className="text-center text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(mrp)}</TableCell>
+                              <TableCell className="text-center text-xs py-3 text-slate-900 font-bold tabular-nums">{unitPrice ? formatINR(unitPrice) : "-"}</TableCell>
+
                               <TableCell className="text-xs py-3 text-slate-600 font-medium">{fDate(data.expiryDate)}</TableCell>
                               <TableCell className="text-center text-xs py-3 text-slate-900 font-bold tabular-nums">{formatINR(rate)}</TableCell>
                               <TableCell className="text-center text-xs py-3 text-slate-600 font-medium">{free}</TableCell>
