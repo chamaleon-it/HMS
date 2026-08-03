@@ -183,7 +183,7 @@ const Patients: React.FC = () => {
                                                                     </Badge>
                                                                 )}
                                                                 {isRepeat && (
-                                                                    <Badge className="bg-synapse-light/10 text-(--color-synapse-light) border border-[var(--color-synapse-light)]/20 text-[10px] font-medium">
+                                                                    <Badge className="bg-synapse-light/10 text-(--color-synapse-light) border border-synapse-light/20 text-[10px] font-medium">
                                                                         Repeat
                                                                     </Badge>
                                                                 )}

@@ -81,7 +81,7 @@ export default function Filter({
     >
       <div className="flex flex-wrap items-end gap-3">
         {/* Search */}
-        <div className="space-y-2 flex-1 max-w-[400px]">
+        <div className="space-y-2 flex-1 max-w-100">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Search Customers
           </label>
@@ -142,7 +142,7 @@ export default function Filter({
         </div>
 
         {/* Doctor */}
-        <div className="space-y-2 min-w-[180px]">
+        <div className="space-y-2 min-w-45">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Doctor
           </label>
@@ -228,7 +228,7 @@ export default function Filter({
 
       <div className="flex flex-wrap items-end gap-3 mt-3">
 
-        <div className="space-y-2 flex-1 max-w-[200px]">
+        <div className="space-y-2 flex-1 max-w-50">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Address
           </label>
@@ -246,7 +246,7 @@ export default function Filter({
           </div>
         </div>
         {/* City */}
-        <div className="space-y-2 flex-1 max-w-[200px]">
+        <div className="space-y-2 flex-1 max-w-50">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">City</label>
           <ServerAutocomplete
             field="city"
@@ -257,7 +257,7 @@ export default function Filter({
         </div>
 
         {/* District */}
-        <div className="space-y-2 flex-1 max-w-[200px]">
+        <div className="space-y-2 flex-1 max-w-50">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">District</label>
           <ServerAutocomplete
             field="district"
@@ -268,7 +268,7 @@ export default function Filter({
         </div>
 
         {/* State */}
-        <div className="space-y-2 flex-1 max-w-[150px]">
+        <div className="space-y-2 flex-1 max-w-37.5">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">State</label>
           <ServerAutocomplete
             field="state"
@@ -279,7 +279,7 @@ export default function Filter({
         </div>
 
         {/* Pincode */}
-        <div className="space-y-2 flex-1 max-w-[150px]">
+        <div className="space-y-2 flex-1 max-w-37.5">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">Pincode</label>
           <ServerAutocomplete
             field="pinCode"
@@ -474,7 +474,7 @@ function FilterSelect({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="h-11 px-4 bg-slate-50/50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-all flex items-center justify-between gap-2 min-w-[180px]"
+        className="h-11 px-4 bg-slate-50/50 border border-slate-200 rounded-lg hover:bg-slate-100 transition-all flex items-center justify-between gap-2 min-w-45"
         aria-haspopup="listbox"
         aria-expanded={open}
       >
@@ -498,13 +498,13 @@ function FilterSelect({
       </button>
 
       {open && (
-        <div className="absolute z-30 mt-2 w-full min-w-[200px] bg-white rounded-xl shadow-2xl border border-slate-200 p-2 overflow-hidden">
+        <div className="absolute z-30 mt-2 w-full min-w-50 bg-white rounded-xl shadow-2xl border border-slate-200 p-2 overflow-hidden">
           {searchable && (
             <input
               value={q}
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search..."
-              className="mb-2 w-full h-9 px-3 rounded-lg bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)/10 text-xs"
+              className="mb-2 w-full h-9 px-3 rounded-lg bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-synapse-light/10 text-xs"
             />
           )}
           <ul role="listbox" className="max-h-60 overflow-auto space-y-1">
