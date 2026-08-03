@@ -149,8 +149,8 @@ export function EditBatchModal({
     const m = Number(watchedMrp) || 0;
 
     const units = (q + f) * p;
-    const sAmt = r * f;
-    const tot = q * r + sAmt;
+    const sAmt = Number((r * f).toFixed(2));
+    const tot = Number((q * r + sAmt).toFixed(2));
     const calculatedUnitPrice = p > 0 ? m / p : m;
 
     setValue("quantity", units > 0 ? units : q + f, { shouldValidate: true });
