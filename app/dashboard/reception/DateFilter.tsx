@@ -8,7 +8,7 @@ import { CalendarIcon } from "lucide-react";
 
 const theme = {
     from: "var(--color-synapse-purple)",
-    to: "#d946ef",
+    to: "var(--color-synapse-light)",
 };
 
 interface DateFilterProps {
@@ -43,8 +43,7 @@ export default function DateFilter({ activeDate, setActiveDate, date, setDate, i
                                     {active && (
                                         <motion.span
                                             layoutId="date-filter-indicator"
-                                            className="absolute inset-0 rounded-full"
-                                            style={{ background: `linear-gradient(90deg, ${theme.from}, ${theme.to})` }}
+                                            className="absolute inset-0 rounded-full bg-(--color-synapse-light)"
                                             transition={{ type: "spring", stiffness: 500, damping: 40 }}
                                         />
                                     )}
@@ -84,8 +83,7 @@ export default function DateFilter({ activeDate, setActiveDate, date, setDate, i
                         {active && (
                             <motion.span
                                 layoutId="date-filter-indicator"
-                                className="absolute inset-0 rounded-full"
-                                style={{ background: `linear-gradient(90deg, ${theme.from}, ${theme.to})` }}
+                                className="absolute inset-0 rounded-full bg-(--color-synapse-light)"
                                 transition={{ type: "spring", stiffness: 500, damping: 40 }}
                             />
                         )}

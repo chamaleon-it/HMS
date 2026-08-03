@@ -48,7 +48,7 @@ export default function Filter({
       <CardContent className="p-3 md:p-4">
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center lg:justify-between">
           <div className="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <div className="relative flex-1 min-w-[260px] group">
+            <div className="relative flex-1 min-w-65 group">
               <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-(--color-synapse-light)" />
               <Input
                 value={query}
@@ -96,7 +96,7 @@ export default function Filter({
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className="absolute inset-0 bg-zinc-900"
+                        className="absolute inset-0 bg-primary"
                         transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                       />
                     )}

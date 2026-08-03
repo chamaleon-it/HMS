@@ -533,7 +533,7 @@ function AppointmentPageContent() {
                       {active && (
                         <motion.span
                           layoutId="appointment-tab-indicator"
-                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple)"
+                          className="absolute inset-0 rounded-full shadow-md bg-(--color-synapse-light)"
 
                           transition={{ type: "spring", stiffness: 500, damping: 40 }}
                         />
@@ -565,7 +565,7 @@ function AppointmentPageContent() {
                       {active && (
                         <motion.span
                           layoutId="status-filter-indicator"
-                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple)"
+                          className="absolute inset-0 rounded-full shadow-md bg-(--color-synapse-light)"
 
                           transition={{ type: "spring", stiffness: 400, damping: 35 }}
                         />

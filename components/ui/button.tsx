@@ -10,7 +10,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-linear-to-r from-(--color-synapse-purple) to-[#d946ef] text-primary-foreground shadow-xs hover:opacity-90",
+          "bg-(--color-synapse-dark) text-white shadow-xs hover:bg-(--color-synapse-light) transition-colors",
         destructive:
           "bg-destructive text-white shadow-xs hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40 dark:bg-destructive/60",
         outline:

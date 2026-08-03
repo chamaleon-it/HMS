@@ -352,7 +352,7 @@ export default function ProfileForm() {
               <div className="p-2.5 rounded-xl border bg-slate-50">
                 <div className="space-y-1.5">
                   <Label htmlFor="signature">Doctor signature</Label>
-                  <div className="border rounded-lg p-3 flex items-center justify-center min-h-[80px] bg-white">
+                  <div className="border rounded-lg p-3 flex items-center justify-center min-h-20 bg-white">
                     {values.signature ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
@@ -424,7 +424,7 @@ export default function ProfileForm() {
             </div>
           </CardContent>
           <CardFooter className="justify-end">
-            <Button className="gap-2 bg-linear-to-r from-(--color-synapse-dark) to-(--color-synapse-purple) text-white hover:from-(--color-synapse-purple) hover:to-(--color-synapse-purple) shadow-sm">
+            <Button className="gap-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-light) shadow-sm transition-colors">
               <Save className="h-4 w-4" /> Save changes
             </Button>
           </CardFooter>

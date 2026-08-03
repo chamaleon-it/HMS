@@ -48,7 +48,7 @@ export default function Filter({
       {/* Search & Reset Row */}
       <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
         {/* Global Search */}
-        <div className="relative flex-1 lg:flex-[5] group">
+        <div className="relative flex-1 lg:flex-5 group">
           <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
           <input
             value={filter.query || ""}
@@ -60,7 +60,7 @@ export default function Filter({
           />
         </div>
         {/* Address Search */}
-        <div className="relative flex-1 lg:flex-[4] group">
+        <div className="relative flex-1 lg:flex-4 group">
           <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
           <input
             value={filter.address || ""}
@@ -207,7 +207,7 @@ export default function Filter({
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="absolute inset-0 bg-(--color-synapse-light)"
+                        className="absolute inset-0 bg-primary"
                         transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                       />
                     )}
@@ -250,7 +250,7 @@ export default function Filter({
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className={cn("absolute inset-0", opt.color || "bg-zinc-900")}
+                        className={cn("absolute inset-0", opt.color || "bg-primary")}
                         transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                       />
                     )}
@@ -361,7 +361,7 @@ export default function Filter({
                   className={cn(
                     "px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 border cursor-pointer inline-flex items-center gap-1.5",
                     active
-                      ? "bg-zinc-900 text-white border-zinc-900 shadow-sm"
+                      ? "bg-primary text-white border-primary shadow-sm"
                       : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
                   )}
                 >
@@ -487,7 +487,7 @@ function Segmented({
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="absolute inset-0 bg-zinc-900"
+                  className="absolute inset-0 bg-primary"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
                 />
               )}
@@ -549,7 +549,7 @@ function FilterSelect({
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "h-11 px-4 rounded-xl bg-zinc-50 border border-zinc-200 hover:border-zinc-300 transition-all inline-flex items-center justify-between gap-3 min-w-[180px] group",
+          "h-11 px-4 rounded-xl bg-zinc-50 border border-zinc-200 hover:border-zinc-300 transition-all inline-flex items-center justify-between gap-3 min-w-45 group",
           open && "ring-2 ring-zinc-900/5 border-zinc-900 bg-white"
         )}
       >
@@ -572,7 +572,7 @@ function FilterSelect({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute z-50 mt-2 w-full min-w-[200px] max-h-72 overflow-hidden bg-white rounded-2xl shadow-xl ring-1 ring-zinc-200 p-2"
+            className="absolute z-50 mt-2 w-full min-w-50 max-h-72 overflow-hidden bg-white rounded-2xl shadow-xl ring-1 ring-zinc-200 p-2"
           >
             {searchable && (
               <div className="relative mb-2 px-1">
@@ -585,7 +585,7 @@ function FilterSelect({
                 />
               </div>
             )}
-            <ul role="listbox" className="max-h-[240px] overflow-y-auto custom-scrollbar">
+            <ul role="listbox" className="max-h-60 overflow-y-auto custom-scrollbar">
               {visible.map((o) => {
                 const active = o.value === value;
                 return (

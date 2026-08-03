@@ -60,8 +60,7 @@ const PharmacySettingsPage: React.FC = () => {
                 {active && (
                   <motion.span
                     layoutId="settings-tab-indicator"
-                    className="absolute inset-0 rounded-full"
-                    style={{ background: "linear-gradient(to right, var(--color-synapse-purple), #d946ef)" }}
+                    className="absolute inset-0 rounded-full bg-(--color-synapse-light)"
                     transition={{ type: "spring", stiffness: 500, damping: 40 }}
                   />
                 )}

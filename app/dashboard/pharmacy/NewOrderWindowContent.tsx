@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth } from "@/auth/context/auth-context";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import { AlertTriangle, Eye, Printer, UserPlus } from "lucide-react";
+import { AlertTriangle, Eye, Printer, UserPlus, SlidersHorizontal } from "lucide-react";
 import PharmacistSelection from "./PharmacistSelection";
 import DoctorSelection from "./billing/DoctorSelection";
 import { cn } from "@/lib/utils";
@@ -203,10 +203,11 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
           <div className="shrink-0 pt-7">
             <Button
               variant="outline"
-              className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-sm"
+              className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-sm"
               onClick={() => setShowAllFields(!showAllFields)}
             >
-              {showAllFields ? "Hide optional fields" : "Display all fields"}
+              <SlidersHorizontal className="h-3.5 w-3.5 mr-1" />
+              {showAllFields ? "Compact" : "More"}
             </Button>
           </div>
         </div>
@@ -233,7 +234,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
             window.dispatchEvent(new CustomEvent('request-delete-draft', { detail: draft.id }));
           }}>Cancel</Button>
           <Button
-            className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md"
+            className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-md"
             onClick={createOrder}
           >
             Place Order

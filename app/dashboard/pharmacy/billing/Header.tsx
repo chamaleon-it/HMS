@@ -167,8 +167,7 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
               {active && (
                 <motion.span
                   layoutId="billing-tab-indicator-1"
-                  className="absolute inset-0 rounded-full"
-                  style={{ background: "linear-gradient(to right, var(--color-synapse-purple), #d946ef)" }}
+                  className="absolute inset-0 rounded-full bg-(--color-synapse-light)"
                   transition={{ type: "spring", stiffness: 500, damping: 40 }}
                 />
               )}
@@ -195,10 +194,7 @@ const PrimaryButton: React.FC<
 > = ({ className = "", children, ...rest }) => (
   <button
     {...rest}
-    className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110 active:scale-[0.99] ${className} cursor-pointer`}
-    style={{
-      backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-    }}
+    className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110 active:scale-[0.99] bg-(--color-synapse-light) ${className} cursor-pointer`}
   >
     {children}
   </button>

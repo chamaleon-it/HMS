@@ -159,7 +159,7 @@ export default function Search({
             )}
           </div>
           <Button
-            className="h-9 rounded-lg bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white px-4 text-xs font-medium shadow-md flex items-center gap-2 transition-all active:scale-95"
+            className="h-9 rounded-lg bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white px-4 text-xs font-medium shadow-md flex items-center gap-2 transition-all active:scale-95"
             onClick={() => fetchOrder()}
           >
             <Download className="w-3.5 h-3.5" />

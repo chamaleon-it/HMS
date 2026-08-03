@@ -126,7 +126,7 @@ export default function Security() {
           </CardContent>
           <CardFooter className="justify-between gap-2 flex-wrap">
             <Button
-              className="gap-2 bg-linear-to-r from-(--color-synapse-dark) to-(--color-synapse-purple) text-white hover:from-(--color-synapse-purple) hover:to-(--color-synapse-purple) disabled:opacity-60 shadow-sm"
+              className="gap-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-light) disabled:opacity-60 shadow-sm transition-colors"
               type="submit"
             >
               <Save className="h-4 w-4" /> Update password
@@ -187,7 +187,7 @@ const RestoreBackup = () => {
           />
         </div>
         <Button
-          className="gap-2 bg-linear-to-r from-(--color-synapse-dark) to-(--color-synapse-purple) text-white hover:from-(--color-synapse-purple) hover:to-(--color-synapse-purple) disabled:opacity-60 shadow-sm mt-5"
+          className="gap-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-light) disabled:opacity-60 shadow-sm transition-colors mt-5"
           onClick={restoreBackup}
         >
           <Save className="h-4 w-4" /> Restore

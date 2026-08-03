@@ -129,7 +129,7 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
         {!asDialogOnly && (
           <DialogTrigger asChild>
             <Button
-              className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+              className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-md transition-all hover:shadow-lg active:scale-95"
               size="sm"
             >
               New Order
@@ -157,7 +157,7 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
               }}
             />
 
-            <Button className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-sm" onClick={() => setShowAllFields(!showAllFields)}>
+            <Button className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-sm" onClick={() => setShowAllFields(!showAllFields)}>
               {showAllFields ? "Hide optional fields" : "Display all fields"}
             </Button>
           </div>
@@ -168,7 +168,7 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
               <Button variant="outline">Cancel</Button>
             </DialogClose>
             <Button
-              className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md"
+              className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-md"
               onClick={createOrder}
             >
               Place Order

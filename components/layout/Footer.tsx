@@ -7,7 +7,7 @@ import React from "react";
  */
 export default function Footer() {
   return (
-    <footer className="border-t border-transparent bg-linear-to-r from-(--color-synapse-purple) to-[#d946ef] text-white print:hidden">
+    <footer className="border-t border-transparent bg-primary text-white print:hidden">
       <div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-sm">
         {/* Left */}
         <div className="flex items-center gap-2">

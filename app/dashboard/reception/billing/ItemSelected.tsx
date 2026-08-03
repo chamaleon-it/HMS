@@ -271,10 +271,7 @@ const PrimaryButton: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement>> = (
 }) => (
   <button
     {...rest}
-    className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110 active:scale-[0.99] ${className}`}
-    style={{
-      backgroundImage: `linear-gradient(135deg, ${theme.from}, ${theme.to})`,
-    }}
+    className={`rounded-lg px-4 py-2 text-sm font-semibold text-white shadow hover:brightness-110 active:scale-[0.99] bg-(--color-synapse-light) ${className}`}
   >
     {children}
   </button>

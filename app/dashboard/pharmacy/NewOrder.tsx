@@ -68,7 +68,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       </Button>
 
       <Button
-        className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+        className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-md transition-all hover:shadow-lg active:scale-95"
         size={"sm"}
         onClick={() => addDraft({ doctor: user?._id || "" })}
       >

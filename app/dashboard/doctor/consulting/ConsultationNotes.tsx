@@ -110,7 +110,7 @@ export default function ConsultationNotes({
             <button
               type="button"
               onClick={() => setAddValues("presentHistory")}
-              className="inline-flex items-center rounded-lg bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-(--color-synapse-purple) hover:to-(--color-synapse-dark) focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
+              className="inline-flex items-center rounded-lg bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white shadow-md transition focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
             >
               + Add Condition
             </button>
@@ -192,7 +192,7 @@ export default function ConsultationNotes({
                 <button
                   type="button"
                   onClick={() => setAddValues("pastHistory")}
-                  className="inline-flex items-center rounded-lg bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-(--color-synapse-purple) hover:to-(--color-synapse-dark) focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
+                  className="inline-flex items-center rounded-lg bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white shadow-md transition focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
                 >
                   + Add Condition
                 </button>
@@ -280,7 +280,7 @@ export default function ConsultationNotes({
               <button
                 type="button"
                 onClick={() => setAddValues("diagnosis")}
-                className="inline-flex items-center rounded-lg bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) px-3 py-1.5 text-sm font-medium text-white shadow-md transition hover:from-(--color-synapse-purple) hover:to-(--color-synapse-dark) focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
+                className="inline-flex items-center rounded-lg bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white shadow-md transition focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
               >
                 + Add Condition
               </button>

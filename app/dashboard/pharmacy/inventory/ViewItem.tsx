@@ -315,8 +315,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                 {active && (
                   <motion.span
                     layoutId="tab-indicator-view"
-                    className="absolute inset-0 rounded-full shadow-md"
-                    style={{ background: "linear-gradient(to right, var(--color-synapse-purple), #d946ef)" }}
+                    className="absolute inset-0 rounded-full shadow-md bg-(--color-synapse-light)"
                     transition={{ type: "spring", stiffness: 500, damping: 40 }}
                   />
                 )}
@@ -337,7 +336,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                   size="sm"
                   className={cn(
                     "h-9 rounded-full px-4 border-slate-200 bg-white text-slate-600 hover:bg-slate-50 gap-2",
-                    dateRange?.from && "border-[var(--color-synapse-light)] bg-synapse-light/10 text-(--color-synapse-light)"
+                    dateRange?.from && "border-(--color-synapse-light) bg-synapse-light/10 text-(--color-synapse-light)"
                   )}
                 >
                   <CalendarIcon size={14} />
@@ -416,7 +415,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               </div>
             </div>
 
-            <div className="bg-synapse-light/10 border border-[var(--color-synapse-light)]/20 rounded-xl p-4 shadow-sm">
+            <div className="bg-synapse-light/10 border border-synapse-light/20 rounded-xl p-4 shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-full bg-synapse-light/20 flex items-center justify-center text-(--color-synapse-light)">
                   <Banknote className="w-5 h-5" />
@@ -437,7 +436,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
               <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                 {activeTab === "Batch History" ? (
                   <>
-                    <TableHead className="w-[120px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
+                    <TableHead className="w-30 text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Date Added</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Batch No</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Expiry</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">Supplier</TableHead>
@@ -446,7 +445,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                   </>
                 ) : (
                   <>
-                    <TableHead className="w-[200px] text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sale Date</TableHead>
+                    <TableHead className="w-50 text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-4">Sale Date</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Quantity Sold</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Unit Price</TableHead>
                     <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">Total</TableHead>
@@ -514,7 +513,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
       {/* Actions */}
       < div className="flex gap-3 pt-4 border-t mt-2" >
-        <Button className="flex-1 bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
+        <Button className="flex-1 bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
         </Button>

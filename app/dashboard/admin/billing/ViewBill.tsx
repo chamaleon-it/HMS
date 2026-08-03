@@ -124,9 +124,9 @@ export default function ViewBill({ id }: { id: string }) {
                 {/* Receipt Container */}
                 <div className="bg-white text-slate-900 font-sans leading-relaxed shadow-xl w-full flex flex-col overflow-hidden rounded-xl print:shadow-none print:rounded-none">
                     {/* HEADER */}
-                    <div className="bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-dark) text-white px-10 py-8">
+                    <div className="bg-primary text-white px-10 py-8">
                         <div className="flex justify-between items-start">
-                            <HospitalName />
+                            <HospitalName dark />
                             <div className="text-right space-y-2">
                                 <Badge className="bg-white text-slate-900 border-none px-3 py-1 font-bold text-xs">CASH RECEIPT</Badge>
                                 <div className="space-y-0.5">
@@ -187,7 +187,7 @@ export default function ViewBill({ id }: { id: string }) {
                         {/* TOTALS AND T&C */}
                         <div className="flex justify-end gap-10 items-start">
                             {/* T&C - Right side next to totals */}
-                            <div className="flex-1 max-w-[400px] text-left">
+                            <div className="flex-1 max-w-100 text-left">
                                 <h4 className="text-[11px] font-bold uppercase text-slate-900 mb-2">Terms & Conditions</h4>
                                 <ul className="text-[10px] text-slate-600 space-y-1 font-medium italic">
                                     <li>Invoice once generated cannot be cancelled.</li>
@@ -227,15 +227,15 @@ export default function ViewBill({ id }: { id: string }) {
                     </div>
 
                     {/* FOOTER */}
-                    <div className="bg-(--color-synapse-dark) px-10 py-6 text-[10px] text-slate-400 flex justify-between items-center">
+                    <div className="bg-(--color-synapse-dark) px-10 py-6 text-[10px] text-white flex justify-between items-center">
                         <div className="space-y-1 text-left">
-                            <p className="text-slate-300 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
-                            <p className="text-slate-500">
-                                For Appointments / Booking: <span className="text-slate-400 font-semibold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
+                            <p className="text-white font-medium">This prescription is valid only if signed by registered medical practitioner</p>
+                            <p className="text-white/80">
+                                For Appointments / Booking: <span className="text-white font-semibold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
                             </p>
                         </div>
-                        <p className="text-slate-500">
-                            Powered by <span className="font-bold text-slate-300 tracking-tight uppercase">Caresoft Innovations LLP</span>
+                        <p className="text-white/80">
+                            Powered by <span className="font-bold text-white tracking-tight uppercase">Caresoft Innovations LLP</span>
                         </p>
                     </div>
                 </div>
@@ -283,7 +283,7 @@ export default function ViewBill({ id }: { id: string }) {
 function Compact({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex gap-2 min-h-6 items-start">
-            <span className="text-slate-400 font-medium uppercase text-[10px] min-w-[50px] mt-0.5">{label}:</span>
+            <span className="text-slate-400 font-medium uppercase text-[10px] min-w-12.5 mt-0.5">{label}:</span>
             <span className="font-bold text-slate-900 line-clamp-2 leading-tight">{value}</span>
         </div>
     );

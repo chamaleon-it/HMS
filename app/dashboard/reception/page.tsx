@@ -504,7 +504,7 @@ function AppointmentPageContent() {
                 </>
               )}
               <div className="h-6 w-px bg-gray-200 mx-1 hidden sm:block" />
-              <PrimaryButton onClick={() => router.push("/dashboard/reception/billing/#new")} className="bg-linear-to-br from-(--color-synapse-light) to-(--color-synapse-purple) shadow-indigo-200" title="Direct">
+              <PrimaryButton onClick={() => router.push("/dashboard/reception/billing/#new")} className="bg-(--color-synapse-light) shadow-indigo-200" title="Direct">
                 Direct
               </PrimaryButton>
 
@@ -512,7 +512,7 @@ function AppointmentPageContent() {
                 <Plus className="h-4 w-4 mr-2" /> Schedule
               </PrimaryButton>
 
-              <PrimaryButton onClick={() => setOpenCreate("walk-in")} className="bg-linear-to-br from-(--color-synapse-light) to-(--color-synapse-purple) shadow-indigo-200" title="Walk-in (Shift + W)">
+              <PrimaryButton onClick={() => setOpenCreate("walk-in")} className="bg-(--color-synapse-light) shadow-indigo-200" title="Walk-in (Shift + W)">
                 Walk-in
               </PrimaryButton>
 
@@ -566,7 +566,7 @@ function AppointmentPageContent() {
                       {active && (
                         <motion.span
                           layoutId="appointment-tab-indicator"
-                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple)"
+                          className="absolute inset-0 rounded-full shadow-md bg-(--color-synapse-light)"
 
                           transition={{ type: "spring", stiffness: 500, damping: 40 }}
                         />
@@ -598,7 +598,7 @@ function AppointmentPageContent() {
                       {active && (
                         <motion.span
                           layoutId="status-filter-indicator"
-                          className="absolute inset-0 rounded-full shadow-md bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple)"
+                          className="absolute inset-0 rounded-full shadow-md bg-(--color-synapse-light)"
 
                           transition={{ type: "spring", stiffness: 400, damping: 35 }}
                         />

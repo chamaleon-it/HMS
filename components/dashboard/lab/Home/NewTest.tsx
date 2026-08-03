@@ -55,8 +55,7 @@ export default function NewTest({
               {active && (
                 <motion.span
                   layoutId="external-booking-indicator"
-                  className="absolute inset-0 rounded-full"
-                  style={{ background: `linear-gradient(90deg, ${theme.from}, ${theme.to})` }}
+                  className="absolute inset-0 rounded-full bg-(--color-synapse-light)"
                   transition={{ type: "spring", stiffness: 500, damping: 40 }}
                 />
               )}

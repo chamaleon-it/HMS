@@ -24,7 +24,7 @@ export default function Analytics() {
             <div className="flex justify-between items-end">
                 <h2 className="text-xl font-bold tracking-tight mb-2">Analytics & Trends</h2>
                 <div className="flex flex-col items-start gap-2">
-                    <span className="text-[10px] font-bold tracking-widest text-blue-400 uppercase ml-4">
+                    <span className="text-[10px] font-bold tracking-widest text-(--color-synapse-light) uppercase ml-4">
                         Date Filter
                     </span>
                     <div className="flex items-center bg-white border border-gray-200 rounded-full p-1 shadow-sm">
@@ -39,8 +39,8 @@ export default function Analytics() {
                                 key={option.value}
                                 onClick={() => setDateRange(option.value)}
                                 className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${dateRange === option.value
-                                        ? "bg-linear-to-r from-amber-700 to-amber-900 text-white shadow-md"
-                                        : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                                    ? "bg-(--color-synapse-light) text-white shadow-sm"
+                                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
                                     }`}
                             >
                                 {option.label}
@@ -58,7 +58,7 @@ export default function Analytics() {
                         <CardDescription>Daily hospital revenue across all departments</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[300px]">
+                        <div className="h-75">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                     <defs>
@@ -85,7 +85,7 @@ export default function Analytics() {
                         <CardDescription>New patients vs daily appointments</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[300px]">
+                        <div className="h-75">
                             <ResponsiveContainer width="100%" height="100%">
                                 <LineChart data={trendData} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                                     <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -110,7 +110,7 @@ export default function Analytics() {
                         <CardDescription>Distribution across hospital services</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <div className="h-[300px]">
+                        <div className="h-75">
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
