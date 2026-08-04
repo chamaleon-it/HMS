@@ -62,7 +62,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       <Button
         variant={"outline"}
         onClick={() => { setNameToRegister(""); setOpenCreate(true); }}
-        className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white"
+        className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white hover:text-white"
       >
         New Customer
       </Button>
