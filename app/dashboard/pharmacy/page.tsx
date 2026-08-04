@@ -30,7 +30,7 @@ function RxQueue() {
   };
 
   const [filter, setFilter] = useState<{
-    q: "Pending" | "Filling" | "Ready" | "Completed" | "Deleted" | "Draft";
+    q: "Pending" | "Completed" | "Deleted" | "Draft";
     page: number;
     limit: number;
   }>({

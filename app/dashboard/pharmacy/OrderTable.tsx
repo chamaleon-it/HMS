@@ -139,7 +139,6 @@ export default function OrderTable({
             duration: string;
             food: string;
             frequency: string;
-            isPacked: string;
             quantity: number;
             name: {
               name: string;
@@ -401,7 +400,7 @@ export default function OrderTable({
                     </TooltipContent>
                   </Tooltip>
 
-                  {r?.status === "Ready" && (
+                  {r?.status === "Pending" && (
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
@@ -561,9 +560,7 @@ function PriorityBadge({ priority }: { priority: string }) {
 
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    Filling: "bg-blue-100 text-(--color-synapse-light)",
-    "Clinical Check": "bg-amber-100 text-amber-700",
-    Ready: "bg-emerald-100 text-emerald-700",
+    Pending: "bg-amber-100 text-amber-700",
     Completed: "bg-emerald-100 text-emerald-700",
   };
   return (

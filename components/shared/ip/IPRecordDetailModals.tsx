@@ -34,8 +34,6 @@ import { formatINR } from "@/lib/fNumber";
 export const OrderStatusBadge = ({ status }: { status: string }) => {
   const styles: Record<string, string> = {
     Completed: "bg-emerald-100 text-emerald-800 border-emerald-200",
-    Ready: "bg-teal-100 text-teal-800 border-teal-200",
-    Filling: "bg-sky-100 text-sky-800 border-sky-200",
     Pending: "bg-amber-100 text-amber-800 border-amber-200",
     Canceled: "bg-rose-100 text-rose-800 border-rose-200",
     Failed: "bg-red-100 text-red-800 border-red-200",
@@ -455,7 +453,6 @@ export const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> =
                       <th className="p-3 bg-gray-50">Frequency</th>
                       <th className="p-3 bg-gray-50">Food</th>
                       <th className="p-3 text-right bg-gray-50">Qty</th>
-                      <th className="p-3 text-right bg-gray-50">Packed</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 text-gray-700">
@@ -470,17 +467,6 @@ export const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> =
                           <td className="p-3 text-gray-600">{it.food || "-"}</td>
                           <td className="p-3 text-right font-bold text-gray-900">
                             {it.quantity}
-                          </td>
-                          <td className="p-3 text-right">
-                            {it.isPacked ? (
-                              <span className="text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded">
-                                Yes
-                              </span>
-                            ) : (
-                              <span className="text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded">
-                                No
-                              </span>
-                            )}
                           </td>
                         </tr>
                       );

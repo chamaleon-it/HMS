@@ -125,7 +125,6 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const [localOrder, setLocalOrder] = useState<OrderType | null>(order);
     const [updatePayload, setUpdatePayload] = useState<OrderType | null>(order);
     const [openPrintConfirm, setOpenPrintConfirm] = useState(false);
-    const [markingAllPacked, setMarkingAllPacked] = useState(false);
     const [updatingOrder, setUpdatingOrder] = useState(false);
     const [paymentMethod, setPaymentMethod] = useState<"Cash" | "UPI" | "Underpaid">("Cash");
     const [amountPaid, setAmountPaid] = useState("");
@@ -223,100 +222,9 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     };
 
 
-    const markAllPacked = async (currentOrder = localOrder) => {
-        if (!currentOrder) return;
-        if (checkIsDirty()) {
-            await handleUpdate()
-        }
-        try {
-            setMarkingAllPacked(true);
-            await toast.promise(
-                api.post("/pharmacy/orders/mark_all_as_packed", {
-                    order: currentOrder._id,
-                }),
-                {
-                    loading: "Marking all items as packed...",
-                    error: ({ response }) => response.data.message,
-                    success: ({ data }) => data.message,
-                }
-            );
-            setLocalOrder((prev) => {
-                const updated = prev
-                    ? {
-                        ...prev,
-                        items: prev.items.map((it) => ({ ...it, isPacked: true })),
-                    }
-                    : null;
-                setUpdatePayload(updated);
-                return updated;
-            });
-            OrderMutate();
-        } catch (error) {
-
-        } finally {
-            setMarkingAllPacked(false);
-        }
-    };
-
-    const handleTogglePacked = async (it: any) => {
-        if (checkIsDirty()) {
-            // toast.error("Please update the order to save changes before packing.");
-            // return;
-            await handleUpdate()
-        }
-        try {
-            if (it.isPacked) {
-                toast.error("This item is already packed");
-                return;
-            }
-            if (!allowNegativeStock) {
-                if (it.quantity > it.name.quantity) {
-                    toast.error(
-                        `Requested quantity ${it.quantity} for ${it.name.name} is not available. Only ${it.name.quantity} are in stock.`
-                    );
-                    return;
-                }
-            }
-            await toast.promise(
-                api.post("/pharmacy/orders/packed", {
-                    order: localOrder?._id,
-                    item: it.name._id,
-                }),
-                {
-                    loading: "Item is packing...",
-                    error: ({ response }) => response.data.message,
-                    success: ({ data }) => data.message,
-                }
-            );
-            OrderMutate();
-
-            // Sync both states
-            const syncState = (prev: OrderType | null) =>
-                prev
-                    ? {
-                        ...prev,
-                        items: prev.items.map((i) =>
-                            i.name._id === it.name._id
-                                ? { ...i, isPacked: true }
-                                : i
-                        ),
-                    }
-                    : null;
-
-            setLocalOrder(syncState);
-            setUpdatePayload(syncState);
-
-        } catch (error) {
-
-        }
-    };
-
     const handleCompleteOrder = async (orderToComplete = localOrder) => {
         if (!orderToComplete) return;
         try {
-            if (orderToComplete.status !== "Ready") {
-                await markAllPacked(orderToComplete);
-            }
             await toast.promise(api.patch(`/pharmacy/orders/complete/${orderToComplete._id}`), {
                 loading: "Completing...",
                 success: (data) => {
@@ -326,12 +234,9 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                 error: ({ response: { data } }) => {
                     return data.message;
                 }
-            })
-            // Fetch latest order state for printing, or just use current if sufficient
-            // Ideally we should print the completed order.
-            // But handlePrintBill mostly uses ID/mrn.
+            });
             handlePrintBill(orderToComplete);
-            setOpen(false); // Close the modal after completing/printing
+            setOpen(false);
         } catch (error) {
 
         }
@@ -399,7 +304,6 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     <UpdatePrescriptionCard
                         setData={setUpdatePayload as React.Dispatch<React.SetStateAction<OrderType>>}
                         data={updatePayload}
-                        onTogglePacked={handleTogglePacked}
                         allergies={order?.patient.allergies}
                     />
 
@@ -551,19 +455,12 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                 </div>
 
                 <div className="flex items-center gap-2">
-                    {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
+                    {localOrder.status !== "Completed" && <Button
                         disabled={updatingOrder}
                         className="bg-(--color-synapse-light) hover:bg-(--color-synapse-light) text-white"
                         onClick={handleUpdate}
                     >
                         {updatingOrder ? "Updating..." : "Update Order"}
-                    </Button>}
-                    {localOrder.status !== "Completed" && localOrder.status !== "Ready" && <Button
-                        disabled={markingAllPacked}
-                        className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white"
-                        onClick={() => markAllPacked()}
-                    >
-                        {markingAllPacked ? "Marking..." : "Mark all packed"}
                     </Button>}
                     {
                         autoGenerateBill ?

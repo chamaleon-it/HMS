@@ -85,7 +85,6 @@ export default function UpdateMedicine({
       quantity: 0,
       frequency: "",
       food: "",
-      isPacked: false
     });
 
 
