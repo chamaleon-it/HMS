@@ -39,6 +39,17 @@ export interface ItemType {
     quantity: number;
     unitPrice: number;
     total: number;
+    customerName?: string;
+    customerPhone?: string;
+    doctorName?: string;
+    doctor?: string;
+    pharmacistName?: string;
+    pharmacist?: string;
+    patientMrn?: string;
+    mrn?: string;
+    pid?: string;
+    customer?: { name?: string; phone?: string; mrn?: string; pid?: string };
+    patient?: { name?: string; phoneNumber?: string; mrn?: string };
   }>;
 }
 
