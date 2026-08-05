@@ -7,8 +7,11 @@ import {
   Wallet,
   Download,
   FileArchive,
+  Loader2,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import api from "@/lib/axios";
+import { fDate } from "@/lib/fDateAndTime";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -100,6 +103,7 @@ function PatientFullDetailContent() {
     impression: "",
   });
   const [formNote, setFormNote] = useState({ d: "", t: "", by: "Dr. Nadisha" });
+  const [uploadingDoc, setUploadingDoc] = useState<string | null>(null);
 
   const mask = (val: string) => {
     if (showPHI) return val;
@@ -238,47 +242,112 @@ function PatientFullDetailContent() {
                       "Consent Form",
                       "Discharge Summary",
                       "Insurance Card",
-                    ].map((d, i) => (
-                      <div key={i} className="rounded-xl border p-4">
-                        <div className="flex items-center justify-between">
-                          <div className="font-medium flex items-center gap-2">
-                            <FileArchive className="h-4 w-4" />
-                            {d}
+                    ].map((d, i) => {
+                      const existingDoc = patient?.documents?.find(
+                        (doc: any) => doc.name === d
+                      );
+                      const hasFile = Boolean(existingDoc && existingDoc.url);
+                      const isUploading = uploadingDoc === d;
+
+                      return (
+                        <div key={i} className="rounded-xl border p-4 bg-white shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <div className="font-medium flex items-center gap-2">
+                              <FileArchive className="h-4 w-4 text-emerald-600" />
+                              {d}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {hasFile && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    const rawUrl = existingDoc?.url || "";
+                                    if (!rawUrl) return;
+                                    const fullUrl = rawUrl.startsWith("http")
+                                      ? rawUrl
+                                      : `${api.defaults.baseURL || ""}${rawUrl.startsWith("/") ? "" : "/"}${rawUrl}`;
+                                    window.open(fullUrl, "_blank");
+                                  }}
+                                >
+                                  <Download className="h-4 w-4 mr-2" />
+                                  Download
+                                </Button>
+                              )}
+                              {!isAdmin && (
+                                <Button asChild size="sm" variant="outline" disabled={isUploading}>
+                                  <label className="cursor-pointer">
+                                    {isUploading ? (
+                                      <Loader2 className="h-4 w-4 mr-2 animate-spin inline" />
+                                    ) : (
+                                      <Upload className="h-4 w-4 mr-2 inline" />
+                                    )}
+                                    {isUploading ? "Uploading..." : hasFile ? "Reupload" : "Upload"}
+                                    <input
+                                      type="file"
+                                      accept="application/pdf,image/*,.pdf,.jpg,.jpeg,.png,.webp"
+                                      className="hidden"
+                                      disabled={isUploading}
+                                      onChange={async (e) => {
+                                        const f = e.target.files?.[0];
+                                        if (!f) return;
+
+                                        const isAllowed =
+                                          f.type.startsWith("image/") ||
+                                          f.type === "application/pdf" ||
+                                          /\.(pdf|jpg|jpeg|png|webp|gif|svg)$/i.test(f.name);
+
+                                        if (!isAllowed) {
+                                          toast.error("Only PDF documents and image files are allowed.");
+                                          e.target.value = "";
+                                          return;
+                                        }
+
+                                        try {
+                                          setUploadingDoc(d);
+                                          const fd = new FormData();
+                                          fd.append("file", f);
+                                          const uploadRes = await api.post("/uploads", fd);
+                                          const uploadedUrl =
+                                            uploadRes.data?.data?.url || uploadRes.data?.url;
+
+                                          if (!uploadedUrl) {
+                                            throw new Error("Failed to get uploaded file URL");
+                                          }
+
+                                          await api.patch(`/patients/document/${patient?._id}`, {
+                                            name: d,
+                                            url: uploadedUrl,
+                                            originalName: f.name,
+                                          });
+
+                                          toast.success(`${d} ${hasFile ? "re-uploaded" : "uploaded"} successfully!`);
+                                          if (mutatePatient) {
+                                            await mutatePatient();
+                                          }
+                                        } catch (err: any) {
+                                          toast.error(
+                                            err?.response?.data?.message || err?.message || "Failed to upload document"
+                                          );
+                                        } finally {
+                                          setUploadingDoc(null);
+                                          e.target.value = "";
+                                        }
+                                      }}
+                                    />
+                                  </label>
+                                </Button>
+                              )}
+                            </div>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => toast(`Downloading ${d}... Coming soon`)}
-                            >
-                              <Download className="h-4 w-4 mr-2" />
-                              Download
-                            </Button>
-                            {!isAdmin && (
-                              <Button asChild size="sm" variant="outline">
-                                <label className="cursor-pointer">
-                                  <Upload className="h-4 w-4 mr-2 inline" />
-                                  Upload
-                                  <input
-                                    type="file"
-                                    className="hidden"
-                                    onChange={async (e) => {
-                                      const f = e.target.files?.[0];
-                                      if (!f) return;
-                                      const fd = new FormData();
-                                      fd.append("file", f);
-                                    }}
-                                  />
-                                </label>
-                              </Button>
-                            )}
+                          <div className="mt-2 text-xs text-muted-foreground">
+                            {hasFile && existingDoc?.updatedAt
+                              ? `Last updated: ${fDate(existingDoc.updatedAt)}`
+                              : "Last updated: Not uploaded yet"}
                           </div>
                         </div>
-                        <div className="mt-2 text-xs text-muted-foreground">
-                          Last updated: 2025-08-11
-                        </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
 

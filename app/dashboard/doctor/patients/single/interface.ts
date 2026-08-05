@@ -166,4 +166,10 @@ export interface PatientType {
   uhid: string;
   remarks: string;
   remarksDate: Date;
+  documents?: Array<{
+    name: string;
+    url: string;
+    originalName?: string;
+    updatedAt?: Date | string;
+  }>;
 }
