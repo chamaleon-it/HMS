@@ -34,6 +34,7 @@ export interface ItemType {
   noOfPacking?: number;
   gst?: number;
   soldQuantity?: number;
+  soldInLast30Days?: number;
   soldHistory?: Array<{
     date: Date;
     quantity: number;

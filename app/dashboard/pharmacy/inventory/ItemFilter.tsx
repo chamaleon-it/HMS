@@ -56,7 +56,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
     >
       <div className="flex flex-wrap items-end gap-6">
         {/* Search */}
-        <div className="space-y-2 flex-1 min-w-[240px]">
+        <div className="space-y-2 flex-1 min-w-60">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Search Items
           </label>
@@ -72,7 +72,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
         </div>
 
         {/* Category */}
-        <div className="space-y-2 min-w-[160px]">
+        <div className="space-y-2 min-w-40">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Category
           </label>
@@ -103,7 +103,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
         </div>
 
         {/* Supplier */}
-        <div className="space-y-2 min-w-[180px]">
+        <div className="space-y-2 min-w-45">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Supplier
           </label>
@@ -123,7 +123,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
                 <SelectValue placeholder="Supplier" />
               </div>
             </SelectTrigger>
-            <SelectContent className="rounded-lg border-slate-200 shadow-xl max-h-[300px]">
+            <SelectContent className="rounded-lg border-slate-200 shadow-xl max-h-75">
               <SelectItem value="all">All Suppliers</SelectItem>
               {suppliers.map((supplier) => (
                 <SelectItem key={supplier} value={supplier}>
@@ -135,7 +135,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
         </div>
 
         {/* Stock Status */}
-        <div className="space-y-2 min-w-[160px]">
+        <div className="space-y-2 min-w-40">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Stock Status
           </label>
@@ -165,7 +165,7 @@ export default function ItemFilter({ filter, setFilter }: Props) {
         </div>
 
         {/* Expiry */}
-        <div className="space-y-2 min-w-[160px]">
+        <div className="space-y-2 min-w-40">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Expiry Filter
           </label>

@@ -163,8 +163,8 @@ export default function ItemTable({
 
                     )}
                   </TableCell>
-                  <TableCell className="py-3 text-slate-700">
-                    {item.soldQuantity ?? "-"}
+                  <TableCell className="py-3 font-medium text-slate-700">
+                    {item.soldQuantity ?? 0}
                   </TableCell>
                   <TableCell className="py-3">{formatINR(item.purchasePrice)}</TableCell>
                   <TableCell className="py-3">{formatINR(item.unitPrice)}</TableCell>
