@@ -221,7 +221,9 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
             <Button
               variant="outline"
               onClick={() => {
-                router.push(`/dashboard/pharmacy/billing?id=${payload.patient}#new`)
+                const docName = payload.doctorName || payload.doctor || "";
+                removeDraft(draft.id);
+                router.push(`/dashboard/pharmacy/billing?id=${payload.patient}${docName ? `&doctor=${encodeURIComponent(docName)}` : ""}#new`);
               }}
               className="bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"
             >

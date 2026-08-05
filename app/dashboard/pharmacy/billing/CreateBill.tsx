@@ -266,7 +266,43 @@ export default function CreateBill({
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const orderMrn = urlParams.get("mrn");
+    const patientId = urlParams.get("id") || urlParams.get("patient");
+    const doctorParam = urlParams.get("doctor") || urlParams.get("doctorName");
 
+    if (patientId) {
+      const decodedDoctor = doctorParam ? decodeURIComponent(doctorParam) : "";
+      setPayload((prev) => ({
+        ...prev,
+        patient: patientId,
+        doctor: decodedDoctor || prev.doctor,
+      }));
+
+      api
+        .get<{ data: any }>(`/patients/single/${patientId}`)
+        .then(({ data }) => {
+          if (data?.data) {
+            const p = data.data;
+            setOrderPatient(p);
+            setSelectedPatient(p);
+
+            const fetchedDoc = decodedDoctor || p.consultingDoctor?.name || p.doctor?.name || p.doctorName || "";
+            if (fetchedDoc) {
+              setPayload((prev) => ({
+                ...prev,
+                doctor: fetchedDoc,
+              }));
+            }
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch patient details for billing", err);
+        });
+    } else if (doctorParam) {
+      setPayload((prev) => ({
+        ...prev,
+        doctor: decodeURIComponent(doctorParam),
+      }));
+    }
 
     if (!orderMrn) return;
 
