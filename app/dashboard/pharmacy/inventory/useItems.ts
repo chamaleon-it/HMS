@@ -13,6 +13,7 @@ export default function useItems({ filter }: { filter: FilterType }) {
   if (filter.lowStockThreshold) params.set("lowStockThreshold", String(filter.lowStockThreshold));
   if (filter.supplier && filter.supplier !== "All") params.set("supplier", filter.supplier);
   if (filter.lowStockItemsView) params.set("lowStockItemsView", String(filter.lowStockItemsView));
+  if (filter.slowMovingItemsView) params.set("slowMovingItemsView", String(filter.slowMovingItemsView));
   if (filter.sortBy) params.set("sortBy", filter.sortBy);
   if (filter.orderBy) params.set("orderBy", filter.orderBy);
 
@@ -22,7 +23,8 @@ export default function useItems({ filter }: { filter: FilterType }) {
     total: number;
     page: number;
     limit: number;
-    lowStockCount: number
+    lowStockCount: number;
+    slowMovingCount: number;
   }>(`/pharmacy/items?${params.toString()}`, {
     keepPreviousData: true,
   });
@@ -33,6 +35,7 @@ export default function useItems({ filter }: { filter: FilterType }) {
     page: data?.page ?? filter.page ?? 1,
     limit: data?.limit ?? filter.limit ?? 10,
     lowStockCount: data?.lowStockCount,
+    slowMovingCount: data?.slowMovingCount,
     mutate,
     isLoading,
     isValidating,

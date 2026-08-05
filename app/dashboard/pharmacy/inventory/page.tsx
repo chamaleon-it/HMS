@@ -55,11 +55,12 @@ export default function InventoryPage() {
     lowStockThreshold: pharmacyInventory.lowStockThreshold,
     supplier: undefined,
     lowStockItemsView: false,
+    slowMovingItemsView: false,
     sortBy: "createdAt",
     orderBy: "desc",
   });
 
-  const { items, total, isLoading, isValidating, mutate, lowStockCount } = useItems({
+  const { items, total, isLoading, isValidating, mutate, lowStockCount, slowMovingCount } = useItems({
     filter,
   });
 
@@ -101,7 +102,7 @@ export default function InventoryPage() {
             className={`flex flex-col gap-6 ${openView || openEdit || openAdd ? "blur-sm pointer-events-none" : ""
               }`}
           >
-            <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} setFilter={setFilter} lowStockItemsView={filter.lowStockItemsView} />
+            <Header handleAdd={handleAdd} items={items} lowStockCount={lowStockCount} slowMovingCount={slowMovingCount} setFilter={setFilter} lowStockItemsView={filter.lowStockItemsView} slowMovingItemsView={filter.slowMovingItemsView} />
 
             <ItemFilter filter={filter} setFilter={setFilter} />
 

@@ -51,7 +51,7 @@ interface Props {
     expiryAlert: number;
     allowNegativeStock: boolean;
   };
-  sortBy?: "createdAt" | "quantity";
+  sortBy?: "createdAt" | "quantity" | "soldQuantity";
   orderBy?: "desc" | "asc";
 }
 
@@ -69,7 +69,7 @@ export default function ItemTable({
   sortBy,
   orderBy
 }: Props) {
-  const handleSort = (field: "createdAt" | "quantity") => {
+  const handleSort = (field: "createdAt" | "quantity" | "soldQuantity") => {
     setFilter((prev: FilterType): FilterType => ({
       ...prev,
       sortBy: field,

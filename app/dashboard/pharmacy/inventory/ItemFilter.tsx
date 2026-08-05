@@ -42,6 +42,8 @@ export default function ItemFilter({ filter, setFilter }: Props) {
       supplier: undefined,
       stock: undefined,
       expiry: undefined,
+      lowStockItemsView: false,
+      slowMovingItemsView: false,
       page: 1,
     }));
   };
