@@ -144,7 +144,7 @@ export default function PrintReceipt({
                     <div className="flex gap-3 items-center">
                         <div className="shrink-0 flex items-center justify-center">
 
-                            <img src="/print/logo.png" alt="Logo" className="w-[90px] h-auto object-contain" />
+                            <img src="/print/logo.png" alt="Logo" className="w-22.5 h-auto object-contain" />
 
                         </div>
                         <div className="flex flex-col gap-0 select-none">

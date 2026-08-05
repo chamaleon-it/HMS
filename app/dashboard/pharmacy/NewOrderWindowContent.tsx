@@ -36,7 +36,6 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
   const setShowAllFields = (val: boolean) => updateDraft(draft.id, { showAllFields: val });
 
   const patientName = draft.patientName;
-  const setPatientName = (val: string) => updateDraft(draft.id, { patientName: val });
 
   const createOrder = async () => {
     try {
