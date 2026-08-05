@@ -152,7 +152,7 @@ function PatientFullDetailContent() {
           />
 
           {/* Tabs */}
-          <div className="mx-auto max-w-[1400px] px-4">
+          <div className="mx-auto max-w-350 px-4">
             <Tabs value={tab} onValueChange={setTab} className="w-full">
               <TabsList className="w-full justify-start overflow-x-auto">
                 <TabsTrigger value="clinical">Clinical Notes</TabsTrigger>

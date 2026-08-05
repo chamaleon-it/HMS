@@ -207,7 +207,12 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 </h4>
                 {data.therapy && (
                   <p className="text-slate-800 leading-relaxed font-medium">
-                    <span className="font-semibold text-slate-900">Therapy:</span> {data.therapy}
+                    <span className="font-semibold text-slate-900">Therapy:</span>{" "}
+                    {Array.isArray(data.therapy)
+                      ? data.therapy
+                        .map((t: any) => (typeof t === "object" && t?.name ? t.name : String(t)))
+                        .join(", ")
+                      : data.therapy}
                   </p>
                 )}
                 {data.therapyNotes && (
@@ -283,7 +288,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 </h4>
                 <div className="flex items-center gap-2 mb-1">
                   <span className="text-slate-600 font-medium">Pain Score:</span>
-                  <span className="font-black text-slate-900 bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
+                  <span className="font-black  text-slate-900 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200">
                     {data.chiefComplaints?.painScore ?? "—"} / 10
                   </span>
                 </div>
@@ -329,7 +334,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                   </p>
                 )}
                 {data.medicalHistoryDetails?.allergies && (
-                  <p className="text-slate-800 font-medium mt-1 text-rose-700">
+                  <p className="text-slate-800 font-medium mt-1">
                     <span className="font-semibold text-slate-900">Allergies:</span> {data.medicalHistoryDetails.allergies}
                   </p>
                 )}

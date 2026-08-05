@@ -19,6 +19,7 @@ import {
   FileBarChart,
   Banknote,
   Bed,
+  Activity,
 } from "lucide-react";
 
 import Link from "next/link";
@@ -340,10 +341,10 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/reception/",
       },
       {
-        key: "ip",
-        label: "IP",
-        icon: Bed,
-        link: "/dashboard/reception/ip/",
+        key: "therapy",
+        label: "Therapy",
+        icon: Activity,
+        link: "/dashboard/reception/therapy/",
       },
       {
         key: "customers",
@@ -352,12 +353,19 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         link: "/dashboard/reception/customers/",
       },
       {
+        key: "ip",
+        label: "IP",
+        icon: Bed,
+        link: "/dashboard/reception/ip/",
+      },
+      {
         key: "billing",
         label: "Billing",
         icon: CreditCard,
         link: "/dashboard/reception/billing/",
       },
     ]) ||
+
     [];
   const pathname = usePathname();
   const settingsLink: string | undefined = user?.role ? settingsLinks[user.role] : undefined

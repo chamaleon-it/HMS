@@ -3,8 +3,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import React, { useEffect, useRef, useState } from "react";
 import { DataType } from "./interface";
-import { Check, ChevronsUpDown, Plus, X } from "lucide-react";
+import { Check, ChevronsUpDown, X, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
+import useSWR from "swr";
+import { formatINR } from "@/lib/fNumber";
 import {
   Command,
   CommandEmpty,
@@ -19,20 +21,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const DEFAULT_THERAPY_OPTIONS = [
-  "Physiotherapy",
-  "Rest & Elevation",
-  "Ice Pack Therapy",
-  "Hot Compression",
-  "Bandage / Dressing",
-  "Dietary Modification",
-  "Adequate Hydration",
-  "Exercise & Stretching",
-  "Nebulization",
-  "Regular Follow-up",
-];
-
-const STORAGE_KEY = "therapy_dropdown_values";
+export interface TherapyOption {
+  _id: string;
+  name: string;
+  price: number;
+  code?: string;
+  description?: string;
+  status: string;
+}
 
 interface Props {
   data: DataType;
@@ -41,102 +37,85 @@ interface Props {
 
 export default function TherapyCard({ data, setData }: Props) {
   const [open, setOpen] = useState(false);
-  const [selectedTherapies, setSelectedTherapies] = useState<string[]>([]);
   const [searchValue, setSearchValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [options, setOptions] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch {
-          return DEFAULT_THERAPY_OPTIONS;
-        }
-      }
-    }
-    return DEFAULT_THERAPY_OPTIONS;
+  // Fetch Therapies from Database
+  const { data: therapyData, isLoading } = useSWR<{
+    message: string;
+    data: TherapyOption[];
+  }>("/therapy", {
+    revalidateOnFocus: false,
   });
 
-  // Persist options to localStorage
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(options));
-    }
-  }, [options]);
+  const availableTherapies = (therapyData?.data || []).filter(
+    (item) => item.status === "Active"
+  );
 
-  // Sync selected therapies when data.therapy changes
-  useEffect(() => {
-    const text = data.therapy || "";
-    if (text) {
-      const items = text
+  // Parse selectedTherapyIds from data.therapy
+  const getSelectedIds = (): string[] => {
+    if (!data.therapy) return [];
+    if (Array.isArray(data.therapy)) {
+      return data.therapy.map((item: any) =>
+        typeof item === "object" && item?._id ? item._id : String(item)
+      );
+    }
+    if (typeof data.therapy === "string") {
+      // If it's a comma separated string or single ID
+      return data.therapy
         .split(",")
         .map((s) => s.trim())
         .filter(Boolean);
-      setSelectedTherapies(items);
-    } else {
-      setSelectedTherapies([]);
     }
-  }, [data.therapy]);
+    return [];
+  };
 
-  const updateTherapyData = (updated: string[]) => {
-    const therapyString = updated.length > 0 ? updated.join(", ") : null;
+  const selectedIds = getSelectedIds();
+
+  // Calculate Total Price of selected therapies
+  const totalPrice = selectedIds.reduce((sum, id) => {
+    const matched = availableTherapies.find((t) => t._id === id);
+    return sum + (matched?.price || 0);
+  }, 0);
+
+  const updateTherapyData = (updatedIds: string[]) => {
     setData((prev) => ({
       ...prev,
-      therapy: therapyString,
+      therapy: updatedIds,
     }));
   };
 
-  const handleSelect = (value: string) => {
-    const isSelected = selectedTherapies.includes(value);
+  const handleSelect = (therapyId: string) => {
+    const isSelected = selectedIds.includes(therapyId);
     const updated = isSelected
-      ? selectedTherapies.filter((x) => x !== value)
-      : [...selectedTherapies, value];
+      ? selectedIds.filter((id) => id !== therapyId)
+      : [...selectedIds, therapyId];
 
-    setSelectedTherapies(updated);
     updateTherapyData(updated);
   };
 
-  const handleRemoveTag = (value: string) => {
-    const updated = selectedTherapies.filter((x) => x !== value);
-    setSelectedTherapies(updated);
+  const handleRemoveTag = (therapyId: string) => {
+    const updated = selectedIds.filter((id) => id !== therapyId);
     updateTherapyData(updated);
-  };
-
-  const handleAddCustom = () => {
-    const trimmed = searchValue.trim();
-    if (!trimmed) return;
-    if (!options.includes(trimmed)) {
-      setOptions((prev) => [...prev, trimmed]);
-    }
-    if (!selectedTherapies.includes(trimmed)) {
-      const updated = [...selectedTherapies, trimmed];
-      setSelectedTherapies(updated);
-      updateTherapyData(updated);
-    }
-    setSearchValue("");
-  };
-
-  const handleRemoveOption = (opt: string) => {
-    setOptions((prev) => prev.filter((o) => o !== opt));
-    if (selectedTherapies.includes(opt)) {
-      const updated = selectedTherapies.filter((x) => x !== opt);
-      setSelectedTherapies(updated);
-      updateTherapyData(updated);
-    }
   };
 
   return (
-    <Card className="mt-4">
+    <Card className="mt-4 border-slate-200 shadow-xs">
       <CardHeader className="flex flex-row items-center justify-between pb-2">
-        <CardTitle className="text-base font-semibold text-slate-800">
+        <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
+          <Activity className="h-4 w-4 text-emerald-600" />
           Therapy
         </CardTitle>
+        {selectedIds.length > 0 && (
+          <div className="flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-full text-xs font-bold shadow-2xs">
+            <span>Total Price:</span>
+            <span className="text-emerald-700 text-sm">{formatINR(totalPrice)}</span>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Searchable Multi-Select Dropdown */}
+        {/* Searchable Multi-Select Dropdown from Database Therapies */}
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <button
@@ -146,131 +125,118 @@ export default function TherapyCard({ data, setData }: Props) {
               className={cn(
                 "flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm transition-colors cursor-pointer",
                 "hover:border-emerald-300 focus:outline-none focus:ring-2 focus:ring-emerald-100 focus:border-emerald-400",
-                selectedTherapies.length === 0 && "text-slate-400"
+                selectedIds.length === 0 && "text-slate-400"
               )}
             >
               <span className="truncate">
-                {selectedTherapies.length > 0
-                  ? `${selectedTherapies.length} ${selectedTherapies.length === 1 ? "therapy" : "therapies"} selected`
+                {selectedIds.length > 0
+                  ? `${selectedIds.length} ${
+                      selectedIds.length === 1 ? "therapy" : "therapies"
+                    } selected`
                   : "Select therapies..."}
               </span>
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 text-slate-400" />
             </button>
           </PopoverTrigger>
-          <PopoverContent className="w-(--radix-popover-trigger-width) p-0" align="start">
+          <PopoverContent
+            className="w-(--radix-popover-trigger-width) p-0"
+            align="start"
+          >
             <Command>
               <CommandInput
                 ref={inputRef}
-                placeholder="Search therapies..."
+                placeholder="Search database therapies..."
                 value={searchValue}
                 onValueChange={setSearchValue}
-                onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter" &&
-                    searchValue.trim() &&
-                    !options.some(
-                      (o) =>
-                        o.toLowerCase() === searchValue.trim().toLowerCase()
-                    )
-                  ) {
-                    e.preventDefault();
-                    handleAddCustom();
-                  }
-                }}
               />
               <CommandList>
-                <CommandEmpty className="py-3 px-2">
-                  <button
-                    type="button"
-                    onClick={handleAddCustom}
-                    className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm text-emerald-700 hover:bg-emerald-50 transition cursor-pointer"
-                  >
-                    <Plus className="h-3.5 w-3.5" />
-                    Add &ldquo;{searchValue.trim()}&rdquo;
-                  </button>
-                </CommandEmpty>
-                <CommandGroup>
-                  {options.map((opt) => {
-                    const isSelected = selectedTherapies.includes(opt);
-                    return (
-                      <CommandItem
-                        key={opt}
-                        value={opt}
-                        onSelect={() => handleSelect(opt)}
-                        className="cursor-pointer"
-                      >
-                        <div
-                          className={cn(
-                            "mr-2 flex h-4 w-4 items-center justify-center rounded border transition-colors",
-                            isSelected
-                              ? "border-emerald-600 bg-emerald-600 text-white"
-                              : "border-slate-300 bg-white"
-                          )}
+                {isLoading ? (
+                  <div className="py-4 text-center text-xs text-slate-400">
+                    Loading therapies...
+                  </div>
+                ) : availableTherapies.length === 0 ? (
+                  <CommandEmpty className="py-4 text-center text-xs text-slate-400">
+                    No active therapies found in database.
+                  </CommandEmpty>
+                ) : (
+                  <CommandGroup>
+                    {availableTherapies.map((item) => {
+                      const isSelected = selectedIds.includes(item._id);
+                      return (
+                        <CommandItem
+                          key={item._id}
+                          value={`${item.name} ${item.code || ""}`}
+                          onSelect={() => handleSelect(item._id)}
+                          className="cursor-pointer flex items-center justify-between py-2"
                         >
-                          {isSelected && <Check className="h-3 w-3" />}
-                        </div>
-                        <span className="flex-1">{opt}</span>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleRemoveOption(opt);
-                          }}
-                          className="ml-auto opacity-0 group-hover:opacity-100 hover:opacity-100 focus:opacity-100 text-slate-400 hover:text-red-500 transition p-0.5 cursor-pointer"
-                          title="Remove option"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </CommandItem>
-                    );
-                  })}
-
-                  {/* Show "Add custom" at bottom when search has text but matches exist */}
-                  {searchValue.trim() &&
-                    !options.some(
-                      (o) =>
-                        o.toLowerCase() === searchValue.trim().toLowerCase()
-                    ) &&
-                    options.some((o) =>
-                      o.toLowerCase().includes(searchValue.trim().toLowerCase())
-                    ) && (
-                      <CommandItem
-                        value={`__add__${searchValue.trim()}`}
-                        onSelect={handleAddCustom}
-                        className="cursor-pointer border-t border-slate-100 mt-1 pt-1.5 text-emerald-700"
-                      >
-                        <Plus className="mr-2 h-3.5 w-3.5" />
-                        Add &ldquo;{searchValue.trim()}&rdquo;
-                      </CommandItem>
-                    )}
-                </CommandGroup>
+                          <div className="flex items-center gap-2">
+                            <div
+                              className={cn(
+                                "flex h-4 w-4 items-center justify-center rounded border transition-colors",
+                                isSelected
+                                  ? "border-emerald-600 bg-emerald-600 text-white"
+                                  : "border-slate-300 bg-white"
+                              )}
+                            >
+                              {isSelected && <Check className="h-3 w-3" />}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="font-medium text-slate-800 text-sm">
+                                {item.name}
+                              </span>
+                              {item.code && (
+                                <span className="text-[10px] text-slate-400">
+                                  {item.code}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span className="font-bold text-xs text-emerald-700">
+                            {formatINR(item.price)}
+                          </span>
+                        </CommandItem>
+                      );
+                    })}
+                  </CommandGroup>
+                )}
               </CommandList>
             </Command>
           </PopoverContent>
         </Popover>
 
         {/* Selected Tags */}
-        {selectedTherapies.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
-            {selectedTherapies.map((therapy) => (
-              <span
-                key={therapy}
-                className="inline-flex items-center gap-1 rounded-full bg-emerald-100 border border-emerald-300 px-2.5 py-1 text-xs font-medium text-emerald-800"
-              >
-                {therapy}
-                <button
-                  type="button"
-                  onClick={() => handleRemoveTag(therapy)}
-                  className="ml-0.5 rounded-full p-0.5 hover:bg-emerald-200 transition cursor-pointer"
+        {selectedIds.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {selectedIds.map((id) => {
+              const matched = availableTherapies.find((t) => t._id === id);
+              const displayName = matched ? matched.name : id;
+              const displayPrice = matched ? formatINR(matched.price) : "";
+
+              return (
+                <span
+                  key={id}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-800 shadow-2xs"
                 >
-                  <X className="h-3 w-3" />
-                </button>
-              </span>
-            ))}
+                  <span>{displayName}</span>
+                  {displayPrice && (
+                    <span className="text-emerald-600 text-[11px]">
+                      ({displayPrice})
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(id)}
+                    className="ml-0.5 rounded-full p-0.5 hover:bg-emerald-200/60 transition cursor-pointer text-emerald-700"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              );
+            })}
           </div>
         )}
 
-        {/* Free Text Area */}
+        {/* Therapy Notes Area */}
         <div className="relative w-full">
           <textarea
             value={data.therapyNotes || ""}

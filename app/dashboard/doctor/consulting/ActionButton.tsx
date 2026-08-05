@@ -78,16 +78,6 @@ export default function ActionButton({ data, testIsOK }: { data: DataType, testI
         <FileText className="w-4 h-4 mr-1" /> Print
       </Button>
       <motion.div whileTap={{ scale: 0.98 }} className="flex flex-wrap gap-3">
-        {/* Test Button */}
-        <Button
-          type="button"
-          onClick={() => consulting("Test")}
-          className="flex items-center gap-2 bg-sky-600 hover:bg-sky-700 text-white font-semibold shadow-sm cursor-pointer"
-        >
-          <FlaskConical className="w-4 h-4" />
-          Send for Test
-        </Button>
-
         {/* Observation Button */}
         <Button
           type="button"
