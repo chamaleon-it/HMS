@@ -57,17 +57,25 @@ export default function AddPaymentDialog({
     });
 
     useEffect(() => {
-        if (bill && open) {
+        if (open) {
             setPayment({
-                cash: bill.cash,
-                card: bill.card,
-                upi: bill.upi,
-                discount: bill.discount,
+                cash: 0,
+                card: 0,
+                upi: 0,
+                discount: 0,
             });
         }
-    }, [bill, open]);
+    }, [open]);
 
-    if (!bill) return null;
+    const existingCash = bill?.cash ?? 0;
+    const existingCard = bill?.card ?? 0;
+    const existingUpi = bill?.upi ?? 0;
+    const existingDiscount = bill?.discount ?? 0;
+
+    const existingPaidTotal = existingCash + existingCard + existingUpi;
+    const newPayingTotal = (payment.cash || 0) + (payment.card || 0) + (payment.upi || 0);
+
+    const totalDiscount = existingDiscount + (payment?.discount ?? 0);
 
     const {
         subtotal,
@@ -77,25 +85,34 @@ export default function AddPaymentDialog({
         totalPaid,
         dueAmount
     } = useBillCalculations({
-        items: bill.items,
-        discount: payment.discount,
-        roundOff: bill.roundOff,
+        items: bill?.items || [],
+        discount: totalDiscount,
+        roundOff: bill?.roundOff || false,
         payments: {
-            cash: payment.cash,
-            card: payment.card,
-            upi: payment.upi
+            cash: existingCash + (payment?.cash ?? 0),
+            card: existingCard + (payment?.card ?? 0),
+            upi: existingUpi + (payment?.upi ?? 0)
         }
     });
 
+    if (!bill) return null;
+
     const handleSubmit = async () => {
-        await toast.promise(api.patch(`/billing/add_payment/${bill._id}`, payment), {
+        const payload = {
+            cash: existingCash + (payment.cash || 0),
+            card: existingCard + (payment.card || 0),
+            upi: existingUpi + (payment.upi || 0),
+            discount: existingDiscount + (payment.discount || 0),
+        };
+
+        await toast.promise(api.patch(`/billing/add_payment/${bill._id}`, payload), {
             loading: "Adding Payment...",
             success: "Payment Added Successfully",
             error: "Failed to Add Payment"
-        })
-        await billingMutate()
-        setOpen(false)
-    }
+        });
+        await billingMutate();
+        setOpen(false);
+    };
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -108,9 +125,16 @@ export default function AddPaymentDialog({
                     {/* Left Column: Payment Inputs */}
                     <div className="col-span-12 lg:col-span-8 space-y-4">
                         <div className="rounded-2xl border border-slate-200 p-4 shadow-sm bg-white dark:border-slate-800 dark:bg-slate-900">
-                            <div className="mb-2 flex items-center gap-2 text-sm font-medium">
-                                <Wallet2 className="h-4 w-4" />
-                                Payments
+                            <div className="mb-2 flex items-center justify-between text-sm font-medium">
+                                <span className="flex items-center gap-2">
+                                    <Wallet2 className="h-4 w-4" />
+                                    Additional Payment / Discount
+                                </span>
+                                {existingPaidTotal > 0 && (
+                                    <span className="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-full">
+                                        Previously Paid: {formatINR(existingPaidTotal)}
+                                    </span>
+                                )}
                             </div>
                             <div className="grid grid-cols-12 gap-4">
                                 {[
@@ -132,44 +156,47 @@ export default function AddPaymentDialog({
                                         icon: Smartphone,
                                         tint: "bg-violet-50 text-violet-700 border-violet-200",
                                     },
-                                ].map(({ key, label, icon: Icon, tint }) => (
-                                    <div key={key} className="col-span-12 md:col-span-6">
-                                        <div className={`rounded-xl border px-3 py-3 ${tint}`}>
-                                            <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
-                                                <Icon className="h-4 w-4" />
-                                                {label}
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <IndianRupee className="h-4 w-4" />
-                                                <input
-                                                    type="number"
-                                                    min={0}
-                                                    placeholder="0"
-                                                    onFocus={(e) => (e.target.placeholder = "")}
-                                                    onBlur={(e) => (e.target.placeholder = "0")}
-                                                    value={
-                                                        payment[key as "cash" | "card" | "upi"] === 0
-                                                            ? ""
-                                                            : payment[
-                                                                key as "cash" | "card" | "upi"
-                                                            ].toString()
-                                                    }
-                                                    onChange={(e) =>
-                                                        setPayment((prev) => ({
-                                                            ...prev,
-                                                            [key as "cash" | "card" | "upi"]: Number(
-                                                                e.target.value
-                                                            ),
-                                                        }))
-                                                    }
-                                                    className={
-                                                        "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50 text-right"
-                                                    }
-                                                />
+                                    {
+                                        key: "discount",
+                                        label: "Discount",
+                                        icon: BadgePercent,
+                                        tint: "bg-amber-50 text-amber-700 border-amber-200",
+                                    },
+                                ].map(({ key, label, icon: Icon, tint }) => {
+                                    const val = payment[key as "cash" | "card" | "upi" | "discount"];
+                                    return (
+                                        <div key={key} className="col-span-12 md:col-span-6">
+                                            <div className={`rounded-xl border px-3 py-3 ${tint}`}>
+                                                <div className="mb-1 flex items-center gap-2 text-sm font-semibold">
+                                                    <Icon className="h-4 w-4" />
+                                                    {label}
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <IndianRupee className="h-4 w-4" />
+                                                    <input
+                                                        type="number"
+                                                        min={0}
+                                                        placeholder="0"
+                                                        onFocus={(e) => (e.target.placeholder = "")}
+                                                        onBlur={(e) => (e.target.placeholder = "0")}
+                                                        value={!val ? "" : String(val)}
+                                                        onChange={(e) =>
+                                                            setPayment((prev) => ({
+                                                                ...prev,
+                                                                [key as "cash" | "card" | "upi" | "discount"]: Number(
+                                                                    e.target.value
+                                                                ),
+                                                            }))
+                                                        }
+                                                        className={
+                                                            "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50 text-right font-bold text-slate-800"
+                                                        }
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                ))}
+                                    );
+                                })}
 
 
                             </div>
@@ -190,12 +217,14 @@ export default function AddPaymentDialog({
                                         {formatINR(subtotal)}
                                     </span>
                                 </div>
-                                <div className="flex items-center justify-between">
-                                    <span className="text-slate-500">Discount</span>
-                                    <span className="font-medium tabular-nums">
-                                        -{formatINR(payment.discount)}
-                                    </span>
-                                </div>
+                                {totalDiscount > 0 && (
+                                    <div className="flex items-center justify-between">
+                                        <span className="text-slate-500">Discount</span>
+                                        <span className="font-medium tabular-nums text-amber-700">
+                                            -{formatINR(totalDiscount)}
+                                        </span>
+                                    </div>
+                                )}
                                 <div className="flex items-center justify-between">
                                     <span className="text-slate-500">GST</span>
                                     <span className="font-medium tabular-nums">
@@ -214,15 +243,31 @@ export default function AddPaymentDialog({
                                     <span>Total</span>
                                     <span className="tabular-nums">{formatINR(finalTotal)}</span>
                                 </div>
+                                {existingPaidTotal > 0 && (
+                                    <div className="flex items-center justify-between text-slate-600">
+                                        <span>Previously Paid</span>
+                                        <span className="font-medium tabular-nums">
+                                            {formatINR(existingPaidTotal)}
+                                        </span>
+                                    </div>
+                                )}
+                                {newPayingTotal > 0 && (
+                                    <div className="flex items-center justify-between text-emerald-600 font-semibold">
+                                        <span>Paying Now</span>
+                                        <span className="font-semibold tabular-nums">
+                                            +{formatINR(newPayingTotal)}
+                                        </span>
+                                    </div>
+                                )}
                                 <div className="flex items-center justify-between">
-                                    <span>Paid</span>
-                                    <span className="font-medium tabular-nums">
+                                    <span className="font-semibold">Total Paid</span>
+                                    <span className="font-semibold tabular-nums text-emerald-700">
                                         {formatINR(totalPaid)}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between text-rose-600 dark:text-rose-400">
                                     <span className="font-semibold">Due</span>
-                                    <span className="font-semibold tabular-nums">
+                                    <span className="font-bold tabular-nums">
                                         {formatINR(dueAmount)}
                                     </span>
                                 </div>

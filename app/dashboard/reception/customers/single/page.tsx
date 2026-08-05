@@ -28,6 +28,12 @@ import { OrderType } from "@/app/dashboard/pharmacy/interface";
 import PrintPrescription from "../../billing/PrintPrescription";
 import PrintReceipt from "@/app/dashboard/pharmacy/PrintReceipt";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
+import AddPaymentDialog from "../../billing/AddPaymentDialog";
+import BulkPaymentDialog from "./BulkPaymentDialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { Printer, Wallet2, CheckCircle2 } from "lucide-react";
+import { fDateandTime } from "@/lib/fDateAndTime";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -92,6 +98,22 @@ const CustomerPageContent: React.FC = () => {
 
     const [selectedVisit, setSelectedVisit] = useState<BillingRecord | null>(null);
 
+    const [activeViewTab, setActiveViewTab] = useState<"details" | "credit">("details");
+    const [selectedPaymentBill, setSelectedPaymentBill] = useState<any>(null);
+    const [showAddPaymentModal, setShowAddPaymentModal] = useState(false);
+    const [showBulkPaymentModal, setShowBulkPaymentModal] = useState(false);
+
+    const creditBills = React.useMemo(() => {
+        return billing.filter((b) => {
+            if (b.transactionType !== "Sale" || !b.items) return false;
+            const itemsTotal = b.items.reduce((acc, it) => acc + (it.total || 0), 0);
+            const rOff = b.roundOff ? getDecimal(itemsTotal) : 0;
+            const paid = (b.cash || 0) + (b.card || 0) + (b.upi || 0);
+            const netTotal = itemsTotal - rOff - (b.discount || 0);
+            const due = Math.max(0, netTotal - paid);
+            return due > 0;
+        });
+    }, [billing]);
 
     const [openCalendar, setOpenCalendar] = useState(false);
     const [date, setDate] = React.useState<DateRange | undefined>(undefined);
@@ -358,573 +380,799 @@ const CustomerPageContent: React.FC = () => {
                         title="Customer Profile"
                         subtitle={`Viewing profile for ${customer?.patient?.name || 'Customer'}`}
                     >
-                        <Button
-                            variant="outline"
-                            size="sm"
-                            className="gap-1 rounded-full border-slate-300 bg-white/80 hover:bg-slate-50"
-                            onClick={() => router.push("/dashboard/reception/customers/")}
-                        >
-                            <ArrowLeft className="w-4 h-4" />
-                            Back to customers
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-full border border-slate-200">
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveViewTab("details")}
+                                    className={cn(
+                                        "px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer",
+                                        activeViewTab === "details"
+                                            ? "bg-white text-slate-900 shadow-xs font-bold"
+                                            : "text-slate-500 hover:text-slate-900"
+                                    )}
+                                >
+                                    Details
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setActiveViewTab("credit")}
+                                    className={cn(
+                                        "px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer flex items-center gap-1.5",
+                                        activeViewTab === "credit"
+                                            ? "bg-rose-600 text-white shadow-xs font-bold"
+                                            : "text-slate-500 hover:text-slate-900"
+                                    )}
+                                >
+                                    <span>Credit</span>
+                                    {creditBills.length > 0 && (
+                                        <span
+                                            className={cn(
+                                                "px-1.5 py-0.2 rounded-full text-[10px]",
+                                                activeViewTab === "credit"
+                                                    ? "bg-white/20 text-white font-bold"
+                                                    : "bg-rose-100 text-rose-700 font-bold"
+                                            )}
+                                        >
+                                            {creditBills.length}
+                                        </span>
+                                    )}
+                                </button>
+                            </div>
+
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="gap-1 rounded-full border-slate-300 bg-white/80 hover:bg-slate-50"
+                                onClick={() => router.push("/dashboard/reception/customers/")}
+                            >
+                                <ArrowLeft className="w-4 h-4" />
+                                Back to customers
+                            </Button>
+                        </div>
                     </PharmacyHeader>
                     {error && <EmptyPurchases />}
                     {!error && (
                         <>
-                            <div className="border rounded-2xl bg-white shadow-sm px-5 py-4 flex flex-wrap items-start gap-4">
-                                <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white text-lg font-semibold">
-                                    {customer?.patient?.name?.charAt(0)}
-                                </div>
-                                <div className="flex-1 min-w-[220px]">
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
-                                            {customer?.patient?.name}
-                                        </h1>
-                                        <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                                            {customer?.patient?.mrn}
-                                        </span>
-                                    </div>
-                                    <p className="text-sm text-slate-600 mt-1">
-                                        {customer?.patient?.dateOfBirth && (
-                                            <>
-                                                Age {fAgeString(customer.patient.dateOfBirth)} /{" "}
-                                            </>
-                                        )}
-                                        {customer?.patient?.gender} • Ph:{" "}
-                                        {customer?.patient?.phoneNumber}
-                                    </p>
-                                    <p className="text-sm text-slate-500 mt-0.5">
-                                        {customer?.patient?.address}
-                                    </p>
-                                    {customer?.patient?.allergies && (
-                                        <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 shadow-sm max-w-fit">
-                                            <AlertTriangle className="h-4 w-4 shrink-0" />
-                                            <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                                                Allergies: <span className="text-sm normal-case font-semibold bg-yellow-100 px-2 py-0.5 rounded text-amber-900 border border-amber-200/50">{customer.patient.allergies}</span>
-                                            </div>
+                            {activeViewTab === "details" && (
+                                <>
+                                    <div className="border rounded-2xl bg-white shadow-sm px-5 py-4 flex flex-wrap items-start gap-4">
+                                        <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-900 text-white text-lg font-semibold">
+                                            {customer?.patient?.name?.charAt(0)}
                                         </div>
-                                    )}
-                                    <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
-                                        {customer?.billing.length === 0 && (
-                                            <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
-                                                No purchase history yet
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-indigo-50 to-synapse-purple/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
-                                    <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
-                                        Total Spend
-                                    </div>
-                                    <div className="text-2xl font-bold text-(--color-synapse-light)">
-                                        {formatINR(customer?.totalSpend ?? 0)}
-                                    </div>
-                                </div>
-
-
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
-                                    <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
-                                        Total Paid
-                                    </div>
-                                    <div className="text-2xl font-bold text-emerald-900">
-                                        {formatINR(customer?.totalPaid ?? 0)}
-                                    </div>
-                                </div>
-
-
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
-                                    <div className="text-xs font-medium text-rose-700 uppercase tracking-wide">
-                                        Total Due
-                                    </div>
-                                    <div className="text-2xl font-bold text-rose-900">
-                                        {formatINR(customer?.totalDue ?? 0)}
-                                    </div>
-                                </div>
-
-
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
-                                    <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
-                                        Total Visits
-                                    </div>
-                                    <div className="text-3xl font-semibold text-sky-900">
-                                        {customer?.totalVisit}
-                                    </div>
-                                </div>
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
-                                    <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
-                                        Last Purchase
-                                    </div>
-                                    <div className="text-sm font-semibold text-(--color-synapse-light)">
-                                        {customer?.lastPurchase ? fDate(customer.lastPurchase) : "N/A"}
-                                    </div>
-                                </div>
-                                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px]">
-                                    <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
-                                        Avg Spend
-                                    </div>
-                                    <div className="text-2xl font-semibold text-amber-900">
-                                        {formatINR(customer?.averageSpend || 0)}
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section className="grid gap-5 md:grid-cols-5 items-start">
-                                <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
-                                    <div className="px-4 py-3 bg-(--color-synapse-dark) text-slate-50 flex items-center justify-between">
-                                        <div className="text-sm font-medium flex items-center gap-2">
-                                            <span className="h-7 w-7 rounded-full bg-(--color-synapse-purple) flex items-center justify-center text-[11px]">
-                                                {customer?.totalVisit}
-                                            </span>
-                                            Bills / Visits
-                                        </div>
-                                        <div className="text-[11px] text-slate-200">
-                                            {customer?.totalVisit !== 0 ? customer?.totalVisit : "No"}{" "}
-                                            bill
-                                            {customer?.totalVisit === 1 ? "" : "s"}
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-between items-center bg-slate-50 px-2 py-2">
-                                        <div className="flex items-center gap-3 text-[12px] text-slate-700">
-                                            <span className="font-medium">Filter:</span>
-
-                                            <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
-                                                <PopoverTrigger asChild>
-                                                    <Button
-                                                        variant="outline"
-                                                        id="date"
-                                                        className="w-64 justify-between font-normal"
-                                                    >
-                                                        {date?.from && date?.to
-                                                            ? `${fDate(date.from)} to ${fDate(date.to)}`
-                                                            : "Select date"}
-                                                        <ChevronDownIcon />
-                                                    </Button>
-                                                </PopoverTrigger>
-
-                                                <PopoverContent
-                                                    className="w-auto overflow-hidden p-0"
-                                                    align="start"
-                                                >
-                                                    <Calendar
-                                                        mode="range"
-                                                        selected={date}
-                                                        captionLayout="dropdown"
-                                                        numberOfMonths={2}
-                                                        onSelect={(s) => {
-                                                            setDate(s);
-
-                                                            const { from, to } = s || {};
-
-                                                            if (
-                                                                from &&
-                                                                to &&
-                                                                from !== to &&
-                                                                (from !== date?.from || to !== date?.to)
-                                                            ) {
-                                                                setOpenCalendar(false);
-                                                            }
-                                                        }}
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-
-                                            {date?.from && date?.to && (
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-8 text-[11px] px-3"
-                                                    onClick={() => {
-                                                        setDate({ from: undefined, to: undefined });
-                                                    }}
-                                                >
-                                                    Clear
-                                                </Button>
-                                            )}
-                                        </div>
-
-                                        <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
-                                            {tabs.map(({ key, label }: { key: string; label: string }) => {
-                                                const active = type === key;
-                                                return (
-                                                    <button
-                                                        key={key}
-                                                        onClick={() => setType(key)}
-                                                        className={
-                                                            "relative flex items-center gap-2 rounded-full px-2 py-1.5 transition will-change-transform cursor-pointer " +
-                                                            (active ? "text-white" : "text-gray-700")
-                                                        }
-                                                        type="button"
-                                                    >
-                                                        {active && (
-                                                            <motion.span
-                                                                layoutId="tab-indicator-1"
-                                                                className="absolute inset-0 rounded-full bg-(--color-synapse-light)"
-                                                                transition={{ type: "spring", stiffness: 500, damping: 40 }}
-                                                            />
-                                                        )}
-                                                        <span className="relative z-10 flex items-center gap-1 text-sm">
-                                                            {label}
-                                                        </span>
-                                                    </button>
-                                                );
-                                            })}
-                                        </div>
-
-
-                                    </div>
-
-                                    <div className="flex-1 overflow-y-auto divide-y">
-
-                                        {(() => {
-                                            // 1. Combine Data
-                                            let combined = billing.map(b => ({
-                                                ...b,
-                                                type: b.transactionType.toLowerCase()
-                                            }));
-
-                                            // 2. Filter by Tab Type (sale, return, all)
-                                            if (type !== "all") {
-                                                combined = combined.filter((item) => item.type === type);
-                                            }
-
-                                            // 3. Filter by Date Range
-                                            if (date?.from && date?.to) {
-                                                const start = new Date(date.from);
-                                                const end = new Date(date.to);
-                                                end.setHours(23, 59, 59, 999);
-                                                combined = combined.filter((item) => {
-                                                    if (!item.createdAt) return false;
-                                                    const created = new Date(item.createdAt);
-                                                    return created >= start && created <= end;
-                                                });
-                                            }
-
-                                            // 4. Sort by Date Descending
-                                            combined.sort(
-                                                (a, b) => {
-                                                    const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-                                                    const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-                                                    return dateB - dateA;
-                                                }
-                                            );
-
-                                            // 5. Render
-                                            return combined.map((item: any) => {
-                                                const active = selectedVisit && selectedVisit._id === item._id;
-                                                const isReturn = item.type === "return";
-
-                                                const itemsTotal = item.items.reduce((a: number, b: any) => a + (b.total || 0), 0);
-                                                const rOff = item.roundOff ? getDecimal(itemsTotal) : 0;
-                                                const paid = (item.cash || 0) + (item.card || 0) + (item.upi || 0);
-                                                const netTotal = itemsTotal - rOff - (item.discount || 0);
-                                                const due = Math.max(0, netTotal - paid);
-
-                                                return (
-                                                    <button
-                                                        key={item._id}
-                                                        type="button"
-                                                        onClick={() => setSelectedVisit(item)}
-                                                        className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
-                                                            ? "bg-(--color-synapse-dark) text-slate-50"
-                                                            : "hover:bg-slate-50"
-                                                            }`}
-                                                    >
-                                                        <div className="flex items-center justify-between gap-2">
-                                                            {isReturn ? (
-                                                                // Return Item Header
-                                                                <>
-                                                                    <span className="font-medium">
-                                                                        {fDate(item.createdAt)} - {item.mrn} - Return
-                                                                    </span>
-                                                                    <span className="text-xs font-semibold">
-                                                                        {formatINR(itemsTotal)}
-                                                                    </span>
-                                                                </>
-                                                            ) : (
-                                                                // Sale Item Header
-                                                                <>
-                                                                    <span className="font-medium">
-                                                                        {fDate(item.createdAt)} • {item.mrn}
-                                                                    </span>
-                                                                    <div className="text-right flex flex-col items-end">
-                                                                        <span className={`text-[13px] font-bold ${active ? "text-slate-50" : "text-slate-900"}`}>
-                                                                            {formatINR(netTotal)}
-                                                                        </span>
-                                                                        {due > 0 && (
-                                                                            <span className={`text-[10px] font-bold uppercase tracking-tight ${active ? "text-rose-300" : "text-rose-500"}`}>
-                                                                                Due: {formatINR(due)}
-                                                                            </span>
-                                                                        )}
-                                                                    </div>
-                                                                </>
-                                                            )}
-                                                        </div>
-
-                                                        <div className="flex items-center justify-between gap-2 text-[12px]">
-                                                            <span className={active ? "opacity-80" : "text-slate-500"}>
-                                                                {item.items.length} item
-                                                                {item.items.length === 1 ? "" : "s"}
-                                                            </span>
-                                                        </div>
-                                                    </button>
-                                                );
-                                            });
-                                        })()}
-
-
-                                    </div>
-                                </div>
-
-                                <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
-                                    <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
-                                        <div className="text-sm font-semibold text-slate-900">
-                                            {selectedVisit?.transactionType === "Refund" || selectedVisit?.items?.some((i: any) => i.name?.toLowerCase().includes("refund")) ? "Refund" : selectedVisit?.transactionType === "Sale" ? "Sale" : "Refund"} Details — {selectedVisit?.mrn || selectedVisit?._id}
-                                        </div>
-                                        {selectedVisit && (
-                                            <div className="text-[11px] text-slate-500 flex flex-col items-end">
-                                                <span>
-                                                    Date:{" "}
-                                                    <span className="font-medium text-slate-700">
-                                                        {fDate(selectedVisit.createdAt)}
-                                                    </span>
+                                        <div className="flex-1 min-w-55">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                                                    {customer?.patient?.name}
+                                                </h1>
+                                                <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                                                    {customer?.patient?.mrn}
                                                 </span>
-
                                             </div>
-                                        )}
+                                            <p className="text-sm text-slate-600 mt-1">
+                                                {customer?.patient?.dateOfBirth && (
+                                                    <>
+                                                        Age {fAgeString(customer.patient.dateOfBirth)} /{" "}
+                                                    </>
+                                                )}
+                                                {customer?.patient?.gender} • Ph:{" "}
+                                                {customer?.patient?.phoneNumber}
+                                            </p>
+                                            <p className="text-sm text-slate-500 mt-0.5">
+                                                {customer?.patient?.address}
+                                            </p>
+                                            {customer?.patient?.allergies && (
+                                                <div className="mt-3 flex items-center gap-2 px-3 py-2 bg-yellow-50 border border-yellow-200 rounded-lg text-yellow-700 shadow-sm max-w-fit">
+                                                    <AlertTriangle className="h-4 w-4 shrink-0" />
+                                                    <div className="text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                                                        Allergies: <span className="text-sm normal-case font-semibold bg-yellow-100 px-2 py-0.5 rounded text-amber-900 border border-amber-200/50">{customer.patient.allergies}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                            <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
+                                                {customer?.billing.length === 0 && (
+                                                    <span className="px-2 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-100">
+                                                        No purchase history yet
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
                                     </div>
 
-                                    {!selectedVisit && (
-                                        <div className="p-6 text-sm text-slate-500">
-                                            Select a bill on the left to see its item-wise details.
+                                    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-indigo-50 to-synapse-purple/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
+                                                Total Spend
+                                            </div>
+                                            <div className="text-2xl font-bold text-(--color-synapse-light)">
+                                                {formatINR(customer?.totalSpend ?? 0)}
+                                            </div>
                                         </div>
-                                    )}
 
-                                    {selectedVisit && (
-                                        <>
-                                            <div className="flex-1 overflow-auto">
-                                                <table className="w-full text-[15px]">
-                                                    <thead className="bg-slate-50 text-slate-700 sticky top-0 text-sm">
-                                                        <tr>
-                                                            <th className="p-2 text-left font-medium">Sl</th>
-                                                            <th className="p-2 text-left font-medium">
-                                                                Medicine
-                                                            </th>
-                                                            <th className="p-2 text-right font-medium">
-                                                                Qty
-                                                            </th>
-                                                            <th className="p-2 text-right font-medium">
-                                                                MRP
-                                                            </th>
-                                                            <th className="p-2 text-right font-medium">
-                                                                Amount
-                                                            </th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        {selectedVisit.items.map((it, i) => {
-                                                            const amount = it.total || 0;
-                                                            return (
-                                                                <tr
-                                                                    key={it.name + i}
-                                                                    className="border-t align-top hover:bg-slate-50/70 transition-colors"
-                                                                >
-                                                                    <td className="p-2 align-top text-slate-500">
-                                                                        {i + 1}
-                                                                    </td>
-                                                                    <td className="p-2 align-top">
-                                                                        <div className="font-medium text-slate-900 leading-snug">
-                                                                            {it.name}
-                                                                        </div>
-                                                                    </td>
-                                                                    <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
-                                                                        {it.quantity}
-                                                                    </td>
-                                                                    <td className="p-2 align-top text-right text-slate-800">
-                                                                        {formatINR(it.unitPrice)}
-                                                                    </td>
-                                                                    <td className="p-2 align-top text-right font-semibold text-slate-900">
-                                                                        {formatINR(amount)}
-                                                                    </td>
-                                                                </tr>
-                                                            );
-                                                        })}
 
-                                                        {selectedVisit.items.length === 0 && (
-                                                            <tr>
-                                                                <td
-                                                                    className="p-3 text-center text-slate-500"
-                                                                    colSpan={5}
-                                                                >
-                                                                    No items.
-                                                                </td>
-                                                            </tr>
-                                                        )}
-                                                    </tbody>
-                                                    <tfoot className="bg-slate-50/80 font-medium">
-                                                        <tr className="border-t">
-                                                            <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
-                                                                Sub Total
-                                                            </td>
-                                                            <td className="p-2 text-right text-sm font-semibold text-slate-900">
-                                                                {formatINR(
-                                                                    selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0)
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                        {selectedVisit?.transactionType === "Sale" && (
-                                                            <>
-                                                                <tr className="border-t">
-                                                                    <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
-                                                                        Discount
-                                                                    </td>
-                                                                    <td className="p-2 text-right text-sm font-semibold text-slate-900">
-                                                                        {formatINR(selectedVisit?.discount || 0)}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr className="border-t">
-                                                                    <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
-                                                                        Amount Paid
-                                                                    </td>
-                                                                    <td className="p-2 text-right text-sm font-semibold text-emerald-700">
-                                                                        {formatINR(
-                                                                            (selectedVisit?.cash || 0) +
-                                                                            (selectedVisit?.card || 0) +
-                                                                            (selectedVisit?.upi || 0)
-                                                                        )}
-                                                                    </td>
-                                                                </tr>
-                                                                <tr className="border-t">
-                                                                    <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
-                                                                        Due Amount
-                                                                    </td>
-                                                                    <td className="p-2 text-right text-sm font-semibold text-rose-500">
-                                                                        {formatINR(
-                                                                            selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
-                                                                            (selectedVisit?.discount || 0) -
-                                                                            ((selectedVisit?.cash || 0) +
-                                                                                (selectedVisit?.card || 0) +
-                                                                                (selectedVisit?.upi || 0))
-                                                                        )}
-                                                                    </td>
-                                                                </tr>
-                                                            </>
-                                                        )}
-                                                        <tr className="border-t bg-slate-100/50">
-                                                            <td colSpan={4} className="p-2 text-right text-xs font-bold text-slate-700">
-                                                                Total
-                                                            </td>
-                                                            <td className="p-2 text-right text-sm font-bold text-slate-900">
-                                                                {formatINR(
-                                                                    selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
-                                                                    (selectedVisit?.discount || 0)
-                                                                )}
-                                                            </td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
+                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
+                                                Total Paid
+                                            </div>
+                                            <div className="text-2xl font-bold text-emerald-900">
+                                                {formatINR(customer?.totalPaid ?? 0)}
+                                            </div>
+                                        </div>
+
+
+                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-rose-700 uppercase tracking-wide">
+                                                Total Due
+                                            </div>
+                                            <div className="text-2xl font-bold text-rose-900">
+                                                {formatINR(customer?.totalDue ?? 0)}
+                                            </div>
+                                        </div>
+
+
+                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
+                                                Total Visits
+                                            </div>
+                                            <div className="text-3xl font-semibold text-sky-900">
+                                                {customer?.totalVisit}
+                                            </div>
+                                        </div>
+                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
+                                                Last Purchase
+                                            </div>
+                                            <div className="text-sm font-semibold text-(--color-synapse-light)">
+                                                {customer?.lastPurchase ? fDate(customer.lastPurchase) : "N/A"}
+                                            </div>
+                                        </div>
+                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
+                                                Avg Spend
+                                            </div>
+                                            <div className="text-2xl font-semibold text-amber-900">
+                                                {formatINR(customer?.averageSpend || 0)}
+                                            </div>
+                                        </div>
+                                    </section>
+
+                                    <section className="grid gap-5 md:grid-cols-5 items-start">
+                                        <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
+                                            <div className="px-4 py-3 bg-(--color-synapse-dark) text-slate-50 flex items-center justify-between">
+                                                <div className="text-sm font-medium flex items-center gap-2">
+                                                    <span className="h-7 w-7 rounded-full bg-(--color-synapse-purple) flex items-center justify-center text-[11px]">
+                                                        {customer?.totalVisit}
+                                                    </span>
+                                                    Bills / Visits
+                                                </div>
+                                                <div className="text-[11px] text-slate-200">
+                                                    {customer?.totalVisit !== 0 ? customer?.totalVisit : "No"}{" "}
+                                                    bill
+                                                    {customer?.totalVisit === 1 ? "" : "s"}
+                                                </div>
                                             </div>
 
-                                            {selectedVisit?.mrn && <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
-                                                <div className="text-[12px] text-slate-500">
+                                            <div className="flex justify-between items-center bg-slate-50 px-2 py-2">
+                                                <div className="flex items-center gap-3 text-[12px] text-slate-700">
+                                                    <span className="font-medium">Filter:</span>
 
-                                                </div>
-                                                <div className="flex items-center gap-2">
+                                                    <Popover open={openCalendar} onOpenChange={setOpenCalendar}>
+                                                        <PopoverTrigger asChild>
+                                                            <Button
+                                                                variant="outline"
+                                                                id="date"
+                                                                className="w-64 justify-between font-normal"
+                                                            >
+                                                                {date?.from && date?.to
+                                                                    ? `${fDate(date.from)} to ${fDate(date.to)}`
+                                                                    : "Select date"}
+                                                                <ChevronDownIcon />
+                                                            </Button>
+                                                        </PopoverTrigger>
 
-                                                    {calculatedDueAmount > 0 && (
-                                                        <Button
-                                                            className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                            onClick={() => setShowPaymentModal(true)}
+                                                        <PopoverContent
+                                                            className="w-auto overflow-hidden p-0"
+                                                            align="start"
                                                         >
-                                                            Pay Due Amount
+                                                            <Calendar
+                                                                mode="range"
+                                                                selected={date}
+                                                                captionLayout="dropdown"
+                                                                numberOfMonths={2}
+                                                                onSelect={(s) => {
+                                                                    setDate(s);
+
+                                                                    const { from, to } = s || {};
+
+                                                                    if (
+                                                                        from &&
+                                                                        to &&
+                                                                        from !== to &&
+                                                                        (from !== date?.from || to !== date?.to)
+                                                                    ) {
+                                                                        setOpenCalendar(false);
+                                                                    }
+                                                                }}
+                                                            />
+                                                        </PopoverContent>
+                                                    </Popover>
+
+                                                    {date?.from && date?.to && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 text-[11px] px-3"
+                                                            onClick={() => {
+                                                                setDate({ from: undefined, to: undefined });
+                                                            }}
+                                                        >
+                                                            Clear
                                                         </Button>
                                                     )}
-
-                                                    <AlertDialog open={showRepeatConfirm} onOpenChange={setShowRepeatConfirm}>
-                                                        <Button
-                                                            disabled={repeatLoading}
-                                                            className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                            onClick={() => setShowRepeatConfirm(true)}
-                                                        >
-                                                            {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                            Repeat Prescription
-                                                        </Button>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>Repeat Prescription?</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                    Are you sure you want to repeat this prescription? This will create a new order with the same items.
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction
-                                                                    className="bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                                    onClick={async () => {
-                                                                        try {
-                                                                            setRepeatLoading(true)
-                                                                            await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
-                                                                                loading: "Loading...",
-                                                                                success: "Repeat Prescription",
-                                                                                error: "Something went wrong"
-                                                                            })
-                                                                            const updatedData = await mutate()
-                                                                            const lastone = updatedData?.data.length
-                                                                            setSelectedVisit(updatedData?.data[(lastone ?? 0) - 1] ?? null)
-                                                                        } catch (error) {
-                                                                            // Handle error
-                                                                        } finally {
-                                                                            setRepeatLoading(false)
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    Confirm
-                                                                </AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
-
-                                                    <Button
-                                                        className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                        disabled={printingBill}
-                                                        onClick={() => handlePrintBill(selectedVisit?.mrn || selectedVisit?._id)}
-                                                    >
-                                                        {printingBill ? "Printing..." : "Print bill"}
-                                                    </Button>
-                                                    <Button
-                                                        className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                        disabled={printingPrescription}
-                                                        onClick={() => handlePrintPrescription(selectedVisit)}
-                                                    >
-                                                        {printingPrescription ? "Printing..." : "Print Prescription"}
-                                                    </Button>
-
-                                                    <Button
-                                                        className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                        asChild
-                                                    >
-                                                        <Link href={selectedVisit.mrn ? `/dashboard/pharmacy/return/?mrn=${selectedVisit.mrn}` : `#`}>
-                                                            Return
-                                                        </Link>
-                                                    </Button>
-
-
-
                                                 </div>
-                                            </div>}
-                                        </>
+
+                                                <div className="relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
+                                                    {tabs.map(({ key, label }: { key: string; label: string }) => {
+                                                        const active = type === key;
+                                                        return (
+                                                            <button
+                                                                key={key}
+                                                                onClick={() => setType(key)}
+                                                                className={
+                                                                    "relative flex items-center gap-2 rounded-full px-2 py-1.5 transition will-change-transform cursor-pointer " +
+                                                                    (active ? "text-white" : "text-gray-700")
+                                                                }
+                                                                type="button"
+                                                            >
+                                                                {active && (
+                                                                    <motion.span
+                                                                        layoutId="tab-indicator-1"
+                                                                        className="absolute inset-0 rounded-full bg-(--color-synapse-light)"
+                                                                        transition={{ type: "spring", stiffness: 500, damping: 40 }}
+                                                                    />
+                                                                )}
+                                                                <span className="relative z-10 flex items-center gap-1 text-sm">
+                                                                    {label}
+                                                                </span>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+
+
+                                            </div>
+
+                                            <div className="flex-1 overflow-y-auto divide-y">
+
+                                                {(() => {
+                                                    // 1. Combine Data
+                                                    let combined = billing.map(b => ({
+                                                        ...b,
+                                                        type: b.transactionType.toLowerCase()
+                                                    }));
+
+                                                    // 2. Filter by Tab Type (sale, return, all)
+                                                    if (type !== "all") {
+                                                        combined = combined.filter((item) => item.type === type);
+                                                    }
+
+                                                    // 3. Filter by Date Range
+                                                    if (date?.from && date?.to) {
+                                                        const start = new Date(date.from);
+                                                        const end = new Date(date.to);
+                                                        end.setHours(23, 59, 59, 999);
+                                                        combined = combined.filter((item) => {
+                                                            if (!item.createdAt) return false;
+                                                            const created = new Date(item.createdAt);
+                                                            return created >= start && created <= end;
+                                                        });
+                                                    }
+
+                                                    // 4. Sort by Date Descending
+                                                    combined.sort(
+                                                        (a, b) => {
+                                                            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+                                                            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+                                                            return dateB - dateA;
+                                                        }
+                                                    );
+
+                                                    // 5. Render
+                                                    return combined.map((item: any) => {
+                                                        const active = selectedVisit && selectedVisit._id === item._id;
+                                                        const isReturn = item.type === "return";
+
+                                                        const itemsTotal = item.items.reduce((a: number, b: any) => a + (b.total || 0), 0);
+                                                        const rOff = item.roundOff ? getDecimal(itemsTotal) : 0;
+                                                        const paid = (item.cash || 0) + (item.card || 0) + (item.upi || 0);
+                                                        const netTotal = itemsTotal - rOff - (item.discount || 0);
+                                                        const due = Math.max(0, netTotal - paid);
+
+                                                        return (
+                                                            <button
+                                                                key={item._id}
+                                                                type="button"
+                                                                onClick={() => setSelectedVisit(item)}
+                                                                className={`w-full text-left px-4 py-3.5 text-[15px] flex flex-col gap-1 transition-all duration-150 ${active
+                                                                    ? "bg-(--color-synapse-dark) text-slate-50"
+                                                                    : "hover:bg-slate-50"
+                                                                    }`}
+                                                            >
+                                                                <div className="flex items-center justify-between gap-2">
+                                                                    {isReturn ? (
+                                                                        // Return Item Header
+                                                                        <>
+                                                                            <span className="font-medium">
+                                                                                {fDate(item.createdAt)} - {item.mrn} - Return
+                                                                            </span>
+                                                                            <span className="text-xs font-semibold">
+                                                                                {formatINR(itemsTotal)}
+                                                                            </span>
+                                                                        </>
+                                                                    ) : (
+                                                                        // Sale Item Header
+                                                                        <>
+                                                                            <span className="font-medium">
+                                                                                {fDate(item.createdAt)} • {item.mrn}
+                                                                            </span>
+                                                                            <div className="text-right flex flex-col items-end">
+                                                                                <span className={`text-[13px] font-bold ${active ? "text-slate-50" : "text-slate-900"}`}>
+                                                                                    {formatINR(netTotal)}
+                                                                                </span>
+                                                                                {due > 0 && (
+                                                                                    <span className={`text-[10px] font-bold uppercase tracking-tight ${active ? "text-rose-300" : "text-rose-500"}`}>
+                                                                                        Due: {formatINR(due)}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        </>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="flex items-center justify-between gap-2 text-[12px]">
+                                                                    <span className={active ? "opacity-80" : "text-slate-500"}>
+                                                                        {item.items.length} item
+                                                                        {item.items.length === 1 ? "" : "s"}
+                                                                    </span>
+                                                                </div>
+                                                            </button>
+                                                        );
+                                                    });
+                                                })()}
+
+
+                                            </div>
+                                        </div>
+
+                                        <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
+                                            <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
+                                                <div className="text-sm font-semibold text-slate-900">
+                                                    {selectedVisit?.transactionType === "Refund" || selectedVisit?.items?.some((i: any) => i.name?.toLowerCase().includes("refund")) ? "Refund" : selectedVisit?.transactionType === "Sale" ? "Sale" : "Refund"} Details — {selectedVisit?.mrn || selectedVisit?._id}
+                                                </div>
+                                                {selectedVisit && (
+                                                    <div className="text-[11px] text-slate-500 flex flex-col items-end">
+                                                        <span>
+                                                            Date:{" "}
+                                                            <span className="font-medium text-slate-700">
+                                                                {fDate(selectedVisit.createdAt)}
+                                                            </span>
+                                                        </span>
+
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {!selectedVisit && (
+                                                <div className="p-6 text-sm text-slate-500">
+                                                    Select a bill on the left to see its item-wise details.
+                                                </div>
+                                            )}
+
+                                            {selectedVisit && (
+                                                <>
+                                                    <div className="flex-1 overflow-auto">
+                                                        <table className="w-full text-[15px]">
+                                                            <thead className="bg-slate-50 text-slate-700 sticky top-0 text-sm">
+                                                                <tr>
+                                                                    <th className="p-2 text-left font-medium">Sl</th>
+                                                                    <th className="p-2 text-left font-medium">
+                                                                        Medicine
+                                                                    </th>
+                                                                    <th className="p-2 text-right font-medium">
+                                                                        Qty
+                                                                    </th>
+                                                                    <th className="p-2 text-right font-medium">
+                                                                        MRP
+                                                                    </th>
+                                                                    <th className="p-2 text-right font-medium">
+                                                                        Amount
+                                                                    </th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {selectedVisit.items.map((it, i) => {
+                                                                    const amount = it.total || 0;
+                                                                    return (
+                                                                        <tr
+                                                                            key={it.name + i}
+                                                                            className="border-t align-top hover:bg-slate-50/70 transition-colors"
+                                                                        >
+                                                                            <td className="p-2 align-top text-slate-500">
+                                                                                {i + 1}
+                                                                            </td>
+                                                                            <td className="p-2 align-top">
+                                                                                <div className="font-medium text-slate-900 leading-snug">
+                                                                                    {it.name}
+                                                                                </div>
+                                                                            </td>
+                                                                            <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
+                                                                                {it.quantity}
+                                                                            </td>
+                                                                            <td className="p-2 align-top text-right text-slate-800">
+                                                                                {formatINR(it.unitPrice)}
+                                                                            </td>
+                                                                            <td className="p-2 align-top text-right font-semibold text-slate-900">
+                                                                                {formatINR(amount)}
+                                                                            </td>
+                                                                        </tr>
+                                                                    );
+                                                                })}
+
+                                                                {selectedVisit.items.length === 0 && (
+                                                                    <tr>
+                                                                        <td
+                                                                            className="p-3 text-center text-slate-500"
+                                                                            colSpan={5}
+                                                                        >
+                                                                            No items.
+                                                                        </td>
+                                                                    </tr>
+                                                                )}
+                                                            </tbody>
+                                                            <tfoot className="bg-slate-50/80 font-medium">
+                                                                <tr className="border-t">
+                                                                    <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
+                                                                        Sub Total
+                                                                    </td>
+                                                                    <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                                                        {formatINR(
+                                                                            selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0)
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                                {selectedVisit?.transactionType === "Sale" && (
+                                                                    <>
+                                                                        <tr className="border-t">
+                                                                            <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
+                                                                                Discount
+                                                                            </td>
+                                                                            <td className="p-2 text-right text-sm font-semibold text-slate-900">
+                                                                                {formatINR(selectedVisit?.discount || 0)}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr className="border-t">
+                                                                            <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
+                                                                                Amount Paid
+                                                                            </td>
+                                                                            <td className="p-2 text-right text-sm font-semibold text-emerald-700">
+                                                                                {formatINR(
+                                                                                    (selectedVisit?.cash || 0) +
+                                                                                    (selectedVisit?.card || 0) +
+                                                                                    (selectedVisit?.upi || 0)
+                                                                                )}
+                                                                            </td>
+                                                                        </tr>
+                                                                        <tr className="border-t">
+                                                                            <td colSpan={4} className="p-2 text-right text-xs text-slate-600">
+                                                                                Due Amount
+                                                                            </td>
+                                                                            <td className="p-2 text-right text-sm font-semibold text-rose-500">
+                                                                                {formatINR(
+                                                                                    selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
+                                                                                    (selectedVisit?.discount || 0) -
+                                                                                    ((selectedVisit?.cash || 0) +
+                                                                                        (selectedVisit?.card || 0) +
+                                                                                        (selectedVisit?.upi || 0))
+                                                                                )}
+                                                                            </td>
+                                                                        </tr>
+                                                                    </>
+                                                                )}
+                                                                <tr className="border-t bg-slate-100/50">
+                                                                    <td colSpan={4} className="p-2 text-right text-xs font-bold text-slate-700">
+                                                                        Total
+                                                                    </td>
+                                                                    <td className="p-2 text-right text-sm font-bold text-slate-900">
+                                                                        {formatINR(
+                                                                            selectedVisit.items.reduce((a, b) => a + (b.total || 0), 0) -
+                                                                            (selectedVisit?.discount || 0)
+                                                                        )}
+                                                                    </td>
+                                                                </tr>
+                                                            </tfoot>
+                                                        </table>
+                                                    </div>
+
+                                                    {selectedVisit?.mrn && <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
+                                                        <div className="text-[12px] text-slate-500">
+
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+
+                                                            {calculatedDueAmount > 0 && (
+                                                                <Button
+                                                                    className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                                    onClick={() => setShowPaymentModal(true)}
+                                                                >
+                                                                    Pay Due Amount
+                                                                </Button>
+                                                            )}
+
+                                                            <AlertDialog open={showRepeatConfirm} onOpenChange={setShowRepeatConfirm}>
+                                                                <Button
+                                                                    disabled={repeatLoading}
+                                                                    className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                                    onClick={() => setShowRepeatConfirm(true)}
+                                                                >
+                                                                    {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                                    Repeat Prescription
+                                                                </Button>
+                                                                <AlertDialogContent>
+                                                                    <AlertDialogHeader>
+                                                                        <AlertDialogTitle>Repeat Prescription?</AlertDialogTitle>
+                                                                        <AlertDialogDescription>
+                                                                            Are you sure you want to repeat this prescription? This will create a new order with the same items.
+                                                                        </AlertDialogDescription>
+                                                                    </AlertDialogHeader>
+                                                                    <AlertDialogFooter>
+                                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                        <AlertDialogAction
+                                                                            className="bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                                            onClick={async () => {
+                                                                                try {
+                                                                                    setRepeatLoading(true)
+                                                                                    await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
+                                                                                        loading: "Loading...",
+                                                                                        success: "Repeat Prescription",
+                                                                                        error: "Something went wrong"
+                                                                                    })
+                                                                                    const updatedData = await mutate()
+                                                                                    const lastone = updatedData?.data.length
+                                                                                    setSelectedVisit(updatedData?.data[(lastone ?? 0) - 1] ?? null)
+                                                                                } catch (error) {
+                                                                                    // Handle error
+                                                                                } finally {
+                                                                                    setRepeatLoading(false)
+                                                                                }
+                                                                            }}
+                                                                        >
+                                                                            Confirm
+                                                                        </AlertDialogAction>
+                                                                    </AlertDialogFooter>
+                                                                </AlertDialogContent>
+                                                            </AlertDialog>
+
+                                                            <Button
+                                                                className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                                disabled={printingBill}
+                                                                onClick={() => handlePrintBill(selectedVisit?.mrn || selectedVisit?._id)}
+                                                            >
+                                                                {printingBill ? "Printing..." : "Print bill"}
+                                                            </Button>
+                                                            <Button
+                                                                className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                                disabled={printingPrescription}
+                                                                onClick={() => handlePrintPrescription(selectedVisit)}
+                                                            >
+                                                                {printingPrescription ? "Printing..." : "Print Prescription"}
+                                                            </Button>
+
+                                                            <Button
+                                                                className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                                asChild
+                                                            >
+                                                                <Link href={selectedVisit.mrn ? `/dashboard/pharmacy/return/?mrn=${selectedVisit.mrn}` : `#`}>
+                                                                    Return
+                                                                </Link>
+                                                            </Button>
+                                                        </div>
+                                                    </div>}
+                                                </>
+                                            )}
+                                        </div>
+                                    </section>
+                                </>
+                            )}
+
+                            {activeViewTab === "credit" && (
+                                <div className="space-y-4">
+                                    {/* Credit Summary Banner */}
+                                    <div className="bg-linear-to-r from-rose-50 to-pink-50 border border-rose-200/80 rounded-2xl p-5 flex flex-wrap items-center justify-between gap-4 shadow-sm">
+                                        <div className="flex items-center gap-3">
+                                            <div className="h-12 w-12 rounded-2xl bg-rose-600 text-white flex items-center justify-center shadow-md">
+                                                <AlertCircle className="h-6 w-6" />
+                                            </div>
+                                            <div>
+                                                <h2 className="text-lg font-bold text-slate-900">Credit & Due Bills</h2>
+                                                <p className="text-xs text-slate-500">
+                                                    Bills with pending due amounts for {customer?.patient?.name || "this customer"}.
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-right">
+                                                <p className="text-xs font-bold uppercase tracking-wider text-rose-500">Total Credit Due</p>
+                                                <p className="text-2xl font-black text-rose-700 mt-0.5">
+                                                    {formatINR(customer?.totalDue || 0)}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Credit Bills Table */}
+                                    <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+                                        {creditBills.length === 0 ? (
+                                            <div className="p-12 text-center">
+                                                <div className="h-14 w-14 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-3">
+                                                    <CheckCircle2 className="h-7 w-7" />
+                                                </div>
+                                                <h3 className="text-base font-bold text-slate-800">No Credit / Due Amount</h3>
+                                                <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+                                                    All bills for {customer?.patient?.name || "this customer"} are fully paid.
+                                                </p>
+                                            </div>
+                                        ) : (
+                                            <div className="overflow-x-auto">
+                                                <Table className="w-full">
+                                                    <TableHeader className="bg-slate-900 hover:bg-slate-900">
+                                                        <TableRow className="border-b-0 hover:bg-slate-900">
+                                                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3 pl-6">
+                                                                Invoice / MRN
+                                                            </TableHead>
+                                                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3">
+                                                                Date
+                                                            </TableHead>
+                                                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3">
+                                                                Doctor
+                                                            </TableHead>
+                                                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3">
+                                                                Net Total
+                                                            </TableHead>
+                                                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3">
+                                                                Paid
+                                                            </TableHead>
+                                                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3">
+                                                                Due Amount
+                                                            </TableHead>
+                                                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3">
+                                                                Status
+                                                            </TableHead>
+                                                            <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3 pr-6 text-right">
+                                                                Actions
+                                                            </TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody className="text-sm">
+                                                        {creditBills.map((b) => {
+                                                            const itemsTotal = b.items.reduce((acc, it) => acc + (it.total || 0), 0);
+                                                            const rOff = b.roundOff ? getDecimal(itemsTotal) : 0;
+                                                            const paid = (b.cash || 0) + (b.card || 0) + (b.upi || 0);
+                                                            const netTotal = itemsTotal - rOff - (b.discount || 0);
+                                                            const due = Math.max(0, netTotal - paid);
+                                                            const isPaid = due === 0;
+                                                            const isPartial = paid > 0 && due > 0;
+
+                                                            const rawDoc = b.doctor;
+                                                            const doctorName =
+                                                                typeof rawDoc === "object" && rawDoc !== null
+                                                                    ? ((rawDoc as any).name ? `Dr. ${(rawDoc as any).name}` : "Self")
+                                                                    : typeof rawDoc === "string" && rawDoc.trim() !== ""
+                                                                        ? rawDoc
+                                                                        : "Self";
+
+                                                            return (
+                                                                <TableRow key={b._id} className="hover:bg-slate-50 border-b border-slate-100">
+                                                                    <TableCell className="py-3.5 pl-6 font-bold text-slate-800">
+                                                                        {b.mrn || b._id}
+                                                                    </TableCell>
+                                                                    <TableCell className="py-3.5 text-xs text-slate-500">
+                                                                        {fDateandTime(b.createdAt)}
+                                                                    </TableCell>
+                                                                    <TableCell className="py-3.5 text-slate-700 font-medium">
+                                                                        {doctorName}
+                                                                    </TableCell>
+                                                                    <TableCell className="py-3.5 font-semibold text-slate-800">
+                                                                        {formatINR(netTotal)}
+                                                                    </TableCell>
+                                                                    <TableCell className="py-3.5 font-semibold text-emerald-600">
+                                                                        {formatINR(paid)}
+                                                                    </TableCell>
+                                                                    <TableCell className="py-3.5 font-bold text-rose-600">
+                                                                        {formatINR(due)}
+                                                                    </TableCell>
+                                                                    <TableCell className="py-3.5">
+                                                                        <Badge
+                                                                            variant="outline"
+                                                                            className={cn(
+                                                                                "font-semibold text-xs px-2.5 py-0.5",
+                                                                                isPaid
+                                                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                                                                    : isPartial
+                                                                                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                                                                                        : "bg-rose-50 text-rose-700 border-rose-200"
+                                                                            )}
+                                                                        >
+                                                                            {isPaid ? "Paid" : isPartial ? "Partial" : "Unpaid"}
+                                                                        </Badge>
+                                                                    </TableCell>
+                                                                    <TableCell className="py-3.5 pr-6 text-right">
+                                                                        <div className="flex items-center justify-end gap-2">
+                                                                            <Button
+                                                                                variant="outline"
+                                                                                size="sm"
+                                                                                onClick={() => handlePrintBill(b.mrn || b._id)}
+                                                                                className="rounded-xl border-slate-200 text-xs font-semibold gap-1.5 cursor-pointer"
+                                                                            >
+                                                                                <Printer className="h-3.5 w-3.5" />
+                                                                                Print
+                                                                            </Button>
+                                                                            <Button
+                                                                                size="sm"
+                                                                                onClick={() => {
+                                                                                    setSelectedPaymentBill(b);
+                                                                                    setShowAddPaymentModal(true);
+                                                                                }}
+                                                                                className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold gap-1.5 cursor-pointer shadow-xs"
+                                                                            >
+                                                                                <Wallet2 className="h-3.5 w-3.5" />
+                                                                                Update Payment
+                                                                            </Button>
+                                                                        </div>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            );
+                                                        })}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        )}
+                                    </div>
+                                    {creditBills.length > 0 && (
+                                        <div className="flex items-center justify-end pt-2">
+                                            <Button
+                                                onClick={() => setShowBulkPaymentModal(true)}
+                                                className="rounded-xl bg-slate-900 hover:bg-slate-800 text-white px-6 py-2.5 text-sm font-bold shadow-xs cursor-pointer flex items-center gap-2"
+                                            >
+                                                <Wallet2 className="h-4 w-4" />
+                                                Update Payment
+                                            </Button>
+                                        </div>
                                     )}
                                 </div>
-                            </section>
+                            )}
                         </>
                     )}
                 </main>
             </div>
             {printOrder && <PrintPrescription order={printOrder} />}
             {Boolean(printBill) && <PrintReceipt payload={printBill?.payload} invoiceDetails={printBill?.invoiceDetails} patient={printBill?.patient} invoiceNo={printBill?.invoiceNo} />}
+
+            {/* Add Payment Modal for Credit View */}
+            <AddPaymentDialog
+                open={showAddPaymentModal}
+                setOpen={setShowAddPaymentModal}
+                bill={selectedPaymentBill}
+                billingMutate={mutate}
+            />
+
+            {/* Bulk Payment Modal for Customer Credit */}
+            <BulkPaymentDialog
+                open={showBulkPaymentModal}
+                setOpen={setShowBulkPaymentModal}
+                customerName={customer?.patient?.name || "Customer"}
+                dueBills={creditBills}
+                billingMutate={mutate}
+            />
 
             {/* Payment Modal */}
             <AlertDialog open={showPaymentModal} onOpenChange={setShowPaymentModal}>
