@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Package, Printer, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Truck, Factory, Banknote, MapPin, Percent, Hash, Layers, Coins, FileText, ShoppingCart, History, ArrowLeftRight } from "lucide-react";
+import { Package, Calendar, Tag, Building2, CreditCard, Barcode, Trash2, Edit, Banknote, Coins, ShoppingCart, ArrowLeftRight } from "lucide-react";
 import { ItemType } from "./interface";
 import { fDate } from "@/lib/fDateAndTime";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -14,8 +14,8 @@ import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarUI } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
-import { addDays, format, isAfter, isBefore, startOfDay, endOfDay } from "date-fns";
-import { Calendar as CalendarIcon, FilterX, History as HistoryIcon, Barcode as BarcodeIcon } from "lucide-react";
+import { format, startOfDay, endOfDay } from "date-fns";
+import { Calendar as CalendarIcon, FilterX, History as HistoryIcon, } from "lucide-react";
 import { PaginationBar } from "../components/PaginationBar";
 
 
@@ -45,7 +45,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
   const tabs = useMemo(() => [
     { key: "Batch History", icon: Package },
-    { key: "Medicine History", icon: History },
+    { key: "Medicine History", icon: HistoryIcon },
     { key: "Sold History", icon: ShoppingCart },
   ], []);
 
@@ -482,7 +482,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
                 <TableRow>
                   <TableCell colSpan={activeTab === "Batch History" ? 6 : activeTab === "Sold History" ? 7 : 4} className="text-center py-20 text-slate-400">
                     <div className="flex flex-col items-center gap-2">
-                      {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <History className="h-8 w-8 opacity-20" />}
+                      {activeTab === "Batch History" ? <Barcode className="h-8 w-8 opacity-20" /> : <HistoryIcon className="h-8 w-8 opacity-20" />}
                       <p className="font-bold uppercase tracking-widest text-[11px]">No {activeTab.toLowerCase()} found</p>
                     </div>
                   </TableCell>
