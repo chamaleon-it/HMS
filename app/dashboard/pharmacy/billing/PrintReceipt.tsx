@@ -156,7 +156,7 @@ export default function PrintReceipt({
 
                     {/* Right: Cash Receipt Title & Invoice Info */}
                     <div className="text-right flex flex-col items-end gap-2 pt-1">
-                        <div className="border border-black rounded-[8px] px-6 py-1.5 text-center select-none">
+                        <div className="border border-black rounded-xl px-6 py-1.5 text-center select-none">
                             <span className="text-[16px] font-bold text-black uppercase tracking-wider">CASH RECEIPT</span>
                         </div>
                         <div className="text-[12px] text-gray-500 font-medium space-y-0.5 mt-2 italic">
@@ -217,7 +217,7 @@ export default function PrintReceipt({
                                 const displayGeneric = item.generic || dbInfo.generic;
 
                                 return (
-                                    <tr key={index} className="h-[38px] bg-transparent">
+                                    <tr key={index} className="h-9.5 bg-transparent">
                                         <td className="px-2 py-0.5 text-center text-black text-[12px] font-medium border-r border-[#c5c9cf]">{index + 1}</td>
                                         <td className="px-3 py-0.5 border-r border-[#c5c9cf] leading-snug">
                                             <p className="font-bold text-black text-[12px]">{item.name}</p>
@@ -233,7 +233,7 @@ export default function PrintReceipt({
                                 );
                             })}
                             {Array.from({ length: emptyRowsCount }).map((_, idx) => (
-                                <tr key={`empty-${idx}`} className="h-[38px] bg-transparent select-none">
+                                <tr key={`empty-${idx}`} className="h-9.5 bg-transparent select-none">
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
@@ -257,7 +257,7 @@ export default function PrintReceipt({
                         </div>
                         <div className="flex-1 border border-[#9ca3af] rounded-bl-2xl rounded-br-2xl px-4 py-2 flex text-[12px] text-black font-bold justify-between items-center bg-white">
                             <div className="flex items-center gap-2">
-                                <div className="w-[22px] h-[22px] rounded-full border border-black flex items-center justify-center shrink-0">
+                                <div className="w-5.5 h-5.5 rounded-full border border-black flex items-center justify-center shrink-0">
                                     <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
                                     </svg>
@@ -265,7 +265,7 @@ export default function PrintReceipt({
                                 <span>{configuration().hospitalPhone}</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="w-[22px] h-[22px] rounded-full border border-black flex items-center justify-center shrink-0">
+                                <div className="w-5.5 h-5.5 rounded-full border border-black flex items-center justify-center shrink-0">
                                     <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="3">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
