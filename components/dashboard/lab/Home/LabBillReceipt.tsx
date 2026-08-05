@@ -74,7 +74,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
         grandTotal = subtotal + totalGst;
     }
 
-    const totalRowsNeeded = 21;
+    const totalRowsNeeded = 17;
     const itemsCount = items.length;
     const emptyRowsCount = Math.max(0, totalRowsNeeded - itemsCount);
 
@@ -257,6 +257,14 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                                 <span className="font-black text-black text-[14px] text-right">{formatINR(grandTotal)}</span>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {/* 5. Signature Row (After NET PAYABLE section, right aligned with space for physical signature) */}
+                <div className="flex justify-end items-center mt-3 mb-2 select-none">
+                    <div className="text-center w-56 flex flex-col justify-end h-14">
+                        <div className="border-b border-black mb-1 w-full"></div>
+                        <p className="font-bold text-[11px] text-black uppercase tracking-wider">Authorized Signature</p>
                     </div>
                 </div>
 

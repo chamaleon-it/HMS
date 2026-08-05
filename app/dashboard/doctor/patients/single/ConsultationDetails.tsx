@@ -48,9 +48,9 @@ export default function ConsultationDetails({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0">
+            <DialogContent showCloseButton={false} className="sm:max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0">
                 <DialogHeader className="px-6 py-4 border-b bg-muted/10 shrink-0">
-                    <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                             <DialogTitle className="text-xl font-bold">Consultation Details</DialogTitle>
                             {isAcupuncture ? (
@@ -63,8 +63,8 @@ export default function ConsultationDetails({
                                 </Badge>
                             )}
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Calendar className="w-4 h-4" />
+                        <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground bg-background/80 px-3 py-1.5 rounded-md border shadow-xs">
+                            <Calendar className="w-4 h-4 text-emerald-600" />
                             <span>
                                 {fDateandTime(
                                     selectedRow.appointment?.date ?? selectedRow.createdAt
