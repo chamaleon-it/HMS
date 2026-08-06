@@ -582,7 +582,7 @@ export default function PanelCatalogueRow({
                                                                         return words.every(w => v.includes(w)) ? 1 : 0;
                                                                     }}>
                                                                         <CommandInput placeholder="Type test name or code..." className="h-11" />
-                                                                        <CommandList className="max-h-[350px]" onWheel={(e) => e.stopPropagation()}>
+                                                                        <CommandList className="max-h-87.5" onWheel={(e) => e.stopPropagation()}>
                                                                             <CommandEmpty>No test found.</CommandEmpty>
                                                                             <CommandGroup>
                                                                                 {[...tests]
