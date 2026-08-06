@@ -28,6 +28,7 @@ import { OrderType } from "../../interface";
 import PrintPrescription from "../../billing/PrintPrescription";
 import PrintReceipt from "../../PrintReceipt";
 import PharmacyHeader from "../../components/PharmacyHeader";
+import { useDrafts } from "../../DraftContext";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -91,6 +92,86 @@ const CustomerPageContent: React.FC = () => {
     }, [billing, patientData]);
 
     const [selectedVisit, setSelectedVisit] = useState<BillingRecord | null>(null);
+    const { addDraft } = useDrafts();
+
+    const handleRepeatPrescription = () => {
+        if (!selectedVisit) {
+            toast.error("Please select a prescription or bill first");
+            return;
+        }
+
+        const patientObj = (selectedVisit.patient && typeof selectedVisit.patient === "object")
+            ? selectedVisit.patient
+            : (customer?.patient || null);
+
+        const patientId = patientObj?._id || customer?.patient?._id || "";
+        const patientNameStr = patientObj?.name || customer?.patient?.name || "";
+        const patientMrnStr = patientObj?.mrn || customer?.patient?.mrn || "";
+        const formattedPatientName = patientMrnStr ? `${patientNameStr} - (${patientMrnStr.replace("MRN", "P-")})` : patientNameStr;
+
+        const rawDoctor = (selectedVisit as any).doctor;
+        let doctorId: string | null = null;
+        let doctorNameStr = "";
+
+        if (typeof rawDoctor === "object" && rawDoctor !== null) {
+            doctorId = rawDoctor._id || null;
+            doctorNameStr = rawDoctor.name || "";
+        } else if (typeof rawDoctor === "string") {
+            if (rawDoctor.match(/^[0-9a-fA-F]{24}$/)) {
+                doctorId = rawDoctor;
+            } else {
+                doctorNameStr = rawDoctor;
+            }
+        }
+
+        const allergiesStr = patientObj?.allergies || customer?.patient?.allergies || "";
+
+        const itemsMapped = (selectedVisit.items || []).map((it: any, idx: number) => {
+            const itemObj = typeof it.name === "object" && it.name !== null ? it.name : null;
+            const itemNameStr = itemObj ? (itemObj.name || "") : (typeof it.name === "string" ? it.name : "");
+            const itemId = itemObj ? (itemObj._id || "") : (it.item || it.medicineId || "");
+
+            return {
+                rowId: `${Date.now()}-${idx}-${Math.random().toString(36).substring(2, 6)}`,
+                name: itemId || itemNameStr,
+                medicineName: itemNameStr,
+                dosage: it.dosage || "1 tab",
+                frequency: it.frequency || "1-0-1",
+                food: it.food || "After Food",
+                duration: it.duration || "5 Days",
+                quantity: it.quantity || 1,
+                availableQuantity: it.availableQuantity || 0,
+                unitPrice: it.unitPrice || 0,
+            };
+        });
+
+        addDraft(
+            {
+                patient: patientId,
+                doctor: doctorId,
+                doctorName: doctorNameStr,
+                allergies: allergiesStr,
+                discount: selectedVisit.discount || 0,
+                items: itemsMapped.length > 0 ? itemsMapped : [
+                    {
+                        rowId: Date.now().toString(),
+                        dosage: "1 tab",
+                        name: "",
+                        medicineName: "",
+                        duration: "",
+                        food: "",
+                        frequency: "",
+                        quantity: 0,
+                        availableQuantity: 0,
+                        unitPrice: 0,
+                    }
+                ],
+            },
+            formattedPatientName
+        );
+
+        toast.success("Prescription loaded into New Order window for editing");
+    };
 
 
     const [openCalendar, setOpenCalendar] = useState(false);
@@ -843,49 +924,12 @@ const CustomerPageContent: React.FC = () => {
                                                         </Button>
                                                     )}
 
-                                                    <AlertDialog open={showRepeatConfirm} onOpenChange={setShowRepeatConfirm}>
-                                                        <Button
-                                                            disabled={repeatLoading}
-                                                            className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                            onClick={() => setShowRepeatConfirm(true)}
-                                                        >
-                                                            {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                            Repeat Prescription
-                                                        </Button>
-                                                        <AlertDialogContent>
-                                                            <AlertDialogHeader>
-                                                                <AlertDialogTitle>Repeat Prescription?</AlertDialogTitle>
-                                                                <AlertDialogDescription>
-                                                                    Are you sure you want to repeat this prescription? This will create a new order with the same items.
-                                                                </AlertDialogDescription>
-                                                            </AlertDialogHeader>
-                                                            <AlertDialogFooter>
-                                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                <AlertDialogAction
-                                                                    className="bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                                    onClick={async () => {
-                                                                        try {
-                                                                            setRepeatLoading(true)
-                                                                            await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
-                                                                                loading: "Loading...",
-                                                                                success: "Repeat Prescription",
-                                                                                error: "Something went wrong"
-                                                                            })
-                                                                            const updatedData = await mutate()
-                                                                            const lastone = updatedData?.data.length
-                                                                            setSelectedVisit(updatedData?.data[(lastone ?? 0) - 1] ?? null)
-                                                                        } catch (error) {
-                                                                            // Handle error
-                                                                        } finally {
-                                                                            setRepeatLoading(false)
-                                                                        }
-                                                                    }}
-                                                                >
-                                                                    Confirm
-                                                                </AlertDialogAction>
-                                                            </AlertDialogFooter>
-                                                        </AlertDialogContent>
-                                                    </AlertDialog>
+                                                    <Button
+                                                        className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                        onClick={handleRepeatPrescription}
+                                                    >
+                                                        Repeat Prescription
+                                                    </Button>
 
                                                     <Button
                                                         className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"

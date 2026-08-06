@@ -55,6 +55,12 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
 
 
 
+  useEffect(() => {
+    if (patientName !== undefined) {
+      setInput(patientName);
+    }
+  }, [patientName]);
+
   // Auto-scroll to active item
   useEffect(() => {
     if (activeIdx >= 0 && listRef.current) {
@@ -168,11 +174,15 @@ const PatientSelection: React.FC<Props> = ({ setValue, register, patientName, au
             placeholder="Search or type new"
             value={input}
             autoFocus={autoFocus}
-            onFocus={() => setOpen(true)}
+            onFocus={() => {
+              if (!patientName || input !== patientName) {
+                setOpen(true);
+              }
+            }}
             onChange={(e) => {
-
               const capitalizedValue = e.target.value.replace(/\b\w/g, (char) => char.toUpperCase());
               setInput(capitalizedValue);
+              setOpen(true);
               if (selected) {
                 setSelected(null);
                 setValue("");

@@ -85,7 +85,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
           <div className="flex-1">
             <PatientSelection
               patientName={patientName}
-              autoFocus
+              autoFocus={!patientName}
               // actionElement={
               //   <Button
               //     type="button"

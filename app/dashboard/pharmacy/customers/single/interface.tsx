@@ -28,6 +28,7 @@ export interface BillingRecord {
   mrn: string;
   roundOff: boolean;
   transactionType: "Sale" | "Return" | "Refund";
+  doctor?: string | { _id: string; name: string; specialization?: string };
   createdAt: string;
   updatedAt: string;
 }
