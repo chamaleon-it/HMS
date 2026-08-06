@@ -153,14 +153,14 @@ export default function ViewBill({ id }: { id: string }) {
                 {/* Receipt Container */}
                 <div className="bg-white text-slate-900 font-sans leading-relaxed shadow-xl w-full flex flex-col overflow-hidden rounded-xl print:shadow-none print:rounded-none">
                     {/* HEADER */}
-                    <div className="bg-primary text-white px-10 py-8">
+                    <div className="bg-white text-slate-900 border-b border-slate-200 px-10 py-8">
                         <div className="flex justify-between items-start">
-                            <HospitalName dark />
+                            <HospitalName />
                             <div className="text-right space-y-2">
-                                <Badge className="bg-white text-slate-900 border-none px-3 py-1 font-bold text-xs">CASH RECEIPT</Badge>
+                                <Badge className="bg-slate-900 text-white border-none px-3 py-1 font-bold text-xs">CASH RECEIPT</Badge>
                                 <div className="space-y-0.5">
-                                    <p className="text-sm font-medium">Invoice No: <span className="font-bold">{billing.mrn}</span></p>
-                                    <p className="text-[11px] opacity-80">
+                                    <p className="text-sm font-medium text-slate-700">Invoice No: <span className="font-bold text-slate-900">{billing.mrn}</span></p>
+                                    <p className="text-[11px] text-slate-500 font-medium">
                                         {billing.createdAt ? fDateandTime(billing.createdAt) : "—"}
                                     </p>
                                 </div>
@@ -291,15 +291,15 @@ export default function ViewBill({ id }: { id: string }) {
                     </div>
 
                     {/* FOOTER */}
-                    <div className="bg-(--color-synapse-dark) px-10 py-6 text-[10px] text-white flex justify-between items-center">
+                    <div className="bg-white border-t border-slate-200 px-10 py-6 text-[10px] text-slate-700 flex justify-between items-center">
                         <div className="space-y-1 text-left">
-                            <p className="text-white font-medium">This prescription is valid only if signed by registered medical practitioner</p>
-                            <p className="text-white/80">
-                                For Appointments / Booking: <span className="text-white font-semibold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
+                            <p className="text-slate-800 font-medium">This prescription is valid only if signed by registered medical practitioner</p>
+                            <p className="text-slate-500 font-medium">
+                                For Appointments / Booking: <span className="text-slate-900 font-semibold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
                             </p>
                         </div>
-                        <p className="text-white/80">
-                            Powered by <span className="font-bold text-white tracking-tight uppercase">Caresoft Innovations LLP</span>
+                        <p className="text-slate-500 font-medium">
+                            Powered by <span className="font-bold text-slate-900 tracking-tight uppercase">Caresoft Innovations LLP</span>
                         </p>
                     </div>
                 </div>

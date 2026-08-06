@@ -6,6 +6,7 @@ import { fDate, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import useSWR from "swr";
 import configuration from "@/config/configuration";
+import HospitalName from "@/components/print/HospitalName";
 export default function InvoiceView({ id }: { id: string }) {
 
   const { data: billingData } = useSWR<{
@@ -52,22 +53,20 @@ export default function InvoiceView({ id }: { id: string }) {
     <AppShell>
       <div className="relative bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden m-5">
         {/* Header Section */}
-        <div className="flex justify-between items-center bg-primary text-white px-8 py-6 border-b">
-          <div className="flex items-center space-x-3">
-            <h2 className="text-lg font-semibold">{configuration().hospitalName}</h2>
-          </div>
-          <div className="flex space-x-12 text-sm">
+        <div className="flex justify-between items-center bg-white text-slate-900 px-8 py-6 border-b border-slate-200">
+          <HospitalName />
+          <div className="flex space-x-12 text-sm text-slate-700">
             <div>
-              <p className="text-xs opacity-80">Invoice Number</p>
-              <p className="font-medium">{billing?.mrn}</p>
+              <p className="text-xs text-slate-500">Invoice Number</p>
+              <p className="font-medium text-slate-900">{billing?.mrn}</p>
             </div>
             <div>
-              <p className="text-xs opacity-80">Issued</p>
-              <p className="font-medium">{fDateandTime(billing?.createdAt)}</p>
+              <p className="text-xs text-slate-500">Issued</p>
+              <p className="font-medium text-slate-900">{fDateandTime(billing?.createdAt)}</p>
             </div>
             <div>
-              <p className="text-xs opacity-80">Due Date</p>
-              <p>
+              <p className="text-xs text-slate-500">Due Date</p>
+              <p className="text-slate-900">
                 {billing?.createdAt
                   ? fDate(
                     new Date(
@@ -79,8 +78,8 @@ export default function InvoiceView({ id }: { id: string }) {
               </p>
             </div>
             <div>
-              <p className="text-xs opacity-80">Due Amount</p>
-              <p className="font-medium text-red-200">
+              <p className="text-xs text-slate-500">Due Amount</p>
+              <p className="font-medium text-rose-600">
                 {formatINR(
                   (() => {
                     const items = billing?.items ?? [];
@@ -98,8 +97,8 @@ export default function InvoiceView({ id }: { id: string }) {
               </p>
             </div>
             <div>
-              <p className="text-xs opacity-80">Payment Status</p>
-              <p className="font-medium text-white">
+              <p className="text-xs text-slate-500">Payment Status</p>
+              <p className="font-semibold text-slate-900">
                 {(() => {
                   const total = (billing?.items ?? []).reduce(
                     (sum, it) => sum + (it?.total ?? 0),
@@ -259,7 +258,7 @@ export default function InvoiceView({ id }: { id: string }) {
           </div> */}
         </div>
         <Separator /> {/* Footer */}
-        <div className="relative text-center text-xs text-gray-500 py-6 bg-linear-to-r from-gray-50 to-gray-100">
+        <div className="relative text-center text-xs text-slate-500 py-6 bg-white border-t border-slate-200">
           <p>
             {configuration().hospitalAddress}
             | Contact: {configuration().hospitalPhone}

@@ -29,7 +29,7 @@ import api from "@/lib/axios";
 import UpdatePrescriptionCard from "./UpdatePrescriptionCard";
 import useSWR from "swr";
 import Link from "next/link";
-import { AlertTriangle, Banknote, QrCode, AlertCircle, IndianRupee } from "lucide-react";
+import { AlertTriangle, Banknote, QrCode, AlertCircle, IndianRupee, Activity } from "lucide-react";
 
 
 interface Props {
@@ -222,7 +222,24 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     };
 
 
-    const handleCompleteOrder = async (orderToComplete = localOrder) => {
+    const [openTherapyAlert, setOpenTherapyAlert] = useState(false);
+    const [pendingConsulting, setPendingConsulting] = useState<any>(null);
+    const [pendingOrderToComplete, setPendingOrderToComplete] = useState<OrderType | null>(null);
+    const [pendingAction, setPendingAction] = useState<"complete" | "print">("complete");
+
+    const { data: patientConsultings } = useSWR<{
+        data: Array<{
+            _id: string;
+            therapy: Array<{ _id: string; name: string; price?: number; description?: string }>;
+            therapyNotes?: string;
+            therapyCompleted?: boolean;
+            createdAt?: string;
+        }>;
+    }>(
+        open && localOrder?.patient?._id ? `/consultings/patient/${localOrder.patient._id}` : null
+    );
+
+    const handleCompleteOrderDirect = async (orderToComplete = localOrder) => {
         if (!orderToComplete) return;
         try {
             await toast.promise(api.patch(`/pharmacy/orders/complete/${orderToComplete._id}`), {
@@ -232,7 +249,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                     return data.data.message;
                 },
                 error: ({ response: { data } }) => {
-                    return data.message;
+                    return data?.message || "Failed to complete order";
                 }
             });
             handlePrintBill(orderToComplete);
@@ -240,6 +257,66 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
         } catch (error) {
 
         }
+    };
+
+    const handleCompleteOrder = async (orderToComplete = localOrder) => {
+        if (!orderToComplete) return;
+
+        // Check if patient has prescribed therapies in consultation that are not marked completed
+        const activeConsultingWithTherapy = patientConsultings?.data?.find(
+            (c) => c.therapy && c.therapy.length > 0 && !c.therapyCompleted
+        );
+
+        if (activeConsultingWithTherapy) {
+            setPendingConsulting(activeConsultingWithTherapy);
+            setPendingOrderToComplete(orderToComplete);
+            setPendingAction("complete");
+            setOpenTherapyAlert(true);
+            return;
+        }
+
+        await handleCompleteOrderDirect(orderToComplete);
+    };
+
+    const handlePrintWithTherapyCheck = async () => {
+        if (!localOrder) return;
+        const activeConsultingWithTherapy = patientConsultings?.data?.find(
+            (c) => c.therapy && c.therapy.length > 0 && !c.therapyCompleted
+        );
+
+        if (activeConsultingWithTherapy) {
+            setPendingConsulting(activeConsultingWithTherapy);
+            setPendingOrderToComplete(localOrder);
+            setPendingAction("print");
+            setOpenTherapyAlert(true);
+            return;
+        }
+
+        handlePrintBill(localOrder);
+        setOpen(false);
+    };
+
+    const handleConfirmTherapyCompletion = async () => {
+        if (pendingConsulting?._id) {
+            try {
+                await api.patch(`/consultings/${pendingConsulting._id}/therapy-status`, {
+                    completed: true,
+                });
+                toast.success("Therapy status updated & details sent to Pharmacist module");
+            } catch (err) {
+                console.error("Failed to update therapy status", err);
+            }
+        }
+        setOpenTherapyAlert(false);
+        if (pendingAction === "print" && pendingOrderToComplete) {
+            handlePrintBill(pendingOrderToComplete);
+            setOpen(false);
+        } else if (pendingOrderToComplete) {
+            await handleCompleteOrderDirect(pendingOrderToComplete);
+        }
+        setPendingOrderToComplete(null);
+        setPendingConsulting(null);
+        setPendingAction("complete");
     };
 
     const handlePaymentUpdate = async () => {
@@ -467,20 +544,15 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                             <Button
                                 variant="outline"
                                 disabled={!!printingOrderId}
-                                onClick={() => {
-                                    handlePrintBill(localOrder);
-                                    setOpen(false);
-                                }}
+                                onClick={() => handlePrintWithTherapyCheck()}
                             >
                                 {printingOrderId === localOrder._id ? "Printing..." : "Print"}
                             </Button>
                             : <Button
                                 variant="outline"
-                                asChild
+                                onClick={() => handlePrintWithTherapyCheck()}
                             >
-                                <Link href={`/dashboard/pharmacy/billing?mrn=${localOrder.mrn}#new`}>
-                                    Print
-                                </Link>
+                                Print
                             </Button>
                     }
                     {localOrder.status !== "Completed" && <Button onClick={() => handleCompleteOrder()}>Complete Order</Button>}
@@ -500,6 +572,66 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
                             <AlertDialogAction onClick={() => window.print?.()}>
                                 Continue
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+
+                {/* Prescribed Therapy Alert Dialog */}
+                <AlertDialog open={openTherapyAlert} onOpenChange={setOpenTherapyAlert}>
+                    <AlertDialogContent className="rounded-2xl max-w-md p-6">
+                        <AlertDialogHeader>
+                            <AlertDialogTitle className="text-lg font-bold flex items-center gap-2 text-amber-700">
+                                <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+                                Prescribed Therapy Alert
+                            </AlertDialogTitle>
+                            <AlertDialogDescription asChild>
+                                <div className="space-y-3 mt-2 text-slate-600 text-sm">
+                                    <p>
+                                        This prescription contains therapy prescribed during consultation. It cannot be completed directly until therapy status is confirmed.
+                                    </p>
+                                    {pendingConsulting?.therapy?.length > 0 && (
+                                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1.5">
+                                            <div className="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
+                                                <Activity className="w-4 h-4 text-amber-600" /> Prescribed Therapies:
+                                            </div>
+                                            <ul className="list-disc list-inside text-xs font-medium text-amber-900 space-y-1">
+                                                {pendingConsulting.therapy.map((th: any, idx: number) => (
+                                                    <li key={th._id || idx}>
+                                                        <span className="font-bold">{th.name || "Therapy"}</span>
+                                                        {th.price ? ` — ₹${th.price}` : ""}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            {pendingConsulting?.therapyNotes && (
+                                                <p className="text-xs text-amber-700 italic mt-1">
+                                                    Notes: "{pendingConsulting.therapyNotes}"
+                                                </p>
+                                            )}
+                                        </div>
+                                    )}
+                                    <p className="font-semibold text-slate-800 text-sm pt-1">
+                                        Is therapy completed?
+                                    </p>
+                                </div>
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter className="mt-4 flex gap-2">
+                            <AlertDialogCancel
+                                onClick={() => {
+                                    setOpenTherapyAlert(false);
+                                    setPendingOrderToComplete(null);
+                                    setPendingConsulting(null);
+                                }}
+                                className="rounded-xl border-slate-200 cursor-pointer"
+                            >
+                                Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={handleConfirmTherapyCompletion}
+                                className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer"
+                            >
+                                Yes, Therapy Completed
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

@@ -18,9 +18,11 @@ export default function HospitalName({ className, textClassName, subTextClassNam
                 <img
                     src={logoSrc}
                     alt="Hospital Logo"
-                    className="w-22.5 h-auto object-contain"
+                    className="w-16 h-16 object-contain"
                     onError={() => {
-                        if (logoSrc !== "/logo.png") setLogoSrc("/logo.png");
+                        if (logoSrc !== "/logo.png" && logoSrc !== "/print/logo.png") {
+                            setLogoSrc("/print/logo.png");
+                        }
                     }}
                 />
             </div>

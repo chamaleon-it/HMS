@@ -12,7 +12,7 @@ import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fDateandTime } from "@/lib/fDateAndTime";
-import { AlertTriangle, CheckCircle, Eye, Printer, RotateCcw, Trash, View } from "lucide-react";
+import { AlertTriangle, CheckCircle, Eye, Printer, RotateCcw, Trash, View, Activity } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -248,6 +248,94 @@ export default function OrderTable({
     }
   };
 
+  const [openTherapyAlert, setOpenTherapyAlert] = useState(false);
+  const [pendingConsulting, setPendingConsulting] = useState<any>(null);
+  const [pendingTherapyOrder, setPendingTherapyOrder] = useState<OrderType | null>(null);
+  const [pendingAction, setPendingAction] = useState<"complete" | "print">("print");
+
+  const handlePrintBillWithTherapyCheck = async (r: OrderType) => {
+    if (r.patient?._id) {
+      try {
+        const { data: res } = await api.get<{ data: any[] }>(`/consultings/patient/${r.patient._id}`);
+        const uncompletedTherapy = res?.data?.find(
+          (c: any) => c.therapy && c.therapy.length > 0 && !c.therapyCompleted
+        );
+        if (uncompletedTherapy) {
+          setPendingConsulting(uncompletedTherapy);
+          setPendingTherapyOrder(r);
+          setPendingAction("print");
+          setOpenTherapyAlert(true);
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    handlePrintBill(r);
+  };
+
+  const handleCompleteOrderWithTherapyCheck = async (r: OrderType) => {
+    if (r.patient?._id) {
+      try {
+        const { data: res } = await api.get<{ data: any[] }>(`/consultings/patient/${r.patient._id}`);
+        const uncompletedTherapy = res?.data?.find(
+          (c: any) => c.therapy && c.therapy.length > 0 && !c.therapyCompleted
+        );
+        if (uncompletedTherapy) {
+          setPendingConsulting(uncompletedTherapy);
+          setPendingTherapyOrder(r);
+          setPendingAction("complete");
+          setOpenTherapyAlert(true);
+          return;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
+      loading: "Completing...",
+      success: (data) => {
+        OrderMutate();
+        return data.data.message;
+      },
+      error: ({ response: { data } }) => {
+        return data.message;
+      }
+    });
+  };
+
+  const handleConfirmTherapyCompletion = async () => {
+    if (pendingConsulting?._id) {
+      try {
+        await api.patch(`/consultings/${pendingConsulting._id}/therapy-status`, {
+          completed: true,
+        });
+        toast.success("Therapy status updated & details sent to Pharmacist module");
+      } catch (err) {
+        console.error("Failed to update therapy status", err);
+      }
+    }
+    setOpenTherapyAlert(false);
+    if (pendingTherapyOrder) {
+      if (pendingAction === "print") {
+        handlePrintBill(pendingTherapyOrder);
+      } else {
+        await toast.promise(api.patch(`/pharmacy/orders/complete/${pendingTherapyOrder._id}`), {
+          loading: "Completing...",
+          success: (data) => {
+            OrderMutate();
+            return data.data.message;
+          },
+          error: ({ response: { data } }) => {
+            return data.message;
+          }
+        });
+      }
+      setPendingTherapyOrder(null);
+      setPendingConsulting(null);
+    }
+  };
+
   return (
     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
       <Table className="print:hidden min-w-fit">
@@ -407,18 +495,7 @@ export default function OrderTable({
                           size="icon"
                           variant="ghost"
                           className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                          onClick={async () => {
-                            await toast.promise(api.patch(`/pharmacy/orders/complete/${r._id}`), {
-                              loading: "Completing...",
-                              success: (data) => {
-                                OrderMutate();
-                                return data.data.message;
-                              },
-                              error: ({ response: { data } }) => {
-                                return data.message;
-                              }
-                            })
-                          }}
+                          onClick={() => handleCompleteOrderWithTherapyCheck(r)}
                         >
                           <CheckCircle className="h-4 w-4" />
                         </Button>
@@ -445,7 +522,7 @@ export default function OrderTable({
                       size="sm"
                       disabled={!!printingOrderId}
                       className="gap-2 h-8 text-xs text-(--color-synapse-light) border-synapse-light/30 hover:bg-synapse-light/10 hover:text-(--color-synapse-light)"
-                      onClick={() => { handlePrintBill(r) }}
+                      onClick={() => { handlePrintBillWithTherapyCheck(r) }}
                     >
                       <Printer className="h-3.5 w-3.5" />
                       {printingOrderId === r._id ? "..." : "Bill"}
@@ -455,12 +532,10 @@ export default function OrderTable({
                       variant="outline"
                       size="sm"
                       className="gap-2 h-8 text-xs text-(--color-synapse-light) border-synapse-light/30 hover:bg-synapse-light/10 hover:text-(--color-synapse-light)"
-                      asChild
+                      onClick={() => { handlePrintBillWithTherapyCheck(r) }}
                     >
-                      <Link href={`/dashboard/pharmacy/billing?mrn=${r?.mrn}#new`}>
-                        <Printer className="h-3.5 w-3.5" />
-                        Bill
-                      </Link>
+                      <Printer className="h-3.5 w-3.5" />
+                      Bill
                     </Button>
                   )}
                 </div>}
@@ -518,6 +593,66 @@ export default function OrderTable({
       </Table>
 
       {printOrder && <PrintPrescription order={printOrder} />}
+
+      {/* Prescribed Therapy Alert Dialog for Table Actions */}
+      <AlertDialog open={openTherapyAlert} onOpenChange={setOpenTherapyAlert}>
+        <AlertDialogContent className="rounded-2xl max-w-md p-6">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-lg font-bold flex items-center gap-2 text-amber-700">
+              <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0" />
+              Prescribed Therapy Alert
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 mt-2 text-slate-600 text-sm">
+                <p>
+                  This prescription contains therapy prescribed during consultation. It cannot proceed until therapy status is confirmed.
+                </p>
+                {pendingConsulting?.therapy?.length > 0 && (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 space-y-1.5">
+                    <div className="text-xs font-bold uppercase tracking-wider text-amber-800 flex items-center gap-1.5">
+                      <Activity className="w-4 h-4 text-amber-600" /> Prescribed Therapies:
+                    </div>
+                    <ul className="list-disc list-inside text-xs font-medium text-amber-900 space-y-1">
+                      {pendingConsulting.therapy.map((th: any, idx: number) => (
+                        <li key={th._id || idx}>
+                          <span className="font-bold">{th.name || "Therapy"}</span>
+                          {th.price ? ` — ₹${th.price}` : ""}
+                        </li>
+                      ))}
+                    </ul>
+                    {pendingConsulting?.therapyNotes && (
+                      <p className="text-xs text-amber-700 italic mt-1">
+                        Notes: "{pendingConsulting.therapyNotes}"
+                      </p>
+                    )}
+                  </div>
+                )}
+                <p className="font-semibold text-slate-800 text-sm pt-1">
+                  Is therapy completed?
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-4 flex gap-2">
+            <AlertDialogCancel
+              onClick={() => {
+                setOpenTherapyAlert(false);
+                setPendingTherapyOrder(null);
+                setPendingConsulting(null);
+              }}
+              className="rounded-xl border-slate-200 cursor-pointer"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmTherapyCompletion}
+              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold cursor-pointer"
+            >
+              Yes, Therapy Completed
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <ViewOrder
         open={open}
