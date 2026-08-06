@@ -229,7 +229,7 @@ export default function Filter({
       <div className="flex flex-wrap items-end gap-3 mt-3">
         <div className="space-y-2 flex-1 max-w-50">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
-            Address (L1/L2)
+            Address
           </label>
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 group-focus-within:text-indigo-500 transition-colors" />

@@ -28,11 +28,11 @@ export default function Address({
     <section className="space-y-3 pt-1">
       <h3 className="font-semibold text-[15px] text-slate-800">Patient Address</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-3">
-        
+
         <div className="grid gap-1.5">
-          <Label className="text-sm font-medium text-slate-700">Address Line 1</Label>
+          <Label className="text-sm font-medium text-slate-700">Home Address</Label>
           <Input
-            placeholder="Address Line 1"
+            placeholder="Home Address"
             value={addressLine1 ?? ""}
             onChange={(e) =>
               setValue("addressLine1", capitalizeWords(e.target.value))
@@ -42,9 +42,9 @@ export default function Address({
         </div>
 
         <div className="grid gap-1.5">
-          <Label className="text-sm font-medium text-slate-700">Address Line 2</Label>
+          <Label className="text-sm font-medium text-slate-700">Place Address</Label>
           <Input
-            placeholder="Address Line 2"
+            placeholder="Place Address"
             value={addressLine2 ?? ""}
             onChange={(e) =>
               setValue("addressLine2", capitalizeWords(e.target.value))

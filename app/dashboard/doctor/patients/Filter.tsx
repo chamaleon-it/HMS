@@ -67,7 +67,7 @@ export default function Filter({
             onChange={(e) =>
               setFilter((prev) => ({ ...prev, address: e.target.value }))
             }
-            placeholder="Search Address L1/L2…"
+            placeholder="Search Address"
             autoComplete="off"
             className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
           />
