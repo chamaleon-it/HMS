@@ -40,6 +40,21 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
+const getDoctorName = (doc: any) => {
+    if (!doc) return "Self";
+    if (typeof doc === "object") {
+        const name = doc.name;
+        if (!name || name === "Self" || name === "-") return "Self";
+        return name.startsWith("Dr.") ? name : `Dr. ${name}`;
+    }
+    if (typeof doc === "string") {
+        const trimmed = doc.trim();
+        if (!trimmed || trimmed === "Self" || trimmed === "-") return "Self";
+        return trimmed.startsWith("Dr.") ? trimmed : `Dr. ${trimmed}`;
+    }
+    return "Self";
+};
+
 const CustomerPageContent: React.FC = () => {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -750,6 +765,9 @@ const CustomerPageContent: React.FC = () => {
                                                                 {item.items.length} item
                                                                 {item.items.length === 1 ? "" : "s"}
                                                             </span>
+                                                            <span className={`text-[11px] font-medium truncate max-w-35 ${active ? "text-slate-200" : "text-slate-600"}`}>
+                                                                {getDoctorName(item.doctor)}
+                                                            </span>
                                                         </div>
                                                     </button>
                                                 );
@@ -766,14 +784,19 @@ const CustomerPageContent: React.FC = () => {
                                             {selectedVisit?.transactionType === "Refund" || selectedVisit?.items?.some((i: any) => i.name?.toLowerCase().includes("refund")) ? "Refund" : selectedVisit?.transactionType === "Sale" ? "Sale" : "Refund"} Details — {selectedVisit?.mrn || selectedVisit?._id}
                                         </div>
                                         {selectedVisit && (
-                                            <div className="text-[11px] text-slate-500 flex flex-col items-end">
+                                            <div className="text-[11px] text-slate-500 flex items-center gap-4">
+                                                <span>
+                                                    Doctor:{" "}
+                                                    <span className="font-semibold text-slate-900">
+                                                        {getDoctorName((selectedVisit as any).doctor)}
+                                                    </span>
+                                                </span>
                                                 <span>
                                                     Date:{" "}
                                                     <span className="font-medium text-slate-700">
                                                         {fDate(selectedVisit.createdAt)}
                                                     </span>
                                                 </span>
-
                                             </div>
                                         )}
                                     </div>
@@ -911,7 +934,7 @@ const CustomerPageContent: React.FC = () => {
 
                                             {selectedVisit?.mrn && <div className="px-4 py-3 border-t bg-slate-50 flex items-center justify-between gap-3">
                                                 <div className="text-[12px] text-slate-500">
-
+                                                    Doctor: <span className="font-semibold text-slate-900">{getDoctorName((selectedVisit as any).doctor)}</span>
                                                 </div>
                                                 <div className="flex items-center gap-2">
 
