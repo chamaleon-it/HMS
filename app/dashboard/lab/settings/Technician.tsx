@@ -176,7 +176,7 @@ export default function Technician() {
                 </div>
                 <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                     <DialogTrigger asChild>
-                        <Button onClick={openAddDialog} className="gap-2">
+                        <Button onClick={openAddDialog} className="gap-2  bg-(--color-synapse-light) text-white shadow ">
                             <Plus size={16} />
                             Add Technician
                         </Button>
@@ -253,7 +253,7 @@ export default function Technician() {
                                 >
                                     Cancel
                                 </Button>
-                                <Button type="submit" disabled={isSubmitting}>
+                                <Button type="submit" disabled={isSubmitting} className='bg-(--color-synapse-light)'>
                                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     {editingTechnician ? 'Update' : 'Register'}
                                 </Button>

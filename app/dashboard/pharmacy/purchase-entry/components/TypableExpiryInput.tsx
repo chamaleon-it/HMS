@@ -173,7 +173,7 @@ const TypableExpiryInput = ({
                                             className={cn(
                                                 "px-2 py-2 text-xs rounded-lg transition-all ",
                                                 isSelected
-                                                    ? "bg-(--color-synapse-light) text-white shadow-md shadow-indigo-200"
+                                                    ? "bg-(--color-synapse-light) text-white shadow-md  "
                                                     : disabled
                                                         ? "text-slate-200 cursor-not-allowed"
                                                         : "hover:bg-slate-50 text-slate-600 hover:text-(--color-synapse-light)"

@@ -88,7 +88,7 @@ const SuppliersPage: React.FC = () => {
                         subtitle="Manage your pharmacy suppliers"
                     >
                         <Button
-                            className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-md font-semibold"
+                            className="bg-(--color-synapse-light) text-white shadow-md font-semibold"
                             onClick={() => setIsAddDrawerOpen(true)}
                         >
                             <Plus className="w-4 h-4 mr-2" />

@@ -60,15 +60,15 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
   return (
     <div className="flex gap-2">
       <Button
-        variant={"outline"}
+
         onClick={() => { setNameToRegister(""); setOpenCreate(true); }}
-        className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white hover:text-white"
+        className="bg-(--color-synapse-light)  "
       >
         New Customer
       </Button>
 
       <Button
-        className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-md transition-all hover:shadow-lg active:scale-95"
+        className="bg-(--color-synapse-light)  "
         size={"sm"}
         onClick={() => addDraft({ doctor: user?._id || "" })}
       >

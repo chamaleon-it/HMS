@@ -184,7 +184,7 @@ export default function General({
           <div className="flex justify-end pt-2">
             <Button
               size="default"
-              className="h-9 gap-2 rounded-full bg-slate-900 px-5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
+              className="h-9 gap-2  bg-(--color-synapse-light) text-white shadow "
               onClick={updateGeneralSettings}
               disabled={loading}
             >
@@ -247,8 +247,8 @@ export default function General({
 
 
               <Button
-                size="default"
-                className="h-9 rounded-full bg-[#11212B] px-8 text-[13px] font-semibold text-white shadow hover:bg-slate-800 tracking-wide"
+
+                className="h-9  bg-(--color-synapse-light) text-white shadow  tracking-wide"
                 onClick={async () => {
                   try {
                     await toast.promise(api.patch("/users/lab/update_report_layout", {

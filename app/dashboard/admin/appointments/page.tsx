@@ -170,7 +170,7 @@ function AppointmentSidePanel({ appointment, onClose, onEdit, onUpdateStatus }: 
         {/* Patient Profile Card */}
         <div className="text-center relative">
           <div className="relative inline-block group">
-            <div className="w-24 h-24 bg-linear-to-br from-(--color-synapse-light) to-(--color-synapse-purple) text-white rounded-3xl flex items-center justify-center mx-auto mb-4 text-4xl font-bold shadow-lg shadow-indigo-200 ring-4 ring-white">
+            <div className="w-24 h-24 bg-linear-to-br from-(--color-synapse-light) to-(--color-synapse-purple) text-white rounded-3xl flex items-center justify-center mx-auto mb-4 text-4xl font-bold shadow-lg   ring-4 ring-white">
               {patient.name.charAt(0)}
             </div>
             {isNew && (

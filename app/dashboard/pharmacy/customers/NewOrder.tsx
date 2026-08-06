@@ -98,33 +98,7 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
 
   return (
     <>
-      {!asDialogOnly && (
-        <Button
-          variant="outline"
-          onClick={() => {
-            setNameToRegister("");
-            setOpenCreate(true);
-          }}
-          className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white hover:text-white mr-2"
-        >
-          New Patient
-        </Button>
-      )}
 
-      {!asDialogOnly && (
-        <Button
-          className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-md transition-all hover:shadow-lg active:scale-95"
-          size="sm"
-          onClick={() => {
-            addDraft(
-              initialPatient ? { patient: initialPatient._id, doctor: user?._id || "" } : { doctor: user?._id || "" },
-              initialPatient ? (initialPatient.mrn ? `${initialPatient.name} - (${initialPatient.mrn})` : initialPatient.name) : ""
-            );
-          }}
-        >
-          New Order
-        </Button>
-      )}
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className={showAllFields ? "min-w-7xl" : "min-w-3xl"}>

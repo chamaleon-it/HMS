@@ -114,12 +114,7 @@ const Customers: React.FC = () => {
               title="Customers"
               subtitle="View and manage registered customers"
             >
-              <Button
-                onClick={() => setOpenCreate(true)}
-                className="flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 shadow-md bg-(--color-synapse-dark) hover:bg-slate-800"
-              >
-                <Plus className="h-4 w-4 mr-2" /> Add Customer
-              </Button>
+
             </PharmacyHeader>
 
             <Filter filter={filter} setFilter={setFilter} />

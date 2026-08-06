@@ -342,7 +342,7 @@ export default function IPDetailsClient() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-linear-to-bl from-indigo-50/50 via-purple-50/30 to-transparent rounded-bl-full pointer-events-none" />
 
           <div className="relative z-10 flex flex-wrap gap-6 items-start">
-            <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white text-2xl font-black shadow-md shadow-indigo-200 ring-4 ring-indigo-50">
+            <div className="w-16 h-16 rounded-2xl bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 flex items-center justify-center text-white text-2xl font-black shadow-md   ring-4 ring-indigo-50">
               {patient?.name?.charAt(0) ?? "?"}
             </div>
             <div className="flex-1 min-w-60">
@@ -519,7 +519,7 @@ export default function IPDetailsClient() {
         {/* ── Key Metrics Summary Cards ─────────────────────── */}
         <div className={`grid grid-cols-2 ${ip.status === "Discharged" ? "lg:grid-cols-3" : "lg:grid-cols-4"} gap-4`}>
           <div className="bg-linear-to-br from-indigo-50 via-indigo-50/80 to-indigo-100/40 rounded-2xl border border-indigo-100 p-4 flex items-center gap-4 shadow-2xs">
-            <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md shadow-indigo-200 shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-md   shrink-0">
               <Receipt className="w-6 h-6" />
             </div>
             <div>

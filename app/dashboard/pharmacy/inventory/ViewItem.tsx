@@ -558,7 +558,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
       {/* Actions */}
       < div className="flex gap-3 pt-4 border-t mt-2" >
-        <Button className="flex-1 bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) text-white shadow-md transition-all hover:shadow-lg gap-2" onClick={() => editItem()}>
+        <Button className="flex-1 bg-(--color-synapse-light) gap-2" onClick={() => editItem()}>
           <Edit className="w-4 h-4" />
           Edit Item
         </Button>

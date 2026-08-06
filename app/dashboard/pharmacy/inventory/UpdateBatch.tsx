@@ -250,7 +250,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                             </div>
 
                             <div className="col-span-2 flex justify-end mt-2">
-                                <Button type="submit" size="sm" disabled={isSubmitting} ref={refs.addButton}>
+                                <Button type="submit" size="sm" disabled={isSubmitting} ref={refs.addButton} className="bg-(--color-synapse-light)">
                                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Add Batch
                                 </Button>

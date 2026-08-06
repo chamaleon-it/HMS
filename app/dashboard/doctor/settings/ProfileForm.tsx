@@ -424,7 +424,7 @@ export default function ProfileForm() {
             </div>
           </CardContent>
           <CardFooter className="justify-end">
-            <Button className="gap-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-light) shadow-sm transition-colors">
+            <Button className="gap-2 bg-(--color-synapse-light) text-white hover:bg-(--color-synapse-light) shadow-sm transition-colors">
               <Save className="h-4 w-4" /> Save changes
             </Button>
           </CardFooter>

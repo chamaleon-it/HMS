@@ -168,7 +168,7 @@ export default function Billing({
           <div className="flex justify-end pt-2">
             <Button
               size="default"
-              className="h-9 gap-2 rounded-full bg-slate-900 px-5 text-sm font-medium text-white shadow-sm hover:bg-slate-800"
+              className="h-9 gap-2  bg-(--color-synapse-light) text-white shadow "
               onClick={updateBillingSettings}
               disabled={loading}
             >

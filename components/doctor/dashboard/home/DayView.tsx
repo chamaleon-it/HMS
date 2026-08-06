@@ -138,7 +138,7 @@ export default function DailyViewTimeline({
         <h1 className="text-2xl font-semibold">Today&apos;s Schedule</h1>
         <div className="flex gap-5">
           <button
-            className="inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-dark) text-white px-4 py-2 hover:bg-(--color-synapse-dark) transition font-medium shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) text-white px-4 py-2 hover:bg-(--color-synapse-light) transition font-medium shadow-sm cursor-pointer"
             onClick={() => setOpenAppointment("walk-in")}
           >
             <UserPlus className="h-4 w-4" />
@@ -147,7 +147,7 @@ export default function DailyViewTimeline({
 
           {/* Regular Appointment */}
           <button
-            className="inline-flex items-center gap-2 rounded-xl bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) text-white px-4 py-2 transition font-medium shadow-sm cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-xl bg-(--color-synapse-light) text-white px-4 py-2 transition font-medium shadow-sm cursor-pointer"
             onClick={() => setOpenAppointment(true)}
           >
             <CalendarPlus className="h-4 w-4" />

@@ -499,7 +499,7 @@ export default function PharmacyReturnPage() {
 
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button disabled={returning} className="h-9 rounded-lg bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(201,149,106,0.3)]">
+                      <Button disabled={returning} className="h-9 rounded-lg bg-(--color-synapse-light) text-white text-[12px] font-medium px-3 shadow-[0_8px_20px_rgba(201,149,106,0.3)]">
                         {returning ? "Returning..." : "Confirm & Refund"}
                       </Button>
                     </AlertDialogTrigger>

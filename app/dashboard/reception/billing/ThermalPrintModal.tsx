@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Printer, X } from "lucide-react";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
+import configuration from "@/config/configuration";
 
 interface ThermalPrintModalProps {
   open: boolean;
@@ -34,8 +35,8 @@ export default function ThermalPrintModal({
     typeof bill.doctor === "object"
       ? bill.doctor?.name
       : bill.doctor === "Self"
-      ? "Self"
-      : bill.doctor || "N/A";
+        ? "Self"
+        : bill.doctor || "N/A";
 
   const itemsTotal = (bill.items || []).reduce(
     (sum: number, item: any) => sum + (item.total ?? 0),
@@ -140,10 +141,10 @@ export default function ThermalPrintModal({
             {/* Header / Hospital Branding */}
             <div className="text-center pb-2">
               <h2 className="font-bold text-sm tracking-wide uppercase">
-                Bhumi Nature Cure
+                {configuration().hospitalName}
               </h2>
               <p className="text-[10px] text-slate-600">Wellness & Healthcare Center</p>
-              <p className="text-[9px] text-slate-500">Ph: +91 98765 43210</p>
+              <p className="text-[9px] text-slate-500">Ph: {configuration().hospitalPhone}</p>
             </div>
 
             <div className="border-b border-dashed border-slate-400 my-1.5" />

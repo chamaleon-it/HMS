@@ -93,7 +93,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
 
             <div className="mt-4 grid grid-cols-2 gap-3">
                 <PrimaryButton
-                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
+                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl  /50"
                     onClick={() => handleAction(saveBill)}
                 >
                     <div className="flex items-center justify-center gap-2">
@@ -102,7 +102,7 @@ export const BillSummary: React.FC<BillSummaryProps> = ({
                     </div>
                 </PrimaryButton>
                 <PrimaryButton
-                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl shadow-indigo-200/50"
+                    className="col-span-half h-14 rounded-2xl text-base font-bold uppercase tracking-widest shadow-xl  /50"
                     onClick={() => handleAction(generateBill)}
                 >
                     <div className="flex items-center justify-center gap-2">

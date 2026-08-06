@@ -3,6 +3,7 @@
 import React from "react";
 import { formatINR, getDecimal } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
+import configuration from "@/config/configuration";
 
 interface ThermalPrintReceiptProps {
   bill: any;
@@ -15,8 +16,8 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
     typeof bill.doctor === "object"
       ? bill.doctor?.name
       : bill.doctor === "Self"
-      ? "Self"
-      : bill.doctor || "N/A";
+        ? "Self"
+        : bill.doctor || "N/A";
 
   const itemsTotal = (bill.items || []).reduce(
     (sum: number, item: any) => sum + (item.total ?? 0),
@@ -100,10 +101,10 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
         {/* Header / Hospital Branding */}
         <div className="text-center pb-1">
           <h2 className="font-bold text-xs tracking-wide uppercase">
-            Bhumi Nature Cure
+            {configuration().hospitalName}
           </h2>
           <p className="text-[10px]">Wellness & Healthcare Center</p>
-          <p className="text-[9px]">Ph: +91 98765 43210</p>
+          <p className="text-[9px]">Ph: {configuration().hospitalPhone}</p>
         </div>
 
         <div className="border-b border-dashed border-black my-1" />

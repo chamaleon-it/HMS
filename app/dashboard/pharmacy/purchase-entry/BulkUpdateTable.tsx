@@ -913,7 +913,7 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                             onClick={handleSaveChanges}
                             disabled={isSaving}
                             className={cn(
-                                "w-full bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white h-16 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-(--color-synapse-light)/30 transition-all active:scale-95 flex items-center justify-center gap-3 border-b-4 border-[var(--color-synapse-purple)]"
+                                "w-full bg-(--color-synapse-light) text-white h-16 rounded-2xl text-[11px] font-black uppercase tracking-[0.2em] shadow-2xl shadow-(--color-synapse-light)/30 transition-all active:scale-95 flex items-center justify-center gap-3 border-b-4 border-[var(--color-synapse-purple)]"
                             )}
                         >
                             {isSaving ? (

@@ -123,7 +123,7 @@ export default function Security() {
         </CardContent>
         <CardFooter className="justify-between gap-2 flex-wrap">
           <Button
-            className="gap-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-light) disabled:opacity-60 shadow-sm transition-colors"
+            className="gap-2 bg-(--color-synapse-light) text-white hover:bg-(--color-synapse-light) disabled:opacity-60 shadow-sm transition-colors"
             type="submit"
           >
             <Save className="h-4 w-4" /> Update password

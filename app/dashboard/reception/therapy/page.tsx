@@ -233,7 +233,7 @@ export default function TherapyPage() {
               </Button>
               <Button
                 onClick={handleOpenCreate}
-                className="flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 shadow-md bg-(--color-synapse-dark) hover:bg-slate-800 cursor-pointer"
+                className="flex items-center justify-center px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 shadow-md bg-(--color-synapse-light) cursor-pointer"
               >
                 <Plus className="h-4 w-4 mr-2" /> Add Therapy
               </Button>
@@ -364,7 +364,7 @@ export default function TherapyPage() {
                 {!search && (
                   <Button
                     onClick={handleOpenCreate}
-                    className="mt-4 rounded-xl bg-(--color-synapse-dark) text-white font-bold text-sm px-4 py-2"
+                    className="mt-4 rounded-xl bg-(--color-synapse-light) text-white font-bold text-sm px-4 py-2"
                   >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Therapy
@@ -588,7 +588,7 @@ export default function TherapyPage() {
                 <Button
                   type="submit"
                   disabled={isSubmitting}
-                  className="rounded-xl bg-(--color-synapse-dark) text-white font-bold cursor-pointer"
+                  className="rounded-xl bg-(--color-synapse-light) text-white font-bold cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>

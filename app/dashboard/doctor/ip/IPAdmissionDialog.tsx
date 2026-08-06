@@ -171,7 +171,7 @@ export default function IPAdmissionDialog({ open, onOpenChange, mutate }: { open
 
             <div className="pt-2 flex justify-end gap-3 sticky bottom-0 bg-white py-4 border-t border-slate-100 -mx-6 px-6 rounded-b-lg mt-2 shadow-[0_-10px_15px_-10px_rgba(0,0,0,0.05)]">
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 px-5">Cancel</Button>
-              <Button type="submit" className="rounded-xl bg-linear-to-r from-(--color-synapse-dark) to-[#2a2a2a] text-white px-8 shadow-lg shadow-black/10 hover:shadow-xl hover:scale-[1.02] transition-all flex items-center gap-2 border border-slate-800">
+              <Button type="submit" className="rounded-xl bg-(--color-synapse-light) text-white px-8 shadow-lg shadow-black/10 hover:shadow-xl hover:scale-[1.02] transition-all flex items-center gap-2 border border-slate-800">
                 Confirm Admission <ArrowRight className="w-4 h-4" />
               </Button>
             </div>

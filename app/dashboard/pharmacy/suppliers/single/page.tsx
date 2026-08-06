@@ -621,7 +621,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                                             setPaymentAmount((selectedOrder.total - selectedOrder.paidAmount).toString());
                                                             setIsPaymentModalOpen(true);
                                                         }}
-                                                        className="w-full bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-lg shadow-indigo-200/50 h-11 font-semibold text-sm rounded-xl transition-all hover:scale-[1.01]"
+                                                        className="w-full bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-lg  /50 h-11 font-semibold text-sm rounded-xl transition-all hover:scale-[1.01]"
                                                     >
                                                         Pay Due Amount
                                                     </Button>
@@ -692,7 +692,7 @@ const SingleSupplierPageContent: React.FC = () => {
                             Cancel
                         </Button>
                         <Button
-                            className="flex-2 h-12 rounded-xl bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-lg shadow-indigo-200 font-semibold"
+                            className="flex-2 h-12 rounded-xl bg-linear-to-r from-(--color-synapse-light) to-(--color-synapse-purple) hover:from-(--color-synapse-light) hover:to-(--color-synapse-purple) text-white shadow-lg   font-semibold"
                             onClick={handlePaymentSubmit}
                             disabled={isSubmittingPayment}
                         >

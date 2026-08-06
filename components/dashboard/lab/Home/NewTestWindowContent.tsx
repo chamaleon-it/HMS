@@ -509,7 +509,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
             Cancel
           </Button>
           <Button
-            className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white"
+            className="bg-(--color-synapse-light) text-white"
             onClick={handleSubmit}
           >
             Book Test
