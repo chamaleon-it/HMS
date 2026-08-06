@@ -123,7 +123,7 @@ const Customers: React.FC = () => {
               <TableSkeleton rows={10} columns={8} />
             ) : (
               <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
-                <Table className="min-w-[1000px]">
+                <Table className="min-w-250">
                   <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
                     <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                       <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5 px-4 pl-4">Sl No</TableHead>
@@ -170,7 +170,7 @@ const Customers: React.FC = () => {
                                 {p.mrn && (
                                   <span className="text-[11px] text-(--color-synapse-light) font-medium">{p.mrn}</span>
                                 )}
-                                <span className="text-[12px] text-slate-500 truncate max-w-[220px]">
+                                <span className="text-[12px] text-slate-500 truncate max-w-55">
                                   <HighlightText
                                     text={p.address || ""}
                                     highlight={filter.query || ""}

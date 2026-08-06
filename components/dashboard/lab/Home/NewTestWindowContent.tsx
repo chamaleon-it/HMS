@@ -245,7 +245,7 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
       </div>
 
       <div className="flex gap-2 justify-between w-full">
-        <div className="w-[300px]">
+        <div className="w-75">
           <TestSelection
             onSelect={(val) => {
               if (!val) return;

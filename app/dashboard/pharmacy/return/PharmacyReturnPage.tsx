@@ -204,10 +204,10 @@ export default function PharmacyReturnPage() {
             <TableSkeleton rows={5} columns={11} />
           ) : (
             <div className="overflow-x-auto">
-              <Table className="min-w-[1000px] text-xs">
+              <Table className="min-w-250 text-xs">
                 <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
                   <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
-                    <TableHead className="w-[40px] text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Sl No</TableHead>
+                    <TableHead className="w-10 text-center text-white font-bold text-[11px] uppercase tracking-wider py-2.5 pl-4">Sl No</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Medicine / Gen</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">HSN</TableHead>
                     <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-2.5">Batch</TableHead>
@@ -338,7 +338,7 @@ export default function PharmacyReturnPage() {
                             );
                           }}
                         >
-                          <SelectTrigger className="h-8 w-[160px] text-[11px] rounded-lg border-slate-300 ml-auto">
+                          <SelectTrigger className="h-8 w-40 text-[11px] rounded-lg border-slate-300 ml-auto">
                             <SelectValue placeholder="Select Reason" />
                           </SelectTrigger>
                           <SelectContent className="text-[11px]">

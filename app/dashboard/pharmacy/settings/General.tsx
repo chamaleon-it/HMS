@@ -164,7 +164,7 @@ export default function General({
               Address
             </Label>
             <Textarea
-              className="min-h-[90px] rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
+              className="min-h-22.5 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-sky-500/70"
               placeholder="This will appear on printed bills and reports"
               value={payload.address}
               onChange={(e) =>

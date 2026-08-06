@@ -112,7 +112,7 @@ export default function DailyViewTimeline({
         </span>
       </div>
       <div className="relative px-2 py-2">
-        <div className="absolute -left-[112px] right-0 top-1/2 -translate-y-1/2 h-px bg-gray-300/70" />
+        <div className="absolute -left-28 right-0 top-1/2 -translate-y-1/2 h-px bg-gray-300/70" />
       </div>
     </div>
   );
@@ -200,7 +200,7 @@ export default function DailyViewTimeline({
                     )}
                   </div>
                   <div className="relative px-2 py-2">
-                    <div className="absolute z-10 -left-[112px] top-0 bottom-0 w-px bg-gray-300" />
+                    <div className="absolute z-10 -left-28 top-0 bottom-0 w-px bg-gray-300" />
                     <div className="h-10" />
                   </div>
                 </div>

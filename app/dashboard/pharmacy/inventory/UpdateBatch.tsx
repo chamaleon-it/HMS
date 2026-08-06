@@ -265,7 +265,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                             <Table>
                                 <TableHeader>
                                     <TableRow className="bg-slate-50">
-                                        <TableHead className="w-[120px]">Date Added</TableHead>
+                                        <TableHead className="w-30">Date Added</TableHead>
                                         <TableHead>Batch No</TableHead>
                                         <TableHead>Expiry</TableHead>
                                         <TableHead>Supplier</TableHead>

@@ -1026,7 +1026,7 @@ export default function TestCatalogue({
             </Dialog>
 
             <div className="mt-6 border rounded-xl overflow-hidden shadow-sm">
-              <div className="max-h-[500px] overflow-auto custom-scrollbar">
+              <div className="max-h-125 overflow-auto custom-scrollbar">
                 <Table>
                   <TableHeader className="bg-slate-50/80 sticky top-0 z-10 backdrop-blur-sm">
                     <TableRow>
@@ -1742,10 +1742,10 @@ const GroupCatalogueRow = ({
       <TableCell className="font-medium">{idx + 1}</TableCell>
       <TableCell className="font-semibold text-slate-800">{group.name}</TableCell>
       <TableCell className="font-medium text-emerald-600">₹{group.price}</TableCell>
-      <TableCell className="max-w-[200px] truncate">
+      <TableCell className="max-w-50 truncate">
         {group.tests?.map((t) => t.name).join(", ") || "-"}
       </TableCell>
-      <TableCell className="max-w-[200px] truncate">
+      <TableCell className="max-w-50 truncate">
         {group.panels?.map((p) => p.name).join(", ") || "-"}
       </TableCell>
       <TableCell align="right" className="text-right">
@@ -1875,7 +1875,7 @@ const AddGroupForm = ({
                   />
                   <CommandList>
                     <CommandEmpty>No test found.</CommandEmpty>
-                    <CommandGroup className="max-h-[200px] overflow-auto">
+                    <CommandGroup className="max-h-50 overflow-auto">
                       {filteredTests.map((test) => (
                         <CommandItem
                           key={test._id}
@@ -1901,7 +1901,7 @@ const AddGroupForm = ({
             </Popover>
           </div>
 
-          <div className="border rounded-md max-h-[250px] overflow-y-auto p-2 space-y-2">
+          <div className="border rounded-md max-h-62.5 overflow-y-auto p-2 space-y-2">
             {selectedTests.length === 0 ? (
               <p className="text-xs text-center text-slate-500 py-4">No tests selected</p>
             ) : (
@@ -1935,7 +1935,7 @@ const AddGroupForm = ({
                   />
                   <CommandList>
                     <CommandEmpty>No panel found.</CommandEmpty>
-                    <CommandGroup className="max-h-[200px] overflow-auto">
+                    <CommandGroup className="max-h-50 overflow-auto">
                       {filteredPanels.map((panel) => (
                         <CommandItem
                           key={panel._id}
@@ -1961,7 +1961,7 @@ const AddGroupForm = ({
             </Popover>
           </div>
 
-          <div className="border rounded-md max-h-[250px] overflow-y-auto p-2 space-y-2">
+          <div className="border rounded-md max-h-62.5 overflow-y-auto p-2 space-y-2">
             {selectedPanels.length === 0 ? (
               <p className="text-xs text-center text-slate-500 py-4">No panels selected</p>
             ) : (

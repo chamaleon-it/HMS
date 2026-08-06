@@ -164,7 +164,7 @@ export default function IPAdmissionDialog({ open, onOpenChange, mutate }: { open
                 </div>
                 <div className="flex flex-col gap-1.5">
                   <Label className="text-slate-700 font-medium">Initial Notes</Label>
-                  <Textarea className="bg-white border-slate-200 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-xs rounded-xl min-h-[100px] resize-none" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any specific instructions or observations..." />
+                  <Textarea className="bg-white border-slate-200 focus-visible:ring-emerald-500/20 focus-visible:border-emerald-500 shadow-xs rounded-xl min-h-25 resize-none" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Any specific instructions or observations..." />
                 </div>
               </div>
             </div>

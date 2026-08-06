@@ -80,7 +80,7 @@ export default function ThermalPrintModal({
 
         {/* Thermal Print Content Container */}
         <div className="flex justify-center my-2 overflow-y-auto max-h-[65vh] p-2 no-scrollbar">
-          <div className="thermal-print-area bg-white text-black font-mono text-[11px] leading-tight p-4 w-[290px] shadow-lg rounded border border-slate-200 select-none">
+          <div className="thermal-print-area bg-white text-black font-mono text-[11px] leading-tight p-4 w-72.5 shadow-lg rounded border border-slate-200 select-none">
             <style
               dangerouslySetInnerHTML={{
                 __html: `
