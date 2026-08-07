@@ -408,8 +408,9 @@ export default function LabResultsPage() {
               options={(
                 [
                   "All",
-                  "Pending",
-                  "In Progress",
+                  "Upcoming",
+                  "Sample Collected",
+                  "Waiting For Result",
                   "Completed",
                   "Flagged",
                 ] as const

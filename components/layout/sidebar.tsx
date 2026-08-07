@@ -108,13 +108,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
     ]) ||
     (user?.role === "Pharmacy" && [
       {
-        key: "appointments",
-        label: "Appointments",
-        icon: CalendarClock,
-        badge: appointmentStatistics.today.toFixed(0),
-        link: "/dashboard/pharmacy/appointments/",
-      },
-      {
         key: "dashboard",
         label: "Dashboard",
         icon: LayoutDashboard,

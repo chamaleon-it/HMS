@@ -219,14 +219,25 @@ function headerCell(label: string) {
 }
 
 
-const statusTone = (s: string): "green" | "gray" | "red" | "blue" | "amber" =>
-    s === "Completed"
-        ? "green"
-        : s === "Pending"
-            ? "gray"
-            : s === "In Progress"
-                ? "amber"
-                : "red";
+const statusTone = (s: string): "green" | "gray" | "red" | "blue" | "amber" => {
+    switch (s) {
+        case "Completed":
+            return "green";
+        case "Upcoming":
+        case "Draft":
+        case "Pending":
+            return "blue";
+        case "Sample Collected":
+        case "Waiting For Result":
+        case "In Progress":
+            return "amber";
+        case "Flagged":
+        case "Deleted":
+            return "red";
+        default:
+            return "gray";
+    }
+};
 
 
 

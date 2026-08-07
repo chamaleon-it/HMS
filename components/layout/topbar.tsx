@@ -36,7 +36,6 @@ export default function Header() {
       { key: "billing", label: "Billing", link: "/dashboard/doctor/billing/" },
     ]) ||
     (user?.role === "Pharmacy" && [
-      { key: "appointments", label: "Appointments", link: "/dashboard/pharmacy/appointments/" },
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
       { key: "inventory", label: "Inventory", link: "/dashboard/pharmacy/inventory/" },
       { key: "purchase-entry", label: "Purchase Entry", link: "/dashboard/pharmacy/purchase-entry/" },
