@@ -82,7 +82,7 @@ export function AnalyticsTable({
               Transaction Audit Trail
             </h3>
             <p className="text-xs text-slate-500">
-              Read-only list of all recorded pharmacy account transactions
+              List of all recorded pharmacy account transactions
             </p>
           </div>
         </div>

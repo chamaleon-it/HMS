@@ -234,22 +234,8 @@ export default function AdminAccountsAnalyticsPage() {
         {/* Standard Admin Header */}
         <AdminHeader
           title="Accounts Analytics"
-          subtitle="Comprehensive read-only financial reporting, category insights, and trend analysis"
-        >
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider bg-slate-100 text-slate-600 rounded-full border border-slate-200">
-              Read Only
-            </span>
-            <Button
-              variant="outline"
-              onClick={handleRefresh}
-              className="rounded-xl border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold shadow-xs"
-            >
-              <RefreshCw className="w-3.5 h-3.5 mr-2" />
-              Refresh Data
-            </Button>
-          </div>
-        </AdminHeader>
+          subtitle="Comprehensive financial reporting, category insights, and trend analysis"
+        />
 
         {/* Dynamic Date & Filter Control Bar */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
