@@ -254,7 +254,7 @@ export default function OrderTable({
   const [pendingAction, setPendingAction] = useState<"complete" | "print">("print");
 
   const handlePrintBillWithTherapyCheck = async (r: OrderType) => {
-    if (r.patient?._id) {
+    if (r.status?.toLowerCase() !== "completed" && r.patient?._id) {
       try {
         const { data: res } = await api.get<{ data: any[] }>(`/consultings/patient/${r.patient._id}`);
         const uncompletedTherapy = res?.data?.find(
@@ -275,7 +275,7 @@ export default function OrderTable({
   };
 
   const handleCompleteOrderWithTherapyCheck = async (r: OrderType) => {
-    if (r.patient?._id) {
+    if (r.status?.toLowerCase() !== "completed" && r.patient?._id) {
       try {
         const { data: res } = await api.get<{ data: any[] }>(`/consultings/patient/${r.patient._id}`);
         const uncompletedTherapy = res?.data?.find(

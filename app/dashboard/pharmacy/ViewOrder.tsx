@@ -262,17 +262,19 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
     const handleCompleteOrder = async (orderToComplete = localOrder) => {
         if (!orderToComplete) return;
 
-        // Check if patient has prescribed therapies in consultation that are not marked completed
-        const activeConsultingWithTherapy = patientConsultings?.data?.find(
-            (c) => c.therapy && c.therapy.length > 0 && !c.therapyCompleted
-        );
+        if (orderToComplete.status?.toLowerCase() !== "completed") {
+            // Check if patient has prescribed therapies in consultation that are not marked completed
+            const activeConsultingWithTherapy = patientConsultings?.data?.find(
+                (c) => c.therapy && c.therapy.length > 0 && !c.therapyCompleted
+            );
 
-        if (activeConsultingWithTherapy) {
-            setPendingConsulting(activeConsultingWithTherapy);
-            setPendingOrderToComplete(orderToComplete);
-            setPendingAction("complete");
-            setOpenTherapyAlert(true);
-            return;
+            if (activeConsultingWithTherapy) {
+                setPendingConsulting(activeConsultingWithTherapy);
+                setPendingOrderToComplete(orderToComplete);
+                setPendingAction("complete");
+                setOpenTherapyAlert(true);
+                return;
+            }
         }
 
         await handleCompleteOrderDirect(orderToComplete);
@@ -280,16 +282,18 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
     const handlePrintWithTherapyCheck = async () => {
         if (!localOrder) return;
-        const activeConsultingWithTherapy = patientConsultings?.data?.find(
-            (c) => c.therapy && c.therapy.length > 0 && !c.therapyCompleted
-        );
+        if (localOrder.status?.toLowerCase() !== "completed") {
+            const activeConsultingWithTherapy = patientConsultings?.data?.find(
+                (c) => c.therapy && c.therapy.length > 0 && !c.therapyCompleted
+            );
 
-        if (activeConsultingWithTherapy) {
-            setPendingConsulting(activeConsultingWithTherapy);
-            setPendingOrderToComplete(localOrder);
-            setPendingAction("print");
-            setOpenTherapyAlert(true);
-            return;
+            if (activeConsultingWithTherapy) {
+                setPendingConsulting(activeConsultingWithTherapy);
+                setPendingOrderToComplete(localOrder);
+                setPendingAction("print");
+                setOpenTherapyAlert(true);
+                return;
+            }
         }
 
         handlePrintBill(localOrder);
