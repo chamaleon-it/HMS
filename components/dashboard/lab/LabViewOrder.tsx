@@ -161,7 +161,7 @@ export default function LabViewOrder({ open, setOpen, sample, onUpdateStatus }: 
                         <div className="border rounded-xl p-5 bg-slate-50/50 space-y-4">
                             <div className="flex items-center justify-between">
                                 <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Payment Details</h3>
-                                <div className="flex flex-col items-end justify-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm min-w-[140px]">
+                                <div className="flex flex-col items-end justify-center bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm min-w-35">
                                     <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Total Amount</span>
                                     <div className="flex items-center text-slate-900">
                                         <IndianRupee className="w-5 h-5 stroke-[2.5] mr-0.5 text-slate-400" />

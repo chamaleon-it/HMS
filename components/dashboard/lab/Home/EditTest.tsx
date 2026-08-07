@@ -133,7 +133,7 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                 </DialogHeader>
 
                 <div className="flex gap-2 justify-between w-full mt-4">
-                    <div className="w-[300px]">
+                    <div className="w-75">
                         <TestSelection
 
                             onSelect={(val) => {

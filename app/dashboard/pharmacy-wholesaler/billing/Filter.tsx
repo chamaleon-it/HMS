@@ -26,7 +26,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
   return (
     <div
       className={
-        "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-[backdrop-filter]:bg-slate-900/70 bg-white dark:bg-slate-900"
+        "rounded-2xl border border-slate-200 p-4 shadow-sm supports-backdrop-filter:bg-white/80 supports-backdrop-filter:backdrop-blur dark:border-slate-800 dark:supports-backdrop-filter:bg-slate-900/70 bg-white dark:bg-slate-900"
       }
     >
       <div className="grid grid-cols-12 items-center gap-3">
@@ -54,7 +54,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
               setFilter((prev) => ({ ...prev, status: value }))
             }
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45">
               <SelectValue placeholder="Select a status" />
             </SelectTrigger>
             <SelectContent>
@@ -75,7 +75,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
               setFilter((prev) => ({ ...prev, method: value }))
             }
           >
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-45">
               <SelectValue placeholder="Select a method" />
             </SelectTrigger>
             <SelectContent>

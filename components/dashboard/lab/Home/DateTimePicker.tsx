@@ -361,7 +361,7 @@ function TimePicker({ date, setDate, timeInputRef }: DateTimePickerProps & { tim
                     </Button>
                 </div>
             </PopoverTrigger>
-            <PopoverContent className="w-[280px] p-0 shadow-xl border-primary/10 rounded-xl overflow-hidden" align="start">
+            <PopoverContent className="w-70 p-0 shadow-xl border-primary/10 rounded-xl overflow-hidden" align="start">
                 <div className="bg-muted/30 border-b px-3 py-2 flex justify-between items-center">
                     <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Select Time</span>
                     <Clock className="h-3.5 w-3.5 text-muted-foreground/50" />

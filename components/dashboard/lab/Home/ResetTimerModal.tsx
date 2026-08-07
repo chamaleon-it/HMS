@@ -73,7 +73,7 @@ export default function ResetTimerModal({ reportId, patientName, mutate }: Props
                     Reset Timer
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px]">
+            <DialogContent className="sm:max-w-106.25">
                 <DialogHeader>
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg">

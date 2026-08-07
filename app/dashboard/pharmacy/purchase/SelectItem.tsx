@@ -118,7 +118,7 @@ export default function SelectMedicine({
       <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full">
         <Input
           placeholder="Type medicine"
-          className={`h-10 rounded-xl sm:w-[220px] transition-all outline-0 ring-0 focus:outline-0! focus:ring-0!   ${error ? "border-red-500 ring-1 ring-red-500" : ""
+          className={`h-10 rounded-xl sm:w-55 transition-all outline-0 ring-0 focus:outline-0! focus:ring-0!   ${error ? "border-red-500 ring-1 ring-red-500" : ""
             }`}
           onChange={(e) => setMedicine(e.target.value)}
           value={medicine ?? ""}

@@ -47,7 +47,7 @@ import configuration from "@/config/configuration";
 
 function TimePicker({ date, onChange, disabled }: { date: Date | undefined; onChange: (h: number, m: number) => void; disabled?: boolean }) {
   if (!date) {
-    return <div className="text-xs text-gray-400 italic font-medium w-[188px] text-center">Select a date first</div>;
+    return <div className="text-xs text-gray-400 italic font-medium w-47 text-center">Select a date first</div>;
   }
   const hours24 = date.getHours();
   const minutes = date.getMinutes();
@@ -75,7 +75,7 @@ function TimePicker({ date, onChange, disabled }: { date: Date | undefined; onCh
   return (
     <div className="flex gap-1.5 items-center justify-end">
       <Select value={hours12.toString().padStart(2, '0')} onValueChange={handleHourChange} disabled={disabled}>
-        <SelectTrigger className="w-[55px] h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="w-13.75 h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
         <SelectContent>
           {Array.from({ length: 12 }, (_, i) => i + 1).map(h => (
             <SelectItem key={h} value={h.toString().padStart(2, '0')} className="text-xs font-medium cursor-pointer">{h.toString().padStart(2, '0')}</SelectItem>
@@ -84,7 +84,7 @@ function TimePicker({ date, onChange, disabled }: { date: Date | undefined; onCh
       </Select>
       <span className="text-xs font-bold text-gray-500 pb-0.5">:</span>
       <Select value={minutes.toString().padStart(2, '0')} onValueChange={handleMinuteChange} disabled={disabled}>
-        <SelectTrigger className="w-[55px] h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="w-13.75 h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
         <SelectContent>
           {Array.from({ length: 60 }, (_, i) => i).map(m => (
             <SelectItem key={m} value={m.toString().padStart(2, '0')} className="text-xs font-medium cursor-pointer">{m.toString().padStart(2, '0')}</SelectItem>
@@ -92,7 +92,7 @@ function TimePicker({ date, onChange, disabled }: { date: Date | undefined; onCh
         </SelectContent>
       </Select>
       <Select value={ampm} onValueChange={handleAmpmChange} disabled={disabled}>
-        <SelectTrigger className="w-[60px] h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
+        <SelectTrigger className="w-15 h-7 text-xs px-2 font-semibold bg-white border-gray-200 focus:ring-1 focus:ring-blue-400 shadow-none"><SelectValue /></SelectTrigger>
         <SelectContent>
           <SelectItem value="AM" className="text-xs font-medium cursor-pointer">AM</SelectItem>
           <SelectItem value="PM" className="text-xs font-medium cursor-pointer">PM</SelectItem>
@@ -475,7 +475,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
                         <Button
                           variant="outline"
                           className={cn(
-                            "h-9 text-xs py-1 px-3 w-[175px] font-semibold text-gray-800 border border-gray-200 shadow-none focus-visible:ring-1 focus-visible:border-blue-400 bg-gray-50/50 hover:bg-gray-50 transition-colors justify-start text-left",
+                            "h-9 text-xs py-1 px-3 w-43.75 font-semibold text-gray-800 border border-gray-200 shadow-none focus-visible:ring-1 focus-visible:border-blue-400 bg-gray-50/50 hover:bg-gray-50 transition-colors justify-start text-left",
                             !collectedDate && "text-muted-foreground"
                           )}
                         >
@@ -509,7 +509,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
                         <Button
                           variant="outline"
                           className={cn(
-                            "h-9 text-xs py-1 px-3 w-[175px] font-semibold text-gray-800 border border-gray-200 shadow-none focus-visible:ring-1 focus-visible:border-blue-400 bg-gray-50/50 hover:bg-gray-50 transition-colors justify-start text-left",
+                            "h-9 text-xs py-1 px-3 w-43.75 font-semibold text-gray-800 border border-gray-200 shadow-none focus-visible:ring-1 focus-visible:border-blue-400 bg-gray-50/50 hover:bg-gray-50 transition-colors justify-start text-left",
                             !reportedDate && "text-muted-foreground"
                           )}
                         >
@@ -779,7 +779,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint, onSta
               <textarea
                 id="report-notes"
                 placeholder="Enter additional findings, observations, or technician notes here..."
-                className="w-full min-h-[90px] p-3.5 text-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white shadow-xs resize-none"
+                className="w-full min-h-22.5 p-3.5 text-sm border border-gray-200 rounded-2xl focus:outline-none focus:ring-1 focus:ring-blue-400 focus:border-blue-400 bg-white shadow-xs resize-none"
                 value={payload.note ?? ""}
                 onChange={(e) => setPayload({ ...payload, note: e.target.value })}
               />

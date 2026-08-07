@@ -104,7 +104,7 @@ export default function RemoveTestsFromPanelDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[500px] h-[500px] flex flex-col">
+            <DialogContent className="sm:max-w-125 h-125 flex flex-col">
                 <DialogHeader>
                     <DialogTitle>Remove Tests from {panelName}</DialogTitle>
                     <DialogDescription>

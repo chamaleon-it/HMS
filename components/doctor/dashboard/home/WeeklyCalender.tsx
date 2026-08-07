@@ -147,7 +147,7 @@ export default function WeeklyCalender({
         <h3 className="font-semibold">This Week</h3>
       </div>
 
-      <div className="min-w-[960px]">
+      <div className="min-w-240">
         {/* Header row */}
         <div className="grid grid-cols-[64px_repeat(7,1fr)] text-xs text-gray-500 px-2">
           <div></div>

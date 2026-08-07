@@ -231,7 +231,7 @@ export default function BookNowModal({
                 />
 
                 <div className="flex gap-4 justify-between w-full">
-                    <div className="flex-1 max-w-[400px]">
+                    <div className="flex-1 max-w-100">
                         <LabeledCombobox
                             label="Select a Test or Panel"
                             value=""

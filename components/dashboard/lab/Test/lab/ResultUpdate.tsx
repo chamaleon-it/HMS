@@ -121,7 +121,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                     Update Result
                 </button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden gap-0">
+            <DialogContent className="sm:max-w-200 p-0 overflow-hidden gap-0">
                 <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <div className="flex items-center gap-3">
                         <div className="p-2.5 bg-blue-100/50 text-(--color-synapse-light) rounded-xl">
@@ -165,7 +165,7 @@ export default function ResultUpdate({ r, mutate }: Props) {
                                                 </div>
                                             </TableCell>
                                             <TableCell className="py-4">
-                                                <div className="relative max-w-[240px]">
+                                                <div className="relative max-w-60">
                                                     {labTest.name?.dataType === "boolean" ? (
                                                         <Select
                                                             value={payload.test.find((item) => item._id === labTest._id)?.value}

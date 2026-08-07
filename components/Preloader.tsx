@@ -27,7 +27,7 @@ export function Preloader({ onDone }: { onDone: () => void }) {
             initial={{ scale: 1.5 }}
             animate={{ scale: 1 }}
             transition={{ delay: 1.1, duration: 1.2, ease: EASE }}>
-            <motion.svg viewBox="0 0 123.8 216" className="w-[70px] md:w-[85px] h-auto">
+            <motion.svg viewBox="0 0 123.8 216" className="w-17.5 md:w-21.25 h-auto">
               <motion.path
                 d="M71.6,48.3c-2.6,4.2-5,8.3-7.9,12.3-4.2,5.8-8.4,11.4-13.2,16.8l-16.3,18c-6.9,7.6-12.3,15.4-15.2,25.4-2.2,7.8-2.2,15.7.1,23.5s3.8,9.4,6.5,14c-4-3.4-7.2-7.1-10.3-11.2-12.8-17.5-13-36-1.6-54.3,2.7-4.3,5.7-8,9-11.9,6.8-7.7,13.2-15.5,19.3-23.8s9.3-13.2,13.1-20.4c4.6-8.9,8.5-18.6,7.4-28.8,26,18.5,40.6,44.2,22,74.1-2.7,4.3-5.8,8.1-9.2,12-6.9,8-13.6,16-19.8,24.5-4.6,6.3-8.7,12.6-12.4,19.5-4.4,8.6-8.2,18-7.5,27.9-10.7-12-16.2-26.5-12.3-42.4,2.4-10,7.9-18.8,14.5-26.7,9.9-11.8,19.5-23.9,27.6-37.1,2.1-3.7,4.3-7.2,5.9-11.2Z"
                 fill="#7d5745"
@@ -77,15 +77,15 @@ export function Preloader({ onDone }: { onDone: () => void }) {
             </motion.p>
           </motion.div>
         </div>
-        
+
         {/* Linear Loader */}
-        <motion.div 
-          className="w-48 h-[3px] bg-[#7d5745]/20 mt-10 rounded-full overflow-hidden relative"
+        <motion.div
+          className="w-48 h-0.75 bg-[#7d5745]/20 mt-10 rounded-full overflow-hidden relative"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 2.6, duration: 0.5 }}
         >
-          <motion.div 
+          <motion.div
             className="absolute top-0 left-0 h-full bg-[#a6906c]"
             initial={{ width: "0%" }}
             animate={{ width: "100%" }}

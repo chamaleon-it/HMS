@@ -125,7 +125,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                     Sample Collected
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[550px]">
+            <DialogContent className="sm:max-w-137.5">
                 <DialogHeader>
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-amber-100 text-amber-600 rounded-lg">
@@ -174,7 +174,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                                             <Input
                                                 placeholder="e.g. S-1234"
                                                 value={sample.id}
-                                                className="h-[50px] rounded-xl border-slate-200 bg-white px-3 text-sm focus-visible:border-emerald-400 focus-visible:ring-1 focus-visible:ring-emerald-400"
+                                                className="h-12.5 rounded-xl border-slate-200 bg-white px-3 text-sm focus-visible:border-emerald-400 focus-visible:ring-1 focus-visible:ring-emerald-400"
                                                 onChange={(e) => {
                                                     const newSamples = [...samples];
                                                     newSamples[index].id = e.target.value;
@@ -243,7 +243,7 @@ export default function SampleCollectionModal({ reportId, patientName, mutate, a
                                         </td>
 
                                         <td className="px-4 py-3">
-                                            <div className="w-[200px] z-10">
+                                            <div className="w-50 z-10">
                                                 <LabeledCombobox
                                                     label="Specimen"
                                                     value={sample.specimen}

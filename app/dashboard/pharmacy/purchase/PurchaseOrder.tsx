@@ -378,7 +378,7 @@ function PurchaseOrder({
                   }}
                   value={state.paymentTerms ?? ""}
                 >
-                  <SelectTrigger className="rounded-md h-10 mt-2 max-w-[150px] w-full">
+                  <SelectTrigger className="rounded-md h-10 mt-2 max-w-37.5 w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl shadow-lg">
@@ -429,7 +429,7 @@ function PurchaseOrder({
 
         <CardContent className="space-y-6">
           <div className="rounded-xl border overflow-x-auto">
-            <Table className="min-w-[900px] text-sm">
+            <Table className="min-w-225 text-sm">
               <TableHeader className="bg-muted/40">
                 <TableRow>
                   <TableHead className="w-[28%]">Item</TableHead>

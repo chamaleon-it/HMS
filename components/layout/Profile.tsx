@@ -72,7 +72,7 @@ export default function DoctorProfile() {
         <DropdownMenuContent
           align="end"
           sideOffset={8}
-          className="w-[280px] rounded-xl p-0 overflow-hidden"
+          className="w-70 rounded-xl p-0 overflow-hidden"
         >
           {/* Header */}
           <div className="p-3">

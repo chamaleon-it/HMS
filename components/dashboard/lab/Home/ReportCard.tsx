@@ -434,7 +434,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                 <div className="pt-6 pb-3 px-10 relative z-10 bg-white">
                                     <div className="flex justify-between items-start relative z-10">
                                         <div className="flex gap-4 items-center">
-                                            <div className="w-[100px] h-[100px] rounded-full flex items-center justify-center bg-white shrink-0 overflow-hidden">
+                                            <div className="w-25 h-25 rounded-full flex items-center justify-center bg-white shrink-0 overflow-hidden">
                                                 <img src={configuration().logo} alt="Logo" className="w-full h-full object-cover mix-blend-multiply p-1" />
                                             </div>
                                             <div className="flex flex-col gap-0.5 ml-0">
@@ -450,7 +450,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         </div>
                                     </div>
                                 </div>
-                                <div className="w-full flex h-[5px] shrink-0">
+                                <div className="w-full flex h-1.25 shrink-0">
                                     <div className="bg-(--color-synapse-purple) w-[70%] h-full"></div>
                                     <div className="bg-(--color-synapse-dark) w-[30%] h-full"></div>
                                 </div>
@@ -641,18 +641,18 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                                         return (
                                                             <div key={graphKey} className="flex flex-col">
-                                                                <div className="bg-(--color-synapse-purple)/20 px-2 py-1 mb-2 inline-block self-start">
+                                                                <div className="bg-synapse-purple/20 px-2 py-1 mb-2 inline-block self-start">
                                                                     <span className="text-[13px] font-bold text-slate-800">{graphKey}</span>
                                                                 </div>
                                                                 {report?.graphs && fullGraphKey && report.graphs[fullGraphKey] ? (
                                                                     <img
                                                                         src={`data:image/png;base64,${report.graphs[fullGraphKey]}`}
                                                                         alt={`${graphKey} Histogram`}
-                                                                        className="w-[200px] h-[100px] object-contain mix-blend-multiply ml-4"
+                                                                        className="w-50 h-25 object-contain mix-blend-multiply ml-4"
                                                                         style={{ filter: "url(#edge-detect-hms) invert(1) brightness(0.7) contrast(300%) grayscale(100%)" }}
                                                                     />
                                                                 ) : (
-                                                                    <div className="w-[200px] h-[100px] border border-dashed border-slate-300 flex items-center justify-center text-[10px] text-slate-400 ml-4">
+                                                                    <div className="w-50 h-25 border border-dashed border-slate-300 flex items-center justify-center text-[10px] text-slate-400 ml-4">
                                                                         {graphKey} Graph Area
                                                                     </div>
                                                                 )}
@@ -711,7 +711,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                         <span className="font-medium">6:30 AM to 8:00 PM <br />Sunday 6:30 AM to 12:00 PM</span>
                                     </div>
                                 </div>
-                                <div className="w-full flex h-[5px]">
+                                <div className="w-full flex h-1.25">
                                     <div className="bg-(--color-synapse-purple) w-[70%] h-full"></div>
                                     <div className="bg-(--color-synapse-dark) w-[30%] h-full"></div>
                                 </div>

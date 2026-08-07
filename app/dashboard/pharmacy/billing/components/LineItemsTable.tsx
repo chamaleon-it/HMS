@@ -225,7 +225,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                         )}
                     </AnimatePresence>
 
-                    <div className="w-full md:w-[320px] lg:w-[600px] md:flex-none">
+                    <div className="w-full md:w-[320px] lg:w-150 md:flex-none">
                         <ItemSelected
                             addItem={addItem}
                             item={item}
@@ -282,7 +282,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                             value={it.name}
                                                             readOnly
                                                             disabled
-                                                            className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
+                                                            className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-700 outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all"
                                                         />
                                                     </div>
                                                 </td>
@@ -297,7 +297,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updateQty(it.name, Number(e.target.value))
                                                         }
-                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-synapse-light/10/30 px-3 text-sm font-bold text-(--color-synapse-light) outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all text-center"
+                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-synapse-light/10/30 px-3 text-sm font-bold text-(--color-synapse-light) outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all text-center"
                                                     />
                                                 </td>
                                                 <td className="py-3 pr-2 text-right">
@@ -311,7 +311,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updatePrice(it.name, Number(e.target.value))
                                                         }
-                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all text-right"
+                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all text-right"
                                                     />
                                                 </td>
                                                 <td className="py-3 pr-2 text-right">
@@ -326,7 +326,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                                         onChange={(e) =>
                                                             updateGST(it.name, Number(e.target.value))
                                                         }
-                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all text-right"
+                                                        className="h-11 w-full rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-600 outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all text-right"
                                                     />
                                                 </td>
                                                 <td className="py-3 pr-2 text-right font-bold text-slate-700 tabular-nums text-base">
@@ -394,7 +394,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
             </div>
 
             <Dialog open={isCustomItemModalOpen} onOpenChange={setIsCustomItemModalOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-106.25">
                     <DialogHeader>
                         <DialogTitle>Add Custom Item / Service</DialogTitle>
                     </DialogHeader>
@@ -410,7 +410,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                         procedureNameRef.current?.focus();
                                     }
                                 }}
-                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all"
                                 placeholder="e.g. CPT-12345"
                             />
                         </div>
@@ -426,7 +426,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                         unitPriceRef.current?.focus();
                                     }
                                 }}
-                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all"
                                 placeholder="ex. Consultation"
                             />
                         </div>
@@ -439,7 +439,7 @@ export const LineItemsTable: React.FC<LineItemsTableProps> = ({
                                 value={customItem.unitPrice === 0 ? "" : customItem.unitPrice.toString()}
                                 onChange={(e) => setCustomItem({ ...customItem, unitPrice: Number(e.target.value) })}
 
-                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-synapse-light/20 transition-all"
+                                className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/20 transition-all"
                                 placeholder="0"
                             />
                         </div>

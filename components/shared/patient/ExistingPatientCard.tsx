@@ -85,7 +85,7 @@ export default function ExistingPatientCard({
             <div className="flex items-center justify-between mt-3 pt-2 border-t border-dashed">
                 <div className="flex items-center gap-1.5 text-slate-500">
                     <MapPin className="h-3 w-3" />
-                    <span className="text-xs truncate max-w-[200px]">
+                    <span className="text-xs truncate max-w-50">
                         {patient.address || "No address provided"}
                     </span>
                 </div>

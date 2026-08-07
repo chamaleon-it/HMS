@@ -54,7 +54,7 @@ const Select = forwardRef<HTMLButtonElement, SelectProps<any>>(({
         ref={ref}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={onKeyDown}
-        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-[150px] w-full justify-between`}
+        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-37.5 w-full justify-between`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`${placeholder}: ${current ? current.label : "Any"}`}
@@ -105,8 +105,8 @@ const Select = forwardRef<HTMLButtonElement, SelectProps<any>>(({
                       setOpen(false);
                     }}
                     className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between transition-colors ${disabled
-                        ? "text-gray-300 bg-gray-50/50 cursor-not-allowed opacity-60"
-                        : active
+                      ? "text-gray-300 bg-gray-50/50 cursor-not-allowed opacity-60"
+                      : active
                         ? "bg-gray-100 text-gray-900 font-medium"
                         : "hover:bg-gray-50 text-gray-700"
                       }`}

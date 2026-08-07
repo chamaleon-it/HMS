@@ -94,7 +94,7 @@ export default function ViewResultModal({ r }: Props) {
                     <Eye className="w-4 h-4" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[800px] p-0 overflow-hidden gap-0">
+            <DialogContent className="sm:max-w-200 p-0 overflow-hidden gap-0">
                 <DialogHeader className="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">

@@ -63,7 +63,7 @@ export default function SendToLabDialog({ testName, patientName, onSuccess }: Pr
                     Send to Lab
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-125">
                 <DialogHeader>
                     <DialogTitle>Send Test to External Lab</DialogTitle>
                     <DialogDescription>

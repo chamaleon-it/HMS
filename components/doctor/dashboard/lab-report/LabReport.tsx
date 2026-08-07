@@ -154,7 +154,7 @@ function FilterSelect<T extends string>({
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "h-11 px-4 rounded-xl bg-zinc-50 border border-zinc-200 hover:border-zinc-300 transition-all inline-flex items-center justify-between gap-3 min-w-[180px] group",
+          "h-11 px-4 rounded-xl bg-zinc-50 border border-zinc-200 hover:border-zinc-300 transition-all inline-flex items-center justify-between gap-3 min-w-45 group",
           open && "ring-2 ring-zinc-900/5 border-zinc-900 bg-white"
         )}
       >
@@ -177,7 +177,7 @@ function FilterSelect<T extends string>({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.95 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute z-50 mt-2 w-full min-w-[200px] max-h-72 overflow-hidden bg-white rounded-2xl shadow-xl ring-1 ring-zinc-200 p-2"
+            className="absolute z-50 mt-2 w-full min-w-50 max-h-72 overflow-hidden bg-white rounded-2xl shadow-xl ring-1 ring-zinc-200 p-2"
           >
             {searchable && (
               <div className="relative mb-2 px-1">
@@ -190,7 +190,7 @@ function FilterSelect<T extends string>({
                 />
               </div>
             )}
-            <ul role="listbox" className="max-h-[240px] overflow-y-auto custom-scrollbar">
+            <ul role="listbox" className="max-h-60 overflow-y-auto custom-scrollbar">
               {visible.map((o) => {
                 const active = o.value === value;
                 return (

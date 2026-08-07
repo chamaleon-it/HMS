@@ -161,7 +161,7 @@ export default function Imagine() {
 
       <div className="rounded-2xl bg-white border border-zinc-200 p-4 shadow-sm space-y-4">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex-1 min-w-[300px] relative group">
+          <div className="flex-1 min-w-75 relative group">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-400 group-focus-within:text-zinc-900 transition-colors" />
             <input
               value={search}

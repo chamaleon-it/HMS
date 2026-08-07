@@ -260,7 +260,7 @@ export const LabReportDetailModal: React.FC<LabReportDetailModalProps> = ({
                 No individual test parameters recorded yet.
               </div>
             ) : (
-              <div className="overflow-y-auto overflow-x-auto flex-1 min-h-0 max-h-[320px]">
+              <div className="overflow-y-auto overflow-x-auto flex-1 min-h-0 max-h-80">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-100 sticky top-0 z-10 shadow-xs">
                     <tr>
@@ -443,7 +443,7 @@ export const PharmacyOrderDetailModal: React.FC<PharmacyOrderDetailModalProps> =
                 No items listed in this pharmacy order.
               </div>
             ) : (
-              <div className="overflow-y-auto overflow-x-auto flex-1 min-h-0 max-h-[320px]">
+              <div className="overflow-y-auto overflow-x-auto flex-1 min-h-0 max-h-80">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-100 sticky top-0 z-10 shadow-xs">
                     <tr>
@@ -619,7 +619,7 @@ export const BillingDetailModal: React.FC<BillingDetailModalProps> = ({
             {items.length === 0 ? (
               <div className="p-6 text-center text-sm text-gray-500">No items on this bill.</div>
             ) : (
-              <div className="overflow-y-auto overflow-x-auto flex-1 min-h-0 max-h-[280px]">
+              <div className="overflow-y-auto overflow-x-auto flex-1 min-h-0 max-h-70">
                 <table className="w-full text-left text-xs">
                   <thead className="bg-gray-50 text-gray-600 font-semibold border-b border-gray-100 sticky top-0 z-10 shadow-xs">
                     <tr>

@@ -10,8 +10,8 @@ const Hero = () => {
 
             {/* Static Background Glows */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl -z-10 pointer-events-none">
-                <div className="absolute top-[-20%] left-[20%] w-[600px] h-[600px] bg-[#3B82F6]/10 rounded-full blur-[100px] animate-pulse-slow" />
-                <div className="absolute bottom-[-20%] right-[20%] w-[500px] h-[500px] bg-[#F43F5E]/5 rounded-full blur-[100px] animate-pulse-slow" />
+                <div className="absolute top-[-20%] left-[20%] w-150 h-150 bg-[#3B82F6]/10 rounded-full blur-[100px] animate-pulse-slow" />
+                <div className="absolute bottom-[-20%] right-[20%] w-125 h-125 bg-[#F43F5E]/5 rounded-full blur-[100px] animate-pulse-slow" />
             </div>
 
             <MedicalBackground />
@@ -93,7 +93,7 @@ const Hero = () => {
                             </div>
 
                             {/* Dashboard Content */}
-                            <div className="p-1 bg-grid-white/5 min-h-[600px] relative">
+                            <div className="p-1 bg-grid-white/5 min-h-150 relative">
                                 <img
                                     src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=2670&auto=format&fit=crop"
                                     alt="Dashboard Preview"

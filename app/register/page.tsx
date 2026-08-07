@@ -24,7 +24,7 @@ export default function RegisterPage() {
         router.push("/dashboard/reception");
       }
     }
-  }, [user?.role,router]);
+  }, [user?.role, router]);
 
   if (isAuthenticated) return null;
 
@@ -73,7 +73,7 @@ export default function RegisterPage() {
               />
               {/* subtle top gradient accent (brand) */}
               <div
-                className="absolute -top-px left-6 right-6 h-[3px] rounded-full animate-ribbon"
+                className="absolute -top-px left-6 right-6 h-0.75 rounded-full animate-ribbon"
                 style={{
                   background:
                     "linear-gradient(90deg, var(--brand), var(--accent-end), var(--brand))",

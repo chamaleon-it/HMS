@@ -46,7 +46,7 @@ export default function Filter({
       <CardContent className="p-3">
         <div className="flex flex-col lg:flex-row gap-4 lg:items-center">
           <div className="flex-1 flex flex-col sm:flex-row gap-3">
-            <div className="relative flex-1 min-w-[240px]">
+            <div className="relative flex-1 min-w-60">
               <Search className="h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
               <Input
                 value={query}

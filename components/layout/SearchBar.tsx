@@ -104,10 +104,10 @@ export default function SearchBar() {
           onChange={(e) => setQ(e.target.value)}
           onKeyDown={handleKeyDown}
           data-testid="search-input"
-          className="w-full rounded-2xl border border-slate-200 bg-white/90 pl-10 pr-4 py-2.5 text-sm shadow-sm outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-[var(--color-synapse-light)] focus:ring-2 focus:ring-indigo-200"
+          className="w-full rounded-2xl border border-slate-200 bg-white/90 pl-10 pr-4 py-2.5 text-sm shadow-sm outline-none placeholder:text-slate-400 hover:border-slate-300 focus:border-(--color-synapse-light) focus:ring-2 focus:ring-indigo-200"
         />
         {isOpen && Boolean(data?.data.length) && (
-          <div className="absolute right-0 w-[300px] sm:w-[400px] lg:w-[450px] top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-[400px] overflow-y-auto">
+          <div className="absolute right-0 w-75 sm:w-100 lg:w-112.5 top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-100 overflow-y-auto">
             {data?.data.map((p, index) => (
               <Link
                 href={generateLink(p._id)}
@@ -185,7 +185,7 @@ export const PatientCard: React.FC<{
         <div className="shrink-0">
           <div
             className={cn(
-              "rounded-2xl p-[2px] transition-transform duration-200",
+              "rounded-2xl p-0.5 transition-transform duration-200",
               "group-hover:scale-[1.02]",
               "bg-zinc-100 dark:bg-zinc-800"
             )}

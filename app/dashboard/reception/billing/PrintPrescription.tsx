@@ -14,8 +14,8 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
     const patient = order.patient;
     const doctor = order.doctor;
     // doctorName stored on order takes priority; fall back to populated doctor name; null = Self = "-"
-    const rawDoctorName = (order.doctorName && order.doctorName !== "-" && order.doctorName !== "") 
-        ? order.doctorName 
+    const rawDoctorName = (order.doctorName && order.doctorName !== "-" && order.doctorName !== "")
+        ? order.doctorName
         : doctor?.name || null;
     const displayDoctorName = !rawDoctorName || rawDoctorName === "-" ? "-" : `DR. ${rawDoctorName}`;
 
@@ -163,7 +163,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
 function Info({ label, value }: { label: string; value: string }) {
     return (
         <div className="flex gap-2 min-h-6 items-start">
-            <span className="text-black font-medium uppercase text-[10px] min-w-[50px] mt-0.5">{label}:</span>
+            <span className="text-black font-medium uppercase text-[10px] min-w-12.5 mt-0.5">{label}:</span>
             <span className="font-bold text-black line-clamp-2 leading-tight uppercase">{value}</span>
         </div>
     );

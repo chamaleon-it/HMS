@@ -99,7 +99,7 @@ const ItemSearchCell = ({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 text-(--color-synapse-light)" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-[350px] p-0 shadow-2xl border-slate-200 rounded-xl" align="start">
+            <PopoverContent className="w-87.5 p-0 shadow-2xl border-slate-200 rounded-xl" align="start">
                 <Command className="rounded-xl ">
                     <CommandInput
                         placeholder="Type medicine name..."

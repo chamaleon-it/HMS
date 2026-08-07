@@ -116,7 +116,7 @@ export function ServerAutocomplete({
       </div>
 
       {open && (options.length > 0 || (q && !options.includes(q))) && (
-        <div className="absolute z-30 mt-2 w-full min-w-[200px] bg-white rounded-xl shadow-2xl border border-slate-200 p-2 overflow-hidden">
+        <div className="absolute z-30 mt-2 w-full min-w-50 bg-white rounded-xl shadow-2xl border border-slate-200 p-2 overflow-hidden">
           <ul role="listbox" className="max-h-60 overflow-auto space-y-1">
             {options.map((o) => {
               const active = o === value;

@@ -278,7 +278,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     <div className="col-span-full">
       <Label>Date and time</Label>
       <div className="flex gap-2.5 mt-2.5">
-        <Card className="w-[45%] h-[375px] min-h-[375px] flex flex-col items-center justify-center p-3 shrink-0">
+        <Card className="w-[45%] h-93.75 min-h-93.75 flex flex-col items-center justify-center p-3 shrink-0">
           <Calendar
             mode="single"
             selected={selectedDate}
@@ -289,7 +289,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
         </Card>
 
         <div className={cn(
-          "h-[375px] min-h-[375px] w-[55%] pr-1",
+          "h-93.75 min-h-93.75 w-[55%] pr-1",
           doctor && !isAvailabilityLoading && isDoctorAvailable
             ? "grid grid-cols-3 overflow-y-auto overflow-x-hidden content-start gap-1.5"
             : "flex items-center justify-center border border-zinc-200/80 rounded-md bg-zinc-50/50"

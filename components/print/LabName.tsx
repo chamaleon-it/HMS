@@ -5,7 +5,7 @@ export default function LabName() {
     return (
         <div className="flex gap-3 items-center">
             <div className="shrink-0 flex items-center justify-center">
-                <img src={configuration().logo} alt="Logo" className="w-[100px] h-auto object-contain" loading="eager" fetchPriority="high" />
+                <img src={configuration().logo} alt="Logo" className="w-25 h-auto object-contain" loading="eager" fetchPriority="high" />
             </div>
             <div className="flex flex-col gap-0.5">
                 <h1 className="text-xl font-bold tracking-tight">{configuration().hospitalName}</h1>

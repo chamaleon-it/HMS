@@ -49,7 +49,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
     });
   }, [profile]);
 
-   const updateSettings = async () => {
+  const updateSettings = async () => {
     try {
       setLoading(true);
       await toast.promise(api.patch("/users/pharmacy-wholesaler/general", payload), {
@@ -97,7 +97,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
               className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-emerald-500/70"
               placeholder="Enter wholesaler name"
               value={payload.name}
-              onChange={e=>setPayload(prev=>({...prev,name:e.target.value}))}
+              onChange={e => setPayload(prev => ({ ...prev, name: e.target.value }))}
             />
           </div>
 
@@ -110,7 +110,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
                 className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-emerald-500/70"
                 placeholder="Name of primary contact"
                 value={payload.contactPerson}
-              onChange={e=>setPayload(prev=>({...prev,contactPerson:e.target.value}))}
+                onChange={e => setPayload(prev => ({ ...prev, contactPerson: e.target.value }))}
               />
             </div>
             <div className="space-y-2">
@@ -121,7 +121,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
                 className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-emerald-500/70"
                 placeholder="Primary phone number"
                 value={payload.phoneNumber}
-              onChange={e=>setPayload(prev=>({...prev,phoneNumber:e.target.value}))}
+                onChange={e => setPayload(prev => ({ ...prev, phoneNumber: e.target.value }))}
               />
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
                 className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-emerald-500/70"
                 placeholder="Official sales email"
                 value={payload.email}
-              onChange={e=>setPayload(prev=>({...prev,email:e.target.value}))}
+                onChange={e => setPayload(prev => ({ ...prev, email: e.target.value }))}
               />
             </div>
 
@@ -147,7 +147,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
                 className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm uppercase tracking-wide placeholder:text-slate-400 focus-visible:ring-emerald-500/70"
                 placeholder="18-CHAR GST NUMBER"
                 value={payload.gstin}
-              onChange={e=>setPayload(prev=>({...prev,gstin:e.target.value}))}
+                onChange={e => setPayload(prev => ({ ...prev, gstin: e.target.value }))}
               />
             </div>
           </div>
@@ -157,10 +157,10 @@ export default function General({ profile, profileMutate }: PropTypes) {
               Address
             </Label>
             <Textarea
-              className="min-h-[90px] rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-emerald-500/70"
+              className="min-h-22.5 rounded-xl border-slate-200 bg-slate-50 text-sm placeholder:text-slate-400 focus-visible:ring-emerald-500/70"
               placeholder="This will appear on purchase bills and invoices"
               value={payload.address}
-              onChange={e=>setPayload(prev=>({...prev,address:e.target.value}))}
+              onChange={e => setPayload(prev => ({ ...prev, address: e.target.value }))}
             />
           </div>
 
@@ -173,7 +173,7 @@ export default function General({ profile, profileMutate }: PropTypes) {
             >
               <Save className="h-4 w-4" />
               {loading ? "Updating...!" : "Save Changes"}
-              
+
             </Button>
           </div>
         </CardContent>

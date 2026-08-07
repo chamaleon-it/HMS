@@ -117,7 +117,7 @@ export default function Filter({
                 />
 
                 {isOpen && Boolean(data?.data?.length) && (
-                  <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-[400px] overflow-y-auto">
+                  <div className="absolute w-full top-12 border rounded-xl bg-white p-1.5 space-y-1.5 z-50 shadow-lg max-h-100 overflow-y-auto">
                     {data?.data.map((p, index) => (
                       <Link
                         href={`/dashboard/lab/patients/single/?id=${p._id}`}

@@ -79,7 +79,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
       <Filters filter={filter} setFilter={setFilter} />
 
       <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200 overflow-x-auto">
-        <Table className="min-w-[1200px] text-sm">
+        <Table className="min-w-300 text-sm">
           <TableHeader className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
             <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
               <TableHead className="py-2.5 text-left pl-4 w-16 text-white font-bold text-[11px] uppercase tracking-wider">

@@ -220,7 +220,7 @@ const SingleSupplierPageContent: React.FC = () => {
                     {/* Stats Section */}
                     <section className="grid gap-4 lg:grid-cols-3 items-stretch">
                         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1 lg:flex lg:flex-col">
-                            <div className="border rounded-2xl p-5 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col justify-center gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px] flex-1">
+                            <div className="border rounded-2xl p-5 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col justify-center gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5 flex-1">
                                 <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide ">
                                     Total Purchase Value
                                 </div>
@@ -228,7 +228,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                     {formatINR(totalPurchaseValue)}
                                 </div>
                             </div>
-                            <div className="border rounded-2xl p-5 bg-rose-50/50 border-rose-100 flex flex-col justify-center gap-1 shadow-sm transition-transform duration-150 hover:translate-y-[-2px] flex-1">
+                            <div className="border rounded-2xl p-5 bg-rose-50/50 border-rose-100 flex flex-col justify-center gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5 flex-1">
                                 <div className="text-xs font-medium text-rose-700 uppercase tracking-wide ">
                                     Total Due Amount
                                 </div>
@@ -237,7 +237,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="border rounded-2xl p-5 bg-white flex flex-col gap-1 shadow-sm lg:col-span-2 transition-transform duration-150 hover:translate-y-[-2px]">
+                        <div className="border rounded-2xl p-5 bg-white flex flex-col gap-1 shadow-sm lg:col-span-2 transition-transform duration-150 hover:-translate-y-0.5">
                             <div className="text-xs font-medium text-slate-500 uppercase tracking-wide ">
                                 Details
                             </div>
@@ -325,7 +325,7 @@ const SingleSupplierPageContent: React.FC = () => {
                     {/* Split View */}
                     <section className="grid gap-5 md:grid-cols-5 items-start">
                         {/* LEFT: Order List */}
-                        <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
+                        <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
                             <div className="px-4 py-3 bg-(--color-synapse-dark) text-slate-50 flex items-center justify-between">
                                 <div className="text-sm font-medium flex items-center gap-2 ">
                                     <span className="h-7 w-7 rounded-full bg-(--color-synapse-purple) flex items-center justify-center text-[11px] ">
@@ -500,7 +500,7 @@ const SingleSupplierPageContent: React.FC = () => {
                         </div>
 
                         {/* RIGHT: Order Details */}
-                        <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[480px]">
+                        <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
                             <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                                 <div className="text-sm font-semibold text-slate-900 ">
                                     {selectedOrder ? `Order Details — ${selectedOrder.invoiceNumber}` : "Select an Order"}
@@ -649,7 +649,7 @@ const SingleSupplierPageContent: React.FC = () => {
                         <DialogTitle className="text-xl font-semibold flex items-center gap-2">
                             Process Payment
                         </DialogTitle>
-                        <p className="text-(--color-synapse-light)/80 text-xs mt-1 font-medium tracking-wide">
+                        <p className="text-synapse-light/80 text-xs mt-1 font-medium tracking-wide">
                             {selectedOrder?.invoiceNumber} — {supplier.name}
                         </p>
                     </div>
@@ -673,7 +673,7 @@ const SingleSupplierPageContent: React.FC = () => {
                                 <Input
                                     type="number"
                                     placeholder="0.00"
-                                    className="h-16 text-2xl font-bold bg-slate-50 border-2 border-slate-100 rounded-2xl pl-10 focus:ring-4 focus:ring-(--color-synapse-light)/10 focus:border-[var(--color-synapse-light)]/50 transition-all text-(--color-synapse-light) placeholder:text-slate-300"
+                                    className="h-16 text-2xl font-bold bg-slate-50 border-2 border-slate-100 rounded-2xl pl-10 focus:ring-4 focus:ring-synapse-light/10 focus:border-synapse-light/50 transition-all text-(--color-synapse-light) placeholder:text-slate-300"
                                     value={paymentAmount}
                                     onChange={(e) => setPaymentAmount(e.target.value)}
                                     autoFocus
