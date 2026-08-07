@@ -110,7 +110,7 @@ export default function PrescriptionCard({
   return (
 
     <div className="border rounded-xl bg-white shadow-sm max-h-[50vh] overflow-y-auto overflow-x-hidden">
-      <div className="flex flex-col min-w-[900px]">
+      <div className="flex flex-col min-w-225">
         <div
           className={`grid ${showAllFields ? "grid-cols-[35px_repeat(11,1fr)]" : "grid-cols-[35px_repeat(7,1fr)]"
             } gap-1 text-[11px] uppercase font-bold tracking-wider text-slate-500 py-2 border-b bg-slate-50/50 px-2 rounded-t-lg`}

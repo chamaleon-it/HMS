@@ -75,7 +75,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
 
 
         <div className="bg-white/90 border rounded-2xl shadow-md shadow-slate-200 overflow-hidden">
-          <Table className="print:hidden min-w-[1200px] text-sm" containerClassName="max-h-[calc(100vh-365px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
+          <Table className="print:hidden min-w-300 text-sm" containerClassName="max-h-[calc(100vh-365px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
             <TableHeader className="bg-(--color-synapse-dark) sticky top-0 z-20 shadow-sm">
               <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                 <TableHead className="py-2.5 text-left pl-4 w-16 text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Sl No</TableHead>
@@ -185,7 +185,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                           const roundOffAmount = b.roundOff ? getDecimal(itemsTotal) : 0;
                           const netTotal = itemsTotal - roundOffAmount;
                           const totalPaid = (b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0) + (b.discount ?? 0);
-                          
+
                           if (netTotal - totalPaid <= 0.01) {
                             return "Paid";
                           }

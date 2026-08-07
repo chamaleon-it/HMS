@@ -460,7 +460,7 @@ export default function PrescriptionCard({
               {filteredFavorites.map((fav) => (
                 <Card
                   key={fav.id}
-                  className="min-w-[280px] rounded-xl shadow-sm border"
+                  className="min-w-70 rounded-xl shadow-sm border"
                 >
                   <CardContent className="p-3">
                     <div
@@ -503,7 +503,7 @@ export default function PrescriptionCard({
               {/* Browse All Button */}
               <Card
                 onClick={() => setSidebarOpen(true)}
-                className="min-w-[160px] rounded-xl border-dashed border-2 flex items-center justify-center cursor-pointer hover:bg-gray-50"
+                className="min-w-40 rounded-xl border-dashed border-2 flex items-center justify-center cursor-pointer hover:bg-gray-50"
               >
                 <CardContent className="p-3 text-center">
                   <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray-600">
@@ -615,7 +615,7 @@ export default function PrescriptionCard({
                 className="absolute inset-0 bg-black/30"
                 onClick={() => setSaveModalOpen(false)}
               />
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-[420px] p-4">
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-105 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold">Save as Favorite</h3>
                   <Button
@@ -658,7 +658,7 @@ export default function PrescriptionCard({
                 className="absolute inset-0 bg-black/30"
                 onClick={() => setEditModalOpen(false)}
               />
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-[560px] p-4">
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-140 p-4">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold">Edit Template</h3>
                   <Button

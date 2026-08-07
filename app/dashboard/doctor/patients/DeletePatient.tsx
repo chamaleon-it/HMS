@@ -63,7 +63,7 @@ export default function DeletePatient({
         </button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-[420px]">
+      <DialogContent className="sm:max-w-105">
         <DialogHeader>
           <DialogTitle>Delete patient</DialogTitle>
           <DialogDescription>

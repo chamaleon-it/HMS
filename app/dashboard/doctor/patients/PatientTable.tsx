@@ -119,7 +119,7 @@ export default function PatientTable({
                 </Button>
               </DialogTrigger>
 
-              <DialogContent className="sm:max-w-[420px]">
+              <DialogContent className="sm:max-w-105">
                 <DialogHeader>
                   <DialogTitle>Delete patients</DialogTitle>
                   <DialogDescription>
@@ -541,7 +541,7 @@ export function FilterSelect<T extends string>({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-[150px]`}
+        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-37.5`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`${placeholder}: ${current ? current.label : "Any"}`}

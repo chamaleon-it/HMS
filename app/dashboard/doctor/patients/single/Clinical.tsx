@@ -33,10 +33,10 @@ export default function Clinical({ consult }: { consult: ConsultationType[] }) {
         <Table>
           <TableHeader>
             <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark)">
-              <TableHead className="text-white w-[50px]">
+              <TableHead className="text-white w-12.5">
                 <Checkbox className="border-white data-[state=checked]:bg-white data-[state=checked]:text-slate-700" />
               </TableHead>
-              <TableHead className="text-white w-[50px]">SL</TableHead>
+              <TableHead className="text-white w-12.5">SL</TableHead>
               <TableHead className="text-white">Consulted Date</TableHead>
               <TableHead className="text-white">Doctor</TableHead>
               <TableHead className="text-white">Medicine Dispensed</TableHead>
@@ -101,7 +101,7 @@ const Row = React.memo(function Row({
         </div>
       </TableCell>
 
-      <TableCell className="max-w-[300px]">
+      <TableCell className="max-w-75">
         <div className="flex flex-wrap gap-1">
           {row?.medicines?.map((m, i) => (
             <Badge
@@ -115,7 +115,7 @@ const Row = React.memo(function Row({
         </div>
       </TableCell>
 
-      <TableCell className="max-w-[300px]">
+      <TableCell className="max-w-75">
         <div className="flex flex-wrap gap-1">
           {row.consultationNotes.diagnosis}
         </div>

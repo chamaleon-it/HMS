@@ -298,7 +298,7 @@ export default function WeeklyCalender({
       </div>
 
       <div className="flex-1 overflow-auto relative">
-        <div className="min-w-[900px]">
+        <div className="min-w-225">
           {/* Header row */}
           <div className="grid grid-cols-[60px_repeat(7,1fr)] text-sm text-gray-500 sticky top-0 bg-white/95 backdrop-blur-sm z-20 border-b border-gray-200 shadow-xs">
             <div className="border-r border-gray-100 p-3 flex items-center justify-center text-xs font-semibold text-gray-400 uppercase tracking-wider">

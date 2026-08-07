@@ -88,7 +88,7 @@ export const DraggableWindow: React.FC<Props> = ({
       }}
       className={cn(
         "bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col pointer-events-auto",
-        isActive ? "ring-2 ring-(--color-synapse-light)/20 border-synapse-light/30" : "",
+        isActive ? "ring-2 ring-synapse-light/20 border-synapse-light/30" : "",
         minimized ? "h-12 w-64" : "w-[90vw] max-w-5xl",
         className
       )}
@@ -114,7 +114,7 @@ export const DraggableWindow: React.FC<Props> = ({
 
       {/* Content */}
       {!minimized && (
-        <div className="overflow-auto max-h-[85vh] min-h-[450px] p-4 bg-white">
+        <div className="overflow-auto max-h-[85vh] min-h-112.5 p-4 bg-white">
           {children}
         </div>
       )}

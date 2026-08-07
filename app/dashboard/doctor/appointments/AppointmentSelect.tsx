@@ -48,7 +48,7 @@ function Select<T extends string>({
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-[150px] w-full justify-between`}
+        className={`h-11 px-3 rounded-xl bg-white ring-1 ring-gray-200 hover:bg-gray-50 inline-flex items-center gap-2 min-w-37.5 w-full justify-between`}
         aria-haspopup="listbox"
         aria-expanded={open}
         aria-label={`${placeholder}: ${current ? current.label : "Any"}`}
@@ -94,11 +94,10 @@ function Select<T extends string>({
                       onChange(o.value);
                       setOpen(false);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${
-                      active
+                    className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center justify-between ${active
                         ? "bg-gray-100 text-gray-900"
                         : "hover:bg-gray-50 text-gray-700"
-                    }`}
+                      }`}
                   >
                     <span className="truncate">{o.label}</span>
                     {active && <span>✓</span>}

@@ -40,7 +40,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
     >
       <div className="flex flex-wrap items-end gap-6">
         {/* Search */}
-        <div className="space-y-2 flex-1 min-w-[280px]">
+        <div className="space-y-2 flex-1 min-w-70">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Search Invoice Range
           </label>
@@ -71,7 +71,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
         </div>
 
         {/* Method */}
-        <div className="space-y-2 min-w-[180px]">
+        <div className="space-y-2 min-w-45">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Payment Method
           </label>
@@ -102,7 +102,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
         </div>
 
         {/* Doctor Filter */}
-        <div className="space-y-2 min-w-[180px]">
+        <div className="space-y-2 min-w-45">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Doctor
           </label>
@@ -133,7 +133,7 @@ export default function Filters({ filter, setFilter }: PropsType) {
         </div>
 
         {/* Date Filter */}
-        <div className="space-y-2 min-w-[180px]">
+        <div className="space-y-2 min-w-45">
           <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
             Date Filter
           </label>

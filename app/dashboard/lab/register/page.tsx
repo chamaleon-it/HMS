@@ -112,7 +112,7 @@ export default function LabRegisterPage() {
             />
             <div className="bg-white p-3 rounded-xl shadow-sm border border-slate-200 flex flex-wrap items-end gap-6">
               {/* Search Invoice Range */}
-              <div className="space-y-2 flex-1 min-w-[280px]">
+              <div className="space-y-2 flex-1 min-w-70">
                 <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
                   Search Invoice Range
                 </label>
@@ -143,7 +143,7 @@ export default function LabRegisterPage() {
               </div>
 
               {/* Date Filter */}
-              <div className="space-y-2 min-w-[180px]">
+              <div className="space-y-2 min-w-45">
                 <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
                   Date Filter
                 </label>
@@ -175,7 +175,7 @@ export default function LabRegisterPage() {
             {isLoading ? (
               <TableSkeleton rows={10} columns={6} />
             ) : (
-              <Table className="min-w-[1000px] text-sm" containerClassName="max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
+              <Table className="min-w-250 text-sm" containerClassName="max-h-[calc(100vh-300px)] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
                 <TableHeader className="bg-(--color-synapse-dark) sticky top-0 z-20 shadow-sm">
                   <TableRow className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) border-b-0">
                     <TableHead className="py-3 text-left pl-4 text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Sl No</TableHead>

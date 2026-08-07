@@ -553,7 +553,7 @@ export default function Test({
                         mode="single"
                         selected={date}
                         onSelect={setDate}
-                        className="rounded-xl border shadow-sm w-full max-w-[450px]"
+                        className="rounded-xl border shadow-sm w-full max-w-112.5"
                       />
                     </div>
 
@@ -662,7 +662,7 @@ export default function Test({
                         <TestTubeDiagonal className="w-8 h-8 opacity-20" />
                       </div>
                       <p className="text-sm">No tests selected yet</p>
-                      <p className="text-xs text-zinc-300 max-w-[200px] text-center">
+                      <p className="text-xs text-zinc-300 max-w-50 text-center">
                         Select tests from the list to add them to the booking
                       </p>
                     </div>

@@ -169,7 +169,7 @@ export default function AddPaymentDialog({
                                             <tr key={idx} className="hover:bg-slate-50/60">
                                                 <td className="px-3 py-1.5">
                                                     <input
-                                                        className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-[var(--color-synapse-light)] focus:ring-1 focus:ring-indigo-100"
+                                                        className="w-full rounded-md border border-slate-200 px-2 py-1.5 text-xs outline-none focus:border-(--color-synapse-light) focus:ring-1 focus:ring-indigo-100"
                                                         value={item.name}
                                                         placeholder="Item name"
                                                         onChange={e => updateItemField(idx, "name", e.target.value)}
@@ -180,7 +180,7 @@ export default function AddPaymentDialog({
                                                         <input
                                                             type="number"
                                                             min={0}
-                                                            className="w-20 rounded-md border border-slate-200 px-2 py-1.5 text-xs text-right outline-none focus:border-[var(--color-synapse-light)] focus:ring-1 focus:ring-indigo-100"
+                                                            className="w-20 rounded-md border border-slate-200 px-2 py-1.5 text-xs text-right outline-none focus:border-(--color-synapse-light) focus:ring-1 focus:ring-indigo-100"
                                                             value={item[field] === 0 ? "" : item[field]}
                                                             placeholder="0"
                                                             onChange={e => updateItemField(idx, field, e.target.value)}
@@ -249,7 +249,7 @@ export default function AddPaymentDialog({
                             {/* Discount row */}
                             <div className="mt-3 flex items-center gap-3">
                                 <span className="text-xs font-semibold text-slate-500 shrink-0">Bill Discount</span>
-                                <div className="flex items-center gap-1.5 max-w-[180px]">
+                                <div className="flex items-center gap-1.5 max-w-45">
                                     <IndianRupee className="h-3.5 w-3.5 text-slate-400 shrink-0" />
                                     <input
                                         type="number"
@@ -257,7 +257,7 @@ export default function AddPaymentDialog({
                                         placeholder="0"
                                         value={payment.discount === 0 ? "" : payment.discount}
                                         onChange={e => setPayment(p => ({ ...p, discount: Number(e.target.value) }))}
-                                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:border-[var(--color-synapse-light)] text-right"
+                                        className="h-9 w-full rounded-lg border border-slate-200 bg-white px-2 text-sm outline-none focus:border-(--color-synapse-light) text-right"
                                     />
                                 </div>
                             </div>

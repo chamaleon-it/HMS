@@ -88,7 +88,7 @@ export const DraggableWindow: React.FC<Props> = ({
       }}
       className={cn(
         "bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col pointer-events-auto",
-        isActive ? "ring-2 ring-(--color-synapse-light)/20 border-synapse-light/30" : "",
+        isActive ? "ring-2 ring-synapse-light/20 border-synapse-light/30" : "",
         minimized ? "h-12 w-64" : "w-[90vw] max-w-5xl",
         className
       )}
