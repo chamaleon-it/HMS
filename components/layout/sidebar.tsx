@@ -311,6 +311,11 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
             label: "Finance",
             link: "/dashboard/admin/finance/",
           },
+          {
+            key: "accounts-analytics",
+            label: "Accounts Analytics",
+            link: "/dashboard/admin/accounts/",
+          },
         ],
       },
       {

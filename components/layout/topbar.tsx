@@ -80,6 +80,7 @@ export default function Header() {
         ]
       },
       { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },
+      { key: "accounts", label: "Accounts", link: "/dashboard/admin/accounts/" },
 
     ]) || [];
 
