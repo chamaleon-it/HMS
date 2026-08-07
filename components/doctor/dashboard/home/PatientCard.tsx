@@ -152,14 +152,7 @@ export function PatientCard({
         <div className="flex items-center gap-3 flex-wrap justify-end">
           {
             <>
-              {/* <ActionButton onClick={() => setRing(true)}>
-                <>
-                  <Megaphone className="h-4 w-4 mr-2" />
-                  Call In
-                </>
-              </ActionButton> */}
               <ActionButton
-                // ring={ring}
                 variant="outline"
                 onClick={() => {
                   const targetRoute = user?.name.toLowerCase().includes("ali") || user?.username?.toLowerCase().includes("ali")
