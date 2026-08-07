@@ -2,6 +2,7 @@
 
 import React from "react";
 import { formatINR } from "@/lib/fNumber";
+import { motion } from "framer-motion";
 import {
   TrendingUp,
   TrendingDown,
@@ -9,6 +10,8 @@ import {
   Percent,
   Receipt,
   BadgeIndianRupee,
+  ArrowUpRight,
+  ArrowDownLeft,
 } from "lucide-react";
 
 interface AnalyticsSummary {
@@ -41,76 +44,82 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
       value: formatINR(totalIncome),
       subtext: `${summary?.incomeCount || 0} income entries`,
       icon: TrendingUp,
-      bg: "bg-emerald-50/50",
-      border: "border-emerald-100",
-      iconColor: "text-emerald-600/80",
-      textColor: "text-emerald-800/80",
-      headingColor: "text-emerald-950",
+      badgeIcon: ArrowDownLeft,
+      badgeText: "Revenue",
+      badgeColor: "bg-emerald-500/10 text-emerald-700 border-emerald-200/80",
+      gradient: "from-emerald-50/90 via-white to-emerald-50/30 border-emerald-200/70",
+      iconBg: "bg-emerald-500/15 text-emerald-600 ring-1 ring-emerald-500/20",
+      headingColor: "text-slate-900",
     },
     {
       label: "Total Expenses",
       value: formatINR(totalExpense),
       subtext: `${summary?.expenseCount || 0} expense entries`,
       icon: TrendingDown,
-      bg: "bg-rose-50/50",
-      border: "border-rose-100",
-      iconColor: "text-rose-600/80",
-      textColor: "text-rose-800/80",
-      headingColor: "text-rose-950",
+      badgeIcon: ArrowUpRight,
+      badgeText: "Outflow",
+      badgeColor: "bg-rose-500/10 text-rose-700 border-rose-200/80",
+      gradient: "from-rose-50/90 via-white to-rose-50/30 border-rose-200/70",
+      iconBg: "bg-rose-500/15 text-rose-600 ring-1 ring-rose-500/20",
+      headingColor: "text-slate-900",
     },
     {
       label: "Net Balance",
       value: formatINR(netBalance),
-      subtext: netBalance >= 0 ? "Net Surplus" : "Net Deficit",
+      subtext: netBalance >= 0 ? "Net Profit Surplus" : "Net Deficit",
       icon: Wallet,
-      bg: "bg-blue-50/50",
-      border: "border-blue-100",
-      iconColor: "text-blue-600/80",
-      textColor: "text-blue-800/80",
-      headingColor: netBalance >= 0 ? "text-blue-950" : "text-rose-600",
+      badgeIcon: netBalance >= 0 ? ArrowDownLeft : ArrowUpRight,
+      badgeText: netBalance >= 0 ? "Positive" : "Negative",
+      badgeColor: netBalance >= 0 ? "bg-blue-500/10 text-blue-700 border-blue-200/80" : "bg-rose-500/10 text-rose-700 border-rose-200/80",
+      gradient: "from-blue-50/90 via-white to-indigo-50/30 border-blue-200/70",
+      iconBg: "bg-blue-500/15 text-blue-600 ring-1 ring-blue-500/20",
+      headingColor: netBalance >= 0 ? "text-slate-900" : "text-rose-600",
     },
     {
       label: "Profit Margin",
       value: `${profitMargin}%`,
-      subtext: "On total revenue",
+      subtext: "Efficiency ratio",
       icon: Percent,
-      bg: "bg-indigo-50/50",
-      border: "border-indigo-100",
-      iconColor: "text-indigo-600/80",
-      textColor: "text-indigo-800/80",
-      headingColor: profitMargin >= 0 ? "text-indigo-950" : "text-rose-600",
+      badgeIcon: TrendingUp,
+      badgeText: "Margin",
+      badgeColor: "bg-purple-500/10 text-purple-700 border-purple-200/80",
+      gradient: "from-purple-50/90 via-white to-indigo-50/30 border-purple-200/70",
+      iconBg: "bg-purple-500/15 text-purple-600 ring-1 ring-purple-500/20",
+      headingColor: profitMargin >= 0 ? "text-slate-900" : "text-rose-600",
     },
     {
       label: "Avg Transaction",
       value: formatINR(avgTransactionValue),
       subtext: "Average per entry",
       icon: BadgeIndianRupee,
-      bg: "bg-teal-50/50",
-      border: "border-teal-100",
-      iconColor: "text-teal-600/80",
-      textColor: "text-teal-800/80",
-      headingColor: "text-teal-950",
+      badgeIcon: Receipt,
+      badgeText: "Average",
+      badgeColor: "bg-teal-500/10 text-teal-700 border-teal-200/80",
+      gradient: "from-teal-50/90 via-white to-cyan-50/30 border-teal-200/70",
+      iconBg: "bg-teal-500/15 text-teal-600 ring-1 ring-teal-500/20",
+      headingColor: "text-slate-900",
     },
     {
       label: "Total Records",
       value: totalTransactions,
       subtext: "Filtered entries",
       icon: Receipt,
-      bg: "bg-slate-50/70",
-      border: "border-slate-200/80",
-      iconColor: "text-slate-600/80",
-      textColor: "text-slate-700/80",
+      badgeIcon: Receipt,
+      badgeText: "Audit",
+      badgeColor: "bg-slate-500/10 text-slate-700 border-slate-200",
+      gradient: "from-slate-50/90 via-white to-slate-100/40 border-slate-200/80",
+      iconBg: "bg-slate-500/15 text-slate-700 ring-1 ring-slate-400/20",
       headingColor: "text-slate-900",
     },
   ];
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
         {Array.from({ length: 6 }).map((_, i) => (
           <div
             key={i}
-            className="h-28 bg-slate-100/80 rounded-2xl animate-pulse border border-slate-200/60"
+            className="h-32 bg-slate-100/70 rounded-3xl animate-pulse border border-slate-200/60"
           />
         ))}
       </div>
@@ -118,33 +127,54 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
       {stats.map((stat, index) => {
         const IconComponent = stat.icon;
+        const BadgeIcon = stat.badgeIcon;
         return (
-          <div
+          <motion.div
             key={index}
-            className={`${stat.bg} p-4 rounded-2xl border ${stat.border} shadow-xs transition-all hover:scale-[1.02] cursor-default`}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+            className={`bg-gradient-to-br ${stat.gradient} p-4 sm:p-5 rounded-3xl border shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden`}
           >
-            <div className="flex flex-col gap-1.5">
-              <div className="flex items-center gap-2">
-                <IconComponent className={`w-4 h-4 ${stat.iconColor}`} />
-                <p
-                  className={`text-[10px] font-semibold ${stat.textColor} uppercase tracking-widest truncate`}
-                >
+            {/* Soft Ambient Corner Glow */}
+            <div className="absolute -right-6 -bottom-6 w-20 h-20 rounded-full bg-white/40 blur-xl pointer-events-none group-hover:scale-150 transition-transform duration-500" />
+
+            <div className="flex flex-col justify-between h-full space-y-3 relative z-10">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-500">
                   {stat.label}
-                </p>
+                </span>
+                <div
+                  className={`w-9 h-9 rounded-2xl ${stat.iconBg} flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}
+                >
+                  <IconComponent className="w-4.5 h-4.5" />
+                </div>
               </div>
-              <h3
-                className={`text-xl font-bold ${stat.headingColor} leading-tight truncate`}
-              >
-                {stat.value}
-              </h3>
-              <p className="text-[11px] text-slate-500 font-medium">
-                {stat.subtext}
-              </p>
+
+              <div>
+                <h3
+                  className={`text-2xl font-black ${stat.headingColor} tracking-tight leading-none`}
+                >
+                  {stat.value}
+                </h3>
+              </div>
+
+              <div className="flex items-center justify-between pt-1 border-t border-slate-200/40 text-[11px]">
+                <span className="text-slate-500 font-medium truncate">
+                  {stat.subtext}
+                </span>
+                <span
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold border flex items-center gap-0.5 shrink-0 ${stat.badgeColor}`}
+                >
+                  <BadgeIcon className="w-2.5 h-2.5" />
+                  {stat.badgeText}
+                </span>
+              </div>
             </div>
-          </div>
+          </motion.div>
         );
       })}
     </div>

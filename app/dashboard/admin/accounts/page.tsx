@@ -14,6 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { motion } from "framer-motion";
 import {
   FilterX,
   RefreshCw,
@@ -238,10 +239,15 @@ export default function AdminAccountsAnalyticsPage() {
         />
 
         {/* Dynamic Date & Filter Control Bar */}
-        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs space-y-4">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="bg-white p-5 rounded-3xl border border-slate-200/80 shadow-sm space-y-4"
+        >
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-2">
-              <CalendarDays className="w-4 h-4 text-slate-500" /> Date & Filter Controls
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
+              <CalendarDays className="w-4 h-4 text-(--color-synapse-light)" /> Date & Filter Controls
             </span>
             {(datePreset !== "ALL" ||
               selectedType !== "ALL" ||
@@ -251,7 +257,7 @@ export default function AdminAccountsAnalyticsPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-7 rounded-lg font-medium"
+                className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-7 rounded-lg font-semibold"
                 onClick={handleResetFilters}
               >
                 <FilterX className="w-3.5 h-3.5 mr-1" /> Clear All Filters
@@ -261,7 +267,7 @@ export default function AdminAccountsAnalyticsPage() {
 
           {/* Date Range Presets */}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500 mr-1">
+            <span className="text-xs font-bold text-slate-500 mr-1">
               Date Preset:
             </span>
             {(
@@ -282,9 +288,9 @@ export default function AdminAccountsAnalyticsPage() {
                   setDatePreset(preset.id);
                   setPage(1);
                 }}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-xl border transition-all ${
+                className={`px-3.5 py-1.5 text-xs font-bold rounded-xl border transition-all duration-200 ${
                   datePreset === preset.id
-                    ? "bg-(--color-synapse-light) text-white border-(--color-synapse-light) shadow-xs"
+                    ? "bg-(--color-synapse-light) text-white border-(--color-synapse-light) shadow-sm scale-105"
                     : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100 hover:text-slate-900"
                 }`}
               >
@@ -401,7 +407,7 @@ export default function AdminAccountsAnalyticsPage() {
               </Select>
             </div>
           </div>
-        </div>
+        </motion.div>
 
         {/* 1. Summary Cards */}
         <SummaryCards
