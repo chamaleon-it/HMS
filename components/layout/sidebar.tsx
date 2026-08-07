@@ -158,6 +158,12 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         icon: CreditCard,
         link: "/dashboard/pharmacy/billing/",
       },
+      {
+        key: "accounts",
+        label: "Accounts",
+        icon: Banknote,
+        link: "/dashboard/pharmacy/accounts/",
+      },
     ]) ||
     (user?.role === "Pharmacy Wholesaler" && [
       {
