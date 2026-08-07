@@ -1,7 +1,8 @@
 import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer, RotateCcw } from "lucide-react";
+import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer, RotateCcw, FileText } from "lucide-react";
 import React, { useState } from "react";
 import BlankPrescription from "@/components/shared/appointment/BlankPrescription";
+import PatientRegistrationBillPrint from "./PatientRegistrationBillPrint";
 import useSWR, { useSWRConfig } from "swr";
 import useAppointmentList from "./data/useAppointmentList";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
@@ -39,15 +40,17 @@ export default function List({
   query,
   activeStatuses,
   date,
-  activeDate
+  activeDate,
+  doctor
 }: {
   query: string;
   activeStatuses: string[];
   date: Date;
   activeDate: "Today" | "7 days" | "30 days" | "Custom";
+  doctor?: string;
 }) {
   const router = useRouter();
-  const { data, mutate } = useAppointmentList({ activeStatuses, date, activeDate });
+  const { data, mutate } = useAppointmentList({ activeStatuses, date, activeDate, doctor });
   const { mutate: globalMutate } = useSWRConfig();
 
   const refreshAllAppointments = async () => {
@@ -84,9 +87,25 @@ export default function List({
 
   const [edit, setEdit] = useState<null | any>(null);
   const [printData, setPrintData] = useState<any>(null);
+  const [registrationBillData, setRegistrationBillData] = useState<any>(null);
   const [refundId, setRefundId] = useState<string | null>(null);
   const [refundLoading, setRefundLoading] = useState(false);
   const [refundReason, setRefundReason] = useState("");
+
+  const handlePrintRegistrationBill = (row: any) => {
+    setRegistrationBillData({
+      patient: row.patient,
+      doctor: row.doctor,
+      date: row.date,
+      token: row.token,
+      tokenNumber: row.tokenNumber,
+      fee: row.doctor?.consultationFee || 200,
+    });
+    setTimeout(() => {
+      window.print();
+      setRegistrationBillData(null);
+    }, 400);
+  };
 
   const handleRefund = async () => {
     if (!refundId) return;
@@ -198,7 +217,6 @@ export default function List({
         success: "Deleted",
         error: "Failed",
       });
-
       globalMutate(
         (key) => typeof key === 'string' && key.startsWith('/appointments/list'),
         undefined,
@@ -235,7 +253,8 @@ export default function List({
       <Table>
         <TableHeader className="bg-gray-50/50">
           <TableRow className="hover:bg-gray-50/50 border-gray-100">
-            <TableHead className="py-3 pl-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-25">Time</TableHead>
+            <TableHead className="py-3 pl-4 text-xs font-semibold text-gray-500 uppercase tracking-wider w-28">Token</TableHead>
+            <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider w-25">Time</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Patient</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Doctor</TableHead>
             <TableHead className="py-3 text-xs font-semibold text-gray-500 uppercase tracking-wider">Type/Method</TableHead>
@@ -247,7 +266,7 @@ export default function List({
         <TableBody>
           {filteredData.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={7} className="h-64 text-center">
+              <TableCell colSpan={8} className="h-64 text-center">
                 <div className="flex flex-col items-center justify-center gap-3">
                   <div className="h-16 w-16 rounded-full bg-gray-50 flex items-center justify-center ring-1 ring-gray-100">
                     <Search className="h-8 w-8 text-gray-300" />
@@ -267,7 +286,12 @@ export default function List({
                   key={row._id}
                   className="group hover:bg-gray-50/50 transition-colors border-gray-100"
                 >
-                  <TableCell className="py-2.5 pl-4 font-medium text-gray-700 whitespace-nowrap">
+                  <TableCell className="py-2.5 pl-4 font-bold whitespace-nowrap">
+                    <span className="inline-flex items-center justify-center px-2.5 py-1 rounded-lg text-xs font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-2xs tracking-wide">
+                      {row.token || `DOC-${String(idx + 1).padStart(2, '0')}`}
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-2.5 font-medium text-gray-700 whitespace-nowrap">
                     <div className="flex items-center gap-2">
                       <Clock className="w-3.5 h-3.5 text-gray-400" />
                       {fDateandTime(row.date)}
@@ -332,7 +356,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} isRefunded={row.isRefunded} onRefund={() => setRefundId(row._id)} hasConsultationFee={row.hasConsultationFee} />
+                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} onPrintBill={() => handlePrintRegistrationBill(row)} isRefunded={row.isRefunded} onRefund={() => setRefundId(row._id)} hasConsultationFee={row.hasConsultationFee} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -352,6 +376,7 @@ export default function List({
       )}
 
       {printData && <BlankPrescription data={printData} />}
+      {registrationBillData && <PatientRegistrationBillPrint data={registrationBillData} />}
 
       <AlertDialog open={Boolean(refundId)} onOpenChange={(v) => { if (!v) { setRefundId(null); setRefundReason(""); } }}>
         <AlertDialogContent className="max-w-md! print:hidden">
@@ -402,7 +427,7 @@ export default function List({
   );
 }
 
-function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint, isRefunded, onRefund, hasConsultationFee }: any) {
+function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint, onPrintBill, isRefunded, onRefund, hasConsultationFee }: any) {
   return (
     <>
       {status !== "Consulted" && <button
@@ -412,6 +437,13 @@ function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover
       >
         <CheckCircle2 size={16} />
       </button>}
+      <button
+        onClick={onPrintBill}
+        className="p-1.5 rounded-md hover:bg-emerald-50 text-emerald-700 border border-transparent hover:border-emerald-200 transition-all"
+        title="Print Patient Registration Bill"
+      >
+        <FileText size={16} />
+      </button>
       {!isRefunded && hasConsultationFee !== false && (
         <button
           onClick={onRefund}

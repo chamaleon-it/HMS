@@ -54,7 +54,7 @@ interface PropsType {
 import AddPaymentDialog from "./AddPaymentDialog";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import ThermalPrintReceipt from "./ThermalPrintReceipt";
+import PrintReceipt from "@/app/dashboard/pharmacy/billing/PrintReceipt";
 import { PaginationBar } from "@/app/dashboard/pharmacy/components/PaginationBar";
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
@@ -300,7 +300,33 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
         billingMutate={billingMutate}
       />
 
-      {printBill && <ThermalPrintReceipt bill={printBill} />}
+      {printBill && (
+        <PrintReceipt
+          payload={{
+            patient: printBill.patient.name,
+            items: printBill.items.map((i) => ({ ...i, name: i.name })),
+            cash: printBill.cash,
+            card: printBill.card,
+            upi: printBill.upi,
+            discount: printBill.discount,
+            doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor),
+            department: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.specialization : (printBill as any).department,
+          }}
+          patient={{
+            name: printBill.patient.name,
+            mrn: printBill.patient.mrn,
+          }}
+          invoiceDetails={{
+            prefix: "INV",
+            roundOffAmount: printBill.roundOff ? getDecimal(printBill.items.reduce((s, i) => s + i.total, 0)) : 0,
+            subtotal: printBill.items.reduce((s, i) => s + i.total, 0),
+            totalGst: 0,
+            grandTotal: printBill.items.reduce((s, i) => s + i.total, 0) - (printBill.discount || 0),
+            invoiceNo: printBill.mrn,
+          }}
+          invoiceNo={printBill.mrn}
+        />
+      )}
     </>
   );
 }

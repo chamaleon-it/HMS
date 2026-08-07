@@ -15,7 +15,7 @@ import React from "react";
 import { getDecimal } from "@/lib/fNumber";
 import ThermalPrintReceipt from "./ThermalPrintReceipt";
 import configuration from "@/config/configuration";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 
 export default function ViewBill({ id }: { id: string }) {
 
@@ -194,12 +194,12 @@ export default function ViewBill({ id }: { id: string }) {
                                     <div className="border border-slate-200 rounded-lg px-6 py-4 grid grid-cols-4 gap-x-8 gap-y-2 bg-slate-50/50">
                                         <Compact label="Patient" value={billing.patient.name} />
                                         <Compact label="OP NO" value={billing.patient.mrn?.replace("MRN", "P-") || "—"} />
+                                        <Compact label="Token" value={(billing as any).token || "—"} />
+                                        <Compact label="Valid" value={billing.createdAt ? format(addDays(new Date(billing.createdAt), 10), "dd/MM/yyyy") : "—"} />
                                         <Compact label="Age/G" value={`${billing.patient.dateOfBirth ? `${new Date().getFullYear() - new Date(billing.patient.dateOfBirth).getFullYear()}` : "—"} / ${billing.patient.gender || "—"}`} />
                                         <Compact label="Phone" value={billing.patient.phoneNumber || "—"} />
                                         <Compact label="Doctor" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.name : (billing.doctor === "Self" ? "" : billing.doctor || "—")} />
-                                        <Compact label="Dept" value={typeof billing.doctor === "object" ? (billing.doctor as any)?.specialization : (billing.department || "—")} />
                                         <Compact label="Pay" value={paymentMethod} />
-                                        <Compact label="Bill" value={billCategory} />
                                     </div>
 
                                     {/* MEDICINES TABLE */}
@@ -304,7 +304,6 @@ export default function ViewBill({ id }: { id: string }) {
                     </div>
                 </div>
             </div>
-            {billing && <ThermalPrintReceipt bill={billing} />}
             <Watermark />
         </AppShell>
     );

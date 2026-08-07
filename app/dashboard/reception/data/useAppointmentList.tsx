@@ -16,12 +16,14 @@ export default function useAppointmentList({
   query,
   activeStatuses,
   date,
-  activeDate = "Today"
+  activeDate = "Today",
+  doctor
 }: {
   query?: string;
   activeStatuses?: string[];
   date: Date;
   activeDate: "Today" | "7 days" | "30 days" | "Custom";
+  doctor?: string;
 }) {
   const { user } = useAuth()
   const params = new URLSearchParams();
@@ -30,6 +32,7 @@ export default function useAppointmentList({
   if (activeStatuses) params.append("status", JSON.stringify(activeStatuses));
   if (date) params.append("date", formatLocalDate(date));
   if (activeDate) params.append("activeDate", activeDate);
+  if (doctor) params.append("doctor", doctor);
 
   const { data, isLoading, mutate, error } = useSWR<{
     message: string;
@@ -72,6 +75,8 @@ export default function useAppointmentList({
       isDeleted: boolean;
       isRefunded?: boolean;
       hasConsultationFee?: boolean;
+      token?: string;
+      tokenNumber?: number;
       createdAt: Date;
       visitCount: number;
     }[];
