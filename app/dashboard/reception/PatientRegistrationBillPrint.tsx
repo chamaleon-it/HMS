@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { numberToWords } from "@/lib/fNumber";
 import configuration from "@/config/configuration";
 import { format, addDays } from "date-fns";
@@ -24,23 +25,30 @@ interface Props {
 }
 
 export default function PatientRegistrationBillPrint({ data }: Props) {
-  if (!data) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  if (!mounted || !data) return null;
 
   const docObj = typeof data.doctor === "object" ? data.doctor : null;
   const rawDocName = docObj?.name || (typeof data.doctor === "string" ? data.doctor : "DR. UMER MUKHTHAR");
   const docName = rawDocName.toLowerCase().startsWith("dr") ? rawDocName.toUpperCase() : `DR. ${rawDocName.toUpperCase()}`;
   const docQual = docObj?.qualification || docObj?.specialization || "MBBS, MD";
 
-  const patientName = (data.patient?.name || "MUHAMMED AYAN").toUpperCase();
+  const patientName = (data.patient?.name || "PATIENT").toUpperCase();
   const patientAddress = (data.patient?.address || "KERALA, INDIA").toUpperCase();
-  const patientPhone = data.patient?.phoneNumber || "+919562745975";
+  const patientPhone = data.patient?.phoneNumber || "";
 
-  let ageStr = "5";
+  let ageStr = "—";
   if (data.patient?.dateOfBirth) {
     const diff = new Date().getFullYear() - new Date(data.patient.dateOfBirth).getFullYear();
-    if (diff > 0) ageStr = `${diff}`;
+    if (diff >= 0) ageStr = `${diff}`;
   }
-  const genderStr = data.patient?.gender ? data.patient.gender.charAt(0).toUpperCase() : "M";
+  const genderStr = data.patient?.gender ? data.patient.gender.charAt(0).toUpperCase() : "—";
   const ageSex = `${ageStr} ${genderStr}`;
 
   const createdDate = data.date ? new Date(data.date) : new Date();
@@ -50,10 +58,10 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
   const opNo = data.patient?.mrn || "11114";
   const tokenNo = data.token || (data.tokenNumber ? String(data.tokenNumber) : "22");
 
-  const feeAmount = data.fee ?? 100;
-  const words = numberToWords(feeAmount);
+  const feeAmount = typeof data.fee === "number" ? data.fee : 0;
+  const words = feeAmount === 0 ? "ZERO ONLY" : numberToWords(feeAmount);
 
-  return (
+  return createPortal(
     <div className="registration-bill-print hidden print:block bg-white text-black font-sans leading-snug select-none">
       <style
         dangerouslySetInnerHTML={{
@@ -164,7 +172,7 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
           <div className="w-px bg-slate-300 shrink-0" />
           <div className="p-1.5 font-bold text-black uppercase leading-tight flex-1">
             <div>{ageSex}</div>
-            <div className="font-semibold text-[9.5px] text-gray-600">{patientPhone}</div>
+            {patientPhone && <div className="font-semibold text-[9.5px] text-gray-600">{patientPhone}</div>}
           </div>
         </div>
       </div>
@@ -199,6 +207,7 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
           (Sign)
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

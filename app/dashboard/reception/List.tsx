@@ -93,17 +93,18 @@ export default function List({
   const [refundReason, setRefundReason] = useState("");
 
   const handlePrintRegistrationBill = (row: any) => {
+    const fee = row.hasConsultationFee === false ? 0 : (typeof row.doctor?.consultationFee === "number" ? row.doctor.consultationFee : 200);
     setRegistrationBillData({
       patient: row.patient,
       doctor: row.doctor,
       date: row.date,
       token: row.token,
       tokenNumber: row.tokenNumber,
-      fee: row.doctor?.consultationFee || 200,
+      fee,
     });
     setTimeout(() => {
       window.print();
-      setRegistrationBillData(null);
+      setTimeout(() => setRegistrationBillData(null), 1000);
     }, 400);
   };
 
@@ -145,7 +146,7 @@ export default function List({
   // Combine real data with mock data if real data is empty for demo purposes
   const rawData = data?.data && data.data.length > 0 ? data.data : [];
 
-  const filteredData = rawData.filter((a: any) => {
+  const filteredData = (rawData.filter((a: any) => {
     if (!query) return true;
 
     const q = query.toLowerCase();
@@ -153,7 +154,7 @@ export default function List({
     const mrn = a?.patient?.mrn?.toLowerCase() || "";
 
     return name.includes(q) || mrn.includes(q);
-  }) || [];
+  }) || []).sort((a: any, b: any) => (a.tokenNumber || 0) - (b.tokenNumber || 0));
 
   const handleStatusUpdate = async (id: string, status: string) => {
     // 1. Optimistic UI update: instantly update status in local SWR cache
