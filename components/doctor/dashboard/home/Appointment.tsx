@@ -58,6 +58,8 @@ export default function Appointment({
     }
   };
 
+  const displayToken = a.token || (a.tokenNumber ? String(a.tokenNumber) : "");
+
   return (
     <motion.div
       id={`card-${a._id}`}
@@ -84,11 +86,12 @@ export default function Appointment({
           <div className="flex items-center justify-between gap-3">
             <div
               className={cn(
-                "truncate font-medium text-gray-900",
+                "truncate font-medium text-gray-900 flex items-center gap-2 flex-wrap",
                 a.status === "consulted" && "line-through"
               )}
             >
-              {a.patient.name} <span>{a.patient.mrn}</span>
+              <span>{a.patient.name}</span>
+              <span className="text-xs text-gray-500">({a.patient.mrn})</span>
             </div>
             <div className="flex items-center gap-2">
               <div className="shrink-0 text-sm text-gray-500">
@@ -130,21 +133,11 @@ export default function Appointment({
             </div>
           </div>
 
-          <div className="mt-1 flex items-center gap-2">
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium"
-              )}
-            >
-              {a.status}
-            </span>
-
-            {a.status === "Consulted" && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700">
-                <CheckCircle2 className="h-4 w-4" /> Consulted
-              </span>
-            )}
-          </div>
+          {displayToken && (
+            <div className="mt-1 text-xs font-bold text-emerald-700 tracking-wide">
+              Token: <span className="font-extrabold text-emerald-900">{displayToken}</span>
+            </div>
+          )}
         </div>
       </div>
 

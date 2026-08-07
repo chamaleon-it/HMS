@@ -35,7 +35,7 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
   if (!mounted || !data) return null;
 
   const docObj = typeof data.doctor === "object" ? data.doctor : null;
-  const rawDocName = docObj?.name || (typeof data.doctor === "string" ? data.doctor : "DR. UMER MUKHTHAR");
+  const rawDocName = String(docObj?.name || (typeof data.doctor === "string" ? data.doctor : "") || "DR. UMER MUKHTHAR");
   const docName = rawDocName.toLowerCase().startsWith("dr") ? rawDocName.toUpperCase() : `DR. ${rawDocName.toUpperCase()}`;
   const docQual = docObj?.qualification || docObj?.specialization || "MBBS, MD";
 
@@ -55,8 +55,11 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
   const formattedDate = format(createdDate, "dd/MM/yyyy");
   const validUptoDate = format(addDays(createdDate, 10), "dd/MM/yyyy");
 
-  const opNo = data.patient?.mrn || "11114";
-  const tokenNo = data.token || (data.tokenNumber ? String(data.tokenNumber) : "22");
+  const rawOpNo = data.patient?.mrn || "";
+  const opNo = rawOpNo ? rawOpNo.replace(/^MRN/i, "P-") : "—";
+
+  const rawToken = data.token || (data.tokenNumber ? String(data.tokenNumber) : "");
+  const displayToken = (rawToken && rawToken.includes("-")) ? rawToken.split("-")[1] : (rawToken || "—");
 
   const feeAmount = typeof data.fee === "number" ? data.fee : 0;
   const words = feeAmount === 0 ? "ZERO ONLY" : numberToWords(feeAmount);
@@ -133,7 +136,7 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
           <span className="font-bold">{formattedDate}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span><span className="font-bold">Token No :</span> <span className="font-black text-[13px]">{tokenNo}</span></span>
+          <span><span className="font-bold">Token No :</span> <span className="font-black text-[13px]">{displayToken}</span></span>
           <span><span className="font-bold">Valid Upto :</span><span className="font-bold">{validUptoDate}</span></span>
         </div>
       </div>

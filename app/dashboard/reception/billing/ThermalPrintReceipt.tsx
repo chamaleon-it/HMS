@@ -37,7 +37,8 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
   const validUptoDate = format(addDays(createdDate, 10), "dd/MM/yyyy");
 
   const opNo = bill.patient?.mrn || bill.mrn || "14369";
-  const tokenNo = bill.token || (bill.tokenNumber ? `${docName.replace(/^DR\.\s*/i, '').split(' ')[0]}-${String(bill.tokenNumber).padStart(2, '0')}` : "22");
+  const rawToken = bill.token || (bill.tokenNumber ? `${docName.replace(/^DR\.\s*/i, '').split(' ')[0]}-${String(bill.tokenNumber).padStart(2, '0')}` : "");
+  const displayToken = (rawToken && rawToken.includes("-")) ? rawToken.split("-")[1] : (rawToken || "—");
 
   const items = bill.items && bill.items.length > 0 ? bill.items : [{ name: "Consultation Charges", total: 200, unitPrice: 200, quantity: 1 }];
   const grandTotal = items.reduce((sum: number, item: any) => sum + (item.total ?? (item.unitPrice * (item.quantity || 1))), 0) - (bill.discount || 0);
@@ -116,7 +117,7 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
           <span className="font-semibold">{formattedDate}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span>Token No : <span className="font-black text-[13px]">{tokenNo}</span></span>
+          <span>Token No : <span className="font-black text-[13px]">{displayToken}</span></span>
           <span className="font-semibold">Valid Upto :{validUptoDate}</span>
         </div>
       </div>

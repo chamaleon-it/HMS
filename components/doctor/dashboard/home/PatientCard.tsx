@@ -113,6 +113,8 @@ export function PatientCard({
   const { user } = useAuth()
   const router = useRouter();
 
+  const displayToken = a.token || (a.tokenNumber ? String(a.tokenNumber) : "");
+
   return (
     <div className="w-full rounded-2xl border border-gray-200 bg-white shadow-sm p-4 md:p-5">
       {new Date(a.date) > new Date() ? (
@@ -139,7 +141,11 @@ export function PatientCard({
               </h4>
               <VisitBadge count={a.visitCount} />
             </div>
-            <div className="text-sm text-gray-500">{a.status}</div>
+            {displayToken && (
+              <div className="text-xs font-bold text-emerald-700 tracking-wide mt-0.5">
+                Token: <span className="font-extrabold text-emerald-900">{displayToken.split("-")[1]}</span>
+              </div>
+            )}
           </div>
         </div>
 

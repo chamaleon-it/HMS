@@ -5,6 +5,8 @@ export interface AppointmentData {
 
 export interface AppointmentType {
   _id: string;
+  token?: string;
+  tokenNumber?: number;
   patient: Patient;
   doctor: Doctor;
   createdBy: string;
