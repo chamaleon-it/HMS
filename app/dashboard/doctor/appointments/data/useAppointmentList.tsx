@@ -76,6 +76,9 @@ export default function useAppointmentList({
       // | "Completed"
       | "Not show";
       isPaid: boolean;
+      token?: string;
+      tokenNumber?: number;
+      isArrived?: boolean;
       createdAt: Date;
       visitCount: number;
     }[];

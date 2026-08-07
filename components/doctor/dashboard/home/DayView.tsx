@@ -49,7 +49,7 @@ export default function DailyViewTimeline({
 
   const { data: appointmentData, mutate } = useAppointmentList({ date: day, activeDate: "Custom" });
   const appointment = useMemo(
-    () => appointmentData?.data ?? [],
+    () => (appointmentData?.data ?? []).filter((e) => e.isArrived === true),
     [appointmentData]
   );
 

@@ -196,7 +196,11 @@ export function CreateAppointmentForm({
 
         return;
       }
-      const res = await toast.promise(api.post("/appointments", data), {
+      const payload = {
+        ...data,
+        ...(walkIn ? { isArrived: true, isWalkIn: true } : {}),
+      };
+      const res = await toast.promise(api.post("/appointments", payload), {
         loading: "Please wait, We are creating an appointment",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,

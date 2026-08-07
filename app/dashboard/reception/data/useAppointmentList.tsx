@@ -77,6 +77,7 @@ export default function useAppointmentList({
       hasConsultationFee?: boolean;
       token?: string;
       tokenNumber?: number;
+      isArrived?: boolean;
       createdAt: Date;
       visitCount: number;
     }[];

@@ -1,5 +1,5 @@
 import { fDateandTime, fTime } from "@/lib/fDateAndTime";
-import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer, RotateCcw, FileText } from "lucide-react";
+import { MapPin, Phone, Video, Search, CheckCircle2, XCircle, Trash2, Pencil, MoreHorizontal, Calendar, User, Clock, RefreshCw, Printer, RotateCcw, FileText, UserCheck } from "lucide-react";
 import React, { useState } from "react";
 import BlankPrescription from "@/components/shared/appointment/BlankPrescription";
 import PatientRegistrationBillPrint from "./PatientRegistrationBillPrint";
@@ -106,6 +106,19 @@ export default function List({
       window.print();
       setTimeout(() => setRegistrationBillData(null), 1000);
     }, 400);
+  };
+
+  const handleArrived = async (id: string) => {
+    try {
+      await toast.promise(api.patch(`/appointments/arrived/${id}`), {
+        loading: "Marking patient as arrived...",
+        success: "Patient marked as arrived!",
+        error: (err: any) => err?.response?.data?.message || "Failed to mark arrived",
+      });
+      await refreshAllAppointments();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleRefund = async () => {
@@ -357,7 +370,7 @@ export default function List({
                   </TableCell>
                   <TableCell className="py-2.5 pr-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} onPrintBill={() => handlePrintRegistrationBill(row)} isRefunded={row.isRefunded} onRefund={() => setRefundId(row._id)} hasConsultationFee={row.hasConsultationFee} />
+                      <ActionButtons status={row.status} id={row._id} onStatusUpdate={handleStatusUpdate} onEdit={() => setEdit(row)} onDelete={() => handleDelete(row._id)} onRecover={() => handleRecover(row._id)} isDeleted={row.isDeleted} onPlaceOrder={() => router.push(`/dashboard/pharmacy/?mrn=${row?.patient?.mrn}&name=${row?.patient?.name}&id=${row?.patient?._id}&doctor=${row?.doctor?._id}&#newOrder`)} onPrint={() => handlePrintPrescription(row)} onPrintBill={() => handlePrintRegistrationBill(row)} isRefunded={row.isRefunded} onRefund={() => setRefundId(row._id)} hasConsultationFee={row.hasConsultationFee} isArrived={row.isArrived} onArrived={() => handleArrived(row._id)} />
                     </div>
                   </TableCell>
                 </TableRow>
@@ -382,40 +395,33 @@ export default function List({
       <AlertDialog open={Boolean(refundId)} onOpenChange={(v) => { if (!v) { setRefundId(null); setRefundReason(""); } }}>
         <AlertDialogContent className="max-w-md! print:hidden">
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2">
-              <RotateCcw className="h-5 w-5 text-red-600" />
-              Confirm Refund
-            </AlertDialogTitle>
+            <AlertDialogTitle>Process Appointment Refund</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to refund this consultation? This will generate a return/refund bill and cannot be undone.
+              Are you sure you want to refund this appointment consultation fee?
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          {/* Reason Dropdown */}
           <div className="py-2">
-            <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-              Reason for Refund <span className="text-red-500">*</span>
+            <label className="text-xs font-semibold text-gray-700 block mb-1">
+              Refund Reason <span className="text-red-500">*</span>
             </label>
             <select
               value={refundReason}
               onChange={(e) => setRefundReason(e.target.value)}
-              className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-red-300 focus:border-red-400 transition-all appearance-none cursor-pointer"
+              className="w-full text-xs p-2 border rounded-md"
             >
-              <option value="" disabled>Select a reason...</option>
-              <option value="Doctor said">Doctor said</option>
-              <option value="Patient requested">Patient requested</option>
-              <option value="Duplicate booking">Duplicate booking</option>
-              <option value="Wrong billing">Wrong billing</option>
-              <option value="Appointment cancelled">Appointment cancelled</option>
-              <option value="Service not rendered">Service not rendered</option>
+              <option value="">Select a reason</option>
+              <option value="Doctor Unavailable">Doctor Unavailable</option>
+              <option value="Patient Cancellation">Patient Cancellation</option>
+              <option value="Duplicate Booking">Duplicate Booking</option>
               <option value="Other">Other</option>
             </select>
           </div>
 
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={refundLoading} className="cursor-pointer disabled:cursor-not-allowed">Cancel</AlertDialogCancel>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
             <Button
-              className="bg-red-600 hover:bg-red-700 text-white font-bold cursor-pointer disabled:cursor-not-allowed"
+              variant="destructive"
               onClick={handleRefund}
               disabled={refundLoading || !refundReason}
             >
@@ -428,9 +434,19 @@ export default function List({
   );
 }
 
-function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint, onPrintBill, isRefunded, onRefund, hasConsultationFee }: any) {
+function ActionButtons({ status, id, onStatusUpdate, onEdit, onDelete, onRecover, isDeleted, onPlaceOrder, onPrint, onPrintBill, isRefunded, onRefund, hasConsultationFee, isArrived, onArrived }: any) {
   return (
     <>
+      {!isArrived && status !== "Consulted" && (
+        <button
+          onClick={onArrived}
+          className="p-1.5 rounded-md hover:bg-emerald-50 text-emerald-600 border border-transparent hover:border-emerald-200 transition-all flex items-center gap-1 text-xs font-semibold"
+          title="Mark Arrived"
+        >
+          <UserCheck size={16} />
+          <span className="hidden sm:inline">Arrived</span>
+        </button>
+      )}
       {status !== "Consulted" && <button
         onClick={() => onStatusUpdate(id, "Consulted")}
         className="p-1.5 rounded-md hover:bg-emerald-50 text-emerald-600 border border-transparent hover:border-emerald-200 transition-all"

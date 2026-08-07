@@ -7,6 +7,7 @@ export interface AppointmentType {
   _id: string;
   token?: string;
   tokenNumber?: number;
+  isArrived?: boolean;
   patient: Patient;
   doctor: Doctor;
   createdBy: string;
