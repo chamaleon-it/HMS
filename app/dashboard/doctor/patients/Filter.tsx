@@ -273,32 +273,37 @@ export default function Filter({
                 type="number"
                 value={filter.age[0] === 0 ? "" : filter.age[0]}
                 placeholder="0"
+                min={0}
                 onChange={(e) => {
+                  const val = e.target.value === "" ? 0 : Number(e.target.value);
                   const age: [number, number] = [
-                    Number(e.target.value),
+                    isNaN(val) ? 0 : val,
                     filter.age[1],
                   ];
                   setFilter((prev) => ({ ...prev, age }));
                 }}
                 className="w-full h-11 px-3 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 font-bold">MIN</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 font-bold pointer-events-none">MIN</span>
             </div>
             <span className="text-zinc-300">—</span>
             <div className="relative flex-1">
               <input
                 type="number"
-                value={filter.age[1]}
+                value={filter.age[1] === 100 ? "" : filter.age[1]}
+                placeholder="100"
+                min={0}
                 onChange={(e) => {
+                  const val = e.target.value === "" ? 100 : Number(e.target.value);
                   const age: [number, number] = [
                     filter.age[0],
-                    Number(e.target.value),
+                    isNaN(val) ? 100 : val,
                   ];
                   setFilter((prev) => ({ ...prev, age }));
                 }}
                 className="w-full h-11 px-3 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 font-bold">MAX</span>
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 font-bold pointer-events-none">MAX</span>
             </div>
           </div>
         </div>
