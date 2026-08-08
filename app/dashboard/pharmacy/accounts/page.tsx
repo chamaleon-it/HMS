@@ -47,6 +47,8 @@ import {
   AccountTransaction,
   GetAccountTransactionsResponse,
   TransactionType,
+  PAYMENT_METHODS,
+  SOURCE_MODULES,
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES,
 } from "./types";
@@ -63,6 +65,7 @@ export default function AccountsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [selectedSource, setSelectedSource] = useState<string>("ALL");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("transactionDate");
@@ -82,6 +85,7 @@ export default function AccountsPage() {
   if (searchTerm.trim()) queryParams.set("q", searchTerm.trim());
   if (selectedType !== "ALL") queryParams.set("type", selectedType);
   if (selectedCategory !== "ALL") queryParams.set("category", selectedCategory);
+  if (selectedSource !== "ALL") queryParams.set("sourceModule", selectedSource);
   if (startDate) queryParams.set("startDate", startDate);
   if (endDate) queryParams.set("endDate", endDate);
   if (sortBy) queryParams.set("sortBy", sortBy);
@@ -125,6 +129,7 @@ export default function AccountsPage() {
     setSearchTerm("");
     setSelectedType("ALL");
     setSelectedCategory("ALL");
+    setSelectedSource("ALL");
     setStartDate("");
     setEndDate("");
     setSortBy("transactionDate");
@@ -333,6 +338,29 @@ export default function AccountsPage() {
               </Select>
             </div>
 
+            {/* Source Module Filter */}
+            <div>
+              <Select
+                value={selectedSource}
+                onValueChange={(val) => {
+                  setSelectedSource(val);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-white">
+                  <SelectValue placeholder="All Sources" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-50 max-h-60">
+                  <SelectItem value="ALL">All Sources</SelectItem>
+                  {SOURCE_MODULES.map((sm) => (
+                    <SelectItem key={sm} value={sm}>
+                      {sm}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Start Date */}
             <div>
               <Input
@@ -409,6 +437,9 @@ export default function AccountsPage() {
                   </TableHead>
                   <TableHead className="font-semibold text-slate-700">
                     Category
+                  </TableHead>
+                  <TableHead className="font-semibold text-slate-700">
+                    Source
                   </TableHead>
                   <TableHead className="font-semibold text-slate-700">
                     Pay Method
@@ -519,6 +550,11 @@ export default function AccountsPage() {
                         </TableCell>
                         <TableCell className="text-xs font-semibold text-slate-800">
                           {txn.category}
+                        </TableCell>
+                        <TableCell className="text-xs font-medium text-blue-700">
+                          <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded-md border border-blue-200/60 font-medium">
+                            {txn.sourceModule || "Uncategorised"}
+                          </span>
                         </TableCell>
                         <TableCell className="text-xs font-medium text-slate-600">
                           <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md border border-slate-200/60 font-mono">

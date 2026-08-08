@@ -17,6 +17,7 @@ export interface ReportTransactionItem {
   description: string;
   amount: number;
   paymentMethod?: string;
+  sourceModule?: string;
   createdBy?: { name?: string };
 }
 
@@ -41,6 +42,7 @@ export interface ReportPdfData {
   endDate?: string;
   selectedType: string;
   selectedCategory: string;
+  selectedSource?: string;
 }
 
 const formatPdfCurrency = (val: number) => {
@@ -411,17 +413,19 @@ export const generateAccountsReportPdf = async (data: ReportPdfData) => {
 
     let curX = margin + 2;
     doc.text("Date", curX, y + 4.8);
-    curX += 22;
+    curX += 20;
     doc.text("Txn ID", curX, y + 4.8);
-    curX += 24;
+    curX += 22;
     doc.text("Description", curX, y + 4.8);
-    curX += 50;
+    curX += 40;
     doc.text("Category", curX, y + 4.8);
-    curX += 32;
+    curX += 26;
+    doc.text("Source", curX, y + 4.8);
+    curX += 20;
     doc.text("Type", curX, y + 4.8);
-    curX += 16;
+    curX += 15;
     doc.text("Pay Method", curX, y + 4.8);
-    curX += 18;
+    curX += 17;
     doc.text("Amount (INR)", margin + contentWidth - 2, y + 4.8, {
       align: "right",
     });
@@ -474,27 +478,32 @@ export const generateAccountsReportPdf = async (data: ReportPdfData) => {
         ? new Date(txn.transactionDate).toISOString().split("T")[0]
         : "-";
       doc.text(dateVal, curX, currentY + 4.5);
-      curX += 22;
+      curX += 20;
 
       // Txn ID
       doc.setFont("helvetica", "bold");
       doc.text(txn.transactionId || "-", curX, currentY + 4.5);
-      curX += 24;
+      curX += 22;
       doc.setFont("helvetica", "normal");
 
       // Description
       const desc = txn.description || "-";
       const truncatedDesc =
-        desc.length > 30 ? desc.substring(0, 28) + "..." : desc;
+        desc.length > 24 ? desc.substring(0, 22) + "..." : desc;
       doc.text(truncatedDesc, curX, currentY + 4.5);
-      curX += 50;
+      curX += 40;
 
       // Category
       const cat = txn.category || "-";
       const truncatedCat =
-        cat.length > 18 ? cat.substring(0, 16) + "..." : cat;
+        cat.length > 15 ? cat.substring(0, 13) + "..." : cat;
       doc.text(truncatedCat, curX, currentY + 4.5);
-      curX += 32;
+      curX += 26;
+
+      // Source Module
+      const srcMod = txn.sourceModule || "Uncategorised";
+      doc.text(srcMod, curX, currentY + 4.5);
+      curX += 20;
 
       // Type
       const isIncome = String(txn.type || "").toUpperCase() === "INCOME";
@@ -505,13 +514,13 @@ export const generateAccountsReportPdf = async (data: ReportPdfData) => {
       }
       doc.setFont("helvetica", "bold");
       doc.text(txn.type, curX, currentY + 4.5);
-      curX += 16;
+      curX += 15;
       doc.setFont("helvetica", "normal");
       doc.setTextColor(COLOR_TEXT[0], COLOR_TEXT[1], COLOR_TEXT[2]);
 
       // Payment Method
       doc.text(txn.paymentMethod || "Cash", curX, currentY + 4.5);
-      curX += 18;
+      curX += 17;
 
       // Amount
       const amtStr = formatPdfCurrency(txn.amount);

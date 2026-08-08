@@ -28,6 +28,8 @@ import {
   TransactionType,
   PaymentMethod,
   PAYMENT_METHODS,
+  SourceModule,
+  SOURCE_MODULES,
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES,
 } from "./types";
@@ -41,6 +43,7 @@ import {
   FileText,
   MessageSquareText,
   CreditCard,
+  Layers,
 } from "lucide-react";
 
 const editTransactionSchema = z.object({
@@ -59,6 +62,7 @@ const editTransactionSchema = z.object({
   paymentMethod: z.nativeEnum(PaymentMethod, {
     error: "Payment method is required",
   }),
+  sourceModule: z.nativeEnum(SourceModule).optional(),
   description: z
     .string()
     .min(2, "Description must be at least 2 characters")
@@ -107,6 +111,7 @@ export function EditTransactionModal({
         category: transaction.category,
         amount: String(transaction.amount),
         paymentMethod: (transaction.paymentMethod as PaymentMethod) || PaymentMethod.Cash,
+        sourceModule: (transaction.sourceModule as SourceModule) || SourceModule.Uncategorised,
         description: transaction.description,
         notes: transaction.notes || "",
         transactionDate: formattedDate,
@@ -128,6 +133,7 @@ export function EditTransactionModal({
         category: values.category,
         amount: Number(values.amount),
         paymentMethod: values.paymentMethod,
+        sourceModule: values.sourceModule || SourceModule.Uncategorised,
         description: values.description.trim(),
         notes: values.notes?.trim() || undefined,
         transactionDate: new Date(values.transactionDate).toISOString(),
@@ -269,7 +275,7 @@ export function EditTransactionModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {/* Payment Method */}
             <div className="space-y-1.5">
               <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
@@ -282,7 +288,7 @@ export function EditTransactionModal({
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger className="w-full h-11 rounded-xl border-slate-200 bg-slate-50/50 hover:bg-slate-50 focus:bg-white transition-colors">
-                      <SelectValue placeholder="Select Payment Method" />
+                      <SelectValue placeholder="Select Method" />
                     </SelectTrigger>
                     <SelectContent className="bg-white z-50 rounded-xl shadow-xl border-slate-200">
                       {PAYMENT_METHODS.map((pm) => (
@@ -297,6 +303,32 @@ export function EditTransactionModal({
               {errors.paymentMethod && (
                 <p className="text-xs text-rose-500 font-medium">{errors.paymentMethod.message}</p>
               )}
+            </div>
+
+            {/* Source Module */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                <Layers className="w-3.5 h-3.5 text-slate-400" />
+                Source Module
+              </Label>
+              <Controller
+                name="sourceModule"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-full h-11 rounded-xl border-slate-200 bg-slate-50/50 hover:bg-slate-50 focus:bg-white transition-colors">
+                      <SelectValue placeholder="Source" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white z-50 rounded-xl shadow-xl border-slate-200">
+                      {SOURCE_MODULES.map((sm) => (
+                        <SelectItem key={sm} value={sm} className="rounded-lg">
+                          {sm}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             {/* Transaction Date */}

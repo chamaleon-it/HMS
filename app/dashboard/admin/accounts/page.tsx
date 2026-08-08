@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import {
   TransactionType,
+  SOURCE_MODULES,
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES,
 } from "@/app/dashboard/pharmacy/accounts/types";
@@ -58,6 +59,7 @@ export default function AdminAccountsAnalyticsPage() {
   const [period, setPeriod] = useState<"daily" | "monthly" | "yearly">("monthly");
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [selectedCategory, setSelectedCategory] = useState<string>("ALL");
+  const [selectedSource, setSelectedSource] = useState<string>("ALL");
 
   // Table State
   const [page, setPage] = useState(1);
@@ -157,6 +159,8 @@ export default function AdminAccountsAnalyticsPage() {
     analyticsQueryParams.set("type", selectedType);
   if (selectedCategory !== "ALL")
     analyticsQueryParams.set("category", selectedCategory);
+  if (selectedSource !== "ALL")
+    analyticsQueryParams.set("sourceModule", selectedSource);
   analyticsQueryParams.set("period", period);
 
   const {
@@ -179,6 +183,7 @@ export default function AdminAccountsAnalyticsPage() {
     tableQueryParams.set("endDate", computedDateRange.end);
   if (selectedType !== "ALL") tableQueryParams.set("type", selectedType);
   if (selectedCategory !== "ALL") tableQueryParams.set("category", selectedCategory);
+  if (selectedSource !== "ALL") tableQueryParams.set("sourceModule", selectedSource);
   if (sortBy) tableQueryParams.set("sortBy", sortBy);
   if (sortOrder) tableQueryParams.set("sortOrder", sortOrder);
 
@@ -198,6 +203,7 @@ export default function AdminAccountsAnalyticsPage() {
     setPeriod("monthly");
     setSelectedType("ALL");
     setSelectedCategory("ALL");
+    setSelectedSource("ALL");
     setSearchTerm("");
     setPage(1);
   };
@@ -224,6 +230,8 @@ export default function AdminAccountsAnalyticsPage() {
         reportQueryParams.set("type", selectedType);
       if (selectedCategory !== "ALL")
         reportQueryParams.set("category", selectedCategory);
+      if (selectedSource !== "ALL")
+        reportQueryParams.set("sourceModule", selectedSource);
       if (searchTerm.trim())
         reportQueryParams.set("q", searchTerm.trim());
 
@@ -393,8 +401,8 @@ export default function AdminAccountsAnalyticsPage() {
             ))}
           </div>
 
-          {/* Secondary Controls (Custom Dates, Type, Category, Period) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 pt-1">
+          {/* Secondary Controls (Custom Dates, Type, Category, Source, Period) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 pt-1">
             {/* Start Date */}
             <div>
               <label className="text-[11px] font-semibold text-slate-500 block mb-1">
@@ -495,6 +503,32 @@ export default function AdminAccountsAnalyticsPage() {
                   {availableCategories.map((cat) => (
                     <SelectItem key={cat} value={cat}>
                       {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Source Module Filter */}
+            <div>
+              <label className="text-[11px] font-semibold text-slate-500 block mb-1">
+                Source Module
+              </label>
+              <Select
+                value={selectedSource}
+                onValueChange={(val) => {
+                  setSelectedSource(val);
+                  setPage(1);
+                }}
+              >
+                <SelectTrigger className="h-10 rounded-xl border-slate-200 bg-white text-xs">
+                  <SelectValue placeholder="All Sources" />
+                </SelectTrigger>
+                <SelectContent className="bg-white z-50 max-h-56">
+                  <SelectItem value="ALL">All Sources</SelectItem>
+                  {SOURCE_MODULES.map((sm) => (
+                    <SelectItem key={sm} value={sm}>
+                      {sm}
                     </SelectItem>
                   ))}
                 </SelectContent>

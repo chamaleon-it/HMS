@@ -135,6 +135,9 @@ export function AnalyticsTable({
                   Category
                 </TableHead>
                 <TableHead className="font-bold text-slate-700 text-xs py-3.5">
+                  Source
+                </TableHead>
+                <TableHead className="font-bold text-slate-700 text-xs py-3.5">
                   Pay Method
                 </TableHead>
                 <TableHead className="font-bold text-slate-700 text-xs max-w-xs py-3.5">
@@ -162,14 +165,14 @@ export function AnalyticsTable({
               {isLoading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <TableRow key={i} className="animate-pulse">
-                    <TableCell colSpan={8} className="py-4">
+                    <TableCell colSpan={9} className="py-4">
                       <div className="h-4 bg-slate-100 rounded-md w-full" />
                     </TableCell>
                   </TableRow>
                 ))
               ) : transactions.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="h-48 text-center">
+                  <TableCell colSpan={9} className="h-48 text-center">
                     <div className="flex flex-col items-center justify-center text-slate-400">
                       <Receipt className="w-9 h-9 mb-2 text-slate-300" />
                       <p className="font-bold text-slate-600 text-sm">No transactions found</p>
@@ -226,6 +229,11 @@ export function AnalyticsTable({
                       <TableCell className="text-xs font-bold text-slate-800">
                         <span className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200/60 inline-block">
                           {txn.category}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-xs font-medium text-blue-700">
+                        <span className="px-2.5 py-1 bg-blue-50 text-blue-700 rounded-lg border border-blue-200/60 font-medium inline-block">
+                          {txn.sourceModule || "Uncategorised"}
                         </span>
                       </TableCell>
                       <TableCell className="text-xs font-medium text-slate-600">

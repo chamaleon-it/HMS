@@ -9,8 +9,25 @@ export enum PaymentMethod {
   UPI = "UPI",
 }
 
+export enum SourceModule {
+  Uncategorised = "Uncategorised",
+  Doctor = "Doctor",
+  Pharmacy = "Pharmacy",
+  Lab = "Lab",
+  Reception = "Reception",
+}
+
 export const PAYMENT_METHODS = ["Cash", "Card", "UPI"] as const;
 export type PaymentMethodType = (typeof PAYMENT_METHODS)[number];
+
+export const SOURCE_MODULES = [
+  "Uncategorised",
+  "Doctor",
+  "Pharmacy",
+  "Lab",
+  "Reception",
+] as const;
+export type SourceModuleType = (typeof SOURCE_MODULES)[number];
 
 export const EXPENSE_CATEGORIES = [
   "Parking",
@@ -22,6 +39,8 @@ export const EXPENSE_CATEGORIES = [
   "Office Expense",
   "Internet",
   "Maintenance",
+  "Refund",
+  "Sales Return",
   "Miscellaneous",
   "Other Expense"
 ] as const;
@@ -30,6 +49,7 @@ export const INCOME_CATEGORIES = [
   "Medicine Sale",
   "Consultation Fee",
   "Laboratory Income",
+  "Therapy Income",
   "Other Income",
 ] as const;
 
@@ -51,6 +71,7 @@ export interface AccountTransaction {
   amount: number;
   description: string;
   paymentMethod?: PaymentMethod | string;
+  sourceModule?: SourceModule | string;
   notes?: string;
   transactionDate: string;
   createdBy?: AccountTransactionUserRef | string;
