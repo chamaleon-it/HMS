@@ -228,12 +228,6 @@ export function Sidebar({ collapsed }: { collapsed?: boolean }) {
         icon: CreditCard,
         link: "/dashboard/lab/billing/",
       },
-      {
-        key: "payments",
-        label: "Payments",
-        icon: Banknote,
-        link: "/dashboard/lab/payments/",
-      },
     ]) ||
     (user?.role === "Admin" && [
       {

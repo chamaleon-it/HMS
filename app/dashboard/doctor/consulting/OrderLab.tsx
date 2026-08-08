@@ -4,6 +4,8 @@ import React from "react";
 import { DataType } from "./interface";
 import { fDate, fTime } from "@/lib/fDateAndTime";
 import useGetTest from "@/data/useGetTest";
+import useGetPanels from "@/data/useGetPanels";
+import { getFormattedInvestigationNames } from "@/lib/investigationUtils";
 
 export default function OrderLab({
   booked,
@@ -28,6 +30,7 @@ export default function OrderLab({
 }) {
 
   const { tests } = useGetTest();
+  const { panels: panelsCatalog } = useGetPanels();
 
   return (
     <div className="border rounded-xl p-4">
@@ -48,17 +51,9 @@ export default function OrderLab({
             key={idx}
           >
             <div className="col-span-3">
-              {
-                e.panels?.map((p, idx) => (
-                  <p key={idx}>{p}</p>
-                ))
-              }
-
-              {
-                !e.panels.find(p => e.panels.includes(p)) && e.name.map((t, idx) => (
-                  <p key={idx}>{tests.find(test => test._id == t)?.name}</p>
-                ))
-              }
+              {getFormattedInvestigationNames(e, tests, panelsCatalog).map((item, i) => (
+                <p key={i}>{item}</p>
+              ))}
             </div>
             <div className="col-span-2">{Labs.find(l => l._id == e.lab)?.name ?? "Inhouse"}</div>
             <div className="col-span-2">{fDate(e.date)}</div>

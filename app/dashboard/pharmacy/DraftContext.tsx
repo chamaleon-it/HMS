@@ -1,6 +1,7 @@
 "use client";
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { DataType } from './interface';
+import { useAuth } from '@/auth/context/auth-context';
 
 export interface Draft {
   id: string;
@@ -26,6 +27,7 @@ interface DraftContextType {
 const DraftContext = createContext<DraftContextType | undefined>(undefined);
 
 export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useAuth();
   const [drafts, setDrafts] = useState<Draft[]>([]);
   const [activeDraftId, setActiveDraftId] = useState<string | null>(null);
 
@@ -35,21 +37,37 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     if (saved) {
       try {
         const parsed: Draft[] = JSON.parse(saved);
-        // Sanitize: reset any doctor that was stored as an ObjectId string from old code
-        const sanitized = parsed.map(d => ({
-          ...d,
-          payload: {
-            ...d.payload,
-            doctor: null,
-            doctorName: d.payload.doctorName === "-" ? "" : (d.payload.doctorName || ""),
+        const sanitized = parsed.map(d => {
+          const isDoc = user?.role === "Doctor";
+          let docId = d.payload?.doctor;
+          let docName = d.payload?.doctorName === "-" ? "" : (d.payload?.doctorName || "");
+
+          if (isDoc) {
+            docId = docId || user?._id || null;
+            docName = docName || user?.name || "";
+          } else {
+            // In pharmacy module (non-doctor user), if doctor is an ObjectId without a valid doctorName, reset to null
+            if (!docName && typeof docId === "string" && /^[0-9a-fA-F]{24}$/.test(docId)) {
+              docId = null;
+              docName = "";
+            }
           }
-        }));
+
+          return {
+            ...d,
+            payload: {
+              ...d.payload,
+              doctor: docId,
+              doctorName: docName,
+            }
+          };
+        });
         setDrafts(sanitized);
       } catch (e) {
         console.error("Failed to parse drafts", e);
       }
     }
-  }, []);
+  }, [user]);
 
   // Save to localStorage on change
   useEffect(() => {
@@ -66,12 +84,15 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const id = `${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     setDrafts((prev) => {
       const maxZ = Math.max(40, ...prev.map(d => d.zIndex));
+      const defaultDoctorId = user?.role === "Doctor" ? user?._id : null;
+      const defaultDoctorName = user?.role === "Doctor" ? user?.name : "";
+
       const newDraft: Draft = {
         id,
         payload: {
           patient: "",
-          doctor: null,
-          doctorName: "",
+          doctor: defaultDoctorId,
+          doctorName: defaultDoctorName,
           items: [
             {
               rowId: Date.now().toString(),
@@ -104,7 +125,7 @@ export const DraftProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return [...prev, newDraft];
     });
     setActiveDraftId(id);
-  }, []);
+  }, [user]);
 
   const updateDraft = useCallback((id: string, updates: Partial<Draft> | ((prev: Draft) => Partial<Draft>)) => {
     setDrafts(prev => prev.map(d => d.id === id ? { ...d, ...(typeof updates === 'function' ? updates(d) : updates) } : d));

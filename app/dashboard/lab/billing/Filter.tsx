@@ -1,4 +1,4 @@
-import { ChevronDownIcon, Filter, RefreshCcw, Search } from "lucide-react";
+import { ChevronDownIcon, Filter, RefreshCcw, Search, X } from "lucide-react";
 import React, { useState } from "react";
 import { FilterType } from "./page";
 import {
@@ -21,8 +21,8 @@ interface PropsType {
 }
 
 export default function Filters({ filter, setFilter }: PropsType) {
+  const [openCalander, setOpenCalander] = useState(false);
 
-  const [openCalander, setOpenCalander] = useState(false)
   return (
     <div
       className={
@@ -30,37 +30,48 @@ export default function Filters({ filter, setFilter }: PropsType) {
       }
     >
       <div className="grid grid-cols-12 items-center gap-3">
-        <div className="col-span-12 md:col-span-5">
-          <div className="flex items-center gap-2">
-            <Search className="h-4 w-4 text-slate-500" />
+        {/* Search Input */}
+        <div className="col-span-12 md:col-span-4">
+          <div className="relative flex items-center gap-2">
+            <Search className="absolute left-3 h-4 w-4 text-slate-400" />
             <input
               value={filter.q ?? ""}
               onChange={(e) =>
                 setFilter((prev) => ({ ...prev, q: e.target.value }))
               }
-              placeholder="Search invoice no."
+              placeholder="Search patient, invoice, MRN, phone..."
               className={
-                "h-10 w-full rounded-lg border border-slate-200 bg-white/70 px-3 text-sm outline-none focus:border-slate-400 dark:border-slate-700 dark:bg-slate-900/50"
+                "h-10 w-full rounded-xl border border-slate-200 bg-white/70 pl-9 pr-8 text-sm outline-none transition focus:border-slate-400 focus:ring-2 focus:ring-slate-100 dark:border-slate-700 dark:bg-slate-900/50"
               }
             />
+            {filter.q && (
+              <button
+                type="button"
+                onClick={() => setFilter((prev) => ({ ...prev, q: null }))}
+                className="absolute right-2.5 text-slate-400 hover:text-slate-600"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
-        <div className="col-span-6 md:col-span-2 flex items-center gap-2">
-          <Filter className="h-4 w-4 text-slate-500" />
 
+        {/* Status Filter */}
+        <div className="col-span-6 md:col-span-2 flex items-center gap-2">
+          <Filter className="h-4 w-4 text-slate-400 shrink-0" />
           <Select
-            value={filter.status}
+            value={filter.status || "all"}
             onValueChange={(value) =>
-              setFilter((prev) => ({ ...prev, status: value }))
+              setFilter((prev) => ({ ...prev, status: value === "all" ? "" : value }))
             }
           >
-            <SelectTrigger className="w-45">
-              <SelectValue placeholder="Select a status" />
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Status</SelectLabel>
-                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="all">All Status</SelectItem>
                 <SelectItem value="Paid">Paid</SelectItem>
                 <SelectItem value="Partial">Partial</SelectItem>
                 <SelectItem value="Unpaid">Unpaid</SelectItem>
@@ -68,20 +79,22 @@ export default function Filters({ filter, setFilter }: PropsType) {
             </SelectContent>
           </Select>
         </div>
+
+        {/* Method Filter */}
         <div className="col-span-6 md:col-span-2">
           <Select
-            value={filter.method}
+            value={filter.method || "all"}
             onValueChange={(value) =>
-              setFilter((prev) => ({ ...prev, method: value }))
+              setFilter((prev) => ({ ...prev, method: value === "all" ? "" : value }))
             }
           >
-            <SelectTrigger className="w-45">
-              <SelectValue placeholder="Select a method" />
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="All Methods" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectLabel>Method</SelectLabel>
-                <SelectItem value="all">All</SelectItem>
+                <SelectLabel>Payment Method</SelectLabel>
+                <SelectItem value="all">All Methods</SelectItem>
                 <SelectItem value="Cash">Cash</SelectItem>
                 <SelectItem value="Card">Card</SelectItem>
                 <SelectItem value="UPI">UPI</SelectItem>
@@ -89,17 +102,20 @@ export default function Filters({ filter, setFilter }: PropsType) {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex flex-col gap-3 col-span-6 md:col-span-2">
 
+        {/* Date Filter */}
+        <div className="col-span-6 md:col-span-3 flex items-center gap-1.5">
           <Popover onOpenChange={setOpenCalander} open={openCalander}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 id="date"
-                className="w-48 justify-between font-normal"
+                className="w-full justify-between font-normal text-slate-700 bg-white"
               >
-                {filter.date ? fDate(filter.date) : "Select date"}
-                <ChevronDownIcon />
+                <span className="truncate">
+                  {filter.date ? fDate(filter.date) : "Select Date"}
+                </span>
+                <ChevronDownIcon className="h-4 w-4 text-slate-400 ml-1 shrink-0" />
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto overflow-hidden p-0" align="start">
@@ -108,22 +124,38 @@ export default function Filters({ filter, setFilter }: PropsType) {
                 selected={filter.date}
                 captionLayout="dropdown"
                 onSelect={(date) => {
-                  setFilter(prev => ({ ...prev, date }))
-                  setOpenCalander(false)
+                  setFilter((prev) => ({ ...prev, date }));
+                  setOpenCalander(false);
                 }}
               />
             </PopoverContent>
           </Popover>
+
+          {filter.date && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 shrink-0 text-slate-400 hover:text-slate-600"
+              onClick={() => setFilter((prev) => ({ ...prev, date: undefined }))}
+              title="Clear date"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
         </div>
-        <div className="col-span-12 md:col-span-1 flex items-center">
-          <button
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900"
+
+        {/* Reset Button */}
+        <div className="col-span-6 md:col-span-1 flex items-center">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full text-xs h-10 font-medium"
             onClick={() => {
               setFilter({ q: null, status: "", method: "", date: undefined });
             }}
           >
-            <RefreshCcw className="mr-2 inline h-4 w-4" /> Reset
-          </button>
+            <RefreshCcw className="mr-1.5 h-3.5 w-3.5" /> Reset
+          </Button>
         </div>
       </div>
     </div>

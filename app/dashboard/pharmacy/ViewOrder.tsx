@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { getFormattedTherapyNames } from "@/lib/investigationUtils";
 
 import {
     Dialog,
@@ -388,150 +389,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                         allergies={order?.patient.allergies}
                     />
 
-                    {/* Payment Details Section */}
-                    {localOrder?.paymentStatus !== "Paid" && <div className="border rounded-xl p-2.5 bg-slate-50/50 space-y-2">
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-700">Payment Details</h3>
-                            <div className="flex flex-col items-end justify-center bg-white px-4 py-1 rounded-xl border border-slate-200 shadow-sm ">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-0.5">Total Amount</span>
-                                <div className="flex items-center text-slate-900">
-                                    <IndianRupee className="w-5 h-5 stroke-[2.5] mr-0.5 text-slate-400" />
-                                    <span className="text-xl font-extrabold leading-none tracking-tight">
-                                        {formatINR(Math.max(0, (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0)).replace("₹", "")}
-                                    </span>
-                                </div>
-                            </div>
-                        </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-                            {[
-                                { id: "Cash", label: "Cash Payment", icon: Banknote, color: "text-emerald-600", bg: "bg-emerald-50", shortcut: "C" },
-                                { id: "UPI", label: "UPI / Scanner", icon: QrCode, color: "text-(--color-synapse-light)", bg: "bg-synapse-light/10", shortcut: "U" },
-                                { id: "Underpaid", label: "Partial / Due", icon: AlertCircle, color: "text-rose-600", bg: "bg-rose-50", shortcut: "P" },
-                            ].map((method) => {
-                                const active = paymentMethod === method.id;
-                                return (
-                                    <button
-                                        key={method.id}
-                                        type="button"
-                                        onClick={() => setPaymentMethod(method.id as any)}
-                                        className={cn(
-                                            "relative flex items-center gap-3 p-2.5 rounded-xl border-2 transition-all text-left group",
-                                            active
-                                                ? `border-${method.id === "Cash" ? "emerald" : method.id === "UPI" ? "indigo" : "rose"}-500 ${method.bg} shadow-md`
-                                                : "border-slate-200 bg-white hover:border-slate-300 shadow-sm"
-                                        )}
-                                    >
-                                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <kbd className={cn(
-                                                "px-1.5 py-0.5 text-[9px] font-bold rounded shadow-xs border",
-                                                method.id === "Cash" && "bg-emerald-50 border-emerald-200 text-emerald-600",
-                                                method.id === "UPI" && "bg-synapse-light/10 border-synapse-light/30 text-(--color-synapse-light)",
-                                                method.id === "Underpaid" && "bg-rose-50 border-rose-200 text-rose-600"
-                                            )}>
-                                                {method.shortcut}
-                                            </kbd>
-                                        </div>
-                                        <div className={cn("p-2 rounded-lg", active ? "bg-white" : "bg-slate-50 group-hover:bg-white")}>
-                                            <method.icon className={cn("h-5 w-5", active ? method.color : "text-slate-400")} />
-                                        </div>
-                                        <div>
-                                            <div className={cn("text-sm font-bold", active ? "text-slate-900" : "text-slate-600")}>{method.label}</div>
-                                            <div className="text-[10px] text-slate-400 font-medium">Click to select</div>
-                                        </div>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        <div className="flex gap-5 items-end">
-
-                            {paymentMethod === "Cash" && (
-                                <div
-                                    className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 w-full"
-                                >
-                                    <div className="space-y-2">
-                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
-                                        <Input
-                                            id="cash-amount-input"
-                                            type="number"
-                                            placeholder="Enter amount from customer"
-                                            value={amountPaid}
-                                            onChange={(e) => setAmountPaid(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
-                                            className="h-11 bg-white border-slate-200 rounded-lg focus:ring-emerald-500/20"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance to Return (₹)</Label>
-                                        <div className={cn(
-                                            "h-11 flex items-center px-4 rounded-lg border-2 font-bold text-lg transition-colors",
-                                            (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)) >= 0
-                                                ? "bg-emerald-50 border-emerald-100 text-emerald-700"
-                                                : "bg-rose-50 border-rose-100 text-rose-700"
-                                        )}>
-                                            {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)))}
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {paymentMethod === "Underpaid" && (
-                                <div
-                                    className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 w-full"
-                                >
-                                    <div className="space-y-2">
-                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Amount Collected (₹)</Label>
-                                        <Input
-                                            id="partial-amount-input"
-                                            type="number"
-                                            placeholder="0.00"
-                                            value={amountPaid}
-                                            onChange={(e) => setAmountPaid(e.target.value)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter") {
-                                                    document.getElementById("partial-reference-input")?.focus();
-                                                }
-                                            }}
-                                            className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Reference / Bill No.</Label>
-                                        <Input
-                                            id="partial-reference-input"
-                                            placeholder="Enter reference if any"
-                                            value={referenceNumber}
-                                            onChange={(e) => setReferenceNumber(e.target.value)}
-                                            onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
-                                            className="h-11 bg-white border-slate-200 rounded-lg focus:ring-rose-500/20"
-                                        />
-                                    </div>
-                                </div>
-                            )}
-
-                            {paymentMethod === "UPI" && (
-                                <div className="space-y-2 pt-2 w-full">
-                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Transaction ID / Reference (Optional)</Label>
-                                    <Input
-                                        id="upi-ref-input"
-                                        placeholder="Enter UPI transaction ID"
-                                        value={referenceNumber}
-                                        onChange={(e) => setReferenceNumber(e.target.value)}
-                                        onKeyDown={(e) => e.key === "Enter" && handlePaymentUpdate()}
-                                        className="h-11 bg-white border-slate-200 rounded-lg focus:ring-synapse-light/20"
-                                    />
-                                </div>
-                            )}
-
-
-                            <Button
-                                onClick={handlePaymentUpdate}
-                                className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white h-10">
-                                Update Payment
-                            </Button>
-
-                        </div>
-                    </div>}
 
                 </div>
 
@@ -600,12 +458,15 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                                 <Activity className="w-4 h-4 text-amber-600" /> Prescribed Therapies:
                                             </div>
                                             <ul className="list-disc list-inside text-xs font-medium text-amber-900 space-y-1">
-                                                {pendingConsulting.therapy.map((th: any, idx: number) => (
-                                                    <li key={th._id || idx}>
-                                                        <span className="font-bold">{th.name || "Therapy"}</span>
-                                                        {th.price ? ` — ₹${th.price}` : ""}
-                                                    </li>
-                                                ))}
+                                                {pendingConsulting.therapy.map((th: any, idx: number) => {
+                                                    const name = typeof th === "object" && th !== null ? (th.name || "Therapy") : (getFormattedTherapyNames(th) || "Therapy");
+                                                    return (
+                                                        <li key={th._id || idx}>
+                                                            <span className="font-bold">{name}</span>
+                                                            {th.price ? ` — ₹${th.price}` : ""}
+                                                        </li>
+                                                    );
+                                                })}
                                             </ul>
                                             {pendingConsulting?.therapyNotes && (
                                                 <p className="text-xs text-amber-700 italic mt-1">

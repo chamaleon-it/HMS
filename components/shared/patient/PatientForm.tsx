@@ -54,6 +54,8 @@ export function PatientForm({
     defaultValues: {
       phoneNumber: patient?.phoneNumber || "",
       doctor: patient?.doctor || "none",
+      blood: patient?.blood || "none",
+      allergies: patient?.allergies || "",
       state: patient?.state || "Kerala",
       country: patient?.country || "India",
     },
@@ -74,6 +76,9 @@ export function PatientForm({
           : undefined,
         age: patient.age,
         month: patient.month,
+
+        blood: patient.blood || "none",
+        allergies: patient.allergies || "",
 
         addressLine1: patient.addressLine1,
         addressLine2: patient.addressLine2,
@@ -106,6 +111,12 @@ export function PatientForm({
 
       if (!data.doctor || data.doctor === "none") {
         delete data.doctor;
+      }
+      if (!data.blood || data.blood === "none") {
+        delete data.blood;
+      }
+      if (!data.allergies) {
+        delete data.allergies;
       }
 
       if (patient?._id) {
@@ -316,6 +327,40 @@ export function PatientForm({
                 className="h-9 rounded-xl"
               />
             </div>
+          </div>
+
+          {/* Row 3 - Optional Blood Group & Allergies */}
+          <div className="grid gap-1.5">
+            <Label className="text-sm font-medium text-slate-700">
+              Blood Group
+            </Label>
+            <Select
+              onValueChange={(value) => setValue("blood", value === "none" ? "" : value)}
+              value={values.blood || "none"}
+            >
+              <SelectTrigger className="w-full h-9 px-3 rounded-xl border border-zinc-300 focus:outline-none focus:ring-2 focus:ring-indigo-200">
+                <SelectValue placeholder="Select Blood Group (Optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None / Unspecified</SelectItem>
+                {["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"].map((bg) => (
+                  <SelectItem key={bg} value={bg}>
+                    {bg}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="grid gap-1.5 md:col-span-2">
+            <Label className="text-sm font-medium text-slate-700">
+              Allergies
+            </Label>
+            <Input
+              placeholder="e.g. Penicillin, Dust, Peanuts"
+              {...register("allergies")}
+              className="h-9 rounded-xl"
+            />
           </div>
 
 

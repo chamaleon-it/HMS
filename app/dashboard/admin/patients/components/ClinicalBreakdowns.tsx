@@ -99,7 +99,7 @@ export function ClinicalBreakdowns({
                         {item.name}
                       </span>
                       <span className="font-bold text-slate-900 font-mono">
-                        {item.count} <span className="text-[10px] text-slate-400 font-normal">pts</span>
+                        {item.count} <span className="text-[10px] text-slate-400 font-normal">nos</span>
                       </span>
                     </div>
                     <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">

@@ -22,6 +22,8 @@ import { fDateandTime } from "@/lib/fDateAndTime";
 import { getDecimal } from "@/lib/fNumber";
 import { startOfDay, endOfDay, subDays } from "date-fns";
 
+import { getBillType, getBillTypeBadgeProps } from "@/lib/billTypeUtils";
+
 interface PropsType {
   filter: FilterType;
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
@@ -32,7 +34,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
   const [isExporting, setIsExporting] = useState(false);
 
   const handleReset = () => {
-    setFilter({ q: null, qEnd: null, status: "all", method: "all", activeDate: "Today", date: new Date(), page: 1, limit: 10, doctor: [] });
+    setFilter({ q: null, qEnd: null, status: "all", method: "all", billType: "all", activeDate: "Today", date: new Date(), page: 1, limit: 10, doctor: [] });
   };
 
   const escapeCsv = (str: string | number | undefined | null) => {
@@ -52,6 +54,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
       if (filter.qEnd && filter.qEnd.length >= 7) params.set("qEnd", filter.qEnd);
       if (filter.status && filter.status !== "all") params.set("status", filter.status);
       if (filter.method && filter.method !== "all") params.set("method", filter.method);
+      if (filter.billType && filter.billType !== "all") params.set("billType", filter.billType);
 
       let sd: Date = startOfDay(new Date());
       let ed: Date = endOfDay(new Date());
@@ -216,6 +219,37 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
                 className="pl-9 h-10 bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400"
               />
             </div>
+          </div>
+        </div>
+
+        {/* Bill Type */}
+        <div className="space-y-2 min-w-45">
+          <label className="text-[11px] text-slate-400 uppercase tracking-widest font-semibold ml-1">
+            Bill Type
+          </label>
+          <div className="flex items-center gap-2">
+            <Select
+              value={filter.billType || "all"}
+              onValueChange={(value) =>
+                setFilter((prev) => ({ ...prev, billType: value, page: 1 }))
+              }
+            >
+              <SelectTrigger className="h-10! bg-slate-50/50 border-slate-200 rounded-lg focus:ring-2 focus:ring-synapse-light/20 transition-all">
+                <div className="flex items-center gap-2">
+                  <FilterIcon className="h-4 w-4 text-slate-400" />
+                  <SelectValue placeholder="Select type" />
+                </div>
+              </SelectTrigger>
+              <SelectContent className="rounded-lg border-slate-200 shadow-xl">
+                <SelectGroup>
+                  <SelectLabel className="text-[10px] uppercase tracking-wider text-slate-400">Bill Type</SelectLabel>
+                  <SelectItem value="all">All Bill Types</SelectItem>
+                  <SelectItem value="therapy">Therapy Bills</SelectItem>
+                  <SelectItem value="reception">Reception Bills</SelectItem>
+                  <SelectItem value="other">Other Bills</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
           </div>
         </div>
 

@@ -306,49 +306,7 @@ export default function PrescriptionCard({
           </Button>
         </div>
 
-        <div
-          className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"
-            } gap-2 text-[11px] uppercase tracking-wide text-slate-500`}
-        >
-          <div
-            className={`${showAllFields ? "col-span-8" : "col-span-3"}`}
-          ></div>
-          <div className="text-right flex items-center justify-end h-full">
-            <p className="h-min">Discount %</p>
-          </div>
-          <div className="relative w-full">
-            <input
-              placeholder="0"
-              type="number"
-              inputMode={"numeric"}
-              className={`peer w-full rounded-md border border-slate-200 bg-white px-3 h-8 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100`}
-              onChange={(e) => {
-                const pct = parseFloat(e.target.value) || 0;
-                const amt = (pct / 100) * subTotal;
-                setData({ ...data, discount: amt });
-              }}
-              value={
-                subTotal && data.discount
-                  ? parseFloat(((data.discount / subTotal) * 100).toFixed(2))
-                  : ""
-              }
-            />
-          </div>
 
-          <div className="text-right flex items-center justify-end h-full">
-            <p className="h-min">Discount ₹</p>
-          </div>
-          <div className="relative w-full">
-            <input
-              placeholder="0"
-              type="number"
-              inputMode={"numeric"}
-              className={`peer w-full rounded-md border border-slate-200 bg-white px-3 h-8 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-100`}
-              onChange={(e) => setData({ ...data, discount: Number(e.target.value) })}
-              value={data.discount === 0 ? "" : parseFloat(data.discount.toFixed(2))}
-            />
-          </div>
-        </div>
 
         <div
           className={`grid ${showAllFields ? "grid-cols-12" : "grid-cols-7"

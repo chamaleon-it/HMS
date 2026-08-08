@@ -31,7 +31,8 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
 
   const [payload, setPayload] = useState<DataType>({
     patient: "",
-    doctor: user?._id ?? "",
+    doctor: (user?.role === "Doctor" ? user?._id : "") || "",
+    doctorName: user?.role === "Doctor" ? user?.name || "" : "",
     items: [
       {
         dosage: "1 tab",
@@ -85,12 +86,16 @@ export default function NewOrder({ mutate, asDialogOnly, openDialog, setOpenDial
   useEffect(() => {
     if (open === true && initialPatient) {
       addDraft(
-        { patient: initialPatient._id, doctor: user?._id || "" },
+        {
+          patient: initialPatient._id,
+          doctor: user?.role === "Doctor" ? user?._id || null : null,
+          doctorName: user?.role === "Doctor" ? user?.name || "" : ""
+        },
         initialPatient.mrn ? `${initialPatient.name} - (${initialPatient.mrn})` : initialPatient.name
       );
       if (setOpenDialog) setOpenDialog(false);
     }
-  }, [open, initialPatient, user?._id, addDraft, setOpenDialog]);
+  }, [open, initialPatient, user, addDraft, setOpenDialog]);
 
   const [showAllFields, setShowAllFields] = useState(false);
   const [patientName, setpatientName] = useState("");

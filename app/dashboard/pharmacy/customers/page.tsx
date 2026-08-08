@@ -282,7 +282,8 @@ const Customers: React.FC = () => {
                                       addDraft(
                                         {
                                           patient: p.patient._id,
-                                          doctor: user?._id || "",
+                                          doctor: user?.role === "Doctor" ? user?._id || null : null,
+                                          doctorName: user?.role === "Doctor" ? user?.name || "" : "",
                                           allergies: p.patient.allergies || "",
                                         },
                                         p.patient.mrn ? `${p.patient.name} - (${p.patient.mrn})` : p.patient.name

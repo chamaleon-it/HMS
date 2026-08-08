@@ -50,12 +50,13 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
     if (window.location.hash === "#newOrder" && id) {
       addDraft({
         patient: id,
-        doctor: doctor || user?._id || "",
+        doctor: doctor || (user?.role === "Doctor" ? user?._id || null : null),
+        doctorName: user?.role === "Doctor" ? user?.name || "" : "",
         allergies: allergiesParam || ""
       }, mrn ? `${name} - (${mrn})` : (name || ""));
       window.location.hash = "";
     }
-  }, [addDraft, user?._id]);
+  }, [addDraft, user]);
 
   return (
     <div className="flex gap-2">
@@ -70,7 +71,7 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
       <Button
         className="bg-(--color-synapse-light)  "
         size={"sm"}
-        onClick={() => addDraft({ doctor: user?._id || "" })}
+        onClick={() => addDraft(user?.role === "Doctor" ? { doctor: user?._id, doctorName: user?.name } : {})}
       >
         New Order
       </Button>
@@ -87,7 +88,8 @@ export default function NewOrder({ OrderMutate }: { OrderMutate: () => void }) {
               if (id && name) {
                 addDraft({
                   patient: id,
-                  doctor: user?._id || "",
+                  doctor: user?.role === "Doctor" ? user?._id || null : null,
+                  doctorName: user?.role === "Doctor" ? user?.name || "" : "",
                   allergies: allergies || ""
                 }, mrn ? `${name} - (${mrn})` : name);
               }

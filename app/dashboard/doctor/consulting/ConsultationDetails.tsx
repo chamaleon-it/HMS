@@ -25,6 +25,10 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Consultations } from "./History";
+import useGetTest from "@/data/useGetTest";
+import useGetPanels from "@/data/useGetPanels";
+import useGetTherapy from "@/data/useGetTherapy";
+import { getFormattedInvestigationNames, getFormattedTherapyNames } from "@/lib/investigationUtils";
 
 interface ConsultationDetailsProps {
     open: boolean;
@@ -39,6 +43,10 @@ export default function ConsultationDetails({
     selectedRow,
     onClose,
 }: ConsultationDetailsProps) {
+    const { tests } = useGetTest();
+    const { panels } = useGetPanels();
+    const { therapies } = useGetTherapy();
+
     if (!selectedRow) return null;
 
     const isAcupuncture =
@@ -464,9 +472,9 @@ export default function ConsultationDetails({
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="space-y-2">
-                                {selectedRow.therapy && (
+                                {Boolean(getFormattedTherapyNames(selectedRow.therapy, therapies)) && (
                                     <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
-                                        <span className="font-semibold text-slate-900">Therapy:</span> {selectedRow.therapy}
+                                        <span className="font-semibold text-slate-900">Therapy:</span> {getFormattedTherapyNames(selectedRow.therapy, therapies)}
                                     </p>
                                 )}
                                 {selectedRow.therapyNotes && (
@@ -545,7 +553,7 @@ export default function ConsultationDetails({
                                                 >
                                                     <div className="flex-1">
                                                         <p className="font-medium text-sm">
-                                                            {Array.isArray(t.name) ? t.name.map((n) => typeof n === "object" ? n.name : n).join(", ") : "—"}
+                                                            {getFormattedInvestigationNames(t, tests, panels).join(", ") || "—"}
                                                         </p>
                                                         <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
                                                             <span>

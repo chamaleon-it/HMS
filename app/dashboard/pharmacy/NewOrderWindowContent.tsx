@@ -124,7 +124,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
                 </div>
                 <div className="mt-auto">
                   <DoctorSelection
-                    value={payload.doctorName || ""}
+                    value={payload.doctorName || (typeof payload.doctor === 'string' ? payload.doctor : "")}
                     onSelect={(name: string, id?: string | null) => {
                       setPayload((prev: any) => ({ ...prev, doctorName: name, doctor: id ?? null }));
                     }}

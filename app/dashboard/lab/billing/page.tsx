@@ -28,19 +28,20 @@ export default function BillingPage() {
 
   const params = new URLSearchParams();
 
-  if (filter.q) {
-    params.set("q", filter.q);
+  if (filter.q && filter.q.trim()) {
+    params.set("q", filter.q.trim());
   }
 
-  if (filter.status !== "all") {
+  if (filter.status && filter.status !== "all") {
     params.set("status", filter.status);
   }
 
-  if (filter.method !== "all") {
+  if (filter.method && filter.method !== "all") {
     params.set("method", filter.method);
   }
+
   if (filter.date) {
-    params.set("date", filter.date.toISOString())
+    params.set("date", filter.date.toISOString());
   }
 
   const { data: billingData, mutate: billingMutate } = useSWR<{

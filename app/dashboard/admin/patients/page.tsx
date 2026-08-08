@@ -7,23 +7,12 @@ import AppShell from "@/components/layout/app-shell";
 import AdminHeader from "../components/AdminHeader";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 import {
-  CalendarDays,
   RefreshCw,
   FilterX,
-  Users,
-  Activity,
   Calendar,
-  Layers,
 } from "lucide-react";
 
 import { ClinicalSummaryCards } from "./components/ClinicalSummaryCards";
@@ -37,8 +26,8 @@ const fetcher = (url: string) => api.get(url).then((res) => res.data);
 export default function AdminClinicalPatientsPage() {
   // Date Range state
   const [dateRange, setDateRange] = useState<
-    "today" | "weekly" | "monthly" | "yearly" | "custom"
-  >("monthly");
+    "all" | "today" | "weekly" | "monthly" | "yearly" | "custom"
+  >("all");
   const [customStartDate, setCustomStartDate] = useState<string>("");
   const [customEndDate, setCustomEndDate] = useState<string>("");
 
@@ -99,7 +88,7 @@ export default function AdminClinicalPatientsPage() {
   const patientsTotal = patientsRes?.total || 0;
 
   const handleResetFilters = () => {
-    setDateRange("monthly");
+    setDateRange("all");
     setCustomStartDate("");
     setCustomEndDate("");
     setSearchTerm("");
@@ -117,207 +106,197 @@ export default function AdminClinicalPatientsPage() {
 
   return (
     <AppShell>
-      <div className="min-h-screen bg-slate-50/50 pb-12 space-y-6">
+      <div className="p-5 min-h-[calc(100vh-67px)] space-y-5">
+        {/* Standard Clean Admin Header */}
         <AdminHeader
-          title="Clinical Statistics & Patients"
-          subtitle="Hospital patient demographics, visit trends, diseases & treatment analytics"
+          title="Clinical Statistics & Patient Analytics"
+          subtitle="Diseases treated, patient demographics, visit trends, top medicines, therapies & tests"
+        >
+          {/* Action Filter Bar inside Admin Header */}
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1 bg-slate-100/90 p-1 rounded-2xl border border-slate-200/80 shadow-2xs">
+              <button
+                onClick={() => {
+                  setDateRange("all");
+                  setPage(1);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  dateRange === "all"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                All Time
+              </button>
+              <button
+                onClick={() => {
+                  setDateRange("today");
+                  setPage(1);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  dateRange === "today"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                Today
+              </button>
+              <button
+                onClick={() => {
+                  setDateRange("weekly");
+                  setPage(1);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  dateRange === "weekly"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                Weekly (7d)
+              </button>
+              <button
+                onClick={() => {
+                  setDateRange("monthly");
+                  setPage(1);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  dateRange === "monthly"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                Monthly (30d)
+              </button>
+              <button
+                onClick={() => {
+                  setDateRange("yearly");
+                  setPage(1);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  dateRange === "yearly"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                Yearly
+              </button>
+              <button
+                onClick={() => {
+                  setDateRange("custom");
+                  setPage(1);
+                }}
+                className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer ${
+                  dateRange === "custom"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-500 hover:text-slate-900"
+                }`}
+              >
+                Custom
+              </button>
+            </div>
+
+            {/* Custom Date Range Picker */}
+            {dateRange === "custom" && (
+              <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-200">
+                <Input
+                  type="date"
+                  className="h-8 w-32 text-xs bg-white border-slate-200 rounded-xl"
+                  value={customStartDate}
+                  onChange={(e) => setCustomStartDate(e.target.value)}
+                />
+                <span className="text-xs text-slate-400 font-bold">to</span>
+                <Input
+                  type="date"
+                  className="h-8 w-32 text-xs bg-white border-slate-200 rounded-xl"
+                  value={customEndDate}
+                  onChange={(e) => setCustomEndDate(e.target.value)}
+                />
+              </div>
+            )}
+
+            {/* Reset & Refresh Buttons */}
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleResetFilters}
+              className="h-9 w-9 rounded-2xl border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100 cursor-pointer"
+              title="Reset Filters"
+            >
+              <FilterX className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              className={`h-9 w-9 rounded-2xl border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100 cursor-pointer ${
+                isValidatingAnalytics ? "animate-spin" : ""
+              }`}
+              title="Refresh Analytics"
+            >
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
+        </AdminHeader>
+
+        {/* 1. Summary Cards */}
+        <ClinicalSummaryCards
+          summary={clinicalData?.summary}
+          isLoading={!analyticsRes && !analyticsError}
         />
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          {/* Header Title & Date Range Controls */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="flex flex-wrap items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/80 shadow-xs"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-600 flex items-center justify-center ring-1 ring-blue-500/20 shadow-xs">
-                <Activity className="w-6 h-6" />
-              </div>
-              <div>
-                <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                  Clinical Statistics & Patient Analytics
-                </h1>
-                <p className="text-xs text-slate-500 font-medium">
-                  Diseases treated, patient demographics, visit trends, top medicines, therapies & tests
-                </p>
-              </div>
-            </div>
+        {/* 2. Visit Trends Chart */}
+        <VisitTrendsChart
+          data={clinicalData?.visitTrends}
+          isLoading={!analyticsRes && !analyticsError}
+        />
 
-            {/* Date Preset Filter Bar */}
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-1 bg-slate-100/80 p-1 rounded-2xl border border-slate-200/60">
-                <button
-                  onClick={() => {
-                    setDateRange("today");
-                    setPage(1);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    dateRange === "today"
-                      ? "bg-white text-slate-900 shadow-xs"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  Today
-                </button>
-                <button
-                  onClick={() => {
-                    setDateRange("weekly");
-                    setPage(1);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    dateRange === "weekly"
-                      ? "bg-white text-slate-900 shadow-xs"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  Weekly (7d)
-                </button>
-                <button
-                  onClick={() => {
-                    setDateRange("monthly");
-                    setPage(1);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    dateRange === "monthly"
-                      ? "bg-white text-slate-900 shadow-xs"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  Monthly (30d)
-                </button>
-                <button
-                  onClick={() => {
-                    setDateRange("yearly");
-                    setPage(1);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    dateRange === "yearly"
-                      ? "bg-white text-slate-900 shadow-xs"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  Yearly
-                </button>
-                <button
-                  onClick={() => {
-                    setDateRange("custom");
-                    setPage(1);
-                  }}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                    dateRange === "custom"
-                      ? "bg-white text-slate-900 shadow-xs"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  Custom Range
-                </button>
-              </div>
+        {/* 3. Demographics Charts (Gender & Age Groups) */}
+        <DemographicsCharts
+          genderDistribution={clinicalData?.demographics?.genderDistribution}
+          ageDistribution={clinicalData?.demographics?.ageDistribution}
+          isLoading={!analyticsRes && !analyticsError}
+        />
 
-              {/* Custom Date Range Picker */}
-              {dateRange === "custom" && (
-                <div className="flex items-center gap-2 bg-slate-50 p-1.5 rounded-2xl border border-slate-200">
-                  <Input
-                    type="date"
-                    className="h-8 w-32 text-xs bg-white border-slate-200 rounded-xl"
-                    value={customStartDate}
-                    onChange={(e) => setCustomStartDate(e.target.value)}
-                  />
-                  <span className="text-xs text-slate-400 font-bold">to</span>
-                  <Input
-                    type="date"
-                    className="h-8 w-32 text-xs bg-white border-slate-200 rounded-xl"
-                    value={customEndDate}
-                    onChange={(e) => setCustomEndDate(e.target.value)}
-                  />
-                </div>
-              )}
+        {/* 4. Clinical Breakdowns (Top Cases, Medicines, Therapies, Lab Tests, Doctors, Departments) */}
+        <ClinicalBreakdowns
+          topComplaints={clinicalData?.topComplaints}
+          topMedicines={clinicalData?.topMedicines}
+          topTherapies={clinicalData?.topTherapies}
+          topLabTests={clinicalData?.topLabTests}
+          doctorStats={clinicalData?.doctorStats}
+          departmentStats={clinicalData?.departmentStats}
+          isLoading={!analyticsRes && !analyticsError}
+        />
 
-              {/* Reset & Refresh Buttons */}
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleResetFilters}
-                className="h-9 w-9 rounded-2xl border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100"
-                title="Reset Filters"
-              >
-                <FilterX className="w-4 h-4" />
-              </Button>
-
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleRefresh}
-                className={`h-9 w-9 rounded-2xl border-slate-200 text-slate-500 hover:text-slate-900 hover:bg-slate-100 ${
-                  isValidatingAnalytics ? "animate-spin" : ""
-                }`}
-                title="Refresh Analytics"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </Button>
-            </div>
-          </motion.div>
-
-          {/* 1. Summary Cards */}
-          <ClinicalSummaryCards
-            summary={clinicalData?.summary}
-            isLoading={!analyticsRes && !analyticsError}
-          />
-
-          {/* 2. Visit Trends Chart */}
-          <VisitTrendsChart
-            data={clinicalData?.visitTrends}
-            isLoading={!analyticsRes && !analyticsError}
-          />
-
-          {/* 3. Demographics Charts (Gender & Age Groups) */}
-          <DemographicsCharts
-            genderDistribution={clinicalData?.demographics?.genderDistribution}
-            ageDistribution={clinicalData?.demographics?.ageDistribution}
-            isLoading={!analyticsRes && !analyticsError}
-          />
-
-          {/* 4. Clinical Breakdowns (Top Cases, Medicines, Therapies, Lab Tests, Doctors, Departments) */}
-          <ClinicalBreakdowns
-            topComplaints={clinicalData?.topComplaints}
-            topMedicines={clinicalData?.topMedicines}
-            topTherapies={clinicalData?.topTherapies}
-            topLabTests={clinicalData?.topLabTests}
-            doctorStats={clinicalData?.doctorStats}
-            departmentStats={clinicalData?.departmentStats}
-            isLoading={!analyticsRes && !analyticsError}
-          />
-
-          {/* 5. Patient Directory Master Table */}
-          <PatientDirectoryTable
-            patients={patientsData}
-            total={patientsTotal}
-            page={page}
-            limit={limit}
-            isLoading={!patientsRes && !patientsError}
-            onPageChange={(p) => setPage(p)}
-            onLimitChange={(l) => {
-              setLimit(l);
-              setPage(1);
-            }}
-            searchTerm={searchTerm}
-            onSearchChange={(t) => {
-              setSearchTerm(t);
-              setPage(1);
-            }}
-            genderFilter={genderFilter}
-            onGenderChange={(g) => {
-              setGenderFilter(g);
-              setPage(1);
-            }}
-            statusFilter={statusFilter}
-            onStatusChange={(s) => {
-              setStatusFilter(s);
-              setPage(1);
-            }}
-          />
-        </div>
+        {/* 5. Patient Directory Master Table */}
+        <PatientDirectoryTable
+          patients={patientsData}
+          total={patientsTotal}
+          page={page}
+          limit={limit}
+          isLoading={!patientsRes && !patientsError}
+          onPageChange={(p) => setPage(p)}
+          onLimitChange={(l) => {
+            setLimit(l);
+            setPage(1);
+          }}
+          searchTerm={searchTerm}
+          onSearchChange={(t) => {
+            setSearchTerm(t);
+            setPage(1);
+          }}
+          genderFilter={genderFilter}
+          onGenderChange={(g) => {
+            setGenderFilter(g);
+            setPage(1);
+          }}
+          statusFilter={statusFilter}
+          onStatusChange={(s) => {
+            setStatusFilter(s);
+            setPage(1);
+          }}
+        />
       </div>
     </AppShell>
   );

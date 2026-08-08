@@ -31,6 +31,7 @@ interface PropsType {
     };
   }[];
 }
+
 export default function AllBill({ billing, filter, setFilter }: PropsType) {
   return (
     <div className="space-y-4">
@@ -72,16 +73,16 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                   </td>
                   <td className="py-2 pr-2">{fDateandTime(b.createdAt)}</td>
                   <td className="py-2 pr-2">
-                    <div className="font-medium truncate">{b.patient.name}</div>
+                    <div className="font-medium truncate">{b.patient?.name}</div>
                     <div className="text-[11px] text-slate-500">
-                      {b.patient.mrn}
+                      {b.patient?.mrn}
                     </div>
                   </td>
                   <td className="py-2 pr-2 text-right tabular-nums">
-                    {b.items.length}
+                    {b.items?.length || 0}
                   </td>
                   <td className="py-2 pr-2 text-right tabular-nums">
-                    {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
+                    {formatINR((b.items || []).reduce((a, item) => a + (item.total || 0), 0))}
                   </td>
                   <td className="py-2 pr-2 text-right tabular-nums">
                     {formatINR((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0))}
@@ -90,7 +91,7 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                     {formatINR(
                       Math.max(
                         0,
-                        b.items.reduce((a, i) => a + (i.total ?? 0), 0) -
+                        (b.items || []).reduce((a, i) => a + (i.total ?? 0), 0) -
                         ((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0))
                       )
                     )}
@@ -99,7 +100,7 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
                     <div className="flex justify-end items-center gap-3">
                       <StatusPill
                         s={(() => {
-                          const total = b.items.reduce(
+                          const total = (b.items || []).reduce(
                             (sum, i) => sum + (i.total ?? 0),
                             0
                           );
@@ -123,7 +124,7 @@ export default function AllBill({ billing, filter, setFilter }: PropsType) {
           </table>
         </div>
 
-        <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+        <div className="mt-3 flex items-center justify-between text-xs text-slate-500 p-3">
           <div>
             Showing {Math.min(10, billing.length)} of {billing.length}
           </div>

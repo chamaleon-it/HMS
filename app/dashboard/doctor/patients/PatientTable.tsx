@@ -361,7 +361,8 @@ export default function PatientTable({
                                     addPharmacyDraft(
                                       {
                                         patient: r._id,
-                                        doctor: user?._id || "",
+                                        doctor: user?._id || r.doctor?._id || "",
+                                        doctorName: user?.name || r.doctor?.name || "",
                                         allergies: r.allergies || "",
                                       },
                                       r.mrn ? `${r.name} - (${r.mrn})` : r.name

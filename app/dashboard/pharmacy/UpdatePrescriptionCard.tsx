@@ -197,38 +197,7 @@ export default function UpdatePrescriptionCard({
             <span>Sub Total</span>
             <span>{formatINR(subTotal)}</span>
           </div>
-          <div className="flex justify-between items-center text-sm text-slate-600">
-            <span>Discount %</span>
-            <input
-              disabled={data.status === "Completed"}
-              type="number"
-              min="0"
-              className="w-24 text-right bg-white border border-slate-200 rounded px-2 py-1 text-sm outline-none focus:border-emerald-500"
-              placeholder="0"
-              onChange={(e) => {
-                const pct = parseFloat(e.target.value) || 0;
-                const amt = (pct / 100) * subTotal;
-                setData(prev => ({ ...prev, discount: amt }));
-              }}
-              value={
-                subTotal && data.discount
-                  ? parseFloat(((data.discount / subTotal) * 100).toFixed(2))
-                  : ""
-              }
-            />
-          </div>
-          <div className="flex justify-between items-center text-sm text-slate-600">
-            <span>Discount ₹</span>
-            <input
-              disabled={data.status === "Completed"}
-              type="number"
-              min="0"
-              value={data.discount ? parseFloat(data.discount.toFixed(2)) : ""}
-              onChange={(e) => setData(prev => ({ ...prev, discount: Number(e.target.value) || 0 }))}
-              className="w-24 text-right bg-white border border-slate-200 rounded px-2 py-1 text-sm outline-none focus:border-emerald-500"
-              placeholder="0"
-            />
-          </div>
+
 
           <div className="flex justify-between items-center text-sm text-slate-600">
             <span>Amount Paid</span>

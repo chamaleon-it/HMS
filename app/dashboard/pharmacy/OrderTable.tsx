@@ -12,6 +12,7 @@ import { OrderType } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fDateandTime } from "@/lib/fDateAndTime";
+import { getFormattedTherapyNames } from "@/lib/investigationUtils";
 import { AlertTriangle, CheckCircle, Eye, Printer, RotateCcw, Trash, View, Activity } from "lucide-react";
 import {
   AlertDialog,
@@ -613,12 +614,15 @@ export default function OrderTable({
                       <Activity className="w-4 h-4 text-amber-600" /> Prescribed Therapies:
                     </div>
                     <ul className="list-disc list-inside text-xs font-medium text-amber-900 space-y-1">
-                      {pendingConsulting.therapy.map((th: any, idx: number) => (
-                        <li key={th._id || idx}>
-                          <span className="font-bold">{th.name || "Therapy"}</span>
-                          {th.price ? ` — ₹${th.price}` : ""}
-                        </li>
-                      ))}
+                      {pendingConsulting.therapy.map((th: any, idx: number) => {
+                        const name = typeof th === "object" && th !== null ? (th.name || "Therapy") : (getFormattedTherapyNames(th) || "Therapy");
+                        return (
+                          <li key={th._id || idx}>
+                            <span className="font-bold">{name}</span>
+                            {th.price ? ` — ₹${th.price}` : ""}
+                          </li>
+                        );
+                      })}
                     </ul>
                     {pendingConsulting?.therapyNotes && (
                       <p className="text-xs text-amber-700 italic mt-1">

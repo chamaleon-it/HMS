@@ -8,8 +8,7 @@ import {
   UserCheck,
   UserRound,
   Activity,
-  UserX,
-  Stethoscope,
+  ArrowUpRight,
 } from "lucide-react";
 
 interface SummaryData {
@@ -43,54 +42,54 @@ export function ClinicalSummaryCards({ summary, isLoading }: ClinicalSummaryCard
 
   const cards = [
     {
-      title: "Total Patients",
+      label: "Total Patients",
       value: total.toLocaleString(),
-      subtext: `${totalVisits.toLocaleString()} total visits in period`,
+      subtext: `${totalVisits.toLocaleString()} period visits`,
       icon: Users,
       badgeText: "Registered",
-      badgeColor: "bg-blue-500/10 text-blue-700 border-blue-200",
-      gradient: "from-blue-50/90 via-white to-blue-50/30 border-blue-200/70",
-      iconBg: "bg-blue-500/15 text-blue-600 ring-1 ring-blue-500/20",
+      badgeColor: "bg-blue-500/10 text-blue-700 border-blue-200/80",
+      gradient: "from-blue-50/60 via-white to-blue-50/20 border-blue-200/60",
+      iconBg: "bg-blue-500/10 text-blue-600 ring-1 ring-blue-500/20",
     },
     {
-      title: "New Patients",
+      label: "New Patients",
       value: newPts.toLocaleString(),
-      subtext: `${total > 0 ? Math.round((newPts / Math.max(totalVisits, 1)) * 100) : 0}% of period visits`,
+      subtext: `${totalVisits > 0 ? Math.round((newPts / totalVisits) * 100) : 0}% of period visits`,
       icon: UserPlus,
       badgeText: "First Visit",
-      badgeColor: "bg-emerald-500/10 text-emerald-700 border-emerald-200",
-      gradient: "from-emerald-50/90 via-white to-emerald-50/30 border-emerald-200/70",
-      iconBg: "bg-emerald-500/15 text-emerald-600 ring-1 ring-emerald-500/20",
+      badgeColor: "bg-emerald-500/10 text-emerald-700 border-emerald-200/80",
+      gradient: "from-emerald-50/60 via-white to-emerald-50/20 border-emerald-200/60",
+      iconBg: "bg-emerald-500/10 text-emerald-600 ring-1 ring-emerald-500/20",
     },
     {
-      title: "Returning Patients",
+      label: "Returning Patients",
       value: returning.toLocaleString(),
       subtext: "Follow-up consultations",
       icon: UserCheck,
       badgeText: "Follow-ups",
-      badgeColor: "bg-indigo-500/10 text-indigo-700 border-indigo-200",
-      gradient: "from-indigo-50/90 via-white to-indigo-50/30 border-indigo-200/70",
-      iconBg: "bg-indigo-500/15 text-indigo-600 ring-1 ring-indigo-500/20",
+      badgeColor: "bg-indigo-500/10 text-indigo-700 border-indigo-200/80",
+      gradient: "from-indigo-50/60 via-white to-indigo-50/20 border-indigo-200/60",
+      iconBg: "bg-indigo-500/10 text-indigo-600 ring-1 ring-indigo-500/20",
     },
     {
-      title: "Gender Distribution",
-      value: `${male}M / ${female}F`,
+      label: "Gender Ratio",
+      value: `${male}M : ${female}F`,
       subtext: `${malePercent}% Male • ${femalePercent}% Female`,
       icon: UserRound,
-      badgeText: "Gender Split",
-      badgeColor: "bg-purple-500/10 text-purple-700 border-purple-200",
-      gradient: "from-purple-50/90 via-white to-purple-50/30 border-purple-200/70",
-      iconBg: "bg-purple-500/15 text-purple-600 ring-1 ring-purple-500/20",
+      badgeText: "Demographics",
+      badgeColor: "bg-purple-500/10 text-purple-700 border-purple-200/80",
+      gradient: "from-purple-50/60 via-white to-purple-50/20 border-purple-200/60",
+      iconBg: "bg-purple-500/10 text-purple-600 ring-1 ring-purple-500/20",
     },
     {
-      title: "Active IP Admissions",
+      label: "In-Patient Care",
       value: activeIp.toLocaleString(),
       subtext: `${dischargedIp} patients discharged`,
       icon: Activity,
-      badgeText: "In-Patient",
-      badgeColor: "bg-amber-500/10 text-amber-700 border-amber-200",
-      gradient: "from-amber-50/90 via-white to-amber-50/30 border-amber-200/70",
-      iconBg: "bg-amber-500/15 text-amber-600 ring-1 ring-amber-500/20",
+      badgeText: "Active IP",
+      badgeColor: "bg-amber-500/10 text-amber-700 border-amber-200/80",
+      gradient: "from-amber-50/60 via-white to-amber-50/20 border-amber-200/60",
+      iconBg: "bg-amber-500/10 text-amber-600 ring-1 ring-amber-500/20",
     },
   ];
 
@@ -100,7 +99,7 @@ export function ClinicalSummaryCards({ summary, isLoading }: ClinicalSummaryCard
         const IconComponent = c.icon;
         return (
           <motion.div
-            key={c.title}
+            key={c.label}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: i * 0.05 }}
@@ -109,23 +108,23 @@ export function ClinicalSummaryCards({ summary, isLoading }: ClinicalSummaryCard
             <div>
               <div className="flex items-center justify-between gap-2 mb-3">
                 <span
-                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold border ${c.badgeColor}`}
+                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${c.badgeColor}`}
                 >
                   {c.badgeText}
                 </span>
-                <div className={`p-2.5 rounded-2xl ${c.iconBg}`}>
+                <div className={`p-2 rounded-xl ${c.iconBg}`}>
                   <IconComponent className="w-4 h-4" />
                 </div>
               </div>
 
               <p className="text-xs font-semibold text-slate-500 tracking-tight">
-                {c.title}
+                {c.label}
               </p>
 
               {isLoading ? (
-                <div className="h-7 bg-slate-200/70 animate-pulse rounded-md w-24 my-1" />
+                <div className="h-8 bg-slate-200/60 animate-pulse rounded-lg w-24 my-1" />
               ) : (
-                <h3 className="text-2xl font-black text-slate-900 tracking-tight my-0.5">
+                <h3 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight my-1">
                   {c.value}
                 </h3>
               )}

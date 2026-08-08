@@ -23,13 +23,17 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
     const containerRef = useRef<HTMLDivElement>(null);
 
     const { data: doctorsData, isLoading } = useSWR<{ data: Doctor[] }>("/users/doctors");
-    const doctors = doctorsData?.data ?? [];
+    const doctors = doctorsData?.data;
 
     const filteredDoctors = useMemo(() => {
+        const docList = doctors || [];
         const selfOption: Doctor = { _id: "self", name: "Self" };
-        const allOptions = [selfOption, ...doctors];
+        const allOptions = [selfOption, ...docList];
 
         if (!search) return allOptions;
+        const isObjectId = /^[0-9a-fA-F]{24}$/.test(search);
+        if (isObjectId) return allOptions;
+
         const searchLower = search.toLowerCase();
         return allOptions.filter(d =>
             d.name.toLowerCase().includes(searchLower) ||
@@ -37,10 +41,29 @@ const DoctorSelection: React.FC<Props> = ({ value, onSelect }) => {
         );
     }, [doctors, search]);
 
-    // Update search when external value changes (e.g. on clear)
+    // Update search when external value changes or doctors load
     useEffect(() => {
-        setSearch(value === "-" ? "Self" : (value || ""));
-    }, [value]);
+        if (!value) {
+            setSearch("");
+            return;
+        }
+        if (value === "-") {
+            setSearch("Self");
+            return;
+        }
+        const docList = doctors || [];
+        const docMatch = docList.find(
+            d => String(d._id) === String(value) || d.name.toLowerCase() === value.toLowerCase()
+        );
+        if (docMatch) {
+            setSearch(docMatch.name);
+        } else {
+            const isObjectId = /^[0-9a-fA-F]{24}$/.test(value);
+            if (!isObjectId) {
+                setSearch(value);
+            }
+        }
+    }, [value, doctors]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {

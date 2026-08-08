@@ -1,5 +1,5 @@
-import { Eye, Printer, Search, CheckCircle } from "lucide-react";
-import React from "react";
+import { Eye, Printer, Search, CheckCircle, RotateCcw } from "lucide-react";
+import React, { useState } from "react";
 import Link from "next/link";
 import Filters from "./Filter";
 import { formatINR, getDecimal } from "@/lib/fNumber";
@@ -7,6 +7,7 @@ import { fDateandTime } from "@/lib/fDateAndTime";
 import { FilterType } from "./page";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import RefundTherapyModal, { BillType } from "./RefundTherapyModal";
 import {
   Table,
   TableBody,
@@ -57,9 +58,13 @@ import api from "@/lib/axios";
 import PrintReceipt from "@/app/dashboard/pharmacy/billing/PrintReceipt";
 import { PaginationBar } from "@/app/dashboard/pharmacy/components/PaginationBar";
 
+import { getBillType, getBillTypeBadgeProps } from "@/lib/billTypeUtils";
+import { cn } from "@/lib/utils";
+
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
   const [printBill, setPrintBill] = React.useState<PropsType["billing"][number] | null>(null);
+  const [selectedRefundBill, setSelectedRefundBill] = useState<BillType | null>(null);
 
   const handlePrint = (bill: PropsType["billing"][number]) => {
     setPrintBill(bill);
@@ -124,7 +129,18 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                         : (filter.page - 1) * filter.limit + idx + 1}
                     </TableCell>
                     <TableCell className="py-3">
-                      <div className="font-medium text-slate-900">{b.mrn}</div>
+                      <div className="font-medium text-slate-900 flex items-center gap-1.5 flex-wrap">
+                        <span>{b.mrn}</span>
+                        {(() => {
+                          const type = getBillType(b);
+                          const badge = getBillTypeBadgeProps(type);
+                          return (
+                            <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border", badge.className)}>
+                              {badge.label}
+                            </span>
+                          );
+                        })()}
+                      </div>
                       <div className="text-[11px] text-slate-500 space-x-1 mt-1">
                         {Boolean(b.cash) && <MethodPill m="cash" />}
                         {Boolean(b.card) && <MethodPill m="card" />}
@@ -214,6 +230,24 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                         <Button variant="outline" size="sm" onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5 text-(--color-synapse-light) border-synapse-light/30 hover:bg-purple-50 hover:text-(--color-synapse-light)">
                           <Printer className="h-3.5 w-3.5" /> Print
                         </Button>
+
+                        {b.transactionType !== "Refund" && getBillType(b) === "therapy" && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedRefundBill(b as any)}
+                                className="h-8 text-xs gap-1.5 text-rose-600 border-rose-200 hover:bg-rose-50 hover:text-rose-700"
+                              >
+                                <RotateCcw className="h-3.5 w-3.5" /> Refund
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Refund Therapy Package</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
 
                         {(b.items.reduce((sum, i) => sum + (i.total ?? 0), 0) - (b.roundOff ? getDecimal(b.items.reduce((a, i) => a + (i.total ?? 0), 0)) : 0)) > ((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0) + (b.discount ?? 0) + 0.01) ? (
                           <Tooltip>
@@ -316,17 +350,18 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             name: printBill.patient.name,
             mrn: printBill.patient.mrn,
           }}
-          invoiceDetails={{
-            prefix: "INV",
-            roundOffAmount: printBill.roundOff ? getDecimal(printBill.items.reduce((s, i) => s + i.total, 0)) : 0,
-            subtotal: printBill.items.reduce((s, i) => s + i.total, 0),
-            totalGst: 0,
-            grandTotal: printBill.items.reduce((s, i) => s + i.total, 0) - (printBill.discount || 0),
-            invoiceNo: printBill.mrn,
-          }}
           invoiceNo={printBill.mrn}
         />
       )}
+
+      <RefundTherapyModal
+        bill={selectedRefundBill}
+        open={Boolean(selectedRefundBill)}
+        onOpenChange={(open) => !open && setSelectedRefundBill(null)}
+        onSuccess={() => {
+          billingMutate();
+        }}
+      />
     </>
   );
 }

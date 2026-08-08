@@ -6,6 +6,10 @@ import HospitalName from "@/components/print/HospitalName";
 import { fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { AppointmentType, DataType } from "./interface";
 import { useAuth } from "@/auth/context/auth-context";
+import useGetTest from "@/data/useGetTest";
+import useGetPanels from "@/data/useGetPanels";
+import useGetTherapy from "@/data/useGetTherapy";
+import { getFormattedInvestigationNames, getFormattedTherapyNames } from "@/lib/investigationUtils";
 
 interface PrintConsultationProps {
   appointment: AppointmentType | null;
@@ -40,7 +44,9 @@ function resolveDoctorName(doctor: any, fallbackSignature?: string, patientName?
 }
 
 export default function PrintConsultation({ appointment, data }: PrintConsultationProps) {
-
+  const { tests } = useGetTest();
+  const { panels } = useGetPanels();
+  const { therapies } = useGetTherapy();
   const [mounted, setMounted] = useState(false);
   const { user } = useAuth()
 
@@ -205,14 +211,10 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100 mb-1">
                   Therapy & Notes
                 </h4>
-                {data.therapy && (
+                {Boolean(getFormattedTherapyNames(data.therapy, therapies)) && (
                   <p className="text-slate-800 leading-relaxed font-medium">
                     <span className="font-semibold text-slate-900">Therapy:</span>{" "}
-                    {Array.isArray(data.therapy)
-                      ? data.therapy
-                        .map((t: any) => (typeof t === "object" && t?.name ? t.name : String(t)))
-                        .join(", ")
-                      : data.therapy}
+                    {getFormattedTherapyNames(data.therapy, therapies)}
                   </p>
                 )}
                 {data.therapyNotes && (
@@ -430,9 +432,10 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100 mb-1">
                   Therapy & Notes
                 </h4>
-                {data.therapy && (
+                {Boolean(getFormattedTherapyNames(data.therapy, therapies)) && (
                   <p className="text-slate-800 leading-relaxed font-medium">
-                    <span className="font-semibold text-slate-900">Therapy:</span> {data.therapy}
+                    <span className="font-semibold text-slate-900">Therapy:</span>{" "}
+                    {getFormattedTherapyNames(data.therapy, therapies)}
                   </p>
                 )}
                 {data.therapyNotes && (
@@ -505,15 +508,18 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200 bg-white">
-                {data.test.map((t, idx) => (
-                  <tr key={idx}>
-                    <td className="p-2 text-center text-slate-500 font-medium">{idx + 1}</td>
-                    <td className="p-2 font-bold text-slate-900">
-                      {Array.isArray(t.name) ? t.name.join(", ") : t.name}
-                    </td>
-                    <td className="p-2 text-center capitalize font-semibold">{t.priority}</td>
-                  </tr>
-                ))}
+                {data.test.map((t, idx) => {
+                  const names = getFormattedInvestigationNames(t, tests, panels);
+                  return (
+                    <tr key={idx}>
+                      <td className="p-2 text-center text-slate-500 font-medium">{idx + 1}</td>
+                      <td className="p-2 font-bold text-slate-900">
+                        {names.join(", ") || "—"}
+                      </td>
+                      <td className="p-2 text-center capitalize font-semibold">{t.priority}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

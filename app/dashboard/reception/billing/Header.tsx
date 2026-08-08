@@ -13,7 +13,7 @@ interface PropsType {
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
   billing: {
     doctor: string;
-    transactionType: "Return" | "Sale"
+    transactionType: "Return" | "Sale" | "Refund";
     roundOff: boolean;
     mrn: string;
     _id: string;
@@ -144,6 +144,30 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
             </motion.div>
           )}
         </AnimatePresence>
+      </div>
+
+      <div className="relative inline-flex items-center gap-1 text-sm bg-slate-50 border border-slate-200 rounded-full p-1 dark:bg-slate-800/50 dark:border-slate-700">
+        {[
+          { key: "all", label: "All Types" },
+          { key: "therapy", label: "Therapy" },
+          { key: "reception", label: "Reception" },
+          { key: "other", label: "Other" },
+        ].map(({ key, label }) => {
+          const active = (filter.billType || "all") === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setFilter((prev) => ({ ...prev, billType: key, page: 1 }))}
+              className={cn(
+                "relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all duration-300 ease-in-out cursor-pointer font-bold tracking-tight",
+                active ? "bg-(--color-synapse-light) text-white shadow-sm" : "text-slate-600 hover:text-slate-900"
+              )}
+              type="button"
+            >
+              {label}
+            </button>
+          );
+        })}
       </div>
 
       <BillingStatusFilter

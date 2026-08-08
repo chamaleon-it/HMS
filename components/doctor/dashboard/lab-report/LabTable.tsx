@@ -1,8 +1,57 @@
 import { fAge, fDate, fAgeString } from "@/lib/fDateAndTime";
+import { formatINR } from "@/lib/fNumber";
 import React from 'react'
 import ViewResultModal from './ViewResultModal';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+
+function getReportSummary(r: any) {
+    const panelMap = new Map<string, { name: string; price: number }>();
+    const standaloneTests: any[] = [];
+    let totalPrice = 0;
+
+    if (Array.isArray(r.panels)) {
+        r.panels.forEach((p: any) => {
+            if (typeof p === 'string' && p.trim()) {
+                panelMap.set(p.trim(), { name: p.trim(), price: 0 });
+            } else if (p && p.name) {
+                panelMap.set(p._id || p.name, { name: p.name, price: p.price || 0 });
+            }
+        });
+    }
+
+    if (Array.isArray(r.test)) {
+        r.test.forEach((tItem: any) => {
+            const testDoc = tItem.name;
+            if (!testDoc) return;
+
+            const testPanels = testDoc.panels || [];
+            if (testPanels.length > 0) {
+                testPanels.forEach((pObj: any) => {
+                    const pName = typeof pObj === 'object' && pObj.name ? pObj.name : String(pObj);
+                    if (pName && !panelMap.has(pName)) {
+                        panelMap.set(pName, { name: pName, price: pObj.price || 0 });
+                    }
+                });
+            } else {
+                standaloneTests.push(testDoc);
+                totalPrice += testDoc.price || 0;
+            }
+        });
+    }
+
+    panelMap.forEach((p) => {
+        totalPrice += p.price || 0;
+    });
+
+    return {
+        panelsCount: panelMap.size,
+        panelNames: Array.from(panelMap.values()).map((p) => p.name),
+        standaloneTestsCount: standaloneTests.length,
+        standaloneTestNames: standaloneTests.map((t) => t.name),
+        totalPrice,
+    };
+}
 
 
 interface PropsTypes {
@@ -88,9 +137,9 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                         </th>
                         {headerCell("No.")}
                         {headerCell("Patient")}
-                        {headerCell("Test")}
-                        {headerCell("Value")}
-                        {headerCell("Reference")}
+                        {headerCell("Panels")}
+                        {headerCell("Tests")}
+                        {headerCell("Price")}
                         {headerCell("Created At")}
                         {headerCell("Reported")}
                         {headerCell("Status")}
@@ -103,6 +152,8 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                         (r) => status === "All" || r.status === status
                             && (facility === "All" || r.test.some((e) => e.name.type === facility))
                     ).map((r, idx) => {
+                        const summary = getReportSummary(r);
+
                         return (
                             <tr
                                 key={r._id}
@@ -125,63 +176,42 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                         </span>
                                     </div>
                                 </td>
-                                <td className="px-3 py-2 text-sm text-gray-700">
-                                    <div className="flex flex-col gap-2">
-                                        {r.test.map((e) => (facility === "All" || e.name.type === facility) && (
-                                            <div key={e._id} className="flex items-center gap-1 h-5 font-medium text-sm">
-                                                {e.name.name}
-                                            </div>
-                                        ))}
-                                    </div>
-                                </td>
 
+                                {/* Panels Column */}
                                 <td className="px-3 py-2 text-xs">
-                                    <div className="flex flex-col gap-2">
-                                        {r.test.map(
-                                            (e) => {
-                                                let normal = true
-
-                                                if (e.value && e.name.range?.[0]?.min && e.name.range?.[0]?.max && e.name.type == "Lab") {
-                                                    if (Number(e.value) < Number(e.name.range?.[0]?.min) || Number(e.value) > Number(e.name.range?.[0]?.max)) {
-                                                        normal = false
-                                                    }
-                                                }
-
-                                                return (facility === "All" || e.name.type === facility) && (
-                                                    <span
-                                                        key={e._id}
-                                                        className={cn("text-gray-600 font-mono h-5",
-                                                            normal ? "" : "text-red-600"
-                                                        )}
-                                                    >
-                                                        {e.value ? <>
-                                                            {e.name.type === "Imaging" ? <a
-                                                                href={e?.value?.toString()}
-                                                                target="_blank"
-                                                                rel="noopener noreferrer"
-                                                                className="inline-flex items-center px-2 py-0.5 border border-transparent text-xs font-medium rounded-md text-(--color-synapse-light) bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150"
-                                                            >
-                                                                View Result
-                                                            </a> : `${e.value} ${e.name.unit}`}
-                                                        </> : "-"}
-                                                    </span>
-                                                )
-                                            }
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-slate-800">
+                                            {summary.panelsCount} {summary.panelsCount === 1 ? "Panel" : "Panels"}
+                                        </span>
+                                        {summary.panelNames.length > 0 ? (
+                                            <span className="text-[11px] text-slate-500 font-medium truncate max-w-[160px]" title={summary.panelNames.join(", ")}>
+                                                {summary.panelNames.join(", ")}
+                                            </span>
+                                        ) : (
+                                            <span className="text-[11px] text-slate-400">None</span>
                                         )}
                                     </div>
                                 </td>
 
+                                {/* Standalone Tests Column (Excludes tests included in panels) */}
                                 <td className="px-3 py-2 text-xs">
-                                    <div className="flex flex-col gap-2">
-                                        {r.test.map(
-                                            (e) => (facility === "All" || e.name.type === facility) && (
-                                                <span
-                                                    key={e._id}
-                                                    className="text-gray-600 font-mono h-5"
-                                                >{`${e?.name?.range?.[0]?.min ?? ""} - ${e?.name?.range?.[0]?.max ?? ""} ${e?.name?.range?.[0]?.min ? e.name.unit : ""}`}</span>
-                                            )
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-slate-800">
+                                            {summary.standaloneTestsCount} {summary.standaloneTestsCount === 1 ? "Test" : "Tests"}
+                                        </span>
+                                        {summary.standaloneTestNames.length > 0 ? (
+                                            <span className="text-[11px] text-slate-500 font-medium truncate max-w-[160px]" title={summary.standaloneTestNames.join(", ")}>
+                                                {summary.standaloneTestNames.join(", ")}
+                                            </span>
+                                        ) : (
+                                            <span className="text-[11px] text-slate-400">None</span>
                                         )}
                                     </div>
+                                </td>
+
+                                {/* Price Column */}
+                                <td className="px-3 py-2 text-xs font-mono font-bold text-emerald-700">
+                                    {formatINR(summary.totalPrice)}
                                 </td>
 
                                 <td className="px-3 py-2 text-sm text-gray-500">

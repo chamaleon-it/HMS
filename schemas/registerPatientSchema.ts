@@ -38,7 +38,9 @@ export const registerPatientSchema = z.object({
 
   conditions: z.array(z.string().max(100)).optional(),
 
-  blood: z.enum([...BLOOD_GROUPS]).optional(),
+  blood: z.string().optional().or(z.literal("")).nullable(),
+
+  allergies: z.string().optional().or(z.literal("")).nullable(),
 
   weight: z.union([z.literal(""), z.coerce.number()])
     .nullable()
