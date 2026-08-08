@@ -410,6 +410,9 @@ export default function AccountsPage() {
                   <TableHead className="font-semibold text-slate-700">
                     Category
                   </TableHead>
+                  <TableHead className="font-semibold text-slate-700">
+                    Pay Method
+                  </TableHead>
                   <TableHead className="font-semibold text-slate-700 max-w-xs">
                     Description
                   </TableHead>
@@ -516,6 +519,11 @@ export default function AccountsPage() {
                         </TableCell>
                         <TableCell className="text-xs font-semibold text-slate-800">
                           {txn.category}
+                        </TableCell>
+                        <TableCell className="text-xs font-medium text-slate-600">
+                          <span className="px-2 py-0.5 bg-slate-100 text-slate-700 rounded-md border border-slate-200/60 font-mono">
+                            {txn.paymentMethod || "Cash"}
+                          </span>
                         </TableCell>
                         <TableCell className="text-xs text-slate-600 max-w-xs truncate">
                           {txn.description}

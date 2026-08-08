@@ -10,7 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AccountTransaction, TransactionType } from "./types";
 import { formatINR } from "@/lib/fNumber";
-import { ArrowDownLeft, ArrowUpRight, Calendar, User, FileText, Tag, Receipt } from "lucide-react";
+import { ArrowDownLeft, ArrowUpRight, Calendar, User, FileText, Tag, Receipt, CreditCard } from "lucide-react";
 
 interface ViewTransactionModalProps {
   open: boolean;
@@ -104,6 +104,15 @@ export function ViewTransactionModal({
 
             <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
               <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
+                <CreditCard className="w-3.5 h-3.5" /> Pay Method
+              </span>
+              <span className="font-semibold text-slate-800 block mt-1">
+                {transaction.paymentMethod || "Cash"}
+              </span>
+            </div>
+
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+              <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
                 <Tag className="w-3.5 h-3.5" /> Category
               </span>
               <span className="font-semibold text-slate-800 block mt-1">
@@ -120,7 +129,7 @@ export function ViewTransactionModal({
               </span>
             </div>
 
-            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 col-span-2">
               <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
                 <User className="w-3.5 h-3.5" /> Created By
               </span>

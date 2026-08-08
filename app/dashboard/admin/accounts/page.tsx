@@ -15,11 +15,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 import {
   FilterX,
   RefreshCw,
   XCircle,
   CalendarDays,
+  FileDown,
+  Loader2,
 } from "lucide-react";
 import {
   TransactionType,
@@ -31,6 +34,7 @@ import { TrendChart } from "./components/TrendChart";
 import { CategoryPieChart } from "./components/CategoryPieChart";
 import { MonthlyBarChart } from "./components/MonthlyBarChart";
 import { AnalyticsTable } from "./components/AnalyticsTable";
+import { generateAccountsReportPdf } from "./utils/generateAccountsReportPdf";
 
 const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
@@ -203,6 +207,62 @@ export default function AdminAccountsAnalyticsPage() {
     mutateTable();
   };
 
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
+
+  const handleDownloadReport = async () => {
+    try {
+      setIsDownloadingPdf(true);
+      toast.loading("Generating PDF Report...", { id: "pdf-toast" });
+
+      const reportQueryParams = new URLSearchParams();
+      reportQueryParams.set("limit", "1000");
+      if (computedDateRange.start)
+        reportQueryParams.set("startDate", computedDateRange.start);
+      if (computedDateRange.end)
+        reportQueryParams.set("endDate", computedDateRange.end);
+      if (selectedType !== "ALL")
+        reportQueryParams.set("type", selectedType);
+      if (selectedCategory !== "ALL")
+        reportQueryParams.set("category", selectedCategory);
+      if (searchTerm.trim())
+        reportQueryParams.set("q", searchTerm.trim());
+
+      const res = await api.get(`/accounts?${reportQueryParams.toString()}`);
+      const reportTransactions = res.data?.data || [];
+
+      const datePresetLabels: Record<DatePreset, string> = {
+        ALL: "All Time",
+        TODAY: "Today",
+        THIS_WEEK: "This Week",
+        THIS_MONTH: "This Month",
+        LAST_MONTH: "Last Month",
+        THIS_QUARTER: "This Quarter",
+        THIS_YEAR: "This Year",
+        CUSTOM: "Custom Range",
+      };
+
+      generateAccountsReportPdf({
+        summary: analyticsData.summary,
+        categoryBreakdown: analyticsData.categoryBreakdown,
+        transactions: reportTransactions,
+        datePresetLabel: datePresetLabels[datePreset] || datePreset,
+        startDate: computedDateRange.start,
+        endDate: computedDateRange.end,
+        selectedType,
+        selectedCategory,
+      });
+
+      toast.success("PDF report downloaded successfully!", { id: "pdf-toast" });
+    } catch (err) {
+      console.error("Error generating PDF report:", err);
+      toast.error("Failed to generate PDF report. Please try again.", {
+        id: "pdf-toast",
+      });
+    } finally {
+      setIsDownloadingPdf(false);
+    }
+  };
+
   if (analyticsError) {
     return (
       <AppShell>
@@ -232,11 +292,29 @@ export default function AdminAccountsAnalyticsPage() {
   return (
     <AppShell>
       <div className="p-5 min-h-[calc(100vh-67px)] space-y-5">
-        {/* Standard Admin Header */}
+        {/* Standard Admin Header with Download Report Action */}
         <AdminHeader
           title="Accounts Analytics"
           subtitle="Comprehensive financial reporting, category insights, and trend analysis"
-        />
+        >
+          <Button
+            onClick={handleDownloadReport}
+            disabled={isDownloadingPdf || isAnalyticsLoading}
+            className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold px-4 py-2.5 rounded-2xl shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 border border-emerald-500/20 active:scale-95 text-xs sm:text-sm cursor-pointer"
+          >
+            {isDownloadingPdf ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin text-white" />
+                <span>Generating PDF...</span>
+              </>
+            ) : (
+              <>
+                <FileDown className="w-4 h-4 text-white" />
+                <span>Download Report</span>
+              </>
+            )}
+          </Button>
+        </AdminHeader>
 
         {/* Dynamic Date & Filter Control Bar */}
         <motion.div
@@ -249,20 +327,36 @@ export default function AdminAccountsAnalyticsPage() {
             <span className="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
               <CalendarDays className="w-4 h-4 text-(--color-synapse-light)" /> Date & Filter Controls
             </span>
-            {(datePreset !== "ALL" ||
-              selectedType !== "ALL" ||
-              selectedCategory !== "ALL" ||
-              startDate ||
-              endDate) && (
+            <div className="flex items-center gap-2">
+              {(datePreset !== "ALL" ||
+                selectedType !== "ALL" ||
+                selectedCategory !== "ALL" ||
+                startDate ||
+                endDate) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-7 rounded-lg font-semibold"
+                  onClick={handleResetFilters}
+                >
+                  <FilterX className="w-3.5 h-3.5 mr-1" /> Clear Filters
+                </Button>
+              )}
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-7 rounded-lg font-semibold"
-                onClick={handleResetFilters}
+                onClick={handleDownloadReport}
+                disabled={isDownloadingPdf || isAnalyticsLoading}
+                className="h-7 rounded-lg text-xs font-bold text-emerald-700 border-emerald-200 bg-emerald-50/50 hover:bg-emerald-100/70 transition-all cursor-pointer"
               >
-                <FilterX className="w-3.5 h-3.5 mr-1" /> Clear All Filters
+                {isDownloadingPdf ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                ) : (
+                  <FileDown className="w-3.5 h-3.5 mr-1" />
+                )}
+                Download PDF Report
               </Button>
-            )}
+            </div>
           </div>
 
           {/* Date Range Presets */}

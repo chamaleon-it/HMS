@@ -26,6 +26,8 @@ import api from "@/lib/axios";
 import {
   AccountTransaction,
   TransactionType,
+  PaymentMethod,
+  PAYMENT_METHODS,
   EXPENSE_CATEGORIES,
   INCOME_CATEGORIES,
 } from "./types";
@@ -38,6 +40,7 @@ import {
   Tag,
   FileText,
   MessageSquareText,
+  CreditCard,
 } from "lucide-react";
 
 const editTransactionSchema = z.object({
@@ -53,6 +56,9 @@ const editTransactionSchema = z.object({
     .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
       message: "Amount must be a number greater than 0",
     }),
+  paymentMethod: z.nativeEnum(PaymentMethod, {
+    error: "Payment method is required",
+  }),
   description: z
     .string()
     .min(2, "Description must be at least 2 characters")
@@ -100,6 +106,7 @@ export function EditTransactionModal({
         type: transaction.type,
         category: transaction.category,
         amount: String(transaction.amount),
+        paymentMethod: (transaction.paymentMethod as PaymentMethod) || PaymentMethod.Cash,
         description: transaction.description,
         notes: transaction.notes || "",
         transactionDate: formattedDate,
@@ -120,6 +127,7 @@ export function EditTransactionModal({
         type: values.type,
         category: values.category,
         amount: Number(values.amount),
+        paymentMethod: values.paymentMethod,
         description: values.description.trim(),
         notes: values.notes?.trim() || undefined,
         transactionDate: new Date(values.transactionDate).toISOString(),
@@ -261,22 +269,53 @@ export function EditTransactionModal({
             </div>
           </div>
 
-          {/* Transaction Date */}
-          <div className="space-y-1.5">
-            <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-slate-400" />
-              Transaction Date <span className="text-rose-500">*</span>
-            </Label>
-            <Input
-              type="date"
-              className="h-11 rounded-xl border-slate-200 bg-slate-50/50 hover:bg-slate-50 focus:bg-white transition-colors"
-              {...register("transactionDate")}
-            />
-            {errors.transactionDate && (
-              <p className="text-xs text-rose-500 font-medium">
-                {errors.transactionDate.message}
-              </p>
-            )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Payment Method */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                <CreditCard className="w-3.5 h-3.5 text-slate-400" />
+                Payment Method <span className="text-rose-500">*</span>
+              </Label>
+              <Controller
+                name="paymentMethod"
+                control={control}
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="w-full h-11 rounded-xl border-slate-200 bg-slate-50/50 hover:bg-slate-50 focus:bg-white transition-colors">
+                      <SelectValue placeholder="Select Payment Method" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white z-50 rounded-xl shadow-xl border-slate-200">
+                      {PAYMENT_METHODS.map((pm) => (
+                        <SelectItem key={pm} value={pm} className="rounded-lg">
+                          {pm}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+              {errors.paymentMethod && (
+                <p className="text-xs text-rose-500 font-medium">{errors.paymentMethod.message}</p>
+              )}
+            </div>
+
+            {/* Transaction Date */}
+            <div className="space-y-1.5">
+              <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1">
+                <Calendar className="w-3.5 h-3.5 text-slate-400" />
+                Transaction Date <span className="text-rose-500">*</span>
+              </Label>
+              <Input
+                type="date"
+                className="h-11 rounded-xl border-slate-200 bg-slate-50/50 hover:bg-slate-50 focus:bg-white transition-colors"
+                {...register("transactionDate")}
+              />
+              {errors.transactionDate && (
+                <p className="text-xs text-rose-500 font-medium">
+                  {errors.transactionDate.message}
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Description */}

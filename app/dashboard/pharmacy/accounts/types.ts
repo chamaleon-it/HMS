@@ -3,6 +3,15 @@ export enum TransactionType {
   Expense = "Expense",
 }
 
+export enum PaymentMethod {
+  Cash = "Cash",
+  Card = "Card",
+  UPI = "UPI",
+}
+
+export const PAYMENT_METHODS = ["Cash", "Card", "UPI"] as const;
+export type PaymentMethodType = (typeof PAYMENT_METHODS)[number];
+
 export const EXPENSE_CATEGORIES = [
   "Parking",
   "Doctor Expense",
@@ -41,6 +50,7 @@ export interface AccountTransaction {
   category: string;
   amount: number;
   description: string;
+  paymentMethod?: PaymentMethod | string;
   notes?: string;
   transactionDate: string;
   createdBy?: AccountTransactionUserRef | string;

@@ -134,6 +134,9 @@ export function AnalyticsTable({
                 <TableHead className="font-bold text-slate-700 text-xs py-3.5">
                   Category
                 </TableHead>
+                <TableHead className="font-bold text-slate-700 text-xs py-3.5">
+                  Pay Method
+                </TableHead>
                 <TableHead className="font-bold text-slate-700 text-xs max-w-xs py-3.5">
                   Description
                 </TableHead>
@@ -223,6 +226,11 @@ export function AnalyticsTable({
                       <TableCell className="text-xs font-bold text-slate-800">
                         <span className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200/60 inline-block">
                           {txn.category}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-xs font-medium text-slate-600">
+                        <span className="px-2.5 py-1 bg-slate-100 text-slate-700 rounded-lg border border-slate-200/60 font-mono inline-block">
+                          {txn.paymentMethod || "Cash"}
                         </span>
                       </TableCell>
                       <TableCell className="text-xs text-slate-600 max-w-xs truncate font-medium">
