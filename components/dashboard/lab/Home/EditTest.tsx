@@ -230,27 +230,29 @@ export default function EditTest({ report, mutate }: EditTestProps) {
                                     <Button
                                         variant="ghost"
                                         className="cursor-pointer"
-                                        onClick={() => {
-                                            setPayload((prev) => {
-                                                if (!prev.panels.includes(t)) return prev;
+                                         onClick={() => {
+                                             setPayload((prev) => {
+                                                 if (!prev.panels.includes(t)) return prev;
 
-                                                const relatedTestIds = new Set(
-                                                    tests
-                                                        .filter((test) =>
-                                                            test.panels?.some((panel) => panel.name === t)
-                                                        )
-                                                        .map((test) => test._id)
-                                                );
+                                                 const panelToRemove = panels.find((p) => p.name === t);
+                                                 let relatedIds: string[] = [];
+                                                 if (panelToRemove?.tests && panelToRemove.tests.length) {
+                                                     relatedIds = panelToRemove.tests.map((test: any) => typeof test === 'string' ? test : test._id);
+                                                 }
+                                                 const catalogIds = tests
+                                                     .filter((test) => test.panels?.some((panel) => panel.name === t))
+                                                     .map((test) => test._id);
+                                                 const relatedTestIds = new Set([...relatedIds, ...catalogIds]);
 
-                                                return {
-                                                    ...prev,
-                                                    panels: prev.panels.filter((panel) => panel !== t),
-                                                    test: prev.test.filter(
-                                                        (testItem) => !relatedTestIds.has(testItem.name)
-                                                    ),
-                                                };
-                                            });
-                                        }}
+                                                 return {
+                                                     ...prev,
+                                                     panels: prev.panels.filter((panel) => panel !== t),
+                                                     test: prev.test.filter(
+                                                         (testItem) => !relatedTestIds.has(testItem.name)
+                                                     ),
+                                                 };
+                                             });
+                                         }}
                                     >
                                         <Trash className="h-2 w-2 text-red-500" />
                                     </Button>

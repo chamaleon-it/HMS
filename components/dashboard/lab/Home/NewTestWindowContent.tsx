@@ -148,6 +148,49 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
     return groupsTotal + panelsTotal + independentTestsTotal;
   }, [payload.groups, payload.panels, payload.test, panels, tests, groups]);
 
+  const getTestIdsForPanel = (panelName: string) => {
+    const testIds = new Set<string>();
+    const panelObj = panels.find((p) => p.name === panelName);
+    if (panelObj) {
+      if (panelObj.tests && panelObj.tests.length) {
+        panelObj.tests.forEach((t: any) => {
+          const id = typeof t === "string" ? t : (t._id || t.id);
+          if (id) testIds.add(String(id));
+        });
+      }
+      tests.forEach((t: any) => {
+        if (t.panels?.some((p: any) => (typeof p === "string" ? p : p.name) === panelName)) {
+          if (t._id) testIds.add(String(t._id));
+        }
+      });
+    }
+    return testIds;
+  };
+
+  const getItemsForGroup = (groupName: string) => {
+    const testIds = new Set<string>();
+    const panelNames = new Set<string>();
+
+    const groupObj = groups.find((g) => g.name === groupName);
+    if (groupObj) {
+      (groupObj.tests || []).forEach((t: any) => {
+        const id = typeof t === "string" ? t : (t._id || t.id);
+        if (id) testIds.add(String(id));
+      });
+
+      (groupObj.panels || []).forEach((gp: any) => {
+        const pName = typeof gp === "string" ? gp : (gp.name || gp);
+        if (pName) {
+          panelNames.add(String(pName));
+          const pTestIds = getTestIdsForPanel(String(pName));
+          pTestIds.forEach((id) => testIds.add(id));
+        }
+      });
+    }
+
+    return { testIds, panelNames };
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <div className="flex justify-between items-center">
@@ -373,14 +416,31 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
                     variant="ghost"
                     onClick={() => {
                       setPayload((prev: any) => {
-                        const groupToRemove = groups.find((g) => g.name === groupName);
-                        const relatedTestIds = new Set(groupToRemove?.tests?.map((t: any) => t._id) || []);
-                        const relatedPanelNames = new Set(groupToRemove?.panels?.map((p: any) => p.name) || []);
+                        const { testIds: groupTestIds, panelNames: groupPanelNames } = getItemsForGroup(groupName);
+
+                        const otherGroups = (prev.groups || []).filter((g: string) => g !== groupName);
+                        const remainingGroupPanels = new Set<string>();
+                        const remainingGroupTests = new Set<string>();
+
+                        otherGroups.forEach((gName: string) => {
+                          const { testIds, panelNames } = getItemsForGroup(gName);
+                          panelNames.forEach((p) => remainingGroupPanels.add(p));
+                          testIds.forEach((t) => remainingGroupTests.add(t));
+                        });
+
+                        const panelsToRemove = new Set(
+                          Array.from(groupPanelNames).filter((p) => !remainingGroupPanels.has(p))
+                        );
+
+                        const testIdsToRemove = new Set(
+                          Array.from(groupTestIds).filter((t) => !remainingGroupTests.has(t))
+                        );
+
                         return {
                           ...prev,
-                          groups: prev.groups.filter((g: string) => g !== groupName),
-                          panels: prev.panels.filter((pName: string) => !relatedPanelNames.has(pName)),
-                          test: prev.test.filter((tItem: { name: string }) => !relatedTestIds.has(tItem.name)),
+                          groups: (prev.groups || []).filter((g: string) => g !== groupName),
+                          panels: (prev.panels || []).filter((pName: string) => !panelsToRemove.has(pName)),
+                          test: (prev.test || []).filter((tItem: { name: string }) => !testIdsToRemove.has(String(tItem.name))),
                         };
                       });
                     }}
@@ -423,20 +483,24 @@ export default function NewTestWindowContent({ draft }: { draft: LabDraft }) {
                     variant="ghost"
                     onClick={() => {
                       setPayload((prev: any) => {
-                        const panelToRemove = panels.find((p) => p.name === t);
-                        let relatedIds: string[] = [];
-                        if (panelToRemove?.tests && panelToRemove.tests.length) {
-                          relatedIds = panelToRemove.tests.map((test: any) => test._id);
-                        } else {
-                          relatedIds = tests
-                            .filter((test) => test.panels?.some((panel) => panel.name === t))
-                            .map((test) => test._id);
-                        }
-                        const relatedTestIds = new Set(relatedIds);
+                        const panelTestIds = getTestIdsForPanel(t);
+
+                        const otherPanels = (prev.panels || []).filter((p: string) => p !== t);
+                        const remainingPanelTests = new Set<string>();
+
+                        otherPanels.forEach((pName: string) => {
+                          const pTestIds = getTestIdsForPanel(pName);
+                          pTestIds.forEach((tId) => remainingPanelTests.add(tId));
+                        });
+
+                        const testIdsToRemove = new Set(
+                          Array.from(panelTestIds).filter((tId) => !remainingPanelTests.has(tId))
+                        );
+
                         return {
                           ...prev,
                           panels: prev.panels.filter((panel: string) => panel !== t),
-                          test: prev.test.filter((testItem: { name: string }) => !relatedTestIds.has(testItem.name)),
+                          test: prev.test.filter((testItem: { name: string }) => !testIdsToRemove.has(String(testItem.name))),
                         };
                       });
                     }}
