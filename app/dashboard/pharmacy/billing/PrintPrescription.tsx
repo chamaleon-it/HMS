@@ -1,8 +1,12 @@
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { OrderType } from "../interface";
-import Watermark from "@/components/print/Watermark";
-import HospitalName from "@/components/print/HospitalName";
-import configuration from "@/config/configuration";
+import {
+    PrescriptionHeader,
+    PrescriptionPatientStrip,
+    PrescriptionWatermark,
+    PrescriptionSignature,
+    PrescriptionFooter,
+} from "@/components/print/PrescriptionHeader";
 
 interface PrintPrescriptionProps {
     order: OrderType | null;
@@ -19,31 +23,60 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
         : doctor?.name || null;
     const displayDoctorName = !rawDoctorName || rawDoctorName === "-" ? "-" : `DR. ${rawDoctorName}`;
 
+    const dObj = new Date(order.createdAt || new Date());
+    const formattedDate = !isNaN(dObj.getTime())
+        ? `${dObj.getDate().toString().padStart(2, "0")}/${(dObj.getMonth() + 1).toString().padStart(2, "0")}/${dObj.getFullYear()}`
+        : "__________";
+    let ageStr = "____";
+    if (patient?.dateOfBirth) {
+        const dob = new Date(patient.dateOfBirth);
+        const ageYears = new Date().getFullYear() - dob.getFullYear();
+        ageStr = `${ageYears} Y`;
+    }
+    const sexStr = patient?.gender ? patient.gender.charAt(0).toUpperCase() : "____";
+    const opNumber = patient?.mrn ? patient.mrn.replace("MRN", "P-") : "";
+
     return (
-        <div className="print-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-visible">
+        <div className="print-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-hidden">
             <style dangerouslySetInnerHTML={{
                 __html: `
         @media print {
           @page {
             margin: 0;
-            size: A4;
+            size: A4 portrait;
           }
-          body { 
-            visibility: hidden !important; 
+          html, body { 
             margin: 0 !important;
             padding: 0 !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
+          body > *:not(.print-prescription) {
+            display: none !important;
+          }
           .print-prescription { 
             visibility: visible !important;
+            display: flex !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100% !important;
-            display: block !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            flex-direction: column !important;
             padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-after: avoid !important;
+            break-inside: avoid !important;
           }
           .no-print, aside, header, footer, nav, button {
             display: none !important;
@@ -51,70 +84,65 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
         }
       `}} />
 
-            <div className="max-w-[21cm] mx-auto min-h-screen flex flex-col">
-                {/* HEADER */}
-                <div className="bg-white text-black border-b border-slate-500 px-10 py-8">
-                    <div className="flex justify-between items-start">
-                        <HospitalName />
-                        <div className="text-right space-y-2">
-                            <span className="inline-block bg-black text-white text-[10px] px-3 py-1 rounded-full font-black tracking-widest uppercase hover:bg-slate-800 transition-colors">
-                                PRESCRIPTION
+            <div className="w-[210mm] h-[297mm] max-h-[297mm] mx-auto flex flex-col relative z-20 bg-white border border-slate-200 print:border-none print:w-[210mm] print:h-[297mm] print:max-h-[297mm] print:m-0 print:p-0 overflow-hidden">
+                {/* TOP HEADER SECTION */}
+                <PrescriptionHeader />
+
+                {/* PATIENT INFO STRIP */}
+                <PrescriptionPatientStrip
+                    name={patient?.name || ""}
+                    age={ageStr}
+                    sex={sexStr}
+                    date={formattedDate}
+                    opNo={opNumber}
+                />
+
+                {/* MAIN BODY */}
+                <div className="flex-1 relative flex flex-col p-6 bg-white overflow-hidden min-h-125 space-y-4 text-[13px]">
+                    <PrescriptionWatermark />
+
+                    {/* Prescription Type Header */}
+                    <div className="flex justify-between items-center relative z-10 border-b border-slate-300 pb-2">
+                        <h2 className="text-sm font-black text-[#2d3e36] uppercase tracking-wider">
+                            PHARMACY PRESCRIPTION / DRUG ADVICE
+                        </h2>
+                        {doctor?.specialization && (
+                            <span className="text-[11px] font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                                Dept: {doctor.specialization}
                             </span>
-                            <div className="space-y-0.5">
-                                <p className="text-sm font-bold">{fDateandTime(new Date()).split(",")[0]}</p>
-                                <p className="text-[10px] text-black tracking-widest font-semibold">DRUG ADVICE PAGE</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* BODY */}
-                <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
-                    {/* PATIENT STRIP */}
-                    <div className="border border-slate-500 rounded-lg px-6 py-4 flex flex-wrap gap-x-8 gap-y-2 bg-slate-50/50">
-                        <Info label="Patient" value={patient?.name || "—"} />
-                        <Info label="Age / G" value={`${patient?.dateOfBirth ? `${new Date().getFullYear() - new Date(patient.dateOfBirth).getFullYear()}Y` : "—"} / ${patient?.gender || "—"}`} />
-                        <Info label="OP NO" value={patient?.mrn?.replace("MRN", "P-") || "—"} />
-                        <div className="col-span-2">
-
-                            <Info label="Date" value={fDateandTime(order.createdAt).split(",")[0]} />
-                        </div>
-                        <div className="col-span-2">
-                            <Info label="Doctor" value={displayDoctorName} />
-                        </div>
-                        <div className="col-span-2 text-right">
-                            <Info label="Dept" value={displayDoctorName === "-" ? "-" : doctor?.specialization || "GENERAL MEDICINE"} />
-                        </div>
+                        )}
                     </div>
 
-                    {/* MEDICINES */}
-                    <div className="border border-slate-500 rounded-lg overflow-hidden flex-1 box-border">
-                        <table className="w-full border-collapse">
-                            <thead className="bg-slate-50 text-[11px] font-bold text-black border-b border-slate-500 uppercase tracking-wider">
-                                <tr>
-                                    <th className="px-3 py-3 text-center w-10">SL</th>
-                                    <th className="px-3 py-3 text-left">Medicine / Strength</th>
-                                    <th className="px-3 py-3 text-center">Dosage</th>
-                                    <th className="px-3 py-3 text-center">Frequency</th>
-                                    <th className="px-3 py-3 text-center">Duration</th>
-                                    <th className="px-3 py-3 text-left">Instructions</th>
+                    {/* MEDICINES TABLE */}
+                    <div className="break-inside-avoid relative z-10 space-y-1">
+                        <table className="w-full border-collapse text-xs">
+                            <thead>
+                                <tr className="border-b-2 border-[#2d3e36] text-[10.5px] font-bold text-slate-700 uppercase tracking-wider text-left bg-slate-50">
+                                    <th className="py-2.5 px-2 text-center w-10">#</th>
+                                    <th className="py-2.5 px-2">Medicine / Strength</th>
+                                    <th className="py-2.5 px-2 text-center">Dosage</th>
+                                    <th className="py-2.5 px-2 text-center">Frequency</th>
+                                    <th className="py-2.5 px-2 text-center">Duration</th>
+                                    <th className="py-2.5 px-2 text-left">Instructions</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-slate-200">
                                 {order.items.map((m, i) => {
                                     const itemName = typeof m.name === "object" && m.name !== null ? m.name.name : String(m.name || "—");
                                     const itemGeneric = typeof m.name === "object" && m.name !== null ? (m.name.generic || "—") : "—";
                                     return (
-                                        <tr key={i} className="border-b border-slate-100 last:border-0 hover:bg-slate-50/30 transition-colors">
-                                            <td className="px-3 py-3 text-center font-bold text-black text-xs">{i + 1}</td>
-                                            <td className="px-3 py-3">
-                                                <p className="font-black text-black text-[12px]">{itemName}</p>
-                                                <p className="text-[10px] text-black font-medium tracking-tight mt-0.5">(GEN: {itemGeneric})</p>
+                                        <tr key={i} className="even:bg-slate-50/40">
+                                            <td className="py-2.5 px-2 text-center font-bold text-slate-500 text-xs">{i + 1}</td>
+                                            <td className="py-2.5 px-2 font-bold text-slate-900">
+                                                <p className="font-bold text-slate-900">{itemName}</p>
+                                                {itemGeneric !== "—" && (
+                                                    <p className="text-[10px] text-slate-500 font-medium tracking-tight mt-0.5">(GEN: {itemGeneric})</p>
+                                                )}
                                             </td>
-                                            <td className="px-3 py-3 text-center font-bold text-black">{m.dosage || "—"}</td>
-                                            <td className="px-3 py-3 text-center font-bold text-black">{m.frequency || "—"}</td>
-                                            <td className="px-3 py-3 text-center font-bold text-black">{m.duration || "—"}</td>
-                                            <td className="px-3 py-3 text-xs font-semibold text-black italic">
+                                            <td className="py-2.5 px-2 text-center font-semibold text-slate-900">{m.dosage || "—"}</td>
+                                            <td className="py-2.5 px-2 text-center font-bold text-[#2d3e36]">{m.frequency || "—"}</td>
+                                            <td className="py-2.5 px-2 text-center font-semibold text-slate-900">{m.duration || "—"}</td>
+                                            <td className="py-2.5 px-2 text-xs font-semibold text-slate-700 italic">
                                                 {m.food || "—"}
                                             </td>
                                         </tr>
@@ -125,46 +153,24 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                     </div>
 
                     {/* ADDITIONAL INFORMATION */}
-                    <div className="border-2 border-black rounded-lg p-5 bg-slate-50">
-                        <p className="font-black text-[10px] uppercase tracking-widest text-black mb-2">Additional Advice</p>
-                        <p className="text-black leading-relaxed font-bold italic text-[11px]">
+                    <div className="pt-2 border-t border-slate-200 relative z-10">
+                        <p className="font-bold text-[10.5px] uppercase tracking-wider text-[#2d3e36] mb-0.5">Additional Advice:</p>
+                        <p className="text-slate-800 leading-relaxed font-medium italic text-xs">
                             {"Patient is advised to follow the prescribed medication schedule strictly. Any adverse reactions or lack of improvement should be reported immediately. This prescription is based on current clinical assessment."}
                         </p>
                     </div>
 
                     {/* SIGNATURE */}
-                    <div className="mt-10 flex justify-end">
-                        <div className="text-center w-64">
-                            <div className="border-b-2 border-black mb-2 w-full"></div>
-                            <p className="font-black text-black uppercase leading-none tracking-tighter">{displayDoctorName}</p>
-                            <p className="text-[10px] font-bold text-black mt-1 uppercase tracking-widest">{doctor?.specialization || "SPECIALIST"}</p>
-                        </div>
-                    </div>
+                    <PrescriptionSignature
+                        doctorName={displayDoctorName}
+                        specialization={doctor?.specialization || "AUTHORIZED MEDICAL PRACTITIONER"}
+                        signature={(doctor as any)?.signature}
+                    />
                 </div>
 
-                {/* FOOTER */}
-                <div className="bg-slate-50 border-t border-slate-500 px-10 py-6 text-[10px] text-black flex justify-between items-center normal-case">
-                    <div className="space-y-1">
-                        <p className="text-black font-bold">This prescription is valid only if signed by registered medical practitioner</p>
-                        <p className="text-black font-medium">
-                            For Appointments / Booking: <span className="text-black font-bold">{configuration().hospitalPhone} · {configuration().hospitalEmail}</span>
-                        </p>
-                    </div>
-                    <p className="text-black font-medium">
-                        Powered by <span className="font-bold text-black tracking-tight uppercase">Caresoft Innovations LLP</span>
-                    </p>
-                </div>
+                {/* BOTTOM FOOTER SECTION */}
+                <PrescriptionFooter />
             </div>
-            <Watermark />
-        </div>
-    );
-}
-
-function Info({ label, value }: { label: string; value: string }) {
-    return (
-        <div className="flex gap-2 min-h-6 items-start">
-            <span className="text-black font-medium uppercase text-[10px] min-w-12.5 mt-0.5">{label}:</span>
-            <span className="font-bold text-black line-clamp-2 leading-tight uppercase">{value}</span>
         </div>
     );
 }

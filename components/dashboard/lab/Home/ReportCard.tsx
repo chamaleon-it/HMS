@@ -51,14 +51,16 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             margin: 0;
             size: A4;
           }
-          body { 
-            visibility: hidden !important; 
+          html, body { 
             margin: 0 !important;
             padding: 0 !important;
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
             font-family: 'Roboto', sans-serif;
+          }
+          body > *:not(.print-prescription) {
+            display: none !important;
           }
           * {
               font-family: 'Roboto', sans-serif !important;

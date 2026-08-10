@@ -75,7 +75,6 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
                 margin: 0;
               }
               html, body {
-                visibility: hidden !important;
                 background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -84,6 +83,9 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
                 display: block !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+              }
+              body > *:not(.registration-bill-print) {
+                display: none !important;
               }
               .registration-bill-print, .registration-bill-print * {
                 visibility: visible !important;

@@ -89,8 +89,10 @@ export default function WeeklyCalender({
 }: {
   selectedDate: Date | undefined;
 }) {
+  const startOfWeek = startOfWeekSunday(selectedDate);
+  const dateParam = `${startOfWeek.getFullYear()}-${String(startOfWeek.getMonth() + 1).padStart(2, "0")}-${String(startOfWeek.getDate()).padStart(2, "0")}`;
   const { data: weeklyData } = useSWR<{ message: string; data: WeekItem[] }>(
-    `/appointments/calender/weekly?date=${selectedDate}`
+    `/appointments/calender/weekly?date=${dateParam}`
   );
   const weekItems = useMemo(() => weeklyData?.data ?? [], [weeklyData]);
 

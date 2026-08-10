@@ -88,13 +88,18 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             size: A4;
             margin: 4mm;
           }
-          body { 
-            visibility: hidden !important; 
+          html, body { 
             margin: 0 !important;
             padding: 0 !important;
+            height: 289mm !important;
+            max-height: 289mm !important;
+            overflow: hidden !important;
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+          body > *:not(.print-receipt) {
+            display: none !important;
           }
           .print-receipt { 
             visibility: visible !important;
@@ -103,10 +108,12 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             top: 0 !important;
             width: 202mm !important;
             height: 289mm !important;
+            max-height: 289mm !important;
             padding: 0 !important;
             margin: 0 !important;
             background: white !important;
             box-sizing: border-box !important;
+            overflow: hidden !important;
             display: flex !important;
             flex-direction: column !important;
             z-index: 999999999 !important;

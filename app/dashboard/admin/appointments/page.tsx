@@ -37,12 +37,26 @@ const APPOINTMENT_STATUSES = [
 ];
 
 function DoctorAvailabilityCard({ doctorId }: { doctorId: string }) {
-  const { data: availabilityData } = useSWR(doctorId ? `/users/doctor_availability/${doctorId}` : null);
-  const { data: upcomingAppointments } = useSWR(doctorId ? `/appointments/calender/weekly?doctor=${doctorId}&startOfWeek=${new Date().toISOString()}` : null);
+  const { data: availabilityData } = useSWR<{
+    data?: {
+      startDate?: string;
+      endDate?: string;
+      startTime?: string;
+      endTime?: string;
+      days?: string[];
+      rounds?: any[];
+    };
+  }>(doctorId ? `/users/doctor_availability/${doctorId}` : null);
 
-  // Simple Next 5 Days View
+  const { data: upcomingAppointments } = useSWR<{ data?: any[] }>(
+    doctorId ? `/appointments/calender/weekly?doctor=${doctorId}` : null
+  );
+
   const nextDays = Array.from({ length: 5 }, (_, i) => addDays(new Date(), i + 1));
-  const schedule = availabilityData?.data || [];
+  const availability = availabilityData?.data;
+  const daysList = availability?.days || [];
+  const startTime = availability?.startTime || "09:00";
+  const endTime = availability?.endTime || "17:00";
   const appointments = upcomingAppointments?.data || [];
 
   return (
@@ -54,15 +68,15 @@ function DoctorAvailabilityCard({ doctorId }: { doctorId: string }) {
         {nextDays.map((date) => {
           const dayName = format(date, 'EEE'); // Mon, Tue...
           const fullDayName = format(date, 'EEEE');
-          const dayConfig = schedule.find((s: any) => s.day === fullDayName);
-
-          const isWorking = dayConfig?.isWorking ?? false;
+          const isWorking = daysList.length === 0 || daysList.includes(dayName) || daysList.includes(fullDayName);
           const dateStr = format(date, 'dd MMM');
 
-          // Count appointments for this day
-          const busyCount = appointments.filter((a: any) => isSameDay(new Date(a.start), date)).length;
+          const busyCount = appointments.filter((a: any) => {
+            const apptDate = a.date ? new Date(a.date) : a.start ? new Date(a.start) : null;
+            return apptDate ? isSameDay(apptDate, date) : false;
+          }).length;
 
-          if (!isWorking) return null; // Skip non-working days or show as Off?
+          if (!isWorking) return null;
 
           return (
             <div key={date.toISOString()} className="flex items-center justify-between text-sm py-1.5 border-b border-gray-50 last:border-0">
@@ -71,13 +85,13 @@ function DoctorAvailabilityCard({ doctorId }: { doctorId: string }) {
                 <span className="text-gray-900">{dateStr}</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">{dayConfig.startTime} - {dayConfig.endTime}</span>
+                <span className="text-xs text-gray-500 bg-gray-50 px-1.5 py-0.5 rounded">{startTime} - {endTime}</span>
                 {busyCount > 0 && <span className="w-5 h-5 flex items-center justify-center bg-blue-50 text-(--color-synapse-light) text-[10px] font-bold rounded-full">{busyCount}</span>}
               </div>
             </div>
-          )
+          );
         })}
-        {schedule.length === 0 && <p className="text-xs text-gray-400 italic">No schedule available.</p>}
+        {!availability && <p className="text-xs text-gray-400 italic">No schedule available.</p>}
       </div>
       <button className="w-full py-2 text-xs font-semibold text-(--color-synapse-light) bg-synapse-light/10 rounded-lg hover:bg-synapse-light/20 transition">View Full Schedule</button>
     </div>

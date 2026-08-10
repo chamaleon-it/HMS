@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatINR } from "@/lib/fNumber";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import useSWR from "swr";
@@ -61,6 +62,11 @@ export default function PrintReceipt({
     invoiceDetails,
     invoiceNo: invoiceNoProp,
 }: PrintReceiptProps) {
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
     const { data: itemsData } = useSWR<{ data: any[] }>("/pharmacy/items?limit=1000");
     const dbItems = itemsData?.data || [];
@@ -91,16 +97,28 @@ export default function PrintReceipt({
         };
     };
 
-    if (!patient || !payload || !invoiceDetails) return null;
+    if (!patient || !payload || !mounted) return null;
 
-    const invoiceNo = invoiceNoProp || invoiceDetails.invoiceNo || `${invoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
+    const computedSubtotal = payload.items.reduce((sum, item) => sum + (item.total ?? ((item.unitPrice || 0) * (item.quantity || 1))), 0);
+    const computedGrandTotal = computedSubtotal - (payload.discount || 0);
+
+    const safeInvoiceDetails = invoiceDetails || {
+        prefix: "INV",
+        roundOffAmount: 0,
+        subtotal: computedSubtotal,
+        totalGst: 0,
+        grandTotal: computedGrandTotal,
+        invoiceNo: invoiceNoProp || "INV-001",
+    };
+
+    const invoiceNo = invoiceNoProp || safeInvoiceDetails.invoiceNo || `${safeInvoiceDetails.prefix}-${new Date().getTime().toString().slice(-6)}`;
 
     // Total rows for fixed height table padding
     const totalRowsNeeded = 17;
     const itemsCount = payload.items.length;
     const emptyRowsCount = Math.max(0, totalRowsNeeded - itemsCount);
 
-    return (
+    return createPortal(
         <div className="print-receipt hidden print:block bg-white text-black font-sans leading-tight overflow-visible relative">
             <style dangerouslySetInnerHTML={{
                 __html: `
@@ -110,13 +128,18 @@ export default function PrintReceipt({
             size: A4;
             margin: 4mm;
           }
-          body { 
-            visibility: hidden !important; 
+          html, body { 
             margin: 0 !important;
             padding: 0 !important;
+            height: 289mm !important;
+            max-height: 289mm !important;
+            overflow: hidden !important;
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+          }
+          body > *:not(.print-receipt) {
+            display: none !important;
           }
           .print-receipt { 
             visibility: visible !important;
@@ -125,9 +148,11 @@ export default function PrintReceipt({
             top: 0 !important;
             width: 202mm !important;
             height: 289mm !important;
+            max-height: 289mm !important;
             padding: 0 !important;
             margin: 0 !important;
             background: white !important;
+            overflow: hidden !important;
             box-sizing: border-box !important;
             display: block !important;
           }
@@ -282,12 +307,12 @@ export default function PrintReceipt({
                             <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
                                 <span className="font-semibold text-gray-700">Gross Amount</span>
                                 <span className="font-bold">:</span>
-                                <span className="font-bold text-right">{formatINR(invoiceDetails.subtotal)}</span>
+                                <span className="font-bold text-right">{formatINR(safeInvoiceDetails.subtotal)}</span>
                             </div>
                             <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
                                 <span className="font-semibold text-gray-700">CGST/SGST Total</span>
                                 <span className="font-bold">:</span>
-                                <span className="font-bold text-right">{formatINR(invoiceDetails.totalGst)}</span>
+                                <span className="font-bold text-right">{formatINR(safeInvoiceDetails.totalGst)}</span>
                             </div>
                             {payload.discount > 0 && (
                                 <div className="grid grid-cols-[115px_10px_1fr] items-center text-black">
@@ -306,7 +331,7 @@ export default function PrintReceipt({
                             <div className="grid grid-cols-[115px_10px_1fr] items-center w-full">
                                 <span className="font-extrabold text-black text-[13px] uppercase">NET PAYABLE</span>
                                 <span className="font-black text-black text-[14px]">:</span>
-                                <span className="font-black text-black text-[14px] text-right">{formatINR(invoiceDetails.grandTotal)}</span>
+                                <span className="font-black text-black text-[14px] text-right">{formatINR(safeInvoiceDetails.grandTotal)}</span>
                             </div>
                         </div>
                     </div>
@@ -333,6 +358,7 @@ export default function PrintReceipt({
                     <p className="text-[10px] text-gray-800 font-bold tracking-tight uppercase">CARESOFT INNOVATIONS LLP</p>
                 </div>
             </div>
-        </div>
+        </div>,
+        document.body
     );
 }

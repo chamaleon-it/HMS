@@ -76,45 +76,6 @@ export default function Header({
           )}
         </p>
       </div>
-      <div className="hidden md:flex items-center gap-2">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => toast("Print feature coming soon")}
-            >
-              <Printer className="h-4 w-4 mr-2" />
-              Print
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Print summary / prescription</TooltipContent>
-        </Tooltip>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button size="sm" variant="outline">
-              <Share2 className="h-4 w-4 mr-2" />
-              Share
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Share</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => toast("Downloading PDF... Coming soon")}>
-              {" "}
-              <Download className="h-4 w-4 mr-2" />
-              Download PDF
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => toast("Email summary coming soon")}
-            >
-              {" "}
-              <FileText className="h-4 w-4 mr-2" />
-              Email summary
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-
-      </div>
     </div>
   );
 }

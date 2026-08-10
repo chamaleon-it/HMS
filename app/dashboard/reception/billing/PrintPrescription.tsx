@@ -1,3 +1,5 @@
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { OrderType } from "@/app/dashboard/pharmacy/interface";
 import Watermark from "@/components/print/Watermark";
@@ -9,7 +11,13 @@ interface PrintPrescriptionProps {
 }
 
 export default function PrintPrescription({ order }: PrintPrescriptionProps) {
-    if (!order) return null;
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!order || !mounted) return null;
 
     const patient = order.patient;
     const doctor = order.doctor;
@@ -19,31 +27,47 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
         : doctor?.name || null;
     const displayDoctorName = !rawDoctorName || rawDoctorName === "-" ? "-" : `DR. ${rawDoctorName}`;
 
-    return (
+    return createPortal(
         <div className="print-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-visible">
             <style dangerouslySetInnerHTML={{
                 __html: `
         @media print {
           @page {
             margin: 0;
-            size: A4;
+            size: A4 portrait;
           }
-          body { 
-            visibility: hidden !important; 
+          html, body { 
             margin: 0 !important;
             padding: 0 !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            overflow: hidden !important;
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
+          body > *:not(.print-prescription) {
+            display: none !important;
+          }
           .print-prescription { 
             visibility: visible !important;
+            display: flex !important;
             position: absolute !important;
             left: 0 !important;
             top: 0 !important;
-            width: 100% !important;
-            display: block !important;
+            width: 210mm !important;
+            height: 297mm !important;
+            max-height: 297mm !important;
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            flex-direction: column !important;
             padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-after: avoid !important;
+            break-inside: avoid !important;
           }
           .no-print, aside, header, footer, nav, button {
             display: none !important;
@@ -156,7 +180,8 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                 </div>
             </div>
             <Watermark />
-        </div>
+        </div>,
+        document.body
     );
 }
 

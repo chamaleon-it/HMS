@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { formatINR, numberToWords } from "@/lib/fNumber";
 import configuration from "@/config/configuration";
 import { format, addDays } from "date-fns";
@@ -10,7 +11,13 @@ interface ThermalPrintReceiptProps {
 }
 
 export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) {
-  if (!bill) return null;
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!bill || !mounted) return null;
 
   const docObj = typeof bill.doctor === "object" ? bill.doctor : null;
   const docName = docObj?.name
@@ -45,7 +52,7 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
 
   const words = numberToWords(grandTotal);
 
-  return (
+  return createPortal(
     <div className="thermal-receipt-print-wrapper hidden print:block bg-white text-black font-sans text-[11px] leading-snug select-none">
       <style
         dangerouslySetInnerHTML={{
@@ -56,7 +63,6 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
                 margin: 0;
               }
               html, body {
-                visibility: hidden !important;
                 background: white !important;
                 margin: 0 !important;
                 padding: 0 !important;
@@ -65,6 +71,9 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
                 display: block !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+              }
+              body > *:not(.thermal-receipt-print-wrapper) {
+                display: none !important;
               }
               .thermal-receipt-print-wrapper, .thermal-receipt-print-wrapper * {
                 visibility: visible !important;
@@ -79,12 +88,11 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
                 padding: 4mm 3mm !important;
                 font-family: Arial, Helvetica, sans-serif !important;
                 font-size: 11px !important;
-                line-height: 1.25 !important;
+                line-height: 1.3 !important;
                 color: black !important;
                 background: white !important;
-                display: block !important;
               }
-              .no-print, header, footer, nav, button, [role="dialog"] {
+              .no-print {
                 display: none !important;
               }
             }
@@ -193,6 +201,7 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
           (Sign)
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

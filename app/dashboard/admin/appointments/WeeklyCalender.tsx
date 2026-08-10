@@ -138,9 +138,9 @@ export default function WeeklyCalender({
   isPanelOpen?: boolean;
 }) {
   const startOfWeek = startOfWeekSunday(selectedDate);
+  const dateParam = `${startOfWeek.getFullYear()}-${String(startOfWeek.getMonth() + 1).padStart(2, "0")}-${String(startOfWeek.getDate()).padStart(2, "0")}`;
   const { data } = useSWR<{ message: string; data: WeekItem[] }>(
-    `/appointments/calender/weekly?startOfWeek=${startOfWeek.toISOString()}${doctorId ? `&doctor=${doctorId}` : ""
-    }`
+    `/appointments/calender/weekly?date=${dateParam}${doctorId ? `&doctor=${doctorId}` : ""}`
   );
   const weekItems = useMemo(() => data?.data ?? [], [data]);
 

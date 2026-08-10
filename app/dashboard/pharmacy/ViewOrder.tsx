@@ -63,6 +63,11 @@ function Barcode({ value }: { value: string }) {
 }
 
 function OrderHeader({ order }: { order: OrderType }) {
+    const { data: pharmacistResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/pharmacist");
+    const inChargePharmacist = pharmacistResponse?.data?.find((p) => p.inCharge);
+    const pharmacistDisplay = (order?.pharmacist && order.pharmacist !== "-" && order.pharmacist.trim() !== "")
+        ? order.pharmacist
+        : inChargePharmacist?.name || "-";
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 items-start">
@@ -111,7 +116,7 @@ function OrderHeader({ order }: { order: OrderType }) {
                         {order?.doctor?.specialization}
                     </div>
                     <div className="text-xs text-slate-600">
-                        Pharmacist: <span className="font-medium">{order?.pharmacist}</span>
+                        Pharmacist: <span className="font-medium">{pharmacistDisplay}</span>
                     </div>
                 </div>
                 <div className="ml-3 bg-white p-1 rounded border">

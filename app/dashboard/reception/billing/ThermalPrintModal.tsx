@@ -89,8 +89,8 @@ export default function ThermalPrintModal({
                       size: 80mm auto;
                       margin: 0;
                     }
-                    body * {
-                      visibility: hidden !important;
+                    body > *:not(.thermal-print-area) {
+                      display: none !important;
                     }
                     .thermal-print-area, .thermal-print-area * {
                       visibility: visible !important;

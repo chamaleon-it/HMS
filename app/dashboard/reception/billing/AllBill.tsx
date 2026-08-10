@@ -55,7 +55,7 @@ interface PropsType {
 import AddPaymentDialog from "./AddPaymentDialog";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import PrintReceipt from "@/app/dashboard/pharmacy/billing/PrintReceipt";
+import PrintReceipt from "./PrintReceipt";
 import { PaginationBar } from "@/app/dashboard/pharmacy/components/PaginationBar";
 
 import { getBillType, getBillTypeBadgeProps } from "@/lib/billTypeUtils";
@@ -337,18 +337,33 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
       {printBill && (
         <PrintReceipt
           payload={{
-            patient: printBill.patient.name,
-            items: printBill.items.map((i) => ({ ...i, name: i.name })),
-            cash: printBill.cash,
-            card: printBill.card,
-            upi: printBill.upi,
-            discount: printBill.discount,
+            patient: printBill.patient?.name || "",
+            items: (printBill.items || []).map((i) => ({
+              ...i,
+              name: i.name,
+              unitPrice: (i as any).unitPrice ?? (i as any).total ?? 0,
+              quantity: (i as any).quantity ?? 1,
+              gst: (i as any).gst ?? 0,
+              total: (i as any).total ?? (((i as any).unitPrice || 0) * ((i as any).quantity || 1)),
+            })),
+            cash: printBill.cash || 0,
+            card: printBill.card || 0,
+            upi: printBill.upi || 0,
+            discount: printBill.discount || 0,
             doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor),
             department: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.specialization : (printBill as any).department,
           }}
           patient={{
-            name: printBill.patient.name,
-            mrn: printBill.patient.mrn,
+            name: printBill.patient?.name || "",
+            mrn: printBill.patient?.mrn || "",
+          }}
+          invoiceDetails={{
+            prefix: "INV",
+            roundOffAmount: 0,
+            subtotal: (printBill.items || []).reduce((sum: number, it: any) => sum + (it.total ?? ((it.unitPrice || 0) * (it.quantity || 1))), 0),
+            totalGst: 0,
+            grandTotal: ((printBill.items || []).reduce((sum: number, it: any) => sum + (it.total ?? ((it.unitPrice || 0) * (it.quantity || 1))), 0)) - (printBill.discount || 0),
+            invoiceNo: printBill.mrn || "INV-001",
           }}
           invoiceNo={printBill.mrn}
         />
