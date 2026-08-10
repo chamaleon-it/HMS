@@ -1,4 +1,4 @@
-import { FilePlus2, PlusCircle, ReceiptIndianRupee, ChevronDown, Check, Filter, User2 } from 'lucide-react';
+import { PlusCircle, ReceiptIndianRupee, ChevronDown, Check, User2 } from 'lucide-react';
 import React, { useMemo, useState, useRef, useEffect } from 'react'
 import { FilterType } from './page';
 import BillingStatusFilter from './BillingStatusFilter';
