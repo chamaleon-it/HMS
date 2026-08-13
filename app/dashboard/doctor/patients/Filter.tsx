@@ -321,9 +321,10 @@ export default function Filter({
           </span>
           <Segmented
             options={[
-              { label: "All time", value: undefined },
+              { label: "Today", value: 0 },
               { label: "7 days", value: 7 },
               { label: "30 days", value: 30 as const },
+              { label: "All time", value: undefined },
               { label: "Custom", value: "Custom" },
             ]}
             value={filter.lastVisit}

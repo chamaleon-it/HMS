@@ -5,12 +5,8 @@ import React, { useState } from "react";
 import { CalendarDays, Plus, LayoutList, CalendarSearch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DoctorHeader from "../components/DoctorHeader";
-import { motion } from "framer-motion";
-
 import AppShell from "@/components/layout/app-shell";
-import Calendar from "./Calender";
 import List from "./List";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppointmentDialog } from "@/components/shared/appointment/AppointmentDialog";
 import Statistics from "./Statistics";
 import Filter from "./Filter";
@@ -22,14 +18,8 @@ export default function AppointmentPage() {
   const [openCreate, setOpenCreate] = useState(false);
   const [date, setDate] = useState(new Date());
   const [activeDate, setActiveDate] = useState<"Today" | "7 days" | "30 days" | "Custom">("Today");
-  const [activeTab, setActiveTab] = useState("list");
 
   const { mutate } = useAppointmentList({ query, activeStatuses, date, activeDate });
-
-  const tabs = [
-    { key: "list", label: "List", icon: LayoutList },
-    { key: "calendar", label: "Calendar", icon: CalendarSearch },
-  ];
 
 
 
@@ -60,56 +50,9 @@ export default function AppointmentPage() {
           setActiveDate={setActiveDate}
         />
 
-        {/* Tabs: List / Calendar */}
+        {/* List View */}
         <div className="mt-2">
-          <Tabs
-            defaultValue="list"
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="flex-1 overflow-hidden"
-          >
-            <div className="mb-4 relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1 w-fit">
-              {tabs.map(({ key, label, icon: Icon }) => {
-                const active = activeTab === key;
-                return (
-                  <button
-                    key={key}
-                    onClick={() => setActiveTab(key)}
-                    className={
-                      "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer " +
-                      (active ? "text-white" : "text-gray-700")
-                    }
-                    type="button"
-                  >
-                    {active && (
-                      <motion.span
-                        layoutId="tab-indicator"
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                          background: "var(--color-synapse-light)",
-                        }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 40,
-                        }}
-                      />
-                    )}
-                    <span className="relative z-10 flex items-center gap-2">
-                      <Icon size={16} /> {label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <TabsContent value="list">
-              <List query={query} activeStatuses={activeStatuses} date={date} activeDate={activeDate} />
-            </TabsContent>
-            <TabsContent value="calendar">
-              <Calendar date={date} />
-            </TabsContent>
-          </Tabs>
+          <List query={query} activeStatuses={activeStatuses} date={date} activeDate={activeDate} />
         </div>
 
         <AppointmentDialog

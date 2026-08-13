@@ -224,11 +224,11 @@ function PatientFullDetailContent() {
 
 
                 {tab === "labs" && (
-                  <Labs labs={labData?.filter((e) => e.name.some((e) => e.type === "Lab"))} />
+                  <Labs labs={labData?.filter((e) => Array.isArray(e?.name) && e.name.some((item: any) => item?.type === "Lab"))} />
                 )}
 
                 {tab === "imaging" && (
-                  <Imaging labs={labData?.filter((e) => e.name.some((e) => e.type === "Imaging"))} />
+                  <Imaging labs={labData?.filter((e) => Array.isArray(e?.name) && e.name.some((item: any) => item?.type === "Imaging"))} />
                 )}
 
                 {tab === "meds" && <Med consult={consult} />}
