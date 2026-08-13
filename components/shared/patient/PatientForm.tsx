@@ -95,14 +95,25 @@ export function PatientForm({
   const values = watch();
   const { dateOfBirth } = values;
 
+  const [openCalander, setOpenCalander] = useState(false);
+
+  const [calendarMonth, setCalendarMonth] = useState<Date>(
+    dateOfBirth ? new Date(dateOfBirth) : new Date()
+  );
+
   useEffect(() => {
     if (dateOfBirth) {
-      const ageObj = fAge(new Date(dateOfBirth));
-      setValue("age", ageObj.years);
-      setValue("month", ageObj.months);
+      const parsed = new Date(dateOfBirth);
+      if (!isNaN(parsed.getTime())) {
+        const ageObj = fAge(parsed);
+        setValue("age", ageObj.years);
+        setValue("month", ageObj.months);
+        if (openCalander) {
+          setCalendarMonth(parsed);
+        }
+      }
     }
-  }, [dateOfBirth, setValue]);
-
+  }, [dateOfBirth, openCalander, setValue]);
 
   const createEditPatient = handleSubmit(async (data) => {
     try {
@@ -149,8 +160,6 @@ export function PatientForm({
 
     }
   });
-
-  const [openCalander, setOpenCalander] = useState(false);
 
   return (
     <form className="space-y-4" onSubmit={createEditPatient}>
@@ -272,14 +281,14 @@ export function PatientForm({
                   disabled={{ after: new Date() }}
                   mode="single"
                   selected={dateOfBirth ? new Date(dateOfBirth) : undefined}
+                  month={calendarMonth}
+                  onMonthChange={setCalendarMonth}
                   captionLayout="dropdown"
-                  onMonthChange={(month) => {
-                    if (month) {
-                      setValue("dateOfBirth", month.toISOString());
-                    }
-                  }}
                   onSelect={(date) => {
-                    setValue("dateOfBirth", date?.toISOString() ?? new Date().toISOString());
+                    if (date) {
+                      setValue("dateOfBirth", date.toISOString());
+                      setCalendarMonth(date);
+                    }
                     setOpenCalander(false);
                   }}
                 />
