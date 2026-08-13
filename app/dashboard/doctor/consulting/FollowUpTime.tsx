@@ -33,7 +33,7 @@ function getRoundForTime(time: string, rounds?: Round[]) {
 }
 
 interface FollowUpProps {
-  doctor?: string;
+  doctor?: any;
   patient?: string;
   setData: React.Dispatch<React.SetStateAction<DataType>>;
 }
@@ -48,11 +48,17 @@ export default function FollowUpTimePro({
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
   const [selectedTime, setSelectedTime] = useState<string>("");
 
+  const docId = useMemo(() => {
+    if (!doctor) return null;
+    if (typeof doctor === "object") return (doctor as any)._id || (doctor as any).id || null;
+    return String(doctor);
+  }, [doctor]);
+
   const handleTimeClick = useCallback((time: string) => {
     setSelectedTime(time);
   }, []);
 
-  const { data: availabilityRes, } = useSWR<{
+  const { data: availabilityRes } = useSWR<{
     message: string;
     data: {
       startDate: Date;
@@ -62,7 +68,7 @@ export default function FollowUpTimePro({
       days: string[];
       rounds: Round[];
     };
-  }>(doctor ? `/users/doctor_availability/${doctor}` : null);
+  }>(docId ? `/users/doctor_availability/${docId}` : null);
 
   const availability = availabilityRes?.data;
 
@@ -103,19 +109,23 @@ export default function FollowUpTimePro({
   }, [availability]);
 
   const bookedParams = useMemo(() => {
-    if (!doctor) return null;
+    if (!docId) return null;
     const d = selectedDate ?? new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const dateStr = `${year}-${month}-${day}`;
     const qs = new URLSearchParams();
-    qs.append("doctor", doctor);
-    qs.append("date", d.toISOString());
+    qs.append("doctor", docId);
+    qs.append("date", dateStr);
     return qs.toString();
-  }, [doctor, selectedDate]);
+  }, [docId, selectedDate]);
 
   const { data: bookedRes, mutate: bookedMutate } = useSWR<{
     message: string;
     data: Date[];
   }>(
-    doctor && bookedParams ? `/appointments/booked_slot?${bookedParams}` : null
+    docId && bookedParams ? `/appointments/booked_slot?${bookedParams}` : null
   );
   const bookedSlot: number[] = useMemo(
     () => (bookedRes?.data ?? []).map((d) => new Date(d).getTime()),
@@ -158,7 +168,7 @@ export default function FollowUpTimePro({
     const isToday = isSameDay(selectedDate, today);
     const nowMins = now.getHours() * 60 + now.getMinutes();
 
-    const firstFree = timeSlots.find((time) => {
+    const isSlotAvailable = (time: string) => {
       const round = getRoundForTime(time, availability.rounds);
       if (round) return false;
 
@@ -169,9 +179,16 @@ export default function FollowUpTimePro({
       if (bookedSlot.includes(slotDate.getTime())) return false;
 
       return true;
-    });
+    };
 
-    setSelectedTime((prev) => (prev ? prev : firstFree ?? ""));
+    const firstFree = timeSlots.find(isSlotAvailable);
+
+    setSelectedTime((prev) => {
+      if (prev && isSlotAvailable(prev)) {
+        return prev;
+      }
+      return firstFree ?? "";
+    });
   }, [selectedDate, availability, timeSlots, bookedSlot]);
 
   useEffect(() => {
@@ -183,31 +200,35 @@ export default function FollowUpTimePro({
 
   const Book = async () => {
     if (!selectedDate || !selectedTime) {
-      toast.error("Please selete time and date");
+      toast.error("Please select time and date");
+      return;
+    }
+    const slotDate = combineToIST(selectedDate, selectedTime);
+    if (bookedSlot.includes(slotDate.getTime())) {
+      toast.error("This slot is already booked. Please select another time.");
+      return;
+    }
+    if (!docId) {
+      toast.error("Doctor information is missing.");
       return;
     }
     await toast.promise(
       api.post("/appointments", {
         patient: patient,
-        doctor: doctor,
+        doctor: docId,
         method: "In clinic",
-        date: combineToIST(
-          selectedDate || new Date(),
-          selectedTime
-        ).toISOString(),
+        date: slotDate.toISOString(),
         isPaid: false,
         type: "Follow up",
       }),
       {
         loading: "Please wait, we’re booking the patient’s slot.",
         success: ({ data }) => data.message,
-        error: ({ response }) => response.data.message,
+        error: ({ response }) => response?.data?.message || "Failed to book appointment",
       }
     );
     bookedMutate();
   };
-
-
 
   if (!showFollowUp) {
     return (
@@ -295,8 +316,9 @@ export default function FollowUpTimePro({
                     type="button"
                     size="sm"
                     variant={selectedTime === time ? "default" : "outline"}
+                    disabled={isDisabled}
                     title={reason}
-                    className={cn("w-full cursor-pointer", disabledClasses)}
+                    className={cn("w-full", !isDisabled && "cursor-pointer", disabledClasses)}
                   >
                     {to12h(time)}
                   </Button>

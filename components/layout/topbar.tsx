@@ -69,13 +69,13 @@ export default function Header() {
     (user?.role === "Admin" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/admin/" },
       { key: "appointments", label: "Appointments", link: "/dashboard/admin/appointments/" },
+      { key: "patients", label: "Patients", link: "/dashboard/admin/patients/" },
       { key: "ip", label: "In-Patients", link: "/dashboard/admin/ip/" },
       {
         key: "users", label: "Users & Staff", childrens: [
           { key: "doctors", label: "Doctors", link: "/dashboard/admin/doctors/" },
           { key: "pharmacists", label: "Pharmacists", link: "/dashboard/admin/pharmacists/" },
           { key: "technicians", label: "Technicians", link: "/dashboard/admin/technicians/" },
-          { key: "patients", label: "Patients", link: "/dashboard/admin/patients/" },
         ]
       },
       { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },

@@ -131,15 +131,21 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     }
   }, [doctor, isAvailabilityLoading, isDoctorAvailable, setValue]);
 
-  const bookedSlotParam = new URLSearchParams();
-  bookedSlotParam.append("doctor", doctor);
-  bookedSlotParam.append(
-    "date",
-    selectedDate ? selectedDate.toISOString() : new Date().toISOString()
-  );
+  const bookedSlotParam = useMemo(() => {
+    if (!doctor) return null;
+    const d = selectedDate ?? new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    const dateStr = `${year}-${month}-${day}`;
+    const qs = new URLSearchParams();
+    qs.append("doctor", doctor);
+    qs.append("date", dateStr);
+    return qs.toString();
+  }, [doctor, selectedDate]);
 
   const { data: bookedSlotData } = useSWR<{ message: string; data: Date[] }>(
-    doctor ? `/appointments/booked_slot?${bookedSlotParam}` : null
+    doctor && bookedSlotParam ? `/appointments/booked_slot?${bookedSlotParam}` : null
   );
 
   const bookedSlot: Date[] = bookedSlotData?.data ?? [];

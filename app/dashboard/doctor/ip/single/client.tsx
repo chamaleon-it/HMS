@@ -406,9 +406,9 @@ export default function IPDetailsClient() {
               {ip.status === "Discharged" && (
                 <button
                   onClick={() => window.print()}
-                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl bg-(--color-synapse-light) hover:opacity-90 text-white text-sm font-semibold transition-all shadow-md active:scale-95 cursor-pointer"
                 >
-                  <FileText className="w-4 h-4 text-emerald-400" />
+                  <FileText className="w-4 h-4 text-white" />
                   Discharge Summary
                 </button>
               )}

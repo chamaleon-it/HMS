@@ -28,6 +28,7 @@ import { OrderType } from "@/app/dashboard/pharmacy/interface";
 import PrintPrescription from "../../billing/PrintPrescription";
 import PrintReceipt from "@/app/dashboard/pharmacy/PrintReceipt";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
+import { hasMedicineItems } from "@/lib/billTypeUtils";
 import AddPaymentDialog from "../../billing/AddPaymentDialog";
 import BulkPaymentDialog from "./BulkPaymentDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -908,49 +909,51 @@ const CustomerPageContent: React.FC = () => {
                                                                 </Button>
                                                             )}
 
-                                                            <AlertDialog open={showRepeatConfirm} onOpenChange={setShowRepeatConfirm}>
-                                                                <Button
-                                                                    disabled={repeatLoading}
-                                                                    className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                                    onClick={() => setShowRepeatConfirm(true)}
-                                                                >
-                                                                    {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                                    Repeat Prescription
-                                                                </Button>
-                                                                <AlertDialogContent>
-                                                                    <AlertDialogHeader>
-                                                                        <AlertDialogTitle>Repeat Prescription?</AlertDialogTitle>
-                                                                        <AlertDialogDescription>
-                                                                            Are you sure you want to repeat this prescription? This will create a new order with the same items.
-                                                                        </AlertDialogDescription>
-                                                                    </AlertDialogHeader>
-                                                                    <AlertDialogFooter>
-                                                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                                                        <AlertDialogAction
-                                                                            className="bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                                            onClick={async () => {
-                                                                                try {
-                                                                                    setRepeatLoading(true)
-                                                                                    await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
-                                                                                        loading: "Loading...",
-                                                                                        success: "Repeat Prescription",
-                                                                                        error: "Something went wrong"
-                                                                                    })
-                                                                                    const updatedData = await mutate()
-                                                                                    const lastone = updatedData?.data.length
-                                                                                    setSelectedVisit(updatedData?.data[(lastone ?? 0) - 1] ?? null)
-                                                                                } catch (error) {
-                                                                                    // Handle error
-                                                                                } finally {
-                                                                                    setRepeatLoading(false)
-                                                                                }
-                                                                            }}
-                                                                        >
-                                                                            Confirm
-                                                                        </AlertDialogAction>
-                                                                    </AlertDialogFooter>
-                                                                </AlertDialogContent>
-                                                            </AlertDialog>
+                                                            {hasMedicineItems(selectedVisit?.items) && (
+                                                                <AlertDialog open={showRepeatConfirm} onOpenChange={setShowRepeatConfirm}>
+                                                                    <Button
+                                                                        disabled={repeatLoading}
+                                                                        className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                                        onClick={() => setShowRepeatConfirm(true)}
+                                                                    >
+                                                                        {repeatLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                                        Repeat Prescription
+                                                                    </Button>
+                                                                    <AlertDialogContent>
+                                                                        <AlertDialogHeader>
+                                                                            <AlertDialogTitle>Repeat Prescription?</AlertDialogTitle>
+                                                                            <AlertDialogDescription>
+                                                                                Are you sure you want to repeat this prescription? This will create a new order with the same items.
+                                                                            </AlertDialogDescription>
+                                                                        </AlertDialogHeader>
+                                                                        <AlertDialogFooter>
+                                                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                                            <AlertDialogAction
+                                                                                className="bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                                                onClick={async () => {
+                                                                                    try {
+                                                                                        setRepeatLoading(true)
+                                                                                        await toast.promise(api.post(`/pharmacy/orders/repeat_order/${selectedVisit?._id}`), {
+                                                                                            loading: "Loading...",
+                                                                                            success: "Repeat Prescription",
+                                                                                            error: "Something went wrong"
+                                                                                        })
+                                                                                        const updatedData = await mutate()
+                                                                                        const lastone = updatedData?.data.length
+                                                                                        setSelectedVisit(updatedData?.data[(lastone ?? 0) - 1] ?? null)
+                                                                                    } catch (error) {
+                                                                                        // Handle error
+                                                                                    } finally {
+                                                                                        setRepeatLoading(false)
+                                                                                    }
+                                                                                }}
+                                                                            >
+                                                                                Confirm
+                                                                            </AlertDialogAction>
+                                                                        </AlertDialogFooter>
+                                                                    </AlertDialogContent>
+                                                                </AlertDialog>
+                                                            )}
 
                                                             <Button
                                                                 className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"

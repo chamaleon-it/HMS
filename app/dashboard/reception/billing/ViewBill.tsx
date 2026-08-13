@@ -186,7 +186,7 @@ export default function ViewBill({ id }: { id: string }) {
                     <div className="p-5 flex-1 flex flex-col gap-6 text-[13px]">
 
                         {/* REFUND REASON BANNER */}
-                        {billing.note && (
+                        {(billing.transactionType === "Refund" || billing.transactionType === "Return" || billing.items?.some(item => item.name?.toLowerCase().includes("refund"))) && billing.note && (
                             <div className="flex items-start gap-3 px-5 py-4 bg-amber-50 border border-amber-200 rounded-xl">
                                 <div className="shrink-0 mt-0.5 h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center">
                                     <RotateCcw className="h-4 w-4 text-amber-600" />

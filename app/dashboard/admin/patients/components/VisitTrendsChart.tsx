@@ -80,7 +80,7 @@ export function VisitTrendsChart({ data = [], isLoading }: VisitTrendsChartProps
             onClick={() => setChartType("followup")}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
               chartType === "followup"
-                ? "bg-indigo-500 text-white shadow-xs"
+                ? "bg-amber-500 text-white shadow-xs"
                 : "text-slate-500 hover:text-slate-900"
             }`}
           >
@@ -113,8 +113,8 @@ export function VisitTrendsChart({ data = [], isLoading }: VisitTrendsChartProps
                   <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="colorFollow" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#6366f1" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
+                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
 
@@ -140,11 +140,18 @@ export function VisitTrendsChart({ data = [], isLoading }: VisitTrendsChartProps
                   fontSize: "12px",
                   boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.2)",
                 }}
+                itemSorter={(item: any) => {
+                  const name = item?.name || item?.dataKey;
+                  if (name === "Total Visits" || name === "totalVisits") return 1;
+                  if (name === "New Patients" || name === "newPatients") return 2;
+                  if (name === "Follow-ups" || name === "followUps") return 3;
+                  return 4;
+                }}
                 formatter={(value: any, name: any) => [
                   value,
-                  name === "totalVisits"
+                  name === "totalVisits" || name === "Total Visits"
                     ? "Total Visits"
-                    : name === "newPatients"
+                    : name === "newPatients" || name === "New Patients"
                     ? "New Patients"
                     : "Follow-ups",
                 ]}
@@ -178,7 +185,7 @@ export function VisitTrendsChart({ data = [], isLoading }: VisitTrendsChartProps
                   type="monotone"
                   dataKey="followUps"
                   name="Follow-ups"
-                  stroke="#6366f1"
+                  stroke="#f59e0b"
                   strokeWidth={2.5}
                   fillOpacity={1}
                   fill="url(#colorFollow)"

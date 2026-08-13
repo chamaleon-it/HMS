@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Sidebar } from "./sidebar";
 import Header from "./topbar";
 import Footer from "./Footer";
 import { useAuth } from "@/auth/context/auth-context";
@@ -22,7 +21,6 @@ export default function AppShell({ children }: AppShellProps) {
 
   return (
     <div className="flex">
-      {/* <Sidebar collapsed={collapsed} /> */}
       <div className="min-h-screen flex-1 min-w-0 print:min-h-auto">
         <Header />
         <div className="min-h-[calc(100vh-67px)] print:min-h-auto">

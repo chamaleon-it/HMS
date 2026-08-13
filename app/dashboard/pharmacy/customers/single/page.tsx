@@ -29,6 +29,7 @@ import PrintPrescription from "../../billing/PrintPrescription";
 import PrintReceipt from "../../PrintReceipt";
 import PharmacyHeader from "../../components/PharmacyHeader";
 import { useDrafts } from "../../DraftContext";
+import { hasMedicineItems, isMedicineItem } from "@/lib/billTypeUtils";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -141,7 +142,13 @@ const CustomerPageContent: React.FC = () => {
 
         const allergiesStr = patientObj?.allergies || customer?.patient?.allergies || "";
 
-        const itemsMapped = (selectedVisit.items || []).map((it: any, idx: number) => {
+        const medicineItems = (selectedVisit.items || []).filter(isMedicineItem);
+        if (medicineItems.length === 0) {
+            toast.error("No medicine items found in this bill to repeat.");
+            return;
+        }
+
+        const itemsMapped = medicineItems.map((it: any, idx: number) => {
             const itemObj = typeof it.name === "object" && it.name !== null ? it.name : null;
             const itemNameStr = itemObj ? (itemObj.name || "") : (typeof it.name === "string" ? it.name : "");
             const itemId = itemObj ? (itemObj._id || "") : (it.item || it.medicineId || "");
@@ -947,12 +954,14 @@ const CustomerPageContent: React.FC = () => {
                                                         </Button>
                                                     )}
 
-                                                    <Button
-                                                        className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                        onClick={handleRepeatPrescription}
-                                                    >
-                                                        Repeat Prescription
-                                                    </Button>
+                                                    {hasMedicineItems(selectedVisit?.items) && (
+                                                        <Button
+                                                            className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
+                                                            onClick={handleRepeatPrescription}
+                                                        >
+                                                            Repeat Prescription
+                                                        </Button>
+                                                    )}
 
                                                     <Button
                                                         className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"

@@ -76,3 +76,112 @@ export function getBillTypeBadgeProps(type: "therapy" | "reception" | "other") {
       };
   }
 }
+
+export function isMedicineItem(item: any): boolean {
+  if (!item) return false;
+
+  if (typeof item.name === "object" && item.name !== null && (item.name._id || item.name.name)) {
+    return true;
+  }
+
+  const nameStr = String(
+    typeof item.name === "string"
+      ? item.name
+      : (item.name?.name || item.medicineName || "")
+  ).toLowerCase().trim();
+
+  if (!nameStr) return false;
+
+  const nonMedicineKeywords = [
+    // Consultation & Fees
+    "consultation",
+    "consulting",
+    "doctor fee",
+    "opd",
+    "ipd",
+    "registration",
+    "token",
+    "ncf",
+
+    // Lab & Diagnostics
+    "lab",
+    "laboratory",
+    "investigation",
+    "test",
+    "blood",
+    "ecg",
+    "x-ray",
+    "xray",
+    "ct scan",
+    "mri",
+    "scan",
+    "ultrasound",
+    "usg",
+
+    // Therapies & Procedures
+    "therapy",
+    "therapies",
+    "procedure",
+    "procedures",
+    "procedural",
+    "treatment",
+    "fasad",
+    "agni karma",
+    "agnikarma",
+    "steam bath",
+    "swedana",
+    "swedanam",
+    "kizhi",
+    "elakizhi",
+    "podikizhi",
+    "njavarakizhi",
+    "abhyangam",
+    "abhyanga",
+    "shirodhara",
+    "takradhara",
+    "ksheeradhara",
+    "dhara",
+    "vasti",
+    "basti",
+    "kativasti",
+    "januvasti",
+    "greevavasti",
+    "matravasti",
+    "nasya",
+    "nasyam",
+    "raktamokshana",
+    "udvarthanam",
+    "udvartana",
+    "pizhichil",
+    "thalam",
+    "talam",
+    "lepanam",
+    "lepa",
+    "tarpanam",
+    "tarpana",
+    "pichu",
+    "karna poorana",
+    "karnapooranam",
+    "acupuncture",
+    "panchakarma",
+    "cupping",
+    "hijama",
+    "moxibustion",
+    "varmam",
+    "varma",
+    "physio",
+    "physiotherapy",
+    "massage",
+
+    // Refunds & Returns
+    "refund",
+    "return",
+  ];
+
+  return !nonMedicineKeywords.some((kw) => nameStr.includes(kw));
+}
+
+export function hasMedicineItems(items?: any[]): boolean {
+  if (!items || !Array.isArray(items) || items.length === 0) return false;
+  return items.some(isMedicineItem);
+}
