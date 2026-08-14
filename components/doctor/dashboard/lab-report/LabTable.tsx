@@ -6,49 +6,56 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 
 function getReportSummary(r: any) {
-    const panelMap = new Map<string, { name: string; price: number }>();
-    const standaloneTests: any[] = [];
-    let totalPrice = 0;
-
+    const panelNames: string[] = [];
     if (Array.isArray(r.panels)) {
         r.panels.forEach((p: any) => {
             if (typeof p === 'string' && p.trim()) {
-                panelMap.set(p.trim(), { name: p.trim(), price: 0 });
+                if (!panelNames.includes(p.trim())) panelNames.push(p.trim());
             } else if (p && p.name) {
-                panelMap.set(p._id || p.name, { name: p.name, price: p.price || 0 });
+                const name = String(p.name).trim();
+                if (name && !panelNames.includes(name)) panelNames.push(name);
             }
         });
     }
+
+    const testNames: string[] = [];
+    let totalPrice = 0;
 
     if (Array.isArray(r.test)) {
         r.test.forEach((tItem: any) => {
             const testDoc = tItem.name;
             if (!testDoc) return;
 
-            const testPanels = testDoc.panels || [];
-            if (testPanels.length > 0) {
-                testPanels.forEach((pObj: any) => {
-                    const pName = typeof pObj === 'object' && pObj.name ? pObj.name : String(pObj);
-                    if (pName && !panelMap.has(pName)) {
-                        panelMap.set(pName, { name: pName, price: pObj.price || 0 });
-                    }
-                });
-            } else {
-                standaloneTests.push(testDoc);
-                totalPrice += testDoc.price || 0;
+            const tName = typeof testDoc === 'string' ? testDoc : testDoc.name || testDoc.code;
+            if (tName && !testNames.includes(tName)) {
+                testNames.push(tName);
+            }
+            if (typeof testDoc === 'object' && testDoc.price) {
+                totalPrice += testDoc.price;
             }
         });
     }
 
-    panelMap.forEach((p) => {
-        totalPrice += p.price || 0;
-    });
+    // Fallback panel names from tests if r.panels is empty
+    if (panelNames.length === 0 && Array.isArray(r.test)) {
+        r.test.forEach((tItem: any) => {
+            const testDoc = tItem.name;
+            if (testDoc && Array.isArray(testDoc.panels)) {
+                testDoc.panels.forEach((pObj: any) => {
+                    const pName = typeof pObj === 'object' && pObj.name ? pObj.name : String(pObj);
+                    if (pName && !panelNames.includes(pName)) {
+                        panelNames.push(pName);
+                    }
+                });
+            }
+        });
+    }
 
     return {
-        panelsCount: panelMap.size,
-        panelNames: Array.from(panelMap.values()).map((p) => p.name),
-        standaloneTestsCount: standaloneTests.length,
-        standaloneTestNames: standaloneTests.map((t) => t.name),
+        panelsCount: panelNames.length,
+        panelNames,
+        testsCount: testNames.length,
+        testNames,
         totalPrice,
     };
 }
@@ -193,15 +200,15 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                     </div>
                                 </td>
 
-                                {/* Standalone Tests Column (Excludes tests included in panels) */}
+                                {/* Tests Column */}
                                 <td className="px-3 py-2 text-xs">
                                     <div className="flex flex-col">
                                         <span className="font-bold text-slate-800">
-                                            {summary.standaloneTestsCount} {summary.standaloneTestsCount === 1 ? "Test" : "Tests"}
+                                            {summary.testsCount} {summary.testsCount === 1 ? "Test" : "Tests"}
                                         </span>
-                                        {summary.standaloneTestNames.length > 0 ? (
-                                            <span className="text-[11px] text-slate-500 font-medium truncate max-w-[160px]" title={summary.standaloneTestNames.join(", ")}>
-                                                {summary.standaloneTestNames.join(", ")}
+                                        {summary.testNames.length > 0 ? (
+                                            <span className="text-[11px] text-slate-500 font-medium truncate max-w-[160px]" title={summary.testNames.join(", ")}>
+                                                {summary.testNames.join(", ")}
                                             </span>
                                         ) : (
                                             <span className="text-[11px] text-slate-400">None</span>
