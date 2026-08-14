@@ -271,7 +271,7 @@ const TypableExpiryInput = ({
                 placeholder={placeholder}
                 data-field="expiryDate"
                 className={cn(
-                    "h-11 bg-white border-slate-200 rounded-lg focus:bg-white focus:border-[var(--color-synapse-light)] focus:ring-4 focus:ring-(--color-synapse-light)/5 transition-all text-center text-sm pr-10",
+                    "h-11 bg-white border-slate-200 rounded-lg focus:bg-white focus:border-(--color-synapse-light) focus:ring-4 focus:ring-synapse-light/5 transition-all text-center text-sm pr-10",
                     className
                 )}
                 value={displayValue}
