@@ -463,10 +463,12 @@ export default function ExaminationNote({
                 <button
                   key={raw}
                   onClick={() => toggleSection(key)}
-                  className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${active
-                    ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                    : "bg-white"
-                    }`}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-xs select-none transition-all duration-150 cursor-pointer font-medium border",
+                    active
+                      ? "bg-(--color-synapse-light) text-white border-(--color-synapse-light) shadow-xs font-semibold scale-[1.01]"
+                      : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900"
+                  )}
                 >
                   {raw}
                 </button>
@@ -629,10 +631,12 @@ export default function ExaminationNote({
               <button
                 key={raw}
                 onClick={() => toggleSection(key)}
-                className={`px-3 py-1 rounded-full text-xs border transition hover:shadow-sm ${active
-                  ? "bg-emerald-50 border-emerald-300 text-emerald-700"
-                  : "bg-white"
-                  }`}
+                className={cn(
+                  "px-3 py-1.5 rounded-xl text-xs select-none transition-all duration-150 cursor-pointer font-medium border",
+                  active
+                    ? "bg-(--color-synapse-light) text-white border-(--color-synapse-light) shadow-xs font-semibold scale-[1.01]"
+                    : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900"
+                )}
               >
                 {raw}
               </button>

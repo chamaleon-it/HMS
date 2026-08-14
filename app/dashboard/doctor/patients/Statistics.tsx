@@ -62,17 +62,17 @@ export default function Statistics({
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 my-2">
       {statItems.map((item, idx) => (
         <StatCard
           key={item.label}
-          icon={<item.icon className={cn("h-5 w-5", item.iconColor)} />}
+          icon={<item.icon className={cn("h-4 w-4", item.iconColor)} />}
           label={item.label}
           value={item.value}
           colorClass={item.color}
           iconBgClass={item.iconBg}
           borderClass={item.border}
-          delay={idx * 0.1}
+          delay={idx * 0.05}
         />
       ))}
     </div>
@@ -89,26 +89,34 @@ const StatCard: React.FC<{
   delay: number;
 }> = ({ icon, label, value, colorClass, iconBgClass, borderClass, delay }) => (
   <motion.div
-    initial={{ opacity: 0, y: 15 }}
+    initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4, delay }}
-    whileHover={{ y: -4, transition: { duration: 0.2 } }}
+    transition={{ duration: 0.3, delay }}
+    whileHover={{ y: -2, transition: { duration: 0.15 } }}
   >
-    <Card className={cn(
-      "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-sm hover:shadow-md",
-      borderClass
-    )}>
+    <Card
+      className={cn(
+        "relative overflow-hidden border-zinc-200/70 transition-all duration-200 shadow-2xs hover:shadow-sm rounded-xl",
+        borderClass
+      )}
+    >
       <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />
-      <div className="relative p-4 flex items-center gap-4">
-        <div className={cn(
-          "h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm border border-white/50 shrink-0",
-          iconBgClass
-        )}>
-          {icon}
+      <div className="relative p-2.5 sm:p-3">
+        <div className="flex items-center justify-between gap-1 mb-1">
+          <div
+            className={cn(
+              "h-7 w-7 rounded-lg flex items-center justify-center shadow-2xs border border-white/60 shrink-0",
+              iconBgClass
+            )}
+          >
+            {icon}
+          </div>
+          <div className="text-xl font-bold tracking-tight text-zinc-900 leading-none">
+            {value}
+          </div>
         </div>
-        <div>
-          <div className="text-2xl font-bold tracking-tight text-zinc-900">{value}</div>
-          <div className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{label}</div>
+        <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider truncate">
+          {label}
         </div>
       </div>
     </Card>

@@ -65,7 +65,7 @@ export default function Header({
         </div>
       </DoctorHeader>
 
-      <div className="flex flex-wrap items-center justify-between gap-4 py-2 border-y border-slate-100">
+      <div className="flex flex-wrap items-center justify-between gap-4 py-2">
         <VitalsCard />
         <div className="flex items-center gap-3">
           <Button

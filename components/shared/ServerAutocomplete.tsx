@@ -8,12 +8,14 @@ export function ServerAutocomplete({
   field,
   placeholder,
   className = "",
+  inputClassName = "",
 }: {
   value: string | undefined;
   onChange: (v: string | undefined) => void;
   field: string;
   placeholder: string;
   className?: string;
+  inputClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState(value || "");
@@ -77,7 +79,7 @@ export function ServerAutocomplete({
           onFocus={() => setOpen(true)}
           placeholder={placeholder}
           autoComplete="new-password"
-          className="w-full h-11 pl-9 pr-8 bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400 text-sm"
+          className={`w-full h-11 pl-9 pr-8 bg-slate-50/50 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-synapse-light/20 transition-all placeholder:text-slate-400 text-sm ${inputClassName}`}
         />
         <svg
           className="absolute left-3 w-4 h-4 text-slate-400 group-focus-within:text-(--color-synapse-light) transition-colors"

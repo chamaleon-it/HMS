@@ -6,9 +6,6 @@ import useSWR from "swr";
 import LabTable from "./LabTable";
 import DoctorHeader from "../../../../app/dashboard/doctor/components/DoctorHeader";
 
-
-
-
 import {
   Beaker,
   Hospital,
@@ -19,7 +16,7 @@ import {
   ChevronDown,
   Check,
   RotateCcw,
-  Clock
+  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
@@ -34,26 +31,34 @@ const StatCard: React.FC<{
   delay: number;
 }> = ({ icon, label, value, colorClass, iconBgClass, borderClass, delay }) => (
   <motion.div
-    initial={{ opacity: 0, y: 15 }}
+    initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
-    transition={{ duration: 0.4, delay }}
-    whileHover={{ y: -4, transition: { duration: 0.2 } }}
+    transition={{ duration: 0.3, delay }}
+    whileHover={{ y: -2, transition: { duration: 0.15 } }}
   >
-    <Card className={cn(
-      "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-sm hover:shadow-md",
-      borderClass
-    )}>
+    <Card
+      className={cn(
+        "relative overflow-hidden border-zinc-200/70 transition-all duration-200 shadow-2xs hover:shadow-sm rounded-xl",
+        borderClass
+      )}
+    >
       <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />
-      <div className="relative p-4 flex items-center gap-4">
-        <div className={cn(
-          "h-12 w-12 rounded-2xl flex items-center justify-center shadow-sm border border-white/50 shrink-0",
-          iconBgClass
-        )}>
-          {icon}
+      <div className="relative p-2.5 sm:p-3">
+        <div className="flex items-center justify-between gap-1 mb-1">
+          <div
+            className={cn(
+              "h-7 w-7 rounded-lg flex items-center justify-center shadow-2xs border border-white/60 shrink-0",
+              iconBgClass
+            )}
+          >
+            {icon}
+          </div>
+          <div className="text-xl font-bold tracking-tight text-zinc-900 leading-none">
+            {value}
+          </div>
         </div>
-        <div>
-          <div className="text-2xl font-bold tracking-tight text-zinc-900">{value}</div>
-          <div className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{label}</div>
+        <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider truncate">
+          {label}
         </div>
       </div>
     </Card>
@@ -66,12 +71,12 @@ function Segmented<T extends string>({
   value,
   onChange,
 }: {
-  options: { label: string; value: T }[];
+  options: { label: string; value: T; color?: string }[];
   value: T;
   onChange: (v: T) => void;
 }) {
   return (
-    <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-fit">
+    <div className="relative inline-flex items-center gap-0.5 p-0.5 bg-zinc-100/80 rounded-xl w-full h-8.5">
       {options.map((o) => {
         const active = value === o.value;
         return (
@@ -79,8 +84,8 @@ function Segmented<T extends string>({
             key={o.value}
             onClick={() => onChange(o.value)}
             className={cn(
-              "relative px-4 h-8.5 rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
-              active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
+              "relative flex-1 h-full rounded-lg text-xs font-medium transition cursor-pointer overflow-hidden px-2",
+              active ? "text-white font-semibold" : "text-zinc-600 hover:text-zinc-900"
             )}
             type="button"
           >
@@ -91,12 +96,12 @@ function Segmented<T extends string>({
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="absolute inset-0 bg-zinc-900"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                  className={cn("absolute inset-0 rounded-lg", o.color || "bg-primary")}
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                 />
               )}
             </AnimatePresence>
-            <span className="relative z-10">{o.label}</span>
+            <span className="relative z-10 truncate">{o.label}</span>
           </button>
         );
       })}
@@ -104,7 +109,7 @@ function Segmented<T extends string>({
   );
 }
 
-// Nice headless select used for Status / Doctor / Test / Center
+// Headless select used for Status
 function FilterSelect<T extends string>({
   value,
   onChange,
@@ -149,23 +154,23 @@ function FilterSelect<T extends string>({
   const current = options.find((o) => o.value === value);
 
   return (
-    <div ref={ref} className={cn("relative", className)}>
+    <div ref={ref} className={cn("relative w-full", className)}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "h-11 px-4 rounded-xl bg-zinc-50 border border-zinc-200 hover:border-zinc-300 transition-all inline-flex items-center justify-between gap-3 min-w-45 group",
+          "h-8.5 px-3 rounded-xl bg-zinc-50/70 border border-zinc-200 hover:border-zinc-300 transition-all inline-flex items-center justify-between gap-2 w-full group text-xs",
           open && "ring-2 ring-zinc-900/5 border-zinc-900 bg-white"
         )}
       >
         <span className={cn(
-          "truncate text-sm font-medium",
+          "truncate text-xs font-medium",
           current ? "text-zinc-900" : "text-zinc-500"
         )}>
           {current ? (current.label === "All statuses" ? placeholder : current.label) : placeholder}
         </span>
         <ChevronDown className={cn(
-          "h-4 w-4 text-zinc-400 transition-transform duration-200",
+          "h-3.5 w-3.5 text-zinc-400 transition-transform duration-200 shrink-0",
           open ? "rotate-180 text-zinc-900" : "group-hover:text-zinc-600"
         )} />
       </button>
@@ -173,24 +178,24 @@ function FilterSelect<T extends string>({
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            initial={{ opacity: 0, y: 6, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute z-50 mt-2 w-full min-w-50 max-h-72 overflow-hidden bg-white rounded-2xl shadow-xl ring-1 ring-zinc-200 p-2"
+            exit={{ opacity: 0, y: 6, scale: 0.96 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute z-50 mt-1.5 w-full min-w-45 max-h-60 overflow-hidden bg-white rounded-xl shadow-xl ring-1 ring-zinc-200 p-1.5"
           >
             {searchable && (
-              <div className="relative mb-2 px-1">
-                <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <div className="relative mb-1.5 px-1">
+                <Search className="h-3 w-3 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Search…"
-                  className="w-full h-9 pl-9 pr-3 rounded-lg bg-zinc-50 border border-zinc-100 focus:outline-none focus:border-zinc-300 text-sm transition-all"
+                  className="w-full h-8 pl-8 pr-2.5 rounded-lg bg-zinc-50 border border-zinc-100 focus:outline-none focus:border-zinc-300 text-xs transition-all"
                 />
               </div>
             )}
-            <ul role="listbox" className="max-h-60 overflow-y-auto custom-scrollbar">
+            <ul role="listbox" className="max-h-52 overflow-y-auto custom-scrollbar">
               {visible.map((o) => {
                 const active = o.value === value;
                 return (
@@ -201,20 +206,20 @@ function FilterSelect<T extends string>({
                         setOpen(false);
                       }}
                       className={cn(
-                        "w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium flex items-center justify-between transition-colors",
+                        "w-full text-left px-2.5 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors",
                         active
-                          ? "bg-zinc-100 text-zinc-900"
+                          ? "bg-zinc-100 text-zinc-900 font-semibold"
                           : "hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900"
                       )}
                     >
                       <span className="truncate">{o.label}</span>
-                      {active && <Check className="h-4 w-4 text-zinc-900" />}
+                      {active && <Check className="h-3.5 w-3.5 text-zinc-900" />}
                     </button>
                   </li>
                 );
               })}
               {visible.length === 0 && (
-                <li className="px-3 py-4 text-center text-sm text-zinc-400 font-medium">
+                <li className="px-3 py-3 text-center text-xs text-zinc-400 font-medium">
                   No matches found
                 </li>
               )}
@@ -228,7 +233,6 @@ function FilterSelect<T extends string>({
 
 // ----- Main Component -----
 export default function LabResultsPage() {
-
   const { data } = useSWR<{
     message: string;
     data: {
@@ -277,18 +281,17 @@ export default function LabResultsPage() {
             toAge: number | null | undefined;
             gender: "Both" | "Male" | "Female";
             dateType: "Year" | "Month" | "Day";
-
-          }[],
-          note: string
+          }[];
+          note: string;
           _id: string;
           panels: {
             _id: string;
             name: string;
             status: string;
             user: string;
-          }[]
-        }
-        value?: string | number
+          }[];
+        };
+        value?: string | number;
         _id: string;
       }[];
       sampleType: string;
@@ -300,7 +303,6 @@ export default function LabResultsPage() {
 
   const REPORT = data?.data ?? [];
 
-
   const [filter, setFilter] = useState<{
     patient: string;
     status: string;
@@ -310,20 +312,20 @@ export default function LabResultsPage() {
     patient: "",
     status: "All",
     date: "All time",
-    facility: "All"
-  })
+    facility: "All",
+  });
 
   return (
-    <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-slate-50 p-6 space-y-5">
+    <div className="min-h-[calc(100vh-67px)] w-full bg-linear-to-b from-white to-slate-50 p-4 sm:p-5 space-y-3">
       <DoctorHeader
         title="Investigations"
         subtitle="Track, filter & review lab and imaging results"
       />
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 my-2">
         <StatCard
-          icon={<Beaker className="h-6 w-6" />}
+          icon={<Beaker className="h-4 w-4" />}
           label="Total"
           value={REPORT.length}
           colorClass="from-violet-500/10 to-violet-500/5"
@@ -332,73 +334,74 @@ export default function LabResultsPage() {
           delay={0}
         />
         <StatCard
-          icon={<Hospital className="h-6 w-6" />}
+          icon={<Hospital className="h-4 w-4" />}
           label="Lab"
           value={REPORT.reduce((acc, r) => acc + (r.test.filter((e) => e.name.type === "Lab").length ?? 0), 0)}
           colorClass="from-emerald-500/10 to-emerald-500/5"
           iconBgClass="bg-emerald-100 text-emerald-600"
           borderClass="hover:border-emerald-200"
-          delay={0.1}
+          delay={0.05}
         />
         <StatCard
-          icon={<Scan className="h-6 w-6" />}
+          icon={<Scan className="h-4 w-4" />}
           label="Imaging"
           value={REPORT.reduce((acc, r) => acc + (r.test.filter((e) => e.name.type === "Imaging").length ?? 0), 0)}
           colorClass="from-(--color-synapse-light)/10 to-blue-500/5"
           iconBgClass="bg-blue-100 text-(--color-synapse-light)"
           borderClass="hover:border-blue-200"
-          delay={0.2}
+          delay={0.1}
         />
         <StatCard
-          icon={<CheckCircle2 className="h-6 w-6" />}
+          icon={<CheckCircle2 className="h-4 w-4" />}
           label="Completed"
           value={REPORT.filter((r) => r.status === "Completed").length}
           colorClass="from-(--color-synapse-light)/10 to-(--color-synapse-purple)/5"
           iconBgClass="bg-synapse-light/20 text-(--color-synapse-light)"
           borderClass="hover:border-synapse-light/30"
-          delay={0.3}
+          delay={0.15}
         />
         <StatCard
-          icon={<AlertTriangle className="h-6 w-6" />}
+          icon={<AlertTriangle className="h-4 w-4" />}
           label="Flagged"
           value={REPORT.filter((r) => r.status === "Flagged").length}
           colorClass="from-rose-500/10 to-rose-500/5"
           iconBgClass="bg-rose-100 text-rose-600"
           borderClass="hover:border-rose-200"
-          delay={0.4}
+          delay={0.2}
         />
       </div>
 
-      <div className="rounded-2xl bg-white border border-zinc-200 p-5 shadow-sm">
-        <div className="flex flex-col md:flex-row gap-4 md:items-center">
+      <div className="rounded-2xl bg-white border border-zinc-200/80 p-3.5 shadow-2xs mb-3">
+        <div className="flex flex-col md:flex-row gap-2.5 md:items-center">
           <div className="relative flex-1 group">
-            <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
+            <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
             <input
               value={filter.patient}
               onChange={(e) => setFilter({ ...filter, patient: e.target.value })}
               placeholder="Search by patient name or ID…"
-              className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+              className="w-full h-8.5 pl-9 pr-3 text-xs rounded-xl bg-zinc-50/70 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium placeholder:text-zinc-400"
             />
           </div>
           <button
+            type="button"
             onClick={() => setFilter({
               patient: "",
               status: "All",
               date: "All time",
-              facility: "All"
+              facility: "All",
             })}
-            className="h-11 px-4 rounded-xl bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 cursor-pointer transition-all flex items-center gap-2 font-medium"
+            className="h-8.5 px-3 rounded-xl bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 cursor-pointer transition-all flex items-center gap-1.5 text-xs font-semibold shrink-0"
           >
-            <RotateCcw className="h-4 w-4" />
+            <RotateCcw className="h-3.5 w-3.5" />
             <span>Reset all</span>
           </button>
         </div>
 
         {/* Row 2: Primary filters */}
-        <div className="mt-5 grid md:grid-cols-3 gap-6 items-end">
+        <div className="mt-2.5 grid md:grid-cols-3 gap-2.5 items-end">
           {/* Status */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3" /> Status
             </span>
             <FilterSelect
@@ -422,48 +425,23 @@ export default function LabResultsPage() {
           </div>
 
           {/* Facility — Lab vs Imaging */}
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
               <Beaker className="h-3 w-3" /> Facility
             </span>
-            <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-fit">
-              {[
+            <Segmented
+              options={[
                 { label: "All", value: "All" as const },
                 { label: "Lab", value: "Lab" as const, color: "bg-(--color-synapse-dark)" },
                 { label: "Imaging", value: "Imaging" as const, color: "bg-(--color-synapse-light)" },
-              ].map((opt) => {
-                const active = filter.facility === opt.value;
-                return (
-                  <button
-                    key={opt.value}
-                    onClick={() => setFilter({ ...filter, facility: opt.value })}
-                    className={cn(
-                      "relative px-4 h-8.5 rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
-                      active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
-                    )}
-                    type="button"
-                  >
-                    <AnimatePresence>
-                      {active && (
-                        <motion.span
-                          layoutId="facility-bg"
-                          initial={{ opacity: 0, scale: 0.95 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          className={cn("absolute inset-0", opt.color || "bg-zinc-900")}
-                          transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
-                        />
-                      )}
-                    </AnimatePresence>
-                    <span className="relative z-10">{opt.label}</span>
-                  </button>
-                );
-              })}
-            </div>
+              ]}
+              value={filter.facility}
+              onChange={(v) => setFilter({ ...filter, facility: v })}
+            />
           </div>
 
-          <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+          <div className="flex flex-col gap-1">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
               <Clock className="h-3 w-3" /> Date Range
             </span>
             <Segmented
@@ -479,24 +457,19 @@ export default function LabResultsPage() {
         </div>
       </div>
 
-
-
-
-
-
-
-      <LabTable REPORT={
-        REPORT.filter((r) => {
-          const patientMatch = r?.patient?.name.toLowerCase().includes(filter.patient.toLowerCase())
-          const statusMatch = filter.status === "All" || r.status === filter.status
-          const facilityMatch = filter.facility === "All" || r.test.some((e) => e.name.type === filter.facility)
-          const dateMatch = filter.date === "All time" || r.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-          return patientMatch && statusMatch && facilityMatch && dateMatch
-        })} status={filter.status} facility={filter.facility} />
-
-
-    </div >
+      <LabTable
+        REPORT={
+          REPORT.filter((r) => {
+            const patientMatch = r?.patient?.name.toLowerCase().includes(filter.patient.toLowerCase());
+            const statusMatch = filter.status === "All" || r.status === filter.status;
+            const facilityMatch = filter.facility === "All" || r.test.some((e) => e.name.type === filter.facility);
+            const dateMatch = filter.date === "All time" || r.createdAt >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+            return patientMatch && statusMatch && facilityMatch && dateMatch;
+          })
+        }
+        status={filter.status}
+        facility={filter.facility}
+      />
+    </div>
   );
 }
-
-

@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { DataType } from "./interface";
 import { Consultations } from "./History";
-import { EllipsisVertical, Pencil } from "lucide-react";
+import { EllipsisVertical, Pencil, Plus, X } from "lucide-react";
 import OptionButton from "./OptionButton";
 import {
   DropdownMenu,
@@ -13,7 +13,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { m } from "framer-motion";
 
 const PRESENT_HISTORY = [
   "Left Knee Pain",
@@ -110,32 +109,62 @@ export default function ConsultationNotes({
             <button
               type="button"
               onClick={() => setAddValues("presentHistory")}
-              className="inline-flex items-center rounded-lg bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white shadow-md transition focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
+              className="inline-flex items-center gap-1 rounded-xl bg-slate-100 border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 transition-all cursor-pointer"
             >
-              + Add Condition
+              <Plus className="w-3.5 h-3.5" /> Add Condition
             </button>
           ) : (
-            <div className="relative inline-flex items-center gap-2">
+            <div className="relative inline-flex items-center gap-1.5">
               <input
-                className="h-8 w-56 rounded-md border border-slate-200 bg-white px-2 text-sm outline-none focus:ring-2 focus:ring-blue-300"
+                type="text"
+                autoFocus
+                className="h-8 w-44 rounded-xl border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                placeholder="Add condition..."
                 value={value}
                 onChange={(e) => setValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    if (value.trim()) {
+                      setValues((prev) => ({
+                        ...prev,
+                        presentHistory: [...prev.presentHistory, value.trim()],
+                      }));
+                      setValue("");
+                      setAddValues(null);
+                    }
+                  } else if (e.key === "Escape") {
+                    setAddValues(null);
+                    setValue("");
+                  }
+                }}
               />
-
               <button
                 type="button"
                 onClick={() => {
-                  setValues((prev) => ({
-                    ...prev,
-                    presentHistory: [...prev.presentHistory, value.trim()],
-                  }));
-                  setValue("");
-                  setAddValues(null);
+                  if (value.trim()) {
+                    setValues((prev) => ({
+                      ...prev,
+                      presentHistory: [...prev.presentHistory, value.trim()],
+                    }));
+                    setValue("");
+                    setAddValues(null);
+                  }
                 }}
-                className="inline-flex items-center rounded-md bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-synapse-light) disabled:opacity-40"
                 disabled={!value.trim()}
+                className="inline-flex items-center h-8 rounded-xl bg-(--color-synapse-light) px-3 text-xs font-semibold text-white shadow-xs hover:opacity-90 disabled:opacity-40 transition-colors cursor-pointer"
               >
                 Save
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setAddValues(null);
+                  setValue("");
+                }}
+                className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 text-xs transition-colors cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
               </button>
             </div>
           )}
@@ -149,9 +178,9 @@ export default function ConsultationNotes({
                 <DropdownMenuGroup>
                   <DropdownMenuItem
                     className="text-sm"
-                    onClick={() => setEditable("presentHistory")}
+                    onClick={() => setEditable(prev => prev === "presentHistory" ? null : "presentHistory")}
                   >
-                    <Pencil className="w-3 h-3" /> Edit
+                    <Pencil className="w-3 h-3" /> {editable === "presentHistory" ? "Done Editing" : "Edit Options"}
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
@@ -174,7 +203,7 @@ export default function ConsultationNotes({
             minRows={6}
           />
           <div className="flex gap-5 items-center">
-            <div className="flex flex-wrap gap-2  items-center">
+            <div className="flex flex-wrap gap-2 items-center">
               {values.pastHistory.map((c) => (
                 <OptionButton
                   key={c}
@@ -192,32 +221,62 @@ export default function ConsultationNotes({
                 <button
                   type="button"
                   onClick={() => setAddValues("pastHistory")}
-                  className="inline-flex items-center rounded-lg bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white shadow-md transition focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
+                  className="inline-flex items-center gap-1 rounded-xl bg-slate-100 border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 transition-all cursor-pointer"
                 >
-                  + Add Condition
+                  <Plus className="w-3.5 h-3.5" /> Add Condition
                 </button>
               ) : (
-                <div className="relative inline-flex items-center gap-2">
+                <div className="relative inline-flex items-center gap-1.5">
                   <input
-                    className="h-8 w-56 rounded-md border border-slate-200 bg-white px-2 text-sm outline-none focus:ring-2 focus:ring-blue-300"
+                    type="text"
+                    autoFocus
+                    className="h-8 w-44 rounded-xl border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                    placeholder="Add condition..."
                     value={value}
                     onChange={(e) => setValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        if (value.trim()) {
+                          setValues((prev) => ({
+                            ...prev,
+                            pastHistory: [...prev.pastHistory, value.trim()],
+                          }));
+                          setValue("");
+                          setAddValues(null);
+                        }
+                      } else if (e.key === "Escape") {
+                        setAddValues(null);
+                        setValue("");
+                      }
+                    }}
                   />
-
                   <button
                     type="button"
                     onClick={() => {
-                      setValues((prev) => ({
-                        ...prev,
-                        pastHistory: [...prev.pastHistory, value.trim()],
-                      }));
-                      setValue("");
-                      setAddValues(null);
+                      if (value.trim()) {
+                        setValues((prev) => ({
+                          ...prev,
+                          pastHistory: [...prev.pastHistory, value.trim()],
+                        }));
+                        setValue("");
+                        setAddValues(null);
+                      }
                     }}
-                    className="inline-flex items-center rounded-md bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-synapse-light) disabled:opacity-40"
                     disabled={!value.trim()}
+                    className="inline-flex items-center h-8 rounded-xl bg-(--color-synapse-light) px-3 text-xs font-semibold text-white shadow-xs hover:opacity-90 disabled:opacity-40 transition-colors cursor-pointer"
                   >
                     Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAddValues(null);
+                      setValue("");
+                    }}
+                    className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 text-xs transition-colors cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               )}
@@ -231,9 +290,9 @@ export default function ConsultationNotes({
                     <DropdownMenuGroup>
                       <DropdownMenuItem
                         className="text-sm"
-                        onClick={() => setEditable("pastHistory")}
+                        onClick={() => setEditable(prev => prev === "pastHistory" ? null : "pastHistory")}
                       >
-                        <Pencil className="w-3 h-3" /> Edit
+                        <Pencil className="w-3 h-3" /> {editable === "pastHistory" ? "Done Editing" : "Edit Options"}
                       </DropdownMenuItem>
                     </DropdownMenuGroup>
                   </DropdownMenuContent>
@@ -262,7 +321,7 @@ export default function ConsultationNotes({
             minRows={6}
           />
 
-          <div className="flex flex-wrap gap-2  items-center">
+          <div className="flex flex-wrap gap-2 items-center">
             {values.diagnosis.map((c) => (
               <OptionButton
                 key={c}
@@ -280,32 +339,62 @@ export default function ConsultationNotes({
               <button
                 type="button"
                 onClick={() => setAddValues("diagnosis")}
-                className="inline-flex items-center rounded-lg bg-(--color-synapse-dark) hover:bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white shadow-md transition focus:outline-none focus:ring-2 focus:ring-(--color-synapse-light)"
+                className="inline-flex items-center gap-1 rounded-xl bg-slate-100 border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 shadow-2xs hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-700 transition-all cursor-pointer"
               >
-                + Add Condition
+                <Plus className="w-3.5 h-3.5" /> Add Condition
               </button>
             ) : (
-              <div className="relative inline-flex items-center gap-2">
+              <div className="relative inline-flex items-center gap-1.5">
                 <input
-                  className="h-8 w-56 rounded-md border border-slate-200 bg-white px-2 text-sm outline-none focus:ring-2 focus:ring-blue-300"
+                  type="text"
+                  autoFocus
+                  className="h-8 w-44 rounded-xl border border-slate-300 bg-white px-2.5 text-xs outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+                  placeholder="Add condition..."
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      if (value.trim()) {
+                        setValues((prev) => ({
+                          ...prev,
+                          diagnosis: [...prev.diagnosis, value.trim()],
+                        }));
+                        setValue("");
+                        setAddValues(null);
+                      }
+                    } else if (e.key === "Escape") {
+                      setAddValues(null);
+                      setValue("");
+                    }
+                  }}
                 />
-
                 <button
                   type="button"
                   onClick={() => {
-                    setValues((prev) => ({
-                      ...prev,
-                      diagnosis: [...prev.diagnosis, value.trim()],
-                    }));
-                    setValue("");
-                    setAddValues(null);
+                    if (value.trim()) {
+                      setValues((prev) => ({
+                        ...prev,
+                        diagnosis: [...prev.diagnosis, value.trim()],
+                      }));
+                      setValue("");
+                      setAddValues(null);
+                    }
                   }}
-                  className="inline-flex items-center rounded-md bg-(--color-synapse-light) px-3 py-1.5 text-sm font-medium text-white hover:bg-(--color-synapse-light) disabled:opacity-40"
                   disabled={!value.trim()}
+                  className="inline-flex items-center h-8 rounded-xl bg-(--color-synapse-light) px-3 text-xs font-semibold text-white shadow-xs hover:opacity-90 disabled:opacity-40 transition-colors cursor-pointer"
                 >
                   Save
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAddValues(null);
+                    setValue("");
+                  }}
+                  className="inline-flex items-center justify-center h-8 w-8 rounded-xl border border-slate-200 bg-white text-slate-500 hover:bg-slate-100 text-xs transition-colors cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
                 </button>
               </div>
             )}
@@ -319,9 +408,9 @@ export default function ConsultationNotes({
                   <DropdownMenuGroup>
                     <DropdownMenuItem
                       className="text-sm"
-                      onClick={() => setEditable("diagnosis")}
+                      onClick={() => setEditable(prev => prev === "diagnosis" ? null : "diagnosis")}
                     >
-                      <Pencil className="w-3 h-3" /> Edit
+                      <Pencil className="w-3 h-3" /> {editable === "diagnosis" ? "Done Editing" : "Edit Options"}
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 </DropdownMenuContent>

@@ -208,12 +208,27 @@ export function PrescriptionSignature({
   );
 }
 
-export function PrescriptionFooter() {
+interface PrescriptionFooterProps {
+  pageNumber?: number;
+  totalPages?: number;
+}
+
+export function PrescriptionFooter({
+  pageNumber,
+  totalPages,
+}: PrescriptionFooterProps = {}) {
   return (
-    <div className="relative flex justify-end items-stretch border-t border-slate-700 mt-auto min-h-14 bg-white">
+    <div className="relative flex justify-between items-stretch border-t border-slate-700 mt-auto min-h-14 bg-white">
+      {/* Optional Page Number Indicator on Left */}
+      <div className="flex items-center pl-6 text-[10.5px] font-bold text-slate-600 tracking-wider">
+        {totalPages && totalPages > 1 && pageNumber ? (
+          <span>Page {pageNumber} of {totalPages}</span>
+        ) : null}
+      </div>
+
       {/* Bottom Right Angled Ribbon */}
       <div
-        className="w-[62%] bg-[#2d3e36] text-white pt-2 pb-2 pr-8 pl-12 flex flex-col items-end justify-center space-y-0.5 relative"
+        className="w-[62%] bg-[#2d3e36] text-white pt-2 pb-2 pr-8 pl-12 flex flex-col items-end justify-center space-y-0.5 relative ml-auto"
         style={{ clipPath: "polygon(12% 0, 100% 0, 100% 100%, 0 100%)" }}
       >
         <p className="text-[10.5px] font-semibold tracking-wide text-slate-100">

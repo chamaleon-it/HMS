@@ -101,7 +101,7 @@ export default function Statistics() {
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-4 my-6">
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 my-2">
       {statItems.map((item, idx) => {
         const config = STAT_CONFIG[item.key as keyof typeof STAT_CONFIG];
         return (
@@ -109,11 +109,11 @@ export default function Statistics() {
             key={item.key}
             title={config.label}
             value={item.value}
-            icon={<config.icon className={cn("h-5 w-5", config.iconColor)} />}
+            icon={<config.icon className={cn("h-4 w-4", config.iconColor)} />}
             colorClass={config.color}
             iconBgClass={config.iconBg}
             borderClass={config.border}
-            delay={idx * 0.05}
+            delay={idx * 0.04}
           />
         );
       })}
@@ -140,30 +140,34 @@ function StatTile({
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay }}
-      whileHover={{ y: -4, transition: { duration: 0.2 } }}
+      transition={{ duration: 0.3, delay }}
+      whileHover={{ y: -2, transition: { duration: 0.15 } }}
     >
-      <Card className={cn(
-        "relative overflow-hidden border-zinc-200/60 transition-all duration-300 shadow-sm hover:shadow-md",
-        borderClass
-      )}>
+      <Card
+        className={cn(
+          "relative overflow-hidden border-zinc-200/70 transition-all duration-200 shadow-2xs hover:shadow-sm rounded-xl",
+          borderClass
+        )}
+      >
         <div className={cn("absolute inset-0 bg-linear-to-br opacity-50", colorClass)} />
-        <div className="relative p-4">
-          <div className="flex flex-col gap-3">
-            <div className={cn(
-              "h-10 w-10 rounded-xl flex items-center justify-center shadow-sm border border-white/50",
-              iconBgClass
-            )}>
+        <div className="relative p-2.5">
+          <div className="flex items-center justify-between gap-1 mb-1">
+            <div
+              className={cn(
+                "h-7 w-7 rounded-lg flex items-center justify-center shadow-2xs border border-white/60 shrink-0",
+                iconBgClass
+              )}
+            >
               {icon}
             </div>
-            <div>
-              <div className="text-[11px] font-medium text-zinc-500 uppercase tracking-wider">{title}</div>
-              <div className="text-2xl font-bold mt-0.5 text-zinc-900">
-                {value ?? 0}
-              </div>
+            <div className="text-xl font-bold text-zinc-900 leading-none">
+              {value ?? 0}
             </div>
+          </div>
+          <div className="text-[10px] font-semibold text-zinc-500 uppercase tracking-wider truncate">
+            {title}
           </div>
         </div>
       </Card>

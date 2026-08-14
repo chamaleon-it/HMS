@@ -12,6 +12,12 @@ import {
   EllipsisVertical,
   Pencil,
   Minus,
+  Search,
+  Layers,
+  Sparkles,
+  FileText,
+  CheckCircle2,
+  RotateCcw,
 } from "lucide-react";
 import { AppointmentType, DataType } from "./interface";
 import MedicineComponent from "./Medicine";
@@ -36,6 +42,53 @@ interface FavoriteTemplate {
   name: string;
   medicines: Medicine[];
 }
+
+const TemplateMedicinesList = ({ medicines }: { medicines: Medicine[] }) => {
+  return (
+    <div className="space-y-1.5">
+      {medicines.map((med, idx) => (
+        <div
+          key={idx}
+          className="flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-100 text-xs"
+        >
+          <div className="flex items-center gap-2 min-w-0 pr-2">
+            <span className="w-4.5 h-4.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold flex items-center justify-center shrink-0">
+              {idx + 1}
+            </span>
+            <span
+              className="font-semibold text-slate-800 truncate text-xs"
+              title={med.referralName || med.name}
+            >
+              {med.referralName || med.name || "Unnamed Medicine"}
+            </span>
+          </div>
+          <div className="flex items-center gap-1 shrink-0 text-[10px]">
+            {med.dosage && (
+              <span className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-700 font-medium">
+                {med.dosage}
+              </span>
+            )}
+            {med.frequency && (
+              <span className="px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 text-emerald-700 font-medium">
+                {med.frequency}
+              </span>
+            )}
+            {med.food && (
+              <span className="px-1.5 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800 font-medium">
+                {med.food}
+              </span>
+            )}
+            {med.duration && (
+              <span className="px-1.5 py-0.5 rounded bg-white border border-slate-200 text-slate-500 font-medium">
+                {med.duration}
+              </span>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 export default function PrescriptionCard({
   data,
   setData,
@@ -225,7 +278,20 @@ export default function PrescriptionCard({
     setEditMeds((prev) =>
       prev.map((m, i) => (i === idx ? { ...m, [key]: val } : m))
     );
-  const addEditRow = () => setEditMeds((prev) => [...prev]);
+  const addEditRow = () =>
+    setEditMeds((prev) => [
+      ...prev,
+      {
+        dosage: "1 tab",
+        name: "",
+        duration: "",
+        food: "",
+        frequency: "",
+        quantity: 0,
+        referralName: "",
+        isCustom: false,
+      },
+    ]);
   const removeEditRow = (idx: number) =>
     setEditMeds((prev) => prev.filter((_, i) => i !== idx));
 
@@ -244,13 +310,33 @@ export default function PrescriptionCard({
     setEditModalOpen(false);
   };
 
-  const [editFPill, setEditFPill] = useState(false)
+  const [editFPill, setEditFPill] = useState(false);
+  const [prescriptionKey, setPrescriptionKey] = useState(0);
+
+  const clearAllMedicines = () => {
+    setData((prev) => ({
+      ...prev,
+      medicines: [
+        {
+          dosage: "1 tab",
+          name: "",
+          duration: "",
+          food: "",
+          frequency: "",
+          quantity: 0,
+          referralName: "",
+        },
+      ],
+    }));
+    setPrescriptionKey((k) => k + 1);
+    toast.success("Prescription table cleared");
+  };
 
   return (
-    <Card>
-      <CardContent>
-        <div className="">
-          <div className="mb-4">
+    <Card className="border-slate-200 shadow-xs rounded-2xl">
+      <CardContent className="p-4 sm:p-5">
+        <div>
+          <div className="mb-3">
             <div className="flex items-center gap-2.5 mb-2">
               <h2 className="font-semibold text-lg">Prescriptions</h2>
               {appointmentData.data.patient.allergies && (
@@ -260,37 +346,33 @@ export default function PrescriptionCard({
                 </div>
               )}
             </div>
-            <div className="flex gap-2.5 mb-3">
-
-              {favoritesPills.map(f =>
-                <div className="relative" key={f.referralName}>
-                  {editFPill && <button
-                    className={cn(
-                      "absolute -right-1 -top-1 grid place-items-center size-3.5 rounded-md cursor-pointer",
-                      "bg-red-500 text-white shadow-sm hover:bg-red-600",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/60",
-                      "transition-opacity",
-                      "opacity-100"
-                    )}
-                    onClick={() => removeFavoritesPills(f.referralName)}
-                  >
-                    <Minus className="h-3 w-3" />
-                  </button>}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              {favoritesPills.map((f) => (
+                <div className="relative inline-flex group items-center" key={f.referralName}>
+                  {editFPill && (
+                    <button
+                      type="button"
+                      className="absolute -right-1.5 -top-1.5 grid place-items-center size-4 rounded-full bg-red-500 text-white shadow-md hover:bg-red-600 focus:outline-none z-10 cursor-pointer transition-transform hover:scale-110"
+                      onClick={() => removeFavoritesPills(f.referralName)}
+                      title="Delete pill"
+                    >
+                      <Minus className="h-3 w-3" />
+                    </button>
+                  )}
                   <button
+                    type="button"
                     onClick={() => {
-                      setData(prev => ({ ...prev, medicines: [...prev.medicines.filter(m => m.name !== ""), f] }))
+                      setData((prev) => ({
+                        ...prev,
+                        medicines: [...prev.medicines.filter((m) => m.name !== ""), f],
+                      }));
                     }}
-                    className={cn(
-                      "px-3 py-1 rounded-full text-xs border select-none transition-shadow",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
-                      "disabled:opacity-50 disabled:cursor-not-allowed",
-                      "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
-                    )}
+                    className="px-3 py-1.5 rounded-xl text-xs select-none transition-all duration-150 cursor-pointer font-medium border bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900"
                   >
                     {f.referralName}
                   </button>
                 </div>
-              )}
+              ))}
 
               {
                 Boolean(favoritesPills.length) &&
@@ -331,7 +413,7 @@ export default function PrescriptionCard({
                 {/* Rows */}
                 {data.medicines.map((m, i) => (
                   <div
-                    key={i}
+                    key={`${prescriptionKey}-${i}`}
                     className="grid grid-cols-12 gap-2 mt-2 items-start"
                   >
                     <div className="col-span-1 flex justify-start items-center h-full">
@@ -414,13 +496,6 @@ export default function PrescriptionCard({
 
                     <div className="col-span-2 flex justify-end gap-2">
                       <Button
-                        className="bg-(--color-synapse-dark)! hover:bg-(--color-synapse-dark)! text-white border-emerald-600!"
-                        onClick={addMedicineRow}
-                        title="Add medicine"
-                      >
-                        <Plus className="w-4 h-4" />
-                      </Button>
-                      <Button
                         className="bg-red-600! hover:bg-red-700! text-white border-red-600!"
                         onClick={() => removeMedicineRow(i)}
                         title="Remove medicine"
@@ -434,173 +509,241 @@ export default function PrescriptionCard({
                   </div>
                 ))}
               </div>
-              <div className="mt-4 flex gap-3">
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex gap-3">
+                  <Button
+                    onClick={addMedicineRow}
+                    className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white rounded-md cursor-pointer"
+                  >
+                    + Add Medicine
+                  </Button>
+                  <Button
+                    onClick={openSaveModal}
+                    variant="outline"
+                    className="flex items-center gap-1 cursor-pointer"
+                  >
+                    <Star className="w-4 h-4 text-yellow-500" /> Add to Templates
+                  </Button>
+                </div>
+
                 <Button
-                  onClick={addMedicineRow}
-                  className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white rounded-md"
-                >
-                  + Add Medicine
-                </Button>
-                <Button
-                  onClick={openSaveModal}
+                  type="button"
                   variant="outline"
-                  className="flex items-center gap-1"
+                  onClick={clearAllMedicines}
+                  className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200 text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-colors"
+                  title="Clear all medicines from table"
                 >
-                  <Star className="w-4 h-4 text-yellow-500" /> Add to Favorites
+                  <RotateCcw className="w-3.5 h-3.5" /> Clear All
                 </Button>
               </div>
             </div>
-            <input
-              value={favSearch}
-              onChange={(e) => setFavSearch(e.target.value)}
-              placeholder="Search templates..."
-              className="border rounded-md p-2 text-sm w-full my-3"
-            />
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {filteredFavorites.map((fav) => (
-                <Card
-                  key={fav.id}
-                  className="min-w-70 rounded-xl shadow-sm border"
-                >
-                  <CardContent className="p-3">
-                    <div
-                      className="font-medium text-sm mb-2 truncate"
-                      title={fav.name}
+            <div className="mt-5 pt-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+                    Prescription Templates
+                  </span>
+                  <span className="text-[10px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded-full">
+                    {favorites.length}
+                  </span>
+                </div>
+
+              </div>
+
+              {favorites.length > 3 && (
+                <div className="relative mb-2.5">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                  <input
+                    value={favSearch}
+                    onChange={(e) => setFavSearch(e.target.value)}
+                    placeholder="Search templates..."
+                    className="w-full pl-8 pr-7 py-1 text-xs bg-slate-50/70 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:border-(--color-synapse-light) focus:ring-2 focus:ring-synapse-light/10 transition-all placeholder:text-slate-400"
+                  />
+                  {favSearch && (
+                    <button
+                      onClick={() => setFavSearch("")}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
                     >
-                      {fav.name}
-                    </div>
-                    <div className="flex flex-col gap-1 text-xs mb-3 max-h-24 overflow-y-auto pr-1">
-                      {fav.medicines.map((med, idx) => (
-                        <div key={idx} className="flex flex-wrap gap-1">
-                          <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
-                            {med.referralName}
-                          </span>
-                          <span className="bg-blue-100 text-(--color-synapse-light) px-2 py-0.5 rounded-md">
-                            {med.dosage}
-                          </span>
-                          <span className="bg-[#FDF6ED] text-(--color-synapse-light) px-2 py-0.5 rounded-md">
-                            {med.frequency}
-                          </span>
-                          <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md">
-                            {med.food}
-                          </span>
-                          <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md">
-                            {med.duration}
-                          </span>
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              )}
+              <div className="flex gap-3 overflow-x-auto pb-2 pt-1">
+                {filteredFavorites.map((fav) => (
+                  <div
+                    key={fav.id}
+                    className="min-w-60 max-w-68 bg-white border border-slate-200 hover:border-emerald-500/80 rounded-2xl p-3.5 shadow-2xs hover:shadow-md transition-all flex flex-col justify-between gap-3 group shrink-0"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-1.5 mb-2.5">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="w-6.5 h-6.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                            <FileText className="w-3.5 h-3.5" />
+                          </div>
+                          <h4
+                            className="font-bold text-xs text-slate-800 truncate"
+                            title={fav.name}
+                          >
+                            {fav.name}
+                          </h4>
                         </div>
-                      ))}
+                        <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full shrink-0">
+                          {fav.medicines.length} {fav.medicines.length === 1 ? "med" : "meds"}
+                        </span>
+                      </div>
+
+                      {/* Medicines compact visual tags */}
+                      <div className="flex flex-wrap gap-1 mb-1">
+                        {fav.medicines.slice(0, 3).map((m, idx) => (
+                          <span
+                            key={idx}
+                            className="inline-flex items-center gap-1.5 text-[11px] font-medium bg-slate-50 border border-slate-200/80 text-slate-700 px-2 py-0.8 rounded-lg truncate max-w-full"
+                            title={`${m.referralName || m.name} (${m.dosage}, ${m.frequency})`}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                            <span className="truncate">{m.referralName || m.name}</span>
+                          </span>
+                        ))}
+                        {fav.medicines.length > 3 && (
+                          <span className="inline-flex items-center text-[10px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.8 rounded-lg">
+                            +{fav.medicines.length - 3} more
+                          </span>
+                        )}
+                      </div>
                     </div>
+
                     <Button
                       onClick={() => applyTemplate(fav)}
                       size="sm"
-                      className="w-full bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white rounded-md"
+                      className="w-full h-8 bg-(--color-synapse-dark) hover:bg-emerald-950 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-2xs transition-all cursor-pointer"
                     >
-                      Apply
+                      <Plus className="w-3.5 h-3.5 text-emerald-400" /> Apply Template
                     </Button>
-                  </CardContent>
-                </Card>
-              ))}
-              {/* Browse All Button */}
-              <Card
-                onClick={() => setSidebarOpen(true)}
-                className="min-w-40 rounded-xl border-dashed border-2 flex items-center justify-center cursor-pointer hover:bg-gray-50"
-              >
-                <CardContent className="p-3 text-center">
-                  <div className="flex items-center justify-center gap-1 text-sm font-medium text-gray-600">
-                    Browse All <ChevronRight className="w-4 h-4" />
                   </div>
-                </CardContent>
-              </Card>
+                ))}
+
+                {/* Browse All Card */}
+                <div
+                  onClick={() => setSidebarOpen(true)}
+                  className="min-w-35 rounded-2xl border-2 border-dashed border-slate-200 hover:border-(--color-synapse-light) bg-slate-50/50 hover:bg-emerald-50/20 flex flex-col items-center justify-center p-3.5 cursor-pointer transition-all group shrink-0"
+                >
+                  <div className="w-8 h-8 rounded-xl bg-white shadow-2xs border border-slate-200 group-hover:border-(--color-synapse-light) flex items-center justify-center mb-1 text-slate-500 group-hover:text-emerald-700 transition-colors">
+                    <Layers className="w-4 h-4" />
+                  </div>
+                  <span className="text-xs font-bold text-slate-700 group-hover:text-emerald-800">
+                    Manage
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-medium">
+                    {favorites.length} {favorites.length === 1 ? "template" : "templates"}
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
           {/* Sidebar: Browse / Manage All Templates */}
           {sidebarOpen && (
-            <div className="fixed inset-0 z-40">
+            <div className="fixed inset-0 z-50">
               <div
-                className="absolute inset-0 bg-black/20"
+                className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
                 onClick={() => setSidebarOpen(false)}
               />
-              <div className="absolute right-0 top-0 h-full w-96 bg-white shadow-xl p-4 overflow-y-auto">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="font-semibold text-lg">Manage Favorites</h3>
+              <div className="absolute right-0 top-0 h-full w-115 max-w-full bg-white shadow-2xl p-5 flex flex-col">
+                <div className="flex justify-between items-center mb-3">
+                  <div>
+                    <h3 className="font-semibold text-base text-slate-800">Manage Templates</h3>
+                    <p className="text-xs text-slate-500">
+                      {favorites.length} saved {favorites.length === 1 ? "template" : "templates"}
+                    </p>
+                  </div>
                   <Button
                     size="icon"
                     variant="ghost"
+                    className="rounded-lg text-slate-500 hover:text-slate-700 hover:bg-slate-100"
                     onClick={() => setSidebarOpen(false)}
                   >
                     <X className="w-5 h-5" />
                   </Button>
                 </div>
-                <input
-                  value={favSearch}
-                  onChange={(e) => setFavSearch(e.target.value)}
-                  placeholder="Search favorites..."
-                  className="border rounded-md p-2 text-sm w-full mb-3"
-                />
-                <div className="flex flex-col gap-3">
+
+                <div className="relative mb-3">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                  <input
+                    value={favSearch}
+                    onChange={(e) => setFavSearch(e.target.value)}
+                    placeholder="Search templates..."
+                    className="w-full pl-9 pr-8 py-2 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  />
+                  {favSearch && (
+                    <button
+                      onClick={() => setFavSearch("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1">
                   {filteredFavorites.map((fav) => (
-                    <Card key={fav.id} className="rounded-lg border shadow-sm">
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between mb-2">
-                          <div
-                            className="font-medium text-sm truncate"
+                    <div
+                      key={fav.id}
+                      className="rounded-2xl border border-slate-200 bg-white p-4 shadow-xs hover:border-slate-300 transition-all flex flex-col gap-3"
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 truncate">
+                          <div className="w-7 h-7 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center shrink-0">
+                            <FileText className="w-4 h-4" />
+                          </div>
+                          <span
+                            className="font-bold text-sm text-slate-800 truncate"
                             title={fav.name}
                           >
                             {fav.name}
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => openEditModal(fav.id)}
-                            >
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                            <Button
-                              size="icon"
-                              variant="ghost"
-                              onClick={() => removeFavorite(fav.id)}
-                            >
-                              <Trash className="w-4 h-4" />
-                            </Button>
-                          </div>
+                          </span>
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 rounded-full shrink-0">
+                            {fav.medicines.length} {fav.medicines.length === 1 ? "med" : "meds"}
+                          </span>
                         </div>
-                        <div className="flex flex-col gap-1 text-xs mb-3 max-h-24 overflow-y-auto pr-1">
-                          {fav.medicines.map((med, idx) => (
-                            <div key={idx} className="flex flex-wrap gap-1">
-                              <span className="bg-green-100 text-green-700 px-2 py-0.5 rounded-md">
-                                {med.name}
-                              </span>
-                              <span className="bg-blue-100 text-(--color-synapse-light) px-2 py-0.5 rounded-md">
-                                {med.dosage}
-                              </span>
-                              <span className="bg-[#FDF6ED] text-(--color-synapse-light) px-2 py-0.5 rounded-md">
-                                {med.frequency}
-                              </span>
-                              <span className="bg-orange-100 text-orange-700 px-2 py-0.5 rounded-md">
-                                {med.food}
-                              </span>
-                              <span className="bg-gray-100 text-gray-700 px-2 py-0.5 rounded-md">
-                                {med.duration}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-                        <div className="flex gap-2">
+                        <div className="flex items-center gap-1 shrink-0">
                           <Button
-                            size="sm"
-                            className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white"
-                            onClick={() => applyTemplate(fav)}
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-md"
+                            onClick={() => openEditModal(fav.id)}
+                            title="Edit Template"
                           >
-                            Apply
+                            <Edit className="w-3.5 h-3.5" />
+                          </Button>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-7 w-7 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-md"
+                            onClick={() => removeFavorite(fav.id)}
+                            title="Delete Template"
+                          >
+                            <Trash className="w-3.5 h-3.5" />
                           </Button>
                         </div>
-                      </CardContent>
-                    </Card>
+                      </div>
+
+                      <TemplateMedicinesList medicines={fav.medicines} />
+
+                      <Button
+                        size="sm"
+                        className="w-full h-8.5 bg-(--color-synapse-dark) hover:bg-emerald-950 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 shadow-xs cursor-pointer transition-all"
+                        onClick={() => {
+                          applyTemplate(fav);
+                          setSidebarOpen(false);
+                        }}
+                      >
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" /> Apply to Prescription
+                      </Button>
+                    </div>
                   ))}
                   {!filteredFavorites.length && (
-                    <div className="text-sm text-gray-500 text-center py-6">
+                    <div className="text-sm text-slate-400 text-center py-10">
                       No templates found.
                     </div>
                   )}
@@ -608,144 +751,178 @@ export default function PrescriptionCard({
               </div>
             </div>
           )}
+
           {/* Save Template Modal */}
           {saveModalOpen && (
             <div className="fixed inset-0 z-50">
               <div
-                className="absolute inset-0 bg-black/30"
+                className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
                 onClick={() => setSaveModalOpen(false)}
               />
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-105 p-4">
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-105 max-w-[95vw] p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold">Save as Favorite</h3>
+                  <div>
+                    <h3 className="font-semibold text-base text-slate-800">Save as Template</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      Save current {data.medicines.filter(m => m.name || m.referralName).length} medicines as a reusable template
+                    </p>
+                  </div>
                   <Button
                     size="icon"
                     variant="ghost"
+                    className="rounded-lg text-slate-400 hover:text-slate-600"
                     onClick={() => setSaveModalOpen(false)}
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   </Button>
                 </div>
-                <label className="text-sm text-gray-600">Template name</label>
+                <label className="text-xs font-medium text-slate-700 block mb-1">Template Name</label>
                 <input
                   autoFocus
                   value={templateName}
                   onChange={(e) => setTemplateName(e.target.value)}
                   placeholder="e.g., Typhoid – Adult Standard"
-                  className="border rounded-md p-2 text-sm w-full mt-1 mb-4"
+                  className="border border-slate-200 rounded-xl p-2.5 text-sm w-full mb-4 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
                 />
                 <div className="flex justify-end gap-2">
                   <Button
                     variant="outline"
+                    className="rounded-xl text-xs"
                     onClick={() => setSaveModalOpen(false)}
                   >
                     Cancel
                   </Button>
                   <Button
-                    className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white"
+                    className="bg-(--color-synapse-dark) hover:opacity-90 text-white rounded-xl text-xs font-medium"
                     onClick={saveCurrentAsFavorite}
                   >
-                    Save
+                    Save Template
                   </Button>
                 </div>
               </div>
             </div>
           )}
+
           {/* Edit Template Modal */}
           {editModalOpen && (
             <div className="fixed inset-0 z-50">
               <div
-                className="absolute inset-0 bg-black/30"
+                className="absolute inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
                 onClick={() => setEditModalOpen(false)}
               />
-              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-xl shadow-2xl w-140 p-4">
+              <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-160 max-w-[95vw] p-5">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold">Edit Template</h3>
+                  <div>
+                    <h3 className="font-semibold text-base text-slate-800">Edit Template</h3>
+                    <p className="text-xs text-slate-500 mt-0.5">Modify medicines and instructions in this template</p>
+                  </div>
                   <Button
                     size="icon"
                     variant="ghost"
+                    className="rounded-lg text-slate-400 hover:text-slate-600"
                     onClick={() => setEditModalOpen(false)}
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4" />
                   </Button>
                 </div>
-                <label className="text-sm text-gray-600">Template name</label>
-                <input
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  className="border rounded-md p-2 text-sm w-full mt-1 mb-4"
-                />
-                <div className="flex flex-col gap-3 max-h-72 overflow-y-auto pr-1">
+
+                <div className="mb-4">
+                  <label className="text-xs font-medium text-slate-700 block mb-1">Template Name</label>
+                  <input
+                    value={editName}
+                    onChange={(e) => setEditName(e.target.value)}
+                    className="border border-slate-200 rounded-xl p-2.5 text-sm w-full focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+                  />
+                </div>
+
+                <div className="grid grid-cols-12 gap-2 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5 px-1">
+                  <div className="col-span-4">Medicine</div>
+                  <div className="col-span-2">Dosage</div>
+                  <div className="col-span-2">Frequency</div>
+                  <div className="col-span-2">Food</div>
+                  <div className="col-span-2">Duration</div>
+                </div>
+
+                <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
                   {editMeds.map((m, idx) => (
                     <div
                       key={idx}
-                      className="grid grid-cols-12 gap-2 items-center"
+                      className="grid grid-cols-12 gap-2 items-center bg-slate-50/80 p-2 rounded-xl border border-slate-200/70"
                     >
                       <input
-                        value={m.name}
-                        onChange={(e) =>
-                          updateEditField(idx, "name", e.target.value)
-                        }
-                        placeholder="Drug"
-                        className="border rounded-md p-2 text-xs col-span-3"
+                        value={m.referralName || m.name}
+                        onChange={(e) => {
+                          updateEditField(idx, "referralName", e.target.value);
+                          if (!m.name || m.isCustom) {
+                            updateEditField(idx, "name", "");
+                          }
+                        }}
+                        placeholder="Drug name"
+                        className="border border-slate-200 bg-white rounded-lg p-1.5 text-xs col-span-4 focus:outline-none focus:border-emerald-500"
                       />
                       <input
                         value={m.dosage}
                         onChange={(e) =>
                           updateEditField(idx, "dosage", e.target.value)
                         }
-                        placeholder="Dosage"
-                        className="border rounded-md p-2 text-xs col-span-2"
+                        placeholder="1 tab"
+                        className="border border-slate-200 bg-white rounded-lg p-1.5 text-xs col-span-2 focus:outline-none focus:border-emerald-500"
                       />
                       <input
                         value={m.frequency}
                         onChange={(e) =>
                           updateEditField(idx, "frequency", e.target.value)
                         }
-                        placeholder="Frequency"
-                        className="border rounded-md p-2 text-xs col-span-2"
+                        placeholder="1-0-1"
+                        className="border border-slate-200 bg-white rounded-lg p-1.5 text-xs col-span-2 focus:outline-none focus:border-emerald-500"
                       />
                       <input
                         value={m.food}
                         onChange={(e) =>
                           updateEditField(idx, "food", e.target.value)
                         }
-                        placeholder="Food"
-                        className="border rounded-md p-2 text-xs col-span-2"
+                        placeholder="After food"
+                        className="border border-slate-200 bg-white rounded-lg p-1.5 text-xs col-span-2 focus:outline-none focus:border-emerald-500"
                       />
-                      <input
-                        value={m.duration}
-                        onChange={(e) =>
-                          updateEditField(idx, "duration", e.target.value)
-                        }
-                        placeholder="Duration"
-                        className="border rounded-md p-2 text-xs col-span-2"
-                      />
-                      <div className="col-span-1 flex justify-end">
+                      <div className="col-span-2 flex items-center gap-1">
+                        <input
+                          value={m.duration}
+                          onChange={(e) =>
+                            updateEditField(idx, "duration", e.target.value)
+                          }
+                          placeholder="3 days"
+                          className="border border-slate-200 bg-white rounded-lg p-1.5 text-xs w-full focus:outline-none focus:border-emerald-500"
+                        />
                         <Button
                           size="icon"
-                          variant="destructive"
+                          variant="ghost"
+                          className="h-7 w-7 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg shrink-0"
                           onClick={() => removeEditRow(idx)}
                         >
-                          <Trash className="w-4 h-4" />
+                          <Trash className="w-3.5 h-3.5" />
                         </Button>
                       </div>
                     </div>
                   ))}
                 </div>
-                <div className="flex justify-between mt-3">
-                  <Button variant="outline" onClick={addEditRow}>
-                    <Plus className="w-4 h-4 mr-1" /> Add Medicine
+                <div className="flex justify-between items-center mt-4 pt-3 border-t border-slate-100">
+                  <Button
+                    variant="outline"
+                    className="rounded-xl text-xs flex items-center gap-1 text-slate-600 hover:text-emerald-700 hover:bg-emerald-50"
+                    onClick={addEditRow}
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Medicine Row
                   </Button>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
+                      className="rounded-xl text-xs"
                       onClick={() => setEditModalOpen(false)}
                     >
                       Cancel
                     </Button>
                     <Button
-                      className="bg-(--color-synapse-dark) hover:bg-(--color-synapse-dark) text-white"
+                      className="bg-(--color-synapse-dark) hover:opacity-90 text-white rounded-xl text-xs font-medium"
                       onClick={saveEditTemplate}
                     >
                       Save Changes

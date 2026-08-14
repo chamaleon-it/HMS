@@ -102,7 +102,7 @@ export default function BubbleButtonGroup({
             type="button"
             onClick={handleAdd}
             disabled={!newValue.trim()}
-            className="inline-flex items-center h-8 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white shadow-xs hover:bg-emerald-700 disabled:opacity-40 transition-colors cursor-pointer"
+            className="inline-flex items-center h-8 rounded-xl bg-(--color-synapse-light) px-3 text-xs font-semibold text-white shadow-xs hover:opacity-90 disabled:opacity-40 transition-colors cursor-pointer"
           >
             Save
           </button>

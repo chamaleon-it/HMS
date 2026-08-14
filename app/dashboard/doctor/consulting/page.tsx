@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { Card } from "@/components/ui/card";
 import AppShell from "@/components/layout/app-shell";
 import ConsultationAndExaminationNotes from "./ConsultationAndExaminationNotes";
 import { redirect, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
-import FollowUpTime from "./FollowUpTime";
 import History from "./History";
 import AllergyAlert from "./AllergyAlert";
 // import { ConfettiBurst } from "./ConfettiBurst";
@@ -141,8 +139,8 @@ function ConsultingMenuContent() {
                 {/* <LabAndTest data={data} setData={setData} /> */}
                 <Test data={data} setData={setData} setTestIsOK={setTestIsOK} />
 
-                <Advice data={data} setData={setData} />
-                <FollowUpTime
+                <Advice
+                  data={data}
                   setData={setData}
                   doctor={appointment.doctor}
                   patient={appointment.patient._id}

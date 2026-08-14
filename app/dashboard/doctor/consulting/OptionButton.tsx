@@ -68,30 +68,28 @@ const OptionButton: React.FC<OptionButtonProps> = ({
   };
 
   return (
-    <div className="relative inline-flex group">
+    <div className="relative inline-flex group items-center">
       {fieldName === editable && (
         <button
-          className={cn(
-            "absolute -right-1 -top-1 grid place-items-center size-3.5 rounded-md cursor-pointer",
-            "bg-red-500 text-white shadow-sm hover:bg-red-600",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500/60",
-            "transition-opacity",
-            "opacity-100"
-          )}
-          onClick={remove}
+          type="button"
+          className="absolute -right-1.5 -top-1.5 grid place-items-center size-4 rounded-full bg-red-500 text-white shadow-md hover:bg-red-600 focus:outline-none z-10 cursor-pointer transition-transform hover:scale-110"
+          onClick={(e) => {
+            e.stopPropagation();
+            remove();
+          }}
+          title="Delete option"
         >
           <Minus className="h-3 w-3" />
         </button>
       )}
       <button
+        type="button"
         onClick={handleClick}
         className={cn(
-          "px-3 py-1 rounded-full text-xs border select-none transition-shadow",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/50",
-          "disabled:opacity-50 disabled:cursor-not-allowed",
+          "px-3 py-1.5 rounded-xl text-xs select-none transition-all duration-150 cursor-pointer font-medium border",
           isSelected
-            ? "bg-emerald-100 border-emerald-300 text-emerald-700 shadow-sm"
-            : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+            ? "bg-(--color-synapse-light) text-white border-(--color-synapse-light) shadow-xs font-semibold scale-[1.01]"
+            : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900"
         )}
       >
         {value}

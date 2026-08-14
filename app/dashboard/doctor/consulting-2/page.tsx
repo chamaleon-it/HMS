@@ -435,7 +435,7 @@ function ConsultingTwoContent() {
     cn(
       "px-3 py-1.5 rounded-xl text-xs select-none transition-all duration-150 cursor-pointer font-medium border",
       active
-        ? "bg-emerald-600 text-white border-emerald-600 shadow-xs font-semibold scale-[1.01]"
+        ? "bg-(--color-synapse-light) text-white border-(--color-synapse-light) shadow-xs font-semibold scale-[1.01]"
         : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:border-slate-300 hover:text-slate-900"
     );
 
@@ -563,7 +563,7 @@ function ConsultingTwoContent() {
                                     className={cn(
                                       "w-8 h-8 rounded-xl text-xs font-bold border select-none transition-all duration-150 cursor-pointer flex items-center justify-center",
                                       active
-                                        ? "bg-emerald-600 text-white border-emerald-600 shadow-xs scale-105"
+                                        ? "bg-(--color-synapse-light) text-white border-(--color-synapse-light) shadow-xs scale-105"
                                         : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                     )}
                                   >
@@ -1320,7 +1320,7 @@ function ConsultingTwoContent() {
                                       className={cn(
                                         "px-3 py-1.5 rounded-xl text-xs font-semibold border select-none transition-all duration-150 cursor-pointer flex items-center gap-1.5",
                                         active
-                                          ? "bg-emerald-600 text-white border-emerald-600 shadow-xs"
+                                          ? "bg-(--color-synapse-light) text-white border-(--color-synapse-light) shadow-xs"
                                           : "bg-slate-50 border-slate-200/90 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                       )}
                                     >

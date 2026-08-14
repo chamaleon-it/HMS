@@ -44,24 +44,24 @@ export default function Filter({
   }>("/users/doctors");
 
   return (
-    <div className="rounded-2xl bg-white border border-zinc-200 p-5 shadow-sm mb-6">
+    <div className="rounded-2xl bg-white border border-zinc-200/80 p-3.5 shadow-2xs mb-3">
       {/* Search & Reset Row */}
-      <div className="flex flex-col lg:flex-row gap-4 items-stretch lg:items-center">
+      <div className="flex flex-col lg:flex-row gap-2.5 items-stretch lg:items-center">
         {/* Global Search */}
         <div className="relative flex-1 lg:flex-5 group">
-          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
+          <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
           <input
             value={filter.query || ""}
             onChange={(e) =>
               setFilter((prev) => ({ ...prev, query: e.target.value }))
             }
             placeholder="Search by name, ID, phone, condition…"
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+            className="w-full h-8.5 pl-9 pr-3 text-xs rounded-xl bg-zinc-50/70 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium placeholder:text-zinc-400"
           />
         </div>
         {/* Address Search */}
         <div className="relative flex-1 lg:flex-4 group">
-          <Search className="h-4 w-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
+          <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 transition-colors group-focus-within:text-zinc-900" />
           <input
             value={filter.address || ""}
             onChange={(e) =>
@@ -69,11 +69,12 @@ export default function Filter({
             }
             placeholder="Search Address"
             autoComplete="off"
-            className="w-full h-11 pl-10 pr-4 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+            className="w-full h-8.5 pl-9 pr-3 text-xs rounded-xl bg-zinc-50/70 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium placeholder:text-zinc-400"
           />
         </div>
         {/* Reset All */}
         <button
+          type="button"
           onClick={() =>
             setFilter({
               query: "",
@@ -96,46 +97,50 @@ export default function Filter({
               consultedOnly: false,
             })
           }
-          className="h-11 px-4 rounded-xl bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 cursor-pointer transition-all flex items-center justify-center gap-2 font-medium shrink-0"
+          className="h-8.5 px-3 rounded-xl bg-zinc-100/80 text-zinc-600 hover:bg-zinc-200/80 hover:text-zinc-900 cursor-pointer transition-all flex items-center justify-center gap-1.5 text-xs font-semibold shrink-0"
         >
-          <RotateCcw className="h-4 w-4" />
+          <RotateCcw className="h-3.5 w-3.5" />
           <span>Reset all</span>
         </button>
       </div>
 
       {/* Location row */}
-      <div className="mt-4 grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="mt-2.5 grid grid-cols-2 lg:grid-cols-4 gap-2.5">
         <ServerAutocomplete
           field="city"
           placeholder="City…"
           value={filter.city}
           onChange={(v) => setFilter((prev) => ({ ...prev, city: v }))}
+          inputClassName="h-8.5! text-xs! rounded-xl! bg-zinc-50/70!"
         />
         <ServerAutocomplete
           field="district"
           placeholder="District…"
           value={filter.district}
           onChange={(v) => setFilter((prev) => ({ ...prev, district: v }))}
+          inputClassName="h-8.5! text-xs! rounded-xl! bg-zinc-50/70!"
         />
         <ServerAutocomplete
           field="state"
           placeholder="State…"
           value={filter.state}
           onChange={(v) => setFilter((prev) => ({ ...prev, state: v }))}
+          inputClassName="h-8.5! text-xs! rounded-xl! bg-zinc-50/70!"
         />
         <ServerAutocomplete
           field="pinCode"
           placeholder="Pincode…"
           value={filter.pincode}
           onChange={(v) => setFilter((prev) => ({ ...prev, pincode: v }))}
+          inputClassName="h-8.5! text-xs! rounded-xl! bg-zinc-50/70!"
         />
       </div>
 
       {/* Primary Filters Row */}
-      <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2.5">
         {/* Status */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
             <Activity className="h-3 w-3" /> Status
           </span>
           <FilterSelect
@@ -159,8 +164,8 @@ export default function Filter({
         </div>
 
         {/* Doctor */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
             <User className="h-3 w-3" /> Doctor
           </span>
           <FilterSelect
@@ -178,11 +183,11 @@ export default function Filter({
         </div>
 
         {/* Patient Status Toggle */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
             <User className="h-3 w-3" /> Patient Status
           </span>
-          <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-full h-11">
+          <div className="relative inline-flex items-center gap-0.5 p-0.5 bg-zinc-100/80 rounded-xl w-full h-8.5">
             {[
               { label: "All Patients", value: false },
               { label: "Consulted Only", value: true },
@@ -195,8 +200,8 @@ export default function Filter({
                     setFilter((prev) => ({ ...prev, consultedOnly: opt.value }))
                   }
                   className={cn(
-                    "relative flex-1 h-full rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
-                    active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
+                    "relative flex-1 h-full rounded-lg text-xs font-medium transition cursor-pointer overflow-hidden px-1.5",
+                    active ? "text-white font-semibold" : "text-zinc-600 hover:text-zinc-900"
                   )}
                   type="button"
                 >
@@ -207,12 +212,12 @@ export default function Filter({
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="absolute inset-0 bg-primary"
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                        className="absolute inset-0 bg-primary rounded-lg"
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                       />
                     )}
                   </AnimatePresence>
-                  <span className="relative z-10">{opt.label}</span>
+                  <span className="relative z-10 truncate">{opt.label}</span>
                 </button>
               );
             })}
@@ -220,13 +225,13 @@ export default function Filter({
         </div>
 
         {/* Gender Toggle */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
             <User className="h-3 w-3" /> Gender
           </span>
-          <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-full h-11">
+          <div className="relative inline-flex items-center gap-0.5 p-0.5 bg-zinc-100/80 rounded-xl w-full h-8.5">
             {[
-              { label: "All", value: undefined, icon: null },
+              { label: "All", value: undefined, color: "" },
               { label: "Female", value: "Female", color: "bg-rose-600" },
               { label: "Male", value: "Male", color: "bg-(--color-synapse-light)" },
             ].map((opt) => {
@@ -238,8 +243,8 @@ export default function Filter({
                     setFilter((prev) => ({ ...prev, gender: opt.value }))
                   }
                   className={cn(
-                    "relative flex-1 h-full rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
-                    active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
+                    "relative flex-1 h-full rounded-lg text-xs font-medium transition cursor-pointer overflow-hidden px-1",
+                    active ? "text-white font-semibold" : "text-zinc-600 hover:text-zinc-900"
                   )}
                   type="button"
                 >
@@ -250,12 +255,12 @@ export default function Filter({
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className={cn("absolute inset-0", opt.color || "bg-primary")}
-                        transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                        className={cn("absolute inset-0 rounded-lg", opt.color || "bg-primary")}
+                        transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                       />
                     )}
                   </AnimatePresence>
-                  <span className="relative z-10">{opt.label}</span>
+                  <span className="relative z-10 truncate">{opt.label}</span>
                 </button>
               );
             })}
@@ -263,11 +268,11 @@ export default function Filter({
         </div>
 
         {/* Age Range */}
-        <div className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+        <div className="flex flex-col gap-1">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
             <Baby className="h-3 w-3" /> Age Range
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <div className="relative flex-1">
               <input
                 type="number"
@@ -282,11 +287,11 @@ export default function Filter({
                   ];
                   setFilter((prev) => ({ ...prev, age }));
                 }}
-                className="w-full h-11 px-3 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+                className="w-full h-8.5 pl-2.5 pr-8 text-xs rounded-xl bg-zinc-50/70 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 font-bold pointer-events-none">MIN</span>
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-zinc-400 font-bold pointer-events-none">MIN</span>
             </div>
-            <span className="text-zinc-300">—</span>
+            <span className="text-zinc-300 text-xs">—</span>
             <div className="relative flex-1">
               <input
                 type="number"
@@ -301,22 +306,22 @@ export default function Filter({
                   ];
                   setFilter((prev) => ({ ...prev, age }));
                 }}
-                className="w-full h-11 px-3 rounded-xl bg-zinc-50 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
+                className="w-full h-8.5 pl-2.5 pr-8 text-xs rounded-xl bg-zinc-50/70 border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-zinc-900/5 focus:border-zinc-900 transition-all font-medium"
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 font-bold pointer-events-none">MAX</span>
+              <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[9px] text-zinc-400 font-bold pointer-events-none">MAX</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Visit & Conditions Row */}
-      <div className="mt-4 grid grid-cols-1 lg:grid-cols-12 gap-4 items-end">
+      <div className="mt-2.5 grid grid-cols-1 lg:grid-cols-12 gap-2.5 items-end">
         {/* Last Visit */}
         <div className={cn(
-          "flex flex-col gap-1.5 col-span-12",
+          "flex flex-col gap-1 col-span-12",
           filter.lastVisit === "Custom" ? "lg:col-span-4" : "lg:col-span-5"
         )}>
-          <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
+          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
             <Clock className="h-3 w-3" /> Last Visit
           </span>
           <Segmented
@@ -334,9 +339,9 @@ export default function Filter({
 
         {/* Custom Range Datepicker */}
         {filter.lastVisit === "Custom" && (
-          <div className="flex flex-col gap-1.5 col-span-12 lg:col-span-4">
-            <span className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1.5">
-              <CalendarIcon className="h-3.5 w-3.5" /> Custom Range
+          <div className="flex flex-col gap-1 col-span-12 lg:col-span-4">
+            <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1 inline-flex items-center gap-1">
+              <CalendarIcon className="h-3 w-3" /> Custom Range
             </span>
             <CustomDateFilter filter={filter} setFilter={setFilter} />
           </div>
@@ -344,18 +349,19 @@ export default function Filter({
 
         {/* Common Conditions */}
         <div className={cn(
-          "flex flex-col gap-1.5 col-span-12",
+          "flex flex-col gap-1 col-span-12",
           filter.lastVisit === "Custom" ? "lg:col-span-4" : "lg:col-span-7"
         )}>
-          <div className="text-[11px] font-semibold text-zinc-400 uppercase tracking-wider px-1 mb-0.5">
+          <div className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider px-1">
             Common Conditions
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1">
             {CONDITIONS.slice(0, 10).map((c) => {
               const active = filter.conditions.includes(c);
               return (
                 <button
                   key={c}
+                  type="button"
                   onClick={() => {
                     setFilter((prev) => ({
                       ...prev,
@@ -365,10 +371,10 @@ export default function Filter({
                     }));
                   }}
                   className={cn(
-                    "px-3 py-1.5 rounded-xl text-xs font-medium transition-all duration-200 border cursor-pointer inline-flex items-center gap-1.5",
+                    "px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all duration-150 border cursor-pointer inline-flex items-center gap-1",
                     active
-                      ? "bg-primary text-white border-primary shadow-sm"
-                      : "bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50"
+                      ? "bg-primary text-white border-primary shadow-2xs font-semibold"
+                      : "bg-zinc-50/70 text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:bg-zinc-100 hover:text-zinc-900"
                   )}
                 >
                   {active && <Check className="h-3 w-3" />}
@@ -391,16 +397,16 @@ const CustomDateFilter = ({
   setFilter: React.Dispatch<React.SetStateAction<FilterType>>;
 }) => {
   return (
-    <div className="flex items-center gap-2 w-full">
+    <div className="flex items-center gap-1.5 w-full">
       <div className="relative flex-1">
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               data-empty={!filter.dateRange.from}
-              className="h-11 px-3 rounded-xl ring-1 ring-zinc-200 w-full text-left flex justify-start items-center gap-2 font-medium"
+              className="h-8.5 px-2.5 rounded-xl ring-1 ring-zinc-200 w-full text-left flex justify-start items-center gap-1.5 text-xs font-medium"
             >
-              <CalendarIcon className="h-4 w-4 text-zinc-400" />
+              <CalendarIcon className="h-3.5 w-3.5 text-zinc-400" />
               {filter.dateRange.from ? (
                 fDate(filter.dateRange.from)
               ) : (
@@ -408,7 +414,7 @@ const CustomDateFilter = ({
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
+          <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="single"
               selected={
@@ -426,16 +432,16 @@ const CustomDateFilter = ({
           </PopoverContent>
         </Popover>
       </div>
-      <span className="text-zinc-300">—</span>
+      <span className="text-zinc-300 text-xs">—</span>
       <div className="relative flex-1">
         <Popover>
           <PopoverTrigger asChild>
             <Button
               variant="outline"
               data-empty={!filter.dateRange.to}
-              className="h-11 px-3 rounded-xl ring-1 ring-zinc-200 w-full text-left flex justify-start items-center gap-2 font-medium"
+              className="h-8.5 px-2.5 rounded-xl ring-1 ring-zinc-200 w-full text-left flex justify-start items-center gap-1.5 text-xs font-medium"
             >
-              <CalendarIcon className="h-4 w-4 text-zinc-400" />
+              <CalendarIcon className="h-3.5 w-3.5 text-zinc-400" />
               {filter.dateRange.to ? (
                 fDate(filter.dateRange.to)
               ) : (
@@ -443,7 +449,7 @@ const CustomDateFilter = ({
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0">
+          <PopoverContent className="w-auto p-0" align="start">
             <Calendar
               mode="single"
               selected={
@@ -473,7 +479,7 @@ function Segmented({
   onChange: (v: number | undefined | string) => void;
 }) {
   return (
-    <div className="relative inline-flex items-center gap-1 p-1 bg-zinc-100/80 rounded-xl w-full h-11">
+    <div className="relative inline-flex items-center gap-0.5 p-0.5 bg-zinc-100/80 rounded-xl w-full h-8.5">
       {options.map((o) => {
         const active = value === o.value;
         return (
@@ -481,8 +487,8 @@ function Segmented({
             key={o.label}
             onClick={() => onChange(o.value)}
             className={cn(
-              "relative flex-1 h-full rounded-lg text-sm font-medium transition cursor-pointer overflow-hidden",
-              active ? "text-white" : "text-zinc-500 hover:text-zinc-900"
+              "relative flex-1 h-full rounded-lg text-xs font-medium transition cursor-pointer overflow-hidden px-1.5",
+              active ? "text-white font-semibold" : "text-zinc-600 hover:text-zinc-900"
             )}
             type="button"
           >
@@ -493,12 +499,12 @@ function Segmented({
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.95 }}
-                  className="absolute inset-0 bg-primary"
-                  transition={{ type: "spring", bounce: 0.2, duration: 0.4 }}
+                  className="absolute inset-0 bg-primary rounded-lg"
+                  transition={{ type: "spring", bounce: 0.2, duration: 0.3 }}
                 />
               )}
             </AnimatePresence>
-            <span className="relative z-10">{o.label}</span>
+            <span className="relative z-10 truncate">{o.label}</span>
           </button>
         );
       })}
@@ -550,23 +556,23 @@ function FilterSelect({
   const current = options.find((o) => o.value === value);
 
   return (
-    <div ref={ref} className={cn("relative", className)}>
+    <div ref={ref} className={cn("relative w-full", className)}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
         className={cn(
-          "h-11 px-4 rounded-xl bg-zinc-50 border border-zinc-200 hover:border-zinc-300 transition-all inline-flex items-center justify-between gap-3 min-w-45 group",
+          "h-8.5 px-3 rounded-xl bg-zinc-50/70 border border-zinc-200 hover:border-zinc-300 transition-all inline-flex items-center justify-between gap-2 w-full group text-xs",
           open && "ring-2 ring-zinc-900/5 border-zinc-900 bg-white"
         )}
       >
         <span className={cn(
-          "truncate text-sm font-medium",
+          "truncate text-xs font-medium",
           current ? "text-zinc-900" : "text-zinc-500"
         )}>
           {current ? current.label : placeholder}
         </span>
         <ChevronDown className={cn(
-          "h-4 w-4 text-zinc-400 transition-transform duration-200",
+          "h-3.5 w-3.5 text-zinc-400 transition-transform duration-200 shrink-0",
           open ? "rotate-180 text-zinc-900" : "group-hover:text-zinc-600"
         )} />
       </button>
@@ -574,24 +580,24 @@ function FilterSelect({
       <AnimatePresence>
         {open && (
           <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.95 }}
+            initial={{ opacity: 0, y: 6, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.95 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-            className="absolute z-50 mt-2 w-full min-w-50 max-h-72 overflow-hidden bg-white rounded-2xl shadow-xl ring-1 ring-zinc-200 p-2"
+            exit={{ opacity: 0, y: 6, scale: 0.96 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="absolute z-50 mt-1.5 w-full min-w-45 max-h-60 overflow-hidden bg-white rounded-xl shadow-xl ring-1 ring-zinc-200 p-1.5"
           >
             {searchable && (
-              <div className="relative mb-2 px-1">
-                <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400" />
+              <div className="relative mb-1.5 px-1">
+                <Search className="h-3 w-3 absolute left-2.5 top-1/2 -translate-y-1/2 text-zinc-400" />
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
                   placeholder="Search…"
-                  className="w-full h-9 pl-9 pr-3 rounded-lg bg-zinc-50 border border-zinc-100 focus:outline-none focus:border-zinc-300 text-sm transition-all"
+                  className="w-full h-8 pl-8 pr-2.5 rounded-lg bg-zinc-50 border border-zinc-100 focus:outline-none focus:border-zinc-300 text-xs transition-all"
                 />
               </div>
             )}
-            <ul role="listbox" className="max-h-60 overflow-y-auto custom-scrollbar">
+            <ul role="listbox" className="max-h-52 overflow-y-auto custom-scrollbar">
               {visible.map((o) => {
                 const active = o.value === value;
                 return (
@@ -602,20 +608,20 @@ function FilterSelect({
                         setOpen(false);
                       }}
                       className={cn(
-                        "w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium flex items-center justify-between transition-colors",
+                        "w-full text-left px-2.5 py-2 rounded-lg text-xs font-medium flex items-center justify-between transition-colors",
                         active
-                          ? "bg-zinc-100 text-zinc-900"
+                          ? "bg-zinc-100 text-zinc-900 font-semibold"
                           : "hover:bg-zinc-50 text-zinc-600 hover:text-zinc-900"
                       )}
                     >
                       <span className="truncate">{o.label}</span>
-                      {active && <Check className="h-4 w-4 text-zinc-900" />}
+                      {active && <Check className="h-3.5 w-3.5 text-zinc-900" />}
                     </button>
                   </li>
                 );
               })}
               {visible.length === 0 && (
-                <li className="px-3 py-4 text-center text-sm text-zinc-400 font-medium">
+                <li className="px-3 py-3 text-center text-xs text-zinc-400 font-medium">
                   No matches found
                 </li>
               )}

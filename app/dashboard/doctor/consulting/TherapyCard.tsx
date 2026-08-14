@@ -174,7 +174,7 @@ export default function TherapyCard({ data, setData }: Props) {
                               className={cn(
                                 "flex h-4 w-4 items-center justify-center rounded border transition-colors",
                                 isSelected
-                                  ? "border-emerald-600 bg-emerald-600 text-white"
+                                  ? "border-(--color-synapse-light) bg-(--color-synapse-light) text-white"
                                   : "border-slate-300 bg-white"
                               )}
                             >

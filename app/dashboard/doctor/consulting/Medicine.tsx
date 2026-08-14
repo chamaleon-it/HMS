@@ -73,7 +73,10 @@ export default function MedicineField({
   );
 
   useEffect(() => {
-    if (m.name && itemById?.data && (!selected || selected.id !== m.name)) {
+    if (!m.name && !m.referralName) {
+      if (selected !== null) setSelected(null);
+      if (query !== "") setQuery("");
+    } else if (m.name && itemById?.data && (!selected || selected.id !== m.name)) {
       setSelected({
         id: itemById.data._id,
         name: itemById.data.name,
@@ -88,7 +91,7 @@ export default function MedicineField({
       });
       if (!open) setQuery("");
     }
-  }, [m.name, m.referralName, itemById, open, selected]);
+  }, [m.name, m.referralName, itemById, open, selected, query]);
 
   const qs = useMemo(() => {
     const p = new URLSearchParams();
