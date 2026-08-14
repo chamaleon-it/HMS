@@ -68,61 +68,6 @@ export default function Header({
       <div className="flex flex-wrap items-center justify-between gap-4 py-2">
         <VitalsCard />
         <div className="flex items-center gap-3">
-          <Button
-            variant={"outline"}
-            size={"sm"}
-            onClick={() => {
-              const data = {
-                consultationNotes: payload.consultationNotes,
-                examinationNote: payload.examinationNote,
-                medicines: payload.medicines,
-                test: payload.test,
-              };
-              const json = JSON.stringify(data, null, 2); // pretty print
-              const blob = new Blob([json], { type: "application/json" });
-
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement("a");
-              a.href = url;
-              a.download = "consultation-" + fDateandTime(new Date()) + ".json"; // file name
-              a.click();
-
-              URL.revokeObjectURL(url);
-            }}
-          >
-            Export
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fileInputRef.current?.click()}
-          >
-            Import
-          </Button>
-
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="application/json"
-            hidden
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (!file) return;
-
-              const reader = new FileReader();
-
-              reader.onload = (event) => {
-                try {
-                  const json = JSON.parse(event.target?.result as string);
-                  setData(json); // 👈 update your state
-                } catch (err) {
-                  alert("Invalid JSON file");
-                }
-              };
-
-              reader.readAsText(file);
-            }}
-          />
 
           <div className="inline-flex rounded-2xl bg-slate-100 p-1 shadow-inner">
             <ToggleChip
