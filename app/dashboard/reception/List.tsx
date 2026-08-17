@@ -93,7 +93,15 @@ export default function List({
   const [refundReason, setRefundReason] = useState("");
 
   const handlePrintRegistrationBill = (row: any) => {
-    const fee = row.hasConsultationFee === false ? 0 : (typeof row.doctor?.consultationFee === "number" ? row.doctor.consultationFee : 200);
+    const isFeeZero =
+      row.hasConsultationFee === false ||
+      row.isRefunded === true ||
+      Boolean(row.refundReason);
+    const fee = isFeeZero
+      ? 0
+      : (typeof row.doctor?.consultationFee === "number"
+        ? row.doctor.consultationFee
+        : 200);
     setRegistrationBillData({
       patient: row.patient,
       doctor: row.doctor,

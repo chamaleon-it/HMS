@@ -9,7 +9,7 @@ import Link from "next/link";
 import useSWR from "swr";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeft, Printer, RotateCcw } from "lucide-react";
+import { ArrowLeft, Printer, RotateCcw, Calendar } from "lucide-react";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import React from "react";
 import { getDecimal } from "@/lib/fNumber";
@@ -18,10 +18,12 @@ import configuration from "@/config/configuration";
 import { format, addDays } from "date-fns";
 
 import RefundTherapyModal from "./RefundTherapyModal";
+import PrintTimeline from "./PrintTimeline";
 import { getBillType } from "@/lib/billTypeUtils";
 
 export default function ViewBill({ id }: { id: string }) {
     const [isRefundOpen, setIsRefundOpen] = React.useState(false);
+    const [isPrintTimeline, setIsPrintTimeline] = React.useState(false);
 
     const { data: billingData } = useSWR<{
         message: string;
@@ -147,8 +149,28 @@ export default function ViewBill({ id }: { id: string }) {
                                 Refund Therapy
                             </button>
                         )}
+                        {billing.transactionType !== "Refund" && (getBillType(billing) === "therapy" || getBillType(billing) === "procedure") && (
+                            <button
+                                onClick={() => {
+                                    setIsPrintTimeline(true);
+                                    setTimeout(() => {
+                                        window.print();
+                                        setTimeout(() => setIsPrintTimeline(false), 1000);
+                                    }, 100);
+                                }}
+                                className="flex items-center gap-2 px-4 py-2 bg-indigo-50 border border-indigo-200 rounded-full text-indigo-700 hover:bg-indigo-100 transition-colors shadow-xs text-xs font-bold"
+                            >
+                                <Calendar className="h-4 w-4" />
+                                Print Timeline
+                            </button>
+                        )}
                         <button
-                            onClick={() => window.print()}
+                            onClick={() => {
+                                setIsPrintTimeline(false);
+                                setTimeout(() => {
+                                    window.print();
+                                }, 50);
+                            }}
                             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-900 hover:bg-slate-50 transition-colors shadow-sm text-xs font-bold"
                         >
                             <Printer className="h-4 w-4" />
@@ -324,6 +346,9 @@ export default function ViewBill({ id }: { id: string }) {
                 open={isRefundOpen}
                 onOpenChange={setIsRefundOpen}
             />
+            {isPrintTimeline && (
+                <PrintTimeline bill={billing as any} />
+            )}
         </AppShell>
     );
 }

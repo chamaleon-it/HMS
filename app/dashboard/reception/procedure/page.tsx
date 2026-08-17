@@ -150,9 +150,8 @@ export default function ProcedurePage() {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
 
   // Fetch Procedures
-  const queryUrl = `/procedure?search=${encodeURIComponent(search)}${
-    statusFilter !== "all" ? `&status=${encodeURIComponent(statusFilter)}` : ""
-  }`;
+  const queryUrl = `/procedure?search=${encodeURIComponent(search)}${statusFilter !== "all" ? `&status=${encodeURIComponent(statusFilter)}` : ""
+    }`;
   const { data, error, isLoading, mutate } = useSWR<{
     message: string;
     data: ProcedureItem[];
@@ -333,7 +332,7 @@ export default function ProcedurePage() {
     } catch (err: any) {
       setErrorMsg(
         err?.response?.data?.message ||
-          "Failed to save procedure. Please check all fields."
+        "Failed to save procedure. Please check all fields."
       );
     } finally {
       setIsSubmitting(false);
@@ -681,13 +680,12 @@ export default function ProcedurePage() {
                     return (
                       <React.Fragment key={item._id}>
                         <TableRow
-                          className={`transition-colors border-b border-slate-100 ${
-                            isExpanded
+                          className={`transition-colors border-b border-slate-100 ${isExpanded
                               ? "bg-slate-50/90 font-medium"
                               : idx % 2 === 0
-                              ? "bg-white hover:bg-slate-50/80"
-                              : "bg-slate-50/40 hover:bg-slate-50"
-                          }`}
+                                ? "bg-white hover:bg-slate-50/80"
+                                : "bg-slate-50/40 hover:bg-slate-50"
+                            }`}
                         >
                           <TableCell className="py-3 pl-4 text-center">
                             {hasSubs ? (
@@ -718,7 +716,7 @@ export default function ProcedurePage() {
                                 {item.name}
                               </span>
                               {item.description && (
-                                <span className="text-xs text-slate-400 truncate max-w-[200px]">
+                                <span className="text-xs text-slate-400 truncate max-w-50">
                                   ({item.description})
                                 </span>
                               )}

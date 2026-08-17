@@ -75,7 +75,7 @@ export default function MedicineField({
   useEffect(() => {
     if (!m.name && !m.referralName) {
       if (selected !== null) setSelected(null);
-      if (query !== "") setQuery("");
+      if (!open && query !== "") setQuery("");
     } else if (m.name && itemById?.data && (!selected || selected.id !== m.name)) {
       setSelected({
         id: itemById.data._id,
@@ -91,7 +91,8 @@ export default function MedicineField({
       });
       if (!open) setQuery("");
     }
-  }, [m.name, m.referralName, itemById, open, selected, query]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [m.name, m.referralName, itemById, open, selected]);
 
   const qs = useMemo(() => {
     const p = new URLSearchParams();
