@@ -53,6 +53,7 @@ export default function Header() {
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
       { key: "therapy", label: "Therapy", link: "/dashboard/reception/therapy/" },
+      { key: "procedure", label: "Procedure", link: "/dashboard/reception/procedure/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
       { key: "ip", label: "IP", link: "/dashboard/reception/ip/" },
       { key: "billing", label: "Billing", link: "/dashboard/reception/billing/" },

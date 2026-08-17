@@ -54,6 +54,8 @@ export interface DataType {
   };
   therapy: null | string | string[] | any;
   therapyNotes?: null | string;
+  procedure?: null | string | string[] | any;
+  procedureNotes?: null | string;
   medicines: {
     referralName: string;
     name: string;

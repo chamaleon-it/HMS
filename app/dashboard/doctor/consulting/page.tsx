@@ -14,6 +14,7 @@ import ActionButton from "./ActionButton";
 import useSWR from "swr";
 import PrescriptionCard from "./PrescriptionCard";
 import TherapyCard from "./TherapyCard";
+import ProcedureCard from "./ProcedureCard";
 import { AppointmentType, DataType } from "./interface";
 import Test from "./Test";
 import Report from "./Report";
@@ -60,6 +61,8 @@ function ConsultingMenuContent() {
     },
     therapy: null,
     therapyNotes: null,
+    procedure: null,
+    procedureNotes: null,
     medicines: [
       {
         dosage: "1 tab",
@@ -128,7 +131,10 @@ function ConsultingMenuContent() {
                   setData={setData}
                 />
 
-                <TherapyCard data={data} setData={setData} />
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 items-stretch">
+                  <TherapyCard data={data} setData={setData} />
+                  <ProcedureCard data={data} setData={setData} />
+                </div>
 
                 <PrescriptionCard
                   data={data}

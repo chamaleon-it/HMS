@@ -33,9 +33,10 @@ export interface TherapyOption {
 interface Props {
   data: DataType;
   setData: React.Dispatch<React.SetStateAction<DataType>>;
+  className?: string;
 }
 
-export default function TherapyCard({ data, setData }: Props) {
+export default function TherapyCard({ data, setData, className }: Props) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -100,7 +101,7 @@ export default function TherapyCard({ data, setData }: Props) {
   };
 
   return (
-    <Card className="mt-4 border-slate-200 shadow-xs">
+    <Card className={cn("border-slate-200 shadow-xs flex flex-col justify-between h-full", className)}>
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
           <Activity className="h-4 w-4 text-emerald-600" />

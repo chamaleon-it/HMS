@@ -1,10 +1,10 @@
-export type BillTypeCategory = "all" | "therapy" | "reception" | "other";
+export type BillTypeCategory = "all" | "therapy" | "procedure" | "reception" | "other";
 
 export function getBillType(b: {
   note?: string;
   items?: { name: string }[];
   transactionType?: string;
-}): "therapy" | "reception" | "other" {
+}): "therapy" | "procedure" | "reception" | "other" {
   if (!b) return "reception";
 
   const noteStr = String(b.note || "").toLowerCase();
@@ -29,7 +29,14 @@ export function getBillType(b: {
 
   if (isTherapy) return "therapy";
 
-  // 2. Reception Bills (consultation fees, registration fees, refunds, NCF bills, etc.)
+  // 2. Procedure Bills (prescribed procedures, sub-procedures)
+  const isProcedure =
+    noteStr.includes("procedure") ||
+    itemNames.some((name) => name.includes("procedure"));
+
+  if (isProcedure) return "procedure";
+
+  // 3. Reception Bills (consultation fees, registration fees, refunds, NCF bills, etc.)
   const isReception =
     b.transactionType === "Refund" ||
     b.transactionType === "Return" ||
@@ -56,12 +63,17 @@ export function getBillType(b: {
   return "other";
 }
 
-export function getBillTypeBadgeProps(type: "therapy" | "reception" | "other") {
+export function getBillTypeBadgeProps(type: "therapy" | "procedure" | "reception" | "other") {
   switch (type) {
     case "therapy":
       return {
         label: "Therapy Bill",
         className: "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800",
+      };
+    case "procedure":
+      return {
+        label: "Procedure Bill",
+        className: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800",
       };
     case "reception":
       return {

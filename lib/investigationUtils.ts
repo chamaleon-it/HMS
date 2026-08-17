@@ -150,3 +150,73 @@ export function getFormattedTherapyNames(
 
   return names.join(", ");
 }
+
+export function getFormattedProcedureNames(
+  procedureInput: any,
+  procedureCatalog?: {
+    _id: string;
+    name: string;
+    subProcedures?: { _id: string; name: string }[];
+  }[]
+): string {
+  if (!procedureInput) return "";
+
+  let list: any[] = [];
+  if (Array.isArray(procedureInput)) {
+    list = procedureInput;
+  } else {
+    list = [procedureInput];
+  }
+
+  const names: string[] = [];
+
+  list.forEach((item) => {
+    if (!item) return;
+
+    if (typeof item === "object" && item !== null) {
+      if (item.name) {
+        if (item.parentName) {
+          names.push(`${item.parentName} - ${item.name}`);
+        } else {
+          names.push(item.name);
+        }
+        return;
+      }
+      if (item._id) {
+        item = String(item._id);
+      }
+    }
+
+    if (typeof item === "string") {
+      const str = item.trim();
+      if (!str) return;
+
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(str);
+      if (isObjectId && procedureCatalog && procedureCatalog.length > 0) {
+        // Check sub-procedures first
+        let found = false;
+        for (const p of procedureCatalog) {
+          const sub = (p.subProcedures || []).find((s) => String(s._id) === str);
+          if (sub) {
+            names.push(`${p.name} - ${sub.name}`);
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const mainProc = procedureCatalog.find((p) => String(p._id) === str);
+          if (mainProc && mainProc.name) {
+            names.push(mainProc.name);
+            found = true;
+          }
+        }
+        if (found) return;
+      }
+
+      names.push(str);
+    }
+  });
+
+  return names.join(", ");
+}
+

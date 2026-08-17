@@ -13,6 +13,7 @@ import Report from "../consulting/Report";
 import AllergyAlert from "../consulting/AllergyAlert";
 import PrintConsultation from "../consulting/PrintConsultation";
 import TherapyCard from "../consulting/TherapyCard";
+import ProcedureCard from "../consulting/ProcedureCard";
 import { AppointmentType, DataType } from "../consulting/interface";
 import {
   Activity,
@@ -1350,8 +1351,11 @@ function ConsultingTwoContent() {
                     </Card>
                   </div>
 
-                  {/* Therapy Section */}
-                  <TherapyCard data={data} setData={setData as any} />
+                  {/* Therapy & Procedure Section */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 items-stretch">
+                    <TherapyCard data={data} setData={setData as any} />
+                    <ProcedureCard data={data} setData={setData as any} />
+                  </div>
 
                   {/* Action Buttons */}
                   <ActionButton data={data} testIsOK={testIsOK} />

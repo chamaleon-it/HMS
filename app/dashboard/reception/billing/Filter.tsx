@@ -245,6 +245,7 @@ export default function Filters({ filter, setFilter, billing }: PropsType) {
                   <SelectLabel className="text-[10px] uppercase tracking-wider text-slate-400">Bill Type</SelectLabel>
                   <SelectItem value="all">All Bill Types</SelectItem>
                   <SelectItem value="therapy">Therapy Bills</SelectItem>
+                  <SelectItem value="procedure">Procedure Bills</SelectItem>
                   <SelectItem value="reception">Reception Bills</SelectItem>
                   <SelectItem value="other">Other Bills</SelectItem>
                 </SelectGroup>

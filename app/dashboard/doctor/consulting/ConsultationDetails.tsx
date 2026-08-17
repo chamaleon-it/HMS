@@ -28,7 +28,8 @@ import { Consultations } from "./History";
 import useGetTest from "@/data/useGetTest";
 import useGetPanels from "@/data/useGetPanels";
 import useGetTherapy from "@/data/useGetTherapy";
-import { getFormattedInvestigationNames, getFormattedTherapyNames } from "@/lib/investigationUtils";
+import useGetProcedure from "@/data/useGetProcedure";
+import { getFormattedInvestigationNames, getFormattedTherapyNames, getFormattedProcedureNames } from "@/lib/investigationUtils";
 
 interface ConsultationDetailsProps {
     open: boolean;
@@ -46,6 +47,7 @@ export default function ConsultationDetails({
     const { tests } = useGetTest();
     const { panels } = useGetPanels();
     const { therapies } = useGetTherapy();
+    const { procedures } = useGetProcedure();
 
     if (!selectedRow) return null;
 
@@ -480,6 +482,31 @@ export default function ConsultationDetails({
                                 {selectedRow.therapyNotes && (
                                     <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
                                         <span className="font-semibold text-slate-900">Therapy Notes:</span> {selectedRow.therapyNotes}
+                                    </p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
+
+                    {(selectedRow.procedure || selectedRow.procedureNotes) && (
+                        <Card className="shadow-sm border-muted-200">
+                            <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
+                                <div className="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                    <Stethoscope className="w-5 h-5" />
+                                </div>
+                                <CardTitle className="text-base font-semibold">
+                                    Procedure & Notes
+                                </CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-2">
+                                {Boolean(getFormattedProcedureNames(selectedRow.procedure, procedures)) && (
+                                    <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                        <span className="font-semibold text-slate-900">Procedure:</span> {getFormattedProcedureNames(selectedRow.procedure, procedures)}
+                                    </p>
+                                )}
+                                {selectedRow.procedureNotes && (
+                                    <p className="text-sm text-slate-700 whitespace-pre-line leading-relaxed">
+                                        <span className="font-semibold text-slate-900">Procedure Notes:</span> {selectedRow.procedureNotes}
                                     </p>
                                 )}
                             </CardContent>

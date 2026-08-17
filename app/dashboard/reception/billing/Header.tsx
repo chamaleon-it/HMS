@@ -150,6 +150,7 @@ export default function Header({ tab, setTab, filter, setFilter, billing }: Prop
         {[
           { key: "all", label: "All Types" },
           { key: "therapy", label: "Therapy" },
+          { key: "procedure", label: "Procedure" },
           { key: "reception", label: "Reception" },
           { key: "other", label: "Other" },
         ].map(({ key, label }) => {

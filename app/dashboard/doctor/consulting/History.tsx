@@ -110,6 +110,8 @@ export interface Consultations {
   };
   therapy?: string;
   therapyNotes?: string;
+  procedure?: any;
+  procedureNotes?: string;
   advice: string;
   followUp: Date;
   test: Test[];

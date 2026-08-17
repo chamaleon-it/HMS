@@ -137,6 +137,8 @@ export interface ConsultationType {
   };
   therapy?: string;
   therapyNotes?: string;
+  procedure?: any;
+  procedureNotes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
