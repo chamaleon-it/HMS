@@ -101,6 +101,12 @@ function calculatePages(data: DataType & Record<string, any>): PageChunk[] {
     if (data?.medicalHistoryDetails) notesHeight += 45;
     if (data?.lifestyle && Object.values(data.lifestyle).some(Boolean)) notesHeight += 50;
     if (data?.acupunctureAssessment || data?.treatmentGiven) notesHeight += 50;
+    if (data?.therapy || data?.therapyNotes) {
+      notesHeight += 20 + (data.therapy ? 18 : 0) + (data.therapyNotes ? 18 : 0);
+    }
+    if (data?.procedure || data?.procedureNotes) {
+      notesHeight += 20 + (data.procedure ? 18 : 0) + (data.procedureNotes ? 18 : 0);
+    }
     if (data?.treatmentPlan) notesHeight += 45;
   }
 
@@ -630,6 +636,52 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 <p>
                   <span className="font-bold text-slate-700">Home Care Advice:</span> {data.treatmentPlan.homeCare?.join(", ") || "—"}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {/* THERAPY & THERAPY NOTES */}
+          {(data.therapy || data.therapyNotes) && (
+            <div className="space-y-0.5">
+              <h3 className="font-extrabold text-[12px] text-[#2d3e36] uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-3.5 bg-[#2d3e36] rounded-full inline-block"></span>
+                Therapy & Notes
+              </h3>
+              <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
+                {Boolean(getFormattedTherapyNames(data.therapy, therapies)) && (
+                  <p>
+                    <span className="font-bold text-slate-700">Therapy:</span>{" "}
+                    {getFormattedTherapyNames(data.therapy, therapies)}
+                  </p>
+                )}
+                {data.therapyNotes && (
+                  <p>
+                    <span className="font-bold text-slate-700">Notes:</span> {data.therapyNotes}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* PROCEDURE & PROCEDURE NOTES */}
+          {(data.procedure || data.procedureNotes) && (
+            <div className="space-y-0.5">
+              <h3 className="font-extrabold text-[12px] text-[#2d3e36] uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-3.5 bg-[#2d3e36] rounded-full inline-block"></span>
+                Procedure & Notes
+              </h3>
+              <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
+                {Boolean(getFormattedProcedureNames(data.procedure, procedures)) && (
+                  <p>
+                    <span className="font-bold text-slate-700">Procedure:</span>{" "}
+                    {getFormattedProcedureNames(data.procedure, procedures)}
+                  </p>
+                )}
+                {data.procedureNotes && (
+                  <p>
+                    <span className="font-bold text-slate-700">Notes:</span> {data.procedureNotes}
+                  </p>
+                )}
               </div>
             </div>
           )}
