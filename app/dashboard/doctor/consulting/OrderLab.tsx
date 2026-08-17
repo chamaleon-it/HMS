@@ -61,7 +61,7 @@ export default function OrderLab({
                 {getFormattedInvestigationNames(e, tests, panelsCatalog).map((item, i) => (
                   <span
                     key={i}
-                    className="inline-flex items-center px-2 py-0.5 rounded-md bg-(--color-synapse-light)/10 text-(--color-synapse-light) font-semibold text-xs border border-(--color-synapse-light)/20"
+                    className="inline-flex items-center px-2 py-0.5 rounded-md bg-synapse-light/10 text-(--color-synapse-light) font-semibold text-xs border border-synapse-light/20"
                   >
                     {item}
                   </span>

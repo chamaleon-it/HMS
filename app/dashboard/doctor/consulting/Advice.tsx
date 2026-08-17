@@ -190,7 +190,7 @@ export default function Advice({
               Advice & Follow-up
             </h2>
             {data.followUp && (
-              <div className="inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-1.5 py-0.5 text-xs font-semibold bg-(--color-synapse-light)/10 text-(--color-synapse-light) border border-(--color-synapse-light)/20">
+              <div className="inline-flex items-center gap-1.5 rounded-full pl-2.5 pr-1.5 py-0.5 text-xs font-semibold bg-synapse-light/10 text-(--color-synapse-light) border border-synapse-light/20">
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Follow-up: {fDate(data.followUp)} ({fTime(data.followUp)})
                 <button
@@ -201,7 +201,7 @@ export default function Advice({
                     setSelectedTime("");
                     toast.success("Follow-up removed");
                   }}
-                  className="ml-1 p-0.5 rounded-full hover:bg-(--color-synapse-light)/20 text-(--color-synapse-light) cursor-pointer"
+                  className="ml-1 p-0.5 rounded-full hover:bg-synapse-light/20 text-(--color-synapse-light) cursor-pointer"
                   title="Remove follow-up"
                 >
                   <X className="w-3 h-3" />
@@ -250,7 +250,7 @@ export default function Advice({
               setData((prev) => ({ ...prev, advice: e.target.value }))
             }
             placeholder="Write lifestyle recommendations, dietary advice, precautions, or special instructions for the patient..."
-            className="rounded-xl border-slate-200 bg-zinc-50/70 text-xs min-h-[90px] focus-visible:ring-synapse-light/20 focus-visible:border-(--color-synapse-light) transition-all placeholder:text-slate-400"
+            className="rounded-xl border-slate-200 bg-zinc-50/70 text-xs min-h-22.5 focus-visible:ring-synapse-light/20 focus-visible:border-(--color-synapse-light) transition-all placeholder:text-slate-400"
           />
         </div>
 
@@ -319,10 +319,10 @@ export default function Advice({
                         const reason = isDisabledByRound
                           ? round?.label ?? "Unavailable"
                           : isBooked
-                          ? "Already booked"
-                          : isPastTime
-                          ? "Past time"
-                          : undefined;
+                            ? "Already booked"
+                            : isPastTime
+                              ? "Past time"
+                              : undefined;
 
                         const active = selectedTime === time;
 
@@ -340,8 +340,8 @@ export default function Advice({
                               active
                                 ? "bg-(--color-synapse-light) text-white border-(--color-synapse-light) font-semibold shadow-2xs"
                                 : isDisabled
-                                ? "bg-slate-100/70 text-slate-300 border-slate-100 cursor-not-allowed line-through"
-                                : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900"
+                                  ? "bg-slate-100/70 text-slate-300 border-slate-100 cursor-not-allowed line-through"
+                                  : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-slate-900"
                             )}
                           >
                             {to12h(time)}

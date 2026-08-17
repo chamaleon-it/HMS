@@ -107,7 +107,7 @@ const CustomerContent: React.FC = () => {
               </div>
 
               <section className="grid gap-5 md:grid-cols-5 items-start">
-                <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[calc(100vh-220px)] min-h-[500px]">
+                <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[calc(100vh-220px)] min-h-125">
                   <div className="px-4 py-3 bg-(--color-synapse-dark) text-slate-50 flex items-center justify-between">
                     <div className="text-sm font-medium flex items-center gap-2">
                       <span className="h-7 w-7 rounded-full bg-(--color-synapse-purple) flex items-center justify-center text-[11px]">
@@ -244,7 +244,7 @@ const CustomerContent: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[calc(100vh-220px)] min-h-[500px]">
+                <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[calc(100vh-220px)] min-h-125">
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit

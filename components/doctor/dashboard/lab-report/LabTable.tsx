@@ -191,7 +191,7 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                             {summary.panelsCount} {summary.panelsCount === 1 ? "Panel" : "Panels"}
                                         </span>
                                         {summary.panelNames.length > 0 ? (
-                                            <span className="text-[11px] text-slate-500 font-medium truncate max-w-[160px]" title={summary.panelNames.join(", ")}>
+                                            <span className="text-[11px] text-slate-500 font-medium truncate max-w-40" title={summary.panelNames.join(", ")}>
                                                 {summary.panelNames.join(", ")}
                                             </span>
                                         ) : (
@@ -207,7 +207,7 @@ export default function LabTable({ REPORT, status, facility }: PropsTypes) {
                                             {summary.testsCount} {summary.testsCount === 1 ? "Test" : "Tests"}
                                         </span>
                                         {summary.testNames.length > 0 ? (
-                                            <span className="text-[11px] text-slate-500 font-medium truncate max-w-[160px]" title={summary.testNames.join(", ")}>
+                                            <span className="text-[11px] text-slate-500 font-medium truncate max-w-40" title={summary.testNames.join(", ")}>
                                                 {summary.testNames.join(", ")}
                                             </span>
                                         ) : (

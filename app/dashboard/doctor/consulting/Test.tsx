@@ -41,8 +41,8 @@ const TestItem: React.FC<TestItemProps> = ({
       className={cn(
         "w-full flex items-center justify-between gap-3 rounded-xl border px-4 py-3 text-left transition-all duration-200 group",
         selected
-          ? "border-(--color-synapse-light) bg-(--color-synapse-light)/10 shadow-sm ring-1 ring-(--color-synapse-light)/20"
-          : "border-zinc-200 bg-white hover:border-(--color-synapse-light)/50 hover:shadow-sm hover:bg-zinc-50"
+          ? "border-(--color-synapse-light) bg-synapse-light/10 shadow-sm ring-1 ring-synapse-light/20"
+          : "border-zinc-200 bg-white hover:border-synapse-light/50 hover:shadow-sm hover:bg-zinc-50"
       )}
     >
       <div className="min-w-0 flex-1">
@@ -85,8 +85,8 @@ const TestItem: React.FC<TestItemProps> = ({
                   test.type === "Lab"
                     ? "text-(--color-synapse-light)"
                     : test.type === "Imaging"
-                    ? "text-blue-600"
-                    : "text-zinc-500"
+                      ? "text-blue-600"
+                      : "text-zinc-500"
                 )}
               >
                 {test.type}
@@ -151,8 +151,8 @@ const TestItem: React.FC<TestItemProps> = ({
               ? "bg-amber-50 text-amber-500 border-amber-200 hover:bg-amber-100"
               : "bg-white text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600"
             : favouritePanels?.some((f) => f === test._id)
-            ? "bg-amber-50 text-amber-500 border-amber-200 hover:bg-amber-100"
-            : "bg-white text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600"
+              ? "bg-amber-50 text-amber-500 border-amber-200 hover:bg-amber-100"
+              : "bg-white text-zinc-400 hover:bg-zinc-50 hover:text-zinc-600"
         )}
       >
         <Star
@@ -261,7 +261,7 @@ export default function Test({
           <div className="flex items-center gap-2.5">
             <h2 className="font-semibold text-lg text-slate-800">Lab & Imaging</h2>
             {data.test.length > 0 && (
-              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-(--color-synapse-light)/10 text-(--color-synapse-light)">
+              <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold bg-synapse-light/10 text-(--color-synapse-light)">
                 {data.test.reduce((acc, t) => acc + (t.name?.length || 0), 0)} prescribed
               </span>
             )}
@@ -456,7 +456,7 @@ export default function Test({
               <div className="bg-white rounded-2xl border border-zinc-200 shadow-sm flex flex-col h-full overflow-hidden">
                 <div className="p-4 border-b border-zinc-100 flex items-center justify-between bg-zinc-50/50">
                   <div className="flex items-center gap-2">
-                    <div className="h-6 w-6 rounded-full bg-(--color-synapse-light)/15 text-(--color-synapse-light) grid place-items-center">
+                    <div className="h-6 w-6 rounded-full bg-synapse-light/15 text-(--color-synapse-light) grid place-items-center">
                       <span className="text-xs font-bold">
                         {selectedTests.length}
                       </span>
