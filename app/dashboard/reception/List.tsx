@@ -411,6 +411,7 @@ export default function List({
               className="w-full text-xs p-2 border rounded-md"
             >
               <option value="">Select a reason</option>
+              <option value="NCF">Mark as NCF</option>
               <option value="Doctor Unavailable">Doctor Unavailable</option>
               <option value="Patient Cancellation">Patient Cancellation</option>
               <option value="Duplicate Booking">Duplicate Booking</option>
