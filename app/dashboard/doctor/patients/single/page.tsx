@@ -33,6 +33,7 @@ import PatientSnapshot from "./PatientSnapshot";
 import Overview from "./Overview";
 import Med from "./Med";
 import Visit from "./Visit";
+import Billing from "./Billing";
 import useSWR from "swr";
 import { useSearchParams } from "next/navigation";
 import { Suspense } from "react";
@@ -163,7 +164,6 @@ function PatientFullDetailContent() {
                 <TabsTrigger value="visits">Visits</TabsTrigger>
                 <TabsTrigger value="docs">Documents</TabsTrigger>
                 <TabsTrigger value="billing">Billing</TabsTrigger>
-                <TabsTrigger value="timeline">Timeline</TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
@@ -205,9 +205,7 @@ function PatientFullDetailContent() {
                                 ? "Visits"
                                 : tab === "docs"
                                   ? "Documents"
-                                  : tab === "billing"
-                                    ? "Billing & Claims"
-                                    : "Timeline"}
+                                  : "Billing & Invoices"}
                   </CardTitle>
 
                 </div>
@@ -245,7 +243,7 @@ function PatientFullDetailContent() {
 
                 {tab === "meds" && <Med consult={consult} />}
 
-                {tab === "visits" && <Visit />}
+                {tab === "visits" && <Visit consult={consult} />}
 
                 {tab === "docs" && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -363,58 +361,7 @@ function PatientFullDetailContent() {
                   </div>
                 )}
 
-                {tab === "billing" && (
-                  <div className="space-y-3">
-                    <div className="rounded-xl border p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="font-medium">Outstanding</div>
-                        {!isAdmin && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => toast("Collect payment flow coming soon")}
-                          >
-                            {" "}
-                            <Wallet className="h-4 w-4 mr-2" />
-                            Collect
-                          </Button>
-                        )}
-                      </div>
-                      <div className="mt-2 grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <Stat label="Balance" value="₹ 0" />
-                        <Stat
-                          label="Last Payment"
-                          value="₹ 0"
-                          sub="12 Sep 2025"
-                        />
-                        <Stat
-                          label="Insurance Claims"
-                          value="0"
-                          sub="0 pending"
-                        />
-                        <Stat label="Packages" value="0" />
-                      </div>
-                    </div>
-                    <div className="rounded-xl border overflow-hidden">
-                      <div className="grid grid-cols-12 bg-muted/50 px-3 py-2 text-xs font-medium uppercase tracking-wider">
-                        <div className="col-span-4">Date</div>
-                        <div className="col-span-5">Item</div>
-                        <div className="col-span-3 text-right">Amount</div>
-                      </div>
-
-                      <div className="flex flex-col items-center justify-center p-8 text-center  rounded-xl shadow-sm">
-                        <h2 className="text-lg font-semibold text-zinc-700 mb-1">
-                          No Results Found
-                        </h2>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {tab === "timeline" && (
-
-                  <Visit />
-                )}
+                {tab === "billing" && <Billing />}
               </CardContent>
             </Card>
 
