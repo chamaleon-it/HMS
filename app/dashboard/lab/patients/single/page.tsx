@@ -57,15 +57,6 @@ const CustomerContent: React.FC = () => {
     { key: "Imaging", label: "Imaging", icon: ImageIcon },
   ] as const;
 
-  const totalSpend = React.useMemo(() => {
-    return reports?.reduce((acc, report) => {
-      const reportTotal = report.test?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0;
-      return acc + reportTotal;
-    }, 0) || 0;
-  }, [reports]);
-
-  const avgSpend = reports?.length ? totalSpend / reports.length : 0;
-
   return (
     <AppShell>
       <div className="bg-slate-50 p-5">
@@ -115,43 +106,8 @@ const CustomerContent: React.FC = () => {
                 </div>
               </div>
 
-              <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                  <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
-                    Total Spend
-                  </div>
-                  <div className="text-2xl font-semibold text-emerald-900">
-                    {formatINR(totalSpend)}
-                  </div>
-                </div>
-                <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                  <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
-                    Total Visits
-                  </div>
-                  <div className="text-3xl font-semibold text-sky-900">
-                    {reports?.length}
-                  </div>
-                </div>
-                <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                  <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
-                    Last Visit
-                  </div>
-                  <div className="text-sm font-semibold text-(--color-synapse-light)">
-                    {fDate(reports?.[0]?.createdAt)}
-                  </div>
-                </div>
-                <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                  <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
-                    Avg Spend
-                  </div>
-                  <div className="text-2xl font-semibold text-amber-900">
-                    {formatINR(avgSpend)}
-                  </div>
-                </div>
-              </section>
-
               <section className="grid gap-5 md:grid-cols-5 items-start">
-                <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
+                <div className="md:col-span-2 border rounded-2xl bg-white shadow-sm flex flex-col h-[calc(100vh-220px)] min-h-[500px]">
                   <div className="px-4 py-3 bg-(--color-synapse-dark) text-slate-50 flex items-center justify-between">
                     <div className="text-sm font-medium flex items-center gap-2">
                       <span className="h-7 w-7 rounded-full bg-(--color-synapse-purple) flex items-center justify-center text-[11px]">
@@ -166,64 +122,7 @@ const CustomerContent: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex justify-end items-center bg-slate-50 px-2 py-2">
-                    {/* <div className="flex items-center gap-3 text-[12px] text-slate-700">
-                      <span className="font-medium">Filter:</span>
 
-                      <Popover open={openCalander} onOpenChange={setOpenCalander}>
-
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            id="date"
-                            className="w-52 justify-between font-normal"
-                          >
-                            {date?.from && date?.to
-                              ? `${fDate(date.from)} to ${fDate(date.to)}`
-                              : "Select date"}
-                            <ChevronDownIcon />
-                          </Button>
-                        </PopoverTrigger>
-
-                        <PopoverContent
-                          className="w-auto overflow-hidden p-0"
-                          align="start"
-                        >
-                          <Calendar
-                            mode="range"
-                            selected={date}
-                            captionLayout="dropdown"
-                            numberOfMonths={2}
-                            onSelect={(s) => {
-                              setDate(s);
-
-                              const { from, to } = s || {};
-
-                              if (
-                                from &&
-                                to &&
-                                from !== to &&
-                                (from !== date?.from || to !== date?.to)
-                              ) {
-                                setOpenCalander(false);
-                              }
-                            }}
-                          />
-                        </PopoverContent>
-                      </Popover>
-
-                      {date?.from && date?.to && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 text-[11px] px-3"
-                          onClick={() => {
-                            setDate({ from: undefined, to: undefined });
-                          }}
-                        >
-                          Clear
-                        </Button>
-                      )}
-                    </div> */}
                     <div className="flex items-center justify-between gap-3 bg-white border-b border-slate-100 p-3 w-full">
                       <div className="relative flex-1">
                         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -255,8 +154,8 @@ const CustomerContent: React.FC = () => {
                               {active && (
                                 <motion.span
                                   layoutId="tab-indicator-1"
-                                  className="absolute inset-0 rounded-full"
-                                  style={{ background: "linear-gradient(to right, var(--color-synapse-purple), #d946ef)" }}
+                                  className="absolute inset-0 rounded-full bg-(--color-synapse-light)"
+
                                   transition={{ type: "spring", stiffness: 500, damping: 40 }}
                                 />
                               )}
@@ -327,9 +226,7 @@ const CustomerContent: React.FC = () => {
                               <span className="font-medium">
                                 Report ID: {String(bill.mrn).padStart(5, "0")} - Date: {fDate(bill.createdAt)}
                               </span>
-                              <span className="text-xs font-semibold">
-                                {formatINR(bill.test?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0)}
-                              </span>
+
                             </div>
                             <div className="flex items-center justify-between gap-2 text-[12px]">
                               <span
@@ -347,7 +244,7 @@ const CustomerContent: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-120">
+                <div className="md:col-span-3 border rounded-2xl bg-white shadow-sm flex flex-col h-[calc(100vh-220px)] min-h-[500px]">
                   <div className="px-4 py-3 bg-slate-50 flex items-center justify-between border-b">
                     <div className="text-sm font-semibold text-slate-900">
                       {selectedVisit
@@ -414,9 +311,7 @@ const CustomerContent: React.FC = () => {
                               <th className="p-2 text-right font-medium">
                                 Reference
                               </th>
-                              <th className="p-2 text-right font-medium">
-                                Price
-                              </th>
+
                             </tr>
                           </thead>
                           <tbody>
@@ -506,9 +401,7 @@ const CustomerContent: React.FC = () => {
                                       </>
                                     )}
                                   </td>
-                                  <td className="p-2 align-top text-right text-sm font-semibold text-slate-900">
-                                    {formatINR(it.price)}
-                                  </td>
+
                                 </tr>
                               );
                             })}
@@ -524,21 +417,7 @@ const CustomerContent: React.FC = () => {
                               </tr>
                             )}
                           </tbody>
-                          <tfoot>
-                            <tr className="border-t bg-slate-50/80">
-                              <td
-                                colSpan={5}
-                                className="p-2 text-right text-xs text-slate-600"
-                              >
-                                Total
-                              </td>
-                              <td className="p-2 text-right text-sm font-semibold text-slate-900">
-                                {formatINR(
-                                  selectedVisit?.test?.filter(o => type === "All" || o.name?.type === type)?.reduce((sum, t) => sum + (t.name?.price || 0), 0) || 0
-                                )}
-                              </td>
-                            </tr>
-                          </tfoot>
+
                         </table>
                       </div>
 
