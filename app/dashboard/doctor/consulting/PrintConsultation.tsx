@@ -11,12 +11,12 @@ import useGetProcedure from "@/data/useGetProcedure";
 import { getFormattedInvestigationNames, getFormattedTherapyNames, getFormattedProcedureNames } from "@/lib/investigationUtils";
 
 import {
-  PrescriptionHeader,
-  PrescriptionPatientStrip,
-  PrescriptionWatermark,
-  PrescriptionSignature,
-  PrescriptionFooter,
-} from "@/components/print/PrescriptionHeader";
+  PrintHeader,
+  PrintPatientStrip,
+  PrintWatermark,
+  PrintSignature,
+  PrintFooter,
+} from "@/components/print/PrintHeader";
 
 interface PrintConsultationProps {
   appointment: AppointmentType | null;
@@ -772,10 +772,10 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
             className="a4-print-page w-[210mm] h-[297mm] max-h-[297mm] mx-auto flex flex-col relative z-20 bg-white border border-slate-200 print:border-none print:w-[210mm] print:h-[297mm] print:max-h-[297mm] print:m-0 print:p-0 overflow-hidden font-montserrat"
           >
             {/* TOP HEADER SECTION */}
-            <PrescriptionHeader />
+            <PrintHeader />
 
             {/* PATIENT INFO STRIP */}
-            <PrescriptionPatientStrip
+            <PrintPatientStrip
               name={patient?.name || ""}
               age={ageStr}
               sex={sexStr}
@@ -785,7 +785,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
 
             {/* FULL-WIDTH MAIN CONSULTATION CANVAS */}
             <div className="flex-1 relative flex flex-col px-8 py-3 bg-white overflow-hidden space-y-2.5">
-              <PrescriptionWatermark />
+              <PrintWatermark />
 
               {/* Consultation Type Header Line */}
               <div className="flex justify-between items-center relative z-10 border-b-2 border-[#5F7350] pb-1 mb-0.5">
@@ -955,7 +955,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
               {/* DOCTOR SIGNATURE ON FINAL PAGE */}
               {page.showSignature && (
                 <div className="mt-auto pt-2">
-                  <PrescriptionSignature
+                  <PrintSignature
                     doctorName={doctorName}
                     specialization={
                       user?.specialization ||
@@ -969,7 +969,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
             </div>
 
             {/* BOTTOM FOOTER SECTION */}
-            <PrescriptionFooter pageNumber={pageNum} totalPages={totalPages} />
+            <PrintFooter pageNumber={pageNum} totalPages={totalPages} />
           </div>
         );
       })}

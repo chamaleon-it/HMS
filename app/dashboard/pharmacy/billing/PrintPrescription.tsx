@@ -5,12 +5,12 @@ import { createPortal } from "react-dom";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { OrderType } from "../interface";
 import {
-    PrescriptionHeader,
-    PrescriptionPatientStrip,
-    PrescriptionWatermark,
-    PrescriptionSignature,
-    PrescriptionFooter,
-} from "@/components/print/PrescriptionHeader";
+    PrintHeader,
+    PrintPatientStrip,
+    PrintWatermark,
+    PrintSignature,
+    PrintFooter,
+} from "@/components/print/PrintHeader";
 
 interface PrintPrescriptionProps {
     order: OrderType | null;
@@ -157,10 +157,10 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                         className="a4-print-page w-[210mm] h-[297mm] max-h-[297mm] mx-auto flex flex-col relative z-20 bg-white border border-slate-200 print:border-none print:w-[210mm] print:h-[297mm] print:max-h-[297mm] print:m-0 print:p-0 overflow-hidden"
                     >
                         {/* TOP HEADER SECTION */}
-                        <PrescriptionHeader />
+                        <PrintHeader />
 
                         {/* PATIENT INFO STRIP */}
-                        <PrescriptionPatientStrip
+                        <PrintPatientStrip
                             name={patient?.name || ""}
                             age={ageStr}
                             sex={sexStr}
@@ -170,7 +170,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
 
                         {/* MAIN BODY */}
                         <div className="flex-1 relative flex flex-col p-6 bg-white overflow-hidden space-y-3 text-[13px]">
-                            <PrescriptionWatermark />
+                            <PrintWatermark />
 
                             {/* Prescription Type Header */}
                             <div className="flex justify-between items-center relative z-10 border-b border-slate-300 pb-2">
@@ -243,7 +243,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                     </div>
 
                                     <div className="mt-auto pt-4">
-                                        <PrescriptionSignature
+                                        <PrintSignature
                                             doctorName={displayDoctorName}
                                             specialization={doctor?.specialization || "AUTHORIZED MEDICAL PRACTITIONER"}
                                             signature={(doctor as any)?.signature}
@@ -254,7 +254,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                         </div>
 
                         {/* BOTTOM FOOTER SECTION */}
-                        <PrescriptionFooter pageNumber={pageNum} totalPages={totalPages} />
+                        <PrintFooter pageNumber={pageNum} totalPages={totalPages} />
                     </div>
                 );
             })}

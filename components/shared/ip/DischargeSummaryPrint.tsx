@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import HospitalName from "@/components/print/HospitalName";
+import { PrintHeader, PrintFooter, PrintPatientStrip, PrintWatermark } from "@/components/print/PrintHeader";
 import { fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import { useAuth } from "@/auth/context/auth-context";
@@ -140,27 +140,27 @@ export default function DischargeSummaryPrint({
       />
 
       <div className="max-w-[21cm] mx-auto space-y-3.5 text-xs">
-        {/* LUXURY HOSPITAL HEADER */}
-        <div className="border-b-2 border-slate-900 pb-3 flex justify-between items-start">
-          <HospitalName />
-          <div className="text-right space-y-1">
-            <span className="inline-block bg-slate-900 text-white text-[11px] px-3.5 py-1 rounded-full font-bold uppercase tracking-widest shadow-xs">
-              In-Patient Discharge Summary
+        {/* UNIFIED PRINT HEADER */}
+        <PrintHeader />
+
+        {/* PATIENT INFO STRIP */}
+        <PrintPatientStrip
+          name={patient?.name || ""}
+          age={patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "—"}
+          sex={patient?.gender ? patient.gender.charAt(0).toUpperCase() : "—"}
+          date={fDateandTime(dischargeDate).split(",")[0]}
+          opNo={patient?.mrn ? patient.mrn.replace("MRN", "P-") : ""}
+        />
+
+        {/* Document Type Header Banner */}
+        <div className="flex justify-between items-center px-6 pt-2 pb-1 border-b border-slate-300">
+          <h2 className="text-sm font-black text-[#5F7350] uppercase tracking-wider">
+            IN-PATIENT DISCHARGE SUMMARY
+          </h2>
+          <div className="flex items-center gap-2">
+            <span className="text-[11px] font-bold text-slate-800 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200">
+              Admission No: {ip.admissionNumber || "—"}
             </span>
-            <div className="text-xs text-slate-600 font-medium">
-              <p>
-                Admission No:{" "}
-                <span className="font-mono font-bold text-slate-900">
-                  {ip.admissionNumber || "—"}
-                </span>
-              </p>
-              <p>
-                Date of Issue:{" "}
-                <span className="font-semibold text-slate-900">
-                  {fDateandTime(dischargeDate).split(",")[0]}
-                </span>
-              </p>
-            </div>
           </div>
         </div>
 
@@ -430,6 +430,9 @@ export default function DischargeSummaryPrint({
             </p>
           </div>
         </div>
+
+        {/* UNIFIED PRINT FOOTER */}
+        <PrintFooter />
       </div>
     </div>
   );

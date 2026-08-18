@@ -1,12 +1,12 @@
 import { createPortal } from "react-dom";
 import { useEffect, useState } from "react";
 import {
-    PrescriptionHeader,
-    PrescriptionPatientStrip,
-    PrescriptionWatermark,
-    PrescriptionSignature,
-    PrescriptionFooter,
-} from "@/components/print/PrescriptionHeader";
+    PrintHeader,
+    PrintPatientStrip,
+    PrintWatermark,
+    PrintSignature,
+    PrintFooter,
+} from "@/components/print/PrintHeader";
 
 interface BlankPrescriptionProps {
     data: {
@@ -99,10 +99,10 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
 
             <div className="w-[210mm] h-[297mm] max-h-[297mm] mx-auto flex flex-col relative z-20 bg-white border border-slate-200 print:border-none print:w-[210mm] print:h-[297mm] print:max-h-[297mm] print:m-0 print:p-0 overflow-hidden">
                 {/* TOP HEADER SECTION */}
-                <PrescriptionHeader />
+                <PrintHeader />
 
                 {/* PATIENT INFO STRIP */}
-                <PrescriptionPatientStrip
+                <PrintPatientStrip
                     name={patientName}
                     age={ageStr}
                     sex={sexStr}
@@ -112,11 +112,11 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
 
                 {/* FULL-WIDTH MAIN PRESCRIPTION CANVAS */}
                 <div className="flex-1 relative flex flex-col p-8 bg-white overflow-hidden">
-                    <PrescriptionWatermark />
+                    <PrintWatermark />
 
                     {/* DOCTOR SIGNATURE AT BOTTOM RIGHT */}
                     <div className="mt-auto pt-6">
-                        <PrescriptionSignature
+                        <PrintSignature
                             doctorName={doctor?.name}
                             specialization={doctor?.specialization}
                             signature={doctor?.signature}
@@ -125,7 +125,7 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
                 </div>
 
                 {/* BOTTOM FOOTER SECTION */}
-                <PrescriptionFooter />
+                <PrintFooter />
             </div>
         </div>,
         document.body

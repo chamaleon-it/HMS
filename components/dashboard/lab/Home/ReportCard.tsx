@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import configuration from "@/config/configuration";
 import useSWR from "swr";
+import { PrintHeader, PrintFooter, PrintPatientStrip, PrintWatermark } from "@/components/print/PrintHeader";
 
 interface ReportCardProps {
     report: any | null;
@@ -434,49 +435,30 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         <div key={pageIdx} className={`a4-page shadow-none bg-white ${isLastPage ? 'print-page-last' : 'print-page-break'} flex flex-col relative`}>
                             <div className="flex-1 flex flex-col z-10 relative">
                                 {/* Header Section */}
-                                <div className="pt-6 pb-3 px-10 relative z-10 bg-white">
-                                    <div className="flex justify-between items-start relative z-10">
-                                        <div className="flex gap-4 items-center">
-                                            <div className="w-25 h-25 rounded-full flex items-center justify-center bg-white shrink-0 overflow-hidden">
-                                                <img src={configuration().logo} alt="Logo" className="w-full h-full object-cover mix-blend-multiply p-1" />
-                                            </div>
-                                            <div className="flex flex-col gap-0.5 ml-0">
-                                                <h1 className="text-[20px] text-black uppercase leading-none tracking-widest font-montserrat font-bold">{configuration().hospitalName}</h1>
-                                                <p className="text-[15px] text-slate-800 mt-1">{configuration().hospitalAddress}</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex flex-col items-end mt-2">
-                                            <div className="bg-(--color-synapse-dark) text-white px-4 py-1.5 text-center">
-                                                <h2 className="text-[14px] font-normal uppercase tracking-wide">LABORATORY TEST REPORT</h2>
-                                            </div>
+                                <PrintHeader />
 
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="w-full flex h-1.25 shrink-0">
-                                    <div className="bg-(--color-synapse-purple) w-[70%] h-full"></div>
-                                    <div className="bg-(--color-synapse-dark) w-[30%] h-full"></div>
-                                </div>
+                                {/* Patient Info Strip */}
+                                <PrintPatientStrip
+                                    name={patient?.name || "Mohammed Rashid"}
+                                    age={patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "23"}
+                                    sex={patient?.gender || "Male"}
+                                    date={report.createdAt ? fDateandTime(report.createdAt).split(",")[0] : ""}
+                                    opNo={patient?.mrn ? patient.mrn.replace("MRN", "P-") : ""}
+                                />
 
-                                {/* Patient Info Banner */}
-                                <div className="w-full px-12 py-4 flex justify-between">
-                                    <div className="flex flex-col space-y-1.5 text-[15px] text-black">
-                                        <div className="flex items-start"><span className="w-32 font-medium">Name</span><span className="w-4 font-bold">:</span><span className="font-bold text-[16px] uppercase">{patient?.name || "Mohammed Rashid"}</span></div>
-                                        <div className="flex items-start"><span className="w-32 font-medium">Age/ Gender</span><span className="w-4 font-bold">:</span><span className="font-medium">{patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "23"} / {patient?.gender || "Male"}</span></div>
-                                        <div className="flex items-start"><span className="w-32 font-medium">Ref. By.</span><span className="w-4 font-bold">:</span><span className="font-medium uppercase">{doctor?.name || "Self"}</span></div>
-                                    </div>
-                                    <div className="flex flex-col space-y-1.5 text-[15px] text-black w-[40%]">
-                                        <div className="flex items-start"><span className="w-28 font-medium">Reported</span><span className="w-4 font-bold">:</span><span className="font-medium">{report.createdAt && fDateandTime(report.createdAt).toLowerCase()}</span></div>
-                                        <div className="flex items-start"><span className="w-28 font-medium">Received</span><span className="w-4 font-bold">:</span><span className="font-medium">{report.sampleCollectedAt && fDateandTime(report.sampleCollectedAt).toLowerCase()}</span></div>
-                                        <div className="flex items-start"><span className="w-28 font-medium">Printed</span><span className="w-4 font-bold">:</span><span className="font-medium">{fDateandTime(new Date()).toLowerCase()}</span></div>
+                                {/* Document Type Banner */}
+                                <div className="flex justify-between items-center px-10 pt-2 pb-1 border-b border-slate-300">
+                                    <h2 className="text-sm font-black text-[#5F7350] uppercase tracking-wider">
+                                        LABORATORY TEST REPORT
+                                    </h2>
+                                    <div className="flex items-center gap-2 text-xs text-slate-700">
+                                        <span>Ref. By: <strong className="text-black uppercase">{doctor?.name || "Self"}</strong></span>
                                     </div>
                                 </div>
 
                                 {/* Results Table Section */}
                                 <div className="mt-1 px-10 flex-1 relative">
-                                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.08] z-0">
-                                        <img src={configuration().logo} alt="Watermark" className="w-[15cm] object-contain grayscale" />
-                                    </div>
+                                    <PrintWatermark />
                                     <div className="flex w-full gap-3 relative z-10">
                                         <div className={`${showHistograms ? 'w-[65%]' : 'w-full'} flex flex-col gap-6`}>
                                             {(() => {
@@ -703,39 +685,8 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                             </div>
 
                             {/* Bottom Banner */}
-                            <div className="absolute bottom-0 left-0 w-full z-20">
-                                <div className="px-10 py-3 flex justify-between items-end text-black">
-                                    <div className="text-[12px] font-medium">
-                                        OP Time<br />
-                                        <span className="font-medium"> Monday-Saturday<br />3:00 PM to 8:00 PM</span>
-                                    </div>
-                                    <div className="text-[12px] text-right font-medium">
-                                        Working Hours<br />
-                                        <span className="font-medium">6:30 AM to 8:00 PM <br />Sunday 6:30 AM to 12:00 PM</span>
-                                    </div>
-                                </div>
-                                <div className="w-full flex h-1.25">
-                                    <div className="bg-(--color-synapse-purple) w-[70%] h-full"></div>
-                                    <div className="bg-(--color-synapse-dark) w-[30%] h-full"></div>
-                                </div>
-                                <div className="flex w-full justify-between items-center p-4">
-                                    <div className="text-black">
-
-                                        <div className="flex gap-6 items-center text-[13px] font-medium">
-                                            <div className="flex items-center gap-1">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 10.999h2C22 5.869 18.127 2 12.99 2v2C17.052 4 20 6.943 20 10.999z" /><path d="M13 8c2.103 0 3 .897 3 3h2c0-3.225-1.775-5-5-5v2zm3.422 5.443a1.001 1.001 0 0 0-1.391.043l-2.393 2.461c-.576-.11-1.734-.471-2.926-1.66-1.192-1.193-1.553-2.354-1.66-2.926l2.459-2.394a1 1 0 0 0 .043-1.391L6.859 3.513a1 1 0 0 0-1.391-.087l-2.17 1.861a1 1 0 0 0-.29.649c-.015.25-.301 6.172 4.291 10.766C11.305 20.707 16.323 21 17.705 21c.202 0 .326-.006.359-.008a.992.992 0 0 0 .648-.291l1.86-2.171a1 1 0 0 0-.086-1.391l-4.064-3.696z" /></svg>
-                                                {configuration().hospitalPhone}
-                                            </div>
-                                            <div className="flex items-center gap-1">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.103 0-2 .897-2 2v12c0 1.103.897 2 2 2h16c1.103 0 2-.897 2-2V6c0-1.103-.897-2-2-2zm0 2v.511l-8 6.223-8-6.222V6h16zM4 18V9.044l7.386 5.745a.994.994 0 0 0 1.228 0L20 9.044 20.002 18H4z" /></svg>
-                                                {configuration().hospitalEmail}
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="text-[10px]">
-                                        Powered by Caresoft Innovations LLP
-                                    </div>
-                                </div>
+                            <div className="mt-auto w-full z-20">
+                                <PrintFooter pageNumber={pageIdx + 1} totalPages={pages.length} />
                             </div>
                         </div>
                     );

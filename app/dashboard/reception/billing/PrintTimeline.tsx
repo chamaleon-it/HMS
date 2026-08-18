@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { fDateandTime, fDate } from "@/lib/fDateAndTime";
 import {
-    PrescriptionHeader,
-    PrescriptionPatientStrip,
-    PrescriptionWatermark,
-    PrescriptionFooter,
-} from "@/components/print/PrescriptionHeader";
+    PrintHeader,
+    PrintPatientStrip,
+    PrintWatermark,
+    PrintFooter,
+} from "@/components/print/PrintHeader";
 import { getBillType } from "@/lib/billTypeUtils";
 
 export interface TimelineBillProps {
@@ -150,11 +150,11 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
             />
 
             <div className="w-[210mm] h-[297mm] max-h-[297mm] mx-auto flex flex-col relative z-20 bg-white border border-slate-200 print:border-none print:w-[210mm] print:h-[297mm] print:max-h-[297mm] print:m-0 print:p-0 overflow-hidden">
-                {/* 1. TOP HEADER SECTION (Prescription Style) */}
-                <PrescriptionHeader />
+                {/* 1. TOP HEADER SECTION */}
+                <PrintHeader />
 
-                {/* 2. PATIENT INFO STRIP (Prescription Style) */}
-                <PrescriptionPatientStrip
+                {/* 2. PATIENT INFO STRIP */}
+                <PrintPatientStrip
                     name={patientName}
                     age={ageStr}
                     sex={sexStr}
@@ -164,7 +164,7 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
 
                 {/* 3. MAIN BODY SECTION */}
                 <div className="flex-1 relative flex flex-col px-7 py-3 bg-white overflow-hidden space-y-2.5 text-[12px]">
-                    <PrescriptionWatermark />
+                    <PrintWatermark />
 
                     {/* Timeline Sheet Title Banner */}
                     <div className="relative z-10 flex justify-between items-center border-b-2 border-[#5F7350] pb-1.5">
@@ -238,8 +238,8 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                     </div>
                 </div>
 
-                {/* 4. BOTTOM FOOTER SECTION (Prescription Style) */}
-                <PrescriptionFooter />
+                {/* 4. BOTTOM FOOTER SECTION */}
+                <PrintFooter />
             </div>
         </div>,
         document.body
