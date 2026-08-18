@@ -22,7 +22,7 @@ export function PrescriptionHeader({
     <div className="relative flex justify-between items-stretch border-b border-slate-700 min-h-20 bg-white">
       {/* Top Left Dark Ribbon with Angle */}
       <div
-        className="w-[48%] bg-[#2d3e36] text-white pt-2.5 pb-2.5 pl-6 pr-8 flex flex-col justify-center space-y-1 relative"
+        className="w-[48%] bg-synapse-light text-white pt-2.5 pb-2.5 pl-6 pr-8 flex flex-col justify-center space-y-1 relative"
         style={{ clipPath: "polygon(0 0, 100% 0, 84% 100%, 0 100%)" }}
       >
         <div className="flex items-center gap-2 text-xs font-semibold tracking-wide">
@@ -49,7 +49,7 @@ export function PrescriptionHeader({
         </div>
         <div className="flex items-center gap-2 text-xs font-semibold tracking-wide">
           <Mail className="w-3.5 h-3.5 text-white shrink-0" />
-          <span>bhuminaturecure@gmail.com</span>
+          <span>{configuration().hospitalEmail}</span>
         </div>
       </div>
 
@@ -81,12 +81,10 @@ export function PrescriptionHeader({
           )}
         </div>
         <div className="flex flex-col">
-          <h1 className="text-2xl font-black tracking-tight text-[#1c2923] uppercase font-serif">
+          <h1 className="text-2xl font-black tracking-tight text-synapse-light uppercase font-serif">
             {hospitalName}
           </h1>
-          <p className="text-[10px] font-bold tracking-[0.24em] text-[#3d5248] uppercase">
-            {subTitle || "NATURE CURE & WELLNESS"}
-          </p>
+
         </div>
       </div>
     </div>
@@ -243,7 +241,7 @@ export function PrescriptionFooter({
 
       {/* Bottom Right Angled Ribbon */}
       <div
-        className="w-[62%] bg-[#2d3e36] text-white pt-2 pb-2 pr-8 pl-12 flex flex-col items-end justify-center space-y-0.5 relative ml-auto"
+        className="w-[62%] bg-synapse-light text-white pt-2 pb-2 pr-8 pl-12 flex flex-col items-end justify-center space-y-0.5 relative ml-auto"
         style={{ clipPath: "polygon(12% 0, 100% 0, 100% 100%, 0 100%)" }}
       >
         <p className="text-[10.5px] font-semibold tracking-wide text-slate-100">

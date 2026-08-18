@@ -63,8 +63,8 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
         typeof rawDoctor === "object" && rawDoctor !== null
             ? rawDoctor.name
             : typeof rawDoctor === "string" && rawDoctor !== "Self" && rawDoctor !== "-"
-            ? rawDoctor
-            : "";
+                ? rawDoctor
+                : "";
     const doctorSpec =
         typeof rawDoctor === "object" && rawDoctor !== null
             ? rawDoctor.specialization
@@ -162,9 +162,9 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                     <PrescriptionWatermark />
 
                     {/* Timeline Sheet Title Banner */}
-                    <div className="relative z-10 flex justify-between items-center border-b-2 border-[#2d3e36] pb-1.5">
+                    <div className="relative z-10 flex justify-between items-center border-b-2 border-[#5F7350] pb-1.5">
                         <div className="space-y-0.5">
-                            <h2 className="text-sm font-black text-[#2d3e36] tracking-wider uppercase">
+                            <h2 className="text-sm font-black text-[#5F7350] tracking-wider uppercase">
                                 {sheetTitle}
                             </h2>
                             <p className="text-[10.5px] text-slate-700 font-semibold">
@@ -172,7 +172,7 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                             </p>
                         </div>
                         <div className="text-right space-y-0.5">
-                            <div className="inline-flex items-center gap-1.5 bg-[#2d3e36] text-white px-3 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase">
+                            <div className="inline-flex items-center gap-1.5 bg-[#5F7350] text-white px-3 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase">
                                 <span>Bill No:</span>
                                 <span>{bill.mrn || "—"}</span>
                             </div>
@@ -183,10 +183,10 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                     </div>
 
                     {/* FULL PAGE TIMELINE TABLE (No prefilled data, full height, no summary) */}
-                    <div className="relative z-10 border-2 border-[#2d3e36] rounded-lg overflow-hidden flex-1 flex flex-col">
+                    <div className="relative z-10 border-2 border-[#5F7350] rounded-lg overflow-hidden flex-1 flex flex-col">
                         <table className="w-full h-full border-collapse table-fixed">
                             <thead>
-                                <tr className="bg-[#2d3e36] text-white text-[11.5px] font-bold uppercase tracking-wider h-8">
+                                <tr className="bg-[#5F7350] text-white text-[11.5px] font-bold uppercase tracking-wider h-8">
                                     <th className="px-3 text-center border-r border-slate-600 w-[18%]">
                                         Date
                                     </th>
@@ -205,9 +205,8 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                                 {Array.from({ length: TOTAL_BLANK_ROWS }).map((_, idx) => (
                                     <tr
                                         key={idx}
-                                        className={`border-b border-slate-300 last:border-0 ${
-                                            idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"
-                                        }`}
+                                        className={`border-b border-slate-300 last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"
+                                            }`}
                                         style={{ height: "10.8mm" }}
                                     >
                                         {/* Date Column */}
