@@ -221,7 +221,6 @@ export default function Billing() {
               <TableHead className="text-white text-xs font-semibold">Bill No</TableHead>
               <TableHead className="text-white text-xs font-semibold">Date & Time</TableHead>
               <TableHead className="text-white text-xs font-semibold">Doctor / Prescriber</TableHead>
-              <TableHead className="text-white text-xs font-semibold">Services & Items</TableHead>
               <TableHead className="text-white text-xs font-semibold">Payment Mode</TableHead>
               <TableHead className="text-white text-xs font-semibold">Status</TableHead>
               <TableHead className="text-white text-xs font-semibold text-right">Amount</TableHead>
@@ -232,7 +231,7 @@ export default function Billing() {
           <TableBody>
             {filteredBills.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-44 text-center">
+                <TableCell colSpan={7} className="h-44 text-center">
                   <div className="flex flex-col items-center justify-center gap-1 text-slate-500">
                     <Receipt className="h-8 w-8 text-slate-300 stroke-[1.5] mb-1" />
                     <p className="font-semibold text-sm text-slate-700">No billing records found</p>
@@ -288,28 +287,6 @@ export default function Billing() {
                       <span className="text-xs font-medium text-slate-800">
                         {doctorName}
                       </span>
-                    </TableCell>
-
-                    <TableCell className="max-w-48">
-                      <div className="flex flex-wrap gap-1">
-                        {bill.items?.slice(0, 2).map((item, i) => (
-                          <span
-                            key={i}
-                            className="inline-block text-[11px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded-md truncate max-w-36"
-                            title={item.name || item.item}
-                          >
-                            {item.name || item.item}
-                          </span>
-                        ))}
-                        {bill.items && bill.items.length > 2 && (
-                          <span className="text-[10px] text-slate-500 font-semibold self-center">
-                            +{bill.items.length - 2} more
-                          </span>
-                        )}
-                        {(!bill.items || bill.items.length === 0) && (
-                          <span className="text-xs text-slate-400">General Billing</span>
-                        )}
-                      </div>
                     </TableCell>
 
                     <TableCell>

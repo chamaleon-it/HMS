@@ -33,7 +33,6 @@ export default function Header() {
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
       { key: "ip", label: "IP (In Patient)", link: "/dashboard/doctor/ip/" },
       { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
-      { key: "billing", label: "Billing", link: "/dashboard/doctor/billing/" },
     ]) ||
     (user?.role === "Pharmacy" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },

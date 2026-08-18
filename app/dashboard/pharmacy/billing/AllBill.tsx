@@ -83,7 +83,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Date</TableHead>
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Patient</TableHead>
                 <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Doctor</TableHead>
-                <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Items</TableHead>
+                <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Payment Method</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Total</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Round off</TableHead>
                 <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider bg-(--color-synapse-dark)">Discount</TableHead>
@@ -125,11 +125,6 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     </TableCell>
                     <TableCell className="py-3">
                       <div className="font-medium text-slate-900">{b.mrn}</div>
-                      <div className="text-[11px] text-slate-500 space-x-1 mt-1">
-                        {Boolean(b.cash) && <MethodPill m="cash" />}
-                        {Boolean(b.card) && <MethodPill m="card" />}
-                        {Boolean(b.upi) && <MethodPill m="upi" />}
-                      </div>
                     </TableCell>
                     <TableCell className="py-3 text-slate-600 whitespace-nowrap">{fDateandTime(b.createdAt)}</TableCell>
                     <TableCell className="py-3">
@@ -144,8 +139,15 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       </div>
 
                     </TableCell>
-                    <TableCell className="py-3 text-right tabular-nums text-slate-700">
-                      {b.items.length}
+                    <TableCell className="py-3 text-center">
+                      <div className="flex items-center justify-center gap-1 flex-wrap">
+                        {Boolean(b.cash) && <MethodPill m="cash" />}
+                        {Boolean(b.card) && <MethodPill m="card" />}
+                        {Boolean(b.upi) && <MethodPill m="upi" />}
+                        {!b.cash && !b.card && !b.upi && (
+                          <span className="text-slate-400 text-xs italic">—</span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums font-medium text-slate-900">
                       {formatINR(b.items.reduce((a, b) => a + b.total, 0))}

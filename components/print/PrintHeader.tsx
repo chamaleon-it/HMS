@@ -88,16 +88,16 @@ export function PrintHeader({
 
       {/* Top Right Logo & Brand */}
       <div className="flex items-center gap-3 pr-8 pt-2 pb-1.5 ml-auto">
-        <div className="w-12 h-12 relative flex items-center justify-center shrink-0">
+        <div className="h-18 w-auto  relative flex items-center justify-center shrink-0">
           {!logoError ? (
             <img
               src={logoUrl}
               alt="Logo"
-              className="max-w-full max-h-full object-contain"
+              className="h-18 w-auto  object-contain"
               onError={() => setLogoError(true)}
             />
           ) : (
-            <svg viewBox="0 0 100 100" className="w-full h-full text-[#849a8c]">
+            <svg viewBox="0 0 100 100" className="w-12 h-12 text-[#849a8c]">
               <path
                 fill="currentColor"
                 opacity="0.3"
@@ -128,9 +128,9 @@ export function PrintHeader({
           )}
         </div>
         <div className="flex flex-col">
-          <h1 className="text-2xl font-bold tracking-tight text-synapse-light uppercase font-montserrat leading-tight">
+          {/* <h1 className="text-2xl font-bold tracking-tight text-synapse-light uppercase font-montserrat leading-tight">
             {hospitalName}
-          </h1>
+          </h1> */}
           {subTitle && (
             <p className="text-[10px] text-slate-600 font-medium">{subTitle}</p>
           )}

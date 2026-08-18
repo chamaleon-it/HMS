@@ -94,8 +94,8 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
               <TableHead className="py-2.5 text-left text-white font-bold text-[11px] uppercase tracking-wider">
                 Patient
               </TableHead>
-              <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
-                Items
+              <TableHead className="py-2.5 text-center text-white font-bold text-[11px] uppercase tracking-wider">
+                Payment Method
               </TableHead>
               <TableHead className="py-2.5 text-right text-white font-bold text-[11px] uppercase tracking-wider">
                 Total
@@ -152,11 +152,6 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                   </TableCell>
                   <TableCell className="py-3">
                     <div className="font-medium text-slate-900">{b.mrn}</div>
-                    <div className="text-[11px] text-slate-500 space-x-1 mt-1">
-                      {Boolean(b.cash) && <MethodPill m="cash" />}
-                      {Boolean(b.card) && <MethodPill m="card" />}
-                      {Boolean(b.upi) && <MethodPill m="upi" />}
-                    </div>
                   </TableCell>
                   <TableCell className="py-3 text-slate-600 whitespace-nowrap">
                     {fDateandTime(b.createdAt)}
@@ -169,8 +164,15 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                       {b.patient.mrn}
                     </div>
                   </TableCell>
-                  <TableCell className="py-3 text-right tabular-nums text-slate-700">
-                    {b.items.length}
+                  <TableCell className="py-3 text-center">
+                    <div className="flex items-center justify-center gap-1 flex-wrap">
+                      {Boolean(b.cash) && <MethodPill m="cash" />}
+                      {Boolean(b.card) && <MethodPill m="card" />}
+                      {Boolean(b.upi) && <MethodPill m="upi" />}
+                      {!b.cash && !b.card && !b.upi && (
+                        <span className="text-slate-400 text-xs italic">—</span>
+                      )}
+                    </div>
                   </TableCell>
                   <TableCell className="py-3 text-right tabular-nums font-medium text-slate-900">
                     {formatINR(b.items.reduce((a, b) => a + b.total, 0))}
