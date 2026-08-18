@@ -1,3 +1,7 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { fDateandTime } from "@/lib/fDateAndTime";
 import { OrderType } from "../interface";
 import {
@@ -13,7 +17,14 @@ interface PrintPrescriptionProps {
 }
 
 export default function PrintPrescription({ order }: PrintPrescriptionProps) {
-    if (!order) return null;
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+        return () => setMounted(false);
+    }, []);
+
+    if (!order || !mounted) return null;
 
     const patient = order.patient;
     const doctor = order.doctor;
@@ -69,7 +80,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
         }
     }
 
-    return (
+    return createPortal(
         <div className="print-prescription hidden print:block bg-white text-black font-montserrat leading-relaxed">
             <style dangerouslySetInnerHTML={{
                 __html: `
@@ -100,7 +111,9 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
           .print-prescription { 
             visibility: visible !important;
             display: block !important;
-            position: static !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
             width: 210mm !important;
             margin: 0 !important;
             padding: 0 !important;
@@ -196,7 +209,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                     <tbody className="divide-y divide-slate-200">
                                         {page.items.map((m) => {
                                             const itemName = typeof m.name === "object" && m.name !== null ? m.name.name : String(m.name || "—");
-                                            const itemGeneric = typeof m.name === "object" && m.name !== null ? (m.name.generic || "—") : "—";
+                                            const itemGeneric = typeof m.name === "object" && m.name !== null ? (m.name.generic || (m.name as any).genericName || "—") : "—";
                                             return (
                                                 <tr key={m.globalIndex} className="even:bg-slate-50/40">
                                                     <td className="py-2 px-2 text-center font-bold text-slate-500 text-xs">{m.globalIndex}</td>
@@ -245,6 +258,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                     </div>
                 );
             })}
-        </div>
+        </div>,
+        document.body
     );
 }

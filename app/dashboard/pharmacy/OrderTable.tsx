@@ -115,8 +115,10 @@ export default function OrderTable({
     setPrintOrder(order);
     setTimeout(() => {
       window.print();
-      setPrintOrder(null);
-    }, 100);
+      setTimeout(() => {
+        setPrintOrder(null);
+      }, 1000);
+    }, 400);
   };
 
   const handlePrintBill = async (order: OrderType) => {

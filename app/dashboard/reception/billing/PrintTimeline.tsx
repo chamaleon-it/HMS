@@ -191,31 +191,36 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                     <div className="relative z-10 border-2 border-[#5F7350] rounded-lg overflow-hidden flex-1 flex flex-col">
                         <table className="w-full h-full border-collapse table-fixed">
                             <thead>
-                                <tr className="bg-[#5F7350] text-white text-[11.5px] font-bold uppercase tracking-wider h-8">
-                                    <th className="px-3 text-center border-r border-slate-600 w-[18%]">
+                                <tr className="bg-[#5F7350] text-white text-[11.5px] font-bold uppercase tracking-wider h-10">
+                                    <th className="px-3 text-center border-r border-slate-600 w-[20%]">
                                         Date
                                     </th>
-                                    <th className="px-4 text-left border-r border-slate-600 w-[42%]">
+                                    <th className="px-4 text-left border-r border-slate-600 w-[25%]">
                                         {columnTherapyHeader}
                                     </th>
-                                    <th className="px-3 text-center border-r border-slate-600 w-[18%]">
-                                        Amount
-                                    </th>
-                                    <th className="px-3 text-center w-[22%]">
+                                    <th className="px-3 text-center border-r border-slate-600 w-[20%]">
                                         Therapist
                                     </th>
+                                    <th className="px-3 text-center border-r border-slate-600 w-[15%]">
+                                        Amount
+                                    </th>
+                                    <th className="px-3 text-center border-slate-600 w-[20%]">
+                                        Signature / Seal
+                                    </th>
+
                                 </tr>
                             </thead>
                             <tbody>
                                 {Array.from({ length: TOTAL_BLANK_ROWS }).map((_, idx) => (
                                     <tr
                                         key={idx}
-                                        className={`border-b border-slate-300 last:border-0 ${idx % 2 === 0 ? "bg-white" : "bg-slate-50/40"
-                                            }`}
+                                        className={`border-b border-slate-300 last:border-0`}
                                         style={{ height: "10.8mm" }}
                                     >
                                         {/* Date Column */}
-                                        <td className="border-r border-slate-300 px-3 text-center"></td>
+                                        <td className="border-r border-slate-300 px-3 text-center">
+
+                                        </td>
 
                                         {/* Therapy / Procedure Column */}
                                         <td className="border-r border-slate-300 px-4 text-left"></td>
@@ -224,6 +229,7 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                                         <td className="border-r border-slate-300 px-3 text-center"></td>
 
                                         {/* Therapist Column */}
+                                        <td className="border-r px-3 text-center"></td>
                                         <td className="px-3 text-center"></td>
                                     </tr>
                                 ))}
