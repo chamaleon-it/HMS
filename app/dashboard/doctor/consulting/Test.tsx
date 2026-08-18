@@ -172,12 +172,14 @@ type Props = {
   data: DataType;
   setData: Dispatch<SetStateAction<DataType>>;
   setTestIsOK: Dispatch<SetStateAction<boolean>>;
+  className?: string;
 };
 
 export default function Test({
   setData,
   data,
   setTestIsOK,
+  className,
 }: Props) {
   const [selectedTests, setSelectedTests] = useState<TestItemType[]>([]);
   const [tab, setTab] = useState<TabKey>("All");
@@ -255,7 +257,7 @@ export default function Test({
   }, [selectedPanel, selectedTests]);
 
   return (
-    <Card className="mt-4 border-slate-200 shadow-xs">
+    <Card className={cn("border-slate-200 shadow-xs", show && "md:col-span-2", className)}>
       <CardContent className="p-4 sm:p-5">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2.5">

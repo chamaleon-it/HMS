@@ -14,6 +14,7 @@ import AllergyAlert from "../consulting/AllergyAlert";
 import PrintConsultation from "../consulting/PrintConsultation";
 import TherapyCard from "../consulting/TherapyCard";
 import ProcedureCard from "../consulting/ProcedureCard";
+import Test from "../consulting/Test";
 import { AppointmentType, DataType } from "../consulting/interface";
 import {
   Activity,
@@ -76,20 +77,6 @@ const DEFAULT_MED_HISTORY = [
   "Recent Surgery",
   "Pacemaker",
   "Bleeding Disorder",
-];
-
-const DEFAULT_TREATMENTS_GIVEN = [
-  "Acupuncture",
-  "Electroacupuncture",
-  "Cupping",
-  "Hijama",
-  "Cauterization",
-  "Venesection",
-  "Moxibustion",
-  "Gua Sha",
-  "TENS",
-  "Dry Needling",
-  "Auricular Acupuncture",
 ];
 
 const DEFAULT_HOME_CARE = [
@@ -205,48 +192,8 @@ function ConsultingTwoContent() {
     return DEFAULT_MED_HISTORY;
   });
 
-  const [treatmentOptions, setTreatmentOptions] = useState<string[]>(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("@consulting2_treatments_given_options");
-      if (saved) {
-        try {
-          return JSON.parse(saved);
-        } catch (e) {}
-      }
-    }
-    return DEFAULT_TREATMENTS_GIVEN;
-  });
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "@consulting2_chief_complaints_options",
-        JSON.stringify(complaintOptions)
-      );
-    }
-  }, [complaintOptions]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "@consulting2_med_history_options",
-        JSON.stringify(medHistoryOptions)
-      );
-    }
-  }, [medHistoryOptions]);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "@consulting2_treatments_given_options",
-        JSON.stringify(treatmentOptions)
-      );
-    }
-  }, [treatmentOptions]);
-
   const [isEditingComplaints, setIsEditingComplaints] = useState(false);
   const [isEditingMedHistory, setIsEditingMedHistory] = useState(false);
-  const [isEditingTreatments, setIsEditingTreatments] = useState(false);
 
   const [homeCareOptions, setHomeCareOptions] = useState<string[]>(() => {
     if (typeof window !== "undefined") {
@@ -305,12 +252,7 @@ function ConsultingTwoContent() {
   const [posture, setPosture] = useState("");
   const [specialFindings, setSpecialFindings] = useState("");
 
-  // 7. Treatment Given
-  const [treatmentsGiven, setTreatmentsGiven] = useState<string[]>([]);
-  const [acuPoints, setAcuPoints] = useState("");
-  const [retentionTime, setRetentionTime] = useState("");
-
-  // 8. Follow-Up
+  // 7. Follow-Up
   const [nextAppt, setNextAppt] = useState("");
   const [feedback, setFeedback] = useState("");
   const [additionalNotes, setAdditionalNotes] = useState("");
@@ -366,11 +308,6 @@ function ConsultingTwoContent() {
           posture,
           specialFindings,
         },
-        treatmentGiven: {
-          treatments: treatmentsGiven,
-          acuPoints,
-          retentionTime,
-        },
         followUpDetails: {
           nextAppt: nextAppt ? new Date(nextAppt) : null,
           feedback,
@@ -409,9 +346,6 @@ function ConsultingTwoContent() {
     rom,
     posture,
     specialFindings,
-    treatmentsGiven,
-    acuPoints,
-    retentionTime,
     nextAppt,
     feedback,
     additionalNotes,
@@ -1046,81 +980,7 @@ function ConsultingTwoContent() {
                       </div>
                     </Card>
 
-                    {/* 6. TREATMENT GIVEN */}
-                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-                      <div>
-                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
-                          <div className="flex items-center gap-2.5">
-                            <div className="p-1.5 rounded-lg bg-emerald-100/70 text-emerald-700 border border-emerald-200/50">
-                              <Pill className="w-4 h-4" />
-                            </div>
-                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
-                              Therapies & Treatment Given
-                            </CardTitle>
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 hover:text-slate-700 transition-colors outline-none cursor-pointer">
-                              <EllipsisVertical className="h-4 w-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuGroup>
-                                <DropdownMenuItem
-                                  className="text-xs cursor-pointer flex items-center gap-2"
-                                  onClick={() => setIsEditingTreatments(!isEditingTreatments)}
-                                >
-                                  <Pencil className="w-3.5 h-3.5" />
-                                  {isEditingTreatments ? "Done Editing" : "Edit Options"}
-                                </DropdownMenuItem>
-                              </DropdownMenuGroup>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </CardHeader>
-                        <CardContent className="p-5 space-y-4">
-                          <BubbleButtonGroup
-                            options={treatmentOptions}
-                            setOptions={setTreatmentOptions}
-                            selectedValues={treatmentsGiven}
-                            setSelectedValues={setTreatmentsGiven}
-                            addButtonText="Add Therapy"
-                            addPlaceholder="Add therapy..."
-                            pillClass={pillClass}
-                            isEditing={isEditingTreatments}
-                          />
-
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                            <div>
-                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Acu Points Used
-                              </label>
-                              <input
-                                type="text"
-                                value={acuPoints}
-                                onChange={(e) => setAcuPoints(e.target.value)}
-                                placeholder="e.g. ST36, SP6, GB34, LI4"
-                                className={inputClass}
-                              />
-                            </div>
-                            <div>
-                              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
-                                Needle Retention Time
-                              </label>
-                              <div className="flex items-center gap-2">
-                                <input
-                                  type="text"
-                                  value={retentionTime}
-                                  onChange={(e) => setRetentionTime(e.target.value)}
-                                  placeholder="20"
-                                  className="w-24 text-xs border border-slate-200 rounded-xl px-3 py-2 text-center outline-none focus:ring-2 focus:ring-emerald-100"
-                                />
-                                <span className="text-xs font-medium text-slate-500">mins</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </div>
-                    </Card>
-
-                    {/* 7. TREATMENT PLAN */}
+                    {/* 6. TREATMENT PLAN */}
                     <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
                       <div>
                         <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
@@ -1275,7 +1135,29 @@ function ConsultingTwoContent() {
                       </div>
                     </Card>
 
-                    {/* 8. FOLLOW-UP */}
+                    {/* 7. THERAPY */}
+                    <TherapyCard
+                      data={data}
+                      setData={setData as any}
+                      className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200"
+                    />
+
+                    {/* 8. PROCEDURE */}
+                    <ProcedureCard
+                      data={data}
+                      setData={setData as any}
+                      className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200"
+                    />
+
+                    {/* 9. LAB & IMAGING */}
+                    <Test
+                      data={data}
+                      setData={setData as any}
+                      setTestIsOK={setTestIsOK}
+                      className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 mt-0"
+                    />
+
+                    {/* 10. FOLLOW-UP & NOTES */}
                     <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
                       <div>
                         <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
@@ -1349,12 +1231,6 @@ function ConsultingTwoContent() {
                         </CardContent>
                       </div>
                     </Card>
-                  </div>
-
-                  {/* Therapy & Procedure Section */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 items-stretch">
-                    <TherapyCard data={data} setData={setData as any} />
-                    <ProcedureCard data={data} setData={setData as any} />
                   </div>
 
                   {/* Action Buttons */}

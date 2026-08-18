@@ -100,7 +100,7 @@ function calculatePages(data: DataType & Record<string, any>): PageChunk[] {
     if (data?.chiefComplaints?.complaints?.length || data?.chiefComplaints?.other) notesHeight += 55;
     if (data?.medicalHistoryDetails) notesHeight += 45;
     if (data?.lifestyle && Object.values(data.lifestyle).some(Boolean)) notesHeight += 50;
-    if (data?.acupunctureAssessment || data?.treatmentGiven) notesHeight += 50;
+    if (data?.acupunctureAssessment) notesHeight += 45;
     if (data?.therapy || data?.therapyNotes) {
       notesHeight += 20 + (data.therapy ? 18 : 0) + (data.therapyNotes ? 18 : 0);
     }
@@ -351,8 +351,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
           {/* PRESENT HISTORY & COMPLAINTS */}
           {data.consultationNotes?.presentHistory && (
             <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Present History & Complaints
               </h3>
               <p className="text-slate-900 leading-snug font-semibold pl-4 text-[12.5px]">
@@ -364,8 +364,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
           {/* PAST MEDICAL HISTORY */}
           {data.consultationNotes?.pastHistory && (
             <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Past History
               </h3>
               <p className="text-slate-900 leading-snug font-semibold pl-4 text-[12.5px]">
@@ -377,8 +377,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
           {/* DIAGNOSIS */}
           {data.consultationNotes?.diagnosis && (
             <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Diagnosis
               </h3>
               <p className="text-slate-900 font-extrabold text-[13px] pl-4">
@@ -390,8 +390,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
           {/* THERAPY & THERAPY NOTES */}
           {(data.therapy || data.therapyNotes) && (
             <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Therapy & Notes
               </h3>
               <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
@@ -413,8 +413,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
           {/* PROCEDURE & PROCEDURE NOTES */}
           {(data.procedure || data.procedureNotes) && (
             <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Procedure & Notes
               </h3>
               <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
@@ -440,8 +440,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
             data.examinationNote?.temp ||
             data.examinationNote?.otherNotes) && (
               <div className="space-y-0.5">
-                <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                  <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+                <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                  <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                   Examination & Vitals
                 </h3>
                 <div className="pl-4 space-y-1">
@@ -496,8 +496,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
           {/* CHIEF COMPLAINTS & PAIN SCORE */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2 mb-1">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2 mb-1">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Chief Complaints
               </h3>
               <p className="text-slate-900 font-extrabold pl-4 text-[12.5px] leading-snug">
@@ -511,8 +511,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
               )}
             </div>
             <div>
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2 mb-1">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2 mb-1">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Pain Score & Vitals
               </h3>
               <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
@@ -555,8 +555,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
             data.medicalHistoryDetails?.otherMedHistory ||
             data.medicalHistoryDetails?.allergies) && (
               <div className="space-y-0.5">
-                <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2 mb-0.5">
-                  <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+                <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2 mb-0.5">
+                  <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                   Past Medical History
                 </h3>
                 <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
@@ -579,8 +579,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
           {/* LIFESTYLE & HABITS */}
           {data.lifestyle && Object.values(data.lifestyle).some(Boolean) && (
             <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2 mb-0.5">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2 mb-0.5">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Lifestyle & Habits
               </h3>
               <div className="pl-4 grid grid-cols-2 sm:grid-cols-4 gap-x-4 gap-y-1 text-slate-900 font-semibold text-[12.5px]">
@@ -596,11 +596,11 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
             </div>
           )}
 
-          {/* ACUPUNCTURE ASSESSMENT & TREATMENT GIVEN */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2 mb-1">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+          {/* ACUPUNCTURE ASSESSMENT */}
+          {data.acupunctureAssessment && (
+            <div className="space-y-0.5">
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2 mb-1">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Acupuncture Assessment
               </h3>
               <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
@@ -608,24 +608,13 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 <p><span className="font-extrabold text-slate-900">Principle:</span> {data.acupunctureAssessment?.treatmentPrinciple || "—"}</p>
               </div>
             </div>
-            <div>
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2 mb-1">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
-                Treatment Given
-              </h3>
-              <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
-                <p><span className="font-extrabold text-slate-900">Therapies:</span> {data.treatmentGiven?.treatments?.join(", ") || "—"}</p>
-                <p><span className="font-extrabold text-slate-900">Acu Points:</span> {data.treatmentGiven?.acuPoints || "—"}</p>
-                <p><span className="font-extrabold text-slate-900">Retention Time:</span> {data.treatmentGiven?.retentionTime || "—"} mins</p>
-              </div>
-            </div>
-          </div>
+          )}
 
           {/* TREATMENT PLAN */}
           {data.treatmentPlan && (
             <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2 mb-0.5">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2 mb-0.5">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Treatment Plan & Home Care
               </h3>
               <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
@@ -643,8 +632,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
           {/* THERAPY & THERAPY NOTES */}
           {(data.therapy || data.therapyNotes) && (
             <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Therapy & Notes
               </h3>
               <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
@@ -666,8 +655,8 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
           {/* PROCEDURE & PROCEDURE NOTES */}
           {(data.procedure || data.procedureNotes) && (
             <div className="space-y-0.5">
-              <h3 className="font-extrabold text-[12px] text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+              <h3 className="font-extrabold text-[12px] text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                 Procedure & Notes
               </h3>
               <div className="pl-4 space-y-0.5 text-slate-900 font-semibold text-[12.5px]">
@@ -788,9 +777,9 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
               <PrintWatermark />
 
               {/* Consultation Type Header Line */}
-              <div className="flex justify-between items-center relative z-10 border-b-2 border-[#5F7350] pb-1 mb-0.5">
+              <div className="flex justify-between items-center relative z-10 border-b-2 border-synapse-light pb-1 mb-0.5">
                 <div className="flex items-center gap-3">
-                  <h2 className="text-sm font-black text-[#5F7350] uppercase tracking-wider">
+                  <h2 className="text-sm font-black text-synapse-light uppercase tracking-wider">
                     {page.showNotes
                       ? isAcupuncture
                         ? "Acupuncture Consultation"
@@ -822,12 +811,12 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
               {/* PRESCRIBED MEDICINES TABLE (Rx) */}
               {page.medicines.length > 0 && (
                 <div className="break-inside-avoid relative z-10 space-y-1 pt-0.5">
-                  <div className="flex justify-between items-center border-b-2 border-[#5F7350] pb-1">
-                    <h3 className="font-black text-xs text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                      <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+                  <div className="flex justify-between items-center border-b-2 border-synapse-light pb-1">
+                    <h3 className="font-black text-xs text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                      <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                       {page.showNotes ? "Prescribed Medicines" : "Prescribed Medicines (Continued)"}
                     </h3>
-                    <span className="font-serif italic text-base font-black text-[#5F7350]">Rx</span>
+                    <span className="font-serif italic text-base font-black text-synapse-light">Rx</span>
                   </div>
                   <table className="w-full border-collapse text-[12px]">
                     <thead>
@@ -858,7 +847,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                           <td className="py-1 px-2 text-center font-bold text-slate-800 text-[12px]">
                             {m.dosage || "—"}
                           </td>
-                          <td className="py-1 px-2 text-center font-black text-[#5F7350] text-[12px]">
+                          <td className="py-1 px-2 text-center font-black text-synapse-light text-[12px]">
                             {m.frequency || "—"}
                           </td>
                           <td className="py-1 px-2 text-center font-semibold text-slate-700 text-[12px]">
@@ -880,9 +869,9 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
               {/* INVESTIGATION / LAB TESTS TABLE */}
               {page.tests.length > 0 && (
                 <div className="break-inside-avoid relative z-10 space-y-1 pt-0.5">
-                  <div className="border-b-2 border-[#5F7350] pb-1">
-                    <h3 className="font-black text-xs text-[#5F7350] uppercase tracking-wider flex items-center gap-2">
-                      <span className="w-1.5 h-3.5 bg-[#5F7350] rounded-full inline-block"></span>
+                  <div className="border-b-2 border-synapse-light pb-1">
+                    <h3 className="font-black text-xs text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                      <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
                       Ordered Investigations & Tests
                     </h3>
                   </div>
@@ -921,13 +910,13 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 <div className="break-inside-avoid relative z-10 pt-1.5 space-y-1 border-t border-slate-200 text-[12.5px]">
                   {data.advice && (
                     <p className="text-slate-900">
-                      <span className="font-black text-[#5F7350] uppercase tracking-wider text-xs">Advice:</span>{" "}
+                      <span className="font-black text-synapse-light uppercase tracking-wider text-xs">Advice:</span>{" "}
                       <span className="font-semibold text-slate-800">{data.advice}</span>
                     </p>
                   )}
                   {(data.followUp || data.followUpDetails?.nextAppt) && (
                     <p className="text-slate-900">
-                      <span className="font-black text-[#5F7350] uppercase tracking-wider text-xs">Follow-Up Date:</span>{" "}
+                      <span className="font-black text-synapse-light uppercase tracking-wider text-xs">Follow-Up Date:</span>{" "}
                       <span className="font-black text-emerald-800">
                         {data.followUp
                           ? `${new Date(data.followUp).getDate().toString().padStart(2, "0")}/${(new Date(data.followUp).getMonth() + 1).toString().padStart(2, "0")}/${new Date(data.followUp).getFullYear()}`
@@ -939,13 +928,13 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                   )}
                   {data.followUpDetails?.feedback && (
                     <p className="text-slate-900">
-                      <span className="font-black text-[#5F7350] uppercase tracking-wider text-xs">Patient Feedback:</span>{" "}
+                      <span className="font-black text-synapse-light uppercase tracking-wider text-xs">Patient Feedback:</span>{" "}
                       <span className="font-semibold text-slate-800">{data.followUpDetails.feedback}</span>
                     </p>
                   )}
                   {data.followUpDetails?.additionalNotes && (
                     <p className="text-slate-900">
-                      <span className="font-black text-[#5F7350] uppercase tracking-wider text-xs">Additional Notes:</span>{" "}
+                      <span className="font-black text-synapse-light uppercase tracking-wider text-xs">Additional Notes:</span>{" "}
                       <span className="font-semibold text-slate-800">{data.followUpDetails.additionalNotes}</span>
                     </p>
                   )}

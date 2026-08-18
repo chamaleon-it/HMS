@@ -12,8 +12,6 @@ import { Separator } from "@/components/ui/separator";
 import { ArrowLeft, Printer, RotateCcw, Calendar } from "lucide-react";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import React from "react";
-import { getDecimal } from "@/lib/fNumber";
-import ThermalPrintReceipt from "./ThermalPrintReceipt";
 import configuration from "@/config/configuration";
 import { format, addDays } from "date-fns";
 

@@ -102,7 +102,11 @@ export function getFormattedInvestigationNames(
 
 export function getFormattedTherapyNames(
   therapyInput: any,
-  therapyCatalog?: { _id: string; name: string }[]
+  therapyCatalog?: {
+    _id: string;
+    name: string;
+    subTherapies?: { _id: string; name: string }[];
+  }[]
 ): string {
   if (!therapyInput) return "";
 
@@ -120,7 +124,11 @@ export function getFormattedTherapyNames(
 
     if (typeof item === "object" && item !== null) {
       if (item.name) {
-        names.push(item.name);
+        if (item.parentName) {
+          names.push(`${item.parentName} - ${item.name}`);
+        } else {
+          names.push(item.name);
+        }
         return;
       }
       if (item._id) {
@@ -133,15 +141,25 @@ export function getFormattedTherapyNames(
       if (!str) return;
 
       const isObjectId = /^[0-9a-fA-F]{24}$/.test(str);
-      if (isObjectId) {
-        if (therapyCatalog && therapyCatalog.length > 0) {
-          const found = therapyCatalog.find((t) => String(t._id) === str);
-          if (found && found.name) {
-            names.push(found.name);
-            return;
+      if (isObjectId && therapyCatalog && therapyCatalog.length > 0) {
+        // Check sub-therapies first
+        let found = false;
+        for (const t of therapyCatalog) {
+          const sub = (t.subTherapies || []).find((s) => String(s._id) === str);
+          if (sub) {
+            names.push(`${t.name} - ${sub.name}`);
+            found = true;
+            break;
           }
         }
-        return;
+        if (!found) {
+          const mainTherapy = therapyCatalog.find((t) => String(t._id) === str);
+          if (mainTherapy && mainTherapy.name) {
+            names.push(mainTherapy.name);
+            found = true;
+          }
+        }
+        if (found) return;
       }
 
       names.push(str);

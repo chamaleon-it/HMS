@@ -258,67 +258,27 @@ export default function ConsultationDetails({
                         </Card>
                     )}
 
-                    {/* Acupuncture Assessment & Treatment Given */}
-                    {(selectedRow.acupunctureAssessment || selectedRow.treatmentGiven) && (
+                    {/* Acupuncture Assessment */}
+                    {selectedRow.acupunctureAssessment && (
                         <Card className="shadow-sm">
                             <CardHeader className="pb-3 flex flex-row items-center gap-2 space-y-0">
                                 <div className="p-2 bg-emerald-100 text-emerald-700 rounded-lg">
                                     <Sparkles className="w-5 h-5" />
                                 </div>
                                 <CardTitle className="text-base font-semibold text-emerald-950">
-                                    Acupuncture Assessment & Treatment Given
+                                    Acupuncture Assessment
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm">
-                                {selectedRow.acupunctureAssessment && (
-                                    <div className="space-y-3">
-                                        <NoteSection
-                                            title="Clinical Diagnosis"
-                                            content={selectedRow.acupunctureAssessment.clinicalDiagnosis}
-                                            highlight
-                                        />
-                                        <NoteSection
-                                            title="Treatment Principle"
-                                            content={selectedRow.acupunctureAssessment.treatmentPrinciple}
-                                        />
-                                    </div>
-                                )}
-                                {selectedRow.treatmentGiven && (
-                                    <div className="space-y-3 bg-white p-3.5 rounded-lg border border-emerald-200/80">
-                                        <div>
-                                            <p className="text-xs uppercase tracking-wider font-bold text-emerald-800 mb-1">
-                                                Therapies Given
-                                            </p>
-                                            <div className="flex flex-wrap gap-1">
-                                                {selectedRow.treatmentGiven.treatments?.map((t, i) => (
-                                                    <Badge key={i} className="bg-emerald-700 text-white font-medium text-xs">
-                                                        {t}
-                                                    </Badge>
-                                                ))}
-                                            </div>
-                                        </div>
-                                        {selectedRow.treatmentGiven.acuPoints && (
-                                            <div>
-                                                <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-0.5">
-                                                    Acu Points
-                                                </p>
-                                                <p className="font-bold text-slate-900">
-                                                    {selectedRow.treatmentGiven.acuPoints}
-                                                </p>
-                                            </div>
-                                        )}
-                                        {selectedRow.treatmentGiven.retentionTime && (
-                                            <div>
-                                                <p className="text-xs uppercase tracking-wider font-semibold text-muted-foreground mb-0.5">
-                                                    Needle Retention Time
-                                                </p>
-                                                <p className="font-bold text-slate-900">
-                                                    {selectedRow.treatmentGiven.retentionTime} mins
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
+                                <NoteSection
+                                    title="Clinical Diagnosis"
+                                    content={selectedRow.acupunctureAssessment.clinicalDiagnosis}
+                                    highlight
+                                />
+                                <NoteSection
+                                    title="Treatment Principle"
+                                    content={selectedRow.acupunctureAssessment.treatmentPrinciple}
+                                />
                             </CardContent>
                         </Card>
                     )}

@@ -155,11 +155,6 @@ export interface Consultations {
     posture?: string;
     specialFindings?: string;
   };
-  treatmentGiven?: {
-    treatments?: string[];
-    acuPoints?: string;
-    retentionTime?: string;
-  };
   followUpDetails?: {
     nextAppt?: Date;
     feedback?: string;

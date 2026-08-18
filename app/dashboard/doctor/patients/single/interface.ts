@@ -124,18 +124,13 @@ export interface ConsultationType {
     posture?: string;
     specialFindings?: string;
   };
-  treatmentGiven?: {
-    treatments?: string[];
-    acuPoints?: string;
-    retentionTime?: string;
-  };
   followUpDetails?: {
     nextAppt?: Date;
     feedback?: string;
     additionalNotes?: string;
     signature?: string;
   };
-  therapy?: string;
+  therapy?: any;
   therapyNotes?: string;
   procedure?: any;
   procedureNotes?: string;

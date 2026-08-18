@@ -448,7 +448,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                                 {/* Document Type Banner */}
                                 <div className="flex justify-between items-center px-10 pt-2 pb-1 border-b border-slate-300">
-                                    <h2 className="text-sm font-black text-[#5F7350] uppercase tracking-wider">
+                                    <h2 className="text-sm font-black text-synapse-light uppercase tracking-wider">
                                         LABORATORY TEST REPORT
                                     </h2>
                                     <div className="flex items-center gap-2 text-xs text-slate-700">

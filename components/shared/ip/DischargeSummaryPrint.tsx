@@ -154,7 +154,7 @@ export default function DischargeSummaryPrint({
 
         {/* Document Type Header Banner */}
         <div className="flex justify-between items-center px-6 pt-2 pb-1 border-b border-slate-300">
-          <h2 className="text-sm font-black text-[#5F7350] uppercase tracking-wider">
+          <h2 className="text-sm font-black text-synapse-light uppercase tracking-wider">
             IN-PATIENT DISCHARGE SUMMARY
           </h2>
           <div className="flex items-center gap-2">

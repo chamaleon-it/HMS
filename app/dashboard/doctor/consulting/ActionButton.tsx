@@ -18,10 +18,9 @@ export default function ActionButton({ data, testIsOK }: { data: DataType, testI
   const router = useRouter();
 
   const consulting = async (status: string) => {
-
     if (!testIsOK) {
-      toast.error("Please confirm the test before proceeding.")
-      return
+      toast.error("Please confirm the test before proceeding.");
+      return;
     }
 
     try {
@@ -30,24 +29,9 @@ export default function ActionButton({ data, testIsOK }: { data: DataType, testI
         return;
       }
 
-      await toast.promise(
-        api.patch(`/appointments/update_status/${data.appointment}`, {
-          status: status,
-        }),
-        {
-          loading: "Please wait we are updating status",
-          error: ({ response }) => response.data.message,
-          success: ({ data }) => data.message,
-        }
-      );
-
-      // if (data.medicines.find(e => e.name === "")) {
-      //   toast.error("Some medicine details are missing.");
-      // }
-
       const payload = {
         ...data,
-        medicines: data.medicines
+        medicines: (data.medicines || [])
           .filter((e) => !!e.name || !!e.referralName?.trim())
           .map((e) => ({
             ...e,
@@ -57,13 +41,25 @@ export default function ActionButton({ data, testIsOK }: { data: DataType, testI
 
       await toast.promise(api.post("/consultings", payload), {
         loading: "We are recording this consultation.",
-        error: ({ response }) => response.data.message,
-        success: ({ data }) => data.message,
+        error: ({ response }) => response?.data?.message || "Failed to record consultation.",
+        success: ({ data }) => data?.message || "Consultation recorded successfully.",
       });
-      router.push("/dashboard/doctor");
-      setAlreadySubmitted(true);
-    } catch (error) {
 
+      await toast.promise(
+        api.patch(`/appointments/update_status/${data.appointment}`, {
+          status: status,
+        }),
+        {
+          loading: "Updating appointment status...",
+          error: ({ response }) => response?.data?.message || "Failed to update status.",
+          success: ({ data }) => data?.message || "Status updated.",
+        }
+      );
+
+      setAlreadySubmitted(true);
+      router.push("/dashboard/doctor");
+    } catch (error) {
+      console.error("Error submitting consultation:", error);
     }
   };
 

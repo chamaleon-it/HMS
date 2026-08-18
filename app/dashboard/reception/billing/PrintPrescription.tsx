@@ -174,7 +174,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                             {/* Prescription Type Header */}
                             <div className="flex justify-between items-center relative z-10 border-b border-slate-300 pb-2">
                                 <div className="flex items-center gap-3">
-                                    <h2 className="text-sm font-black text-[#5F7350] uppercase tracking-wider">
+                                    <h2 className="text-sm font-black text-synapse-light uppercase tracking-wider">
                                         {pageIdx === 0
                                             ? "PRESCRIPTION / DRUG ADVICE"
                                             : "PRESCRIPTION / DRUG ADVICE (CONTINUED)"}
@@ -196,7 +196,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                             <div className="break-inside-avoid relative z-10 space-y-1">
                                 <table className="w-full border-collapse text-xs">
                                     <thead>
-                                        <tr className="border-b-2 border-[#5F7350] text-[10.5px] font-bold text-slate-700 uppercase tracking-wider text-left bg-slate-50">
+                                        <tr className="border-b-2 border-synapse-light text-[10.5px] font-bold text-slate-700 uppercase tracking-wider text-left bg-slate-50">
                                             <th className="py-2 px-2 text-center w-10">#</th>
                                             <th className="py-2 px-2">Medicine / Strength</th>
                                             <th className="py-2 px-2 text-center">Dosage</th>
@@ -219,7 +219,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                                                         )}
                                                     </td>
                                                     <td className="py-2 px-2 text-center font-semibold text-slate-900">{m.dosage || "—"}</td>
-                                                    <td className="py-2 px-2 text-center font-bold text-[#5F7350]">{m.frequency || "—"}</td>
+                                                    <td className="py-2 px-2 text-center font-bold text-synapse-light">{m.frequency || "—"}</td>
                                                     <td className="py-2 px-2 text-center font-semibold text-slate-900">{m.duration || "—"}</td>
                                                     <td className="py-2 px-2 text-xs font-semibold text-slate-700 italic">
                                                         {m.food || "—"}
@@ -235,7 +235,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
                             {page.isLastPage && (
                                 <>
                                     <div className="pt-2 border-t border-slate-200 relative z-10">
-                                        <p className="font-bold text-[10.5px] uppercase tracking-wider text-[#5F7350] mb-0.5">Additional Advice:</p>
+                                        <p className="font-bold text-[10.5px] uppercase tracking-wider text-synapse-light mb-0.5">Additional Advice:</p>
                                         <p className="text-slate-800 leading-relaxed font-medium italic text-xs">
                                             {"Patient is advised to follow the prescribed medication schedule strictly. Any adverse reactions or lack of improvement should be reported immediately. This prescription is based on current clinical assessment."}
                                         </p>

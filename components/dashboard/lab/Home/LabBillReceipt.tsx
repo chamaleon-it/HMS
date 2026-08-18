@@ -167,7 +167,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                     {/* Receipt Title Banner */}
                     <div className="flex justify-between items-center relative z-10 border-b border-slate-300 pb-2">
                         <div className="flex items-center gap-3">
-                            <h2 className="text-sm font-black text-[#5F7350] uppercase tracking-wider">
+                            <h2 className="text-sm font-black text-synapse-light uppercase tracking-wider">
                                 LABORATORY CASH RECEIPT
                             </h2>
                         </div>
@@ -187,7 +187,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                     <div className="break-inside-avoid relative z-10 space-y-1 flex-1">
                         <table className="w-full border-collapse text-xs">
                             <thead>
-                                <tr className="border-b-2 border-[#5F7350] text-[10.5px] font-bold text-slate-700 uppercase tracking-wider text-left bg-slate-50">
+                                <tr className="border-b-2 border-synapse-light text-[10.5px] font-bold text-slate-700 uppercase tracking-wider text-left bg-slate-50">
                                     <th className="py-2 px-2 text-center w-12">#</th>
                                     <th className="py-2 px-2">Investigation / Test Name</th>
                                     <th className="py-2 px-2 text-center w-24">GST %</th>

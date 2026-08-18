@@ -167,9 +167,9 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                     <PrintWatermark />
 
                     {/* Timeline Sheet Title Banner */}
-                    <div className="relative z-10 flex justify-between items-center border-b-2 border-[#5F7350] pb-1.5">
+                    <div className="relative z-10 flex justify-between items-center border-b-2 border-synapse-light pb-1.5">
                         <div className="space-y-0.5">
-                            <h2 className="text-sm font-black text-[#5F7350] tracking-wider uppercase">
+                            <h2 className="text-sm font-black text-synapse-light tracking-wider uppercase">
                                 {sheetTitle}
                             </h2>
                             <p className="text-[10.5px] text-slate-700 font-semibold">
@@ -177,7 +177,7 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                             </p>
                         </div>
                         <div className="text-right space-y-0.5">
-                            <div className="inline-flex items-center gap-1.5 bg-[#5F7350] text-white px-3 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase">
+                            <div className="inline-flex items-center gap-1.5 bg-synapse-light text-white px-3 py-0.5 rounded-full font-bold text-[10px] tracking-wider uppercase">
                                 <span>Bill No:</span>
                                 <span>{bill.mrn || "—"}</span>
                             </div>
@@ -188,10 +188,10 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
                     </div>
 
                     {/* FULL PAGE TIMELINE TABLE (No prefilled data, full height, no summary) */}
-                    <div className="relative z-10 border-2 border-[#5F7350] rounded-lg overflow-hidden flex-1 flex flex-col">
+                    <div className="relative z-10 border-2 border-synapse-light rounded-lg overflow-hidden flex-1 flex flex-col">
                         <table className="w-full h-full border-collapse table-fixed">
                             <thead>
-                                <tr className="bg-[#5F7350] text-white text-[11.5px] font-bold uppercase tracking-wider h-10">
+                                <tr className="bg-synapse-light text-white text-[11.5px] font-bold uppercase tracking-wider h-10">
                                     <th className="px-3 text-center border-r border-slate-600 w-[20%]">
                                         Date
                                     </th>

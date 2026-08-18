@@ -148,17 +148,7 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
 
       {/* Consultant Name & Patient Details Box */}
       <div className="border border-slate-400 my-2 text-[10.5px]">
-        {/* Consultant Row */}
-        <div className="flex border-b border-slate-300">
-          <div className="w-25 shrink-0 p-1.5 font-bold text-gray-800 bg-slate-50/50">
-            Consultant<br />Name
-          </div>
-          <div className="w-px bg-slate-300 shrink-0" />
-          <div className="p-1.5 font-bold text-black uppercase leading-tight flex-1">
-            <div>{docName}</div>
-            <div className="font-semibold text-[9.5px] text-gray-600">{docQual}</div>
-          </div>
-        </div>
+
 
         {/* Patient Row */}
         <div className="flex border-b border-slate-300">
@@ -173,7 +163,7 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
         </div>
 
         {/* Age / Sex Row */}
-        <div className="flex">
+        <div className="flex border-b border-slate-300">
           <div className="w-25 shrink-0 p-1.5 font-bold text-gray-800 bg-slate-50/50">
             Age/Sex
           </div>
@@ -181,6 +171,18 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
           <div className="p-1.5 font-bold text-black uppercase leading-tight flex-1">
             <div>{ageSex}</div>
             {patientPhone && <div className="font-semibold text-[9.5px] text-gray-600">{patientPhone}</div>}
+          </div>
+        </div>
+
+        {/* Consultant Row */}
+        <div className="flex ">
+          <div className="w-25 shrink-0 p-1.5 font-bold text-gray-800 bg-slate-50/50">
+            Consultant<br />Name
+          </div>
+          <div className="w-px bg-slate-300 shrink-0" />
+          <div className="p-1.5 font-bold text-black uppercase leading-tight flex-1">
+            <div>{docName}</div>
+            <div className="font-semibold text-[9.5px] text-gray-600">{docQual}</div>
           </div>
         </div>
       </div>
