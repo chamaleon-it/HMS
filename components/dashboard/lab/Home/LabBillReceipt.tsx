@@ -79,10 +79,10 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
     const emptyRowsCount = Math.max(0, totalRowsNeeded - itemsCount);
 
     const content = (
-        <div className="print-receipt hidden print:flex bg-white text-black font-sans leading-tight overflow-visible relative flex-col">
+        <div className="print-receipt hidden print:flex bg-white text-black font-montserrat leading-tight overflow-visible relative flex-col">
             <style dangerouslySetInnerHTML={{
                 __html: `
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
         @media print {
           @page {
             size: A4;
@@ -97,9 +97,13 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            font-family: 'Montserrat', sans-serif !important;
           }
           body > *:not(.print-receipt) {
             display: none !important;
+          }
+          .print-receipt, .print-receipt * {
+            font-family: 'Montserrat', sans-serif !important;
           }
           .print-receipt { 
             visibility: visible !important;

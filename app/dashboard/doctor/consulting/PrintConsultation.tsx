@@ -691,10 +691,11 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
   );
 
   const printDocument = (
-    <div className="print-consultation-document hidden print:block bg-white text-black font-sans leading-relaxed">
+    <div className="print-consultation-document hidden print:block bg-white text-black font-montserrat leading-relaxed">
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
             @media print {
               @page {
                 margin: 0;
@@ -706,6 +707,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
                 background: white !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                font-family: 'Montserrat', sans-serif !important;
                 height: auto !important;
                 min-height: 0 !important;
                 max-height: none !important;
@@ -713,6 +715,9 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
               }
               body > *:not(.print-consultation-document) {
                 display: none !important;
+              }
+              .print-consultation-document, .print-consultation-document * {
+                font-family: 'Montserrat', sans-serif !important;
               }
               .print-consultation-document {
                 visibility: visible !important;
@@ -764,7 +769,7 @@ export default function PrintConsultation({ appointment, data }: PrintConsultati
         return (
           <div
             key={pageIdx}
-            className="a4-print-page w-[210mm] h-[297mm] max-h-[297mm] mx-auto flex flex-col relative z-20 bg-white border border-slate-200 print:border-none print:w-[210mm] print:h-[297mm] print:max-h-[297mm] print:m-0 print:p-0 overflow-hidden"
+            className="a4-print-page w-[210mm] h-[297mm] max-h-[297mm] mx-auto flex flex-col relative z-20 bg-white border border-slate-200 print:border-none print:w-[210mm] print:h-[297mm] print:max-h-[297mm] print:m-0 print:p-0 overflow-hidden font-montserrat"
           >
             {/* TOP HEADER SECTION */}
             <PrescriptionHeader />

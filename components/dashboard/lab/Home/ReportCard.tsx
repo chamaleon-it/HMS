@@ -44,8 +44,9 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
             </svg>
             <style dangerouslySetInnerHTML={{
                 __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel+Decorative:wght@400;700;900&family=Italianno&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Italianno&display=swap');
         @media print {
           @page {
             margin: 0;
@@ -440,7 +441,7 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                                                 <img src={configuration().logo} alt="Logo" className="w-full h-full object-cover mix-blend-multiply p-1" />
                                             </div>
                                             <div className="flex flex-col gap-0.5 ml-0">
-                                                <h1 className="text-[20px] text-black uppercase leading-none tracking-widest font-fraunces font-semibold" style={{ fontFamily: "'Cinzel Decorative', serif" }}>{configuration().hospitalName}</h1>
+                                                <h1 className="text-[20px] text-black uppercase leading-none tracking-widest font-montserrat font-bold">{configuration().hospitalName}</h1>
                                                 <p className="text-[15px] text-slate-800 mt-1">{configuration().hospitalAddress}</p>
                                             </div>
                                         </div>

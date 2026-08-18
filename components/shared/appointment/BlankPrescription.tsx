@@ -45,9 +45,10 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
     const opNumber = patient?.mrn ? patient.mrn.replace("MRN", "P-") : "";
 
     return createPortal(
-        <div className="print-blank-prescription hidden print:block bg-white text-black font-sans leading-relaxed overflow-hidden">
+        <div className="print-blank-prescription hidden print:block bg-white text-black font-montserrat leading-relaxed overflow-hidden">
             <style dangerouslySetInnerHTML={{
                 __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
         @media print {
           @page {
             margin: 0;
@@ -62,9 +63,13 @@ export default function BlankPrescription({ data }: BlankPrescriptionProps) {
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            font-family: 'Montserrat', sans-serif !important;
           }
           body > *:not(.print-blank-prescription) {
             display: none !important;
+          }
+          .print-blank-prescription, .print-blank-prescription * { 
+            font-family: 'Montserrat', sans-serif !important;
           }
           .print-blank-prescription { 
             visibility: visible !important;

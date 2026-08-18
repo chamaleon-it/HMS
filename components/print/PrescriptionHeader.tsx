@@ -19,7 +19,7 @@ export function PrescriptionHeader({
     propHospitalName || configuration().hospitalName || "BHUMI";
 
   return (
-    <div className="relative flex justify-between items-stretch border-b border-slate-700 min-h-20 bg-white">
+    <div className="relative flex justify-between items-stretch border-b border-slate-700 min-h-20 bg-white font-montserrat">
       {/* Top Left Dark Ribbon with Angle */}
       <div
         className="w-[48%] bg-synapse-light text-white pt-2.5 pb-2.5 pl-6 pr-8 flex flex-col justify-center space-y-1 relative"
@@ -81,7 +81,7 @@ export function PrescriptionHeader({
           )}
         </div>
         <div className="flex flex-col">
-          <h1 className="text-2xl font-black tracking-tight text-synapse-light uppercase font-serif">
+          <h1 className="text-2xl font-bold tracking-tight text-synapse-light uppercase font-montserrat">
             {hospitalName}
           </h1>
 
@@ -107,7 +107,7 @@ export function PrescriptionPatientStrip({
   opNo,
 }: PrescriptionPatientStripProps) {
   return (
-    <div className="px-6 py-1.5 flex items-center justify-between border-b border-slate-700 text-[13px] font-bold text-black bg-white">
+    <div className="px-6 py-1.5 flex items-center justify-between border-b border-slate-700 text-[13px] font-bold text-black bg-white font-montserrat">
       <div className="flex items-center gap-6 flex-1 pr-4">
         <div className="flex items-center gap-2 flex-1 min-w-44">
           <span className="text-slate-800">Name:</span>
@@ -197,7 +197,7 @@ export function PrescriptionSignature({
     : "Doctor's Signature";
 
   return (
-    <div className="mt-auto pt-2 flex justify-end relative z-10">
+    <div className="mt-auto pt-2 flex justify-end relative z-10 font-montserrat">
       <div className="text-right space-y-0.5 pr-4 min-w-48">
         {signature ? (
           <img
@@ -231,7 +231,7 @@ export function PrescriptionFooter({
   totalPages,
 }: PrescriptionFooterProps = {}) {
   return (
-    <div className="relative flex justify-between items-stretch border-t border-slate-700 mt-auto min-h-14 bg-white">
+    <div className="relative flex justify-between items-stretch border-t border-slate-700 mt-auto min-h-14 bg-white font-montserrat">
       {/* Optional Page Number Indicator on Left */}
       <div className="flex items-center pl-6 text-[10.5px] font-bold text-slate-600 tracking-wider">
         {totalPages && totalPages > 1 && pageNumber ? (

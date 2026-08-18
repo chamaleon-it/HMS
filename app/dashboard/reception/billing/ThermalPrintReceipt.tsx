@@ -53,10 +53,11 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
   const words = numberToWords(grandTotal);
 
   return createPortal(
-    <div className="thermal-receipt-print-wrapper hidden print:block bg-white text-black font-sans text-[11px] leading-snug select-none">
+    <div className="thermal-receipt-print-wrapper hidden print:block bg-white text-black font-montserrat text-[11px] leading-snug select-none">
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
             @media print {
               @page {
                 size: 80mm auto;
@@ -71,12 +72,14 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
                 display: block !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                font-family: 'Montserrat', sans-serif !important;
               }
               body > *:not(.thermal-receipt-print-wrapper) {
                 display: none !important;
               }
               .thermal-receipt-print-wrapper, .thermal-receipt-print-wrapper * {
                 visibility: visible !important;
+                font-family: 'Montserrat', sans-serif !important;
               }
               .thermal-receipt-print-wrapper {
                 position: absolute !important;
@@ -86,7 +89,7 @@ export default function ThermalPrintReceipt({ bill }: ThermalPrintReceiptProps) 
                 margin: 0 auto !important;
                 width: 76mm !important;
                 padding: 4mm 3mm !important;
-                font-family: Arial, Helvetica, sans-serif !important;
+                font-family: 'Montserrat', sans-serif !important;
                 font-size: 11px !important;
                 line-height: 1.3 !important;
                 color: black !important;

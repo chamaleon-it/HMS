@@ -94,10 +94,11 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
     const TOTAL_BLANK_ROWS = 18;
 
     return createPortal(
-        <div className="print-timeline hidden print:block bg-white text-black font-sans leading-relaxed overflow-hidden">
+        <div className="print-timeline hidden print:block bg-white text-black font-montserrat leading-relaxed overflow-hidden">
             <style
                 dangerouslySetInnerHTML={{
                     __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
         @media print {
           @page {
             margin: 0;
@@ -112,9 +113,13 @@ export default function PrintTimeline({ bill }: PrintTimelineProps) {
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            font-family: 'Montserrat', sans-serif !important;
           }
           body > *:not(.print-timeline) {
             display: none !important;
+          }
+          .print-timeline, .print-timeline * {
+            font-family: 'Montserrat', sans-serif !important;
           }
           .print-timeline { 
             visibility: visible !important;

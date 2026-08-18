@@ -70,9 +70,10 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
     }
 
     return (
-        <div className="print-prescription hidden print:block bg-white text-black font-sans leading-relaxed">
+        <div className="print-prescription hidden print:block bg-white text-black font-montserrat leading-relaxed">
             <style dangerouslySetInnerHTML={{
                 __html: `
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
         @media print {
           @page {
             margin: 0;
@@ -84,6 +85,7 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
             background: white !important;
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
+            font-family: 'Montserrat', sans-serif !important;
             height: auto !important;
             min-height: 0 !important;
             max-height: none !important;
@@ -91,6 +93,9 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
           }
           body > *:not(.print-prescription) {
             display: none !important;
+          }
+          .print-prescription, .print-prescription * {
+            font-family: 'Montserrat', sans-serif !important;
           }
           .print-prescription { 
             visibility: visible !important;

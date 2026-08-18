@@ -65,10 +65,11 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
   const words = feeAmount === 0 ? "ZERO ONLY" : numberToWords(feeAmount);
 
   return createPortal(
-    <div className="registration-bill-print hidden print:block bg-white text-black font-sans leading-snug select-none">
+    <div className="registration-bill-print hidden print:block bg-white text-black font-montserrat leading-snug select-none">
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
             @media print {
               @page {
                 size: 80mm auto;
@@ -83,12 +84,14 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
                 display: block !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                font-family: 'Montserrat', sans-serif !important;
               }
               body > *:not(.registration-bill-print) {
                 display: none !important;
               }
               .registration-bill-print, .registration-bill-print * {
                 visibility: visible !important;
+                font-family: 'Montserrat', sans-serif !important;
               }
               .registration-bill-print {
                 position: absolute !important;
@@ -98,7 +101,7 @@ export default function PatientRegistrationBillPrint({ data }: Props) {
                 margin: 0 auto !important;
                 width: 78mm !important;
                 padding: 4mm 3mm !important;
-                font-family: Arial, Helvetica, sans-serif !important;
+                font-family: 'Montserrat', sans-serif !important;
                 font-size: 11px !important;
                 line-height: 1.25 !important;
                 color: black !important;

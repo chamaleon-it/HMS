@@ -89,10 +89,11 @@ export default function DischargeSummaryPrint({
   });
 
   const printDocument = (
-    <div className="print-discharge-summary-document hidden print:block bg-white text-slate-900 font-sans leading-relaxed">
+    <div className="print-discharge-summary-document hidden print:block bg-white text-slate-900 font-montserrat leading-relaxed">
       <style
         dangerouslySetInnerHTML={{
           __html: `
+            @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
             @media print {
               @page {
                 margin: 8mm 10mm;
@@ -108,12 +109,16 @@ export default function DischargeSummaryPrint({
                 background: white !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
+                font-family: 'Montserrat', sans-serif !important;
               }
               body > *:not(.print-discharge-summary-document) {
                 display: none !important;
               }
               header, footer, nav, aside, button, .no-print {
                 display: none !important;
+              }
+              .print-discharge-summary-document, .print-discharge-summary-document * {
+                font-family: 'Montserrat', sans-serif !important;
               }
               .print-discharge-summary-document {
                 display: block !important;
