@@ -51,6 +51,7 @@ export default function Header() {
     ]) ||
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
+      { key: "employees", label: "Employees", link: "/dashboard/reception/employees/" },
       { key: "therapy", label: "Therapy", link: "/dashboard/reception/therapy/" },
       { key: "procedure", label: "Procedure", link: "/dashboard/reception/procedure/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
@@ -74,8 +75,7 @@ export default function Header() {
       {
         key: "users", label: "Users & Staff", childrens: [
           { key: "doctors", label: "Doctors", link: "/dashboard/admin/doctors/" },
-          { key: "pharmacists", label: "Pharmacists", link: "/dashboard/admin/pharmacists/" },
-          { key: "technicians", label: "Technicians", link: "/dashboard/admin/technicians/" },
+          { key: "employees", label: "Employees", link: "/dashboard/admin/employees/" },
         ]
       },
       { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },

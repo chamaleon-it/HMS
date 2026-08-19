@@ -75,7 +75,7 @@ export default function LabResultsPage() {
     localStorage.setItem('hms_showSampleId', String(newVal));
   };
 
-  const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/technician");
+  const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/employee?role=Technician&status=active");
   const inChargeTechnician = labResponse?.data?.find((p) => p.inCharge);
 
   // Calculate dates for the query

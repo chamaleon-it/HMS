@@ -63,7 +63,7 @@ function Barcode({ value }: { value: string }) {
 }
 
 function OrderHeader({ order }: { order: OrderType }) {
-    const { data: pharmacistResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/pharmacist");
+    const { data: pharmacistResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/employee?role=Pharmacist&status=active");
     const inChargePharmacist = pharmacistResponse?.data?.find((p) => p.inCharge);
     const pharmacistDisplay = (order?.pharmacist && order.pharmacist !== "-" && order.pharmacist.trim() !== "")
         ? order.pharmacist

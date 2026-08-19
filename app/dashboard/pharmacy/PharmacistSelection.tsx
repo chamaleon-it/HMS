@@ -9,9 +9,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { PharmacistData } from "./settings/Pharmacist";
-
-
+export interface PharmacistData {
+    _id: string;
+    name: string;
+    qualification?: string;
+    licenseNumber?: string;
+    designation?: string;
+    inCharge?: boolean;
+    status?: string;
+}
 
 interface Props {
     setValue: (id: string) => void;
@@ -20,15 +26,14 @@ interface Props {
     className?: string;
 }
 
-
-
 const PharmacistSelection: React.FC<Props> = ({ setValue, pharmacistName, hideLabel, className }) => {
     const { data: pharmacistResponse, mutate: pharmacistMutate, isLoading: pharmacistLoading } = useSWR<{
-        data: PharmacistData[], message: string
-    }>("/pharmacist")
+        data: (PharmacistData & { status?: string })[], message: string
+    }>("/employee?role=Pharmacist&status=active")
 
-    const pharmacists = pharmacistResponse?.data ?? []
-
+    const pharmacists = (pharmacistResponse?.data ?? []).filter(
+        (p) => !p.status || p.status.toLowerCase() === "active"
+    )
 
     useEffect(() => {
         const inCharge = pharmacists.find((p) => p.inCharge)

@@ -20,7 +20,7 @@ function RxQueue() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [selected, setSelected] = useState<OrderType | null>(null);
 
-  const { data: pharmacistResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/pharmacist");
+  const { data: pharmacistResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/employee?role=Pharmacist&status=active");
   const inChargePharmacist = pharmacistResponse?.data?.find((p) => p.inCharge);
 
 

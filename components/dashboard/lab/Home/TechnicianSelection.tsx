@@ -9,10 +9,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { TechnicianData } from "@/app/dashboard/lab/settings/Technician";
-
-
-
+export interface TechnicianData {
+    _id: string;
+    name: string;
+    qualification?: string;
+    licenseNumber?: string;
+    designation?: string;
+    inCharge?: boolean;
+    status?: string;
+}
 
 interface Props {
     setValue: (id: string) => void;
@@ -25,11 +30,12 @@ interface Props {
 
 const TechnicianSelection: React.FC<Props> = ({ setValue, technicianName, hideLabel, className }) => {
     const { data: technicianResponse, isLoading: technicianLoading } = useSWR<{
-        data: TechnicianData[], message: string
-    }>("/technician")
+        data: (TechnicianData & { status?: string })[], message: string
+    }>("/employee?role=Technician&status=active")
 
-    const technicians = technicianResponse?.data ?? []
-
+    const technicians = (technicianResponse?.data ?? []).filter(
+        (t) => !t.status || t.status.toLowerCase() === "active"
+    )
 
     useEffect(() => {
         const inCharge = technicians.find((p) => p.inCharge)

@@ -14,7 +14,7 @@ interface ReportCardProps {
 export default function ReportCard({ report, panels, panelPerPage = false }: ReportCardProps) {
     const [mounted, setMounted] = useState(false);
 
-    const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/technician");
+    const { data: labResponse } = useSWR<{ data: { _id: string; name: string; inCharge: boolean }[]; message: string }>("/employee?role=Technician&status=active");
     const inChargeTechnician = labResponse?.data?.find((p) => p.inCharge);
 
     useEffect(() => {

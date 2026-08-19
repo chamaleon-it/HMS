@@ -9,7 +9,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { TechnicianData } from "@/app/dashboard/lab/settings/Technician";
 
 
 

@@ -2,15 +2,13 @@
 
 import * as React from "react";
 import { motion } from "framer-motion";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { Badge } from "@/components/ui/badge";
-import { Shield, Lock, User } from "lucide-react";
+import { Tabs } from "@/components/ui/tabs";
+import { Lock, User } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import SecurityForm from "./SecurityForm";
 import ProfileForm from "./ProfileForm";
-import StaffForm from "./StaffForm";
 import DoctorHeader from "../components/DoctorHeader";
+import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
   const [tab, setTab] = React.useState("profile");
@@ -18,9 +16,6 @@ export default function SettingsPage() {
   const tabs = [
     { key: "profile", label: "Profile", icon: User },
     { key: "security", label: "Security", icon: Lock },
-    { key: "doctors", label: "Doctors", icon: User },
-    { key: "lab", label: "Lab Techs", icon: Shield },
-    { key: "pharmacy", label: "Pharmacists", icon: Shield },
   ];
 
   return (
@@ -35,7 +30,6 @@ export default function SettingsPage() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.25 }}
-          className=""
         >
           <Tabs value={tab} onValueChange={setTab}>
             <div className="mb-4 relative inline-flex items-center gap-2 text-sm bg-white border border-gray-200 rounded-full p-1">
@@ -45,19 +39,16 @@ export default function SettingsPage() {
                   <button
                     key={key}
                     onClick={() => setTab(key)}
-                    className={
-                      "relative flex items-center gap-2 rounded-full px-4 py-2 transition will-change-transform cursor-pointer w-1/2 text-center justify-center " +
-                      (active ? "text-white" : "text-gray-700 hover:text-gray-900")
-                    }
+                    className={cn(
+                      "relative flex items-center gap-2 rounded-full px-5 py-2 transition will-change-transform cursor-pointer text-center justify-center font-medium w-1/2",
+                      active ? "text-white" : "text-gray-700 hover:text-gray-900"
+                    )}
                     type="button"
                   >
                     {active && (
                       <motion.span
-                        layoutId="settings-tab-indicator"
-                        className="absolute inset-0 rounded-full"
-                        style={{
-                          background: "var(--color-synapse-light)",
-                        }}
+                        layoutId="doctor-settings-tab-indicator"
+                        className="absolute inset-0 rounded-full bg-(--color-synapse-light)"
                         transition={{
                           type: "spring",
                           stiffness: 500,
@@ -73,11 +64,8 @@ export default function SettingsPage() {
               })}
             </div>
 
-            {tab === "security" && <SecurityForm />}
             {tab === "profile" && <ProfileForm />}
-            {tab === "doctors" && <StaffForm role="Doctor" title="Doctor" />}
-            {tab === "lab" && <StaffForm role="Lab" title="Lab Technician" />}
-            {tab === "pharmacy" && <StaffForm role="Pharmacy" title="Pharmacist" />}
+            {tab === "security" && <SecurityForm />}
           </Tabs>
         </motion.div>
       </div>

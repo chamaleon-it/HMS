@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 
-import { Shield, User, Receipt, Boxes, Bell, ReceiptIndianRupee } from "lucide-react";
+import { Shield, User, Boxes, Bell, ReceiptIndianRupee } from "lucide-react";
 import AppShell from "@/components/layout/app-shell";
 import General from "./General";
 import Billing from "./Billing";
@@ -9,14 +9,11 @@ import Inventory from "./Inventory";
 import Notifications from "./Notifications";
 import Security from "./Security";
 import { motion } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
 import TopSummary from "./TopSummary";
 import useSWR from "swr";
 import { ProfileType } from "./interface";
 import { TableSkeleton } from "../components/PharmacySkeleton";
-import { Skeleton } from "@/components/ui/skeleton";
 import PharmacyHeader from "../components/PharmacyHeader";
-import Pharmacist from "./Pharmacist";
 
 const PharmacySettingsPage: React.FC = () => {
   const [activeSection, setActiveSection] = useState("general");
@@ -30,7 +27,6 @@ const PharmacySettingsPage: React.FC = () => {
   return (
     <AppShell>
       <div className="px-5 pt-5">
-
         <PharmacyHeader
           title="Settings"
           subtitle="Manage your profile, specialization, and security"
@@ -42,7 +38,6 @@ const PharmacySettingsPage: React.FC = () => {
             { key: "general", label: "General", icon: User },
             { key: "billing", label: "Billing", icon: ReceiptIndianRupee },
             { key: "inventory", label: "Inventory", icon: Boxes },
-            { key: "pharmacist", label: "Pharmacist", icon: User },
             { key: "notifications", label: "Notifications", icon: Bell },
             { key: "security", label: "Security", icon: Shield },
           ].map(({ key, label, icon: Icon }) => {
@@ -83,9 +78,6 @@ const PharmacySettingsPage: React.FC = () => {
             <TopSummary profile={profile} />
             {activeSection === "general" && (
               <General profile={profile} profileMutate={profileMutate} />
-            )}
-            {activeSection === "pharmacist" && (
-              <Pharmacist />
             )}
             {activeSection === "billing" && (
               <Billing profileMutate={profileMutate} profile={profile} />
