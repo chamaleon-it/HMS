@@ -52,6 +52,7 @@ interface PropsType {
   }[];
 }
 import AddPaymentDialog from "./AddPaymentDialog";
+import MarkAsPaidModal from "@/components/dashboard/billing/MarkAsPaidModal";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import PrintReceipt from "./PrintReceipt";
@@ -59,6 +60,8 @@ import { PaginationBar } from "../components/PaginationBar";
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {
   const [isPaymentOpen, setIsPaymentOpen] = React.useState(false);
+  const [markAsPaidModalOpen, setMarkAsPaidModalOpen] = React.useState(false);
+  const [selectedMarkAsPaidBill, setSelectedMarkAsPaidBill] = React.useState<any>(null);
   const [printBill, setPrintBill] = React.useState<PropsType["billing"][number] | null>(null);
 
   const handlePrint = (bill: PropsType["billing"][number]) => {
@@ -141,9 +144,24 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                     </TableCell>
                     <TableCell className="py-3 text-center">
                       <div className="flex items-center justify-center gap-1 flex-wrap">
-                        {Boolean(b.cash) && <MethodPill m="cash" />}
-                        {Boolean(b.card) && <MethodPill m="card" />}
-                        {Boolean(b.upi) && <MethodPill m="upi" />}
+                        {Boolean(b.cash) && (
+                          <MethodPill
+                            m="cash"
+                            label={Boolean(b.card || b.upi) ? `Cash: ${formatINR(b.cash)}` : undefined}
+                          />
+                        )}
+                        {Boolean(b.card) && (
+                          <MethodPill
+                            m="card"
+                            label={Boolean(b.cash || b.upi) ? `Card: ${formatINR(b.card)}` : undefined}
+                          />
+                        )}
+                        {Boolean(b.upi) && (
+                          <MethodPill
+                            m="upi"
+                            label={Boolean(b.cash || b.card) ? `UPI: ${formatINR(b.upi)}` : undefined}
+                          />
+                        )}
                         {!b.cash && !b.card && !b.upi && (
                           <span className="text-slate-400 text-xs italic">—</span>
                         )}
@@ -159,7 +177,8 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                       {formatINR(b.discount)}
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
-                      {formatINR((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0))}
+                      <div>{formatINR((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0))}</div>
+
                     </TableCell>
                     <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
                       {formatINR(
@@ -224,16 +243,9 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                                 variant="ghost"
                                 size="icon"
                                 className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                                onClick={async () => {
-                                  const due = Math.max(0, b.items.reduce((a, i) => a + (i.total ?? 0), 0) -
-                                    (b.roundOff ? getDecimal(b.items.reduce((a, i) => a + (i.total ?? 0), 0)) : 0) -
-                                    ((b.upi ?? 0) + (b.cash ?? 0) + (b.card ?? 0) + (b.discount ?? 0)));
-                                  await toast.promise(api.patch(`/billing/mark_as_paid/${b._id}`, { amount: due }), {
-                                    loading: "Marking as paid",
-                                    success: "Marked as paid",
-                                    error: "Failed to mark as paid"
-                                  })
-                                  billingMutate()
+                                onClick={() => {
+                                  setSelectedMarkAsPaidBill(b);
+                                  setMarkAsPaidModalOpen(true);
                                 }}
                               >
                                 <CheckCircle className="h-4 w-4" />
@@ -252,36 +264,83 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                 ))
               )}
             </TableBody>
-            {billing.length > 0 && (
-              <TableFooter className="sticky bottom-0 z-10 bg-emerald-50 font-extrabold text-[15px] text-slate-900 border-t-2 border-slate-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                <TableRow className="hover:bg-emerald-50 bg-emerald-50">
-                  <TableCell colSpan={6} className="py-4 px-4 text-right uppercase tracking-wider text-sm font-black text-slate-800">
-                    Total
-                  </TableCell>
-                  <TableCell className="py-4 text-right tabular-nums">
-                    {formatINR(billing.reduce((acc, b) => acc + ((b.transactionType === "Return" || b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) ? 0 : b.items.reduce((a, x) => a + (x.total ?? 0), 0)), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items.reduce((a, x) => a + (x.total ?? 0), 0)), 0))}
-                  </TableCell>
-                  <TableCell className="py-4 text-right tabular-nums text-slate-700">
-                    {billing.reduce((acc, b) => acc + ((b.transactionType === "Return" || b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) ? 0 : b.roundOff ? getDecimal(b.items.reduce((a, x) => a + (x.total ?? 0), 0)) : 0), 0).toFixed(2)}
-                  </TableCell>
-                  <TableCell className="py-4 text-right tabular-nums">
-                    {formatINR(billing.reduce((acc, b) => acc + (b.discount ?? 0), 0))}
-                  </TableCell>
-                  <TableCell className="py-4 text-right tabular-nums text-emerald-700 font-black">
-                    {formatINR(billing.reduce((acc, b) => (b.transactionType === "Return" || b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) ? acc - (b.cash ?? 0) : acc + (b.upi ?? 0) + (b.cash ?? 0) + (b.card ?? 0), 0))}
-                  </TableCell>
-                  <TableCell className="py-4 text-right tabular-nums text-rose-700 font-black">
-                    {formatINR(billing.reduce((acc, b) =>
-                      acc + ((b.transactionType === "Return" || b.transactionType === "Refund" || b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"))) ? 0 : Math.max(0, b.items.reduce((a, x) => a + (x.total ?? 0), 0) -
-                        (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + (x.total ?? 0), 0)) : 0) -
-                        ((b.upi ?? 0) + (b.cash ?? 0) + (b.card ?? 0) + (b.discount ?? 0)))), 0
-                    )
-                    )}
-                  </TableCell>
-                  <TableCell colSpan={2} />
-                </TableRow>
-              </TableFooter>
-            )}
+            {billing.length > 0 && (() => {
+              const isNegativeBill = (b: any) =>
+                b.transactionType === "Return" ||
+                b.transactionType === "Refund" ||
+                b.items?.some((i: any) => i.name?.toLowerCase().includes("refund"));
+
+              const totalCash = billing.reduce(
+                (acc, b) => isNegativeBill(b) ? acc - (b.cash ?? 0) : acc + (b.cash ?? 0),
+                0
+              );
+              const totalUpi = billing.reduce(
+                (acc, b) => isNegativeBill(b) ? acc - (b.upi ?? 0) : acc + (b.upi ?? 0),
+                0
+              );
+              const totalCard = billing.reduce(
+                (acc, b) => isNegativeBill(b) ? acc - (b.card ?? 0) : acc + (b.card ?? 0),
+                0
+              );
+              const totalDiscount = billing.reduce((acc, b) => acc + (b.discount ?? 0), 0);
+              const totalPaid = totalCash + totalUpi + totalCard;
+
+              return (
+                <TableFooter className="sticky bottom-0 z-10 bg-emerald-50/95 font-extrabold text-[15px] text-slate-900 border-t-2 border-slate-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] backdrop-blur-xs">
+                  <TableRow className="hover:bg-emerald-50/95 bg-emerald-50/95">
+                    <TableCell colSpan={6} className="py-3 px-4">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300/80 text-xs font-bold shadow-xs">
+                            <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-extrabold">Cash:</span>
+                            <span className="tabular-nums font-black">{formatINR(totalCash)}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-violet-100 text-violet-800 border border-violet-300/80 text-xs font-bold shadow-xs">
+                            <span className="text-[10px] uppercase tracking-wider text-violet-700 font-extrabold">UPI:</span>
+                            <span className="tabular-nums font-black">{formatINR(totalUpi)}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-100 text-teal-800 border border-teal-300/80 text-xs font-bold shadow-xs">
+                            <span className="text-[10px] uppercase tracking-wider text-teal-700 font-extrabold">Card:</span>
+                            <span className="tabular-nums font-black">{formatINR(totalCard)}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 border border-amber-300/80 text-xs font-bold shadow-xs">
+                            <span className="text-[10px] uppercase tracking-wider text-amber-700 font-extrabold">Discount:</span>
+                            <span className="tabular-nums font-black">{formatINR(totalDiscount)}</span>
+                          </span>
+                        </div>
+                        <span className="uppercase tracking-wider text-sm font-black text-slate-800 shrink-0">
+                          Total
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums">
+                      {formatINR(billing.reduce((acc, b) => acc + (isNegativeBill(b) ? 0 : b.items.reduce((a, x) => a + (x.total ?? 0), 0)), 0) - billing.reduce((acc, b) => acc + (b.transactionType === "Sale" ? 0 : b.items.reduce((a, x) => a + (x.total ?? 0), 0)), 0))}
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums text-slate-700">
+                      {billing.reduce((acc, b) => acc + (isNegativeBill(b) ? 0 : b.roundOff ? getDecimal(b.items.reduce((a, x) => a + (x.total ?? 0), 0)) : 0), 0).toFixed(2)}
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums">
+                      {formatINR(billing.reduce((acc, b) => acc + (b.discount ?? 0), 0))}
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums">
+                      <div className="flex flex-col items-end">
+                        <span className="text-emerald-700 font-black text-[15px]">{formatINR(totalPaid)}</span>
+
+                      </div>
+                    </TableCell>
+                    <TableCell className="py-3 text-right tabular-nums text-rose-700 font-black">
+                      {formatINR(billing.reduce((acc, b) =>
+                        acc + (isNegativeBill(b) ? 0 : Math.max(0, b.items.reduce((a, x) => a + (x.total ?? 0), 0) -
+                          (b.roundOff ? getDecimal(b.items.reduce((a, x) => a + (x.total ?? 0), 0)) : 0) -
+                          ((b.upi ?? 0) + (b.cash ?? 0) + (b.card ?? 0) + (b.discount ?? 0)))), 0
+                      )
+                      )}
+                    </TableCell>
+                    <TableCell colSpan={2} />
+                  </TableRow>
+                </TableFooter>
+              );
+            })()}
           </Table>
         </div>
         {(filter.activeDate !== "Today" && filter.activeDate !== "Custom") && billing.length > filter.limit && (
@@ -300,6 +359,12 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
         setOpen={setIsPaymentOpen}
         bill={null} // temporary cast until types align perfectly
         billingMutate={billingMutate}
+      />
+      <MarkAsPaidModal
+        open={markAsPaidModalOpen}
+        onOpenChange={setMarkAsPaidModalOpen}
+        bill={selectedMarkAsPaidBill}
+        onSuccess={billingMutate}
       />
 
       {printBill && (
@@ -339,18 +404,18 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
   );
 }
 
-const MethodPill: React.FC<{ m: BillRow["method"] }> = ({ m }) => {
+const MethodPill: React.FC<{ m: BillRow["method"]; label?: string }> = ({ m, label }) => {
   const map: Record<BillRow["method"], string> = {
-    cash: "bg-slate-100 text-slate-700 border-slate-200",
-    card: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30",
-    upi: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30",
+    cash: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    card: "bg-teal-50 text-teal-700 border-teal-200",
+    upi: "bg-violet-50 text-violet-700 border-violet-200",
     mixed: "bg-sky-50 text-sky-700 border-sky-200",
   };
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${map[m]} capitalize`}
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${map[m]} capitalize shadow-2xs`}
     >
-      {m}
+      {label || m}
     </span>
   );
 };

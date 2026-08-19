@@ -12,6 +12,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
+  TableFooter,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,6 +21,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import AddPaymentDialog from "./AddPaymentDialog";
+import MarkAsPaidModal from "@/components/dashboard/billing/MarkAsPaidModal";
 import api from "@/lib/axios";
 import toast from "react-hot-toast";
 import LabBillReceipt from "@/components/dashboard/lab/Home/LabBillReceipt";
@@ -54,6 +56,8 @@ interface PropsType {
 export default function AllBill({ billing, filter, setFilter, billingMutate }: PropsType) {
   const [paymentModelOpen, setPaymentModelOpen] = React.useState(false);
   const [selectedBill, setSelectedBill] = React.useState<any>(null);
+  const [markAsPaidModalOpen, setMarkAsPaidModalOpen] = React.useState(false);
+  const [selectedMarkAsPaidBill, setSelectedMarkAsPaidBill] = React.useState<any>(null);
   const [printBill, setPrintBill] = React.useState<any | null>(null);
 
   const handlePrint = (bill: any) => {
@@ -62,16 +66,6 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
       window.print();
       setPrintBill(null);
     }, 100);
-  };
-
-  const handleMarkAsPaid = async (billId: string, dueAmount: number) => {
-    try {
-      await api.patch(`/billing/mark_as_paid/${billId}`, { amount: dueAmount });
-      toast.success("Payment marked as paid successfully.");
-      billingMutate();
-    } catch (error: any) {
-      toast.error(`Failed to mark as paid: ${error.response?.data?.message || error.message}`);
-    }
   };
 
   return (
@@ -166,9 +160,24 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                   </TableCell>
                   <TableCell className="py-3 text-center">
                     <div className="flex items-center justify-center gap-1 flex-wrap">
-                      {Boolean(b.cash) && <MethodPill m="cash" />}
-                      {Boolean(b.card) && <MethodPill m="card" />}
-                      {Boolean(b.upi) && <MethodPill m="upi" />}
+                      {Boolean(b.cash) && (
+                        <MethodPill
+                          m="cash"
+                          label={Boolean(b.card || b.upi) ? `Cash: ${formatINR(b.cash)}` : undefined}
+                        />
+                      )}
+                      {Boolean(b.card) && (
+                        <MethodPill
+                          m="card"
+                          label={Boolean(b.cash || b.upi) ? `Card: ${formatINR(b.card)}` : undefined}
+                        />
+                      )}
+                      {Boolean(b.upi) && (
+                        <MethodPill
+                          m="upi"
+                          label={Boolean(b.cash || b.card) ? `UPI: ${formatINR(b.upi)}` : undefined}
+                        />
+                      )}
                       {!b.cash && !b.card && !b.upi && (
                         <span className="text-slate-400 text-xs italic">—</span>
                       )}
@@ -181,7 +190,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                     {formatINR(b.discount || 0)}
                   </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-emerald-600 font-medium">
-                    {formatINR((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0))}
+                    <div>{formatINR((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0))}</div>
                   </TableCell>
                   <TableCell className="py-3 text-right tabular-nums text-rose-600 font-medium">
                     {formatINR(
@@ -229,7 +238,10 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    onClick={() => handleMarkAsPaid(b._id, due)}
+                                    onClick={() => {
+                                      setSelectedMarkAsPaidBill(b);
+                                      setMarkAsPaidModalOpen(true);
+                                    }}
                                     className="h-8 w-8 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                                   >
                                     <CheckCircle2 className="h-4 w-4" />
@@ -301,6 +313,64 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
               ))
             )}
           </TableBody>
+          {billing.length > 0 && (() => {
+            const totalCash = billing.reduce((acc, b) => acc + (b.cash ?? 0), 0);
+            const totalUpi = billing.reduce((acc, b) => acc + (b.upi ?? 0), 0);
+            const totalCard = billing.reduce((acc, b) => acc + (b.card ?? 0), 0);
+            const totalPaid = totalCash + totalUpi + totalCard;
+            const totalAmount = billing.reduce((acc, b) => acc + b.items.reduce((a, i) => a + (i.total ?? 0), 0), 0);
+            const totalDiscount = billing.reduce((acc, b) => acc + (b.discount || 0), 0);
+            const totalDue = billing.reduce((acc, b) =>
+              acc + Math.max(0, b.items.reduce((a, i) => a + (i.total ?? 0), 0) - (b.discount || 0) - ((b.cash ?? 0) + (b.card ?? 0) + (b.upi ?? 0))), 0);
+
+            return (
+              <TableFooter className="sticky bottom-0 z-10 bg-emerald-50/95 font-extrabold text-[15px] text-slate-900 border-t-2 border-slate-300 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] backdrop-blur-xs">
+                <TableRow className="hover:bg-emerald-50/95 bg-emerald-50/95">
+                  <TableCell colSpan={5} className="py-3 px-4">
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300/80 text-xs font-bold shadow-xs">
+                          <span className="text-[10px] uppercase tracking-wider text-emerald-700 font-extrabold">Cash:</span>
+                          <span className="tabular-nums font-black">{formatINR(totalCash)}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-violet-100 text-violet-800 border border-violet-300/80 text-xs font-bold shadow-xs">
+                          <span className="text-[10px] uppercase tracking-wider text-violet-700 font-extrabold">UPI:</span>
+                          <span className="tabular-nums font-black">{formatINR(totalUpi)}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-100 text-teal-800 border border-teal-300/80 text-xs font-bold shadow-xs">
+                          <span className="text-[10px] uppercase tracking-wider text-teal-700 font-extrabold">Card:</span>
+                          <span className="tabular-nums font-black">{formatINR(totalCard)}</span>
+                        </span>
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-100 text-amber-800 border border-amber-300/80 text-xs font-bold shadow-xs">
+                          <span className="text-[10px] uppercase tracking-wider text-amber-700 font-extrabold">Discount:</span>
+                          <span className="tabular-nums font-black">{formatINR(totalDiscount)}</span>
+                        </span>
+                      </div>
+                      <span className="uppercase tracking-wider text-sm font-black text-slate-800 shrink-0">
+                        Total
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-3 text-right tabular-nums">
+                    {formatINR(totalAmount)}
+                  </TableCell>
+                  <TableCell className="py-3 text-right tabular-nums">
+                    {formatINR(totalDiscount)}
+                  </TableCell>
+                  <TableCell className="py-3 text-right tabular-nums">
+                    <div className="flex flex-col items-end">
+                      <span className="text-emerald-700 font-black text-[15px]">{formatINR(totalPaid)}</span>
+
+                    </div>
+                  </TableCell>
+                  <TableCell className="py-3 text-right tabular-nums text-rose-700 font-black">
+                    {formatINR(totalDue)}
+                  </TableCell>
+                  <TableCell colSpan={3} />
+                </TableRow>
+              </TableFooter>
+            );
+          })()}
         </Table>
       </div>
 
@@ -336,23 +406,29 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
         bill={selectedBill}
         billingMutate={billingMutate}
       />
+      <MarkAsPaidModal
+        open={markAsPaidModalOpen}
+        onOpenChange={setMarkAsPaidModalOpen}
+        bill={selectedMarkAsPaidBill}
+        onSuccess={billingMutate}
+      />
       <LabBillReceipt bill={printBill} />
     </div>
   );
 }
 
-const MethodPill: React.FC<{ m: BillRow["method"] }> = ({ m }) => {
+const MethodPill: React.FC<{ m: BillRow["method"]; label?: string }> = ({ m, label }) => {
   const map: Record<BillRow["method"], string> = {
-    cash: "bg-slate-100 text-slate-700 border-slate-200",
-    card: "bg-synapse-light/10 text-(--color-synapse-light) border-synapse-light/30",
-    upi: "bg-fuchsia-50 text-(--color-synapse-light) border-synapse-light/30",
+    cash: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    card: "bg-teal-50 text-teal-700 border-teal-200",
+    upi: "bg-violet-50 text-violet-700 border-violet-200",
     mixed: "bg-sky-50 text-sky-700 border-sky-200",
   };
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide ${map[m]}`}
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[11px] font-medium capitalize shadow-2xs ${map[m]}`}
     >
-      {m}
+      {label || m}
     </span>
   );
 };
