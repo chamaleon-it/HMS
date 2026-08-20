@@ -28,13 +28,13 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import Link from "next/link";
 import PrintPrescription from "./billing/PrintPrescription";
-import PrintReceipt from "./PrintReceipt";
 import useSWR from "swr";
 import ViewOrder from "./ViewOrder";
 import { PaginationBar } from "./components/PaginationBar";
 import { Dispatch, SetStateAction } from "react";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useDrafts } from "./DraftContext";
+import PrintReceipt from "./billing/PrintReceipt";
 
 export default function OrderTable({
   orders,
@@ -53,7 +53,7 @@ export default function OrderTable({
 }) {
 
   const { updateDraft, removeDraft } = useDrafts();
-  
+
   const { data: profile } = useSWR<{
     data: {
       pharmacy: {
@@ -308,8 +308,8 @@ export default function OrderTable({
               <TableCell className="py-3 text-center cursor-pointer"
                 onClick={() => handleRowClick(r)}
               >
-                {r.status === "Draft" 
-                  ? r.items?.filter((i: any) => i.medicineName)?.length || 0 
+                {r.status === "Draft"
+                  ? r.items?.filter((i: any) => i.medicineName)?.length || 0
                   : r?.items?.length || 0}
               </TableCell>
               <TableCell className="py-3 text-center cursor-pointer"

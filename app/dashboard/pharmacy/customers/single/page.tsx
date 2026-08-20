@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import AppShell from "@/components/layout/app-shell";
 import { useRouter, useSearchParams } from "next/navigation";
 import { formatINR, getDecimal } from "@/lib/fNumber";
-import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fDate, fAgeString } from "@/lib/fDateAndTime";
 import useSWR from "swr";
 import { CustomerType, BillingRecord } from "./interface";
 import { EmptyPurchases } from "./EmptyPurchases";
@@ -26,7 +26,6 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { OrderType } from "../../interface";
 import PrintPrescription from "../../billing/PrintPrescription";
-import PrintReceipt from "../../PrintReceipt";
 import PharmacyHeader from "../../components/PharmacyHeader";
 import {
     AlertDialog,
@@ -38,6 +37,7 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import PrintReceipt from "../../billing/PrintReceipt";
 
 const Customer: React.FC = () => {
     const router = useRouter();

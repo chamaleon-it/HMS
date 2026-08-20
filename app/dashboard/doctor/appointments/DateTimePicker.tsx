@@ -20,7 +20,8 @@ import {
   startOfToday,
 } from "@/lib/fDateAndTime";
 import { cn } from "@/lib/utils";
-import WaklInAppoinmentUI from "./WaklInAppoinmentUI";
+import WaklInAppoinmentUI from "../../pharmacy/appointments/WaklInAppoinmentUI";
+
 
 const getRoundForTime = (
   time: string,
@@ -56,8 +57,8 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
   const [selectedTime, setSelectedTime] = useState<string>("09:00");
 
   const handleTimeClick = useCallback((time: string) => {
-  setSelectedTime(time);
-}, []);
+    setSelectedTime(time);
+  }, []);
 
 
   useEffect(() => {
@@ -120,7 +121,7 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
     };
   }>(walkIn && doctor ? `/appointments/walk-in/${doctor}` : null);
 
-  
+
 
   useEffect(() => {
     if (!walkIn || !doctor || !availability || !walkInData?.data) return;
@@ -226,18 +227,18 @@ export default function DateTimePicker({ setValue, doctor, walkIn }: Props) {
             const reason = isDisabledByRound
               ? round?.label ?? "Unavailable"
               : isBooked
-              ? "Already booked"
-              : isPastTime
-              ? "Past time"
-              : undefined;
+                ? "Already booked"
+                : isPastTime
+                  ? "Past time"
+                  : undefined;
 
             const disabledClasses = isDisabledByRound
               ? "bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 hover:text-amber-800 hover:border-amber-300 cursor-not-allowed"
               : isBooked
-              ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
-              : isPastTime
-              ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
-              : "";
+                ? "bg-red-100 text-red-700 border-red-300 hover:bg-red-100 hover:text-red-700 hover:border-red-300 cursor-not-allowed"
+                : isPastTime
+                  ? "bg-zinc-100 text-zinc-400 border-zinc-200 hover:bg-zinc-100 hover:text-zinc-400 hover:border-zinc-200 cursor-not-allowed"
+                  : "";
 
             return (
               <motion.div
