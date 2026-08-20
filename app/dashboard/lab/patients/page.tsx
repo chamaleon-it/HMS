@@ -11,7 +11,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import AppShell from "@/components/layout/app-shell";
-import { fAge, fDate , fAgeString} from "@/lib/fDateAndTime";
+import { fAge, fDate, fAgeString } from "@/lib/fDateAndTime";
 import LabHeader from "@/components/dashboard/lab/LabHeader";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
@@ -64,11 +64,7 @@ const Patients: React.FC = () => {
                                 subtitle="Click a row to open full lab history for that Customers."
                             >
                             </LabHeader>
-                            <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
-                                Showing <span className="font-semibold">{patients.length}</span>{" "}
-                                of <span className="font-semibold">{patients.length}</span>{" "}
-                                patients
-                            </div>
+
                         </div>
 
                         <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
