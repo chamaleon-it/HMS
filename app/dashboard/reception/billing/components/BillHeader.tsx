@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { PatientForm } from "@/components/shared/patient/PatientForm";
 
+import api from "@/lib/axios";
+
 interface BillHeaderProps {
     theme: { from: string; to: string };
     payload: any;
@@ -86,11 +88,19 @@ export const BillHeader: React.FC<BillHeaderProps> = ({
                             <DialogTitle>Customer Register</DialogTitle>
                         </DialogHeader>
                         <PatientForm
-                            onClose={(id?: string, name?: string) => {
+                            onClose={(id?: string, name?: string, _token?: any, mrn?: string) => {
                                 setOpenCreate(false);
                                 if (id) {
                                     setPayload((prev: any) => ({ ...prev, patient: id }));
-                                    setSelectedPatient({ _id: id, name: name || "", mrn: "" });
+                                    api.get(`/patients/${id}`).then((res) => {
+                                        if (res.data?.data) {
+                                            setSelectedPatient(res.data.data);
+                                        } else {
+                                            setSelectedPatient({ _id: id, name: name || "", mrn: mrn || "" });
+                                        }
+                                    }).catch(() => {
+                                        setSelectedPatient({ _id: id, name: name || "", mrn: mrn || "" });
+                                    });
                                 }
                             }}
                         />

@@ -177,10 +177,7 @@ export default function PatientsEnhanced() {
 
             {/* Pagination (future ready) */}
             <div className="flex items-center justify-between mt-4">
-              <p className="text-sm text-gray-500">
-                Showing <span className="font-medium text-gray-700">100</span> of{" "}
-                <span className="font-medium text-gray-700">100</span> patients
-              </p>
+
               <div className="flex gap-2">
                 <button
                   className="px-3 h-10 rounded-xl bg-white ring-1 ring-gray-200 disabled:opacity-50"

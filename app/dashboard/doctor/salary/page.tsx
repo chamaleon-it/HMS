@@ -87,7 +87,7 @@ const MONTHS = [
 
 const YEARS = [2024, 2025, 2026, 2027];
 
-export default function ReceptionSalaryPage() {
+export default function DoctorSalaryPage() {
   const currentDate = new Date();
   const currentMonthName = MONTHS[currentDate.getMonth()];
   const currentYearNum = currentDate.getFullYear();

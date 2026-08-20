@@ -246,9 +246,8 @@ export default function AccountsPage() {
                   Net Balance
                 </p>
                 <h3
-                  className={`text-2xl font-bold mt-1 ${
-                    summary.netBalance >= 0 ? "text-blue-950" : "text-rose-600"
-                  }`}
+                  className={`text-2xl font-bold mt-1 ${summary.netBalance >= 0 ? "text-blue-950" : "text-rose-600"
+                    }`}
                 >
                   {formatINR(summary.netBalance)}
                 </h3>
@@ -394,18 +393,18 @@ export default function AccountsPage() {
             selectedCategory !== "ALL" ||
             startDate ||
             endDate) && (
-            <div className="flex items-center justify-end pt-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-8 rounded-lg"
-                onClick={handleResetFilters}
-              >
-                <FilterX className="w-3.5 h-3.5 mr-1" />
-                Clear Filters
-              </Button>
-            </div>
-          )}
+              <div className="flex items-center justify-end pt-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-8 rounded-lg"
+                  onClick={handleResetFilters}
+                >
+                  <FilterX className="w-3.5 h-3.5 mr-1" />
+                  Clear Filters
+                </Button>
+              </div>
+            )}
         </div>
 
         {/* Transactions Table */}
@@ -504,21 +503,21 @@ export default function AccountsPage() {
 
                     const formattedTxnDate = txn.transactionDate
                       ? new Date(txn.transactionDate).toLocaleDateString(
-                          "en-IN",
-                          {
-                            day: "2-digit",
-                            month: "short",
-                            year: "numeric",
-                          }
-                        )
+                        "en-IN",
+                        {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        }
+                      )
                       : "N/A";
 
                     const formattedCreatedAt = txn.createdAt
                       ? new Date(txn.createdAt).toLocaleDateString("en-IN", {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        })
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
                       : "N/A";
 
                     return (
@@ -534,11 +533,10 @@ export default function AccountsPage() {
                         </TableCell>
                         <TableCell>
                           <span
-                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
-                              isIncome
+                            className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${isIncome
                                 ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80"
                                 : "bg-rose-50 text-rose-700 border border-rose-200/80"
-                            }`}
+                              }`}
                           >
                             {isIncome ? (
                               <ArrowDownLeft className="w-3 h-3" />
@@ -565,9 +563,8 @@ export default function AccountsPage() {
                           {txn.description}
                         </TableCell>
                         <TableCell
-                          className={`text-sm font-bold text-right ${
-                            isIncome ? "text-emerald-600" : "text-rose-600"
-                          }`}
+                          className={`text-sm font-bold text-right ${isIncome ? "text-emerald-600" : "text-rose-600"
+                            }`}
                         >
                           {isIncome ? "+" : "-"} {formatINR(txn.amount)}
                         </TableCell>
@@ -625,40 +622,10 @@ export default function AccountsPage() {
           {/* Pagination Controls */}
           {total > 0 && (
             <div className="p-4 bg-slate-50/50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
-              <div>
-                Showing{" "}
-                <span className="font-semibold text-slate-800">
-                  {(page - 1) * limit + 1}
-                </span>{" "}
-                to{" "}
-                <span className="font-semibold text-slate-800">
-                  {Math.min(page * limit, total)}
-                </span>{" "}
-                of <span className="font-semibold text-slate-800">{total}</span>{" "}
-                transactions
-              </div>
+
 
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5">
-                  <span>Per page:</span>
-                  <Select
-                    value={String(limit)}
-                    onValueChange={(val) => {
-                      setLimit(Number(val));
-                      setPage(1);
-                    }}
-                  >
-                    <SelectTrigger className="h-8 w-16 bg-white rounded-lg border-slate-200 text-xs">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white z-50">
-                      <SelectItem value="5">5</SelectItem>
-                      <SelectItem value="10">10</SelectItem>
-                      <SelectItem value="20">20</SelectItem>
-                      <SelectItem value="50">50</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+
 
                 <div className="flex items-center gap-1">
                   <Button

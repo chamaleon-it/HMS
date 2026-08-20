@@ -91,7 +91,7 @@ export default function AdminEmployeesPage() {
     <AppShell>
       <div className="p-6 space-y-6">
         <AdminHeader
-          title="Employees & Staff Roster"
+          title="Employees"
           subtitle="View and manage hospital clinical staff, compensation structure, and profile details."
         >
           <div className="flex items-center gap-2">

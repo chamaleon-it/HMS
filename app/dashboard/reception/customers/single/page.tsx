@@ -26,7 +26,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 import { OrderType } from "@/app/dashboard/pharmacy/interface";
 import PrintPrescription from "../../billing/PrintPrescription";
-import PrintReceipt from "@/app/dashboard/pharmacy/PrintReceipt";
+import PrintReceipt from "../../billing/PrintReceipt";
 import PharmacyHeader from "@/app/dashboard/pharmacy/components/PharmacyHeader";
 import { hasMedicineItems } from "@/lib/billTypeUtils";
 import AddPaymentDialog from "../../billing/AddPaymentDialog";

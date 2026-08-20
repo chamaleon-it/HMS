@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { fAge } from "@/lib/fDateAndTime";
 import { OrderType } from "@/app/dashboard/pharmacy/interface";
 import {
     PrintHeader,
@@ -38,12 +39,32 @@ export default function PrintPrescription({ order }: PrintPrescriptionProps) {
         ? `${dObj.getDate().toString().padStart(2, "0")}/${(dObj.getMonth() + 1).toString().padStart(2, "0")}/${dObj.getFullYear()}`
         : "__________";
     let ageStr = "____";
-    if (patient?.dateOfBirth) {
-        const dob = new Date(patient.dateOfBirth);
-        const ageYears = new Date().getFullYear() - dob.getFullYear();
-        ageStr = `${ageYears} Y`;
+    const rawAge = (patient as any)?.age;
+    const rawDob = patient?.dateOfBirth || (patient as any)?.dob;
+    if (rawAge !== undefined && rawAge !== null && rawAge !== "" && rawAge !== "—") {
+        const numAge = Number(rawAge);
+        if (!isNaN(numAge)) {
+            ageStr = `${numAge} Y`;
+        } else {
+            const strAge = String(rawAge).trim();
+            ageStr = strAge.toUpperCase().endsWith("Y") ? strAge : `${strAge} Y`;
+        }
+    } else if (rawDob) {
+        const dob = new Date(rawDob);
+        if (!isNaN(dob.getTime())) {
+            const ageObj = fAge(dob);
+            ageStr = `${ageObj.years} Y`;
+        }
     }
-    const sexStr = patient?.gender ? patient.gender.charAt(0).toUpperCase() : "____";
+
+    const rawSex = patient?.gender || (patient as any)?.sex;
+    let sexStr = "____";
+    if (rawSex && rawSex !== "—") {
+        const s = String(rawSex).trim().toLowerCase();
+        if (s.startsWith("m")) sexStr = "M";
+        else if (s.startsWith("f")) sexStr = "F";
+        else sexStr = String(rawSex).trim().charAt(0).toUpperCase();
+    }
     const opNumber = patient?.mrn ? patient.mrn.replace("MRN", "P-") : "";
 
     const items = order.items || [];

@@ -376,10 +376,7 @@ export default function AllBill({ billing, filter, setFilter, billingMutate }: P
 
       <div className="px-4 py-4 border-t border-slate-100 bg-white/50 backdrop-blur-sm rounded-xl">
         <div className="flex items-center justify-between text-xs text-slate-500">
-          <div>
-            Showing <span className="font-medium text-slate-900">{Math.min(10, billing.length)}</span> of{" "}
-            <span className="font-medium text-slate-900">{billing.length}</span> results
-          </div>
+
           <div className="flex items-center gap-2">
             <Button
               variant="outline"

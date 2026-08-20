@@ -33,6 +33,14 @@ export default function Header() {
       { key: "patients", label: "Patients", link: "/dashboard/doctor/patients/" },
       { key: "ip", label: "IP (In Patient)", link: "/dashboard/doctor/ip/" },
       { key: "lab-results", label: "Investigations", link: "/dashboard/doctor/lab-report/" },
+      {
+        key: "employees",
+        label: "Employees",
+        childrens: [
+          { key: "employees-list", label: "Employee Management", link: "/dashboard/doctor/employees/" },
+          { key: "employees-salary", label: "Salary Management", link: "/dashboard/doctor/salary/" },
+        ],
+      },
     ]) ||
     (user?.role === "Pharmacy" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/pharmacy/" },
@@ -52,15 +60,7 @@ export default function Header() {
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
       { key: "treatments", label: "Treatments", link: "/dashboard/reception/treatments/" },
-      {
-        key: "employees",
-        label: "Employees",
-        childrens: [
-          { key: "employees-list", label: "Staff Roster", link: "/dashboard/reception/employees/" },
-          { key: "employees-leaves", label: "Leave Management", link: "/dashboard/reception/leaves/" },
-          { key: "employees-salary", label: "Salary Management", link: "/dashboard/reception/salary/" },
-        ],
-      },
+      { key: "leaves", label: "Leaves", link: "/dashboard/reception/leaves/" },
       { key: "therapy", label: "Therapy", link: "/dashboard/reception/therapy/" },
       { key: "procedure", label: "Procedure", link: "/dashboard/reception/procedure/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },

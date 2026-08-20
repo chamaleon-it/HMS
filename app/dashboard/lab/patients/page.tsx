@@ -113,11 +113,7 @@ const Patients: React.FC = () => {
                                 title="Patients"
                                 subtitle="Click a row to open full lab history for that patient."
                             />
-                            <div className="text-sm text-slate-500 bg-white/70 border rounded-full px-4 py-1 shadow-sm">
-                                Showing <span className="font-semibold">{patients.length}</span>{" "}
-                                of <span className="font-semibold">{total}</span>{" "}
-                                patients
-                            </div>
+
                         </div>
 
                         <Filter filter={filter} setFilter={setFilter} />

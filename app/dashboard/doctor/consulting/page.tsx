@@ -19,12 +19,13 @@ import { AppointmentType, DataType } from "./interface";
 import Test from "./Test";
 import Report from "./Report";
 import PrintConsultation from "./PrintConsultation";
+import Treatments from "../patients/single/Treatments";
 
 function ConsultingMenuContent() {
   const searchParams = useSearchParams();
   const appointmentId = searchParams.get("id") as string;
   const [testIsOK, setTestIsOK] = useState(false)
-  const [activeTab, setActiveTab] = useState<"consultation" | "history" | "report">(
+  const [activeTab, setActiveTab] = useState<"consultation" | "history" | "report" | "treatment">(
     "consultation"
   );
   const { data: appointmentData, isLoading } = useSWR<{
@@ -158,6 +159,14 @@ function ConsultingMenuContent() {
 
           {activeTab === "history" && (
             <History patientId={appointment.patient._id} />
+          )}
+
+          {activeTab === "treatment" && (
+            <div className="mt-4">
+              <Card className="p-6 rounded-2xl shadow-xs border-slate-200/80 bg-white">
+                <Treatments patientId={appointment.patient._id} />
+              </Card>
+            </div>
           )}
 
           {activeTab === "report" && (

@@ -110,6 +110,13 @@ export default function BillingPage() {
       patient: {
         name: string;
         mrn: string;
+        phoneNumber?: string;
+        gender?: string;
+        sex?: string;
+        dateOfBirth?: string | Date;
+        dob?: string | Date;
+        age?: number | string;
+        address?: string;
       };
       transactionType: "Return" | "Sale" | "Refund";
       doctor: string

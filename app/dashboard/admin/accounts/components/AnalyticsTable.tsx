@@ -108,7 +108,7 @@ export function AnalyticsTable({
       <div className="rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-gradient-to-r from-slate-50 via-slate-100/70 to-slate-50">
+            <TableHeader className="bg-linear-to-r from-slate-50 via-slate-100/70 to-slate-50">
               <TableRow className="border-b border-slate-200/80">
                 <TableHead className="font-bold text-slate-700 text-xs w-32 py-3.5">
                   <button
@@ -190,13 +190,13 @@ export function AnalyticsTable({
 
                   const formattedTxnDate = txn.transactionDate
                     ? new Date(txn.transactionDate).toLocaleDateString(
-                        "en-IN",
-                        {
-                          day: "2-digit",
-                          month: "short",
-                          year: "numeric",
-                        }
-                      )
+                      "en-IN",
+                      {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      }
+                    )
                     : "N/A";
 
                   return (
@@ -212,11 +212,10 @@ export function AnalyticsTable({
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${
-                            isIncome
+                          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold ${isIncome
                               ? "bg-emerald-50 text-emerald-700 border border-emerald-200/80 shadow-xs"
                               : "bg-rose-50 text-rose-700 border border-rose-200/80 shadow-xs"
-                          }`}
+                            }`}
                         >
                           {isIncome ? (
                             <ArrowDownLeft className="w-3 h-3 text-emerald-600" />
@@ -245,9 +244,8 @@ export function AnalyticsTable({
                         {txn.description}
                       </TableCell>
                       <TableCell
-                        className={`text-sm font-extrabold text-right font-mono ${
-                          isIncome ? "text-emerald-600" : "text-rose-600"
-                        }`}
+                        className={`text-sm font-extrabold text-right font-mono ${isIncome ? "text-emerald-600" : "text-rose-600"
+                          }`}
                       >
                         {isIncome ? "+" : "-"} {formatINR(txn.amount)}
                       </TableCell>

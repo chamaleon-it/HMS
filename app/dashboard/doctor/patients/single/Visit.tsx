@@ -159,9 +159,7 @@ export default function Visit({ consult: propConsult }: VisitProps) {
             className="pl-9 h-9 text-xs rounded-lg border-slate-200"
           />
         </div>
-        <div className="text-xs text-slate-500 font-medium pr-2">
-          Showing {filteredConsult.length} of {consult.length} visit{consult.length === 1 ? "" : "s"}
-        </div>
+
       </div>
 
       {/* Visits Table */}

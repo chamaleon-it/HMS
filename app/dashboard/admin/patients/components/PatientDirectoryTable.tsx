@@ -159,7 +159,7 @@ export function PatientDirectoryTable({
       <div className="rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="bg-gradient-to-r from-slate-50 via-slate-100/70 to-slate-50">
+            <TableHeader className="bg-linear-to-r from-slate-50 via-slate-100/70 to-slate-50">
               <TableRow className="border-b border-slate-200/80">
                 <TableHead className="font-bold text-slate-700 text-xs w-28 py-3.5">
                   OP / MRN
@@ -213,10 +213,10 @@ export function PatientDirectoryTable({
                 patients.map((pat) => {
                   const regDate = pat.createdAt
                     ? new Date(pat.createdAt).toLocaleDateString("en-IN", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })
                     : "N/A";
 
                   return (
@@ -233,9 +233,8 @@ export function PatientDirectoryTable({
                       <TableCell className="text-xs font-semibold text-slate-600">
                         <span className="inline-flex items-center gap-1.5">
                           <span
-                            className={`w-2 h-2 rounded-full ${
-                              pat.gender === "Male" ? "bg-blue-500" : "bg-pink-500"
-                            }`}
+                            className={`w-2 h-2 rounded-full ${pat.gender === "Male" ? "bg-blue-500" : "bg-pink-500"
+                              }`}
                           />
                           {pat.gender} • {calculateAge(pat.dateOfBirth)}
                         </span>
@@ -253,13 +252,12 @@ export function PatientDirectoryTable({
                       </TableCell>
                       <TableCell>
                         <span
-                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
-                            pat.status === "Discharged"
-                              ? "bg-slate-100 text-slate-700 border border-slate-200"
-                              : pat.status === "Critical"
+                          className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${pat.status === "Discharged"
+                            ? "bg-slate-100 text-slate-700 border border-slate-200"
+                            : pat.status === "Critical"
                               ? "bg-rose-50 text-rose-700 border border-rose-200"
                               : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          }`}
+                            }`}
                         >
                           {pat.status || "Active"}
                         </span>
@@ -275,66 +273,7 @@ export function PatientDirectoryTable({
           </Table>
         </div>
 
-        {/* Pagination */}
-        {total > 0 && (
-          <div className="p-4 bg-slate-50/60 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
-            <div className="font-medium">
-              Showing{" "}
-              <span className="font-bold text-slate-800">
-                {(page - 1) * limit + 1}
-              </span>{" "}
-              to{" "}
-              <span className="font-bold text-slate-800">
-                {Math.min(page * limit, total)}
-              </span>{" "}
-              of <span className="font-bold text-slate-800">{total}</span> patients
-            </div>
 
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-1.5 font-medium">
-                <span>Per page:</span>
-                <Select
-                  value={String(limit)}
-                  onValueChange={(val) => onLimitChange(Number(val))}
-                >
-                  <SelectTrigger className="h-8 w-16 bg-white rounded-lg border-slate-200 text-xs font-bold">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white z-50">
-                    <SelectItem value="5">5</SelectItem>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="20">20</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8 rounded-lg border-slate-200 bg-white"
-                  disabled={page <= 1}
-                  onClick={() => onPageChange(Math.max(page - 1, 1))}
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </Button>
-                <span className="px-2 font-bold text-slate-800">
-                  {page} / {totalPages}
-                </span>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8 rounded-lg border-slate-200 bg-white"
-                  disabled={page >= totalPages}
-                  onClick={() => onPageChange(Math.min(page + 1, totalPages))}
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </motion.div>
   );

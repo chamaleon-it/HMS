@@ -61,11 +61,7 @@ export default function TreatmentTimelineModal({
   // Print Handler
   const handlePrint = () => {
     if (!timelineData) return;
-    setIsPrinting(true);
-    setTimeout(() => {
-      window.print();
-      setIsPrinting(false);
-    }, 400);
+    window.print();
   };
 
   // Download PDF Handler
@@ -73,7 +69,6 @@ export default function TreatmentTimelineModal({
     if (!timelineData) return;
     const toastId = toast.loading("Generating High-Resolution Timeline PDF...");
     setIsDownloading(true);
-    setIsPrinting(true);
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 350));
@@ -431,7 +426,7 @@ export default function TreatmentTimelineModal({
       </Dialog>
 
       {/* Hidden Print Ready Timeline Portal */}
-      {isPrinting && timelineData && (
+      {timelineData && (
         <PrintTreatmentTimeline timelineData={timelineData} />
       )}
     </>

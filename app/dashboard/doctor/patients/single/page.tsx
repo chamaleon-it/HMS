@@ -44,6 +44,7 @@ import Clinical from "./Clinical";
 import useGetLabReport from "./useGetLabReport";
 import Labs from "./Labs";
 import Imaging from "./Imaging";
+import Treatments from "./Treatments";
 
 // --- Helper small components ---
 function Stat({
@@ -158,6 +159,7 @@ function PatientFullDetailContent() {
               <TabsList className="w-full justify-start overflow-x-auto">
                 <TabsTrigger value="clinical">Clinical Notes</TabsTrigger>
                 <TabsTrigger value="overview">Overview</TabsTrigger>
+                <TabsTrigger value="treatments">Treatments</TabsTrigger>
                 <TabsTrigger value="labs">Labs</TabsTrigger>
                 <TabsTrigger value="imaging">Imaging</TabsTrigger>
                 <TabsTrigger value="meds">Medications</TabsTrigger>
@@ -195,17 +197,19 @@ function PatientFullDetailContent() {
                       ? "Clinical Overview"
                       : tab === "clinical"
                         ? "Clinical Notes"
-                        : tab === "labs"
-                          ? "Lab Results"
-                          : tab === "imaging"
-                            ? "Imaging"
-                            : tab === "meds"
-                              ? "Medications"
-                              : tab === "visits"
-                                ? "Visits"
-                                : tab === "docs"
-                                  ? "Documents"
-                                  : "Billing & Invoices"}
+                        : tab === "treatments"
+                          ? "Treatments"
+                          : tab === "labs"
+                            ? "Lab Results"
+                            : tab === "imaging"
+                              ? "Imaging"
+                              : tab === "meds"
+                                ? "Medications"
+                                : tab === "visits"
+                                  ? "Visits"
+                                  : tab === "docs"
+                                    ? "Documents"
+                                    : "Billing & Invoices"}
                   </CardTitle>
 
                 </div>
@@ -217,6 +221,14 @@ function PatientFullDetailContent() {
 
                 {tab === "overview" && (
                   <Overview setTab={setTab} consult={consult} patient={patient} mutatePatient={mutatePatient} isAdmin={isAdmin} />
+                )}
+
+                {tab === "treatments" && (
+                  <Treatments
+                    patientId={patientId as string}
+                    consult={consult}
+                    patient={patient}
+                  />
                 )}
 
 

@@ -48,6 +48,13 @@ interface PropsType {
     patient: {
       name: string;
       mrn: string;
+      phoneNumber?: string;
+      gender?: string;
+      sex?: string;
+      dateOfBirth?: string | Date;
+      dob?: string | Date;
+      age?: number | string;
+      address?: string;
     };
   }[];
 }
@@ -274,10 +281,7 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             doctor: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.name : (printBill.doctor === "Self" ? "" : printBill.doctor),
             department: typeof printBill.doctor === "object" ? (printBill.doctor as any)?.specialization : (printBill as any).department,
           }}
-          patient={{
-            name: printBill.patient.name,
-            mrn: printBill.patient.mrn,
-          }}
+          patient={printBill.patient as any}
           invoiceDetails={{
             prefix: "MINV",
             roundOffAmount: printBill.roundOff

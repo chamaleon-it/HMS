@@ -15,6 +15,7 @@ import PrintConsultation from "../consulting/PrintConsultation";
 import TherapyCard from "../consulting/TherapyCard";
 import ProcedureCard from "../consulting/ProcedureCard";
 import Test from "../consulting/Test";
+import Treatments from "../patients/single/Treatments";
 import { AppointmentType, DataType } from "../consulting/interface";
 import {
   Activity,
@@ -93,7 +94,7 @@ function ConsultingTwoContent() {
   const searchParams = useSearchParams();
   const appointmentId = searchParams.get("id") as string;
   const [testIsOK, setTestIsOK] = useState(true);
-  const [activeTab, setActiveTab] = useState<"consultation" | "history" | "report">(
+  const [activeTab, setActiveTab] = useState<"consultation" | "history" | "report" | "treatment">(
     "consultation"
   );
 
@@ -1112,6 +1113,17 @@ function ConsultingTwoContent() {
 
           {activeTab === "history" && appointment?.patient?._id && (
             <History patientId={appointment.patient._id} />
+          )}
+
+          {activeTab === "treatment" && appointment?.patient?._id && (
+            <div className="mt-4">
+              <Card className="p-6 rounded-2xl shadow-xs border-slate-200/80 bg-white">
+                <Treatments
+                  patientId={appointment.patient._id}
+                  consult={pastConsultationsData?.data || []}
+                />
+              </Card>
+            </div>
           )}
 
           {activeTab === "report" && appointment?.patient?._id && (

@@ -7,6 +7,7 @@ import {
   FlaskConical,
   Megaphone,
   Stethoscope,
+  HeartHandshake,
 } from "lucide-react";
 import { AppointmentType, DataType } from "./interface";
 import { fAge, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
@@ -16,6 +17,8 @@ import useGetLabReport from "./useGetLabReport";
 import { Button } from "@/components/ui/button";
 import DoctorHeader from "../components/DoctorHeader";
 
+import useSWR from "swr";
+
 export default function Header({
   activeTab,
   setActiveTab,
@@ -23,13 +26,18 @@ export default function Header({
   data: payload,
   setData
 }: {
-  activeTab: "consultation" | "history" | "report";
-  setActiveTab: Dispatch<SetStateAction<"consultation" | "history" | "report">>;
+  activeTab: "consultation" | "history" | "report" | "treatment";
+  setActiveTab: Dispatch<SetStateAction<"consultation" | "history" | "report" | "treatment">>;
   appointment: AppointmentType;
   data: DataType;
   setData: Dispatch<SetStateAction<DataType>>
 }) {
   const { data } = useGetLabReport({ patientId: appointment.patient._id });
+  const { data: treatmentData } = useSWR<{ data: any[] }>(
+    appointment?.patient?._id ? `/treatment?patient=${appointment.patient._id}&limit=200` : null,
+    { revalidateOnFocus: false }
+  );
+  const treatmentCount = treatmentData?.data?.length || 0;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   return (
@@ -85,6 +93,18 @@ export default function Header({
               activeClass="bg-(--color-synapse-light) text-white"
             >
               History
+            </ToggleChip>
+
+            <ToggleChip
+              active={activeTab === "treatment"}
+              onClick={() => setActiveTab("treatment")}
+              icon={<HeartHandshake className="h-4 w-4" />}
+              activeClass="bg-(--color-synapse-light) text-white"
+            >
+              Treatment{" "}
+              <span className="ml-1 inline-flex items-center rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-800">
+                {treatmentCount}
+              </span>
             </ToggleChip>
 
             <ToggleChip

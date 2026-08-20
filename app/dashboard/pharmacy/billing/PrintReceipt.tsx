@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatINR } from "@/lib/fNumber";
-import { fDateandTime } from "@/lib/fDateAndTime";
+import { fDateandTime, fAge } from "@/lib/fDateAndTime";
 import useSWR from "swr";
 import configuration from "@/config/configuration";
 import {
@@ -38,7 +38,10 @@ interface PrintReceiptProps {
         mrn?: string;
         phoneNumber?: string;
         gender?: string;
+        sex?: string;
         dateOfBirth?: string | Date;
+        dob?: string | Date;
+        age?: string | number;
         address?: string;
     } | null;
     invoiceDetails?: {
@@ -122,14 +125,33 @@ export default function PrintReceipt({
 
     // Patient info calculations for standard Patient Strip
     let ageStr = "____";
-    if (patient?.dateOfBirth) {
-        const dob = new Date(patient.dateOfBirth);
+    const rawAge = (patient as any)?.age;
+    const rawDob = patient?.dateOfBirth || (patient as any)?.dob;
+    if (rawAge !== undefined && rawAge !== null && rawAge !== "" && rawAge !== "—") {
+        const numAge = Number(rawAge);
+        if (!isNaN(numAge)) {
+            ageStr = `${numAge} Y`;
+        } else {
+            const strAge = String(rawAge).trim();
+            ageStr = strAge.toUpperCase().endsWith("Y") ? strAge : `${strAge} Y`;
+        }
+    } else if (rawDob) {
+        const dob = new Date(rawDob);
         if (!isNaN(dob.getTime())) {
-            const ageYears = new Date().getFullYear() - dob.getFullYear();
-            ageStr = `${ageYears} Y`;
+            const ageObj = fAge(dob);
+            ageStr = `${ageObj.years} Y`;
         }
     }
-    const sexStr = patient?.gender ? patient.gender.charAt(0).toUpperCase() : "____";
+
+    const rawSex = patient?.gender || (patient as any)?.sex;
+    let sexStr = "____";
+    if (rawSex && rawSex !== "—") {
+        const s = String(rawSex).trim().toLowerCase();
+        if (s.startsWith("m")) sexStr = "M";
+        else if (s.startsWith("f")) sexStr = "F";
+        else sexStr = String(rawSex).trim().charAt(0).toUpperCase();
+    }
+
     const opNumber = patient?.mrn ? patient.mrn.replace("MRN", "P-") : "";
     const formattedDate = fDateandTime(new Date()).split(",")[0];
 

@@ -108,7 +108,7 @@ export default function IPList() {
 
             {/* Pagination placeholder */}
             <div className="p-4 border-t border-gray-100 flex items-center justify-between text-sm text-gray-500">
-              <div>Showing {ipList.length} of {total} records</div>
+
               <div className="flex gap-2">
                 <button
                   disabled={page === 1}

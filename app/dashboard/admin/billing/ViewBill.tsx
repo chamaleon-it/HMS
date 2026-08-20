@@ -252,10 +252,7 @@ export default function ViewBill({ id }: { id: string }) {
                         doctor: typeof billing.doctor === "object" ? billing.doctor?.name : (billing.doctor === "Self" ? "" : billing.doctor),
                         department: typeof billing.doctor === "object" ? billing.doctor?.specialization : billing.department,
                     }}
-                    patient={{
-                        name: billing.patient.name,
-                        mrn: billing.patient.mrn,
-                    }}
+                    patient={billing.patient as any}
                     invoiceDetails={{
                         prefix: "MINV",
                         roundOffAmount: billing.roundOff

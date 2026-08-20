@@ -488,7 +488,7 @@ export default function EmployeesPage() {
                   >
                     {active && (
                       <motion.span
-                        layoutId="reception-employee-role-pill"
+                        layoutId="doctor-employee-role-pill"
                         className="absolute inset-0 rounded-lg bg-(--color-synapse-light)"
                         transition={{
                           type: "spring",
