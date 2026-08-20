@@ -21,6 +21,15 @@ export interface ReportTransactionItem {
   createdBy?: { name?: string };
 }
 
+export interface ReportPaymentMethodItem {
+  name: string;
+  totalAmount: number;
+  incomeAmount: number;
+  expenseAmount: number;
+  count: number;
+  percentage: number;
+}
+
 export interface ReportPdfData {
   summary?: {
     totalIncome: number;
@@ -36,6 +45,7 @@ export interface ReportPdfData {
     incomeCategories: ReportCategoryItem[];
     expenseCategories: ReportCategoryItem[];
   };
+  paymentMethods?: ReportPaymentMethodItem[];
   transactions: ReportTransactionItem[];
   datePresetLabel: string;
   startDate?: string;
@@ -245,6 +255,23 @@ export const generateAccountsReportPdf = async (data: ReportPdfData) => {
     expenseCount: 0,
   };
 
+  const paymentMethods = data.paymentMethods || [];
+  const cashItem = paymentMethods.find((m) => m.name.toLowerCase() === "cash") || {
+    totalAmount: 0,
+    percentage: 0,
+    count: 0,
+  };
+  const upiItem = paymentMethods.find((m) => m.name.toLowerCase() === "upi") || {
+    totalAmount: 0,
+    percentage: 0,
+    count: 0,
+  };
+  const cardItem = paymentMethods.find((m) => m.name.toLowerCase() === "card") || {
+    totalAmount: 0,
+    percentage: 0,
+    count: 0,
+  };
+
   const cards = [
     {
       label: "Total Revenue",
@@ -263,6 +290,24 @@ export const generateAccountsReportPdf = async (data: ReportPdfData) => {
       value: formatPdfCurrency(summary.netBalance),
       sub: summary.netBalance >= 0 ? "Surplus Profit" : "Net Deficit",
       color: summary.netBalance >= 0 ? COLOR_EMERALD : COLOR_ROSE,
+    },
+    {
+      label: "Cash Settlement",
+      value: formatPdfCurrency(cashItem.totalAmount),
+      sub: `${cashItem.count} txns (${cashItem.percentage}% share)`,
+      color: COLOR_EMERALD,
+    },
+    {
+      label: "UPI Settlement",
+      value: formatPdfCurrency(upiItem.totalAmount),
+      sub: `${upiItem.count} txns (${upiItem.percentage}% share)`,
+      color: [139, 92, 246], // Purple
+    },
+    {
+      label: "Card Settlement",
+      value: formatPdfCurrency(cardItem.totalAmount),
+      sub: `${cardItem.count} txns (${cardItem.percentage}% share)`,
+      color: [2, 132, 199], // Sky Blue
     },
     {
       label: "Profit Margin",
@@ -321,7 +366,7 @@ export const generateAccountsReportPdf = async (data: ReportPdfData) => {
     doc.text(card.sub, cx + 3, cy + 15);
   });
 
-  currentY += 2 * (cardH + 3) + 6;
+  currentY += 3 * (cardH + 3) + 6;
 
   // --- CATEGORY BREAKDOWN SUMMARY (IF AVAILABLE) ---
   const incCats = data.categoryBreakdown?.incomeCategories || [];

@@ -51,7 +51,15 @@ export default function Header() {
     ]) ||
     (user?.role === "Reception" && [
       { key: "dashboard", label: "Dashboard", link: "/dashboard/reception/" },
-      { key: "employees", label: "Employees", link: "/dashboard/reception/employees/" },
+      {
+        key: "employees",
+        label: "Employees",
+        childrens: [
+          { key: "employees-list", label: "Staff Roster", link: "/dashboard/reception/employees/" },
+          { key: "employees-leaves", label: "Leave Management", link: "/dashboard/reception/leaves/" },
+          { key: "employees-salary", label: "Salary Management", link: "/dashboard/reception/salary/" },
+        ],
+      },
       { key: "therapy", label: "Therapy", link: "/dashboard/reception/therapy/" },
       { key: "procedure", label: "Procedure", link: "/dashboard/reception/procedure/" },
       { key: "customers", label: "Customer", link: "/dashboard/reception/customers/" },
@@ -76,6 +84,8 @@ export default function Header() {
         key: "users", label: "Users & Staff", childrens: [
           { key: "doctors", label: "Doctors", link: "/dashboard/admin/doctors/" },
           { key: "employees", label: "Employees", link: "/dashboard/admin/employees/" },
+          { key: "leaves", label: "Leave Management", link: "/dashboard/admin/leaves/" },
+          { key: "salary", label: "Salary & Payroll", link: "/dashboard/admin/salary/" },
         ]
       },
       { key: "billing", label: "Billing", link: "/dashboard/admin/billing/" },
@@ -142,12 +152,12 @@ export default function Header() {
                       </span>
                     </span>
                     <div className="absolute left-0 top-full pt-2 hidden group-hover:block z-50">
-                      <div className="flex flex-col bg-white border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] rounded-xl w-36 py-2 overflow-hidden">
+                      <div className="flex flex-col bg-white border border-slate-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.1)] rounded-xl min-w-44 py-2 overflow-hidden">
                         {item.childrens.map(child => (
                           <Link
                             key={child.key}
                             href={child.link}
-                            className={`px-4 py-2 transition-colors ${pathname.startsWith(child.link) ? "text-(--color-synapse-light) font-bold bg-fuchsia-50" : "text-slate-600 hover:bg-slate-50 hover:text-(--color-synapse-light)"
+                            className={`px-4 py-2 transition-colors whitespace-nowrap ${pathname.startsWith(child.link) ? "text-(--color-synapse-light) font-bold bg-fuchsia-50" : "text-slate-600 hover:bg-slate-50 hover:text-(--color-synapse-light)"
                               }`}
                           >
                             {child.label}
@@ -157,6 +167,7 @@ export default function Header() {
                     </div>
                   </div>
                 ) : (
+
                   <Link
                     key={item.key}
                     href={item.link || "#"}

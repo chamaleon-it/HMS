@@ -12,7 +12,11 @@ import {
   BadgeIndianRupee,
   ArrowUpRight,
   ArrowDownLeft,
+  Banknote,
+  Smartphone,
+  CreditCard,
 } from "lucide-react";
+import { PaymentMethodItem } from "./PaymentMethodChart";
 
 interface AnalyticsSummary {
   totalIncome: number;
@@ -27,10 +31,15 @@ interface AnalyticsSummary {
 
 interface SummaryCardsProps {
   summary?: AnalyticsSummary;
+  paymentMethods?: PaymentMethodItem[];
   isLoading?: boolean;
 }
 
-export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
+export function SummaryCards({
+  summary,
+  paymentMethods = [],
+  isLoading,
+}: SummaryCardsProps) {
   const totalIncome = summary?.totalIncome || 0;
   const totalExpense = summary?.totalExpense || 0;
   const netBalance = summary?.netBalance || 0;
@@ -38,7 +47,42 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
   const avgTransactionValue = summary?.avgTransactionValue || 0;
   const totalTransactions = summary?.totalTransactions || 0;
 
+  // Extract Cash, Card, UPI items
+  const cashItem = paymentMethods.find(
+    (m) => m.name.toLowerCase() === "cash"
+  ) || {
+    name: "Cash",
+    totalAmount: 0,
+    incomeAmount: 0,
+    expenseAmount: 0,
+    count: 0,
+    percentage: 0,
+  };
+
+  const upiItem = paymentMethods.find(
+    (m) => m.name.toLowerCase() === "upi"
+  ) || {
+    name: "UPI",
+    totalAmount: 0,
+    incomeAmount: 0,
+    expenseAmount: 0,
+    count: 0,
+    percentage: 0,
+  };
+
+  const cardItem = paymentMethods.find(
+    (m) => m.name.toLowerCase() === "card"
+  ) || {
+    name: "Card",
+    totalAmount: 0,
+    incomeAmount: 0,
+    expenseAmount: 0,
+    count: 0,
+    percentage: 0,
+  };
+
   const stats = [
+    // --- ROW 1: PRIMARY FINANCIAL TOTALS ---
     {
       label: "Total Income",
       value: formatINR(totalIncome),
@@ -47,7 +91,8 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
       badgeIcon: ArrowDownLeft,
       badgeText: "Revenue",
       badgeColor: "bg-emerald-500/10 text-emerald-700 border-emerald-200/80",
-      gradient: "from-emerald-50/90 via-white to-emerald-50/30 border-emerald-200/70",
+      gradient:
+        "from-emerald-50/90 via-white to-emerald-50/30 border-emerald-200/70",
       iconBg: "bg-emerald-500/15 text-emerald-600 ring-1 ring-emerald-500/20",
       headingColor: "text-slate-900",
     },
@@ -70,11 +115,56 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
       icon: Wallet,
       badgeIcon: netBalance >= 0 ? ArrowDownLeft : ArrowUpRight,
       badgeText: netBalance >= 0 ? "Positive" : "Negative",
-      badgeColor: netBalance >= 0 ? "bg-blue-500/10 text-blue-700 border-blue-200/80" : "bg-rose-500/10 text-rose-700 border-rose-200/80",
+      badgeColor:
+        netBalance >= 0
+          ? "bg-blue-500/10 text-blue-700 border-blue-200/80"
+          : "bg-rose-500/10 text-rose-700 border-rose-200/80",
       gradient: "from-blue-50/90 via-white to-indigo-50/30 border-blue-200/70",
       iconBg: "bg-blue-500/15 text-blue-600 ring-1 ring-blue-500/20",
       headingColor: netBalance >= 0 ? "text-slate-900" : "text-rose-600",
     },
+
+    // --- ROW 2: PAYMENT METHOD CARDS (CASH, UPI, CARD) ---
+    {
+      label: "Cash Settlement",
+      value: formatINR(cashItem.totalAmount),
+      subtext: `${cashItem.count} txns • In: ${formatINR(cashItem.incomeAmount)}`,
+      icon: Banknote,
+      badgeIcon: Banknote,
+      badgeText: `${cashItem.percentage}% Cash`,
+      badgeColor: "bg-emerald-500/10 text-emerald-800 border-emerald-300/80",
+      gradient:
+        "from-emerald-50/80 via-white to-teal-50/40 border-emerald-200/80",
+      iconBg: "bg-emerald-500/15 text-emerald-700 ring-1 ring-emerald-500/20",
+      headingColor: "text-slate-900",
+    },
+    {
+      label: "UPI Settlement",
+      value: formatINR(upiItem.totalAmount),
+      subtext: `${upiItem.count} txns • In: ${formatINR(upiItem.incomeAmount)}`,
+      icon: Smartphone,
+      badgeIcon: Smartphone,
+      badgeText: `${upiItem.percentage}% UPI`,
+      badgeColor: "bg-purple-500/10 text-purple-800 border-purple-300/80",
+      gradient:
+        "from-purple-50/80 via-white to-indigo-50/40 border-purple-200/80",
+      iconBg: "bg-purple-500/15 text-purple-700 ring-1 ring-purple-500/20",
+      headingColor: "text-slate-900",
+    },
+    {
+      label: "Card Settlement",
+      value: formatINR(cardItem.totalAmount),
+      subtext: `${cardItem.count} txns • In: ${formatINR(cardItem.incomeAmount)}`,
+      icon: CreditCard,
+      badgeIcon: CreditCard,
+      badgeText: `${cardItem.percentage}% Card`,
+      badgeColor: "bg-sky-500/10 text-sky-800 border-sky-300/80",
+      gradient: "from-sky-50/80 via-white to-blue-50/40 border-sky-200/80",
+      iconBg: "bg-sky-500/15 text-sky-700 ring-1 ring-sky-500/20",
+      headingColor: "text-slate-900",
+    },
+
+    // --- ROW 3: OPERATIONAL & PERFORMANCE METRICS ---
     {
       label: "Profit Margin",
       value: `${profitMargin}%`,
@@ -83,7 +173,8 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
       badgeIcon: TrendingUp,
       badgeText: "Margin",
       badgeColor: "bg-purple-500/10 text-purple-700 border-purple-200/80",
-      gradient: "from-purple-50/90 via-white to-indigo-50/30 border-purple-200/70",
+      gradient:
+        "from-purple-50/90 via-white to-indigo-50/30 border-purple-200/70",
       iconBg: "bg-purple-500/15 text-purple-600 ring-1 ring-purple-500/20",
       headingColor: profitMargin >= 0 ? "text-slate-900" : "text-rose-600",
     },
@@ -107,7 +198,8 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
       badgeIcon: Receipt,
       badgeText: "Audit",
       badgeColor: "bg-slate-500/10 text-slate-700 border-slate-200",
-      gradient: "from-slate-50/90 via-white to-slate-100/40 border-slate-200/80",
+      gradient:
+        "from-slate-50/90 via-white to-slate-100/40 border-slate-200/80",
       iconBg: "bg-slate-500/15 text-slate-700 ring-1 ring-slate-400/20",
       headingColor: "text-slate-900",
     },
@@ -115,8 +207,8 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
-        {Array.from({ length: 6 }).map((_, i) => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {Array.from({ length: 9 }).map((_, i) => (
           <div
             key={i}
             className="h-32 bg-slate-100/70 rounded-3xl animate-pulse border border-slate-200/60"
@@ -127,7 +219,7 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {stats.map((stat, index) => {
         const IconComponent = stat.icon;
         const BadgeIcon = stat.badgeIcon;
@@ -136,7 +228,7 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
             key={index}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.05 }}
+            transition={{ duration: 0.3, delay: index * 0.04 }}
             className={`bg-gradient-to-br ${stat.gradient} p-4 sm:p-5 rounded-3xl border shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 group relative overflow-hidden`}
           >
             {/* Soft Ambient Corner Glow */}
@@ -148,7 +240,7 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
                   {stat.label}
                 </span>
                 <div
-                  className={`w-9 h-9 rounded-2xl ${stat.iconBg} flex items-center justify-center transition-transform duration-300 group-hover:scale-110`}
+                  className={`w-9 h-9 rounded-2xl ${stat.iconBg} flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-xs`}
                 >
                   <IconComponent className="w-4.5 h-4.5" />
                 </div>
@@ -156,7 +248,7 @@ export function SummaryCards({ summary, isLoading }: SummaryCardsProps) {
 
               <div>
                 <h3
-                  className={`text-2xl font-black ${stat.headingColor} tracking-tight leading-none`}
+                  className={`text-2xl font-black ${stat.headingColor} tracking-tight leading-none font-mono`}
                 >
                   {stat.value}
                 </h3>

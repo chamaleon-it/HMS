@@ -78,6 +78,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
+import { formatINR } from "@/lib/fNumber";
+
 const EMPLOYEE_ROLES = ["Pharmacist", "Technician", "Therapist"] as const;
 type EmployeeRole = (typeof EMPLOYEE_ROLES)[number];
 
@@ -127,6 +129,9 @@ export interface EmployeeItem {
   specialization?: string;
   licenseNumber?: string;
   address?: string;
+  basicPay?: number;
+  hourlySalary?: number;
+  commission?: number;
   status: string;
   isDeleted?: boolean;
   inCharge?: boolean;
@@ -160,6 +165,9 @@ export default function EmployeesPage() {
   const [specialization, setSpecialization] = useState("");
   const [licenseNumber, setLicenseNumber] = useState("");
   const [address, setAddress] = useState("");
+  const [basicPay, setBasicPay] = useState("0");
+  const [hourlySalary, setHourlySalary] = useState("0");
+  const [commission, setCommission] = useState("0");
   const [status, setStatus] = useState("Active");
 
   // Operation states
@@ -208,6 +216,9 @@ export default function EmployeesPage() {
     setSpecialization("");
     setLicenseNumber("");
     setAddress("");
+    setBasicPay("0");
+    setHourlySalary("0");
+    setCommission("0");
     setStatus("Active");
     setErrorMsg(null);
   };
@@ -231,6 +242,9 @@ export default function EmployeesPage() {
     setSpecialization(item.specialization || "");
     setLicenseNumber(item.licenseNumber || "");
     setAddress(item.address || "");
+    setBasicPay((item.basicPay ?? 0).toString());
+    setHourlySalary((item.hourlySalary ?? 0).toString());
+    setCommission((item.commission ?? 0).toString());
     setStatus(item.status || "Active");
     setErrorMsg(null);
     setOpenFormModal(true);
@@ -258,6 +272,9 @@ export default function EmployeesPage() {
       specialization: specialization.trim(),
       licenseNumber: licenseNumber.trim(),
       address: address.trim(),
+      basicPay: parseFloat(basicPay) || 0,
+      hourlySalary: parseFloat(hourlySalary) || 0,
+      commission: parseFloat(commission) || 0,
       status,
     };
 
@@ -557,6 +574,9 @@ export default function EmployeesPage() {
                     Designation & Specialization
                   </TableHead>
                   <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3.5">
+                    Compensation
+                  </TableHead>
+                  <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3.5">
                     Contact
                   </TableHead>
                   <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3.5 text-center">
@@ -593,6 +613,9 @@ export default function EmployeesPage() {
                         <div className="h-4 w-28 bg-slate-100 rounded animate-pulse" />
                       </TableCell>
                       <TableCell>
+                        <div className="h-4 w-24 bg-slate-100 rounded animate-pulse" />
+                      </TableCell>
+                      <TableCell>
                         <div className="h-4 w-32 bg-slate-100 rounded animate-pulse" />
                       </TableCell>
                       <TableCell className="text-center">
@@ -605,7 +628,7 @@ export default function EmployeesPage() {
                   ))
                 ) : employees.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={7} className="h-64 text-center">
+                    <TableCell colSpan={8} className="h-64 text-center">
                       <div className="flex flex-col items-center justify-center text-slate-500 py-6">
                         <div className="h-14 w-14 rounded-2xl bg-purple-50 text-(--color-synapse-light) flex items-center justify-center mb-3">
                           <Users className="h-7 w-7" />
@@ -742,6 +765,30 @@ export default function EmployeesPage() {
                               <span>{emp.specialization}</span>
                             </div>
                           )}
+                        </TableCell>
+
+                        {/* Compensation */}
+                        <TableCell className="py-3.5 text-xs">
+                          <div className="space-y-0.5">
+                            <div className="font-semibold text-slate-800 tabular-nums flex items-center gap-1">
+                              <span className="text-[10px] uppercase text-slate-400 font-bold">Basic:</span>
+                              <span className="text-emerald-700 font-bold">{emp.basicPay ? formatINR(emp.basicPay) : '—'}</span>
+                            </div>
+                            {(Boolean(emp.hourlySalary) || Boolean(emp.commission)) && (
+                              <div className="flex items-center gap-1.5 text-[10px] font-medium flex-wrap mt-0.5">
+                                {Boolean(emp.hourlySalary) && (
+                                  <span className="text-blue-700 bg-blue-50 px-1.5 py-0.2 rounded border border-blue-200">
+                                    {formatINR(emp.hourlySalary || 0)}/hr
+                                  </span>
+                                )}
+                                {Boolean(emp.commission) && (
+                                  <span className="text-purple-700 bg-purple-50 px-1.5 py-0.2 rounded border border-purple-200">
+                                    Comm: {formatINR(emp.commission || 0)}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </TableCell>
 
                         {/* Contact */}
@@ -1048,6 +1095,82 @@ export default function EmployeesPage() {
                   placeholder="e.g. B.Pharm, M.Pharm, DMLT, BPT"
                   className="rounded-xl border-slate-200 text-sm h-10"
                 />
+              </div>
+
+              {/* Salary & Compensation Section */}
+              <div className="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/90 space-y-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                    Salary & Compensation Structure
+                  </p>
+                  <Badge variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-200 font-semibold">
+                    Payroll Fields
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="emp-basicPay" className="text-xs font-semibold text-slate-700">
+                      Basic Pay (₹/mo)
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-bold text-xs">
+                        ₹
+                      </span>
+                      <Input
+                        id="emp-basicPay"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={basicPay}
+                        onChange={(e) => setBasicPay(e.target.value)}
+                        placeholder="0"
+                        className="pl-7 rounded-xl border-slate-200 text-sm h-10 font-bold tabular-nums"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="emp-hourlySalary" className="text-xs font-semibold text-slate-700">
+                      Hourly Salary (₹/hr)
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-bold text-xs">
+                        ₹
+                      </span>
+                      <Input
+                        id="emp-hourlySalary"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={hourlySalary}
+                        onChange={(e) => setHourlySalary(e.target.value)}
+                        placeholder="0"
+                        className="pl-7 rounded-xl border-slate-200 text-sm h-10 font-bold tabular-nums"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <Label htmlFor="emp-commission" className="text-xs font-semibold text-slate-700">
+                      Commission (₹ or %)
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400 font-bold text-xs">
+                        ₹
+                      </span>
+                      <Input
+                        id="emp-commission"
+                        type="number"
+                        min="0"
+                        step="any"
+                        value={commission}
+                        onChange={(e) => setCommission(e.target.value)}
+                        placeholder="0"
+                        className="pl-7 rounded-xl border-slate-200 text-sm h-10 font-bold tabular-nums"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Phone & Email */}

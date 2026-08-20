@@ -32,6 +32,7 @@ import {
 } from "@/app/dashboard/pharmacy/accounts/types";
 import { SummaryCards } from "./components/SummaryCards";
 import { TrendChart } from "./components/TrendChart";
+import { PaymentMethodChart } from "./components/PaymentMethodChart";
 import { CategoryPieChart } from "./components/CategoryPieChart";
 import { MonthlyBarChart } from "./components/MonthlyBarChart";
 import { AnalyticsTable } from "./components/AnalyticsTable";
@@ -252,12 +253,14 @@ export default function AdminAccountsAnalyticsPage() {
       generateAccountsReportPdf({
         summary: analyticsData.summary,
         categoryBreakdown: analyticsData.categoryBreakdown,
+        paymentMethods: analyticsData.paymentMethods,
         transactions: reportTransactions,
         datePresetLabel: datePresetLabels[datePreset] || datePreset,
         startDate: computedDateRange.start,
         endDate: computedDateRange.end,
         selectedType,
         selectedCategory,
+        selectedSource,
       });
 
       toast.success("PDF report downloaded successfully!", { id: "pdf-toast" });
@@ -540,6 +543,7 @@ export default function AdminAccountsAnalyticsPage() {
         {/* 1. Summary Cards */}
         <SummaryCards
           summary={analyticsData.summary}
+          paymentMethods={analyticsData.paymentMethods}
           isLoading={isAnalyticsLoading}
         />
 
@@ -559,14 +563,21 @@ export default function AdminAccountsAnalyticsPage() {
           </div>
         </div>
 
-        {/* 3. Category Distribution Charts */}
+        {/* 3. Payment Method Distribution Chart (Cash, Card, UPI) */}
+        <PaymentMethodChart
+          paymentMethods={analyticsData.paymentMethods}
+          paymentMethodTrend={analyticsData.paymentMethodTrend}
+          isLoading={isAnalyticsLoading}
+        />
+
+        {/* 4. Category Distribution Charts */}
         <CategoryPieChart
           expenseCategories={analyticsData.categoryBreakdown?.expenseCategories}
           incomeCategories={analyticsData.categoryBreakdown?.incomeCategories}
           isLoading={isAnalyticsLoading}
         />
 
-        {/* 4. Read-Only Transaction Audit Table */}
+        {/* 5. Read-Only Transaction Audit Table */}
         <AnalyticsTable
           transactions={transactions}
           total={totalTransactions}
