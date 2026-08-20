@@ -232,10 +232,7 @@ function ConsultingTwoContent() {
   const [clinicalDiagnosis, setClinicalDiagnosis] = useState("");
   const [treatmentPrinciple, setTreatmentPrinciple] = useState("");
 
-  // 4. Treatment Plan
-  const [sessions, setSessions] = useState("");
-  const [otherSessions, setOtherSessions] = useState("");
-  const [frequency, setFrequency] = useState("");
+  // 4. Home Care
   const [homeCare, setHomeCare] = useState<string[]>([]);
 
   // 5. Medical History
@@ -290,8 +287,6 @@ function ConsultingTwoContent() {
           treatmentPrinciple,
         },
         treatmentPlan: {
-          sessions: sessions === "Other" ? otherSessions : sessions,
-          frequency,
           homeCare,
         },
         medicalHistoryDetails: {
@@ -332,9 +327,6 @@ function ConsultingTwoContent() {
     micturition,
     clinicalDiagnosis,
     treatmentPrinciple,
-    sessions,
-    otherSessions,
-    frequency,
     homeCare,
     medHistory,
     otherMedHistoryList,
@@ -980,16 +972,38 @@ function ConsultingTwoContent() {
                       </div>
                     </Card>
 
-                    {/* 6. TREATMENT PLAN */}
+                    {/* 6. THERAPY */}
+                    <TherapyCard
+                      data={data}
+                      setData={setData as any}
+                      className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200"
+                    />
+
+                    {/* 7. PROCEDURE */}
+                    <ProcedureCard
+                      data={data}
+                      setData={setData as any}
+                      className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200"
+                    />
+
+                    {/* 8. LAB & IMAGING */}
+                    <Test
+                      data={data}
+                      setData={setData as any}
+                      setTestIsOK={setTestIsOK}
+                      className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 mt-0"
+                    />
+
+                    {/* 9. FOLLOW-UP & NOTES (Includes Home Care Advice) */}
                     <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
                       <div>
                         <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
                           <div className="flex items-center gap-2.5">
-                            <div className="p-1.5 rounded-lg bg-indigo-100/70 text-indigo-700 border border-indigo-200/50">
-                              <ClipboardList className="w-4 h-4" />
+                            <div className="p-1.5 rounded-lg bg-violet-100/70 text-violet-700 border border-violet-200/50">
+                              <Calendar className="w-4 h-4" />
                             </div>
                             <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
-                              Treatment Plan & Home Care
+                              Follow-Up & Notes
                             </CardTitle>
                           </div>
                           <DropdownMenu>
@@ -1010,113 +1024,8 @@ function ConsultingTwoContent() {
                           </DropdownMenu>
                         </CardHeader>
                         <CardContent className="p-5 space-y-4">
+                          {/* Home Care Advice */}
                           <div className="space-y-1.5">
-                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                              Recommended Sessions
-                            </span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {["3", "5", "7", "10", "12"].map((opt) => {
-                                const active = sessions === opt;
-                                return (
-                                  <label
-                                    key={opt}
-                                    className={cn(
-                                      "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
-                                      active
-                                        ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
-                                        : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
-                                    )}
-                                  >
-                                    <input
-                                      type="radio"
-                                      name="sessions-radio"
-                                      value={opt}
-                                      checked={active}
-                                      onChange={() => setSessions(active ? "" : opt)}
-                                      className="sr-only"
-                                    />
-                                    <span
-                                      className={cn(
-                                        "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
-                                        active
-                                          ? "border-emerald-500 bg-emerald-500"
-                                          : "border-slate-300 bg-white group-hover:border-emerald-300"
-                                      )}
-                                    >
-                                      <span
-                                        className={cn(
-                                          "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
-                                          active ? "scale-100 opacity-100" : "scale-0 opacity-0"
-                                        )}
-                                      />
-                                    </span>
-                                    {opt}
-                                  </label>
-                                );
-                              })}
-                              <input
-                                type="text"
-                                placeholder="Other..."
-                                value={otherSessions}
-                                onChange={(e) => {
-                                  setOtherSessions(e.target.value);
-                                  setSessions("Other");
-                                }}
-                                className="w-24 text-xs border border-slate-200 rounded-xl px-3 py-1.5 outline-none focus:ring-2 focus:ring-emerald-100"
-                              />
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5 pt-2 border-t border-slate-100">
-                            <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block">
-                              Frequency
-                            </span>
-                            <div className="flex flex-wrap gap-1.5">
-                              {["Daily", "Alternate Days", "Twice Weekly", "Weekly"].map(
-                                (opt) => {
-                                  const active = frequency === opt;
-                                  return (
-                                    <label
-                                      key={opt}
-                                      className={cn(
-                                        "group relative flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer select-none transition-all duration-200 border",
-                                        active
-                                          ? "bg-emerald-50 border-emerald-300 text-emerald-800 shadow-xs"
-                                          : "bg-white/80 border-slate-200 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40 hover:text-emerald-700"
-                                      )}
-                                    >
-                                      <input
-                                        type="radio"
-                                        name="frequency-radio"
-                                        value={opt}
-                                        checked={active}
-                                        onChange={() => setFrequency(active ? "" : opt)}
-                                        className="sr-only"
-                                      />
-                                      <span
-                                        className={cn(
-                                          "flex items-center justify-center w-4 h-4 rounded-full border-2 transition-all duration-200 shrink-0",
-                                          active
-                                            ? "border-emerald-500 bg-emerald-500"
-                                            : "border-slate-300 bg-white group-hover:border-emerald-300"
-                                        )}
-                                      >
-                                        <span
-                                          className={cn(
-                                            "w-1.5 h-1.5 rounded-full bg-white transition-all duration-200",
-                                            active ? "scale-100 opacity-100" : "scale-0 opacity-0"
-                                          )}
-                                        />
-                                      </span>
-                                      {opt}
-                                    </label>
-                                  );
-                                }
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="space-y-1.5 pt-2 border-t border-slate-100">
                             <span className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                               Home Care Advice
                             </span>
@@ -1131,47 +1040,8 @@ function ConsultingTwoContent() {
                               isEditing={isEditingHomeCare}
                             />
                           </div>
-                        </CardContent>
-                      </div>
-                    </Card>
 
-                    {/* 7. THERAPY */}
-                    <TherapyCard
-                      data={data}
-                      setData={setData as any}
-                      className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200"
-                    />
-
-                    {/* 8. PROCEDURE */}
-                    <ProcedureCard
-                      data={data}
-                      setData={setData as any}
-                      className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200"
-                    />
-
-                    {/* 9. LAB & IMAGING */}
-                    <Test
-                      data={data}
-                      setData={setData as any}
-                      setTestIsOK={setTestIsOK}
-                      className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 mt-0"
-                    />
-
-                    {/* 10. FOLLOW-UP & NOTES */}
-                    <Card className="shadow-xs border-slate-200/70 bg-white rounded-2xl overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between">
-                      <div>
-                        <CardHeader className="px-5 py-3.5 border-b border-slate-100 bg-slate-50/40 flex flex-row items-center justify-between">
-                          <div className="flex items-center gap-2.5">
-                            <div className="p-1.5 rounded-lg bg-violet-100/70 text-violet-700 border border-violet-200/50">
-                              <Calendar className="w-4 h-4" />
-                            </div>
-                            <CardTitle className="text-sm font-bold text-slate-800 tracking-tight">
-                              Follow-Up & Notes
-                            </CardTitle>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="p-5 space-y-4">
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-3 pt-2 border-t border-slate-100">
                             <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider w-36 shrink-0">
                               Next Appointment
                             </label>
@@ -1216,7 +1086,7 @@ function ConsultingTwoContent() {
                             </div>
                           )}
 
-                          <div className="pt-1">
+                          <div className="pt-2 border-t border-slate-100">
                             <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider block mb-1">
                               Additional Notes
                             </label>

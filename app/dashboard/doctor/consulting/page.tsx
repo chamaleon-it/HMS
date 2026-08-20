@@ -131,7 +131,7 @@ function ConsultingMenuContent() {
                   setData={setData}
                 />
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 items-stretch">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-4 items-start">
                   <TherapyCard data={data} setData={setData} />
                   <ProcedureCard data={data} setData={setData} />
                 </div>

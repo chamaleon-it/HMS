@@ -1,4 +1,4 @@
-import { Eye, Printer, Search, CheckCircle, RotateCcw, Calendar } from "lucide-react";
+import { Eye, Printer, Search, CheckCircle, RotateCcw } from "lucide-react";
 import React, { useState } from "react";
 import Link from "next/link";
 import Filters from "./Filter";
@@ -55,9 +55,7 @@ interface PropsType {
 import AddPaymentDialog from "./AddPaymentDialog";
 import MarkAsPaidModal from "@/components/dashboard/billing/MarkAsPaidModal";
 import toast from "react-hot-toast";
-import api from "@/lib/axios";
 import PrintReceipt from "./PrintReceipt";
-import PrintTimeline from "./PrintTimeline";
 import { PaginationBar } from "@/app/dashboard/pharmacy/components/PaginationBar";
 
 import { getBillType, getBillTypeBadgeProps } from "@/lib/billTypeUtils";
@@ -68,20 +66,10 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
   const [markAsPaidModalOpen, setMarkAsPaidModalOpen] = React.useState(false);
   const [selectedMarkAsPaidBill, setSelectedMarkAsPaidBill] = React.useState<any>(null);
   const [printBill, setPrintBill] = React.useState<PropsType["billing"][number] | null>(null);
-  const [printTimelineBill, setPrintTimelineBill] = React.useState<PropsType["billing"][number] | null>(null);
   const [selectedRefundBill, setSelectedRefundBill] = useState<BillType | null>(null);
 
   const handlePrint = (bill: PropsType["billing"][number]) => {
-    setPrintTimelineBill(null);
     setPrintBill(bill);
-    setTimeout(() => {
-      window.print();
-    }, 100);
-  };
-
-  const handlePrintTimeline = (bill: PropsType["billing"][number]) => {
-    setPrintBill(null);
-    setPrintTimelineBill(bill);
     setTimeout(() => {
       window.print();
     }, 100);
@@ -262,24 +250,6 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
                         <Button variant="outline" size="sm" onClick={() => handlePrint(b)} className="h-8 text-xs gap-1.5 text-(--color-synapse-light) border-synapse-light/30 hover:bg-purple-50 hover:text-(--color-synapse-light)">
                           <Printer className="h-3.5 w-3.5" /> Print
                         </Button>
-
-                        {b.transactionType !== "Refund" && (getBillType(b) === "therapy" || getBillType(b) === "procedure") && (
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handlePrintTimeline(b)}
-                                className="h-8 text-xs gap-1.5 text-indigo-600 border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 dark:text-indigo-400 dark:border-indigo-800"
-                              >
-                                <Calendar className="h-3.5 w-3.5" /> Timeline
-                              </Button>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Print {getBillType(b) === "procedure" ? "Procedure" : "Therapy"} Timeline Sheet</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        )}
 
                         {b.transactionType !== "Refund" && getBillType(b) === "therapy" && (
                           <Tooltip>
@@ -462,12 +432,6 @@ export default function AllBill({ billing, filter, setFilter, total, billingMuta
             invoiceNo: printBill.mrn || "INV-001",
           }}
           invoiceNo={printBill.mrn}
-        />
-      )}
-
-      {printTimelineBill && (
-        <PrintTimeline
-          bill={printTimelineBill as any}
         />
       )}
 

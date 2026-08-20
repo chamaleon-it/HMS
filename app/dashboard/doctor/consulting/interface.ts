@@ -53,8 +53,10 @@ export interface DataType {
     appetite: null | string;
   };
   therapy: null | string | string[] | any;
+  therapyDates?: string[];
   therapyNotes?: null | string;
   procedure?: null | string | string[] | any;
+  procedureDates?: string[];
   procedureNotes?: null | string;
   medicines: {
     referralName: string;

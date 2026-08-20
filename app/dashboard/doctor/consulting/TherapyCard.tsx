@@ -21,6 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import TreatmentSchedulePicker from "@/components/shared/treatment/TreatmentSchedulePicker";
 
 export interface SubTherapyOption {
   _id: string;
@@ -191,7 +192,7 @@ export default function TherapyCard({ data, setData, className }: Props) {
   return (
     <Card
       className={cn(
-        "border-slate-200 shadow-xs flex flex-col justify-between h-full",
+        "border-slate-200 shadow-xs flex flex-col justify-start",
         className
       )}
     >
@@ -405,6 +406,20 @@ export default function TherapyCard({ data, setData, className }: Props) {
               );
             })}
           </div>
+        )}
+
+        {/* Multi-Session Therapy Schedule Picker */}
+        {selectedIds.length > 0 && (
+          <TreatmentSchedulePicker
+            label="Therapy Schedule"
+            dates={data.therapyDates || [new Date().toISOString().split("T")[0]]}
+            onChange={(dates) =>
+              setData((prev) => ({
+                ...prev,
+                therapyDates: dates,
+              }))
+            }
+          />
         )}
 
         {/* Therapy Notes Area */}

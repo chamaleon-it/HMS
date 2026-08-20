@@ -21,6 +21,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import TreatmentSchedulePicker from "@/components/shared/treatment/TreatmentSchedulePicker";
 
 export interface SubProcedureOption {
   _id: string;
@@ -189,7 +190,12 @@ export default function ProcedureCard({ data, setData, className }: Props) {
   };
 
   return (
-    <Card className={cn("border-slate-200 shadow-xs flex flex-col justify-between h-full", className)}>
+    <Card
+      className={cn(
+        "border-slate-200 shadow-xs flex flex-col justify-start",
+        className
+      )}
+    >
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <CardTitle className="text-base font-semibold text-slate-800 flex items-center gap-2">
           <Stethoscope className="h-4 w-4 text-blue-600" />
@@ -398,6 +404,20 @@ export default function ProcedureCard({ data, setData, className }: Props) {
               );
             })}
           </div>
+        )}
+
+        {/* Multi-Session Procedure Schedule Picker */}
+        {selectedIds.length > 0 && (
+          <TreatmentSchedulePicker
+            label="Procedure Schedule"
+            dates={data.procedureDates || [new Date().toISOString().split("T")[0]]}
+            onChange={(dates) =>
+              setData((prev) => ({
+                ...prev,
+                procedureDates: dates,
+              }))
+            }
+          />
         )}
 
         {/* Procedure Notes Area */}
