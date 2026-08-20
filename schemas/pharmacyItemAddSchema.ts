@@ -63,11 +63,7 @@ export const pharmacyItemAddSchema = z.object({
     .int({ error: "Quantity must be an integer" })
     .optional(),
 
-  // Zod v4 provides z.iso.date() for ISO date strings
-  expiryDate: z.string({ error: "Expiry date is required" }),
-  // iso.date({
-  //   error: "Expiry date must be an ISO date (YYYY-MM-DD)",
-  // }),
+  expiryDate: z.string().optional().or(z.literal("")),
 
   batchNumber: z.string({ error: "Batch number is required" }).optional(),
 

@@ -96,9 +96,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          .font-cinzel {
-            font-family: 'Cinzel Decorative', serif !important;
-          }
+          
           .print-receipt { 
             visibility: visible !important;
             position: absolute !important;
@@ -129,7 +127,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
                             <img src="/print/image.png" alt="Logo" className="w-[90px] h-auto object-contain" />
                         </div>
                         <div className="flex flex-col gap-0 select-none">
-                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
+                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase">{configuration().hospitalName}</h1>
                             <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
                             <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
                         </div>

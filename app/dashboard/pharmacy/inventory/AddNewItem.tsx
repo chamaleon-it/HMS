@@ -487,7 +487,7 @@ export function AddNewItem({ onClose }: { onClose: () => void }) {
 
         <div>
           <label className="text-[12px] text-gray-600 font-medium">
-            Expiry Date *
+            Expiry Date
           </label>
 
           <TypableExpiryInput

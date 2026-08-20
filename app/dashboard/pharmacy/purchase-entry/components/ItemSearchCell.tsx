@@ -43,8 +43,18 @@ interface Item {
     unitPrice?: number;
     purchasePrice?: number;
     packing?: number;
-    gst?: number
-    // Add other fields as necessary from the API response
+    noOfPacking?: number;
+    mrp?: number;
+    gst?: number;
+    expiryDate?: string | Date;
+    batches?: {
+        batchNumber: string;
+        quantity: number;
+        expiryDate?: string | Date;
+        purchasePrice: number;
+        supplier: string;
+        createdAt?: string | Date;
+    }[];
 }
 
 interface ItemSearchCellProps {

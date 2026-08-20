@@ -141,38 +141,47 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
         setNewItems(newItems.filter((item) => item.id !== id));
     };
 
+    const recalculateRow = (updated: NewItem): NewItem => {
+        const pack = Number(updated.pack) || 0;
+        const noOfPack = Number(updated.noOfPack) || 0;
+        const schemaFree = Number(updated.schema_free) || 0;
+        updated.qty = (noOfPack + schemaFree) * pack;
+
+        const q = Number(updated.noOfPack) || 0;
+        const r = Number(updated.purchasePrice) || 0;
+        const dp = Number(updated.dis_p) || 0;
+        const sp = Number(updated.sgst_p) || 0;
+        const cp = Number(updated.cgst_p) || 0;
+        const sf = Number(updated.schema_free) || 0;
+
+        const gross = q * r;
+        const discount = gross * (dp / 100);
+        const taxable = gross - discount;
+        const tax = taxable * ((sp + cp) / 100);
+
+        updated.schema_amt = r * sf;
+        updated.dis = discount;
+        updated.amount = taxable + tax;
+
+        return updated;
+    };
+
     const updateNewItem = (id: string, field: keyof NewItem, value: any) => {
         setNewItems(prevItems =>
             prevItems.map((item) => {
                 if (item.id === id) {
-                    const updated = { ...item, [field]: value };
+                    return recalculateRow({ ...item, [field]: value });
+                }
+                return item;
+            })
+        );
+    };
 
-                    if (field === "pack" || field === "noOfPack" || field === "schema_free") {
-                        const pack = Number(updated.pack);
-                        const noOfPack = Number(updated.noOfPack);
-                        const schemaFree = Number(updated.schema_free);
-                        console.log(pack,noOfPack,schemaFree)
-                        updated.qty = (noOfPack + schemaFree) * pack;
-                    }
-
-                    const q = Number(updated.noOfPack) || 0;
-                    const r = Number(updated.purchasePrice) || 0;
-                    const dp = Number(updated.dis_p) || 0;
-                    const sp = Number(updated.sgst_p) || 0;
-                    const cp = Number(updated.cgst_p) || 0;
-                    const sf = Number(updated.schema_free) || 0;
-
-                    const gross = q * r;
-                    const discount = gross * (dp / 100);
-                    const taxable = gross - discount;
-                    const tax = taxable * ((sp + cp) / 100);
-
-                    updated.schema_amt = r * sf;
-
-                    updated.dis = discount;
-                    updated.amount = taxable + tax;
-
-                    return updated;
+    const updateNewItemFields = (id: string, fields: Partial<NewItem>) => {
+        setNewItems(prevItems =>
+            prevItems.map((item) => {
+                if (item.id === id) {
+                    return recalculateRow({ ...item, ...fields });
                 }
                 return item;
             })
@@ -597,15 +606,44 @@ export default function BulkUpdateTable({ items, lowStockThreshold, onSave }: Pr
                                                 selectedItemId={item._id}
                                                 selectedItemName={item.product}
                                                 onSelect={(it) => {
-
                                                     const gst = it?.gst || 0;
-                                                    updateNewItem(item.id, "_id", it._id);
-                                                    updateNewItem(item.id, "product", it.name);
-                                                    updateNewItem(item.id, "unitPrice", it.unitPrice || 0);
-                                                    updateNewItem(item.id, "purchasePrice", it.purchasePrice || 0);
-                                                    updateNewItem(item.id, "pack", it.packing || 0);
-                                                    updateNewItem(item.id, "cgst_p", gst / 2);
-                                                    updateNewItem(item.id, "sgst_p", gst / 2);
+                                                    const lastBatch = it?.batches && it.batches.length > 0
+                                                        ? it.batches[it.batches.length - 1]
+                                                        : null;
+
+                                                    const pack = it.packing || (lastBatch && it.unitPrice && it.mrp ? Math.round(it.mrp / it.unitPrice) : 0) || 0;
+                                                    const noOfPack = it.noOfPacking || (lastBatch && pack > 0 ? Math.floor(lastBatch.quantity / pack) : 0) || 0;
+
+                                                    const mrp = it.mrp != null && it.mrp > 0
+                                                        ? it.mrp
+                                                        : (it.unitPrice && pack > 0 ? Number((it.unitPrice * pack).toFixed(2)) : (it.unitPrice || 0));
+
+                                                    const purchasePrice = lastBatch?.purchasePrice ?? it.purchasePrice ?? 0;
+                                                    const batch = lastBatch?.batchNumber || "";
+
+                                                    let expiryDate = "";
+                                                    const rawExp = lastBatch?.expiryDate || it.expiryDate;
+                                                    if (rawExp) {
+                                                        try {
+                                                            const d = new Date(rawExp);
+                                                            if (!isNaN(d.getTime())) {
+                                                                expiryDate = d.toISOString().split("T")[0];
+                                                            }
+                                                        } catch (e) {}
+                                                    }
+
+                                                    updateNewItemFields(item.id, {
+                                                        _id: it._id,
+                                                        product: it.name,
+                                                        batch: "",
+                                                        pack: pack,
+                                                        noOfPack: 0,
+                                                        unitPrice: mrp,
+                                                        expiryDate: expiryDate,
+                                                        purchasePrice: purchasePrice,
+                                                        cgst_p: gst / 2,
+                                                        sgst_p: gst / 2,
+                                                    });
 
                                                     setTimeout(() => {
                                                         const currentRow = document.querySelector(`[data-row-id="${item.id}"]`);

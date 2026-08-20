@@ -8,6 +8,7 @@
   font-display: swap;
   src: url('/fonts/roboto/Roboto-Regular.woff2') format('woff2');
 }
+
 @font-face {
   font-family: 'Roboto';
   font-style: normal;
@@ -15,6 +16,7 @@
   font-display: swap;
   src: url('/fonts/roboto/Roboto-Medium.woff2') format('woff2');
 }
+
 @font-face {
   font-family: 'Roboto';
   font-style: normal;
@@ -22,6 +24,7 @@
   font-display: swap;
   src: url('/fonts/roboto/Roboto-Bold.woff2') format('woff2');
 }
+
 @font-face {
   font-family: 'Cinzel Decorative';
   font-style: normal;
@@ -29,6 +32,7 @@
   font-display: swap;
   src: url('/fonts/cinzel-decorative/CinzelDecorative-Regular.woff2') format('woff2');
 }
+
 @font-face {
   font-family: 'Cinzel Decorative';
   font-style: normal;
@@ -36,6 +40,7 @@
   font-display: swap;
   src: url('/fonts/cinzel-decorative/CinzelDecorative-Bold.woff2') format('woff2');
 }
+
 @font-face {
   font-family: 'Cinzel Decorative';
   font-style: normal;
@@ -48,9 +53,6 @@
   font-family: 'Roboto', sans-serif;
 }
 
-.font-cinzel {
-  font-family: 'Cinzel Decorative', serif !important;
-}
 
 @custom-variant dark (&:is(.dark *));
 

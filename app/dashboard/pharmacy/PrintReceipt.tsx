@@ -145,9 +145,7 @@ export default function PrintReceipt({
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          .font-cinzel {
-            font-family: 'Cinzel Decorative', serif !important;
-          }
+          
           .print-receipt { 
             visibility: visible !important;
             position: absolute !important;
@@ -178,7 +176,7 @@ export default function PrintReceipt({
 
                         </div>
                         <div className="flex flex-col gap-0 select-none">
-                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase font-cinzel">{configuration().hospitalName}</h1>
+                            <h1 className="text-[26px] font-bold text-black leading-none tracking-tight uppercase">{configuration().hospitalName}</h1>
                             <p className="text-[12px] font-medium text-black mt-1">Kunduthode, Edavanna, Malappuram</p>
                             <p className="text-[12px] font-medium text-black">Kerala, India - 676541</p>
                             {/*<p className="text-[12px] font-bold text-black uppercase mt-1">DIGIPIN: MC9-955-6F2F</p>*/}
@@ -231,22 +229,17 @@ export default function PrintReceipt({
                     <table className="w-full border-collapse relative z-10 table-layout-fixed">
                         <thead className="bg-[#d9d9d9] border-b border-[#c5c9cf] text-[11px] font-semibold text-black">
                             <tr>
-                                <th style={{ width: "5%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
-                                <th style={{ width: "28%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Medicine Description</th>
-                                <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Batch No</th>
-                                <th style={{ width: "12%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Expiry Date</th>
-                                <th style={{ width: "6%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Qty</th>
-                                <th style={{ width: "10%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">Unit Price</th>
-                                <th style={{ width: "5%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">GST</th>
-                                <th style={{ width: "12%" }} className="px-3 py-2 text-right">Amount</th>
+                                <th style={{ width: "6%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">SL</th>
+                                <th style={{ width: "50%" }} className="px-3 py-2 text-left border-r border-[#c5c9cf]">Medicine Description</th>
+                                <th style={{ width: "8%" }} className="px-2 py-2 text-center border-r border-[#c5c9cf]">Qty</th>
+                                <th style={{ width: "14%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">Unit Price</th>
+                                <th style={{ width: "8%" }} className="px-2 py-2 text-right border-r border-[#c5c9cf]">GST</th>
+                                <th style={{ width: "14%" }} className="px-3 py-2 text-right">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
                             {payload.items.map((item, index) => {
                                 const dbInfo = getBatchInfo(item.name);
-                                const rawBatch = item.batchNumber && item.batchNumber !== " " && item.batchNumber !== "—" ? item.batchNumber : dbInfo.batchNumber;
-                                const displayBatch = rawBatch === "—" ? "" : rawBatch;
-                                const displayExpiry = item.expiryDate ? item.expiryDate : dbInfo.expiryDate;
                                 const displayGeneric = item.generic || dbInfo.generic;
 
                                 return (
@@ -256,8 +249,6 @@ export default function PrintReceipt({
                                             <p className="font-bold text-black text-[12px]">{item.name}</p>
                                             {displayGeneric && <p className="text-[10px] text-gray-500 font-medium leading-none mt-0.5">{displayGeneric}</p>}
                                         </td>
-                                        <td className="px-2 py-0.5 text-center text-black text-[12px] border-r border-[#c5c9cf]">{displayBatch}</td>
-                                        <td className="px-2 py-0.5 text-center text-black text-[12px] border-r border-[#c5c9cf]">{formatExpiry(displayExpiry)}</td>
                                         <td className="px-2 py-0.5 text-center font-bold text-black text-[12px] border-r border-[#c5c9cf]">{item.quantity}</td>
                                         <td className="px-2 py-0.5 text-right font-medium text-black text-[12px] border-r border-[#c5c9cf]">{formatINR(item.unitPrice)}</td>
                                         <td className="px-2 py-0.5 text-right font-medium text-black text-[12px] border-r border-[#c5c9cf]">{item.gst}%</td>
@@ -269,8 +260,6 @@ export default function PrintReceipt({
                                 <tr key={`empty-${idx}`} className="h-[38px] bg-transparent select-none">
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-3 py-0.5">&nbsp;</td>
-                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
-                                    <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>
                                     <td className="border-r border-[#c5c9cf] px-2 py-0.5">&nbsp;</td>

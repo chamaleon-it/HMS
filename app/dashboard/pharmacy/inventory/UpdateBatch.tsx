@@ -45,10 +45,9 @@ import { z } from "zod"
 import { ItemType } from './interface'
 import TypableExpiryInput from '../purchase-entry/components/TypableExpiryInput';
 
-// Schema for adding a batch
 const addBatchSchema = z.object({
     batchNumber: z.string().min(1, "Batch number is required"),
-    expiryDate: z.coerce.date(),
+    expiryDate: z.coerce.date().optional(),
     quantity: z.coerce.number().min(1, "Quantity must be at least 1"),
     purchasePrice: z.coerce.number().min(0, "Price must be positive"),
     supplier: z.string().min(1, "Supplier is required"),
@@ -187,7 +186,7 @@ export default function UpdateBatch({ item, mutate }: Props) {
                             </div>
 
                             <div className="col-span-1">
-                                <label className="text-xs font-medium text-gray-600">Expiry Date *</label>
+                                <label className="text-xs font-medium text-gray-600">Expiry Date</label>
                                 <TypableExpiryInput
                                     value={expiryDate ? (expiryDate instanceof Date ? expiryDate.toISOString() : expiryDate as any) : ""}
                                     onChange={(dt) => setValue("expiryDate", dt as any, { shouldValidate: true })}
