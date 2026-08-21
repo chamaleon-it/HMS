@@ -900,14 +900,14 @@ const CustomerPageContent: React.FC = () => {
                                                         </div>
                                                         <div className="flex items-center gap-2">
 
-                                                            {calculatedDueAmount > 0 && (
+                                                            {/* {calculatedDueAmount > 0 && (
                                                                 <Button
                                                                     className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
                                                                     onClick={() => setShowPaymentModal(true)}
                                                                 >
                                                                     Pay Due Amount
                                                                 </Button>
-                                                            )}
+                                                            )} */}
 
                                                             {hasMedicineItems(selectedVisit?.items) && (
                                                                 <AlertDialog open={showRepeatConfirm} onOpenChange={setShowRepeatConfirm}>
