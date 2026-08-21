@@ -61,11 +61,11 @@ export const tokenStore = {
 
 /** Create an Axios instance that attaches tokens and auto-refreshes on 401 */
 export function createApi(options: CreateApiOptions = {}): AxiosInstance {
-  const { ctx = null, baseURL = process.env.NEXT_PUBLIC_API_URL || "" } = options;
+  const { ctx = null, baseURL = process.env.NEXT_PUBLIC_BACKEND_URL || "" } = options;
 
   const api = axios.create({
     baseURL,
-    withCredentials: true, 
+    withCredentials: true,
   });
 
   /** Attach Authorization header from cookie before each request */
@@ -102,7 +102,7 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
           enqueueRefresh((newAccess) => {
             if (!newAccess) return reject(error);
             original.headers = original.headers ?? {};
-            (original.headers ).Authorization = `Bearer ${newAccess}`;
+            (original.headers).Authorization = `Bearer ${newAccess}`;
             resolve(api(original));
           });
         });
@@ -162,7 +162,7 @@ export function createApi(options: CreateApiOptions = {}): AxiosInstance {
 }
 
 const api = createApi({
-    baseURL:configuration().backendUrl
+  baseURL: configuration().backendUrl
 })
 
 export default api
