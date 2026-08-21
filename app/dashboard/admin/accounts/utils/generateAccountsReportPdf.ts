@@ -60,7 +60,7 @@ const formatPdfCurrency = (val: number) => {
   return formatted.replace(/₹/g, "Rs. ");
 };
 
-const loadLogoBase64 = (src: string): Promise<string | null> => {
+const loadLogoBase64 = (src: string): Promise<{ dataUrl: string; width: number; height: number } | null> => {
   return new Promise((resolve) => {
     if (typeof window === "undefined") {
       resolve(null);
@@ -73,14 +73,16 @@ const loadLogoBase64 = (src: string): Promise<string | null> => {
         // Render at 3x HD resolution for ultra crisp print/screen quality
         const scale = 3;
         const canvas = document.createElement("canvas");
-        canvas.width = (img.width || 300) * scale;
-        canvas.height = (img.height || 300) * scale;
+        const w = img.width || 300;
+        const h = img.height || 300;
+        canvas.width = w * scale;
+        canvas.height = h * scale;
         const ctx = canvas.getContext("2d");
         if (ctx) {
           ctx.imageSmoothingEnabled = true;
           ctx.imageSmoothingQuality = "high";
           ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          resolve(canvas.toDataURL("image/png", 1.0));
+          resolve({ dataUrl: canvas.toDataURL("image/png", 1.0), width: w, height: h });
         } else {
           resolve(null);
         }
@@ -93,7 +95,7 @@ const loadLogoBase64 = (src: string): Promise<string | null> => {
   });
 };
 
-const getLogoDataUrl = async (): Promise<string | null> => {
+const getLogoDataUrl = async (): Promise<{ dataUrl: string; width: number; height: number } | null> => {
   const logoConfig = configuration().logo;
   const candidates = [logoConfig, "/logo.png", "/print/logo.png"].filter(Boolean) as string[];
   const uniqueCandidates = Array.from(new Set(candidates));
@@ -106,7 +108,7 @@ const getLogoDataUrl = async (): Promise<string | null> => {
 };
 
 export const generateAccountsReportPdf = async (data: ReportPdfData) => {
-  const logoDataUrl = await getLogoDataUrl();
+  const logoData = await getLogoDataUrl();
 
   const doc = new jsPDF({
     orientation: "portrait",
@@ -140,9 +142,12 @@ export const generateAccountsReportPdf = async (data: ReportPdfData) => {
     doc.rect(0, 14, pageWidth, 0.8, "F");
 
     let subTextX = margin;
-    if (logoDataUrl) {
-      doc.addImage(logoDataUrl, "PNG", margin, 2, 10, 10);
-      subTextX = margin + 13;
+    if (logoData) {
+      const { dataUrl, width, height } = logoData;
+      const targetHeight = 10;
+      const targetWidth = (width / height) * targetHeight;
+      doc.addImage(dataUrl, "PNG", margin, 2, targetWidth, targetHeight);
+      subTextX = margin + targetWidth + 3;
     }
 
     doc.setFont("helvetica", "bold");
@@ -167,24 +172,21 @@ export const generateAccountsReportPdf = async (data: ReportPdfData) => {
   doc.setFillColor(COLOR_SYNAPSE_LIGHT[0], COLOR_SYNAPSE_LIGHT[1], COLOR_SYNAPSE_LIGHT[2]);
   doc.rect(0, 28, pageWidth, 1.5, "F");
 
-  let textX = margin;
-  if (logoDataUrl) {
-    doc.addImage(logoDataUrl, "PNG", margin, 4, 20, 20);
-    textX = margin + 24;
+  if (logoData) {
+    const { dataUrl, width, height } = logoData;
+    const targetHeight = 18;
+    const targetWidth = (width / height) * targetHeight;
+    doc.addImage(dataUrl, "PNG", margin, 4, targetWidth, targetHeight);
   }
 
-  // Header Title
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(15);
-  doc.setTextColor(COLOR_PRIMARY[0], COLOR_PRIMARY[1], COLOR_PRIMARY[2]);
-  doc.text(configuration().hospitalName || "SYNAPSE HOSPITAL MANAGEMENT SYSTEM", textX, 13);
-
+  // Right Metadata
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9.5);
   doc.setTextColor(COLOR_SYNAPSE_LIGHT[0], COLOR_SYNAPSE_LIGHT[1], COLOR_SYNAPSE_LIGHT[2]);
-  doc.text("ACCOUNTS & FINANCIAL ANALYTICS REPORT", textX, 21);
+  doc.text("ACCOUNTS & FINANCIAL ANALYTICS REPORT", pageWidth - margin, 13, {
+    align: "right",
+  });
 
-  // Right Metadata
   const now = new Date();
   const dateStr = now.toLocaleDateString("en-IN", {
     day: "2-digit",
@@ -200,10 +202,7 @@ export const generateAccountsReportPdf = async (data: ReportPdfData) => {
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(COLOR_MUTED[0], COLOR_MUTED[1], COLOR_MUTED[2]);
-  doc.text(`Generated: ${dateStr}, ${timeStr}`, pageWidth - margin, 13, {
-    align: "right",
-  });
-  doc.text("Scope: Executive Admin Audit", pageWidth - margin, 21, {
+  doc.text(`Generated: ${dateStr}, ${timeStr}`, pageWidth - margin, 21, {
     align: "right",
   });
 

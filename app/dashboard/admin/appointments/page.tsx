@@ -470,7 +470,7 @@ function AppointmentPageContent() {
   return (
     <AppShell>
       <div className="p-0 sm:p-5 min-h-[calc(100vh-67px)] overflow-hidden flex flex-col">
-        <div className="shrink-0 mb-4 px-4 sm:px-0 print:hidden">
+        <div className="relative z-50 shrink-0 mb-4 px-4 sm:px-0 print:hidden">
           <AdminHeader
             title="Appointments"
             subtitle="Manage patient appointments and schedules"

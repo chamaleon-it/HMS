@@ -123,11 +123,9 @@ function AdminSalaryContent() {
   const allEmployees = employeeData?.data || [];
 
   // Query salary data
-  const queryUrl = `/employee-salary?month=${selectedMonth}&year=${selectedYear}${
-    statusFilter !== "all" ? `&status=${statusFilter}` : ""
-  }${roleFilter !== "all" ? `&role=${roleFilter}` : ""}${
-    employeeFilter !== "all" ? `&employeeId=${employeeFilter}` : ""
-  }${search ? `&search=${encodeURIComponent(search)}` : ""}`;
+  const queryUrl = `/employee-salary?month=${selectedMonth}&year=${selectedYear}${statusFilter !== "all" ? `&status=${statusFilter}` : ""
+    }${roleFilter !== "all" ? `&role=${roleFilter}` : ""}${employeeFilter !== "all" ? `&employeeId=${employeeFilter}` : ""
+    }${search ? `&search=${encodeURIComponent(search)}` : ""}`;
 
   const { data, isLoading, mutate } = useSWR<{
     message: string;
@@ -311,18 +309,7 @@ function AdminSalaryContent() {
               <RefreshCw className={cn("h-3.5 w-3.5", isLoading && "animate-spin")} />
               <span>Refresh</span>
             </Button>
-            <Button
-              onClick={handleGenerateBatch}
-              disabled={isGenerating}
-              className="rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs gap-1.5 shadow-sm"
-            >
-              {isGenerating ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Sparkles className="h-3.5 w-3.5" />
-              )}
-              <span>Generate {selectedMonth} Payroll</span>
-            </Button>
+
           </div>
         </AdminHeader>
 
@@ -446,20 +433,20 @@ function AdminSalaryContent() {
               roleFilter !== "all" ||
               employeeFilter !== "all" ||
               search) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setStatusFilter("all");
-                  setRoleFilter("all");
-                  setEmployeeFilter("all");
-                  setSearch("");
-                }}
-                className="text-xs text-slate-500 hover:text-slate-900 rounded-xl h-9 px-2.5"
-              >
-                Reset
-              </Button>
-            )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setStatusFilter("all");
+                    setRoleFilter("all");
+                    setEmployeeFilter("all");
+                    setSearch("");
+                  }}
+                  className="text-xs text-slate-500 hover:text-slate-900 rounded-xl h-9 px-2.5"
+                >
+                  Reset
+                </Button>
+              )}
           </div>
 
           <div className="relative w-full sm:w-64">
@@ -616,20 +603,11 @@ function AdminSalaryContent() {
 
                       <TableCell className="py-3.5 pr-6 text-right">
                         <div className="flex items-center justify-end gap-1.5">
-                          {!isPaid ? (
-                            <Button
-                              size="sm"
-                              onClick={() => handleOpenPay(s)}
-                              className="h-7 px-2.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg gap-1"
-                            >
-                              <Banknote className="h-3.5 w-3.5" />
-                              <span>Pay</span>
-                            </Button>
-                          ) : (
+                          {isPaid &&
                             <Badge className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5">
                               Paid ✓
                             </Badge>
-                          )}
+                          }
 
                           <Button
                             variant="ghost"
@@ -641,27 +619,9 @@ function AdminSalaryContent() {
                             <Printer className="h-3.5 w-3.5" />
                           </Button>
 
-                          {!isPaid && (
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleOpenEdit(s)}
-                              className="h-7 w-7 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
-                              title="Adjust Slip"
-                            >
-                              <Edit className="h-3.5 w-3.5" />
-                            </Button>
-                          )}
 
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleDeleteSalary(s._id)}
-                            className="h-7 w-7 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg"
-                            title="Delete Record"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </Button>
+
+
                         </div>
                       </TableCell>
                     </TableRow>
