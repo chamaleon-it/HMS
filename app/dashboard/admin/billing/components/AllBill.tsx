@@ -58,7 +58,7 @@ interface PropsType {
     };
   }[];
 }
-import PrintReceipt from "../../../pharmacy/billing/PrintReceipt";
+import PrintReceipt from "@/components/PrintReceipt";
 import { PaginationBar } from "../../../pharmacy/components/PaginationBar";
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {

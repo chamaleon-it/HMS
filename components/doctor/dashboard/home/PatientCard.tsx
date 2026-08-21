@@ -96,7 +96,7 @@ export function PatientCard({
   const updateStatus = async (id: string, status: string) => {
     try {
       await toast.promise(
-        api.patch(`/appointments/update_status/${id}`, { status }),
+        api.patch(`/appointments/update-status/${id}`, { status }),
         {
           loading: "Please wait we are updating status",
           error: ({ response }) => response.data.message,

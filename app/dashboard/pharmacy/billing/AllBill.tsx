@@ -62,7 +62,7 @@ import AddPaymentDialog from "./AddPaymentDialog";
 import MarkAsPaidModal from "@/components/dashboard/billing/MarkAsPaidModal";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
-import PrintReceipt from "./PrintReceipt";
+import PrintReceipt from "@/components/PrintReceipt";
 import { PaginationBar } from "../components/PaginationBar";
 
 export default function AllBill({ billing, filter, setFilter, total, billingMutate }: PropsType) {

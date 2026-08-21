@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatINR } from "@/lib/fNumber";
 import { fDateandTime, fAge } from "@/lib/fDateAndTime";
+import useSWR from "swr";
 import configuration from "@/config/configuration";
 import {
     PrintHeader,
@@ -54,6 +55,17 @@ interface PrintReceiptProps {
     invoiceNo?: string;
 }
 
+const formatExpiry = (dateStr?: string | Date) => {
+    if (!dateStr) return "";
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return String(dateStr);
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = months[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day} ${month} ${year}`;
+};
+
 export default function PrintReceipt({
     payload,
     patient,
@@ -65,6 +77,36 @@ export default function PrintReceipt({
     useEffect(() => {
         setMounted(true);
     }, []);
+
+    const isPharmacy = typeof window !== "undefined" && window.location.pathname.includes("/pharmacy");
+    const { data: itemsData } = useSWR<{ data: any[] }>(isPharmacy ? "/pharmacy/items?limit=1000" : null);
+    const dbItems = itemsData?.data || [];
+
+    const getBatchInfo = (itemName: string) => {
+        const matched = dbItems.find(
+            (it) => it.name.trim().toLowerCase() === itemName.trim().toLowerCase()
+        );
+        if (!matched) return { batchNumber: "", expiryDate: undefined, generic: undefined };
+
+        let batchNumber = matched.batchNumber || "";
+        if (batchNumber === "—") batchNumber = "";
+        let expiryDate = matched.expiryDate;
+
+        if (matched.batches && matched.batches.length > 0) {
+            const sorted = [...matched.batches].sort(
+                (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+            );
+            batchNumber = sorted[0].batchNumber || "";
+            if (batchNumber === "—") batchNumber = "";
+            expiryDate = sorted[0].expiryDate || matched.expiryDate;
+        }
+
+        return {
+            batchNumber,
+            expiryDate,
+            generic: matched.generic,
+        };
+    };
 
     if (!patient || !payload || !mounted) return null;
 
@@ -115,7 +157,7 @@ export default function PrintReceipt({
     const formattedDate = fDateandTime(new Date()).split(",")[0];
 
     const isConsultationOnly = payload.items.every(item => item.name.toLowerCase().includes("consultation"));
-    const tableHeader = isConsultationOnly ? "Description" : "Description / Service";
+    const tableHeader = isConsultationOnly ? "Description" : "Medicine / Item Description";
 
     const paymentMethod =
         payload.upi > 0
@@ -220,27 +262,37 @@ export default function PrintReceipt({
                                 <tr className="border-b-2 border-synapse-light text-[10.5px] font-bold text-slate-700 uppercase tracking-wider text-left bg-slate-50">
                                     <th className="py-2 px-2 text-center w-10">#</th>
                                     <th className="py-2 px-2">{tableHeader}</th>
-                                    <th className="py-2 px-2 text-center w-16">Qty</th>
-                                    <th className="py-2 px-2 text-right w-28">Unit Price</th>
-                                    <th className="py-2 px-2 text-right w-20">GST</th>
-                                    <th className="py-2 px-2 text-right w-28">Amount</th>
+                                    <th className="py-2 px-2 text-center">Batch No</th>
+                                    <th className="py-2 px-2 text-center">Expiry</th>
+                                    <th className="py-2 px-2 text-center">Qty</th>
+                                    <th className="py-2 px-2 text-right">Unit Price</th>
+                                    <th className="py-2 px-2 text-right">GST</th>
+                                    <th className="py-2 px-2 text-right">Amount</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-slate-200">
                                 {payload.items.map((item, index) => {
+                                    const dbInfo = getBatchInfo(item.name);
+                                    const rawBatch = item.batchNumber && item.batchNumber !== " " && item.batchNumber !== "—" ? item.batchNumber : dbInfo.batchNumber;
+                                    const displayBatch = rawBatch === "—" ? "—" : rawBatch || "—";
+                                    const displayExpiry = item.expiryDate ? item.expiryDate : dbInfo.expiryDate;
+                                    const displayGeneric = item.generic || dbInfo.generic;
+
                                     return (
                                         <tr key={index} className="even:bg-slate-50/40">
-                                            <td className="py-2.5 px-2 text-center font-bold text-slate-500 text-xs">{index + 1}</td>
-                                            <td className="py-2.5 px-2 font-bold text-slate-900">
+                                            <td className="py-2 px-2 text-center font-bold text-slate-500 text-xs">{index + 1}</td>
+                                            <td className="py-2 px-2 font-bold text-slate-900">
                                                 <p className="font-bold text-slate-900">{item.name}</p>
-                                                {item.generic && (
-                                                    <p className="text-[10px] text-slate-500 font-medium tracking-tight mt-0.5">GEN: {item.generic}</p>
+                                                {displayGeneric && (
+                                                    <p className="text-[10px] text-slate-500 font-medium tracking-tight mt-0.5">GEN: {displayGeneric}</p>
                                                 )}
                                             </td>
-                                            <td className="py-2.5 px-2 text-center font-bold text-slate-900">{item.quantity}</td>
-                                            <td className="py-2.5 px-2 text-right font-medium text-slate-800">{formatINR(item.unitPrice)}</td>
-                                            <td className="py-2.5 px-2 text-right font-medium text-slate-800">{item.gst}%</td>
-                                            <td className="py-2.5 px-2 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
+                                            <td className="py-2 px-2 text-center font-medium text-slate-700">{displayBatch}</td>
+                                            <td className="py-2 px-2 text-center font-medium text-slate-700">{formatExpiry(displayExpiry) || "—"}</td>
+                                            <td className="py-2 px-2 text-center font-bold text-slate-900">{item.quantity}</td>
+                                            <td className="py-2 px-2 text-right font-medium text-slate-800">{formatINR(item.unitPrice)}</td>
+                                            <td className="py-2 px-2 text-right font-medium text-slate-800">{item.gst}%</td>
+                                            <td className="py-2 px-2 text-right font-bold text-slate-900">{formatINR(item.total)}</td>
                                         </tr>
                                     );
                                 })}

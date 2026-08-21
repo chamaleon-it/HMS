@@ -62,7 +62,7 @@ interface PropsType {
 import AddPaymentDialog from "./AddPaymentDialog";
 import MarkAsPaidModal from "@/components/dashboard/billing/MarkAsPaidModal";
 import toast from "react-hot-toast";
-import PrintReceipt from "./PrintReceipt";
+import PrintReceipt from "@/components/PrintReceipt";
 import { PaginationBar } from "@/app/dashboard/pharmacy/components/PaginationBar";
 
 import { getBillType, getBillTypeBadgeProps } from "@/lib/billTypeUtils";

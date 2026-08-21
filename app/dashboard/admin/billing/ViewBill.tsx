@@ -13,7 +13,7 @@ import { ArrowLeft, Printer } from "lucide-react";
 import AdminHeader from "../components/AdminHeader";
 import React from "react";
 import { getDecimal } from "@/lib/fNumber";
-import PrintReceipt from "../../pharmacy/billing/PrintReceipt";
+import PrintReceipt from "@/components/PrintReceipt";
 import configuration from "@/config/configuration";
 
 export default function ViewBill({ id }: { id: string }) {

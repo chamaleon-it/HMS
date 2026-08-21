@@ -5,7 +5,7 @@ import toast from "react-hot-toast";
 import api from "@/lib/axios";
 
 import usePrint from "./usePrint";
-import PrintReceipt from "./PrintReceipt";
+import PrintReceipt from "@/components/PrintReceipt";
 import { useBillCalculations } from "./hooks/useBillCalculations";
 import { getDecimal } from "@/lib/fNumber";
 
@@ -219,7 +219,7 @@ export default function CreateBill({
       return;
     }
     try {
-      const response = await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      const response = await toast.promise(api.post("/billing", { ...payload, cash: Math.max(0, payload.cash - (Math.max(0, totalPaid - finalTotal))), doctor: payload.doctor || "Self" }), {
         loading: "We are generating this bill.",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,
@@ -247,7 +247,7 @@ export default function CreateBill({
       return;
     }
     try {
-      await toast.promise(api.post("/billing", { ...payload, cash: payload.cash - (Math.max(0, totalPaid - finalTotal)), doctor: payload.doctor || "Self" }), {
+      await toast.promise(api.post("/billing", { ...payload, cash: Math.max(0, payload.cash - (Math.max(0, totalPaid - finalTotal))), doctor: payload.doctor || "Self" }), {
         loading: "Saving bill...",
         success: ({ data }) => data.message,
         error: ({ response }) => response.data.message,

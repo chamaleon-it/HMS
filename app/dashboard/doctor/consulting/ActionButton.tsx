@@ -46,7 +46,7 @@ export default function ActionButton({ data, testIsOK }: { data: DataType, testI
       });
 
       await toast.promise(
-        api.patch(`/appointments/update_status/${data.appointment}`, {
+        api.patch(`/appointments/update-status/${data.appointment}`, {
           status: status,
         }),
         {
