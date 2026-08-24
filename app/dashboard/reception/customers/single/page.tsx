@@ -962,13 +962,6 @@ const CustomerPageContent: React.FC = () => {
                                                             >
                                                                 {printingBill ? "Printing..." : "Print bill"}
                                                             </Button>
-                                                            <Button
-                                                                className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                                disabled={printingPrescription}
-                                                                onClick={() => handlePrintPrescription(selectedVisit)}
-                                                            >
-                                                                {printingPrescription ? "Printing..." : "Print Prescription"}
-                                                            </Button>
 
                                                             <Button
                                                                 className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
