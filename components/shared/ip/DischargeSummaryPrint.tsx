@@ -2,7 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { PrintHeader, PrintFooter, PrintPatientStrip, PrintWatermark } from "@/components/print/PrintHeader";
+import {
+  PrintHeader,
+  PrintFooter,
+  PrintPatientStrip,
+  PrintWatermark,
+  PrintSignature,
+} from "@/components/print/PrintHeader";
 import { fDateOnly, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import { useAuth } from "@/auth/context/auth-context";
@@ -16,6 +22,16 @@ interface DischargeSummaryPrintProps {
   totalBilled?: number;
   totalPaid?: number;
   totalDue?: number;
+}
+
+interface PageChunk {
+  pageIndex: number;
+  showSummary: boolean;
+  medicines: Array<any & { globalIndex: number }>;
+  labs: Array<any & { globalIndex: number }>;
+  showBilling: boolean;
+  showAdvice: boolean;
+  showSignature: boolean;
 }
 
 export default function DischargeSummaryPrint({
@@ -62,13 +78,17 @@ export default function DischargeSummaryPrint({
   const allMedicines: any[] = [];
   orders.forEach((ord) => {
     (ord.items || []).forEach((it: any) => {
-      allMedicines.push({
-        name: typeof it.name === "object" ? it.name?.name : it.name,
-        dosage: it.dosage || "As directed",
-        frequency: it.frequency || "—",
-        food: it.food || "—",
-        quantity: it.quantity || 1,
-      });
+      const medName = typeof it.name === "object" ? it.name?.name : it.name;
+      if (medName && !allMedicines.some((x) => x.name === medName)) {
+        allMedicines.push({
+          name: medName,
+          dosage: it.dosage || "As directed",
+          frequency: it.frequency || "—",
+          food: it.food || "—",
+          duration: it.duration || "—",
+          quantity: it.quantity || 1,
+        });
+      }
     });
   });
 
@@ -88,6 +108,213 @@ export default function DischargeSummaryPrint({
     });
   });
 
+  // Consolidate lab investigations
+  const allLabs: any[] = [];
+  labReports.forEach((l: any, idx: number) => {
+    allLabs.push({
+      name: l.testName || l.title || (l.testId?.name ? l.testId.name : `Lab Report #${l.mrn || idx + 1}`),
+      date: l.createdAt ? fDateOnly(l.createdAt) : "—",
+      status: l.status || "Completed",
+    });
+  });
+
+  // Calculate pages
+  const PAGE_CAPACITY = 840;
+  const titleHeight = 28;
+  const admissionGridHeight = 55 + (ip.notes ? 20 : 0);
+  const diagnosisHeight = 30 + (patient?.conditions?.length > 0 ? 18 : 0);
+  const notesHeight = ipNotes.length > 0 ? 25 + Math.min(ipNotes.length, 3) * 18 : 0;
+  const summaryHeight = admissionGridHeight + diagnosisHeight + notesHeight;
+
+  const medsHeaderHeight = 28;
+  const medRowHeight = 22;
+  const labsHeaderHeight = 28;
+  const labRowHeight = 22;
+  const billingHeight = 26;
+  const adviceHeight = 38;
+  const signatureHeight = 65;
+
+  const totalMedsHeight =
+    allMedicines.length > 0 ? medsHeaderHeight + allMedicines.length * medRowHeight : 0;
+  const totalLabsHeight =
+    allLabs.length > 0 ? labsHeaderHeight + allLabs.length * labRowHeight : 0;
+
+  const totalAllHeight =
+    titleHeight +
+    summaryHeight +
+    totalMedsHeight +
+    totalLabsHeight +
+    billingHeight +
+    adviceHeight +
+    signatureHeight;
+
+  let pages: PageChunk[] = [];
+
+  if (totalAllHeight <= PAGE_CAPACITY) {
+    // Everything fits on 1 page!
+    pages = [
+      {
+        pageIndex: 0,
+        showSummary: true,
+        medicines: allMedicines.map((m, i) => ({ ...m, globalIndex: i + 1 })),
+        labs: allLabs.map((l, i) => ({ ...l, globalIndex: i + 1 })),
+        showBilling: true,
+        showAdvice: true,
+        showSignature: true,
+      },
+    ];
+  } else {
+    // Multi-page greedy builder
+    let currentMedIdx = 0;
+    let currentLabIdx = 0;
+
+    // --- PAGE 1 ---
+    let page1Avail = PAGE_CAPACITY - titleHeight - summaryHeight;
+    const page1Meds: Array<any & { globalIndex: number }> = [];
+    const page1Labs: Array<any & { globalIndex: number }> = [];
+    let page1Billing = false;
+    let page1Advice = false;
+    let page1Signature = false;
+
+    // 1. Fill medicines on Page 1
+    if (allMedicines.length > 0 && page1Avail >= medsHeaderHeight + medRowHeight) {
+      page1Avail -= medsHeaderHeight;
+      while (currentMedIdx < allMedicines.length && page1Avail >= medRowHeight) {
+        page1Avail -= medRowHeight;
+        page1Meds.push({ ...allMedicines[currentMedIdx], globalIndex: currentMedIdx + 1 });
+        currentMedIdx++;
+      }
+    }
+
+    // 2. If all medicines fit on Page 1, fill labs on Page 1
+    if (
+      currentMedIdx >= allMedicines.length &&
+      allLabs.length > 0 &&
+      page1Avail >= labsHeaderHeight + labRowHeight
+    ) {
+      page1Avail -= labsHeaderHeight;
+      while (currentLabIdx < allLabs.length && page1Avail >= labRowHeight) {
+        page1Avail -= labRowHeight;
+        page1Labs.push({ ...allLabs[currentLabIdx], globalIndex: currentLabIdx + 1 });
+        currentLabIdx++;
+      }
+    }
+
+    // 3. If all labs also fit on Page 1, check billing, advice & signature
+    if (currentMedIdx >= allMedicines.length && currentLabIdx >= allLabs.length) {
+      if (page1Avail >= billingHeight) {
+        page1Avail -= billingHeight;
+        page1Billing = true;
+      }
+      if (page1Avail >= adviceHeight) {
+        page1Avail -= adviceHeight;
+        page1Advice = true;
+      }
+      if (page1Avail >= signatureHeight) {
+        page1Avail -= signatureHeight;
+        page1Signature = true;
+      }
+    }
+
+    pages.push({
+      pageIndex: 0,
+      showSummary: true,
+      medicines: page1Meds,
+      labs: page1Labs,
+      showBilling: page1Billing,
+      showAdvice: page1Advice,
+      showSignature: page1Signature,
+    });
+
+    // --- SUBSEQUENT PAGES ---
+    while (
+      currentMedIdx < allMedicines.length ||
+      currentLabIdx < allLabs.length ||
+      !pages[pages.length - 1].showSignature
+    ) {
+      let pageAvail = PAGE_CAPACITY - titleHeight;
+      const pageMeds: Array<any & { globalIndex: number }> = [];
+      const pageLabs: Array<any & { globalIndex: number }> = [];
+      let pageBilling = false;
+      let pageAdvice = false;
+      let pageSignature = false;
+
+      const needBilling = !pages.some((p) => p.showBilling);
+      const needAdvice = !pages.some((p) => p.showAdvice);
+
+      const remMedsCount = allMedicines.length - currentMedIdx;
+      const remLabsCount = allLabs.length - currentLabIdx;
+      const remMedsH = remMedsCount > 0 ? medsHeaderHeight + remMedsCount * medRowHeight : 0;
+      const remLabsH = remLabsCount > 0 ? labsHeaderHeight + remLabsCount * labRowHeight : 0;
+      const remBillingH = needBilling ? billingHeight : 0;
+      const remAdviceH = needAdvice ? adviceHeight : 0;
+
+      if (remMedsH + remLabsH + remBillingH + remAdviceH + signatureHeight <= pageAvail) {
+        while (currentMedIdx < allMedicines.length) {
+          pageMeds.push({ ...allMedicines[currentMedIdx], globalIndex: currentMedIdx + 1 });
+          currentMedIdx++;
+        }
+        while (currentLabIdx < allLabs.length) {
+          pageLabs.push({ ...allLabs[currentLabIdx], globalIndex: currentLabIdx + 1 });
+          currentLabIdx++;
+        }
+        pages.push({
+          pageIndex: pages.length,
+          showSummary: false,
+          medicines: pageMeds,
+          labs: pageLabs,
+          showBilling: needBilling,
+          showAdvice: needAdvice,
+          showSignature: true,
+        });
+      } else {
+        // Fill remaining medicines
+        if (currentMedIdx < allMedicines.length && pageAvail >= medsHeaderHeight + medRowHeight) {
+          pageAvail -= medsHeaderHeight;
+          while (currentMedIdx < allMedicines.length && pageAvail >= medRowHeight) {
+            pageAvail -= medRowHeight;
+            pageMeds.push({ ...allMedicines[currentMedIdx], globalIndex: currentMedIdx + 1 });
+            currentMedIdx++;
+          }
+        }
+        // Fill remaining labs
+        if (currentLabIdx < allLabs.length && pageAvail >= labsHeaderHeight + labRowHeight) {
+          pageAvail -= labsHeaderHeight;
+          while (currentLabIdx < allLabs.length && pageAvail >= labRowHeight) {
+            pageAvail -= labRowHeight;
+            pageLabs.push({ ...allLabs[currentLabIdx], globalIndex: currentLabIdx + 1 });
+            currentLabIdx++;
+          }
+        }
+
+        if (currentMedIdx >= allMedicines.length && currentLabIdx >= allLabs.length) {
+          if (needBilling && pageAvail >= billingHeight) {
+            pageAvail -= billingHeight;
+            pageBilling = true;
+          }
+          if (needAdvice && pageAvail >= adviceHeight) {
+            pageAvail -= adviceHeight;
+            pageAdvice = true;
+          }
+          if (pageAvail >= signatureHeight) {
+            pageAvail -= signatureHeight;
+            pageSignature = true;
+          }
+        }
+
+        pages.push({
+          pageIndex: pages.length,
+          showSummary: false,
+          medicines: pageMeds,
+          labs: pageLabs,
+          showBilling: pageBilling,
+          showAdvice: pageAdvice,
+          showSignature: pageSignature,
+        });
+      }
+    }
+  }
+
   const printDocument = (
     <div className="print-discharge-summary-document hidden print:block bg-white text-slate-900 font-montserrat leading-relaxed">
       <style
@@ -96,16 +323,12 @@ export default function DischargeSummaryPrint({
             @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
             @media print {
               @page {
-                margin: 8mm 10mm;
+                margin: 0;
                 size: A4 portrait;
               }
               html, body {
-                height: auto !important;
-                min-height: 0 !important;
-                max-height: none !important;
                 margin: 0 !important;
                 padding: 0 !important;
-                overflow: visible !important;
                 background: white !important;
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -121,14 +344,35 @@ export default function DischargeSummaryPrint({
                 font-family: 'Montserrat', sans-serif !important;
               }
               .print-discharge-summary-document {
+                visibility: visible !important;
                 display: block !important;
-                position: static !important;
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
                 width: 100% !important;
-                height: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: white !important;
+                z-index: 999999999 !important;
+              }
+              .a4-print-page {
+                width: 210mm !important;
+                height: 297mm !important;
+                max-height: 297mm !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+                background: white !important;
+                position: relative !important;
                 margin: 0 !important;
                 padding: 0 !important;
                 box-sizing: border-box !important;
-                background: white !important;
+              }
+              .a4-print-page:last-child {
+                page-break-after: auto !important;
+                break-after: auto !important;
               }
               .break-inside-avoid {
                 page-break-inside: avoid !important;
@@ -139,301 +383,371 @@ export default function DischargeSummaryPrint({
         }}
       />
 
-      <div className="max-w-[21cm] mx-auto space-y-3.5 text-xs">
-        {/* UNIFIED PRINT HEADER */}
-        <PrintHeader />
+      {pages.map((page, pageIdx) => {
+        const totalPages = pages.length;
+        const pageNum = pageIdx + 1;
 
-        {/* PATIENT INFO STRIP */}
-        <PrintPatientStrip
-          name={patient?.name || ""}
-          age={patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "—"}
-          sex={patient?.gender ? patient.gender.charAt(0).toUpperCase() : "—"}
-          date={fDateOnly(dischargeDate)}
-          opNo={patient?.mrn ? patient.mrn.replace("MRN", "P-") : ""}
-        />
+        return (
+          <div
+            key={pageIdx}
+            className="a4-print-page w-[210mm] h-[297mm] max-h-[297mm] mx-auto flex flex-col relative z-20 bg-white border border-slate-200 print:border-none print:w-[210mm] print:h-[297mm] print:max-h-[297mm] print:m-0 print:p-0 overflow-hidden font-montserrat"
+          >
+            {/* UNIFIED PRINT HEADER ON EVERY PAGE */}
+            <PrintHeader />
 
-        {/* Document Type Header Banner */}
-        <div className="flex justify-between items-center px-6 pt-2 pb-1 border-b border-slate-300">
-          <h2 className="text-sm font-black text-synapse-light uppercase tracking-wider">
-            IN-PATIENT DISCHARGE SUMMARY
-          </h2>
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] font-bold text-slate-800 bg-slate-100 px-2.5 py-0.5 rounded border border-slate-200">
-              Admission No: {ip.admissionNumber || "—"}
-            </span>
-          </div>
-        </div>
+            {/* PATIENT INFO STRIP ON EVERY PAGE */}
+            <PrintPatientStrip
+              name={patient?.name || ""}
+              age={patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "—"}
+              sex={patient?.gender ? patient.gender.charAt(0).toUpperCase() : "—"}
+              date={fDateOnly(dischargeDate)}
+              opNo={patient?.mrn ? patient.mrn.replace("MRN", "P-") : ""}
+            />
 
-        {/* ELEGANT PATIENT & ADMISSION INFO CARD */}
-        <div className="rounded-xl border border-slate-300 bg-slate-50/80 p-3.5 shadow-2xs break-inside-avoid">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-            <div className="border-r border-slate-200 pr-2">
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-0.5">
-                Patient Name
-              </span>
-              <span className="font-bold text-slate-900 text-sm block truncate">
-                {patient?.name || "—"}
-              </span>
-            </div>
-            <div className="border-r border-slate-200 pr-2">
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-0.5">
-                MRN / UHID
-              </span>
-              <span className="font-mono font-bold text-slate-900 text-sm block">
-                {patient?.mrn || "—"}
-              </span>
-            </div>
-            <div className="border-r border-slate-200 pr-2">
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-0.5">
-                Age / Gender
-              </span>
-              <span className="font-semibold text-slate-900 block">
-                {patient?.dateOfBirth ? fAgeString(patient.dateOfBirth) : "—"} /{" "}
-                {patient?.gender || "—"}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-0.5">
-                Phone Number
-              </span>
-              <span className="font-semibold text-slate-900 block">
-                {patient?.phoneNumber || "—"}
-              </span>
-            </div>
+            {/* MAIN CONTENT CANVAS */}
+            <div className="flex-1 relative flex flex-col px-8 py-3 bg-white overflow-hidden space-y-2 text-xs">
+              <PrintWatermark />
 
-            <div className="border-r border-slate-200 pr-2 pt-2 border-t">
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-0.5">
-                Admission Date
-              </span>
-              <span className="font-semibold text-slate-900 block">
-                {admissionDate ? fDateandTime(admissionDate) : "—"}
-              </span>
-            </div>
-            <div className="border-r border-slate-200 pr-2 pt-2 border-t">
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-0.5">
-                Discharge Date
-              </span>
-              <span className="font-semibold text-slate-900 block">
-                {fDateandTime(dischargeDate)}
-              </span>
-            </div>
-            <div className="border-r border-slate-200 pr-2 pt-2 border-t">
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-0.5">
-                Length of Stay
-              </span>
-              <span className="font-bold text-emerald-800 block">
-                {stayDays} Day{stayDays === 1 ? "" : "s"}
-              </span>
-            </div>
-            <div className="pt-2 border-t border-slate-200">
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block mb-0.5">
-                Ward / Room / Bed
-              </span>
-              <span className="font-semibold text-slate-900 block">
-                {ip.ward || "TBD"} / {ip.room || "TBD"} (Bed: {ip.bedNumber || "TBD"})
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* DIAGNOSIS & CLINICAL CONDITION */}
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/40 p-3 shadow-2xs border-l-4 border-l-emerald-700 break-inside-avoid">
-          <h4 className="font-bold text-emerald-950 uppercase tracking-wider text-[11px] pb-1 border-b border-emerald-200/60 mb-1">
-            Primary Diagnosis & Medical History
-          </h4>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block">
-                Diagnosis
-              </span>
-              <span className="font-bold text-slate-900 text-sm">
-                {ip.diagnosis || "Under Observation & Medical Management"}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block">
-                Allergies
-              </span>
-              <span className={patient?.allergies ? "font-bold text-rose-700" : "font-semibold text-slate-700"}>
-                {patient?.allergies || "None"}
-              </span>
-            </div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold block">
-                Pre-existing Conditions
-              </span>
-              <span className="font-semibold text-slate-900">
-                {patient?.conditions?.length > 0 ? patient.conditions.join(", ") : "None"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* IN-PATIENT PROGRESS & QUICK NOTES */}
-        {ipNotes.length > 0 && (
-          <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-2xs border-l-4 border-l-indigo-600 break-inside-avoid space-y-2">
-            <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-100">
-              In-Patient Clinical Progress & Daily Notes
-            </h4>
-            <div className="space-y-2">
-              {ipNotes.map((n: any, idx: number) => (
-                <div key={idx} className="bg-slate-50 border border-slate-200 p-2 rounded-lg text-xs">
-                  <div className="flex justify-between items-center mb-1">
-                    <span className="font-bold text-slate-900">
-                      {fDateandTime(n.createdAt ?? new Date())}
+              {/* Title Banner */}
+              <div className="flex justify-between items-center relative z-10 border-b-2 border-synapse-light pb-1 mb-0.5">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-sm font-black text-synapse-light uppercase tracking-wider">
+                    {pageIdx === 0
+                      ? "In-Patient Discharge Summary"
+                      : "In-Patient Discharge Summary (Continued)"}
+                  </h2>
+                  {totalPages > 1 && (
+                    <span className="text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                      Page {pageNum} of {totalPages}
                     </span>
-                    {(n.bp || n.hr || n.temp || n.spo2) && (
-                      <span className="text-[11px] font-semibold text-slate-700">
-                        {n.bp ? `BP: ${n.bp}` : ""} {n.hr ? `| HR: ${n.hr}` : ""} {n.temp ? `| Temp: ${n.temp}°C` : ""} {n.spo2 ? `| SpO2: ${n.spo2}%` : ""}
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[11px] font-bold text-slate-800">
+                    Admission No:{" "}
+                    <strong className="text-black font-extrabold">
+                      {ip.admissionNumber || "—"}
+                    </strong>
+                  </span>
+                </div>
+              </div>
+
+              {/* FIRST PAGE: ADMISSION DETAILS & CLINICAL SUMMARY */}
+              {page.showSummary && (
+                <>
+                  {/* Clean Admission Details Grid */}
+                  <div className="relative z-10 grid grid-cols-4 gap-x-4 gap-y-1.5 py-1.5 border-b border-slate-200 text-xs">
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Assigned Doctor
                       </span>
+                      <span className="font-bold text-slate-900 text-[12px]">
+                        {doctorName}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Ward & Room
+                      </span>
+                      <span className="font-bold text-slate-900 text-[12px]">
+                        {ip.ward || "—"} / {ip.room || "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Bed Number
+                      </span>
+                      <span className="font-bold text-slate-900 text-[12px]">
+                        {ip.bed || ip.bedNumber || "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Length of Stay
+                      </span>
+                      <span className="font-bold text-emerald-800 text-[12px]">
+                        {stayDays} {stayDays === 1 ? "Day" : "Days"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Admission Date
+                      </span>
+                      <span className="font-semibold text-slate-800 text-[11.5px]">
+                        {admissionDate ? fDateandTime(admissionDate) : "—"}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Discharge Date
+                      </span>
+                      <span className="font-semibold text-slate-800 text-[11.5px]">
+                        {fDateandTime(dischargeDate)}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        Admission Status
+                      </span>
+                      <span className="font-bold text-slate-900 text-[11.5px]">
+                        {ip.status || "Discharged"}
+                      </span>
+                    </div>
+                    {ip.notes && (
+                      <div className="col-span-4 pt-0.5">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                          Admission Notes
+                        </span>
+                        <span className="font-medium text-slate-800 text-[11.5px]">
+                          {ip.notes}
+                        </span>
+                      </div>
                     )}
                   </div>
-                  {n.note && <p className="text-slate-800 leading-relaxed">{n.note}</p>}
+
+                  {/* Clean Diagnosis & Medical History */}
+                  <div className="relative z-10 py-1.5 border-b border-slate-200 text-xs space-y-1">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <span className="font-black text-synapse-light uppercase tracking-wider text-[11px] block">
+                          Primary Diagnosis:
+                        </span>
+                        <span className="font-bold text-slate-900 text-[12px]">
+                          {ip.diagnosis || "Under Observation & Medical Management"}
+                        </span>
+                      </div>
+                      {patient?.allergies && (
+                        <div className="shrink-0">
+                          <span className="text-[10.5px] font-extrabold text-rose-700 bg-rose-50 px-2.5 py-0.5 rounded border border-rose-200 inline-block">
+                            Allergies: {patient.allergies}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    {patient?.conditions?.length > 0 && (
+                      <p className="text-slate-800 text-[11.5px]">
+                        <span className="font-bold text-slate-600 text-[10px] uppercase tracking-wide">
+                          Pre-Existing Conditions:{" "}
+                        </span>
+                        <span className="font-medium text-slate-800">
+                          {patient.conditions.join(", ")}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* In-Patient Clinical Notes / Vitals */}
+                  {ipNotes.length > 0 && (
+                    <div className="relative z-10 py-1 border-b border-slate-200 space-y-1">
+                      <h3 className="font-black text-xs text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                        <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
+                        Clinical Progress Notes
+                      </h3>
+                      <div className="space-y-1 text-[11.5px]">
+                        {ipNotes.slice(0, 3).map((n: any, idx: number) => (
+                          <div key={idx} className="flex items-start justify-between py-0.5">
+                            <div className="flex-1 pr-2">
+                              <span className="font-bold text-slate-900">
+                                {fDateandTime(n.createdAt ?? new Date())}:{" "}
+                              </span>
+                              <span className="text-slate-800">{n.note}</span>
+                            </div>
+                            {(n.bp || n.hr || n.temp || n.spo2) && (
+                              <span className="text-[10.5px] font-semibold text-slate-600 whitespace-nowrap">
+                                {[
+                                  n.bp && `BP: ${n.bp}`,
+                                  n.hr && `HR: ${n.hr}`,
+                                  n.temp && `Temp: ${n.temp}°C`,
+                                  n.spo2 && `SpO₂: ${n.spo2}%`,
+                                ]
+                                  .filter(Boolean)
+                                  .join(" | ")}
+                              </span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* PRESCRIBED DISCHARGE MEDICATIONS (Rx) */}
+              {page.medicines.length > 0 && (
+                <div className="break-inside-avoid relative z-10 space-y-1 pt-0.5">
+                  <div className="flex justify-between items-center border-b-2 border-synapse-light pb-1">
+                    <h3 className="font-black text-xs text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                      <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
+                      {page.showSummary
+                        ? "Discharge & Prescribed Medications"
+                        : "Discharge Medications (Continued)"}
+                    </h3>
+                    <span className="font-serif italic text-base font-black text-synapse-light">
+                      Rx
+                    </span>
+                  </div>
+                  <table className="w-full border-collapse text-[12px]">
+                    <thead>
+                      <tr className="border-b border-slate-300 text-[10.5px] font-black text-slate-800 uppercase tracking-wider text-left bg-slate-100/80">
+                        <th className="py-1 px-2 text-center w-8">#</th>
+                        <th className="py-1 px-2">Medicine Name</th>
+                        <th className="py-1 px-2 text-center">Dosage</th>
+                        <th className="py-1 px-2 text-center">Frequency</th>
+                        <th className="py-1 px-2 text-center">Timing / Food</th>
+                        <th className="py-1 px-2 text-center">Duration</th>
+                        <th className="py-1 px-2 text-center">Qty</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {page.medicines.map((m: any) => (
+                        <tr key={m.globalIndex} className="even:bg-slate-50/60">
+                          <td className="py-1 px-2 text-center font-bold text-slate-600 text-[11px]">
+                            {m.globalIndex}
+                          </td>
+                          <td className="py-1 px-2 font-black text-slate-900 text-[12px]">
+                            {m.name}
+                          </td>
+                          <td className="py-1 px-2 text-center font-bold text-slate-800 text-[12px]">
+                            {m.dosage || "—"}
+                          </td>
+                          <td className="py-1 px-2 text-center font-black text-synapse-light text-[12px]">
+                            {m.frequency || "—"}
+                          </td>
+                          <td className="py-1 px-2 text-center font-semibold text-slate-700 text-[12px]">
+                            {m.food || "—"}
+                          </td>
+                          <td className="py-1 px-2 text-center font-bold text-slate-800 text-[12px]">
+                            {m.duration || "—"}
+                          </td>
+                          <td className="py-1 px-2 text-center font-black text-slate-900 text-[12px]">
+                            {m.quantity || "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              )}
 
-        {/* PRESCRIBED DISCHARGE MEDICATIONS (Rx) */}
-        {allMedicines.length > 0 && (
-          <div className="rounded-xl border border-slate-300 overflow-hidden text-xs shadow-2xs break-inside-avoid">
-            <div className="bg-slate-900 text-white font-bold px-3 py-2 flex justify-between items-center">
-              <span className="uppercase tracking-wider text-[11px]">
-                Discharge & Prescribed Medications
-              </span>
-              <span className="font-serif italic text-base">Rx</span>
-            </div>
-            <table className="w-full border-collapse">
-              <thead className="bg-slate-100 text-[11px] font-bold text-slate-700 border-b border-slate-300 uppercase tracking-wider">
-                <tr>
-                  <th className="p-2 text-center w-8">#</th>
-                  <th className="p-2 text-left">Medicine Name</th>
-                  <th className="p-2 text-center">Dosage</th>
-                  <th className="p-2 text-center">Frequency</th>
-                  <th className="p-2 text-center">Timing / Food</th>
-                  <th className="p-2 text-center">Qty</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 bg-white">
-                {allMedicines.map((m, idx) => (
-                  <tr key={idx} className="even:bg-slate-50/50">
-                    <td className="p-2 text-center text-slate-500 font-medium">{idx + 1}</td>
-                    <td className="p-2 font-bold text-slate-900">{m.name}</td>
-                    <td className="p-2 text-center font-medium">{m.dosage}</td>
-                    <td className="p-2 text-center font-semibold text-slate-800">{m.frequency}</td>
-                    <td className="p-2 text-center font-medium">{m.food}</td>
-                    <td className="p-2 text-center font-bold text-slate-900">{m.quantity}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              {/* LAB INVESTIGATIONS SUMMARY */}
+              {page.labs.length > 0 && (
+                <div className="break-inside-avoid relative z-10 space-y-1 pt-0.5">
+                  <div className="border-b-2 border-synapse-light pb-1">
+                    <h3 className="font-black text-xs text-synapse-light uppercase tracking-wider flex items-center gap-2">
+                      <span className="w-1.5 h-3.5 bg-synapse-light rounded-full inline-block"></span>
+                      Lab Investigations Summary
+                    </h3>
+                  </div>
+                  <table className="w-full border-collapse text-[12px]">
+                    <thead>
+                      <tr className="border-b border-slate-300 text-[10.5px] font-black text-slate-800 uppercase tracking-wider text-left bg-slate-100/80">
+                        <th className="py-1 px-2 text-center w-8">#</th>
+                        <th className="py-1 px-2">Report / Investigation</th>
+                        <th className="py-1 px-2 text-center">Date</th>
+                        <th className="py-1 px-2 text-center">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {page.labs.map((l: any) => (
+                        <tr key={l.globalIndex} className="even:bg-slate-50/60">
+                          <td className="py-1 px-2 text-center font-bold text-slate-600 text-[11px]">
+                            {l.globalIndex}
+                          </td>
+                          <td className="py-1 px-2 font-black text-slate-900 text-[12px]">
+                            {l.name}
+                          </td>
+                          <td className="py-1 px-2 text-center font-bold text-slate-800 text-[12px]">
+                            {l.date}
+                          </td>
+                          <td className="py-1 px-2 text-center capitalize font-black text-emerald-700 text-[12px]">
+                            {l.status}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
 
-        {/* LAB INVESTIGATIONS SUMMARY */}
-        {labReports.length > 0 && (
-          <div className="rounded-xl border border-slate-300 overflow-hidden text-xs shadow-2xs break-inside-avoid">
-            <div className="bg-slate-900 text-white font-bold px-3 py-2 uppercase tracking-wider text-[11px]">
-              Summary of Lab Investigations & Reports
-            </div>
-            <table className="w-full border-collapse">
-              <thead className="bg-slate-100 text-[11px] font-bold text-slate-700 border-b border-slate-300 uppercase tracking-wider">
-                <tr>
-                  <th className="p-2 text-center w-8">#</th>
-                  <th className="p-2 text-left">Report / Test Name</th>
-                  <th className="p-2 text-center">Date</th>
-                  <th className="p-2 text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-200 bg-white">
-                {labReports.map((l, idx) => (
-                  <tr key={idx}>
-                    <td className="p-2 text-center text-slate-500 font-medium">{idx + 1}</td>
-                    <td className="p-2 font-bold text-slate-900">
-                      Report #{l.mrn || idx + 1}
-                    </td>
-                    <td className="p-2 text-center font-medium">
-                      {fDateOnly(l.createdAt)}
-                    </td>
-                    <td className="p-2 text-center capitalize font-semibold text-emerald-700">
-                      {l.status}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+              {/* FINANCIAL / BILLING SUMMARY */}
+              {page.showBilling && (
+                <div className="break-inside-avoid relative z-10 py-1.5 border-t border-b border-slate-200 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-black text-xs text-synapse-light uppercase tracking-wider">
+                      Financial Summary:
+                    </span>
+                    <div className="flex items-center gap-6 text-[12px]">
+                      <span>
+                        Total Billed:{" "}
+                        <strong className="font-black text-slate-900">
+                          {formatINR(totalBilled)}
+                        </strong>
+                      </span>
+                      <span>
+                        Total Paid:{" "}
+                        <strong className="font-black text-emerald-800">
+                          {formatINR(totalPaid)}
+                        </strong>
+                      </span>
+                      <span>
+                        Balance:{" "}
+                        <strong
+                          className={`font-black ${
+                            totalDue > 0 ? "text-rose-700" : "text-slate-800"
+                          }`}
+                        >
+                          {formatINR(totalDue)}
+                        </strong>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-        {/* FINANCIAL / BILLING SUMMARY */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 text-xs break-inside-avoid">
-          <h4 className="font-bold text-slate-900 uppercase tracking-wider text-[11px] pb-1 border-b border-slate-200 mb-1.5">
-            Financial & Billing Summary
-          </h4>
-          <div className="grid grid-cols-3 gap-3 text-center">
-            <div className="bg-white border border-slate-200 p-2 rounded-lg">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                Total Billed
-              </span>
-              <span className="font-bold text-slate-900 text-sm">{formatINR(totalBilled)}</span>
-            </div>
-            <div className="bg-white border border-slate-200 p-2 rounded-lg">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                Total Paid
-              </span>
-              <span className="font-bold text-emerald-700 text-sm">{formatINR(totalPaid)}</span>
-            </div>
-            <div className="bg-white border border-slate-200 p-2 rounded-lg">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">
-                Balance Due
-              </span>
-              <span className={totalDue > 0 ? "font-bold text-rose-700 text-sm" : "font-bold text-slate-700 text-sm"}>
-                {formatINR(totalDue)}
-              </span>
-            </div>
-          </div>
-        </div>
+              {/* DISCHARGE ADVICE & FOLLOW-UP */}
+              {page.showAdvice && (
+                <div className="break-inside-avoid relative z-10 pt-1 space-y-1 text-[12px]">
+                  <p className="text-slate-900">
+                    <span className="font-black text-synapse-light uppercase tracking-wider text-xs">
+                      Discharge Advice:{" "}
+                    </span>
+                    <span className="font-semibold text-slate-800">
+                      Continue prescribed medications strictly as indicated. Maintain
+                      adequate hydration, rest, and hygiene. Seek immediate emergency
+                      care if high fever, severe pain, or acute symptoms occur.
+                    </span>
+                  </p>
+                  <p className="text-slate-900">
+                    <span className="font-black text-synapse-light uppercase tracking-wider text-xs">
+                      Follow-Up Date:{" "}
+                    </span>
+                    <span className="font-black text-emerald-800">
+                      7 Days from Discharge (or as advised by attending physician)
+                    </span>
+                  </p>
+                </div>
+              )}
 
-        {/* DISCHARGE ADVICE & FOLLOW-UP */}
-        <div className="rounded-xl border border-slate-200 bg-slate-50/80 p-3.5 text-xs space-y-1.5 break-inside-avoid">
-          <p className="text-slate-800">
-            <span className="font-bold text-slate-900 uppercase tracking-wider text-[10px]">
-              Discharge Advice:
-            </span>{" "}
-            <span className="font-medium">
-              Continue prescribed medications strictly as indicated. Maintain adequate hydration, rest, and hygiene. Seek immediate emergency care if high fever, severe pain, or unexpected symptoms develop.
-            </span>
-          </p>
-          <p className="text-slate-800">
-            <span className="font-bold text-slate-900 uppercase tracking-wider text-[10px]">
-              Follow-Up Date:
-            </span>{" "}
-            <span className="font-bold text-emerald-800">
-              7 Days from Discharge (or as advised by primary consultant)
-            </span>
-          </p>
-        </div>
+              {/* DOCTOR SIGNATURE ON FINAL PAGE */}
+              {page.showSignature && (
+                <div className="mt-auto pt-2 relative z-10">
+                  <PrintSignature
+                    doctorName={doctorName}
+                    specialization={
+                      ip.doctorId?.specialization ||
+                      user?.specialization ||
+                      "General Medicine"
+                    }
+                  />
+                </div>
+              )}
+            </div>
 
-        {/* LUXURY SIGNATURE FOOTER */}
-        <div className="pt-6 flex justify-between items-end text-xs border-t border-slate-300 break-inside-avoid">
-          <div>
-            <p className="text-slate-500 font-medium">
-              Date & Time: {new Date().toLocaleString()}
-            </p>
+            {/* UNIFIED PRINT FOOTER ON EVERY PAGE */}
+            <PrintFooter pageNumber={pageNum} totalPages={totalPages} />
           </div>
-          <div className="text-right space-y-1">
-            <div className="border-b-2 border-slate-800 w-48 ml-auto mb-1"></div>
-            <p className="font-bold text-slate-900 text-sm">{doctorName}</p>
-            <p className="text-slate-500 text-[11px] font-semibold tracking-wide uppercase">
-              Attending Medical Practitioner
-            </p>
-          </div>
-        </div>
-
-        {/* UNIFIED PRINT FOOTER */}
-        <PrintFooter />
-      </div>
+        );
+      })}
     </div>
   );
 
