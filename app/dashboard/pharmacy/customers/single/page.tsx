@@ -29,7 +29,7 @@ import PrintPrescription from "../../billing/PrintPrescription";
 import PrintReceipt from "../../PrintReceipt";
 import PharmacyHeader from "../../components/PharmacyHeader";
 import { useDrafts } from "../../DraftContext";
-import { hasMedicineItems, isMedicineItem } from "@/lib/billTypeUtils";
+import { hasMedicineItems, isMedicineItem, isPharmacyBill } from "@/lib/billTypeUtils";
 import {
     AlertDialog,
     AlertDialogAction,
@@ -62,14 +62,17 @@ const CustomerPageContent: React.FC = () => {
     const id = searchParams.get("id");
 
     const { data: billingData, error, mutate } = useSWR<CustomerType>(
-        id ? `/billing/single?q=${id}` : null
+        id ? `/billing/single?q=${id}&role=Pharmacy` : null
     );
 
     const { data: patientData, error: patientError } = useSWR<{ data: any; message: string }>(
         id ? `/patients/single/${id}` : null
     );
 
-    const billing = billingData?.data || [];
+    const rawBilling = billingData?.data || [];
+    const billing = React.useMemo(() => {
+        return rawBilling.filter(isPharmacyBill);
+    }, [rawBilling]);
 
     const customer = React.useMemo(() => {
         const patient = patientData?.data || (billing.length > 0 ? billing[0].patient : null);
@@ -108,6 +111,16 @@ const CustomerPageContent: React.FC = () => {
     }, [billing, patientData]);
 
     const [selectedVisit, setSelectedVisit] = useState<BillingRecord | null>(null);
+
+    React.useEffect(() => {
+        if (billing.length > 0) {
+            if (!selectedVisit || !billing.some(b => b._id === selectedVisit._id)) {
+                setSelectedVisit(billing[0]);
+            }
+        } else {
+            setSelectedVisit(null);
+        }
+    }, [billing]);
     const { addDraft } = useDrafts();
 
     const handleRepeatPrescription = () => {
@@ -301,7 +314,7 @@ const CustomerPageContent: React.FC = () => {
                 try {
                     const { data } = await api.get<{
                         data: any[], message: string
-                    }>(`/billing/single?q=${id}`);
+                    }>(`/billing/single?q=${id}&role=Pharmacy`);
                     if (Array.isArray(data?.data)) {
                         bill = data.data.find((b: any) => b.mrn === targetMrn || b._id === targetMrn);
                     }
