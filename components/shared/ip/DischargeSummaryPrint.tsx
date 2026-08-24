@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { PrintHeader, PrintFooter, PrintPatientStrip, PrintWatermark } from "@/components/print/PrintHeader";
-import { fDateandTime, fAgeString } from "@/lib/fDateAndTime";
+import { fDateOnly, fDateandTime, fAgeString } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import { useAuth } from "@/auth/context/auth-context";
 
@@ -148,7 +148,7 @@ export default function DischargeSummaryPrint({
           name={patient?.name || ""}
           age={patient?.dateOfBirth ? `${fAgeString(patient.dateOfBirth)}` : "—"}
           sex={patient?.gender ? patient.gender.charAt(0).toUpperCase() : "—"}
-          date={fDateandTime(dischargeDate).split(",")[0]}
+          date={fDateOnly(dischargeDate)}
           opNo={patient?.mrn ? patient.mrn.replace("MRN", "P-") : ""}
         />
 
@@ -354,7 +354,7 @@ export default function DischargeSummaryPrint({
                       Report #{l.mrn || idx + 1}
                     </td>
                     <td className="p-2 text-center font-medium">
-                      {fDateandTime(l.createdAt).split(",")[0]}
+                      {fDateOnly(l.createdAt)}
                     </td>
                     <td className="p-2 text-center capitalize font-semibold text-emerald-700">
                       {l.status}

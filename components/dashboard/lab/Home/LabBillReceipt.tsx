@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { fDateandTime, fAge } from "@/lib/fDateAndTime";
+import { fDateOnly, fDateandTime, fAge } from "@/lib/fDateAndTime";
 import useGetTest from "@/data/useGetTest";
 import { formatINR } from "@/lib/fNumber";
 import configuration from "@/config/configuration";
@@ -75,7 +75,7 @@ export default function LabBillReceipt({ report, bill, panels }: LabBillReceiptP
         else sexStr = String(rawSex).trim().charAt(0).toUpperCase();
     }
     const opNumber = patient?.mrn ? patient.mrn.replace("MRN", "P-") : "";
-    const formattedDate = fDateandTime(billDate).split(",")[0];
+    const formattedDate = fDateOnly(billDate);
 
     // Calculate items
     let items: { name: string; total: number; gst?: number }[] = [];

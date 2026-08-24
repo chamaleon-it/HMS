@@ -165,6 +165,19 @@ export function PrintPatientStrip({
   opNo,
   className,
 }: PrintPatientStripProps) {
+  let displayDate = (date || "").trim();
+  if (displayDate) {
+    const parts = displayDate.split(/\s+/);
+    if (
+      parts.length > 1 &&
+      (parts[1].includes(":") ||
+        parts[parts.length - 1].toLowerCase() === "am" ||
+        parts[parts.length - 1].toLowerCase() === "pm")
+    ) {
+      displayDate = parts[0];
+    }
+  }
+
   return (
     <div
       className={cn(
@@ -194,7 +207,7 @@ export function PrintPatientStrip({
         <div className="flex items-center gap-2 w-32">
           <span className="text-slate-800">Date:</span>
           <span className="font-semibold text-black text-[13.5px] border-b border-dotted border-slate-500 flex-1 text-center min-h-5 leading-normal">
-            {date || "__________"}
+            {displayDate || "__________"}
           </span>
         </div>
       </div>
