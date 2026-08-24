@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { DateRange } from "react-day-picker";
-import Link from "next/link";
 import { motion } from "framer-motion";
 // Removed Datum and ReturnType as they are replaced by BillingRecord
 import toast from "react-hot-toast";
@@ -480,58 +479,55 @@ const CustomerPageContent: React.FC = () => {
                                         </div>
                                     </div>
 
-                                    <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-indigo-50 to-synapse-purple/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                                            <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
+                                    <section className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+                                        <div className="border rounded-2xl p-3 bg-linear-to-br from-indigo-50 to-synapse-purple/60 flex flex-col justify-between gap-1 shadow-xs transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide truncate">
                                                 Total Spend
                                             </div>
-                                            <div className="text-2xl font-bold text-(--color-synapse-light)">
+                                            <div className="text-xl font-bold text-(--color-synapse-light) truncate">
                                                 {formatINR(customer?.totalSpend ?? 0)}
                                             </div>
                                         </div>
 
-
-                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                                            <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide">
+                                        <div className="border rounded-2xl p-3 bg-linear-to-br from-emerald-50 to-emerald-100/60 flex flex-col justify-between gap-1 shadow-xs transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-emerald-700 uppercase tracking-wide truncate">
                                                 Total Paid
                                             </div>
-                                            <div className="text-2xl font-bold text-emerald-900">
+                                            <div className="text-xl font-bold text-emerald-900 truncate">
                                                 {formatINR(customer?.totalPaid ?? 0)}
                                             </div>
                                         </div>
 
-
-                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                                            <div className="text-xs font-medium text-rose-700 uppercase tracking-wide">
+                                        <div className="border rounded-2xl p-3 bg-linear-to-br from-rose-50 to-rose-100/60 flex flex-col justify-between gap-1 shadow-xs transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-rose-700 uppercase tracking-wide truncate">
                                                 Total Due
                                             </div>
-                                            <div className="text-2xl font-bold text-rose-900">
+                                            <div className="text-xl font-bold text-rose-900 truncate">
                                                 {formatINR(customer?.totalDue ?? 0)}
                                             </div>
                                         </div>
 
-
-                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                                            <div className="text-xs font-medium text-sky-700 uppercase tracking-wide">
+                                        <div className="border rounded-2xl p-3 bg-linear-to-br from-sky-50 to-sky-100/60 flex flex-col justify-between gap-1 shadow-xs transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-sky-700 uppercase tracking-wide truncate">
                                                 Total Visits
                                             </div>
-                                            <div className="text-3xl font-semibold text-sky-900">
+                                            <div className="text-2xl font-bold text-sky-900 truncate">
                                                 {customer?.totalVisit}
                                             </div>
                                         </div>
-                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                                            <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide">
+                                        <div className="border rounded-2xl p-3 bg-linear-to-br from-violet-50 to-violet-100/60 flex flex-col justify-between gap-1 shadow-xs transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-(--color-synapse-light) uppercase tracking-wide truncate">
                                                 Last Purchase
                                             </div>
-                                            <div className="text-sm font-semibold text-(--color-synapse-light)">
+                                            <div className="text-sm font-semibold text-(--color-synapse-light) truncate">
                                                 {customer?.lastPurchase ? fDate(customer.lastPurchase) : "N/A"}
                                             </div>
                                         </div>
-                                        <div className="border rounded-2xl p-4 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col gap-1 shadow-sm transition-transform duration-150 hover:-translate-y-0.5">
-                                            <div className="text-xs font-medium text-amber-700 uppercase tracking-wide">
+                                        <div className="border rounded-2xl p-3 bg-linear-to-br from-amber-50 to-amber-100/60 flex flex-col justify-between gap-1 shadow-xs transition-transform duration-150 hover:-translate-y-0.5">
+                                            <div className="text-xs font-medium text-amber-700 uppercase tracking-wide truncate">
                                                 Avg Spend
                                             </div>
-                                            <div className="text-2xl font-semibold text-amber-900">
+                                            <div className="text-xl font-semibold text-amber-900 truncate">
                                                 {formatINR(customer?.averageSpend || 0)}
                                             </div>
                                         </div>
@@ -961,15 +957,6 @@ const CustomerPageContent: React.FC = () => {
                                                                 onClick={() => handlePrintBill(selectedVisit?.mrn || selectedVisit?._id)}
                                                             >
                                                                 {printingBill ? "Printing..." : "Print bill"}
-                                                            </Button>
-
-                                                            <Button
-                                                                className="rounded-full text-sm px-6 py-2 bg-(--color-synapse-dark) text-white hover:bg-(--color-synapse-purple)"
-                                                                asChild
-                                                            >
-                                                                <Link href={selectedVisit.mrn ? `/dashboard/pharmacy/return/?mrn=${selectedVisit.mrn}` : `#`}>
-                                                                    Return
-                                                                </Link>
                                                             </Button>
                                                         </div>
                                                     </div>}
