@@ -44,6 +44,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import configuration from "@/config/configuration";
+import { useLabCalculations } from "./hooks/useLabCalculations";
 
 function TimePicker({ date, onChange, disabled }: { date: Date | undefined; onChange: (h: number, m: number) => void; disabled?: boolean }) {
   if (!date) {
@@ -207,84 +208,10 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
     r.testStartedAt ? new Date(r.testStartedAt) : (r.updatedAt ? new Date(r.updatedAt) : undefined)
   );
 
-  // Auto-calculation logic for Lipid Profile and LFT
-  useEffect(() => {
-    const tests = payload.test;
-    const normalize = (str?: string) => (str || "").replace(/\s+/g, "").toLowerCase();
-    const findTest = (name: string) => tests.find(t => normalize(t.name?.name) === normalize(name));
-
-    const tcTest = findTest("total cholesterol");
-    const tgTest = findTest("triglyceride");
-    const hdlTest = findTest("hdl cholesterol");
-    const tpTest = findTest("total proteins");
-    const saTest = findTest("serum albumin");
-
-    const tc = tcTest?.value ? parseFloat(tcTest.value.toString()) : NaN;
-    const tg = tgTest?.value ? parseFloat(tgTest.value.toString()) : NaN;
-    const hdl = hdlTest?.value ? parseFloat(hdlTest.value.toString()) : NaN;
-    const tp = tpTest?.value ? parseFloat(tpTest.value.toString()) : NaN;
-    const sa = saTest?.value ? parseFloat(saTest.value.toString()) : NaN;
-
-    let isChanged = false;
-    const newTests = [...payload.test];
-
-    const updateCalculatedValue = (targetName: string, value: string | number) => {
-      const index = newTests.findIndex(t => normalize(t.name?.name) === normalize(targetName));
-      if (index !== -1) {
-        const currentVal = newTests[index].value?.toString();
-        const nextVal = value.toString();
-        if (currentVal !== nextVal) {
-          newTests[index] = { ...newTests[index], value: nextVal };
-          isChanged = true;
-        }
-      }
-    };
-
-    // Calculate VLDL = TRIGLYCERIDE / 5
-    if (!isNaN(tg)) {
-      updateCalculatedValue("vldl", (tg / 5).toFixed(2));
-    }
-
-    // Calculate LDL = TOTAL CHOLESTEROL - HDL - (TRIGLYCERIDE / 5)
-    if (!isNaN(tc) && !isNaN(hdl) && !isNaN(tg)) {
-      const vldl = tg / 5;
-      const ldl = tc - hdl - vldl;
-      updateCalculatedValue("ldl cholesterol", ldl.toFixed(2));
-    }
-
-    // Calculate Cholesterol / HDL Ratio = TOTAL CHOLESTEROL / HDL
-    if (!isNaN(tc) && !isNaN(hdl) && hdl !== 0) {
-      updateCalculatedValue("cholesterol / hdl ratio", (tc / hdl).toFixed(2));
-    }
-
-    // Calculate LDL / HDL Ratio = LDL / HDL
-    const ldlTest = findTest("ldl cholesterol");
-    const ldlVal = ldlTest?.value ? parseFloat(ldlTest.value.toString()) : NaN;
-    if (!isNaN(ldlVal) && !isNaN(hdl) && hdl !== 0) {
-      updateCalculatedValue("ldl / hdl ratio", (ldlVal / hdl).toFixed(2));
-    }
-
-    // Serum GLOBULIN = Total Proteins - Serum Albumin
-    if (!isNaN(tp) && !isNaN(sa)) {
-      const globulin = tp - sa;
-      updateCalculatedValue("serum globulin", globulin.toFixed(2));
-
-      // Albumin /Globulin(A/G) Ratio = Serum Albumin / Serum GLOBULIN
-      if (globulin !== 0) {
-        updateCalculatedValue("albumin /globulin(a/g) ratio", (sa / globulin).toFixed(2));
-      }
-    }
-
-    if (isChanged) {
-      setPayload(prev => ({ ...prev, test: newTests }));
-    }
-  }, [
-    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "totalcholesterol")?.value,
-    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "triglyceride")?.value,
-    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "hdlcholesterol")?.value,
-    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "totalproteins")?.value,
-    payload.test.find(t => (t.name?.name || "").replace(/\s+/g, "").toLowerCase() === "serumalbumin")?.value,
-  ]);
+  // Auto-calculation logic for Lipid Profile, LFT, Bilirubin, HbA1c, CBC, etc.
+  useLabCalculations(payload.test, (newTests) => {
+    setPayload((prev) => ({ ...prev, test: newTests }));
+  });
 
 
 
