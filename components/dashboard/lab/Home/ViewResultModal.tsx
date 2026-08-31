@@ -193,6 +193,22 @@ export default function ViewResultModal({ r }: Props) {
                                         }
 
                                         if (orderedIds.length > 0) {
+                                            // Reorder Sodium and Potassium if both exist in orderedIds
+                                            const sodiumIdIdx = orderedIds.findIndex(id => {
+                                                const t = panelTests.find((pt: any) => (pt.name?._id?.toString() || pt._id?.toString()) === id);
+                                                const name = (t?.name?.name || "").toUpperCase();
+                                                return name.includes("SODIUM") || name.includes("(NA+)");
+                                            });
+                                            const potassIdIdx = orderedIds.findIndex(id => {
+                                                const t = panelTests.find((pt: any) => (pt.name?._id?.toString() || pt._id?.toString()) === id);
+                                                const name = (t?.name?.name || "").toUpperCase();
+                                                return name.includes("POTASSIUM") || name.includes("POTASIUM") || name.includes("POTTASIUM") || name.includes("(K+)");
+                                            });
+                                            if (sodiumIdIdx !== -1 && potassIdIdx !== -1 && potassIdIdx < sodiumIdIdx) {
+                                                const [sId] = orderedIds.splice(sodiumIdIdx, 1);
+                                                orderedIds.splice(potassIdIdx, 0, sId);
+                                            }
+
                                             orderedIds.forEach(id => {
                                                 if (!testOrderMap.has(id.toString())) {
                                                     testOrderMap.set(id.toString(), orderIndex++);
@@ -207,13 +223,48 @@ export default function ViewResultModal({ r }: Props) {
                                         }
                                     });
 
+                                    const getTestSortWeight = (testName?: string): number => {
+                                        if (!testName) return 999;
+                                        const t = testName.toUpperCase();
+                                        if (t.includes("SUGAR") || t.includes("FBS") || t.includes("RBS") || t.includes("PPBS") || t.includes("FASTING") || t.includes("RANDOM") || t.includes("GLUCOSE")) return 1;
+                                        if (t.includes("UREA")) return 2;
+                                        if (t.includes("CREATININE")) return 3;
+                                        if (t.includes("URIC ACID")) return 4;
+                                        if (t.includes("SODIUM") || t.includes("(NA+)") || t.includes("(NA)")) return 10;
+                                        if (t.includes("POTASSIUM") || t.includes("POTASIUM") || t.includes("POTTASIUM") || t.includes("(K+)") || t.includes("(K)")) return 11;
+                                        if (t.includes("CHLORIDE") || t.includes("(CL-)") || t.includes("(CL)")) return 12;
+                                        if (t.includes("BICARBONATE") || t.includes("CO2") || t.includes("HCO3")) return 13;
+                                        if (t.includes("CALCIUM") || t.includes("(CA2+)") || t.includes("(CA)")) return 14;
+                                        return 999;
+                                    };
+
                                     const sortedTests = [...(r?.test || [])].sort((a: any, b: any) => {
                                         const aId = a.name?._id?.toString() || "";
                                         const bId = b.name?._id?.toString() || "";
                                         const aOrder = testOrderMap.has(aId) ? testOrderMap.get(aId)! : 999999;
                                         const bOrder = testOrderMap.has(bId) ? testOrderMap.get(bId)! : 999999;
-                                        return aOrder - bOrder;
+                                        if (aOrder !== bOrder) return aOrder - bOrder;
+
+                                        const wA = getTestSortWeight(a.name?.name);
+                                        const wB = getTestSortWeight(b.name?.name);
+                                        if (wA !== wB) return wA - wB;
+
+                                        return (a.name?.name || "").localeCompare(b.name?.name || "");
                                     });
+
+                                    // Final check: ensure Sodium is above Potassium
+                                    const sodIdx = sortedTests.findIndex((t: any) => {
+                                        const name = (t.name?.name || "").toUpperCase();
+                                        return name.includes("SODIUM") || name.includes("(NA+)");
+                                    });
+                                    const potIdx = sortedTests.findIndex((t: any) => {
+                                        const name = (t.name?.name || "").toUpperCase();
+                                        return name.includes("POTASSIUM") || name.includes("POTASIUM") || name.includes("POTTASIUM") || name.includes("(K+)");
+                                    });
+                                    if (sodIdx !== -1 && potIdx !== -1 && potIdx < sodIdx) {
+                                        const [sodItem] = sortedTests.splice(sodIdx, 1);
+                                        sortedTests.splice(potIdx, 0, sodItem);
+                                    }
 
                                     return sortedTests.map((test) => (
                                         <TableRow

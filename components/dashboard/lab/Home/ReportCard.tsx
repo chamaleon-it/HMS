@@ -214,6 +214,22 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         orderedIds = panelTests.map((t: any) => t.name?._id?.toString() || "");
                     }
 
+                    // Ensure Sodium is always placed above Potassium if both are present in the panel
+                    const pSodiumIdx = orderedIds.findIndex(id => {
+                        const t = testMap.get(id) || panelTests.find((pt: any) => (pt.name?._id?.toString() || pt._id?.toString()) === id);
+                        const name = (t?.name?.name || "").toUpperCase();
+                        return name.includes("SODIUM") || name.includes("(NA+)");
+                    });
+                    const pPotassiumIdx = orderedIds.findIndex(id => {
+                        const t = testMap.get(id) || panelTests.find((pt: any) => (pt.name?._id?.toString() || pt._id?.toString()) === id);
+                        const name = (t?.name?.name || "").toUpperCase();
+                        return name.includes("POTASSIUM") || name.includes("POTASIUM") || name.includes("POTTASIUM") || name.includes("(K+)");
+                    });
+                    if (pSodiumIdx !== -1 && pPotassiumIdx !== -1 && pPotassiumIdx < pSodiumIdx) {
+                        const [sodiumId] = orderedIds.splice(pSodiumIdx, 1);
+                        orderedIds.splice(pPotassiumIdx, 0, sodiumId);
+                    }
+
                     const testSubheadings = panelConfig?.testSubheadings || {};
                     let currentSubheadingState: string | null = null;
                     let pendingSubheading: string | null = null;
@@ -298,7 +314,15 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
 
                 const getSingleTestWeight = (testName: string) => {
                     const t = testName?.toUpperCase() || "";
-                    if (t.includes("SUGAR") || t.includes("FBS") || t.includes("RBS") || t.includes("PPBS") || t.includes("FASTING") || t.includes("RANDOM")) return 1;
+                    if (t.includes("SUGAR") || t.includes("FBS") || t.includes("RBS") || t.includes("PPBS") || t.includes("FASTING") || t.includes("RANDOM") || t.includes("GLUCOSE")) return 1;
+                    if (t.includes("UREA")) return 2;
+                    if (t.includes("CREATININE")) return 3;
+                    if (t.includes("URIC ACID")) return 4;
+                    if (t.includes("SODIUM") || t.includes("(NA+)") || t.includes("(NA)")) return 10;
+                    if (t.includes("POTASSIUM") || t.includes("POTASIUM") || t.includes("POTTASIUM") || t.includes("(K+)") || t.includes("(K)")) return 11;
+                    if (t.includes("CHLORIDE") || t.includes("(CL-)") || t.includes("(CL)")) return 12;
+                    if (t.includes("BICARBONATE") || t.includes("CO2") || t.includes("HCO3")) return 13;
+                    if (t.includes("CALCIUM") || t.includes("(CA2+)") || t.includes("(CA)")) return 14;
                     return 99;
                 };
 
@@ -320,6 +344,20 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         return (a.name?.name || "").localeCompare(b.name?.name || "");
                     });
 
+                    // Extra guarantee: Ensure Sodium is above Potassium within singles
+                    const sIdx = group.singles.findIndex((t: any) => {
+                        const name = (t.name?.name || "").toUpperCase();
+                        return name.includes("SODIUM") || name.includes("(NA+)");
+                    });
+                    const kIdx = group.singles.findIndex((t: any) => {
+                        const name = (t.name?.name || "").toUpperCase();
+                        return name.includes("POTASSIUM") || name.includes("POTASIUM") || name.includes("POTTASIUM") || name.includes("(K+)");
+                    });
+                    if (sIdx !== -1 && kIdx !== -1 && kIdx < sIdx) {
+                        const [sItem] = group.singles.splice(sIdx, 1);
+                        group.singles.splice(kIdx, 0, sItem);
+                    }
+
                     // Sort panels
                     group.panels.sort((aRows, bRows) => {
                         const aName = aRows[0]?.activePanel || "";
@@ -337,6 +375,28 @@ export default function ReportCard({ report, panels, panelPerPage = false }: Rep
                         panelRows.forEach(row => allRows.push(row));
                     });
                 });
+
+                // Final safety pass: Ensure Sodium is above Potassium in any adjacent or same section list
+                for (let i = 0; i < allRows.length; i++) {
+                    const rowA = allRows[i];
+                    if (rowA.type !== "TEST") continue;
+                    const nameA = (rowA.name?.name || rowA.name || "").toUpperCase();
+                    if (nameA.includes("POTASSIUM") || nameA.includes("POTASIUM") || nameA.includes("POTTASIUM") || nameA.includes("(K+)")) {
+                        for (let j = i + 1; j < allRows.length; j++) {
+                            const rowB = allRows[j];
+                            if (rowB.type === "PANEL" && rowB.activePanel !== rowA.activePanel) break;
+                            if (rowB.type === "TEST") {
+                                if (rowB.activePanel !== rowA.activePanel || rowB.department !== rowA.department) break;
+                                const nameB = (rowB.name?.name || rowB.name || "").toUpperCase();
+                                if (nameB.includes("SODIUM") || nameB.includes("(NA+)")) {
+                                    const [sodiumRow] = allRows.splice(j, 1);
+                                    allRows.splice(i, 0, sodiumRow);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
 
                 const getPageGroup = (row: any) => {
                     const activePanelStr = typeof row.activePanel === 'string' ? row.activePanel.toUpperCase() : "";
