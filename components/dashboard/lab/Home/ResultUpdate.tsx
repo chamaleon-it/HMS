@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   Dialog,
   DialogClose,
@@ -195,7 +195,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
     test: r.test
       .map((item) => ({
         _id: item._id,
-        value: item.value && item?.value?.toString(),
+        value: item.value !== undefined && item.value !== null ? item.value.toString() : "",
         name: item.name,
       })),
   });
@@ -208,10 +208,31 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
     r.testStartedAt ? new Date(r.testStartedAt) : (r.updatedAt ? new Date(r.updatedAt) : undefined)
   );
 
-  // Auto-calculation logic for Lipid Profile, LFT, Bilirubin, HbA1c, CBC, etc.
-  useLabCalculations(payload.test, (newTests) => {
+  useEffect(() => {
+    if (open) {
+      setPayload({
+        _id: r._id,
+        test: r.test.map((item) => ({
+          _id: item._id,
+          value: item.value !== undefined && item.value !== null ? item.value.toString() : "",
+          name: item.name,
+        })),
+      });
+      setCollectedDate(
+        r.sampleCollectedAt ? new Date(r.sampleCollectedAt) : (r.createdAt ? new Date(r.createdAt) : undefined)
+      );
+      setReportedDate(
+        r.testStartedAt ? new Date(r.testStartedAt) : (r.updatedAt ? new Date(r.updatedAt) : undefined)
+      );
+    }
+  }, [open, r]);
+
+  const handleUpdateTests = useCallback((newTests: any) => {
     setPayload((prev) => ({ ...prev, test: newTests }));
-  });
+  }, []);
+
+  // Auto-calculation logic for Lipid Profile, LFT, Bilirubin, HbA1c, CBC, etc.
+  useLabCalculations(payload.test, handleUpdateTests);
 
 
 
@@ -574,7 +595,7 @@ export default function ResultUpdate({ r, mutate, buttonText, handlePrint }: Pro
                                     value={
                                       payload.test.find(
                                         (item) => item._id === labTest._id
-                                      )?.value
+                                      )?.value ?? ""
                                     }
                                     onChange={(e) =>
                                       setPayload({
