@@ -37,21 +37,26 @@ type ItemsApi = { message: string; data: Item[] };
 type ItemApi = { message: string; data: Item };
 
 function extractActiveBatchDetails(item: Item) {
-  const batches = item.batches || [];
-  let activeBatch = batches.find(
+  const allBatches = item.batches || [];
+  // Filter only batches that have available units (> 0)
+  const availableBatches = allBatches.filter(
+    (b: any) => (Number(b.quantity) || 0) > 0
+  );
+
+  let activeBatch = availableBatches.find(
     (b: any) =>
       b._id === item.activeBatch ||
       (b._id && item.activeBatch && b._id.toString() === item.activeBatch.toString())
   );
-  if (!activeBatch && batches.length > 0) {
-    activeBatch = batches[0];
+  if (!activeBatch && availableBatches.length > 0) {
+    activeBatch = availableBatches[0];
   }
 
-  const batchNumber = activeBatch?.batchNumber || (item as any).batchNumber || "-";
+  const batchNumber = activeBatch?.batchNumber || "-";
   const selectedBatchId = activeBatch?._id ? String(activeBatch._id) : undefined;
   const packing = activeBatch?.pack ?? item.packing ?? 0;
-  const availableQuantity = activeBatch ? activeBatch.quantity : item.quantity;
-  const unitPrice = activeBatch?.unitPrice || item.unitPrice || 0;
+  const availableQuantity = activeBatch ? (Number(activeBatch.quantity) || 0) : 0;
+  const unitPrice = activeBatch?.mrp || activeBatch?.unitPrice || item.unitPrice || 0;
 
   return {
     batchNumber,
@@ -59,7 +64,7 @@ function extractActiveBatchDetails(item: Item) {
     packing,
     availableQuantity,
     unitPrice,
-    batches,
+    batches: availableBatches,
   };
 }
 

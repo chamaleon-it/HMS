@@ -51,8 +51,43 @@ function BatchSelector({
   updateField: (idx: number, key: keyof Medicine, val: any) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const batches = m.batches || [];
-  const activeBatchNum = m.batchNumber || (batches.length > 0 ? batches[0].batchNumber : "-");
+  // Only include batches with available units (> 0)
+  const batches = (m.batches || []).filter((b: any) => (Number(b.quantity) || 0) > 0);
+
+  const currentBatch = batches.find(
+    (b: any) =>
+      (m.selectedBatchId && String(b._id) === String(m.selectedBatchId)) ||
+      (m.batchNumber && b.batchNumber === m.batchNumber)
+  );
+
+  const activeBatchNum = currentBatch
+    ? currentBatch.batchNumber
+    : batches.length > 0
+    ? batches[0].batchNumber
+    : "-";
+
+  useEffect(() => {
+    if (
+      batches.length > 0 &&
+      (!currentBatch ||
+        (m.batchNumber && !batches.some((b: any) => b.batchNumber === m.batchNumber)))
+    ) {
+      const firstAvailable = batches[0];
+      updateField(i, "batchNumber", firstAvailable.batchNumber);
+      updateField(i, "selectedBatchId", firstAvailable._id);
+      updateField(i, "availableQuantity", Number(firstAvailable.quantity) || 0);
+      updateField(i, "packing", firstAvailable.pack ?? m.packing ?? 0);
+      const newPrice =
+        firstAvailable.mrp || firstAvailable.unitPrice || m.unitPrice || 0;
+      if (newPrice) {
+        updateField(i, "unitPrice", newPrice);
+      }
+    } else if (batches.length === 0 && m.batchNumber && m.batchNumber !== "-") {
+      updateField(i, "batchNumber", "-");
+      updateField(i, "selectedBatchId", "");
+      updateField(i, "availableQuantity", 0);
+    }
+  }, [batches, currentBatch, m.batchNumber, i, updateField, m.packing, m.unitPrice]);
 
   if (!batches || batches.length === 0) {
     return (
@@ -121,7 +156,7 @@ function BatchSelector({
           {batches.map((batch: any, bIdx: number) => {
             const isSelected =
               (m.selectedBatchId && (batch._id === m.selectedBatchId || batch._id?.toString() === m.selectedBatchId?.toString())) ||
-              batch.batchNumber === m.batchNumber;
+              batch.batchNumber === activeBatchNum;
 
             const expDateStr = batch.expiryDate
               ? new Date(batch.expiryDate).toLocaleDateString("en-IN", { month: "2-digit", year: "numeric" })
@@ -159,7 +194,7 @@ function BatchSelector({
 
                 <div className="text-right space-y-0.5">
                   <div className="font-bold text-slate-900">₹{price.toFixed(2)}</div>
-                  <div className={`text-[11px] font-semibold ${batch.quantity <= 0 ? "text-red-500" : "text-emerald-700"}`}>
+                  <div className="text-[11px] font-semibold text-emerald-700">
                     {batch.quantity} units
                   </div>
                 </div>
