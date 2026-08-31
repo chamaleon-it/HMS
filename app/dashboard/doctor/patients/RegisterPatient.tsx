@@ -85,7 +85,7 @@ export function RegisterPatient({
   });
 
   useEffect(() => {
-    if (patient) {
+    if (patient?._id) {
       reset({
         address: patient.address,
         allergies: patient.allergies,
@@ -111,8 +111,21 @@ export function RegisterPatient({
         uhid: patient.uhid,
         mrn: patient.mrn,
       });
+    } else {
+      if (patient?.name) {
+        setValue("name", patient.name);
+      }
+      if (patient?.phoneNumber) {
+        setValue("phoneNumber", patient.phoneNumber);
+      }
+      api.get("/counters/latest-pid").then(({ data }) => {
+        const pidToSet = data?.nextPid || data?.mrn;
+        if (pidToSet) {
+          setValue("mrn", pidToSet, { shouldValidate: true, shouldDirty: true });
+        }
+      }).catch(console.error);
     }
-  }, [patient, reset]);
+  }, [patient, reset, setValue]);
 
   const values = watch();
   const { conditions, dateOfBirth } = values;
@@ -290,6 +303,9 @@ export function RegisterPatient({
               placeholder="PID"
               {...register("mrn")}
               value={values.mrn ?? ""}
+              onChange={(e) => {
+                setValue("mrn", e.target.value, { shouldValidate: true, shouldDirty: true });
+              }}
             />
             {errors.mrn && (
               <p className="text-red-500 text-xs my-1">

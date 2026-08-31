@@ -104,7 +104,7 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
   };
 
   useEffect(() => {
-    if (patient) {
+    if (patient?._id) {
       reset({
         name: patient?.name || "",
         phoneNumber: patient?.phoneNumber || "",
@@ -113,10 +113,27 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
         dateOfBirth: patient?.dateOfBirth || "",
         age: patient?.age || "",
         address: patient?.address || "",
-        mrn: patient?.mrn || ""
+        mrn: patient?.mrn || "",
+        guardian: patient?.guardian || "",
+        guardianPhoneNumber: patient?.guardianPhoneNumber || "",
+        guardianRelation: patient?.guardianRelation || "",
+        allergies: patient?.allergies || "",
       });
+    } else {
+      if (patient?.name) {
+        setValue("name", patient.name);
+      }
+      if (patient?.phoneNumber) {
+        setValue("phoneNumber", patient.phoneNumber);
+      }
+      api.get("/counters/latest-pid").then(({ data }) => {
+        const pidToSet = data?.nextPid || data?.mrn;
+        if (pidToSet) {
+          setValue("mrn", pidToSet, { shouldValidate: true, shouldDirty: true });
+        }
+      }).catch(console.error);
     }
-  }, [patient]);
+  }, [patient, reset, setValue, user]);
 
   const createEditPatient = handleSubmit(
     async (data) => {
@@ -187,6 +204,9 @@ export function RegisterPatient({ onClose, patient, mutate }: { onClose: (id?: s
               {...register("mrn")}
               ref={mergeRefs(refs.mrn, register("mrn").ref)}
               value={values.mrn ?? ""}
+              onChange={(e) => {
+                setValue("mrn", e.target.value, { shouldValidate: true, shouldDirty: true });
+              }}
               onKeyDown={(e) => handleKeyDown(e, refs.phoneNumber)}
             />
             {errors.mrn && (
