@@ -9,6 +9,7 @@ import api from "@/lib/axios";
 import usePrint from "./usePrint";
 import PrintReceipt from "./PrintReceipt";
 import { useBillCalculations } from "./hooks/useBillCalculations";
+import { getOrderItemUnitPrice } from "../interface";
 
 // Sub-components
 import { BillHeader } from "./components/BillHeader";
@@ -271,14 +272,17 @@ export default function CreateBill({
           discount: number;
           gst: number;
           total: number;
-        }[] = data.data.items.map(item => ({
-          name: item.name.name,
-          quantity: item.quantity,
-          unitPrice: item.name.unitPrice,
-          discount: 0,
-          gst: 0,
-          total: item.quantity * item.name.unitPrice,
-        }));
+        }[] = data.data.items.map(item => {
+          const unitPrice = getOrderItemUnitPrice(item);
+          return {
+            name: item.name.name,
+            quantity: item.quantity,
+            unitPrice: unitPrice,
+            discount: 0,
+            gst: 0,
+            total: item.quantity * unitPrice,
+          };
+        });
 
         // 🔹 Remove duplicates by `name`
         const uniqueItems = Array.from(

@@ -32,6 +32,11 @@ export interface Item {
     food: string;
     duration: string;
     quantity: number;
+    batchNumber?: string;
+    batchId?: string;
+    unitPrice?: number;
+    return?: number;
+    reason?: string;
     isPacked: boolean
 }
 
@@ -48,12 +53,15 @@ export interface Name {
     supplier: string;
     manufacturer: string;
     unitPrice: number;
+    mrp?: number;
     purchasePrice: number;
     expiryDate: Date;
     status: string;
     createdAt?: Date;
     updatedAt?: Date;
     rackLocation?: string;
+    activeBatch?: string;
+    batches?: Batch[];
 }
 
 export interface Patient {
@@ -75,13 +83,6 @@ export interface Patient {
     updatedAt: Date;
 }
 
-
-
-
-
-
-
-
 export interface Batch {
     _id: string;
     batchNumber: string;
@@ -89,6 +90,7 @@ export interface Batch {
     pack?: number;
     noOfPack?: number;
     mrp?: number;
+    unitPrice?: number;
     expiryDate: string | Date;
     purchasePrice?: number;
     supplier?: string;
@@ -120,3 +122,51 @@ export interface DataType {
     pharmacist?: string;
     allergies?: string;
 }
+
+export function getOrderItemBatch(orderItem: any): Batch | null {
+    const item = orderItem?.name;
+    if (!item || typeof item !== "object") return null;
+    const batches = item.batches || [];
+    if (!batches.length) return null;
+
+    if (orderItem.batchId) {
+        const found = batches.find(
+            (b: any) => String(b._id) === String(orderItem.batchId)
+        );
+        if (found) return found;
+    }
+
+    if (orderItem.batchNumber && orderItem.batchNumber !== "-") {
+        const found = batches.find(
+            (b: any) => b.batchNumber === orderItem.batchNumber
+        );
+        if (found) return found;
+    }
+
+    if (item.activeBatch) {
+        const found = batches.find(
+            (b: any) => String(b._id) === String(item.activeBatch)
+        );
+        if (found) return found;
+    }
+
+    return (
+        batches.find((b: any) => (Number(b.quantity) || 0) > 0) || batches[0] || null
+    );
+}
+
+export function getOrderItemUnitPrice(orderItem: any): number {
+    if (orderItem?.unitPrice && typeof orderItem.unitPrice === "number" && orderItem.unitPrice > 0) {
+        return orderItem.unitPrice;
+    }
+    const item = orderItem?.name;
+    if (!item) return 0;
+    if (typeof item === "number") return item;
+
+    const batch = getOrderItemBatch(orderItem);
+    if (batch) {
+        return batch.unitPrice || batch.mrp || item.unitPrice || 0;
+    }
+    return item.unitPrice || item.mrp || 0;
+}
+

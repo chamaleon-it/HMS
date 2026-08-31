@@ -387,8 +387,8 @@ export default function UpdateBatch({ item, mutate }: Props) {
                     {/* Past Batches Table */}
                     <div>
                         <h3 className="font-semibold text-sm mb-3 text-gray-800">Past Batches</h3>
-                        <div className="border rounded-md overflow-x-auto">
-                            <Table>
+                        <div className="border rounded-md overflow-hidden">
+                            <Table className="whitespace-nowrap w-full min-w-[1100px]">
                                 <TableHeader>
                                     <TableRow className="bg-slate-700 hover:bg-slate-700">
                                         <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-3 pl-4">BATCH</TableHead>

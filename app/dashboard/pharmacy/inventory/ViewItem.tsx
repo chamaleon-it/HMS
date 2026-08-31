@@ -139,7 +139,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
 
 
   return (
-    <div className="w-full bg-white rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden text-sm border border-slate-100">
+    <div className="w-full max-w-full min-w-0 bg-white rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden text-sm border border-slate-100">
       {/* Header */}
       <div className="flex items-start justify-between border-b border-slate-100 p-5 bg-slate-50/50 flex-shrink-0">
         <div>
@@ -168,7 +168,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
       </div>
 
       {/* Scrollable Body */}
-      <div className="p-5 overflow-y-auto flex-1 space-y-4">
+      <div className="p-5 overflow-y-auto overflow-x-hidden flex-1 space-y-4 min-w-0 max-w-full">
 
       {/* Stock / Status - REPLACED BY NEW SALES CARDS SECTION BELOW, REMOVING OLD STOCK CARDS IF REDUNDANT, BUT USER ASKED FOR ALL UI IMPROVEMENT. LET'S KEEP STOCK BUT MODERNIZE IT OR MERGE WITH DETAILS. Let's make it a compact stat row below header */}
       <div className="grid grid-cols-2 gap-4">
@@ -413,7 +413,7 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
         )}
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-3 min-w-0 max-w-full">
         {activeTab === "Medicine History" && salesStats && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 shadow-sm">
@@ -454,26 +454,25 @@ export function ViewItem({ item, editItem, mutate, onClose }: { item: ItemType, 
           </div>
         )}
 
-        <div className="bg-white border rounded-2xl overflow-x-auto shadow-sm shadow-slate-200">
-
-          <Table>
+        <div className="bg-white border rounded-2xl overflow-hidden shadow-sm shadow-slate-200 w-full min-w-0 max-w-full">
+          <Table className={cn("whitespace-nowrap w-full", activeTab === "Batch History" ? "min-w-[1150px]" : "min-w-full")}>
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-700 border-b-0">
                 {activeTab === "Batch History" ? (
                   <>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-2 w-15">ACTIVE</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">BATCH</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">PACK</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">QTY</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">MRP</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Unit Price</TableHead>
-                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4">EXPIRY</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Rate</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">SCHEMA (FREE)</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pl-3 w-16">ACTIVE</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[120px]">BATCH</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[70px]">PACK</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[70px]">QTY</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[90px]">MRP</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[95px]">Unit Price</TableHead>
+                    <TableHead className="text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[110px]">EXPIRY</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[90px]">Rate</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[120px]">SCHEMA (FREE)</TableHead>
 
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4">Units</TableHead>
-                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4">TOTAL</TableHead>
-                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-3">ACTION</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 min-w-[80px]">Units</TableHead>
+                    <TableHead className="text-right text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-4 min-w-[100px]">TOTAL</TableHead>
+                    <TableHead className="text-center text-white font-bold text-[11px] uppercase tracking-wider py-4 pr-3 min-w-[80px]">ACTION</TableHead>
                   </>
                 ) : (
                   <>

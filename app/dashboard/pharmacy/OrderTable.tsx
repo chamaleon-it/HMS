@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import React, { useState } from "react";
-import { OrderType } from "./interface";
+import { OrderType, getOrderItemUnitPrice } from "./interface";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { fDateandTime } from "@/lib/fDateAndTime";
@@ -174,7 +174,7 @@ export default function OrderTable({
       }>(`/pharmacy/orders/single?${params}`);
 
       const items = data.data.items.map((e) => {
-        const unitPrice = e.name.unitPrice || 0;
+        const unitPrice = getOrderItemUnitPrice(e);
         const quantity = e.quantity || 0;
         // Since GST might not be in the order fetch, we fallback to defaultGst or 0
         const itemGst = defaultGst;

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 
 
-import { Item, OrderType } from "./interface";
+import { Item, OrderType, getOrderItemUnitPrice, getOrderItemBatch } from "./interface";
 import Medicine from "./Medicine";
 import { Button } from "@/components/ui/button";
 import { Trash, AlertTriangle } from "lucide-react";
@@ -87,7 +87,7 @@ export default function UpdatePrescriptionCard({
     }));
   };
 
-  const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * (b.name.unitPrice || 0), 0);
+  const subTotal = data.items.reduce((a, b) => a + (b.quantity || 0) * getOrderItemUnitPrice(b), 0);
 
   useEffect(() => {
     if (data.items.length > 0) {
@@ -163,7 +163,7 @@ export default function UpdatePrescriptionCard({
                   {m?.name?.rackLocation || "-"}
                 </td>
                 <td className="p-4 align-middle text-sm text-slate-600">
-                  {fDate(m.name.expiryDate)}
+                  {fDate(getOrderItemBatch(m)?.expiryDate || m.name.expiryDate)}
                 </td>
                 <td className="p-4 align-middle text-center font-medium text-slate-700">
                   {m.name.quantity}
@@ -172,10 +172,10 @@ export default function UpdatePrescriptionCard({
                   <QuantityInput i={i} m={m} updateField={updateField} status={data.status} />
                 </td>
                 <td className="p-4 align-middle text-right text-sm font-medium text-slate-600 whitespace-nowrap">
-                  {formatINR(m.name.unitPrice)}
+                  {formatINR(getOrderItemUnitPrice(m))}
                 </td>
                 <td className="p-4 align-middle text-right text-sm font-semibold text-slate-800 whitespace-nowrap">
-                  {formatINR((m.quantity || 0) * (m.name.unitPrice || 0))}
+                  {formatINR((m.quantity || 0) * getOrderItemUnitPrice(m))}
                 </td>
                 <td className="p-4 align-middle text-center">
                   <input

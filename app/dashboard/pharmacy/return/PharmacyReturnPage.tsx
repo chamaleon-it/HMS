@@ -14,6 +14,7 @@ import {
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import AppShell from "@/components/layout/app-shell";
 import { OrderType } from "./interface";
+import { getOrderItemUnitPrice } from "../interface";
 import Header from "./Header";
 import { formatINR } from "@/lib/fNumber";
 import Search from "./Search";
@@ -89,7 +90,7 @@ export default function PharmacyReturnPage() {
       }
 
       const { data }: { data: { data: OrderType } } = await api.get(`/pharmacy/orders/single?${params}`);
-      setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: it.unitPrice || it.name.unitPrice })) });
+      setOrder({ ...data.data, items: data.data.items.map((it) => ({ ...it, unitPrice: getOrderItemUnitPrice(it) })) });
       setState({ refundMode: "Cash", returnedBy: "Patient", remarks: "" });
     } catch (error: any) {
       if (error?.response?.data?.message === "Order not found.") {
@@ -166,8 +167,8 @@ export default function PharmacyReturnPage() {
         items: order?.items.map((it) => ({
           name: it.name._id,
           quantity: it.return || 0,
-          reason: it.reason,
-          unitPrice: it.unitPrice ?? it.name.unitPrice,
+          reason: it.reason || "",
+          unitPrice: it.unitPrice ?? getOrderItemUnitPrice(it),
         })),
         billNo: order?.billNo,
       };

@@ -146,10 +146,8 @@ export default function InventoryPage() {
           </div>
 
           <Dialog open={openView || openEdit || openAdd} onOpenChange={closeAll}>
-            <DialogContent className={openView ? "max-w-4xl! w-full p-0! border-none shadow-2xl bg-white overflow-hidden rounded-2xl" : "max-w-2xl! max-h-[90vh] overflow-y-auto p-0! gap-1"}>
-
-
-              <div className="">
+            <DialogContent className={openView ? "max-w-5xl! w-full p-0! border-none shadow-2xl bg-white overflow-hidden rounded-2xl min-w-0" : "max-w-2xl! max-h-[90vh] overflow-y-auto p-0! gap-1"}>
+              <div className="min-w-0 w-full overflow-hidden">
                 {openView && selectedItem && (
                   <ViewItem
                     item={selectedItem}

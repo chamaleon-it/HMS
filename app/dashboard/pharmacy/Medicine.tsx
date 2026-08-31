@@ -56,7 +56,7 @@ function extractActiveBatchDetails(item: Item) {
   const selectedBatchId = activeBatch?._id ? String(activeBatch._id) : undefined;
   const packing = activeBatch?.pack ?? item.packing ?? 0;
   const availableQuantity = activeBatch ? (Number(activeBatch.quantity) || 0) : 0;
-  const unitPrice = activeBatch?.mrp || activeBatch?.unitPrice || item.unitPrice || 0;
+  const unitPrice = activeBatch?.unitPrice || activeBatch?.mrp || item.unitPrice || 0;
 
   return {
     batchNumber,

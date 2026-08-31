@@ -23,7 +23,7 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { OrderType } from "./interface";
+import { OrderType, getOrderItemUnitPrice } from "./interface";
 import { fAge, fDateandTime } from "@/lib/fDateAndTime";
 import { formatINR } from "@/lib/fNumber";
 import toast from "react-hot-toast";
@@ -351,7 +351,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
 
         if (paymentMethod === "UPI" || paymentMethod === "Cash") {
             payload.paymentStatus = "Paid";
-            payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0;
+            payload.paidAmount = (updatePayload?.items.reduce((acc, it) => acc + (getOrderItemUnitPrice(it) * it.quantity), 0) - (updatePayload?.discount || 0)) || 0;
         } else {
             payload.paymentStatus = "Partial";
             payload.paidAmount = Number(amountPaid);
@@ -414,7 +414,7 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                 <div className="flex items-center text-slate-900">
                                     <IndianRupee className="w-5 h-5 stroke-[2.5] mr-0.5 text-slate-400" />
                                     <span className="text-xl font-extrabold leading-none tracking-tight">
-                                        {formatINR(Math.max(0, (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - (updatePayload?.discount || 0)) || 0)).replace("₹", "")}
+                                        {formatINR(Math.max(0, (updatePayload?.items.reduce((acc, it) => acc + (getOrderItemUnitPrice(it) * it.quantity), 0) - (updatePayload?.discount || 0)) || 0)).replace("₹", "")}
                                     </span>
                                 </div>
                             </div>
@@ -482,11 +482,11 @@ export default function ViewOrder({ open, setOpen, order, OrderMutate, autoGener
                                         <Label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Balance to Return (₹)</Label>
                                         <div className={cn(
                                             "h-11 flex items-center px-4 rounded-lg border-2 font-bold text-lg transition-colors",
-                                            (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)) >= 0
+                                            (Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (getOrderItemUnitPrice(it) * it.quantity), 0) - updatePayload?.discount || 0)) >= 0
                                                 ? "bg-emerald-50 border-emerald-100 text-emerald-700"
                                                 : "bg-rose-50 border-rose-100 text-rose-700"
                                         )}>
-                                            {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (it.name.unitPrice * it.quantity), 0) - updatePayload?.discount || 0)))}
+                                            {formatINR(Math.max(0, Number(amountPaid) - (updatePayload?.items.reduce((acc, it) => acc + (getOrderItemUnitPrice(it) * it.quantity), 0) - updatePayload?.discount || 0)))}
                                         </div>
                                     </div>
                                 </div>

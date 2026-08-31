@@ -97,8 +97,7 @@ export default function ItemTable({
   return (
     <div className="bg-white/90 border rounded-2xl overflow-hidden shadow-md shadow-slate-200">
       <div className="p-0 m-0">
-        <div className="overflow-x-auto w-full">
-          <Table className="whitespace-nowrap">
+        <Table className="whitespace-nowrap w-full min-w-[1250px]">
             <TableHeader className="bg-slate-700 hover:bg-slate-700">
               <TableRow className="bg-slate-700 hover:bg-slate-800 border-b-0">
 
@@ -301,7 +300,6 @@ export default function ItemTable({
           />
         </div>
       </div>
-    </div>
   );
 }
 
