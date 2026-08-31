@@ -63,8 +63,8 @@ function BatchSelector({
   const activeBatchNum = currentBatch
     ? currentBatch.batchNumber
     : batches.length > 0
-    ? batches[0].batchNumber
-    : "-";
+      ? batches[0].batchNumber
+      : "-";
 
   useEffect(() => {
     if (
@@ -78,7 +78,7 @@ function BatchSelector({
       updateField(i, "availableQuantity", Number(firstAvailable.quantity) || 0);
       updateField(i, "packing", firstAvailable.pack ?? m.packing ?? 0);
       const newPrice =
-        firstAvailable.mrp || firstAvailable.unitPrice || m.unitPrice || 0;
+        firstAvailable.unitPrice || firstAvailable.mrp || m.unitPrice || 0;
       if (newPrice) {
         updateField(i, "unitPrice", newPrice);
       }
@@ -105,7 +105,7 @@ function BatchSelector({
     updateField(i, "selectedBatchId", batch._id);
     updateField(i, "availableQuantity", batch.quantity);
     updateField(i, "packing", batch.pack ?? m.packing ?? 0);
-    const newPrice = batch.mrp || batch.unitPrice || m.unitPrice || 0;
+    const newPrice = batch.unitPrice || batch.mrp || m.unitPrice || 0;
     if (newPrice) {
       updateField(i, "unitPrice", newPrice);
     }
@@ -162,7 +162,7 @@ function BatchSelector({
               ? new Date(batch.expiryDate).toLocaleDateString("en-IN", { month: "2-digit", year: "numeric" })
               : "-";
 
-            const price = batch.mrp || batch.unitPrice || m.unitPrice || 0;
+            const price = batch.unitPrice || batch.mrp || m.unitPrice || 0;
 
             return (
               <div

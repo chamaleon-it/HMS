@@ -17,7 +17,6 @@ import { useRouter } from "next/navigation";
 import { Draft, useDrafts } from "./DraftContext";
 
 export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
-  const { user } = useAuth();
   const router = useRouter();
   const { updateDraft, removeDraft } = useDrafts();
   const [isLoading, setIsLoading] = useState(false);
@@ -36,7 +35,7 @@ export default function NewOrderWindowContent({ draft }: { draft: Draft }) {
   const setShowAllFields = (val: boolean) => updateDraft(draft.id, { showAllFields: val });
 
   const patientName = draft.patientName;
-  const setPatientName = (val: string) => updateDraft(draft.id, { patientName: val });
+
 
   const createOrder = async () => {
     try {
